@@ -140,3 +140,4 @@ files/log/*
 /files/log/*
 /files/media
 /files/secure_media
+/apps/articles/migrations/
