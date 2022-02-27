@@ -1,0 +1,30 @@
+{% load filters_tags %}
+<div id="messages_imports" class="ui grid" style="padding: 0;margin: 5px 0  -5px;display: none;">
+    <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
+        <div class="ui message">
+          <i class="close icon"></i>
+          <div id="import-header" class="header">
+          </div>
+            <div class="ui list" style="text-align: left;">
+                {% for line, dict_error in drf_errors %}
+                    {% for key, values in dict_error.items %}
+                        <div class="item">
+                            <div class="content">
+                              <div class="header"><i class="small genderless icon"></i>ligne : {{ line }}</div>
+                                {{ values|is_str }}
+                                {% if values|is_str %}
+                                    <div style="padding-top: 10px;text-align: left">{{ values }}</div>
+                                {% else %}
+                                    <h3 style="text-align: left">colonne {{ key }}</h3>
+                                    {% for value in values %}
+                                        <span style="padding-left: 30px;">{{ value }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

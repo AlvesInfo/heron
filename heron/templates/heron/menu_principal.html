@@ -1,0 +1,24 @@
+{% load static %}
+
+<br>
+<div class="ui grid" style="margin: -10px 0 0;">
+
+  <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
+    <div class="ui stackable container pointing menu" style="width: auto;">
+
+        <a href="/" class="ui item color-button a-menu"><i class="home icon"></i></a>
+        {% if chevron_retour %}
+          <a href="{{ chevron_retour }}" class="item color-button a-menu">
+            <i class="home chevron left icon"></i>
+          </a>
+        {% endif %}
+
+        <div class="right menu">
+            {% include "ogsp/menu_software.html" %}
+            {% include "ogsp/menu_parametrage.html" %}
+            {% include "ogsp/menu_utilisateurs.html" %}
+        </div>
+    </div>
+  </div>
+
+</div>

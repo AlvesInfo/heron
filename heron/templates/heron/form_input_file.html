@@ -1,0 +1,9 @@
+<form id="input-file"
+      action="{% url 'projets:import_incidents' projet_pk %}"
+      enctype="multipart/form-data"
+      method="post"
+      name="input-file"
+      style="padding: 0;margin: 0;">
+    {% csrf_token %}
+    {% include "imput_file.html" %}
+</form>

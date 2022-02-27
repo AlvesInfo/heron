@@ -1,0 +1,50 @@
+{% if messages %}
+    <div id="messages_messages" class="ui grid" style="padding: 0;margin: 5px 0 -5px;">
+        <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
+            <div class="ui {% if request.session.level < 30 %}success{% elif request.session.level == 30 %}violet{% else %}negative{% endif %} message">
+              <i class="close icon"></i>
+                {# TRAITEMENT SPECIFIQUE A L'IMPORT DE FICHIER POUR INSERTION #}
+                <div class="ui list" style="text-align: left;margin: 0;">
+                    {% for message in messages %}
+                        <div class="item">
+                            {% if message.extra_tags == "import_file_insert_errors"%}
+                                <div class="header" style="text-align: center;">Erreurs à l'import</div>
+                            {% endif %}
+
+                            <div class="content">
+                                {% if message.extra_tags == "import_file_insert_errors"%}
+                                    {% for dict_errors in error_list %}
+
+                                        {% for key, errors in dict_errors.items %}
+
+                                            {% if forloop.counter0 == 0 %}
+                                                <div class="header"><i class="small genderless icon"></i>{{ key }}</div>
+                                            {% endif %}
+
+                                            {% for dict_error in errors %}
+                                                {% for key, error in dict_error.items %}
+                                                    <div style="padding-left: 30px;padding-top: 5px;margin-bottom: 10px;">{{ key }} {% if key %} : {% endif %}{{ error }}</div>
+                                                {% endfor %}
+                                            {% endfor %}
+
+                                        {% endfor %}
+
+                                    {% endfor %}
+
+                                {% endif %}
+
+                                {% if message.extra_tags and message.extra_tags != "import_file_insert_errors" %}
+                                    <div class="header"><i class="small genderless icon"></i>{{ message.extra_tags }}</div>
+                                    <div style="padding-left: 30px;padding-top: 5px;">{{ message }}</div>
+                                {% elif message.extra_tags != "import_file_insert_errors" %}
+                                    <div class="header"><i class="small genderless icon"></i>{{ message }}</div>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

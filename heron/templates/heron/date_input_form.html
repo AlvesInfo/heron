@@ -1,0 +1,14 @@
+{% load filters_tags %}
+<label for="{{ widget.attrs.id }}">{{ widget.attrs.titre }}</label>
+<input type="date"
+       name="{{ widget.name }}"
+       value="{{ widget.value|date_from_str_4 }}"
+        {% for name, value in widget.attrs.items %}
+            {% if value is not False %}
+                {{ name }}
+                {% if value is not True %}
+                    ="{{ value|stringformat:'s' }}"
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+/>

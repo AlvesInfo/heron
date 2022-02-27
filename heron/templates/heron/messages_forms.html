@@ -1,0 +1,38 @@
+{% if form.errors %}
+    <div id="messages_forms" class="ui grid" style="padding: 0;margin: 5px 0  -5px;">
+        <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
+            <div class="ui negative message">
+              <i class="close icon"></i>
+              <div class="header">
+                Erreurs de validation
+              </div>
+                <div class="ui list" style="text-align: left;">
+                    {% if general_error %}
+                        <div class="item">
+                            <div class="content">
+                              <div class="header"><i class="small genderless icon"></i>Générale :</div>
+                                {% for error in general_error %}
+                                    <div style="margin-top: -10px;margin-bottom: -5px;">{{ error|escape }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="item">
+                                <div class="content">
+                                  <div class="header"><i class="small genderless icon"></i>{{ field.label_tag }}</div>
+                                        <div style="margin-top: -10px;margin-bottom: -5px;">
+                                            <ul class="errorlist">
+                                                <li>{{ error|escape }}</li>
+                                            </ul>
+                                        </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

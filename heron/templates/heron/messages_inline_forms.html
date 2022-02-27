@@ -1,0 +1,25 @@
+{% if inline_form.errors %}
+    <div class="ui grid" style="padding: 0 0 10px">
+        <div class="one wide column" style="padding: 0;"></div>
+        <div class="fourteen wide column" style="padding: 10px 14px 0;">
+            <div class="ui negative message">
+              <i class="close icon"></i>
+              <div class="header">
+                Erreurs de validation
+              </div>
+                <div class="ui list" style="text-align: left;">
+                    {% for field in inline_form %}
+                        {% for error in field.errors %}
+                            <div class="item">
+                                <div class="content">
+                                  <div class="header"><i class="small genderless icon"></i>{{ field.label }}</div>
+                                    <div style="padding-left: 30px;padding-top: 5px;">{{ error|escape }}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

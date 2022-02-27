@@ -1,0 +1,15 @@
+<div class="ui dropdown item color-button">
+  <i class="users icon"></i>Utilisateurs<i class="dropdown icon"></i>
+    <div class="menu">
+
+        <a href="{% url 'accounts:register' %}" class="ui item a-menu">Création</a>
+{#        <a href="{% url 'accounts:update_user_groupes' %}" class="ui item a-menu">Groupes</a>#}
+
+      {% if request.user.is_superuser %}
+{#        <a href="{% url 'accounts:modification_paswword' %}" class="ui item a-menu">Password</a>#}
+{#        <a href="{% url 'accounts:groups_access_staff' %}" class="ui item">Groupes délégués</a>#}
+{#        <a href="{% url 'accounts:staff_insertions' %}" class="ui item">Admins délégués</a>#}
+          <a href="{% url 'accounts:users_insertions' %}" class="ui item">Insertion Users</a>
+      {% endif %}
+    </div>
+</div>

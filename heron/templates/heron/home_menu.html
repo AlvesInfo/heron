@@ -1,0 +1,71 @@
+{% extends "ogsp/base_semantic.html" %}
+
+{% load static %}
+
+{% block head_js %}
+    <script>
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+<div class="ui celled grid">
+  <div class="two wide column">
+    <a class="item">
+      Item 1
+    </a>
+    <a class="item">
+      Item 2
+    </a>
+    <a class="item">
+      Item 3
+    </a>
+  </div>
+  <div class="two wide column">
+
+  </div>
+  <div class="eleven wide column">
+    <div class="ui segment">
+      <div class="ui left rail">
+<div class="ui middle aligned selection list">
+  <div class="item">
+    <img class="ui avatar image" src="/images/avatar/small/helen.jpg">
+    <div class="content">
+      <div class="header">Helen</div>
+    </div>
+  </div>
+  <div class="item">
+    <img class="ui avatar image" src="/images/avatar/small/christian.jpg">
+    <div class="content">
+      <div class="header">Christian</div>
+    </div>
+  </div>
+  <div class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="header">Daniel</div>
+    </div>
+  </div>
+</div>
+      </div>
+
+      <p></p>
+      <p></p>
+    </div>
+  </div>
+</div>
+
+
+{% endblock content %}
+
+{% block script %}
+    <script type="text/javascript">
+
+        $('.ui.sidebar').sidebar('show');
+
+        $(document).ready(function(){
+
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,178 @@
+AFGHANISTAN;AF;;Afghani afghan ;AFN;;false;999
+AFRIQUE DU SUD;ZA;R;Rand sud-africain ;ZAR;;false;999
+ALBANIE;AL;Lek;Lek albanais ;ALL;;false;999
+ALGERIE;DZ;DA;Dinar algErien ;DZD;;false;999
+ALLEMAGNE;DE;€;Euro;EUR; ;true;999
+ANGLETERRE;GB;£;LIVRE STERLING;GBP; ;false;5
+ANGOLA;AO;Kz;Kwanza angolais ;AOA;;false;999
+ANTILLES NEERLANDAISES;AN;NA;Florin des Antilles nEerlandaises ;ANG;;false;999
+ARABIE SAOUDITE;SA;SR;Riyal saoudien ;SAR;;false;999
+ARGENTINE;AR;$;Peso argentin ;ARS;;false;999
+ARMENIE;AM;;Dram armEnien ;AMD;;false;999
+ARUBA;AW;;Florin arubais ;AWG;;false;999
+AUSTRALIE;AU;$;Dollar australien ;AUD;;false;999
+AUTRICHE;AU;€;Euro;EUR; ;true;999
+AZERBAIDJAN;AZ;;Manat azerbaIdjanais ;AZN;;false;999
+BAHAMAS;BS;$;Dollar bahamEen ;BSD;;false;999
+BAHREIN;BH;BD;Dinar bahreIni ;BHD;;false;999
+BANGLADESH;BD;;Taka bangladais ;BDT;;false;999
+BARBADE;BB;$;Dollar barbadien ;BBD;;false;999
+BELGIQUE;BE;€;Euro;EUR; ;true;3
+BELIZE;BZ;BZ$;Dollar bElizien ;BZD;;false;999
+BERMUDES;BM;$;Dollar bermudien ;BMD;;false;999
+BHOUTAN;BT;Nu.;Ngultrum bhoutanais ;BTN;;false;999
+BIELORUSSIE;BY;p.;Rouble biElorusse ;BYR;;false;999
+BIRMANIE;MM;K;Kyat ;MMK;;false;999
+BOLIVIE;BO;;MVDOL bolivien ;BOV;;false;999
+BOSNIE HERZEGOVINE;BA;KM;Mark convertible de Bosnie-HerzEgov;BAM;;false;999
+BOTSWANA;BW;P;Pula botswanais ;BWP;;false;999
+BRESIL;BR;R$;REal bresilien ;BRL;;false;999
+BRUNEI;BN;B$;Dollar de Brunei ;BND;;false;999
+BULGARIE;BG;;Lev bulgare ;BGN;;false;999
+BURUNDI;BI;FBu;Franc burundais ;BIF;;false;999
+CAMBODGE;KH;;Riel cambodgien ;KHR;;false;999
+CANADA;CA;$;Dollar canadien ;CAD;;false;6
+CAP VERT;CV;;Escudo cap-verdien ;CVE;;false;999
+CHILI;CL;UF;Unidad de fomento chilienne ;CLF;;false;999
+CHINE;CN;;Yuan renminbi chinois ;CNY;;false;999
+CHYPRE;CY;€;Euro;EUR; ;true;999
+COLOMBIE;CO;$;Peso colombien ;COP;;false;999
+COMORES;KM;CF;Franc comorien ;KMF;;false;999
+COREE DU NORD;KP;;Won nord-corEen ;KPW;;false;999
+COREE DU SUD;KR;;Won sud-corEen ;KRW;;false;999
+COSTA RICA;CR;¢;Colón costaricien ;CRC;;false;999
+COTE D'IVOIRE;CI; ;Franc CFA;XOF; ;false;999
+CROATIE;HR;kn;Kuna croate ;HRK;;false;999
+CUBA;CU;$MN;Peso cubain ;CUP;;false;999
+DANEMARK;DK;kr.;Couronne danoise ;DKK;;false;999
+DJIBOUTI;DJ;Fdj;Franc Djibouti ;DJF;;false;999
+EGYPTE;EG;E£;Livre Egyptienne ;EGP;;false;999
+EMIRATS ARABES UNIS;AE;DH;Dirham des Emirats arabes unis ;AED;;false;999
+ERYTHREE;ER;Nfk;Nakfa ErythrEen ;ERN;;false;999
+ESPAGNE;ES;€;Euro;EUR;;true;999
+ESTONIE;EE;€;Euro;EUR;;true;999
+ETATS UNIS;US;$;Dollar amEricain ;USD;1;false;999
+ETATS-UNIS;US; ;DOLLAR;USD; ;false;999
+ETHIOPIE;ET;Br;Birr Ethiopien ;ETB;;false;999
+FIDJI;FJ;FJ$;Dollar de Fidji ;FJD;;false;999
+FINLANDE;FI;€;Euro;EUR;;true;999
+FRANCE;FR;€;Euro;EUR;;true;1
+GAMBIE;GM;D;Dalasi gambien ;GMD;;false;999
+GEORGIE;GE;;Lari gEorgien ;GEL;;false;999
+GHANA;GH;;Cedi ghanEen ;GHS;;false;999
+GIBRALTAR;GI;£;Livre de Gibraltar ;GIP;;false;999
+GRECE;GR;€;Euro;EUR;;true;999
+GUATEMALA;GT;Q;Quetzal guatEmaltEque ;GTQ;;false;999
+GUERNSEY;GG;£;Livre ;GGP;;false;999
+GUINEE;GN;FG;Franc guinEen ;GNF;;false;999
+GUYANA;GY;GY$;Dollar du Guyana ;GYD;;false;999
+HAITI;HT;G;Gourde haItienne ;HTG;;false;999
+HONDURAS;HN;L;Lempira hondurien ;HNL;;false;999
+HONG KONG;HK;HK$;Dollar de Hong Kong ;HKD;;false;999
+HONGRIE;HU;Ft;Forint hongrois ;HUF;;false;999
+ILE DE MAN;IM;M£;Livre mannoise ;IMP;;false;999
+ILES CAIMANS;KY;CI$;Dollar des Iles CaImans ;KYD;;false;999
+ILES MALOUINES;FK;FK;Livre des Iles Malouines ;FKP;;false;999
+ILES SALOMON;SB;SI$;Dollar des Salomon ;SBD;;false;999
+INDE;IN;;Roupie indienne ;INR;;false;999
+INDONESIE;ID;Rp;Roupie indonEsienne ;IDR;;false;999
+IRAK;IQ;ID;Dinar irakien ;IQD;;false;999
+IRAN;IR;Rl.;Rial iranien ;IRR;;false;999
+IRLANDE;IE;€;Euro;EUR;;true;999
+ISLANDE;IS;kr;Couronne islandaise ;ISK;;false;999
+ISRAEL;IL;;Nouveau shekel israElien ;ILS;;false;999
+ITALIE;IT;€;Euro;EUR; ;true;4
+JAMAIQUE;JM;$;Dollar jamaIcain ;JMD;;false;999
+JAPON;JP;¥;Yen japonais ;JPY;;false;999
+JERSEY;JE;£;Livre de Jersey ;JEP;;false;999
+JORDANIE;JO;JD;Dinar jordanien ;JOD;;false;999
+KAZAKHSTAN;KZ;;Tenge kazakh ;KZT;;false;999
+KENYA;KE;KSh;Shilling kEnyan ;KES;;false;999
+KIRGHIZISTAN;KG;K.S;Som kirghiz ;KGS;;false;999
+KOWEIT;KW;K.D;Dinar koweItien ;KWD;;false;999
+LAOS;LA;;Kip laotien ;LAK;;false;999
+LESOTHO;LS;L;Loti lesothan ;LSL;;false;999
+LETTONIE;LV;€;Euro;EUR;;true;999
+LIBAN;LB;L£;Livre libanaise ;LBP;;false;999
+LIBERIA;LR;L$;Dollar libErien ;LRD;;false;999
+LIBYE;LY;LD;Dinar libyen ;LYD;;false;999
+LITUANIE;LT;€;Euro;EUR;;true;999
+LUXEMBOURG;LU;€;Euro;EUR;;true;3
+MACEDOINE;MK;;Denar macEdonien ;MKD;;false;999
+MADAGASCAR;MG;Ar;Ariary malgache ;MGA;;false;999
+MALAISIE;MY;RM;Ringgit malaisien ;MYR;;false;999
+MALAWI;MW;MK;Kwacha malawien ;MWK;;false;999
+MALDIVES;MV;Rf;Rufiyaa maldivienne ;MVR;;false;999
+MALTE;MT;€;Euro;EUR;;true;999
+MAROC;MA;Dh;Dirham marocain ;MAD;;false;999
+MAURICE;MU;Rs;Roupie mauricienne ;MUR;;false;999
+MAURITANIE;MR;UM;Ouguiya mauritanien ;MRO;;false;999
+MEMBRES DE LA ZONE EURO;N/A;€;Euro ;EUR;;false;999
+MEXIQUE;MX;Mx$;Peso mexicain ;MXN;;false;999
+MOLDAVIE;MD;MDL;Leu moldave ;MDL;;false;999
+MONGOLIE;MN;;Tugrik mongol ;MNT;;false;999
+MOZAMBIQUE;MZ;MT;Metical mozambicain ;MZN;;false;999
+NAMIBIE;NA;N$;Dollar namibien ;NAD;;false;999
+NEPAL;NP;Rps;Roupie nEpalaise ;NPR;;false;999
+NICARAGUA;NI;C$;Cordoba d'or nicaraguayen ;NIO;;false;999
+NIGERIA;NG;;Naira nigErien ;NGN;;false;999
+NORVEGE;NO;kr;Couronne norvEgienne ;NOK;;false;999
+NOUVELLE ZELANDE;NZ;$;Dollar nEo-zElandais ;NZD;;false;999
+OMAN;OM;RO;Rial omanais ;OMR;;false;999
+OUGANDA;UG;USh;Shilling ougandais ;UGX;;false;999
+OUZBEKISTAN;UZ;U.S;Sum ouzbek ;UZS;;false;999
+PAKISTAN;PK;Re.;Roupie pakistanaise ;PKR;;false;999
+PANAMA;PA;B/.;Balboa panamEen ;PAB;;false;999
+PAPOUASIE NOUVELLE GUINEE;PG;K;Kina papou-nEo-guinEen ;PGK;;false;999
+PARAGUAY;PY;;Guaraní paraguayen ;PYG;;false;999
+PAYS-BAS;NL;€;Euro;EUR; ;true;999
+PEROU;PE;S/.;Sol pEruvien ;PEN;;false;999
+PHILIPPINES;PH;;Peso philippin ;PHP;;false;999
+POLOGNE;PL;zl;Zloty polonais ;PLN;;false;999
+PORTUGAL;PT;€;Euro;EUR;;true;999
+QATAR;QA;QR;Riyal qatarien ;QAR;;false;999
+REPUBLIQUE DEMOCRATIQUE DU CONGO;CD;FC;Franc congolais ;CDF;;false;999
+REPUBLIQUE DOMINICAINE;DO;RD$;Peso dominicain ;DOP;;false;999
+REPUBLIQUE TCHEQUE;CZ; ;COURONNE TCHEQUE;CZK; ;false;999
+ROUMANIE;RO;RON;Leu roumain ;RON;;false;999
+ROYAUME UNI;GB;£;Livre sterling ;GBP;;false;999
+RUSSIE;RU;;Rouble russe ;RUB;;false;999
+RWANDA;RW;FRw;Franc rwandais ;RWF;;false;999
+SAINTE HELENE;SH;£;Livre de Sainte-HElEne ;SHP;;false;999
+SALVADOR;SV;¢;Colon salvadorien ;SVC;;false;999
+SAMOA;WS;WS$;Tala samoan ;WST;;false;999
+SAO TOME ET PRINCIPE;ST;Db;Dobra santomEen ;STD;;false;999
+SEBORGA;N/A;;Luigino de Seborga ;SPL;;false;999
+SERBIE;RS;d;Dinar serbe ;RSD;;false;999
+SEYCHELLES;SC;SR;Roupie seychelloise ;SCR;;false;999
+SIERRA LEONE;SL;Le;Leone sierra-lEonais ;SLL;;false;999
+SINGAPOUR;SG;S$;Dollar de Singapour ;SGD;;false;999
+SLOVAQUIE;SK;€;Euro;EUR;;true;999
+SLOVENIE;SI;€;Euro;EUR;;true;999
+SOMALIE;SO;Sh;Shilling somalien ;SOS;;false;999
+SOUDAN;SD;;Livre soudanaise ;SDG;;false;999
+SOUDAN DU SUD;SS;SSP;Livre sud-soudanaise ;SSP;;false;999
+SRI LANKA;LK;Rs;Roupie srilankaise ;LKR;;false;999
+SUEDE;SE;kr;Couronne suEdoise ;SEK;;false;999
+SUISSE;CH;SFr;Franc suisse ;CHF;;false;2
+SURINAM;SR;$;Dollar du Suriname ;SRD;;false;999
+SWAZILAND;SZ;L;Lilangeni swazilandais ;SZL;;false;999
+SYRIE;SY;£S;Livre syrienne ;SYP;;false;999
+TADJIKISTAN;TJ;;Somoni tadjik ;TJS;;false;999
+TAIWAN;TW;NT$;Nouveau dollar de TaIwan ;TWD;;false;999
+TANZANIE;TZ;TSh;Shilling tanzanien ;TZS;;false;999
+TCHEQUIE;CZ;Kc;Couronne tchEque ;CZK;;false;999
+THAILANDE;TH;;Baht thaIlandais ;THB;;false;999
+TONGA;TO;T$;Pa'anga des Tonga ;TOP;;false;999
+TRINITE ET TOBAGO;TT;TT$;Dollar de TrinitE-et-Tobago ;TTD;;false;999
+TUNISIE;TN;DT;Dinar tunisien ;TND;;false;999
+TURKMENISTAN;TM;T;Nouveau manat turkmEne ;TMT;;false;999
+TURQUIE;TR;;Lire turque ;TRY;;false;999
+TUVALU;TV;TV$;Dollar tuvaluan ;TVD;;false;999
+UKRAINE;UA;;Hryvnia ukrainienne ;UAH;;false;999
+URUGUAY;UY;$U;Peso uruguayen ;UYU;;false;999
+VANUATU;VU;VT;Vatu du Vanuatu ;VUV;;false;999
+VENEZUELA;VE;Bs.;Bolivar fuerte vEnEzuElien ;VEF;;false;999
+VIETNAM;VN;;Dong vietnamien ;VND;;false;999
+YEMEN;YE;Rl;Riyal yEmEnite ;YER;;false;999
+ZAMBIE;ZM;K;Kwacha zambien ;ZMW;;false;999
