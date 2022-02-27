@@ -1,0 +1,24 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>projet ogsp - {{ projet_name }}</title>
+        <link rel="icon"
+              type="image/png"
+              href="{% static 'favicon.ico' %}"/>
+        <!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}" /><![endif]-->
+        <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.css' %}">
+    </head>
+    <body>
+        <h3 class="ui top attached header">
+            {{ titre_modal|default_if_none:""|safe }}
+        </h3>
+        <div class="ui attached segment">
+            {% if html_modal != "None" %}
+                {{ html_modal|default_if_none:""|safe }}
+            {% endif %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,52 @@
+{% extends "ogsp/base_semantic.html" %}
+
+{% load static %}
+
+{% block logo %}
+    {% include "ogsp/logo_entete.html" %}
+{% endblock logo %}
+
+  <br>
+  <div class="ui stackable sixteen column grid" style="text-align: center;">
+
+    <div class="two wide column menubas">
+    </div>
+
+    <div class="twelve wide column menubas">
+      <div class="ui stackable container pointing menu">
+        <a href="/" class="item color-button" style="color: #f39912;"><i class="home icon"></i></a>
+        <div class="right menu">
+        </div>
+      </div>
+    </div>
+
+    <div class="two wide column"></div>
+
+  </div>
+
+{% block content %}
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="ui equal width grid">
+
+        <div class="column"></div>
+
+        <div class="column">
+            <div class="mb-4 text-center">
+                <a href="{% url 'accounts:login' %}" class="btn btn-danger btn-lg" role="button">Compte verrouillé</a>
+            </div>
+            <h4 class="text-center">
+            Nombre trop important de tentatives de connexion échouées
+            </h4>
+            <h5 class="mb-4 text-center">
+                Veuillez consulter votre boîte mail afin de procéder au déverrouillage de votre compte
+            </h5>
+        </div>
+
+        <div class="column"></div>
+
+    </div>
+
+{% endblock content %}
