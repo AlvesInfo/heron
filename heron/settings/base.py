@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import sys
 from pathlib import Path
-from unipath import Path as UniPath
 
 from decouple import Csv, AutoConfig
 from django.utils.translation import gettext_lazy as _
@@ -43,6 +42,18 @@ EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
 
 EMAIL_DEV = config("EMAIL_HOST_USER", default="admin@asipsante.fr")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="admin@asipsante.fr")
+
+NAME_DATABASE = config("NAME_DATABASE")
+USER_DATABASE = config("USER_DATABASE")
+PASSWORD_DATABASE = config("PASSWORD_DATABASE")
+HOST_DATABASE = config("HOST_DATABASE")
+PORT_DATABASE = config("PORT_DATABASE")
+
+NAME_DATABASE_BI = config("NAME_DATABASE_BI")
+USER_DATABASE_BI = config("USER_DATABASE_BI")
+PASSWORD_DATABASE_BI = config("PASSWORD_DATABASE_BI")
+HOST_DATABASE_BI = config("HOST_DATABASE_BI")
+PORT_DATABASE_BI = config("PORT_DATABASE_BI")
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -91,7 +102,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "heron.middlewares.redirect_middleware.auth_redirect",
 ]
 
 ROOT_URLCONF = "heron.urls"
@@ -102,6 +112,7 @@ TEMPLATES = [
         "DIRS": [
             os.path.realpath(os.path.join(ROOT_DIR, "templates")),
             os.path.realpath(os.path.join(CORE_DIR, "templates")),
+            os.path.realpath(os.path.join(APPS_DIR, "templates")),
             os.path.realpath(os.path.join(BASE_DIR, "heron/templates/heron")),
         ],
         "APP_DIRS": True,
@@ -126,16 +137,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "heron.wsgi.application"
 
-MYSQL_FILE_CONF = Path(str(UniPath(__file__).ancestor(2))) / ".ignore/mysql.conf"
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "OPTIONS": {
-            "read_default_file": str(MYSQL_FILE_CONF),
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": NAME_DATABASE,
+        "USER": USER_DATABASE,
+        "PASSWORD": PASSWORD_DATABASE,
+        "HOST": HOST_DATABASE,
+        "PORT": PORT_DATABASE,
+        "client_encoding": "UTF8",
+    },
+    "bi_bdd": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": NAME_DATABASE_BI,
+        "USER": USER_DATABASE_BI,
+        "PASSWORD": PASSWORD_DATABASE_BI,
+        "HOST": HOST_DATABASE_BI,
+        "PORT": PORT_DATABASE_BI,
+        "client_encoding": "UTF8",
+    },
 }
 
 # Password validation
@@ -143,19 +163,25 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {"min_length": 12},
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 AUTH_USER_MODEL = "users.User"
 
 # GESTION DES SESSION
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_COOKIE_AGE = 600
-# SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 600
+SESSION_SAVE_EVERY_REQUEST = True
 
 SITE_ID = 1
 
