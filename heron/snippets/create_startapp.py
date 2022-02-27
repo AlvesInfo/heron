@@ -26,6 +26,9 @@ apps = [
 for app in apps:
     app_dir = path_dir / app
     Path.mkdir(app_dir, exist_ok=True)
+    # Répertoires des migrations
+    Path.mkdir(app_dir / "migrations", exist_ok=True)
+    Path(app_dir / "migrations" / "__init__.py").touch()
     # Répertoires de templates
     Path.mkdir(app_dir / "templates", exist_ok=True)
     Path(app_dir / "templates" / "__init__.py").touch()
