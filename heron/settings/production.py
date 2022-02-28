@@ -116,12 +116,12 @@ LOGGING = {
             "formatter": "verbose",
         },
         # Send in connexion-file
-        "connexion-file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": f"{heron_DIR_LOG}/connect.log",
-            "formatter": "simple",
-        },
+        # "connexion-file": {
+        #     "level": "INFO",
+        #     "class": "logging.FileHandler",
+        #     "filename": f"{heron_DIR_LOG}/connect.log",
+        #     "formatter": "simple",
+        # },
     },
     "loggers": {
         # all messages
@@ -129,11 +129,11 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        "connexion": {
-            "handlers": ["connexion-file"],
-            "level": "INFO",
-            "propagate": True,
-        },
+        # "connexion": {
+        #     "handlers": ["connexion-file"],
+        #     "level": "INFO",
+        #     "propagate": True,
+        # },
         "mozilla_django_oidc": {"handlers": ["logger_oidc"], "level": "DEBUG"},
         "timer_heron": {"handlers": ["timer_heron"], "level": "DEBUG"},
         "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": False},
@@ -158,7 +158,7 @@ LOGOUT_REDIRECT_URL = "accounts/logout/"
 # DJANGO-CLAMD configuration
 # https://pypi.org/project/django-clamd/
 CLAMD_ENABLED = True
-CLAMD_SOCKET = "/var/run/clamd.scan/clamd.sock"
+CLAMD_SOCKET = "/var/run/clamd/clamd.ctl"
 CLAMD_USE_TCP = False
 CLAMD_TCP_SOCKET = 3310
 CLAMD_TCP_ADDR = "127.0.0.1"
