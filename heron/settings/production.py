@@ -55,78 +55,78 @@ AXES_ONLY_USER_FAILURES = True
 AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
 AXES_USERNAME_FORM_FIELD = "email"
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": (
-                "[heron] : "
-                "[%(asctime)s] %(levelname)s : %(message)s : "
-                "%(filename)s : "
-                "%(funcName)s : "
-                "[ligne : %(lineno)s] : "
-                "%(process)d : "
-                "%(thread)d"
-            ),
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-        "simple": {
-            "format": "[heron] : [%(asctime)s] %(levelname)s : %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-    },
-    "handlers": {
-        # Send in console
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-        # Send in production_logfile
-        "production_logfile": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": f"{heron_DIR_LOG}/django.log",
-            "formatter": "verbose",
-        },
-        # Send in timer_heron
-        "timer_heron": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": f"{heron_DIR_LOG}/timer_heron.log",
-            "formatter": "verbose",
-        },
-        # Send in import_logfile
-        "import_logfile": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": f"{heron_DIR_LOG}/import_logfile.log",
-            "formatter": "verbose",
-        },
-        # Send in connexion-file
-        "connexion-file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": f"{heron_DIR_LOG}/connect.log",
-            "formatter": "simple",
-        },
-    },
-    "loggers": {
-        # all messages
-        # 5xx ERRROR and 4xx WARNING
-        "": {"handlers": ["console"], "propagate": True},
-        "django": {"handlers": ["production_logfile"], "propagate": True},
-        "production": {"handlers": ["production_logfile"], "propagate": True},
-        "connexion": {
-            "handlers": ["connexion-file"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "timer_heron": {"handlers": ["timer_heron"], "level": "DEBUG"},
-        "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": False},
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "verbose": {
+#             "format": (
+#                 "[heron] : "
+#                 "[%(asctime)s] %(levelname)s : %(message)s : "
+#                 "%(filename)s : "
+#                 "%(funcName)s : "
+#                 "[ligne : %(lineno)s] : "
+#                 "%(process)d : "
+#                 "%(thread)d"
+#             ),
+#             "datefmt": "%Y-%m-%d %H:%M:%S",
+#         },
+#         "simple": {
+#             "format": "[heron] : [%(asctime)s] %(levelname)s : %(message)s",
+#             "datefmt": "%Y-%m-%d %H:%M:%S",
+#         },
+#     },
+#     "handlers": {
+#         # Send in console
+#         "console": {
+#             "level": "INFO",
+#             "class": "logging.StreamHandler",
+#             "formatter": "simple",
+#         },
+#         # Send in production_logfile
+#         "production_logfile": {
+#             "level": "WARNING",
+#             "class": "logging.FileHandler",
+#             "filename": f"{heron_DIR_LOG}/django.log",
+#             "formatter": "verbose",
+#         },
+#         # Send in timer_heron
+#         "timer_heron": {
+#             "level": "DEBUG",
+#             "class": "logging.FileHandler",
+#             "filename": f"{heron_DIR_LOG}/timer_heron.log",
+#             "formatter": "verbose",
+#         },
+#         # Send in import_logfile
+#         "import_logfile": {
+#             "level": "WARNING",
+#             "class": "logging.FileHandler",
+#             "filename": f"{heron_DIR_LOG}/import_logfile.log",
+#             "formatter": "verbose",
+#         },
+#         # Send in connexion-file
+#         "connexion-file": {
+#             "level": "INFO",
+#             "class": "logging.FileHandler",
+#             "filename": f"{heron_DIR_LOG}/connect.log",
+#             "formatter": "simple",
+#         },
+#     },
+#     "loggers": {
+#         # all messages
+#         # 5xx ERRROR and 4xx WARNING
+#         "": {"handlers": ["console"], "propagate": True},
+#         "django": {"handlers": ["production_logfile"], "propagate": True},
+#         "production": {"handlers": ["production_logfile"], "propagate": True},
+#         "connexion": {
+#             "handlers": ["connexion-file"],
+#             "level": "INFO",
+#             "propagate": True,
+#         },
+#         "timer_heron": {"handlers": ["timer_heron"], "level": "DEBUG"},
+#         "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": False},
+#     },
+# }
 
 MIDDLEWARE = [] + MIDDLEWARE + []
 
