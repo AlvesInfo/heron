@@ -13,13 +13,13 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 
 MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 
-STATIC_URL = "/static/"
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = Path(BASE_DIR, "files/media").resolve()
-
-SESSION_COOKIE_AGE = 36000
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# STATIC_URL = "/static/"
+#
+# MEDIA_URL = "/media/"
+# MEDIA_ROOT = Path(BASE_DIR, "files/media").resolve()
+#
+# SESSION_COOKIE_AGE = 36000
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 
@@ -120,8 +120,8 @@ AUTHENTICATION_BACKENDS = [
 
 MIDDLEWARE = [] + MIDDLEWARE + []
 
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "accounts/logout/"
+# LOGIN_REDIRECT_URL = "/"
+# LOGOUT_REDIRECT_URL = "accounts/logout/"
 
 # DJANGO-CLAMD configuration
 # https://pypi.org/project/django-clamd/
