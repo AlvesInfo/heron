@@ -1,6 +1,6 @@
-# coding: utf-8
+import os
 from pathlib import Path
-from .base import os, INSTALLED_APPS, MIDDLEWARE, BASE_DIR, LOG_DIR, WHITELIST
+from heron.settings.base import INSTALLED_APPS, MIDDLEWARE, BASE_DIR, LOG_DIR, WHITELIST
 
 DEBUG = False
 
