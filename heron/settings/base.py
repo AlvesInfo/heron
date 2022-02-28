@@ -292,12 +292,12 @@ Path.mkdir(BASE_DIR / "files/static/fonts", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/vendor", exist_ok=True)
 
 STATICFILES_DIRS = [
-    Path(BASE_DIR / "files/static/admin"),
-    Path(BASE_DIR / "files/static/css"),
-    Path(BASE_DIR / "files/static/js"),
-    Path(BASE_DIR / "files/static/images"),
-    Path(BASE_DIR / "files/static/fonts"),
-    Path(BASE_DIR / "files/static/vendor"),
+    Path(BASE_DIR / "files/static/admin").resolve(),
+    Path(BASE_DIR / "files/static/css").resolve(),
+    Path(BASE_DIR / "files/static/js").resolve(),
+    Path(BASE_DIR / "files/static/images").resolve(),
+    Path(BASE_DIR / "files/static/fonts").resolve(),
+    Path(BASE_DIR / "files/static/vendor").resolve(),
 ]
 
 CRISPY_TEMPLATE_PACK = "semantic-ui"
