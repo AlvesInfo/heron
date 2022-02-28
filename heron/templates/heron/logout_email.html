@@ -1,11 +1,11 @@
-{% extends "ogsp/base_semantic.html" %}
+{% extends "heron/base_semantic.html" %}
 
 {% load static %}
 {% load filters_tags %}
 
 {% block menu_principal %}
     {% if user.is_authenticated %}
-        {% include "ogsp/menu_principal.html" %}
+        {% include "heron/menu_principal.html" %}
     {% endif %}
 {% endblock menu_principal %}
 
@@ -17,7 +17,7 @@
         <br>
         <br>
         <br>
-        <h4 class="colorogsp" style="text-align: center;color: #456ba5;">Votre email à bien été changé, veuillez vous re-loguer</h4>
+        <h4 class="colorheron" style="text-align: center;color: #456ba5;">Votre email à bien été changé, veuillez vous re-loguer</h4>
         <div class="ui row" style="text-align: center;color: #456ba5;">
             <button class="ui blue basic button" >
                 <a href="{% if environnement == 'PRODUCTION' %}{% url 'oidc_urls:oidc_authentication_init' %}{% else %}{% url 'accounts:login' %}{% endif %}">Connexion</a>

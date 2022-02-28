@@ -1,3 +1,4 @@
+# pylint: disable=E0401
 """
 Django settings for heron project.
 
@@ -9,26 +10,25 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-import os
 import sys
 from pathlib import Path
 
 from decouple import Csv, AutoConfig
 from django.utils.translation import gettext_lazy as _
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
-ROOT_DIR = os.path.dirname(PROJECT_DIR)
-APPS_DIR = os.path.realpath(os.path.join(BASE_DIR, "apps"))
-CORE_DIR = os.path.realpath(os.path.join(APPS_DIR, "core"))
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+APPS_DIR = Path(BASE_DIR / "apps").resolve()
+CORE_DIR = Path(BASE_DIR / "apps").resolve()
+
+# print(BASE_DIR, PROJECT_DIR, APPS_DIR, CORE_DIR, sep=" | ")
 
 sys.path.append(BASE_DIR)
 sys.path.append(PROJECT_DIR)
-sys.path.append(ROOT_DIR)
 sys.path.append(APPS_DIR)
 sys.path.append(CORE_DIR)
 
-path_env = Path(str(ROOT_DIR)) / "env/.env"
+path_env = Path(PROJECT_DIR / "env/.env").resolve()
 config = AutoConfig(search_path=path_env)
 
 SECRET_KEY = config("SECRET_KEY")
@@ -72,8 +72,8 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    "rest_framework",
-    "rest_framework.authtoken",
+    # "rest_framework",
+    # "rest_framework.authtoken",
     "django_filters",
     "django_extensions",
     "crispy_forms",
@@ -84,12 +84,24 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "core",
     "heron",
-    "countries",
-    "divers",
-    "parameters",
-    "periods",
-    "users",
+    "apps.articles",
+    "apps.bin",
+    "apps.business_centers",
+    "apps.centers_purchasing",
+    "apps.clients_book",
+    "apps.clients_invoices",
+    "apps.clients_validations",
+    "apps.countries",
+    "apps.groups",
+    "apps.parameters",
+    "apps.periods",
+    "apps.permissions",
+    "apps.suppliers_book",
+    "apps.suppliers_invoices",
+    "apps.suppliers_validations",
+    "apps.users",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -110,10 +122,10 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.realpath(os.path.join(ROOT_DIR, "templates")),
-            os.path.realpath(os.path.join(CORE_DIR, "templates")),
-            os.path.realpath(os.path.join(APPS_DIR, "templates")),
-            os.path.realpath(os.path.join(BASE_DIR, "heron/templates/heron")),
+            # Path(PROJECT_DIR) / "templates",
+            # Path(CORE_DIR) / "templates",
+            # Path(APPS_DIR) / "templates",
+            # Path(BASE_DIR) / "heron/templates/heron",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -145,7 +157,7 @@ DATABASES = {
         "PASSWORD": PASSWORD_DATABASE,
         "HOST": HOST_DATABASE,
         "PORT": PORT_DATABASE,
-        "client_encoding": "UTF8",
+        # "client_encoding": "UTF8",
     },
     "bi_bdd": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -154,7 +166,7 @@ DATABASES = {
         "PASSWORD": PASSWORD_DATABASE_BI,
         "HOST": HOST_DATABASE_BI,
         "PORT": PORT_DATABASE_BI,
-        "client_encoding": "UTF8",
+        # "client_encoding": "UTF8",
     },
 }
 
@@ -175,6 +187,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
@@ -218,73 +232,73 @@ REST_FRAMEWORK = {
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 # REPERTOIRE DES FICHIERS
-FILES_DIR = BASE_DIR + "/files"
-os.makedirs(FILES_DIR, exist_ok=True)
+FILES_DIR = Path(BASE_DIR) / "files"
+Path.mkdir(FILES_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS
-IMAGES_DIR = BASE_DIR + "/files/static/images"
-os.makedirs(IMAGES_DIR, exist_ok=True)
+IMAGES_DIR = Path(BASE_DIR) / "files/static/images"
+Path.mkdir(IMAGES_DIR, exist_ok=True)
 
 # REPERTOIRE DES BACKUP (SAUVEGARDE)
-BACKUP_DIR = BASE_DIR + "/files/backup"
-os.makedirs(BACKUP_DIR, exist_ok=True)
+BACKUP_DIR = Path(BASE_DIR) / "files/backup"
+Path.mkdir(BACKUP_DIR, exist_ok=True)
 
 # REPERTOIRES DE MEDIA
-MEDIA_DIR = os.path.join(BASE_DIR, "files/media")
-os.makedirs(MEDIA_DIR, exist_ok=True)
+MEDIA_DIR = Path(BASE_DIR) / "files/media"
+Path.mkdir(MEDIA_DIR, exist_ok=True)
 
 # REPERTOIRES DE STATIC
-STATIC_DIR = os.path.join(BASE_DIR, "files/static")
-os.makedirs(STATIC_DIR, exist_ok=True)
+STATIC_DIR = Path(BASE_DIR) / "files/static"
+Path.mkdir(STATIC_DIR, exist_ok=True)
 
 # REPERTOIRES DE TRAITEMENTS
-PROCESSING_DIR = os.path.join(BASE_DIR, "files/processing")
-os.makedirs(PROCESSING_DIR, exist_ok=True)
+PROCESSING_DIR = Path(BASE_DIR) / "files/processing"
+Path.mkdir(PROCESSING_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS A EXPORTER
-EXPORT_DIR = os.path.join(BASE_DIR, "files/export")
-os.makedirs(EXPORT_DIR, exist_ok=True)
+EXPORT_DIR = Path(BASE_DIR) / "files/export"
+Path.mkdir(EXPORT_DIR, exist_ok=True)
 
 # REPERTOIRE DES SORTIES EXCEL
-EXCEL_DIR = os.path.join(BASE_DIR, "files/excel")
-os.makedirs(EXCEL_DIR, exist_ok=True)
+EXCEL_DIR = Path(BASE_DIR) / "files/excel"
+Path.mkdir(EXCEL_DIR, exist_ok=True)
 
-# REPERTOIRE DES IMPRESSION
-PRINTING_DIR = os.path.join(BASE_DIR, "files/printing")
-os.makedirs(PRINTING_DIR, exist_ok=True)
+# REPERTOIRE DES IMPRESSIONS
+PRINTING_DIR = Path(BASE_DIR) / "files/printing"
+Path.mkdir(PRINTING_DIR, exist_ok=True)
 
 # REPERTOIRE DES LOGS
-LOG_DIR = BASE_DIR + "/files/log"
-os.makedirs(LOG_DIR, exist_ok=True)
+LOG_DIR = Path(BASE_DIR) / "files/log"
+Path.mkdir(LOG_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS EN ERREUR
-ERRORS_DIR = BASE_DIR + "/files/errors"
-os.makedirs(ERRORS_DIR, exist_ok=True)
+ERRORS_DIR = Path(BASE_DIR) / "files/errors"
+Path.mkdir(ERRORS_DIR, exist_ok=True)
 
 # REPERTOIRE SECURE MEDIA
-SECURE_MEDIA_ROOT = os.path.join(BASE_DIR, "files/secure_media")
-os.makedirs(SECURE_MEDIA_ROOT, exist_ok=True)
+SECURE_MEDIA_ROOT = Path(BASE_DIR) / "files/secure_media"
+Path.mkdir(SECURE_MEDIA_ROOT, exist_ok=True)
 
 # REPERTOIRE STATIC
-path_files = os.path.join(BASE_DIR, "files/static")
-os.makedirs(path_files, exist_ok=True)
-STATIC_ROOT = os.path.realpath(path_files)
+PATH_STATIC = Path(BASE_DIR) / "files/static"
+Path.mkdir(PATH_STATIC, exist_ok=True)
+STATIC_ROOT = PATH_STATIC.resolve()
 
 # REPERTOIRES statics
-os.makedirs(os.path.join(BASE_DIR, "files/static/admin"), exist_ok=True)
-os.makedirs(os.path.join(BASE_DIR, "files/static/css"), exist_ok=True)
-os.makedirs(os.path.join(BASE_DIR, "files/static/js"), exist_ok=True)
-os.makedirs(os.path.join(BASE_DIR, "files/static/images"), exist_ok=True)
-os.makedirs(os.path.join(BASE_DIR, "files/static/fonts"), exist_ok=True)
-os.makedirs(os.path.join(BASE_DIR, "files/static/vendor"), exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/admin", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/css", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/js", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/images", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/fonts", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/vendor", exist_ok=True)
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "files/static/admin"),
-    os.path.join(BASE_DIR, "files/static/css"),
-    os.path.join(BASE_DIR, "files/static/js"),
-    os.path.join(BASE_DIR, "files/static/images"),
-    os.path.join(BASE_DIR, "files/static/fonts"),
-    os.path.join(BASE_DIR, "files/static/vendor"),
+    Path(BASE_DIR / "files/static/admin"),
+    Path(BASE_DIR / "files/static/css"),
+    Path(BASE_DIR / "files/static/js"),
+    Path(BASE_DIR / "files/static/images"),
+    Path(BASE_DIR / "files/static/fonts"),
+    Path(BASE_DIR / "files/static/vendor"),
 ]
 
 CRISPY_TEMPLATE_PACK = "semantic-ui"

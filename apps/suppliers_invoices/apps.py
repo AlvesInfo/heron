@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class SuppliersInvoicesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'suppliers_invoices'
+    name = 'apps.suppliers_invoices'

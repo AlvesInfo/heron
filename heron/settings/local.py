@@ -1,6 +1,6 @@
 # coding: utf-8
 from pathlib import Path
-from .base import INSTALLED_APPS, MIDDLEWARE, os, BASE_DIR, LOG_DIR
+from .base import INSTALLED_APPS, MIDDLEWARE, BASE_DIR, LOG_DIR
 
 DEBUG = True
 
@@ -19,10 +19,9 @@ MIDDLEWARE = (
 )
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.realpath(os.path.join(BASE_DIR, "files/static"))
-
+STATIC_ROOT = Path(BASE_DIR / "files/static").resolve()
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.realpath(os.path.join(BASE_DIR, "files/media"))
+MEDIA_ROOT = Path(BASE_DIR / "files/media").resolve()
 
 LOG_FILE = Path(LOG_DIR) / "developpement.log"
 LOG_IMPORT_FILE = Path(LOG_DIR) / "import_file.log"
@@ -34,7 +33,6 @@ AUTHENTICATION_BACKENDS = [
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
 ]
-
 
 # AXES lockout responses on failed user authentication attempts from login views
 # https://django-axes.readthedocs.io/en/latest/4_configuration.html

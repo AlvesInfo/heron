@@ -2,16 +2,22 @@
 Modèles pour les paramétrages
 """
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 
 class DatesTables(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     modified_at = models.DateTimeField(auto_now=True, verbose_name=_("modified at"))
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True)
     active = models.BooleanField(default=False)
     to_delete = models.BooleanField(default=False)
+    visible = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+"
+    )
+    modified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+"
+    )
 
     class Meta:
         abstract = True

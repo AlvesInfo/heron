@@ -15,7 +15,7 @@ apps = [
     "countries",
     "groups",
     "parameters",
-    "permitions",
+    "permissions",
     "periods",
     "suppliers_invoices",
     "suppliers_book",

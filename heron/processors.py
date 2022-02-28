@@ -81,7 +81,7 @@ def groupes_processor(request):
     groupes = {g: n for g, n in rows_groupes}
     groupes = OrderedDict(sorted(groupes.items(), key=lambda t: t[1]))
     dic = {"groupes": groupes}
-    templates_path = Path(settings.ROOT_DIR) / "templates/ogsp"
+    templates_path = Path(settings.PROJECT_DIR) / "templates/heron"
 
     for groupe in groupes.keys():
         file_groupe = templates_path / f"{groupe}.html"
