@@ -12,7 +12,8 @@ THIRD_PARTY_APPS = [
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
+MIDDLEWARE = [] + MIDDLEWARE
+             # + ["axes.middleware.AxesMiddleware"]
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.realpath(os.path.join(BASE_DIR, "files/static"))
