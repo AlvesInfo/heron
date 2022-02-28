@@ -45,8 +45,6 @@ AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesBackend",
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
-    # OIDC ModelBackend
-    # "apps.users.oidc_backend.heronOidcuserBackend",
 ]
 
 # AXES lockout responses on failed user authentication attempts from login views
@@ -56,8 +54,6 @@ AXES_FAILURE_LIMIT = 5
 AXES_ONLY_USER_FAILURES = True
 AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
 AXES_USERNAME_FORM_FIELD = "email"
-
-LOG_IMPORT_FILE = Path(LOG_DIR) / "import_file.log"
 
 LOGGING = {
     "version": 1,
@@ -131,16 +127,6 @@ LOGGING = {
         "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": False},
     },
 }
-
-# Configuration de Mozilla django-oidc pour ProSanteConnect
-
-# Si l'on doit appliquer la connexion par ProSanteConnect
-# ENVIRONNEMENT doit passer à ENVIRONNEMENT = "PRODUCTION"
-ENVIRONNEMENT = "LOCAL"
-
-# A REMETTRE SI PASSAGE A PRO SANTE CONNECT
-# FOUR_PARTY_APPS += ["mozilla_django_oidc"]
-# INSTALLED_APPS += FOUR_PARTY_APPS
 
 MIDDLEWARE = [] + MIDDLEWARE + []
 
