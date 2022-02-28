@@ -23,10 +23,10 @@ CORE_DIR = Path(BASE_DIR / "apps").resolve()
 
 # print(BASE_DIR, PROJECT_DIR, APPS_DIR, CORE_DIR, sep=" | ")
 
-sys.path.append(BASE_DIR)
-sys.path.append(PROJECT_DIR)
-sys.path.append(APPS_DIR)
-sys.path.append(CORE_DIR)
+sys.path.append(str(BASE_DIR))
+sys.path.append(str(PROJECT_DIR))
+sys.path.append(str(APPS_DIR))
+sys.path.append(str(CORE_DIR))
 
 path_env = Path(PROJECT_DIR / "env/.env").resolve()
 config = AutoConfig(search_path=path_env)
