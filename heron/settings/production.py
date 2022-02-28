@@ -94,13 +94,6 @@ LOGGING = {
             "filename": f"{heron_DIR_LOG}/django.log",
             "formatter": "verbose",
         },
-        # Send in logger_oidc
-        "logger_oidc": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": f"{heron_DIR_LOG}/oidc.log",
-            "formatter": "verbose",
-        },
         # Send in timer_heron
         "timer_heron": {
             "level": "DEBUG",
@@ -116,12 +109,12 @@ LOGGING = {
             "formatter": "verbose",
         },
         # Send in connexion-file
-        # "connexion-file": {
-        #     "level": "INFO",
-        #     "class": "logging.FileHandler",
-        #     "filename": f"{heron_DIR_LOG}/connect.log",
-        #     "formatter": "simple",
-        # },
+        "connexion-file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{heron_DIR_LOG}/connect.log",
+            "formatter": "simple",
+        },
     },
     "loggers": {
         # all messages
@@ -129,12 +122,11 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        # "connexion": {
-        #     "handlers": ["connexion-file"],
-        #     "level": "INFO",
-        #     "propagate": True,
-        # },
-        "mozilla_django_oidc": {"handlers": ["logger_oidc"], "level": "DEBUG"},
+        "connexion": {
+            "handlers": ["connexion-file"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "timer_heron": {"handlers": ["timer_heron"], "level": "DEBUG"},
         "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": False},
     },
