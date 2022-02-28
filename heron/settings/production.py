@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from heron.settings.base import INSTALLED_APPS, MIDDLEWARE, BASE_DIR, LOG_DIR, WHITELIST
 
@@ -15,18 +14,9 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.realpath(os.path.join(BASE_DIR, "files/static"))
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "files/static/css"),
-    os.path.join(BASE_DIR, "files/static/js"),
-    os.path.join(BASE_DIR, "files/static/images"),
-    os.path.join(BASE_DIR, "files/static/fonts"),
-    os.path.join(BASE_DIR, "files/static/vendor"),
-]
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.realpath(os.path.join(BASE_DIR, "files/media"))
+MEDIA_ROOT = Path(BASE_DIR, "files/media").resolve()
 
 SESSION_COOKIE_AGE = 36000
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
