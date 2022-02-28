@@ -16,7 +16,7 @@ MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 STATIC_URL = "/static/"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = Path(BASE_DIR, "files/media").resolve()
+MEDIA_ROOT = Path(BASE_DIR / "files/media").resolve()
 
 SESSION_COOKIE_AGE = 36000
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
