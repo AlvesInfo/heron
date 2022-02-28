@@ -12,8 +12,7 @@ THIRD_PARTY_APPS = [
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = [] + MIDDLEWARE
-             # + ["axes.middleware.AxesMiddleware"]
+MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.realpath(os.path.join(BASE_DIR, "files/static"))
@@ -50,11 +49,11 @@ AUTHENTICATION_BACKENDS = [
 
 # AXES lockout responses on failed user authentication attempts from login views
 # https://django-axes.readthedocs.io/en/latest/4_configuration.html
-AXES_ENABLED = True
-AXES_FAILURE_LIMIT = 5
-AXES_ONLY_USER_FAILURES = True
-AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
-AXES_USERNAME_FORM_FIELD = "email"
+# AXES_ENABLED = True
+# AXES_FAILURE_LIMIT = 5
+# AXES_ONLY_USER_FAILURES = True
+# AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
+# AXES_USERNAME_FORM_FIELD = "email"
 
 # LOGGING = {
 #     "version": 1,
@@ -136,8 +135,8 @@ LOGOUT_REDIRECT_URL = "accounts/logout/"
 
 # DJANGO-CLAMD configuration
 # https://pypi.org/project/django-clamd/
-CLAMD_ENABLED = True
-CLAMD_SOCKET = "/var/run/clamd/clamd.ctl"
-CLAMD_USE_TCP = False
-CLAMD_TCP_SOCKET = 3310
-CLAMD_TCP_ADDR = "127.0.0.1"
+# CLAMD_ENABLED = True
+# CLAMD_SOCKET = "/var/run/clamd/clamd.ctl"
+# CLAMD_USE_TCP = False
+# CLAMD_TCP_SOCKET = 3310
+# CLAMD_TCP_ADDR = "127.0.0.1"

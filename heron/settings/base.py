@@ -232,57 +232,56 @@ REST_FRAMEWORK = {
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 # REPERTOIRE DES FICHIERS
-FILES_DIR = Path(BASE_DIR) / "files"
+FILES_DIR = Path(BASE_DIR / "files").resolve()
 Path.mkdir(FILES_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS
-IMAGES_DIR = Path(BASE_DIR) / "files/static/images"
+IMAGES_DIR = Path(BASE_DIR / "files/static/images").resolve()
 Path.mkdir(IMAGES_DIR, exist_ok=True)
 
 # REPERTOIRE DES BACKUP (SAUVEGARDE)
-BACKUP_DIR = Path(BASE_DIR) / "files/backup"
+BACKUP_DIR = Path(BASE_DIR / "files/backup").resolve()
 Path.mkdir(BACKUP_DIR, exist_ok=True)
 
 # REPERTOIRES DE MEDIA
-MEDIA_DIR = Path(BASE_DIR) / "files/media"
+MEDIA_DIR = Path(BASE_DIR / "files/media").resolve()
 Path.mkdir(MEDIA_DIR, exist_ok=True)
 
 # REPERTOIRES DE STATIC
-STATIC_DIR = Path(BASE_DIR) / "files/static"
+STATIC_DIR = Path(BASE_DIR / "files/static").resolve()
 Path.mkdir(STATIC_DIR, exist_ok=True)
 
 # REPERTOIRES DE TRAITEMENTS
-PROCESSING_DIR = Path(BASE_DIR) / "files/processing"
+PROCESSING_DIR = Path(BASE_DIR / "files/processing").resolve()
 Path.mkdir(PROCESSING_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS A EXPORTER
-EXPORT_DIR = Path(BASE_DIR) / "files/export"
+EXPORT_DIR = Path(BASE_DIR / "files/export").resolve()
 Path.mkdir(EXPORT_DIR, exist_ok=True)
 
 # REPERTOIRE DES SORTIES EXCEL
-EXCEL_DIR = Path(BASE_DIR) / "files/excel"
+EXCEL_DIR = Path(BASE_DIR / "files/excel").resolve()
 Path.mkdir(EXCEL_DIR, exist_ok=True)
 
 # REPERTOIRE DES IMPRESSIONS
-PRINTING_DIR = Path(BASE_DIR) / "files/printing"
+PRINTING_DIR = Path(BASE_DIR / "files/printing").resolve()
 Path.mkdir(PRINTING_DIR, exist_ok=True)
 
 # REPERTOIRE DES LOGS
-LOG_DIR = Path(BASE_DIR) / "files/log"
+LOG_DIR = Path(BASE_DIR / "files/log").resolve()
 Path.mkdir(LOG_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS EN ERREUR
-ERRORS_DIR = Path(BASE_DIR) / "files/errors"
+ERRORS_DIR = Path(BASE_DIR / "files/errors").resolve()
 Path.mkdir(ERRORS_DIR, exist_ok=True)
 
 # REPERTOIRE SECURE MEDIA
-SECURE_MEDIA_ROOT = Path(BASE_DIR) / "files/secure_media"
+SECURE_MEDIA_ROOT = Path(BASE_DIR / "files/secure_media").resolve()
 Path.mkdir(SECURE_MEDIA_ROOT, exist_ok=True)
 
 # REPERTOIRE STATIC
-PATH_STATIC = Path(BASE_DIR) / "files/static"
-Path.mkdir(PATH_STATIC, exist_ok=True)
-STATIC_ROOT = PATH_STATIC.resolve()
+STATIC_ROOT = Path(BASE_DIR / "files/static").resolve()
+Path.mkdir(STATIC_ROOT, exist_ok=True)
 
 # REPERTOIRES statics
 Path.mkdir(BASE_DIR / "files/static/admin", exist_ok=True)
