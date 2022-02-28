@@ -28,7 +28,7 @@ MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 # X_FRAME_OPTIONS = "DENY"
 
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-heron_DIR_LOG = str(LOG_DIR) if DEBUG else "/var/log/heron"
+# heron_DIR_LOG = str(LOG_DIR) if DEBUG else "/var/log/heron"
 
 AUTHENTICATION_BACKENDS = [
     # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
