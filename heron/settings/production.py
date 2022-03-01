@@ -1,6 +1,6 @@
 from pathlib import Path
 from heron.settings.base import INSTALLED_APPS, MIDDLEWARE, BASE_DIR, LOG_DIR, WHITELIST
-
+print("PRODUCTION ===============================================")
 DEBUG = False
 
 DOMAINS_WHITELIST = ["localhost", "127.0.0.1", WHITELIST]
