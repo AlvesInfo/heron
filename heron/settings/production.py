@@ -14,6 +14,7 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 
 STATIC_URL = "/static/"
+STATIC_ROOT = (Path(BASE_DIR) / "files/static").resolve()
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
