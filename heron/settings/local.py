@@ -19,28 +19,17 @@ MIDDLEWARE = (
 )
 
 STATIC_URL = "/static/"
-STATIC_ROOT = Path(BASE_DIR / "files/static").resolve()
+STATIC_ROOT = (Path(BASE_DIR) / "files/static").resolve()
 MEDIA_URL = "/media/"
-MEDIA_ROOT = Path(BASE_DIR / "files/media").resolve()
+MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
 
-LOG_FILE = Path(LOG_DIR) / "developpement.log"
-LOG_IMPORT_FILE = Path(LOG_DIR) / "import_file.log"
-LOG_CONNEXION = Path(LOG_DIR) / "connection.log"
+LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
+LOG_IMPORT_FILE = (Path(LOG_DIR) / "import_file.log").resolve()
+LOG_CONNEXION = (Path(LOG_DIR) / "connection.log").resolve()
 
 AUTHENTICATION_BACKENDS = [
-    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
-    "axes.backends.AxesBackend",
-    # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
 ]
-
-# AXES lockout responses on failed user authentication attempts from login views
-# https://django-axes.readthedocs.io/en/latest/4_configuration.html
-AXES_ENABLED = True
-AXES_FAILURE_LIMIT = 5
-AXES_ONLY_USER_FAILURES = True
-AXES_LOCKOUT_TEMPLATE = "axes_blocked.html"
-AXES_USERNAME_FORM_FIELD = "email"
 
 LOGGING = {
     "version": 1,
@@ -70,21 +59,21 @@ LOGGING = {
         "production_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": str(LOG_FILE),
+            "filename": LOG_FILE,
             "formatter": "verbose",
         },
         # Send in import_logfile
         "import_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": str(LOG_IMPORT_FILE),
+            "filename": LOG_IMPORT_FILE,
             "formatter": "verbose",
         },
         # Send in connexion-file
         "connexion-file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": str(LOG_CONNEXION),
+            "filename": LOG_CONNEXION,
             "formatter": "verbose",
         },
     },
