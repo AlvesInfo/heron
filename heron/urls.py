@@ -26,5 +26,5 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include('debug_toolbar.urls')),
-        path('', home, name='home')
+        path('home/', home, name='home')
     ]
