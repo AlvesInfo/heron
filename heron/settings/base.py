@@ -18,15 +18,15 @@ from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_DIR = Path(__file__).resolve().parent.parent
-APPS_DIR = Path(BASE_DIR / "apps").resolve()
-CORE_DIR = Path(BASE_DIR / "apps").resolve()
+APPS_DIR = (Path(BASE_DIR) / "apps").resolve()
+CORE_DIR = (Path(BASE_DIR) / "apps").resolve()
 
-# print(BASE_DIR, PROJECT_DIR, APPS_DIR, CORE_DIR, sep=" | ")
+print(BASE_DIR, PROJECT_DIR, APPS_DIR, CORE_DIR, sep=" | ")
 
-sys.path.append(BASE_DIR.resolve())
-sys.path.append(PROJECT_DIR.resolve())
-sys.path.append(APPS_DIR.resolve())
-sys.path.append(CORE_DIR.resolve())
+# sys.path.append(BASE_DIR)
+# sys.path.append(PROJECT_DIR)
+# sys.path.append(APPS_DIR)
+# sys.path.append(CORE_DIR)
 
 path_env = Path(PROJECT_DIR / "env/.env").resolve()
 config = AutoConfig(search_path=path_env)
