@@ -18,13 +18,12 @@ from django.urls import path, include
 from django.conf import settings
 
 from heron.views import home
-
 urlpatterns = [
     path('back_heron_admin/', admin.site.urls),
+    path('', home, name='home'),
 ]
 
 if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include('debug_toolbar.urls')),
-        path('home/', home, name='home')
     ]

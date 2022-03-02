@@ -106,6 +106,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "heron.urls"
@@ -162,6 +163,13 @@ DATABASES = {
     },
 }
 
+AUTHENTICATION_BACKENDS = [
+    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
+    "axes.backends.AxesBackend",
+    # Django ModelBackend is the default authentication backend.
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -209,10 +217,6 @@ DATE_INPUT_FORMATS = [
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
-STATIC_URL = "/static/"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
@@ -276,21 +280,25 @@ STATIC_ROOT = (Path(BASE_DIR) / "files/static").resolve()
 Path.mkdir(STATIC_ROOT, exist_ok=True)
 
 # REPERTOIRES statics
-Path.mkdir(BASE_DIR / "files/static/admin", exist_ok=True)
+STATIC_URL = "/static/"
+STATIC_ROOT = (Path(BASE_DIR) / "files/static").resolve()
+
 Path.mkdir(BASE_DIR / "files/static/css", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/js", exist_ok=True)
-Path.mkdir(BASE_DIR / "files/static/images", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/img", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/fonts", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/vendor", exist_ok=True)
 
 STATICFILES_DIRS = [
-    (Path(BASE_DIR) / "files/static/admin").resolve(),
     (Path(BASE_DIR) / "files/static/css").resolve(),
     (Path(BASE_DIR) / "files/static/js").resolve(),
-    (Path(BASE_DIR) / "files/static/images").resolve(),
+    (Path(BASE_DIR) / "files/static/img").resolve(),
     (Path(BASE_DIR) / "files/static/fonts").resolve(),
     (Path(BASE_DIR) / "files/static/vendor").resolve(),
 ]
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
 
 CRISPY_TEMPLATE_PACK = "semantic-ui"
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("uni_form", "bootstrap4", "semantic-ui")

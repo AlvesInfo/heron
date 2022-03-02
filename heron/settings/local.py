@@ -18,18 +18,9 @@ MIDDLEWARE = (
     + ["axes.middleware.AxesMiddleware"]
 )
 
-STATIC_URL = "/static/"
-STATIC_ROOT = (Path(BASE_DIR) / "files/static").resolve()
-MEDIA_URL = "/media/"
-MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
-
 LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
 LOG_IMPORT_FILE = (Path(LOG_DIR) / "import_file.log").resolve()
 LOG_CONNEXION = (Path(LOG_DIR) / "connection.log").resolve()
-
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-]
 
 LOGGING = {
     "version": 1,
@@ -88,3 +79,5 @@ LOGGING = {
 }
 
 ENVIRONNEMENT = "LOCAL"
+
+AXES_ENABLED = False

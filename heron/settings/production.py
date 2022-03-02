@@ -11,17 +11,12 @@ THIRD_PARTY_APPS = [
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
+MIDDLEWARE = [] + MIDDLEWARE + []
 
-STATIC_URL = "/static/"
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
-
-# SESSION_COOKIE_AGE = 36000
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 36000
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # SECURE_CONTENT_TYPE_NOSNIFF = True
 # SECURE_BROWSER_XSS_FILTER = True
@@ -30,20 +25,13 @@ MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 VAR_LOG_DIR = "/var/log/heron"
 
-AUTHENTICATION_BACKENDS = [
-    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
-    "axes.backends.AxesBackend",
-    # Django ModelBackend is the default authentication backend.
-    "django.contrib.auth.backends.ModelBackend",
-]
-
 # AXES lockout responses on failed user authentication attempts from login views
 # https://django-axes.readthedocs.io/en/latest/4_configuration.html
-# AXES_ENABLED = True
-# AXES_FAILURE_LIMIT = 5
-# AXES_ONLY_USER_FAILURES = True
-# AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
-# AXES_USERNAME_FORM_FIELD = "email"
+AXES_ENABLED = True
+AXES_FAILURE_LIMIT = 5
+AXES_ONLY_USER_FAILURES = True
+AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
+AXES_USERNAME_FORM_FIELD = "email"
 
 LOGGING = {
     "version": 1,
