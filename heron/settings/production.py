@@ -28,11 +28,11 @@ VAR_LOG_DIR = "/var/log/heron"
 
 # AXES lockout responses on failed user authentication attempts from login views
 # https://django-axes.readthedocs.io/en/latest/4_configuration.html
-AXES_ENABLED = False
-AXES_FAILURE_LIMIT = 5
-AXES_ONLY_USER_FAILURES = True
-AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
-AXES_USERNAME_FORM_FIELD = "email"
+# AXES_ENABLED = False
+# AXES_FAILURE_LIMIT = 5
+# AXES_ONLY_USER_FAILURES = True
+# AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
+# AXES_USERNAME_FORM_FIELD = "email"
 
 LOGGING = {
     "version": 1,
