@@ -1,0 +1,210 @@
+{# PAGE ISSUE DE SOPRA STERIA #}
+
+{% extends "heron/base_semantic.html" %}
+{% load static %}
+
+{% block head_meta %}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta content="no-cache" http-equiv="pragma"/>
+    <meta content="no-cache" http-equiv="Cache-Control"/>
+    <meta content="Sat, 01 Dec 2001 00:00:00 GMT" http-equiv="expires"/>
+{% endblock head_meta %}
+
+{% block head_css %}
+    <link href="{% static 'app_tops_main.css' %}" rel="stylesheet" type="text/css"/>
+    <!--[if IE 7 ]>
+            <link href="/tops/resources/css/main_ie7.css" rel="stylesheet" type="text/css"/>
+    <![endif]-->
+    <!--[if IE 9 ]>
+            <link href="/tops/resources/css/main_ie9.css" rel="stylesheet" type="text/css"/>
+    <![endif]-->
+    <link href="{% static 'jquery-ui-1.10.1.custom.min.css' %}" rel="stylesheet"
+      type="text/css"/>
+      <!-- styles needed by jScrollPane -->
+    <link href="{% static 'jquery.jscrollpane.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'jquery_tops.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock head_css %}
+
+{% block head_js %}
+    <script
+        src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+        crossorigin="anonymous"></script>
+{% endblock head_js %}
+
+
+{% load static %}
+
+{% block logo %}
+    {% include "heron/logo_entete.html" %}
+{% endblock logo %}
+
+  <br>
+  <div class="ui stackable sixteen column grid" style="text-align: center;">
+
+    <div class="two wide column menubas">
+    </div>
+
+    <div class="twelve wide column menubas">
+      <div class="ui stackable container pointing menu">
+        <a href="/" class="item color-button" style="color: #f39912;"><i class="home icon"></i></a>
+        <div class="right menu">
+        </div>
+      </div>
+    </div>
+
+    <div class="two wide column"></div>
+
+  </div>
+
+{% block content %}
+
+    <div id="content_background">
+        <div id="content">
+
+            <div class="portail_banner">
+                <a href="#" id="BTN_ServicesAcces" class="lien_menu" >
+                    <img class="portail_logo" src="{% static 'portail_banner_eservices.png' %}" alt="e-services / cartes &amp; certificats" />
+                </a>
+            </div>
+
+
+            <div id="menu">
+                <div id="overlay">
+
+                </div>
+            </div>
+
+            <div class="main_area">
+
+                <script src="{% static 'ssl/test_ssl_connexion.js' %}"></script>
+                <script src="{% static 'traitementPageAccueil.js' %}"></script>
+
+                <p class="text_accueil">
+                    <s>Bienvenue sur l'espace dédié aux professionnels de santé libéraux</s> hors fournisseurs. Commandez facilement et rapidement les cartes CPE libérales de vos employés. <s>Insérez votre carte CPS</s> dans le lecteur et cliquez sur le bouton ci-dessous.
+                </p>
+
+                <!-- *********************************Espace message Ã  gÃ©rÃ© par JavaScript******************************* -->
+                <div id="espace_message" class="centered_parent">
+
+                <!-- ******* On load les messages sont cachÃ©s ****** -->
+                    <p class="message" id="msgDeconexion"> Vous n'êtes plus connecté. </p>
+                    <p class="message" id="msgSessionExpiree"> Votre connexion a expiré. Vous n'êtes plus connecté. </p>
+                    <p class="message" id="msgPasDeCarte"> Votre carte n'est plus dans le lecteur. Vous n'êtes plus connecté. </p>
+                    <p class="message" id="msgMauvaisNavigateur"> Le navigateur utilisé n'est pas compatible avec cette fonctionnalité. Merci de changer de navigateur ou de vous connecter par carte. </p>
+                </div>
+
+                <div id="carte_cps_parent">
+                    <p id="me_connecter">Me connecter</p>
+                    <div id="carte_cps">
+
+                        <a href="#" id="carte_cps_bg" onclick="authentRequestLien('1','{% static 'ssl/nePasSupprimer.html' %}','{% static 'pageAccueil/accueil.html?codeError=3' %}','{% static 'acces/ident' %}')"> <img src="{% static 'cartes_cps_connect_arrow.png' %}" alt="" /></a>
+                        <a href="#" id="carte_cps_text" onclick="authentRequestLien('1','{% static 'ssl/nePasSupprimer.html' %}','{% static 'pageAccueil/accueil.html?codeError=3' %}','{% static 'acces/ident' %}')">Avec ma carte</a>
+                    </div>
+                    <p id="compatibilite">
+                        <a href="https://diagcps.eservices.esante.gouv.fr"
+                            target="_blank"> Je v&#233;rifie que mon poste<br />est compatible
+                        </a>
+                        <a href="https://diagcps.eservices.esante.gouv.fr"
+                            target="_blank"> <img id="compatibilite_arrow" src="{% static 'cartes_cps_compatibilite_arrow.png' %}"alt=">" />
+                        </a>
+                    </p>
+                </div>
+
+                <div id="pro_sante_connect_parent" name="O" >
+                    <input id="imagePsc" type="hidden" value="{% static 'prosanteconnect_fond.png' %}" />
+                    <div id="button">
+                            <a href="#" id="button_bg"> <img src="{% static 'prosanteconnect_button.png' %}" alt="" /></a>
+                            <a href="#" id="button_text" title="Non compatible avec Internet Explorer"> Avec Pro Sant&#233 Connect</a>
+                    </div>
+                </div>
+
+                <!-- *********************************Espace message Ã  gÃ©rÃ© par JavaScript******************************* -->
+                <div class="centered_parent">
+                    <div id="cps_error">
+                        <!-- ******* On load les messages sont cachÃ©s ****** -->
+                        <p class="text_erreur">
+                            Votre carte n'est plus dans le lecteur ou bien elle n'est pas valide. Si vous souhaitez plus de renseignements vous pouvez contacter le service client via esante.gouv.fr/contenu/contact-cps ou par téléphone au
+                        </p>
+                        <input id="image" type="hidden" value="{% static '/telechargees/image3.jpg' %}" />
+                        <span id="zoneImg"></span>
+                        .
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="footer_separator">&nbsp;</div>
+            <div id="footer">
+                <div id="footer_images">
+                    <img src="{% static 'affaires_sociales_72.jpg' %}" alt="" width="50" />
+                    <img src="{% static 'logoEsante.jpg' %}" alt="ASIP Sant&#233;" width="120" />
+                </div>
+
+                <ul class="float_right" id="footer_menu">
+                   <li><a href="/tops/resources/pagesPubliques/planDuSite.html" >Plan du site</a></li>
+                   <li><a href="/tops/resources/pagesPubliques/mentionsLegales.html" >Mentions l&#233;gales</a></li>
+                   <li><a href="/tops/resources/pagesPubliques/credits.html" >Cr&#233;dits</a></li>
+                   <li><a href="https://esante.gouv.fr/form/contact" target="_blank" >Nous contacter</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+     $( document ).ready(function() {
+
+         //Zoom de page
+        var zoomVal = 0;
+        //Zoom de 10%
+        var zoomStep = 0.1;
+        var $zoomElement = $('body');
+        var pageZoom = function( zoomVal ) {
+            var zoom = 1 + zoomStep * zoomVal;
+            $zoomElement.css( 'zoom', zoom );
+
+            var elWidth = $zoomElement.width();
+            var elHeight = $zoomElement.height();
+            translateX = zoom < 1 ? 0 : (elWidth * zoom - elWidth ) / 2;
+            translateY = (elHeight * zoom - elHeight ) / 2;
+            var val = 'scale(!s) translate(!tpx, !tpx)'
+                .replace( '!s', zoom )
+                .replace( '!t', translateX )
+                .replace( '!t', translateY );
+
+            $.each( ['-moz-transform', '-o-transform', '-ms-transform'], function( i, prop ) {
+                $zoomElement.css( prop, val );
+            } );
+        };
+
+        $('#page-zoom-in').click(function() { zoomVal++; pageZoom( zoomVal ); });
+        $('#page-zoom-out').click(function() { zoomVal--; pageZoom( zoomVal ); });
+
+      });
+    </script>
+    <!--[if lt IE 10]>
+         <script>
+            $('#footer li:not(:first-child)').prepend('<span class="separator">|</span>');
+            $('#menu li:not(:first-child)').prepend('<span class="separator">|</span>');
+         </script>
+    <![endif]-->
+    <!--[if lt IE 3]>
+         <script>
+            $('#arrow_admin').empty().append('<div class="ie_arrow"><img class="fleche_icone" src="/tops/resources/images/administrer.png" alt="Icone" ><a href=""><div><s class="normal">Administrer </s><span class="normal">le site</span></div></a></div>');
+            $('#arrow_commande').empty().append('<div class="ie_arrow"><img class="fleche_icone" src="/tops/resources/images/commander.png" alt="Icone" ><a href=""><div><span class="normal">Commander une ou des </span><s class="normal">CPE(s) lib&#233;rales</s></div></a></div>');
+            $('#admin_comptes').empty().append('<div class="ie_arrow"><img class="fleche_icone" src="/tops/resources/images/admin_icon.png" alt="Icone" ><a href="/tops/gestionUtilisateur.action"><div><span class="normal">Gestion des comptes</span><s class="normal"> administrateur</s></div></a></div>');
+            $('#admin_param').empty().append('<div class="ie_arrow"><img class="fleche_icone" src="/tops/resources/images/settings_icon.png" alt="Icone" ><a href="/tops/parametrage.action"><div><span class="normal">Gestion des</span><s class="normal"> param&#232;tres</s></div></a></div>');
+            $('#admin_contenu').empty().append('<div class="ie_arrow"><img class="fleche_icone" src="/tops/resources/images/content_icon.png" alt="Icone" ><a href="/tops/gestionContenu.action"><div><span class="normal">Gestion de</span><s class="normal"> contenu</s></div></a></div>');
+         </script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+         <script>
+            $('.fleche_suite').append('<span class="ie7_big_orange_arrow"></span>');
+            $('.fleche_suite').append('<span class="ie7_big_grey_arrow"></span>');
+            $('.fleche_suite').append('<span class="ie7_arrow_end ie7_big_arrow_end"></span>');
+            $('#fleche_tarif').append('<span class="ie7_arrow_end ie7_small_arrow_end"></span>');
+            $('.form_element').append(' :');
+        </script>
+    <![endif]-->
+
+{% endblock content %}

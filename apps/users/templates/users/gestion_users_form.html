@@ -1,0 +1,224 @@
+{% extends "heron/base_semantic.html" %}
+
+{% block head_js %}
+
+    <script type="text/javascript">
+
+
+    </script>
+
+{% endblock %}
+
+{% block menu_principal %}
+    {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    <h5 class="color-heron" style="text-align: center;">{{ title }}</h5>
+
+    <div id="id_dimmer_maj" class="ui massive dimmer">
+      <div class="ui indeterminate text loader progress-bar color-heron">
+        Mise à jour en cours...
+      <br>
+
+      </div>
+    </div>
+
+    {% if not_users %}
+
+        <div class="ui grid">
+
+            <div class="column" style="width: 30%;"></div>
+            <div class="column" style="width: 40%;">
+                <h4 style="color: red;text-align: center;">Il n'y a pas d'utilsateurs à gérer</h4>
+            </div>
+            <div class="column" style="width: 30%;"></div>
+
+        </div>
+
+    {% else %}
+
+    <form class="ui form" method="POST" action="" name="form_groupes_edit" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if not_in_groups %}
+
+            <div class="ui grid">
+
+                <div class="column" style="width: 30%;"></div>
+                <div class="column" style="width: 40%;">
+                    <h4 style="color: red;text-align: center;">Vous n'êtes affecté.e à aucun groupe.<br>Veuillez vous adresser à l'administrateur.</h4>
+                </div>
+                <div class="column" style="width: 30%;"></div>
+
+            </div>
+
+        {% elif subordinate %}
+
+            <div class="ui grid">
+
+                <div class="column" style="width: 30%;"></div>
+                <div class="column" style="width: 40%;">
+                    <h4 style="color: red;text-align: center;">Vous n'avez aucuns subordonnés</h4>
+                </div>
+                <div class="column" style="width: 30%;"></div>
+
+            </div>
+
+        {% else %}
+
+            <div class="ui grid">
+
+                <div class="column" style="width: 16%;"></div>
+
+                <div class="column" style="width: 16%;">
+                    {% include "core/groupe_input_users_groups.html" %}
+                </div>
+
+                <div class="column" style="width: 6%;">
+                </div>
+
+                <div class="column" style="width: 46%;">
+
+                    {% include "users/select_form_users.html" %}
+
+                    <div class="actions" style="margin-top: 15px;">
+                      <div class="ui button color-button"
+                           id="modification_groupe">
+                          Mettre à Jour
+                      </div>
+                    </div>
+
+                </div>
+
+                <div class="column" style="width: 16%;"></div>
+
+            </div>
+
+        {% endif %}
+
+    </form>
+
+    {% endif %}
+
+
+<div class="ui hidden big green message" id="success_message" style="text-align: center;">
+  LES GROUPES ONT ETE MIS A JOUR
+</div>
+<div class="ui hidden big red message" id="error_message" style="text-align: center;">UNE ERREUR EST SURVENUE !</div>
+
+{% endblock content %}
+
+{% block script %}
+
+    <script type="text/javascript">
+
+        $(`#id_dimmer_maj`).dimmer(`hide`);
+
+        let IdUser = $(`#id_initial_user`).data('value');
+
+        $(document).ready(function(){
+
+            $('.ui.dropdown').dropdown({
+                onChange: function() {
+                    IdUser = $('#drop_pre').dropdown('get value');
+                    AfficherGroupe(IdUser);
+                }
+            });
+
+            $(`#modification_groupe`).click(function() {
+              changerGroupe(IdUser);
+            });
+
+            let text_e = "ui hidden red message";
+            let text_error = "ui red message";
+
+            let text_o = "ui hidden blak message";
+            let text_ok = "ui green message";
+
+            function arret_error_message () {
+                $(`#error_message`).attr(`class`, text_e)
+            }
+
+            function arret_success_message () {
+                $(`#success_message`).attr(`class`, text_o)
+            }
+
+            // *********************************************************************************************************
+            // LANCEMENT MODIFICATION GROUPE DE l'USER
+            // *********************************************************************************************************
+            function changerGroupe(UserId) {
+                console.log(UserId);
+                $(`#id_dimmer_maj`).dimmer(`show`);
+                let arrayObj = [];
+                $('input:checked[name="groups"]').each(function() {
+                    arrayObj.push(this.value);
+                });
+                let xhr = $.ajax({
+                    data : {'pk': UserId, 'groups': arrayObj},
+                    url : '/accounts/modification-groupes/',
+                    type : 'POST',
+                    success : function (data) {
+                        let success = JSON.parse(data).success;
+                        $(`#id_dimmer_maj`).dimmer(`hide`);
+
+                        if (success === 'ko') {
+                            AfficherGroupe(UserId);
+                            $(`#error_message`).attr(`class`, text_error);
+                            setTimeout(arret_error_message, 5000);
+                        } else {
+                            $(`#success_message`).attr(`class`, text_ok);
+                            setTimeout(arret_success_message, 5000);
+                        }
+                    }
+                });
+
+                xhr.always(function() {
+                });
+            }
+
+
+            // *********************************************************************************************************
+            // LANCEMENT RAPATRIEMENT GROUPE DE l'USER AFFICHE
+            // *********************************************************************************************************
+            function AfficherGroupe(UserId) {
+                $(`#id_dimmer_maj`).dimmer(`show`);
+
+                let xhr = $.ajax({
+                    data : {'pk': UserId},
+                    url : '/accounts/affichage-groupes/',
+                    type : 'POST',
+                    success : function (data) {
+                        let success = JSON.parse(data).success;
+                        if (success === 'ko') {
+                            $(`#id_dimmer_maj`).dimmer(`hide`);
+                            $(`.groupes`).prop('checked', false);
+                            $(`#error_message`).attr(`class`, text_error);
+                            setTimeout(arret_error_message, 3000);
+                        } else {
+                            $(`.groupes`).prop('checked', false);
+                            $(`#id_dimmer_maj`).dimmer(`hide`);
+                            $(success).each(function() {
+                                let groupes = this;
+                                $(`.groupes`).each(function() {
+                                    let valeur = this.value;
+                                    if (valeur == groupes) {
+                                        let selecteur = `input[value='`+valeur+`']`;
+                                        $(selecteur).prop("checked", true);
+                                    }
+                               });
+                            });
+                        }
+                    }
+                });
+
+                xhr.always(function() {
+                });
+            }
+
+        });
+
+    </script>
+
+{% endblock script %}

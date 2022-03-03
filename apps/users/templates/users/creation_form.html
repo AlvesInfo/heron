@@ -1,0 +1,205 @@
+{% extends "heron/base_semantic.html" %}
+
+{% block menu_principal %}
+    {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    <h5 class="color-heron" style="text-align: center;">{{ title }}</h5>
+
+    <form class="ui form" method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="ui grid">
+
+            <div class="column" style="width: 16%;">
+            </div>
+
+{#            <div class="column" style="width: 16%;margin-top: 18px;">#}
+{#                {% include "core/groupe_input_users_groups.html" %}#}
+{#            </div>#}
+
+            <div class="column" style="width: 6%;">
+            </div>
+
+            <div class="column" style="width: 46%;">
+
+                <div class="ui form">
+                    <div class="two fields">
+                        <div class="field">
+                            <label for="id_first_name">Prénom :</label>
+                            <input name="first_name" placeholder="Prénom..." type="text" maxlength="80"
+                                   id="id_first_name"/>
+                        </div>
+                        <div class="field">
+                            <label for="id_last_name">Nom :</label>
+                            <input name="last_name" placeholder="Nom..." type="text" maxlength="80" id="id_last_name"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui form">
+
+                  <div class="field">
+                      <label for="id_email">Email :</label>
+                      <input name="email" placeholder="Email..." id="id_email" required/>
+                  </div>
+
+                  <div class="two fields">
+                        <div class="field">
+                            <label for="id_username">Utilisateur :</label>
+                            <input name="username"
+                                   placeholder="UserName..."
+                                   type="text"
+                                   maxlength="80"
+                                   id="id_username"/>
+                        </div>
+                        <div class="field">
+                            <label for="id_fonction">Fonction :</label>
+                            <input name="fonction"
+                                   placeholder="Fonction..."
+                                   type="text"
+                                   id="id_fonction"
+                                   maxlength="80"/>
+                        </div>
+                    </div>
+                </div>
+{#            A REMETTRE SI PASSAGE A PRO SANTE CONNECT#}
+{#                <div class="ui form">#}
+{#                    <div class="two fields">#}
+{#                        <div class="field">#}
+{#                            <label for="id_identifier">Id nat ps :</label>#}
+{#                            <input name="identifier"#}
+{#                                   placeholder="Identifiant National PS..."#}
+{#                                   type="text"#}
+{#                                   id="id_identifier"#}
+{#                                   maxlength="80"#}
+{#                                   required/>#}
+{#                        </div>#}
+{#                     </div>#}
+{#                </div>#}
+                {% if superuser %}
+                    <div class="ui form">
+                        <div class="two fields">
+                            <div class="field">
+                              <div class="ui checkbox admin">
+                                <input name="superuser" type="checkbox" id="id_superuser">
+                                <label for="id_superuser">Administrateur</label>
+                              </div>
+                            </div>
+                            <div class="field">
+                              <div class="ui checkbox staff">
+                                <input name="staff" type="checkbox" id="id_staff">
+                                <label for="id_staff">Staff</label>
+                              </div>
+                            </div>
+                         </div>
+                    </div>
+                {% endif %}
+                <div class="ui form">
+                    <div class="two fields">
+                        <div class="field">
+                            <label for="id_password">Mot de passe :</label>
+                            <input name="password"
+                                   placeholder="Mot de Passe..."
+                                   type="password"
+                                   id="id_password"
+                                   autocomplete="off"/>
+                        </div>
+                        <div class="field">
+                            <label for="id_password_verif">Confirmation Mot de passe :</label>
+                            <input name="password_verif"
+                                   placeholder="Confirmation Mot de Passe..."
+                                   type="password"
+                                   id="id_password_verif"
+                                   autocomplete="off"/>
+                        </div>
+                     </div>
+                </div>
+                <div class="ui list" style="font-weight: lighter;font-size: small">
+                    <div class="item" id="len">- Le mot de passe doit contenir au minimum 12 caractères.</div>
+                    <div class="item" id="nums">- Le mot de passe ne peut pas être entièrement numérique.</div>
+                    <div class="item" id="mdp">- Les deux mots de passe doivent être identiques.</div>
+                </div>
+                <input type="submit" class="ui fluide button color-button" value="Validez">
+
+                {% if form.errors%}
+                    <div class="ui red message">
+                      <div class="header">ERREUR : </div>
+                        <div style="text-align: left;">
+                            {% if form.groups.errors %}
+                                <ul class="errorlist">
+                                    <li>
+                                        <strong>{{ form.groups.help_text|escape }}</strong>
+                                    </li>
+                                </ul>
+                            {% endif %}
+
+                            {%  for field in form %}
+                              {% if field.errors %}
+                                {% if field.help_text|escape %}
+                                  {% else %}
+                                    <strong>{{ field.errors }}</strong>
+                                  {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    {% if message_success %}
+        <div class="ui big green message" id="success_message" style="text-align: center;">
+          L'UTILISATEUR A BIEN ETE CREE
+        </div>
+    {% endif %}
+
+{% endblock content %}
+
+{% block script %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function arret_success_message() {
+                $(`#success_message`).addClass(`hidden`);
+            }
+            setTimeout(arret_success_message, 3000);
+
+            $(`#id_password`).on('change paste keyup', function() {
+                let str = this.value;
+                let strThis = $(`#id_password_verif`).val()
+
+                if (str.match( /^\d+$/g)) {
+                    $(`#nums`).css("color", "red")
+                } else {
+                    $(`#nums`).css("color", "green")
+                }
+
+                if (str.length >= 12) {
+                    $(`#len`).css("color", "green")
+                } else {
+                    $(`#len`).css("color", "red")
+                }
+
+                if (strThis !== str) {
+                    $(`#mdp`).css("color", "red")
+                } else {
+                    $(`#mdp`).css("color", "green")
+                }
+            });
+
+            $(`#id_password_verif`).on('change paste keyup', function() {
+                let str = $(`#id_password`).val()
+                let strThis = this.value
+
+                if (strThis !== str) {
+                    $(`#mdp`).css("color", "red")
+                } else {
+                    $(`#mdp`).css("color", "green")
+                }
+            });
+        });
+    </script>
+{% endblock script %}

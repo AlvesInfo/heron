@@ -9,7 +9,7 @@ from django.db.utils import IntegrityError
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, reverse, redirect, HttpResponse, get_object_or_404
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -20,9 +20,9 @@ from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-from django.conf import settings
 from axes.models import AccessAttempt
 
+from heron import settings
 from apps.users.models import User, UserSession, AuthGroupName, UploadUserFile, AuthGroupAccessStaff
 from apps.users.forms import (
     UserLoginForm,
@@ -36,13 +36,13 @@ from apps.users.forms import (
     GroupAccessStaffForm,
     ChangeEmailForm,
 )
-from apps.users.snippets.insert_staffs import set_insert_staffs
-from apps.users.snippets.file_insert_users import set_insert_users
+from apps.users.bin.insert_staffs import set_insert_staffs
+from apps.users.bin.file_insert_users import set_insert_users
 from apps.users.Exceptions import UsersError
-from apps.core.functions.functions_logs import LOG_FILE, write_log, envoi_mail_erreur
-from apps.core.functions.functions_sql import clean_id
-from apps.core.functions.functions_utilitaires import get_client_ip
-from apps.core.functions.functions_http import check_next_page
+from core.functions.functions_logs import LOG_FILE, write_log, envoi_mail_erreur
+from core.functions.functions_sql import clean_id
+from core.functions.functions_utilitaires import get_client_ip
+from core.functions.functions_http import check_next_page
 
 
 logger = logging.getLogger("connexion")
@@ -78,7 +78,7 @@ def login_view(request):
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             try:
                 # Suppression des sessions précédentes,
-                # afin qu'il n'y ai pas plusieurs connexions en même temps pour un utilisateur
+                # afin qu'il n'y ait pas plusieurs connexions en même temps pour un utilisateur
                 user_session, _ = UserSession.objects.get_or_create(
                     user=user, session_id=request.session.session_key
                 )
@@ -155,14 +155,14 @@ def register_view(request):
         )
         user.is_staff = False
         user.is_superuser = False
-        # Correction du 11/06/2020, car un STAFF, pouvait créer un STAFF et un Superuser
+        # Correction du 11/10/2022, car un STAFF, pouvait créer un STAFF et un Superuser
         if super_user:
             user.is_staff = superuser or staff
             user.is_superuser = superuser
 
         user.save()
 
-        # Pour chacun des groupes on vas créer l'entrée
+        # Pour chacun des groupes on va créer l'entrée
         for group_name in groupes:
             group = Group.objects.get(name=group_name)
             group.user_set.add(user)

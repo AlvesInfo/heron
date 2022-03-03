@@ -1,0 +1,102 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block logo %}
+    {% include "heron/logo_entete.html" %}
+{% endblock logo %}
+
+  <br>
+  <div class="ui stackable sixteen column grid" style="text-align: center;">
+
+    <div class="two wide column menubas">
+    </div>
+
+    <div class="twelve wide column menubas">
+      <div class="ui stackable container pointing menu">
+        <a href="/" class="item color-button" style="color: #f39912;"><i class="home icon"></i></a>
+        <div class="right menu">
+        </div>
+      </div>
+    </div>
+
+    <div class="two wide column"></div>
+
+  </div>
+
+{% block content %}
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="ui equal width grid">
+
+        <div class="column"></div>
+
+        <div class="column">
+            <div class="ui vertical menu" style="width: 100%">
+                <div class="active item color-input-heron" style="font-weight: bold !important;">LOGIN</div>
+                <div class="item">
+                    <div class="ui segment">
+                        <form class="ui form" method="POST" action="" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="field">
+                                <div class="ui left icon input">
+                                    <i class="mail icon"></i>
+                                    <input name="email" placeholder="Email" id="id_email" required />
+                                </div>
+                            </div>
+                            <br>
+                            <div class="field">
+                                <div class="ui left icon input">
+                                    <i class="lock icon"></i>
+                                    <input name="mot_de_passe" placeholder="Mot de Passe" type="password"
+                                           id="id_mot_de_passe"
+                                           required
+                                           autocomplete="off"/>
+                                </div>
+                            </div>
+                            <br>
+                            <input type="submit" class="ui fluid large button color-button" value="{{ title }}">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <small>
+                    <a href="{% url "password_reset" %}" class="text-muted">Mot de passe oublié ?</a>
+                </small>
+            </div>
+            <br>
+            <br>
+            {% if messages %}
+                <div class="ui negative message">
+                    <i class="close icon"></i>
+                    <div class="header">Erreur de connexion</div>
+                    <ol class="ui list">
+                        {% for message in messages %}
+                            <li value="-">{{ message }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="column"></div>
+
+    </div>
+
+{% endblock content %}
+
+{% block script %}
+<script  type="text/javascript">
+    $(document).ready(function(){
+        $('.message .close')
+          .on('click', function() {
+            $(this)
+              .closest('.message')
+              .transition('fade');
+          });
+    });
+</script>
+{% endblock %}

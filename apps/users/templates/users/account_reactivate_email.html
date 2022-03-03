@@ -1,0 +1,15 @@
+{% autoescape off %}
+Bonjour,
+
+Suite à un nombre trop important de tentatives de connexions échouées, votre compte "{{ user.email }}" a été verrouillé.
+
+Pour réactiver votre compte, veuillez vous rendre sur cette page :
+
+    - https://{{ domain }}{% url 'reactivate' uidb64=uid token=token %}
+
+Cliquez sur le lien ou copiez/collez-le dans la barre d'adresse de votre navigateur.
+
+Si vous n'êtes pas à l'origine de cette demande, veuillez nous contacter.
+
+L'équipe Heron
+{% endautoescape %}

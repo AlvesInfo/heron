@@ -1,0 +1,87 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block menu_principal %}
+  {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+  {% if user.is_authenticated %}
+
+    <form class="ui form" method="POST" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+
+        <div class="ui stackable equal width grid">
+
+            <div class="five wide column"></div>
+
+            <div class="six wide column centered" style="text-align: center;">
+
+                <div class="ui segment" style="color: #456ba5;">
+                    <h4>GROUPES AUXQUELS ONT ACCES LES ADMINISTRATEURS DELEGUES</h4>
+                </div>
+
+                <div class="ui segment" style="color: #456ba5;">
+                    <h5>Groupes autorisés pour les Administrateurs délégués</h5>
+
+                    <div class="ui clearing divider"></div>
+
+                    <div class="ui mini form">
+                        <div class="grouped fields">
+                            {{ form }}
+                        </div>
+                    </div>
+
+                    <div class="ui clearing divider"></div>
+
+                    <div style="text-align: center;">
+                        <input type="submit" class="ui fluide button color-button" value="Mettre à Jour">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="five wide column"></div>
+
+        </div>
+
+    </form>
+
+
+    {% if message_success %}
+        <div class="ui big green message" id="success_message" style="text-align: center;">
+          {{ message_success }}
+        </div>
+    {% endif %}
+
+    {% if message_error %}
+        <div class="ui big red message" id="success_message" style="text-align: center;">
+          {{ message_error }}
+        </div>
+    {% endif %}
+
+  {% endif %}
+
+{% endblock content %}
+
+{% block script %}
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+        $(`.ui.dropdown`).dropdown();
+
+        function arret_success_message () {
+            $(`#success_message`).addClass(`hidden`);
+        }
+
+        setTimeout(arret_success_message, 3000);
+
+
+    });
+  </script>
+
+{% endblock script %}

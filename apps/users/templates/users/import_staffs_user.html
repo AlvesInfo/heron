@@ -1,0 +1,393 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block head_js %}
+  <script type="text/javascript">
+
+    // FONCTION DE SUPPRESSION DES FICHIERS UPLOADER AVANT TRAITEMENT
+    function deleteUpload(pk, name) {
+
+        $(`#textModal`).text('Etes vous sûr de vouloir supprimer le fichier :');
+        $(`#modalContent`).text(name);
+
+        $(`#demandeModal`)
+            .modal({
+                closable: false,
+                onApprove: function() {
+                    let urlAdd = `/accounts/delete_staffs_upload_file/${pk}/`;
+                    let tableau = JSON.stringify(
+                        {'id': pk, }
+                        );
+                    let xhr = $.ajax({
+                        data : {data: tableau},
+                        url : urlAdd,
+                        type : 'POST',
+                        success : function (data) {
+
+                            if (data.success !== 'nop') {
+                                // SI SUCCESS ON SUPPRIME LA BALISE DU FICHIER SUPPRIME
+                                $(`#file${pk}`).remove();
+
+                                event.preventDefault();
+
+                                /* ON PARCOURE LA TABLE POUR SAVOIR SI IL RESTE DES FICHIERS ET SI IL N'EN
+                                RESTE PAS ON MASQUE LES ELEMENTS MINI FORM */
+                                let i = 0;
+                                $(`#tbodyUpload`).find(`tr`).each(function () {
+                                    ++i
+                                });
+
+                                if (i === 0) {
+                                    $(`.traitementButton`).hide();
+                                }
+
+                            } else {
+                                // SI ERREUR ON LES AFFICHENT PENDANT 5 SECONDES
+                                let messageError = `<span>Le fichier n'a pu être effacer !</span>`;
+                                let baliseError = $(`#ajaxMessage`);
+                                let error = $(`#nopUpload`);
+                                error.find(`div.header`).html(messageError);
+                                baliseError.show();
+                                error.show();
+                                setTimeout(function () {
+                                        baliseError.hide();
+                                    },
+                                    5000
+                                );
+                            }
+                        }
+                    });
+                    xhr.always(function() {
+                    });
+              }
+          })
+          .modal(`show`)
+    }
+
+    // FONCTION DE LANCEMENT D'INTEGRATION DES FICHIERS
+    function integration() {
+        $(`#ulMessage`).children().remove();
+        $(`#textModal`).text('Etes vous sûr de vouloir intégrer ces Administrateurs délégué ?');
+        $(`#modalContent`).text('');
+
+        $(`#demandeModal`)
+          .modal({
+              closable: false,
+              onApprove: function() {
+
+                  $(`#id_dimmer_traitement`).dimmer(`show`);
+                  let urlAdd = "{% url 'accounts:staff_integrations' %}";
+                  let xhr = $.ajax({
+                      url : urlAdd,
+                      type : 'POST',
+                      success : function (data) {
+                          $(`#tbodyUpload`).children().remove();
+                          $(`.traitementButton`).hide();
+                          $(`#ulMessage`).append(data.html);
+                          $(`#message`).show();
+                          $(`#id_dimmer_traitement`).dimmer(`hide`);
+
+                          if (data.od === true) {
+                              $(`.generationButton`).show();
+                          }
+                      }
+                  });
+
+                  xhr.always(function() {
+                  });
+              }
+          })
+          .modal(`show`)
+    }
+
+    // FONCTION DE DEMANDE DE LANCEMENT INITIAL D'INSERTION DES STAFFS
+    function ModalGenerationStaff() {
+        $(`#textModal`).text('Etes vous sûr de vouloir insérer les administrateurs délégués ?');
+        $(`#modalContent`).text('');
+
+        $(`#demandeModal`)
+          .modal({
+              closable: false,
+              onApprove: function() {
+                  $(`#id_dimmer_generation`).dimmer(`show`);
+                  generationStaffs(0)
+              }
+          })
+          .modal(`show`)
+    }
+
+
+    // FONCTION DE DEMANDE DE LANCEMENT FORCE D'INSERTION DES STAFFS
+    function ModalGenerationForceCaisses(message) {
+        $(`#textModal`).text(message);
+        $(`#modalContent`).text("");
+
+        $(`#demandeModal`)
+          .modal({
+              closable: false,
+              onApprove: function() {
+                  $(`#id_dimmer_generation`).dimmer(`show`);
+                  generationStaffs(1)
+              }
+          })
+          .modal(`show`)
+    }
+
+    // FONCTION DE GENERATION DES OD DE CAISSES
+    function generationStaffs(force) {
+        let urlAdd = `/ventes/od_caisses/generate/${force}/`;
+        let xhr = $.ajax({
+            url : urlAdd,
+            type : 'POST',
+            success : function (data) {
+                $(`#id_dimmer_generation`).dimmer(`hide`);
+                let retour = data.retour;
+                let htmlVentes = data.htmlVentes;
+
+                if (data.success === 'nop') {
+
+                    <!-- Afficahge du message d'erreur -->
+                    let messageError = `<span>${retour}</span>`;
+                    let baliseError = $(`#generationMessage`);
+                    let error = $(`#nopGeneration`);
+                    error.find(`div.header`).html(messageError);
+                    baliseError.show();
+                    error.show();
+                    setTimeout(function () {
+                            baliseError.hide();
+                            error.hide();
+                        },
+                        5000
+                    );
+                    location.reload();
+
+                } else if (data.success === 'force') {
+
+                    ModalGenerationForceCaisses(retour, dte)
+
+                } else {
+
+                    <!-- Afficahge du message de success -->
+                    $(`.generationButton`).hide();
+                    let messageOk = `<span>${retour}</span>`;
+                    let baliseOk = $(`#generationMessage`);
+                    let ok = $(`#okGeneration`);
+                    ok.find(`div.header`).html(messageOk);
+                    baliseOk.show();
+                    ok.show();
+                    setTimeout(function () {
+                            baliseOk.hide();
+                        },
+                        5000
+                    );
+                    location.reload();
+
+                }
+            }
+        });
+
+        xhr.always(function() {
+        });
+    }
+
+  </script>
+{% endblock %}
+
+{% block menu_principal %}
+    {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+    <div class="ui stackable equal width grid">
+
+        <div class="five wide column"></div>
+        <div class="six wide column centered" style="text-align: center;">
+            <div class="ui segment" style="color: #456ba5;">
+                <h4>Chargement Administrateurs délégués</h4>
+            </div>
+
+            <div class="ui segment" style="color: #456ba5;">
+
+                <!-- Modal de téléversement en cours ============================================== -->
+                <div id="id_dimmer_maj" class="ui massive dimmer">
+                  <div class="ui indeterminate text loader progress-bar">
+                    Téléversement en cours...
+                  </div>
+                </div>
+                <!-- =============================================================================== -->
+
+                <!-- Zone des téléversement ======================================================== -->
+                <h4 class="ui floated header" style="margin-top: 6px;">
+                  Import
+                </h4>
+                <div class="ui mini form">
+                  {# BOUTON D'UPLOAD #}
+                  <button type="button"
+                          name="upload_files"
+                          class="ui basic button js-upload"
+                          style="width: 205px;float: right;margin-top: -5px;">
+                    <i class="green cloud upload icon"></i> Téléversement fichiers
+                  </button>
+
+                  {# MODAL DE SELECTION DES FICHIERS A TELECHARGER #}
+                  <input id="fileupload"
+                         type="file"
+                         name="file"
+                         multiple
+                         style="display: none;color: white"
+                  >
+                </div>
+                <div class="ui clearing divider"></div>
+                <!-- =============================================================================== -->
+
+                <!-- Zone des messages d'uploads =================================================== -->
+                {% include 'heron/imput_file.html' %}
+                <!-- =============================================================================== -->
+
+                <!-- Zone des messages sur traitement des fichiers ================================= -->
+                <div id="message" style="{% if not messages %}display: none;{% endif %}">
+
+                  <h4 class="ui floated header" style="margin-top: 6px;color: #456ba5;">
+                    Messages
+                  </h4>
+                  <div class="ui clearing divider"></div>
+                  <div class="ui mini form" style="text-align: left;">
+                    <ol id="ulMessage" class="ui list" style="font-size: 12px;">
+
+                    </ol>
+                  </div>
+
+                </div>
+                <!-- =============================================================================== -->
+
+                <!-- Modal de traitement des fichiers en cours ===================================== -->
+                <div id="id_dimmer_traitement" class="ui inverted massive dimmer">
+                  <div class="ui indeterminate text loader">
+                    Intégration des Administrateurs délégués en cours, veuillez patienter ...
+                  </div>
+                </div>
+                <!-- =============================================================================== -->
+
+                <!-- Zone des fichiers en attente de traitement ==================================== -->
+                <h4 class="ui floated header traitementButton"
+                    style="margin-top: 6px;color: #456ba5;{% if not files_upload %}display: none;{% endif %}">
+                  Fichiers en attente de traitement
+                </h4>
+
+                <button type="button"
+                        class="ui basic button traitementButton"
+                        style="width: 205px;float: right;margin-top: -5px;margin-right: 8px;{% if not files_upload %}display: none;{% endif %}"
+                        onclick="integration()">
+                  <i class="green download icon"></i> Lancement Traitement
+                </button>
+
+                <div class="ui clearing divider traitementButton"
+                     style="{% if not files_upload %}display: none;{% endif %}">
+                </div>
+                <!-- =============================================================================== -->
+
+                <!-- Zone des fichiers en attente de traitement ==================================== -->
+                <div class="ui mini form traitementButton"
+                     style="{% if not files_upload %}display: none;{% endif %}">
+
+                  <table class="ui celled table"
+                         cellspacing="0"
+                         style="font-size: 12px;font-weight:bold;">
+                    <thead></thead>
+                    <tbody id="tbodyUpload">
+                      {% for file in files_upload %}
+                        <tr id="file{{ file.pk }}">
+                          <td style="width: 90%;">
+                            {{ file.base_name_file }}
+                          </td>
+                          <td class="tdDelete" style="text-align: center;">
+                            <div style="cursor: pointer;">
+                              <i class="red trash icon"
+                                 onclick="deleteUpload({{ file.pk }}, '{{ file.base_name_file }}')"></i>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+
+                </div>
+
+
+            </div>
+        </div>
+        <div class="five wide column"></div>
+
+    </div>
+
+    <!-- Modal de validation d'intégration des fichiers ======================================== -->
+    <!-- Modal de validation suppression de fichier ============================================ -->
+    <!-- Modal de validation de génération d'intgération des Staffs ============================ -->
+
+    <div class="ui container">
+      <div id="demandeModal" class="ui basic modal">
+        <div  class="ui icon header">
+          <i class="warning sign icon"></i>
+          <p id="textModal"></p>
+        </div>
+        <div class="content">
+          <p id="modalContent"
+             style="text-align: center;font-size: 20px;">
+          </p>
+        </div>
+        <div class="actions" style="text-align: center !important;">
+          <div class="ui red cancel button">
+            <i class="remove icon"></i>
+            Non
+          </div>
+          <div class="ui green ok button">
+            <i class="checkmark icon"></i>
+            Oui
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================================= -->
+
+  {% else %}
+
+    <br>
+    <br>
+    <hr>
+    <br>
+    <br>
+    <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce site</p>
+
+{% endif %}
+
+{% endblock content %}
+
+{% block script %}
+
+    {# JQUERY SCRIPTS POUR UPLOAD FICHIERS  #}
+    <script src="{% static 'jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'jquery.fileupload.js' %}"></script>
+    <script src="{% static 'basic-upload.js' %}"></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      // Masquage du dimmer de traitement au chargement de la page
+      $(`#id_dimmer_traitement`).dimmer(`hide`);
+
+      // MASQUAGE DES MESSAGE A LECTURE DE LA PAGE
+      $(`.js-upload`).click(function () {
+          $(`#message`).hide();
+      });
+
+    });
+
+  </script>
+
+{% endblock script %}

@@ -1,12 +1,17 @@
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-from django.db import models
+from django.db import models, connection
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.contrib.sessions.models import Session
 from django.core.mail import send_mail
 
+from core.functions.functions_utilitaires import num_string_series
+from core.functions.functions_dates import time_string_series
+
 
 class UserManager(BaseUserManager, models.Manager):
+    num = num_string_series(time_string_series(), 10)
 
     def _create_user(
         self, username, email, password, is_superuser=False, is_staff=False, **extra_fields
@@ -44,9 +49,9 @@ class UserManager(BaseUserManager, models.Manager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=80)
-    first_name = models.CharField(max_length=80)
-    last_name = models.CharField(max_length=80)
+    username = models.CharField(max_length=80, null=True, blank=True)
+    first_name = models.CharField(max_length=80, null=True, blank=True)
+    last_name = models.CharField(max_length=80, null=True, blank=True)
     email = models.EmailField(unique=True)
     date_joined = models.DateTimeField(default=timezone.now)
     is_staff = models.BooleanField(default=False)
@@ -67,8 +72,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = "auth_user"
 
     def __str__(self):
-        first_name = "" if not self.first_name else f"{self.first_name} "
-        last_name = "" if not self.last_name else f"{self.last_name} "
+        first_name = "" if not self.first_name else (self.first_name + " ")
+        last_name = "" if not self.last_name else (self.last_name + " ")
         return f"{first_name} {last_name}"
 
     @property
@@ -81,15 +86,40 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.email
 
-    def get_user_groups(self):
+    def in_groups(self):
         if self.is_superuser:
             return Group.objects.all()
 
         return Group.objects.filter(user=self)
 
-    def send_email_user(self, subject, message, from_email=None, **kwargs):
+    def in_groups_names(self):
+        if self.is_superuser:
+            return AuthGroupName.objects.filter(group__in=Group.objects.all()).order_by(
+                "group_name"
+            )
+
+        return AuthGroupName.objects.filter(group__in=Group.objects.filter(user=self)).order_by(
+            "group_name"
+        )
+
+    def get_subordonates(self):
+        user = User.objects.filter(pk=self.pk)
+        subordonates = User.objects.filter(
+            pk__in=UserChief.objects.filter(chief=user[0]).values("subordonate_id")
+        )
+
+        if self.is_superuser:
+            staffs = User.objects.exclude(is_superuser=True)
+            return subordonates.union(staffs)
+
+        return subordonates
+
+    def email_user(self, subject, message, from_email=None, **kwargs):
         """Email this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def save(self, *args, **kwargs):
+        super(User, self).save(*args, **kwargs)
 
 
 class UserSession(models.Model):
@@ -108,3 +138,22 @@ class AuthGroupName(models.Model):
 
     def __str__(self):
         return self.group_name
+
+
+class AuthGroupAccessStaff(models.Model):
+    """Table des groupes auxquels les Admin délégués (STAFF) ont le droit d'accèder.
+    Aux imports de staf en masse les staff se verront attribués les droits auxquels
+    ils ont le droit
+    """
+
+    group = models.OneToOneField(Group, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.group
+
+
+class UploadUserFile(models.Model):
+    file = models.FileField(upload_to="users/")
+    base_name_file = models.CharField(blank=True, null=True, max_length=255)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+    type_insert = models.IntegerField(choices=((0, "users"), (1, "staff"), (2, "admin")), default=0)

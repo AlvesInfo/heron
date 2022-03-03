@@ -1,0 +1,28 @@
+<div class="ui vertical menu" style="width: 200px !important;">
+    <div class="active item color-input-heron" style="margin: 0 !important;height: 30px !important;padding: 8px 16px !important;
+    font-size: 14px !important;font-weight: bold !important;">GROUPE</div>
+    <div class="item">
+        <div class="ui form">
+            <div class="grouped fields">
+                <ul id="id_groups">
+                    <div class="ui doubling four column grid" >
+                        <div class="grouped fields">
+                            {% for m in form.groups %}
+                                <li class="select_groupes">
+                                    {{ m }}
+                                </li>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{#{% if form.groups.errors %}#}
+{#    <div class="ui red message">#}
+{#        <div class="header">ERREUR : </div>#}
+{#        <p><strong>{{ form.groups.help_text|escape }}</strong></p>#}
+{#    </div>#}
+{#{% endif %}#}

@@ -79,7 +79,6 @@ LOCAL_APPS = [
     "core",
     "heron",
     "apps.articles",
-    "apps.bin",
     "apps.business_centers",
     "apps.centers_purchasing",
     "apps.clients_book",

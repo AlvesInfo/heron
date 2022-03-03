@@ -1,0 +1,127 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% load filters_tags %}
+
+{% block menu_principal %}
+  {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+  {% if user.is_authenticated %}
+
+    <form class="ui form" method="POST" action="" enctype="multipart/form-data" autocomplete="off">
+    {% csrf_token %}
+
+        <div class="ui centered grid" style="margin-top: 10px;margin-left: .03em;">
+
+          <div id="wideTablet" class="wide tablet twelve wide computer column">
+
+            <div class="ui grid">
+
+              <div class="two wide column"></div>
+
+              <div class="twelve wide column">
+
+                  <h5 class="color-heron hogsp">
+                    REINITIALISATION MOTS DE PASSE
+                  </h5>
+
+                  <div style="text-align: center;">
+                    <div style="display: inline-flex;text-align: start;">
+                      {% include "users/select_form_users.html" %}
+                    </div>
+                  </div>
+              </div>
+
+              <div class="two wide column"></div>
+
+            </div>
+
+            <div class="ui grid">
+
+              <div class="five wide column"></div>
+
+              <div class="six wide column">
+
+                <div class="ui form">
+
+                  <div class="two fields">
+
+                    <div class="field color-heron">
+                        <label class="color-heron" for="id_password">Mot de passe :</label>
+                        <input type="password" name="password" placeholder="Mot de passe..."
+                               id="id_password" autocomplete="off" required/>
+                    </div>
+
+                    <div class="field color-heron">
+                        <label class="color-heron" for="id_password_verif">Confirmation :</label>
+                        <input type="password" name="password_verif" placeholder="Confirmation..."
+                               id="id_password_verif" autocomplete="off" required/>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="five wide column"></div>
+
+          </div>
+
+          <div class="ui grid">
+
+            <div class="six wide column"></div>
+
+            <div class="four wide column">
+              <div style="text-align: center;">
+                <input type="submit" class="ui fluide button color-button" value="Mettre à Jour">
+              </div>
+            </div>
+
+            <div class="six wide column"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </form>
+
+
+    {% if message_success %}
+        <div class="ui big green message" id="success_message" style="text-align: center;">
+          {{ message_success }}
+        </div>
+    {% endif %}
+
+    {% if message_error %}
+        <div class="ui big red message" id="success_message" style="text-align: center;">
+          {{ message_error }}
+        </div>
+    {% endif %}
+
+  {% endif %}
+
+{% endblock content %}
+
+{% block script %}
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+        $(`.ui.dropdown`).dropdown();
+
+        function arret_success_message () {
+            $(`#success_message`).addClass(`hidden`);
+        }
+
+        setTimeout(arret_success_message, 3000);
+
+    });
+  </script>
+
+{% endblock script %}

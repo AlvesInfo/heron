@@ -1,9 +1,12 @@
+from django_clamd.validators import validate_file_infection
 from django.db import connection
+from django.contrib.auth.models import Group
 from django import forms
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
-from apps.users.models import User, AuthGroupName
+from apps.users.models import User, AuthGroupName, UploadUserFile, AuthGroupAccessStaff
 
 
 class UserLoginForm(forms.Form):
@@ -184,6 +187,32 @@ class InsertStaffsForm(forms.Form):
         widget=forms.ClearableFileInput(attrs={"multiple": False}),
         label="Selectionnez un ou plusieurs fichiers sur votre ordinateur",
     )
+
+
+class UploadStaffsForm(forms.ModelForm):
+    if not settings.DEBUG:
+        file = forms.FileField(validators=[validate_file_infection])
+
+    class Meta:
+        model = UploadUserFile
+        fields = ("file",)
+
+
+class GroupAccessStaffForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        group = forms.MultipleChoiceField(
+            choices=[(row.id, row.name) for row in Group.objects.all()],
+            widget=forms.SelectMultiple(attrs={"class": "ui fluid dropdown"}),
+            label="",
+            initial=[
+                row for row in AuthGroupAccessStaff.objects.all().values_list("group_id", flat=True)
+            ],
+            required=False,
+        )
+
+        self.fields["group"] = group
 
 
 class ChangeEmailForm(forms.Form):

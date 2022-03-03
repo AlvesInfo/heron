@@ -1,0 +1,83 @@
+{% extends "heron/base_semantic.html" %}
+
+{% block menu_principal %}
+    {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+    {% include 'heron/messages_messages.html' %}
+    {% include 'heron/messages_forms.html' %}
+    {% include 'heron/messages_delete.html' %}
+    {% include 'heron/messages_imports.html' %}
+
+    <h5 class="color-heron" style="text-align: center;">{{ title }}</h5>
+
+    <form class="ui form" method="POST" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+
+        <div class="ui grid">
+
+            <div class="five wide column"></div>
+
+            <div class="four wide column">
+
+                <div class="field">
+                      <label for="id_last_email">Votre ancien Email :</label>
+                      <input name="last_email" placeholder="Email..." id="id_last_email" autocomplete="off" required/>
+                </div>
+
+                <div class="field">
+                      <label for="id_email">Email :</label>
+                      <input name="email" placeholder="Email..." id="id_email" autocomplete="off" required/>
+                </div>
+                <div class="field">
+                      <label for="id_email_verif">Confirmation Email :</label>
+                      <input name="email_verif" placeholder="Email..." id="id_email_verif" autocomplete="off" required/>
+                </div>
+                <div class="ui list" style="font-weight: lighter;font-size: small">
+                    <div class="item" id="email_alert">- Les deux emails doivent être identiques.</div>
+                </div>
+                <input type="submit" class="ui fluide button color-button" value="Validez">
+
+            </div>
+
+            <div class="five wide column"></div>
+
+        </div>
+
+    </form>
+
+{% endblock content %}
+
+{% block script %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function arret_success_message() {
+                $(`#success_message`).addClass(`hidden`);
+            }
+            setTimeout(arret_success_message, 3000);
+
+            $(`#id_email_verif`).on('change paste keyup', function() {
+                let str = $(`#id_email`).val()
+                let strThis = this.value
+
+                if (strThis !== str) {
+                    $(`#email_alert`).css("color", "red")
+                } else {
+                    $(`#email_alert`).css("color", "green")
+                }
+            });
+
+            $(`#id_email`).on('change paste keyup', function() {
+                let str = $(`#id_email_verif`).val()
+                let strThis = this.value
+
+                if (strThis !== str) {
+                    $(`#email_alert`).css("color", "red")
+                } else {
+                    $(`#email_alert`).css("color", "green")
+                }
+            });
+        });
+    </script>
+{% endblock script %}
