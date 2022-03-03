@@ -149,7 +149,7 @@ DATABASES = {
         "PASSWORD": PASSWORD_DATABASE,
         "HOST": HOST_DATABASE,
         "PORT": PORT_DATABASE,
-        # "client_encoding": "UTF8",
+        "client_encoding": "UTF8",
     },
     "bi_bdd": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -158,7 +158,7 @@ DATABASES = {
         "PASSWORD": PASSWORD_DATABASE_BI,
         "HOST": HOST_DATABASE_BI,
         "PORT": PORT_DATABASE_BI,
-        # "client_encoding": "UTF8",
+        "client_encoding": "UTF8",
     },
 }
 
