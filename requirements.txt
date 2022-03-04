@@ -39,6 +39,7 @@ daphne==3.0.2
 decorator==5.1.1
 defusedxml==0.7.1
 Deprecated==1.2.13
+distlib==0.3.4
 dj-database-url==0.5.0
 Django==3.2.12
 django-axes==5.31.0
@@ -68,6 +69,7 @@ dnspython==2.2.0
 email-validator==1.1.3
 executing==0.8.2
 fastapi==0.74.1
+filelock==3.6.0
 Flask==2.0.3
 flower==1.0.0
 frozenlist==1.3.0
@@ -169,6 +171,7 @@ supervisor==4.2.4
 toml==0.10.2
 tomli==2.0.1
 tornado==6.1
+tox==3.24.5
 traitlets==5.1.1
 trio==0.20.0
 trio-websocket==0.9.2
@@ -182,6 +185,7 @@ uritemplate==4.1.1
 urllib3==1.26.8
 uvicorn==0.17.5
 vine==5.0.0
+virtualenv==20.13.2
 wcwidth==0.2.5
 Werkzeug==2.0.3
 wrapt==1.13.3
