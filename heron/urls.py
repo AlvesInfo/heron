@@ -118,7 +118,7 @@ urlpatterns = [
         ),
     ),
     path(
-        "users/",
+        "",
         include(("apps.users.urls", "apps.users"), namespace="users"),
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
