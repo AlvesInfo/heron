@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 
-class DatesTables(models.Model):
+class DatesTable(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     modified_at = models.DateTimeField(auto_now=True, verbose_name=_("modified at"))
     active = models.BooleanField(default=False)
@@ -23,7 +23,7 @@ class DatesTables(models.Model):
         abstract = True
 
 
-class StockageJson(DatesTables):
+class StockageJson(DatesTable):
     stockage = models.CharField(unique=True, max_length=50)
     char_01 = models.CharField(blank=True, null=True, max_length=50)
     char_02 = models.CharField(blank=True, null=True, max_length=50)
@@ -42,7 +42,7 @@ class StockageJson(DatesTables):
     num_05 = models.DecimalField(blank=True, null=True, default=0, decimal_places=5, max_digits=20)
 
 
-class Parametrages(DatesTables):
+class Parametrages(DatesTable):
     nom_parametrage = models.CharField(unique=True, max_length=50)
     texte = models.TextField(null=True, blank=True)
     valeur = models.DecimalField(null=True, blank=True, default=0, decimal_places=2, max_digits=20)
@@ -69,12 +69,12 @@ class Parametrages(DatesTables):
     num_05 = models.DecimalField(blank=True, null=True, default=0, decimal_places=5, max_digits=20)
 
 
-class Numerotation(DatesTables):
+class Numerotation(DatesTable):
     num = models.IntegerField(default=1)
     type_num = models.CharField(max_length=35, verbose_name="Type de numérotation")
 
 
-class UserParametrage(DatesTables):
+class UserParametrage(DatesTable):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     parametrage = models.ForeignKey(Parametrages, on_delete=models.CASCADE)
 

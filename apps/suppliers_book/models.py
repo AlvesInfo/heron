@@ -1,3 +1,9 @@
-from django.db import models
+from heron.models import DatesTable
 
-# Create your models here.
+
+class Supplier(DatesTable):
+    ...
+
+
+class Contact(DatesTable):
+    ...
