@@ -6,8 +6,8 @@ from django.contrib.auth.models import Group
 from django.contrib.sessions.models import Session
 from django.core.mail import send_mail
 
-from core.functions.functions_utilitaires import num_string_series
-from core.functions.functions_dates import time_string_series
+from apps.core.functions.functions_utilitaires import num_string_series
+from apps.core.functions.functions_dates import time_string_series
 
 
 class UserManager(BaseUserManager, models.Manager):

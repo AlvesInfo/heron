@@ -39,6 +39,7 @@ daphne==3.0.2
 decorator==5.1.1
 defusedxml==0.7.1
 Deprecated==1.2.13
+devtools==0.8.0
 distlib==0.3.4
 dj-database-url==0.5.0
 Django==3.2.12
@@ -65,8 +66,10 @@ django-timezone-field==4.2.3
 djangorestframework==3.13.1
 djangorestframework-jwt==1.11.0
 djangorestframework-xml==2.0.0
+djantic==0.5.0
 dnspython==2.2.0
 email-validator==1.1.3
+et-xmlfile==1.1.0
 executing==0.8.2
 fastapi==0.74.1
 filelock==3.6.0
@@ -101,10 +104,12 @@ MarkupSafe==2.1.0
 marshmallow==3.14.1
 matplotlib-inline==0.1.3
 mccabe==0.6.1
+memory-profiler==0.60.0
 multidict==6.0.2
 mypy-extensions==0.4.3
 numpy==1.22.2
 oauthlib==3.2.0
+openpyxl==3.0.9
 outcome==1.1.0
 packaging==21.3
 pandas==1.4.1
@@ -119,6 +124,7 @@ pluggy==1.0.0
 priority==2.0.0
 prometheus-client==0.13.1
 prompt-toolkit==3.0.28
+psutil==5.9.0
 psycopg2==2.9.3
 psycopg2-binary==2.9.3
 pure-eval==0.2.2
@@ -137,6 +143,7 @@ pylint-plugin-utils==0.7
 pyOpenSSL==22.0.0
 pyparsing==3.0.7
 pyproject-toml==0.0.10
+pypyodbc==1.3.6
 pyrsistent==0.18.1
 PySocks==1.7.1
 pytest==7.0.1

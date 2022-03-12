@@ -25,13 +25,13 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 
 from apps.users.models import AuthGroupAccessStaff
-from core.functions.functions_setups import settings
-from core.bin.validate_file import IterFileToInsert
+from apps.core.functions.functions_setups import settings
+from apps.core.bin.validate_file import IterFileToInsert
 from apps.users.serializers.serializer_for_insert_users import UsersSerializerUsers
 from apps.users.models import User, UploadUserFile
 
-from core.functions.functions_excel import ExcelToCsv
-from core.bin.validate_file import IterFileToInsertError
+from apps.core.functions.functions_excel import ExcelToCsv
+from apps.core.bin.validate_file import IterFileToInsertError
 
 logger = logging.getLogger("connexion")
 

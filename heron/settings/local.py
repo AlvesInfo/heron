@@ -15,7 +15,7 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 MIDDLEWARE = (
     ["debug_toolbar.middleware.DebugToolbarMiddleware"]
     + MIDDLEWARE
-    + ["axes.middleware.AxesMiddleware"]
+    + []
 )
 
 LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
@@ -79,5 +79,3 @@ LOGGING = {
 }
 
 ENVIRONNEMENT = "LOCAL"
-
-AXES_ENABLED = False

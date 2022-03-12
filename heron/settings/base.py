@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = (Path(BASE_DIR) / "apps").resolve()
-CORE_DIR = (Path(BASE_DIR) / "apps").resolve()
+CORE_DIR = (Path(APPS_DIR) / "core").resolve()
 
 # print(BASE_DIR, PROJECT_DIR, APPS_DIR, CORE_DIR, sep=" | ")
 
@@ -70,26 +70,25 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "crispy_forms",
     "crispy_forms_semantic_ui",
-    "axes",
     "ckeditor",
     "chartjs",
 ]
 
 LOCAL_APPS = [
-    "core",
     "heron",
     "apps.articles",
-    "apps.business_centers",
+    "apps.book",
     "apps.centers_purchasing",
-    "apps.clients_book",
     "apps.clients_invoices",
     "apps.clients_validations",
+    "apps.core",
     "apps.countries",
+    "apps.edi",
     "apps.groups",
+    "apps.import_files",
     "apps.parameters",
     "apps.periods",
     "apps.permissions",
-    "apps.suppliers_book",
     "apps.suppliers_invoices",
     "apps.suppliers_validations",
     "apps.users",
@@ -105,7 +104,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "heron.urls"

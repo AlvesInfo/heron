@@ -14,13 +14,8 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.sessions.models import Session
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 from django.utils.decorators import method_decorator
-from django.template.loader import render_to_string
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.sites.shortcuts import get_current_site
-from axes.models import AccessAttempt
+
 
 from heron import settings
 from apps.users.models import User, UserSession, AuthGroupName, UploadUserFile, AuthGroupAccessStaff
@@ -39,10 +34,10 @@ from apps.users.forms import (
 from apps.users.bin.insert_staffs import set_insert_staffs
 from apps.users.bin.file_insert_users import set_insert_users
 from apps.users.Exceptions import UsersError
-from core.functions.functions_logs import LOG_FILE, write_log, envoi_mail_erreur
-from core.functions.functions_sql import clean_id
-from core.functions.functions_utilitaires import get_client_ip
-from core.functions.functions_http import check_next_page
+from apps.core.functions.functions_logs import LOG_FILE, write_log, envoi_mail_erreur
+from apps.core.functions.functions_sql import clean_id
+from apps.core.functions.functions_utilitaires import get_client_ip
+from apps.core.functions.functions_http import check_next_page
 
 
 logger = logging.getLogger("connexion")
@@ -95,31 +90,6 @@ def login_view(request):
             )
 
             return redirect(next_page)
-
-        else:
-            # ON VA VERIFIER SI IL Y A EU DES TENTATIVES INFRUCTEUSES DE CONNEXIONS
-            attempts = AccessAttempt.objects.filter(username=email).first()
-            user_test = User.objects.filter(email=email)
-
-            if (
-                user_test
-                and attempts
-                and attempts.failures_since_start >= settings.AXES_FAILURE_LIMIT
-            ):
-                # imports pdb;pdb.set_trace()
-                user = user_test.first()
-                subject = "HERON -  Compte Verrouillé"
-                current_site = get_current_site(request)
-                message = render_to_string(
-                    "users/account_reactivate_email.html",
-                    {
-                        "user": user,
-                        "domain": current_site,
-                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "token": PasswordResetTokenGenerator().make_token(user),
-                    },
-                )
-                user.email_user(subject, message)
 
         messages.warning(request, "Email ou mot de passe, non trouvés")
         logger.info(f"Connexion ratée : mail : {email} - " f"ip : {get_client_ip(request)}")

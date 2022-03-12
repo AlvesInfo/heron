@@ -1,21 +1,15 @@
 from django.db import models
-
 from heron.models import DatesTable, FlagsTable
 
 
-class ShaFiles(DatesTable):
-    id_sha512_file = models.TextField()
-    nom_fichier = models.TextField(null=True, blank=True, max_length=255)
-    errors = models.TextField(null=True, blank=True)
-
-
-class EdiGenericImport(FlagsTable):
+class EdiImport(FlagsTable):
+    uuid_identification = models.UUIDField()
     fournisseur = models.CharField(null=True, blank=True, max_length=35)
     siret_fournisseur = models.CharField(null=True, blank=True, max_length=20)
     siret_payeur = models.CharField(null=True, blank=True, max_length=20)
     code_fournisseur = models.CharField(null=True, blank=True, max_length=30)
     code_maison = models.CharField(null=True, blank=True, max_length=30, default="AF000")
-    maison = models.CharField(null=True, blank=True, max_length=80)
+    maison = models.CharField(null=True, blank=True, max_length=80, verbose_name="libellé maison")
     num_commande_acuitis = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
     )
@@ -41,43 +35,56 @@ class EdiGenericImport(FlagsTable):
         null=True, blank=True, max_length=80, verbose_name="IMD avec F 1ère position"
     )
     qte = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="QTY avec 47"
+        decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
     qte_emballage = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="QTY avec 52"
+        decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 52"
     )
     px_unitaire_brut = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="PRI avec AAB et GRP"
+        max_digits=20, decimal_places=5, default=0, verbose_name="PRI avec AAB et GRP"
     )
     px_unitaire_net = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="PRI avec AAA et NTP"
+        max_digits=20, decimal_places=5, default=0, verbose_name="PRI avec AAA et NTP"
     )
     emballage = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 8 quand ALC avec M et PC"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 8 quand ALC avec M et PC"
     )
     port = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 8 quand ALC avec M et FC"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 8 quand ALC avec M et FC"
     )
     montant_brut = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 98"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 8 quand ALC avec H"
+    )
+    montant_remise_1 = models.DecimalField(
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 8 quand ALC avec H"
+    )
+    montant_remise_2 = models.DecimalField(
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 8 quand ALC avec H"
+    )
+    montant_remise_3 = models.DecimalField(
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 98"
     )
     montant_net = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 125"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
     )
     taux_tva = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="TAX avec 7 quand ALC avec Y"
+        max_digits=20, decimal_places=5, default=0, verbose_name="TAX avec 7 quand ALC avec Y"
     )
-    montant_tva = models.DecimalField(decimal_places=5, default=0, max_digits=20)
-    montant_ttc = models.DecimalField(decimal_places=5, default=0, max_digits=20)
+    montant_tva = models.DecimalField(
+        max_digits=20, decimal_places=5, default=0, verbose_name="montant tva calculé"
+    )
+    montant_ttc = models.DecimalField(
+        max_digits=20, decimal_places=5, default=0, verbose_name="montant ttx calculé"
+    )
     nom_client = models.CharField(null=True, blank=True, max_length=80)
     num_serie = models.TextField(null=True, blank=True, max_length=1000)
     Commentaire = models.CharField(null=True, blank=True, max_length=120)
     montant_facture_HT = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 125"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
     )
     montant_facture_TVA = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 150"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
     )
     montant_facture_TTC = models.DecimalField(
-        decimal_places=5, default=0, max_digits=20, verbose_name="MOA avec 128"
+        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )

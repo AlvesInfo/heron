@@ -20,7 +20,7 @@ apps = [
     "permissions",
     "periods",
     "suppliers_invoices",
-    "suppliers_book",
+    "book",
     "suppliers_validations",
     "users",
 ]

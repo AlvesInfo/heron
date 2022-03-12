@@ -16,7 +16,7 @@ from django.conf import settings
 
 from django.db.utils import IntegrityError
 
-from apps.countries.models import Pays
+from apps.countries.models import Country
 
 
 def validate_boolean(value):
@@ -35,7 +35,7 @@ def validate_boolean(value):
 
 
 def fixtures_pays():
-    """Fonction d'ajout de fixtures pour la table Pays"""
+    """Fonction d'ajout de fixtures pour la table Country"""
     file: Path = Path(settings.APPS_DIR) / "countries/data_fixtures/pays_fixtures.csv"
 
     with file.open(encoding="utf8") as csv_file:

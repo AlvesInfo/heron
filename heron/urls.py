@@ -49,22 +49,13 @@ urlpatterns = [
         "articles/",
         include(("apps.articles.urls", "apps.articles"), namespace="articles"),
     ),
-    path(
-        "business_centers/",
-        include(
-            ("apps.business_centers.urls", "apps.business_centers"), namespace="business_centers"
-        ),
-    ),
+    path("book/", include(("apps.book.urls", "apps.book"), namespace="book")),
     path(
         "centers_purchasing/",
         include(
             ("apps.centers_purchasing.urls", "apps.centers_purchasing"),
             namespace="centers_purchasing",
         ),
-    ),
-    path(
-        "clients_book/",
-        include(("apps.clients_book.urls", "apps.clients_book"), namespace="clients_book"),
     ),
     path(
         "clients_invoices/",
@@ -80,12 +71,24 @@ urlpatterns = [
         ),
     ),
     path(
+        "core/",
+        include(("apps.core.urls", "apps.core"), namespace="core"),
+    ),
+    path(
         "countries/",
         include(("apps.countries.urls", "apps.countries"), namespace="countries"),
     ),
     path(
+        "edi/",
+        include(("apps.edi.urls", "apps.edi"), namespace="edi"),
+    ),
+    path(
         "groups/",
         include(("apps.groups.urls", "apps.groups"), namespace="groups"),
+    ),
+    path(
+        "import_files/",
+        include(("apps.import_files.urls", "apps.import_files"), namespace="import_files"),
     ),
     path(
         "parameters/",
@@ -98,10 +101,6 @@ urlpatterns = [
     path(
         "permissions/",
         include(("apps.permissions.urls", "apps.permissions"), namespace="permissions"),
-    ),
-    path(
-        "suppliers_book/",
-        include(("apps.suppliers_book.urls", "apps.suppliers_book"), namespace="suppliers_book"),
     ),
     path(
         "suppliers_invoices/",
