@@ -1,4 +1,4 @@
-# pylint: disable=
+# pylint: disable=E0401
 # flake8: noqa: E501
 """Module pour validation de fichiers à intégrer en base de donnée
 
@@ -20,9 +20,6 @@ from operator import itemgetter
 from chardet.universaldetector import UniversalDetector
 import pandas as pd
 
-import io
-from pathlib import Path
-
 IMPORT_LOGGER = logging.getLogger("imports")
 
 
@@ -30,8 +27,16 @@ class ExcelToCsvError(Exception):
     """Exception niveau module"""
 
 
+class EncodingError(Exception):
+    """Exception sniff encodig"""
+
+
 class ExcelToCsvIncompatibleFileError(Exception):
-    """Exception niveau module"""
+    """Exception transformation excel"""
+
+
+class FileCsvToStringIoError(Exception):
+    """Exception envoi du fichier dans un StringIO"""
 
 
 class IterFileToInsertError(Exception):
@@ -42,15 +47,22 @@ class ValidationError(Exception):
     """Gestion d'erreur de validations"""
 
 
-def encoding_detect(path_file):
+def encoding_detect(path_file: Path):
     """Fonction qui renvoie"""
-    detector = UniversalDetector()
-    with open(path_file, "rb") as file:
-        for line in file:
-            detector.feed(line)
-            if detector.done:
-                break
-        detector.close()
+    try:
+        detector = UniversalDetector()
+
+        with open(path_file, "rb") as file:
+            for line in file:
+                detector.feed(line)
+
+                if detector.done:
+                    break
+
+            detector.close()
+
+    except Exception as error:
+        raise EncodingError(f"encoding_detect : {path_file.name !r}") from error
 
     return detector.result["encoding"]
 
@@ -63,6 +75,7 @@ def excel_file_to_csv_string_io(excel_path, csv_string_io, header=True):
     :return: fichier excel en csv
     """
     success = True
+
     try:
         data = pd.read_excel(excel_path)
         data.to_csv(
@@ -76,10 +89,10 @@ def excel_file_to_csv_string_io(excel_path, csv_string_io, header=True):
         )
         csv_string_io.seek(0)
 
-    except ValueError:
+    except ValueError as error:
         raise ExcelToCsvIncompatibleFileError(
             f"Impossible de déterminer si le fichier {csv_string_io!r}, est un fichier excel"
-        )
+        ) from error
 
     return success
 
@@ -95,23 +108,27 @@ def file_to_csv_string_io(file: Path, csv_string_io: io.StringIO, mode_csv_dict:
                         "quotechar": le caractère de quoting par défaut '"'
     :return: string_io au format csv
     """
-    mode_csv_dict = mode_csv_dict or dict()
-    csv_dict = {
-        "delimiter": mode_csv_dict.get("delimiter", ";"),
-        "lineterminator": mode_csv_dict.get("lineterminator", "\n"),
-        "quoting": mode_csv_dict.get("quoting", csv.QUOTE_ALL),
-        "quotechar": mode_csv_dict.get("quotechar", '"'),
-    }
-    encoding = encoding_detect(file)
+    try:
+        mode_csv_dict = mode_csv_dict or {}
+        csv_dict = {
+            "delimiter": mode_csv_dict.get("delimiter", ";"),
+            "lineterminator": mode_csv_dict.get("lineterminator", "\n"),
+            "quoting": mode_csv_dict.get("quoting", csv.QUOTE_ALL),
+            "quotechar": mode_csv_dict.get("quotechar", '"'),
+        }
+        encoding = encoding_detect(file)
 
-    with file.open("r", encoding=encoding, errors="replace") as csv_file:
-        csv_reader = csv.reader(csv_file, **csv_dict)
+        with file.open("r", encoding=encoding, errors="replace") as csv_file:
+            csv_reader = csv.reader(csv_file, **csv_dict)
 
-        for line in csv_reader:
-            line_to_wrtie = ";".join(f'"{value}"' for value in line) + "\n"
-            csv_string_io.write(line_to_wrtie)
+            for line in csv_reader:
+                line_to_wrtie = ";".join(f'"{value}"' for value in line) + "\n"
+                csv_string_io.write(line_to_wrtie)
 
-        csv_string_io.seek(0)
+            csv_string_io.seek(0)
+
+    except Exception as error:
+        raise FileCsvToStringIoError(f"file_to_csv_string_io : {file.name!r}") from error
 
 
 class IterFileToInsert:
@@ -125,7 +142,7 @@ class IterFileToInsert:
         header_line: int = None,
         mode_csv_dict: Dict = None,
     ):
-        """Instanciation des variables
+        """Instanciation de la classe
         :param file_to_iter: fichier de type Path à insérer
         :param columns_dict: Plusieurs choix possibles :
                         - pour récupérer le nombre de colonnes dans l'ordre du fichier
@@ -152,7 +169,7 @@ class IterFileToInsert:
         self.columns_dict = columns_dict
         self.header_line = header_line
         self.first_line = 0 if header_line is None else header_line + 1
-        self.mode_csv_dict = mode_csv_dict or dict()
+        self.mode_csv_dict = mode_csv_dict or {}
         self.csv_reader = csv.reader(
             self.csv_io.readlines(),
             delimiter=self.mode_csv_dict.get("delimiter") or ";",
@@ -312,7 +329,7 @@ class IterFileToInsert:
 class Validation(IterFileToInsert):
     """class pour la validation et l'insertion"""
 
-    def __init__(self, validator, map_line=None, insertion="insert_or_none", *args, **kwargs):
+    def __init__(self, validator, *args, map_line=None, insertion="insert_or_none", **kwargs):
         """
         :param validator: Validateur pour le fichier, le validateur doit avoir les méthodes :
                             - is_valid() pour insertion en base
@@ -379,66 +396,7 @@ class Validation(IterFileToInsert):
 
 
 def main():
-    """TESTS"""
-    csv_dict = {
-        "delimiter": ";",
-        "lineterminator": "\n",
-        "quoting": csv.QUOTE_ALL,
-        "quotechar": '"',
-    }
-
-    csv_file = Path(r"E:\SENSEE\test_colonnes_fichier.csv")
-    excel_file = Path(r"E:\SENSEE\test_colonnes_fichier.xlsx")
-
-    # dict_01 = {"col1": "col1", "col2": "col2", "col4": "col4"}
-    # # =============================================================
-    # print("\ndict_01 - csv =====================================================================")
-    # ite = IterFileToInsert(csv_file, dict_01, header_line=0)
-    # for i, line in enumerate(ite.get_chunk_dict_rows(), 1):
-    #     print("Ligne N°", i, " : ", line)
-    # # =============================================================
-    # print("\ndict_01 - excel ===================================================================")
-    # ite = IterFileToInsert(excel_file, dict_01, header_line=0)
-    # for i, line in enumerate(ite.get_chunk_dict_rows(), 1):
-    #     print("Ligne N°", i, " : ", line)
-    #
-    # dict_02 = {"col1": None, "col2": None, "col3": None, "col4": None}
-    # # =============================================================
-    # print("\ndict_02 - csv =====================================================================")
-    # ite = IterFileToInsert(csv_file, dict_02, header_line=0)
-    # for i, line in enumerate(ite.get_chunk_dict_rows(), 1):
-    #     print("Ligne N°", i, " : ", line)
-    # # =============================================================
-    # print("\ndict_02 - excel ===================================================================")
-    # ite = IterFileToInsert(excel_file, dict_02, header_line=0)
-    # for i, line in enumerate(ite.get_chunk_dict_rows(), 1):
-    #     print("Ligne N°", i, " : ", line)
-
-    dict_03 = {"col3": 2, "col1": 0, "col2": 1, "col4": 3}
-    # # =============================================================
-    # print("\ndict_03 - csv =====================================================================")
-    # ite = IterFileToInsert(csv_file, dict_03, header_line=3)
-    # for i, line in enumerate(ite.get_chunk_dict_rows(), 1):
-    #     print("Ligne N°", i, " : ", line)
-    # # =============================================================
-    # print("\ndict_03 - excel ===================================================================")
-    # ite = IterFileToInsert(excel_file, dict_03, header_line=3, mode_csv_dict=csv_dict)
-    # for i, line in enumerate(ite.get_chunk_dict_rows(), 1):
-    #     print("Ligne N°", i, " : ", line)
-    # =============================================================
-    print("\ndict_03 - stringIO ==================================================================")
-    ite = Validation(
-        file_to_iter=excel_file,
-        columns_dict=dict_03,
-        header_line=3,
-        mode_csv_dict=csv_dict,
-        map_line=((0, int),),
-    )
-    file_io = io.StringIO()
-    ite.get_chunk_io(file_io)
-    file_io.seek(0)
-    print(file_io.read())
-    file_io.close()
+    print(__name__)
 
 
 if __name__ == "__main__":

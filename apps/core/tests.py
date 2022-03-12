@@ -8,7 +8,10 @@ sys.path.append(base_path)
 
 # from django.test import TestCase
 
-from imports.import_files import excel_file_to_csv_string_io, ExcelToCsvIncompatibleFileError
+from apps.core.functions.function_imports import (
+    excel_file_to_csv_string_io,
+    ExcelToCsvIncompatibleFileError,
+)
 
 
 file_test_txt = base_path / "test_fixtures/test_pandas.txt"

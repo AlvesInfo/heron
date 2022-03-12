@@ -1,62 +1,24 @@
+# pylint: disable=E0401,R0913,W1514,W0702,R0914
 """
 Module apportant des fonctionnalités pratique à psycopg2
 """
 import sys
-import types
-from itertools import chain, islice
+import io
+import random
+import string
+from typing import AnyStr
+
 import psycopg2
 from psycopg2 import pool
-from psycopg2.extras import execute_batch, execute_values
 from psycopg2.extensions import parse_dsn
+from django.db import models, connection
 
 from apps.core.functions.functions_sql import clean_sql_in
 from apps.core.functions.loggers import POSTGRES_LOGGER
 
 
-TYPE_POSTGRESQL = {
-    "bigint": ("int", "validate_int"),
-    "bigserial": ("int", "validate_int"),
-    "bit": ("bit", "validate_bit"),
-    "bit varying": ("bit", "validate_bit"),
-    "boolean": ("bool", "validate_bool"),
-    "box": ("box", "validate_box"),
-    "bytea": ("bit", "validate_bit"),
-    "character": ("str", "validate_str"),
-    "character varying": ("str", "validate_str"),
-    "cidr": ("cidr", "validate_cidr"),
-    "circle": ("circle", "validate_circle"),
-    "date": ("date", "validate_date"),
-    "double precision": ("float", "validate_float"),
-    "inet": ("inet", "validate_inet"),
-    "integer": ("int", "validate_int"),
-    "interval": ("interval", "validate_interval"),
-    "json": ("json", "validate_json"),
-    "jsonb": ("json", "validate_json"),
-    "line": ("line", "validate_line"),
-    "lseg": ("lseg", "validate_lseg"),
-    "macaddr": ("macaddr", "validate_macaddr"),
-    "macaddr8": ("macaddr8", "validate_macaddr8"),
-    "money": ("float", "validate_float"),
-    "numeric": ("float", "validate_numeric"),
-    "path": ("path", "validate_path"),
-    "pg_lsn": ("pg_lsn", "validate_pg_lsn"),
-    "point": ("point", "validate_point"),
-    "polygon": ("polygon", "validate_polygon"),
-    "real": ("real", "validate_real"),
-    "smallint": ("int", "validate_int"),
-    "smallserial": ("int", "validate_int"),
-    "serial": ("int", "validate_int"),
-    "text": ("str", "validate_str"),
-    "time": ("time", "validate_time"),
-    "time with time zone": ("time", "validate_time"),
-    "timestamp": ("datetime", "validate_date"),
-    "timestamp with time zone": ("datetime", "validate_date"),
-    "tsquery": ("tsquery", "validate_tsquery"),
-    "tsvector": ("tsvector", "validate_tsvector"),
-    "txid_snapshot": ("txid_snapshot", "validate_txid_snapshot"),
-    "uuid": ("uuid", "validate_uuid"),
-    "xml": ("xml", "validate_xml"),
-}
+class PostgresUpsertError(Exception):
+    """Exceptions pour l'upsert dans une table postgresql"""
 
 
 class PoolPostgresql:
@@ -118,21 +80,21 @@ class PoolPostgresql:
         """
         Fonction de génération de demande de connexion au pool
         """
-        connection = None
+        cnx = None
 
         try:
             if not self.__class__.pool_cnx:
                 self.pool_connect()
-            connection = self.__class__.pool_cnx.getconn(key=self.key)
+            cnx = self.__class__.pool_cnx.getconn(key=self.key)
 
         except psycopg2.pool.PoolError as error:
-            if error == "connection pool is closed":
+            if error == "cnx pool is closed":
                 self.pool_connect()
                 self.cnx = self.get_cnx()
             else:
                 print(sys.exc_info()[1])
 
-        return connection
+        return cnx
 
     def close_cnx(self):
         """
@@ -319,12 +281,10 @@ def query_dict(cnx, sql_requete=None):
     return None
 
 
-def copy_from(
-    cnx, file, table, sep=";", columns=None, size=8192, null=None, header=None
-):
+def copy_from(cnx, file, table, sep=";", columns=None, size=8192, null=None, header=None):
     """
     Fonction qui integre un csv dans une table Postgresql.
-        copy_from(file, table, sep='\t', null='\\N', , columns=None)
+        copy_from(file, table, sep='\t', null='\\N', columns=None)
         :param cnx: connexion à la base postgresql psycopg2
         :param file: fichier csv à intégrer
         :param table: table d'insertion
@@ -342,16 +302,14 @@ def copy_from(
                     next(fichier)
 
                 if null is not None:
-                    cur.copy_from(
-                        fichier, table, sep=sep, columns=columns, size=size, null=null
-                    )
+                    cur.copy_from(fichier, table, sep=sep, columns=columns, size=size, null=null)
                 else:
                     cur.copy_from(fichier, table, sep=sep, columns=columns, size=size)
 
                 return True, "succes"
 
     except psycopg2.Error as error:
-        log_line = "copy_from error: {0}\n".format(error)
+        log_line = f"copy_from error: {error!r}\n"
         print(log_line)
         # write_log(self.log_file, log_line)
         # envoi_mail_erreur(log_line)
@@ -363,19 +321,15 @@ def get_types_champs(cnx, table, list_champs=None):
     Fonction qui récupère les types de champs de la table et des champs demandés pour la requête
         :return: list des champs, (taille, type, list des champs)
     """
-    columns = (
-        "AND column_name {0}".format(clean_sql_in(list_champs)) if list_champs is not None else ""
-    )
+    columns = f"AND column_name {clean_sql_in(list_champs)}" if list_champs is not None else ""
 
     with cnx.cursor() as cursor:
-        sql_champs = """
+        sql_champs = f"""
             SELECT column_name, data_type, character_maximum_length, is_nullable 
             FROM information_schema.columns 
-            WHERE table_name = '{0}' 
-            {1};
-        """.format(
-            table, columns
-        )
+            WHERE table_name = '{table}' 
+            {columns};
+        """
         # print(sql_champs)
         cursor.execute(sql_champs)
         list_champs_taille_type = {r[0]: tuple(r[1:]) for r in cursor.fetchall()}
@@ -441,8 +395,8 @@ def executebatch(cur, sql, iterable, page_size=500):
 
 def execute_prepared_upsert(kwargs_upsert):
     """Fonction qui exécute une requete préparée, INSERT ou UPSERT.
-    Attention!!! cette requête sera en autocommit.
-    exemple :
+    Attention!!! Cette requête sera en autocommit.
+    Exemple :
     cursor.execute("PREPARE stmt (int, text, bool)
     AS INSERT INTO foo VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;")
     execute_batch(cursor, "EXECUTE stmt (%s, %s, %s)", list_values)
@@ -450,7 +404,7 @@ def execute_prepared_upsert(kwargs_upsert):
 
         :param kwargs_upsert: {
                       cnx: connexion psycopg2
-                    table: table concerné par la requête
+                    table: table concernée par la requête
                   columns: champs de la table, souhaités dans la requête
                      rows: Liste des valeurs à inserer dans la table
             champs_unique: liste des champs d'unicité dans la table,
@@ -471,19 +425,17 @@ def execute_prepared_upsert(kwargs_upsert):
 
     for i, k in enumerate(kwargs_upsert["columns"]):
         champ, t_p = k, dict_rows[k][0]
-        prepare += "{0}, ".format(t_p)
-        insert += "${0}, ".format(i + 1)
-        colonnes += '"{0}", '.format(champ)
+        prepare += f"{t_p}, "
+        insert += f"${str(i + 1)}, "
+        colonnes += f'"{champ}", '
         execute += "%s, "
 
-    colonnes = "{0})".format(colonnes[:-2])
-    insert = "{0})".format(insert[:-2])
-    prepare = """
-    {0}) AS INSERT INTO "{1}" {2} VALUES {3} 
-    """.format(
-        prepare[:-2], kwargs_upsert["table"], colonnes, insert
-    )
-    execute = "{0});".format(execute[:-2])
+    colonnes = f"{0})"
+    insert = f"{insert[:-2]})"
+    prepare = f"""
+    {prepare[:-2]}) AS INSERT INTO "{kwargs_upsert['table']}" {colonnes} VALUES {insert} 
+    """
+    execute = f"{execute[:-2]});"
 
     if kwargs_upsert["upsert"] is None:
         prepare += ";"
@@ -495,14 +447,14 @@ def execute_prepared_upsert(kwargs_upsert):
         else:
             chu = "("
             for k in kwargs_upsert["champs_unique"]:
-                chu += '"{0}", '.format(k)
-            chu = "{0})".format(chu[:-2])
-            prepare += " ON CONFLICT {0} DO UPDATE SET ".format(chu)
+                chu += f'"{k}", '
+            chu = f"{chu[:-2]})"
+            prepare += f" ON CONFLICT {chu} DO UPDATE SET "
             for champ in kwargs_upsert["columns"]:
                 if champ not in kwargs_upsert["champs_unique"]:
-                    prepare += '"{0}" = excluded."{0}", '.format(str(champ))
+                    prepare += f'"{str(champ)}" = excluded."{str(champ)}", '
 
-            prepare = "{0};".format(prepare[:-2])
+            prepare = f"{prepare[:-2]};"
 
     page_size = kwargs_upsert.get("page_size", 500)
 
@@ -519,7 +471,7 @@ def execute_prepared_upsert(kwargs_upsert):
                 cursor.execute("DEALLOCATE stmt")
 
     except psycopg2.Error as err:
-        POSTGRES_LOGGER.exception(f"{err}")
+        POSTGRES_LOGGER.exception("execute_prepared_upsert")
         tup_count = err
         error = None
         try:
@@ -530,6 +482,184 @@ def execute_prepared_upsert(kwargs_upsert):
             POSTGRES_LOGGER.exception("deallocate stmt")
 
     return error, tup_count
+
+
+def get_random_name(size=10):
+    """
+    Retourne une suite de lettre alléatoire
+    :param size: taille
+    :return: texte
+    """
+    ascii_choices = string.ascii_lowercase
+    return "".join(random.SystemRandom().choice(ascii_choices) for _ in range(size)).lower()
+
+
+class PostresUpsert:
+    """
+    Class pour l'insertion en base de donnée de fichier de type csv
+    (de préférence au format io. StringIO) par des méthodes de copy_from psycopg2.
+    Ces méthodes d'insertion sont plus rapides, mais elle empêche d'avoir les erreurs par lignes
+    """
+
+    def __init__(self, model: models.Model, dict_get_fields: AnyStr, cnx: connection, fields=None):
+        self.model = model
+        self.dict_get_fields = dict_get_fields
+        self.cnx = cnx
+        self.fields = fields
+        self.meta = self.model._meta
+        self.table_name = self.meta.db_table
+        self.temp_table_name = self.get_temp_table_name()
+
+    def table_is_exists(self, name):
+        """
+        Vérifie si le nom choisi pour la table temporaire existe en base
+        :param name: nom de table à tester
+        :return: bool
+        """
+        cursor = self.cnx.cursor()
+        sql = f"""SELECT 1 FROM information_schema."tables" WHERE table_name='{name}'"""
+        cursor.execute(sql)
+        return cursor.fetchone() is not None
+
+    def get_temp_table_name(self):
+        """
+        Retourne le nom de la table temporaire en s'assurant que le nom n'existe pas
+        :return: nom de la table temporaire
+        """
+        name = ""
+
+        while not name:
+            test_name = f"{get_random_name()}_{self.table_name}"
+
+            if not self.table_is_exists(test_name):
+                name = test_name
+
+        return name
+
+    def get_column_properties(self, field_key: AnyStr):
+        """
+        Retourne les paramètres de création
+        :param field_key: champ du model django à retouner
+        :return:
+        """
+        field_attr = self.meta.get_field(field_key)
+        return f' "{field_attr.column}" ' f"{field_attr.db_type(connection)}"
+
+    def get_columns_upsert(self):
+        """
+        :return: Retourne les clauses de ON CONFICT ... UPDATE
+        """
+        fields_upsert_dict = {
+            "conflict": [],
+            "update": [],
+        }
+        for field_key, bool_value in self.dict_get_fields.items():
+            if bool_value:
+                fields_upsert_dict.get("conflict").append(field_key)
+            else:
+                fields_upsert_dict.get("update").append(field_key)
+
+        return fields_upsert_dict
+
+    @property
+    def get_colmuns_table(self):
+        """
+        Retourne les champs de la table pour l'insert
+        :return: champs de la table pour insert
+        """
+        return ", ".join(f'"{column}"' for column in self.dict_get_fields.keys())
+
+    @property
+    def get_insert(self):
+        """
+        Renvoi le début de la requête d'insertion
+        :return: début de la requête d'insertion
+        """
+        return (
+            f'INSERT INTO "{self.table_name}" ({self.get_colmuns_table}) '
+            f"SELECT {self.get_colmuns_table} FROM {self.temp_table_name}"
+        )
+
+    @property
+    def get_ddl_temp_table(self):
+        """
+        Retourne le DDL de crétaion d'une table temporaire
+        :return: texte de Creation du DDL
+        """
+        columns_list = [self.get_column_properties(field) for field in self.dict_get_fields.keys()]
+        return f"""CREATE TEMPORARY TABLE "{self.temp_table_name}" ({",".join(columns_list)[1:]})"""
+
+    @property
+    def get_query_upsert(self):
+        """
+        Retourne la requête d'insertion en mode upsert
+        :return: clause du conflict de la requête
+        """
+        conflict_columns = ", ".join(
+            f'"{column}"' for column in self.get_columns_upsert().get("conflict")
+        )
+        update_columns = ", ".join(
+            f'"{column}"=EXCLUDED."{column}"' for column in self.get_columns_upsert().get("update")
+        )
+        return f"{self.get_insert} ON CONFLICT ({conflict_columns}) DO UPDATE SET {update_columns}"
+
+    @property
+    def get_query_do_nothing(self):
+        """
+        Retourne la requête d'insertion en mode do nothing
+        en cas d'insertion souffrant d'une erreur ne fait rien
+        :return: texte de la requête à exécuter
+        """
+        return f"{self.get_insert} ON CONFLICT DO NOTHING"
+
+    @property
+    def get_query_insert(self):
+        """
+        Retourne la requête d'insertion en mode upsert
+        :return: texte de la requête à exécuter
+        """
+        return self.get_insert
+
+    @property
+    def get_drop_temp(self):
+        """
+        Retourne la requête de suppression de la table provisoire
+        :return: requête de suppression de la table provisoire
+        """
+        return f'DROP TABLE IF EXISTS "{self.temp_table_name}"'
+
+    def set_insertion(
+        self,
+        file: io.StringIO,
+        sep: AnyStr = ";",
+        size: int = 1024,
+        insert_mode: AnyStr = "upsert",
+    ):
+        """
+        Realise l'insertion choisie (upsert, nothing, normale)
+        :return:
+        """
+        insert_mode_dict = {
+            "upsert": self.get_query_upsert,
+            "do_nothing": self.get_query_do_nothing,
+            "insert": self.get_query_insert,
+        }
+
+        if insert_mode not in insert_mode_dict:
+            raise PostgresUpsertError("La methode d'insertion choisie n'existe pas")
+
+        with self.cnx.cursor() as cursor:
+            try:
+                if insert_mode == "insert" and self.fields:
+                    cursor.copy_from(file, self.table_name, sep=sep, size=size, columns=self.fields)
+                else:
+                    cursor.execute(self.get_ddl_temp_table)
+                    cursor.copy_from(file, self.temp_table_name, sep=sep, size=size)
+                    cursor.execute(insert_mode_dict.get(insert_mode))
+                    cursor.execute(self.get_drop_temp)
+
+            except Exception as error:
+                raise PostgresUpsertError("set_insertion") from error
 
 
 if __name__ == "__main__":
