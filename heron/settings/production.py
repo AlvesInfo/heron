@@ -112,3 +112,10 @@ CLAMD_TCP_SOCKET = 3310
 CLAMD_TCP_ADDR = "127.0.0.1"
 
 ENVIRONNEMENT = "PRODUCTION"
+
+# REPERTOIRE DU SERVEUR SAGE
+ACUITIS_EM_DIR = Path("/media/acuitis_edi")
+ACUISENS_EM_DIR = Path("/media/acuisens_edi")
+ACUITEST_EM_DIR = Path("/media/acuitest_edi")
+ACUIREP_EM_DIR = Path("/media/acuirep_edi")
+ACSENSREP_EM_DIR = Path("/media/acsensrep_edi")

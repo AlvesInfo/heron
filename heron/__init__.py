@@ -8,9 +8,9 @@
 
 # TODO : Remplir la table des Axes Sage
 
-# TODO : Rempplir la table des Sections Sage
+# TODO : Remplir la table des Sections Sage
 
-# TODO :
+# TODO : Finaliser la table des delais de paiements, réfléchir aux methodes
 
 # TODO :
 

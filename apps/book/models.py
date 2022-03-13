@@ -5,9 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
 
+from apps.accountancy.models import AccountSage
 from apps.centers_purchasing.models import Signboard
 from apps.countries.models import Country
-from apps.parameters.models import PaymentCondition, BudgetCode, SageAccount, SalePriceCategory
+from apps.parameters.models import PaymentCondition, BudgetCode, SalePriceCategory
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
@@ -17,6 +18,9 @@ class Nature(FlagsTable):
     category = models.CharField(unique=True, blank=True, max_length=35)
     to_display = models.CharField(null=True, blank=True, max_length=35)
     for_contact = models.BooleanField(null=True, default=None)
+
+    # Identification
+    uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def save(self, *args, **kwargs):
         self.category = self.category.capitalize()
@@ -35,6 +39,9 @@ class Nature(FlagsTable):
 
 class CLientCategory(FlagsTable):
     name = models.CharField(max_length=80)
+
+    # Identification
+    uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
 
 class Society(FlagsTable):
@@ -90,9 +97,11 @@ class Society(FlagsTable):
     renew_fee_amoount = models.DecimalField(max_digits=20, decimal_places=5, null=True)
     sale_price_category = models.ForeignKey(SalePriceCategory, on_delete=models.PROTECT)
     generic_coefficient = models.DecimalField(max_digits=20, decimal_places=5, default=1)
-    credit_account = models.ForeignKey(SageAccount, on_delete=models.PROTECT, related_name="cr_soc")
-    debit_account = models.ForeignKey(SageAccount, on_delete=models.PROTECT, related_name="cd_soc")
-    prov_account = models.ForeignKey(SageAccount, on_delete=models.PROTECT, related_name="prov_soc")
+    credit_account = models.ForeignKey(AccountSage, on_delete=models.PROTECT, related_name="cr_soc")
+    debit_account = models.ForeignKey(AccountSage, on_delete=models.PROTECT, related_name="cd_soc")
+    prov_account = models.ForeignKey(AccountSage, on_delete=models.PROTECT, related_name="prov_soc")
+    sage_vat_by_default = models.CharField(null=True, blank=True, max_length=5)
+    sage_pan_code = models.CharField(null=True, blank=True, max_length=10)
 
     # RFA
     rfa_frequence = models.IntegerField(choices=Frequence.choices, default=Frequence.MENSUEL)
@@ -108,9 +117,10 @@ class Society(FlagsTable):
         ordering = ["name"]
 
 
-class Addresses(FlagsTable):
-    society = models.ForeignKey(Society, on_delete=models.CASCADE, related_name="adresses_society")
-    address_name = models.CharField(default="Principale", unique=True, max_length=35)
+class Addresse(FlagsTable):
+    # TODO : Faire la validation de l'adresse par défaut une seule par société
+    society = models.ForeignKey(Society, on_delete=models.CASCADE, related_name="adresse_society")
+    default_adress = models.BooleanField(default=True)
     address_code = models.CharField(null=True, blank=True, max_length=10)
     address_number = models.CharField(null=True, blank=True, max_length=10)
     road_type = models.CharField(null=True, blank=True, max_length=35)
@@ -121,7 +131,7 @@ class Addresses(FlagsTable):
     region = models.CharField(null=True, blank=True, max_length=80)
     postal_code = models.CharField(null=True, blank=True, max_length=35)
     city = models.CharField(null=True, blank=True, max_length=80)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="adresses_country")
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="adresse_country")
     building = models.CharField(null=True, blank=True, max_length=80)
     floor = models.CharField(null=True, blank=True, max_length=80)
     phone_number = models.CharField(null=True, blank=True, max_length=35)
@@ -136,6 +146,9 @@ class Addresses(FlagsTable):
 class ExchangePermision(FlagsTable):
     name = models.CharField(unique=True, max_length=35)
     comment = models.TextField(null=True, blank=True)
+
+    # Identification
+    uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
         return self.name
@@ -168,7 +181,6 @@ class ContactExchange(models.Model):
 class SocietyBank(FlagsTable):
     society = models.ForeignKey(Society, on_delete=models.CASCADE, related_name="bank_society")
     payee = models.CharField(null=True, blank=True, max_length=80)
-    uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     bank_name = models.CharField(max_length=35)
     bank_code = models.CharField(unique=True, max_length=5)
     counter_code = models.CharField(null=True, blank=True, max_length=5)

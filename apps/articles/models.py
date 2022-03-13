@@ -4,9 +4,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
+from apps.countries.models import Country
 from apps.parameters.models import SubFamilly, Category, BudgetCode, SalePriceCategory
 from apps.book.models import Society
-from apps.countries.models import Country
 
 
 class Article(FlagsTable):
@@ -38,13 +38,14 @@ class Article(FlagsTable):
     unit_weight = models.CharField(
         null=True, blank=True, max_length=20, choices=Unit.choices, default=Unit.GR
     )
+    packaging_qty = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     catalog_price = models.CharField(null=True, blank=True, max_length=35)
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.supplier} - {self.reference} - {self.libelle}"
+        return f"{self.supplier} - {self.reference} - {self.libelle_heron}"
 
 
 class SellingPrice(FlagsTable):

@@ -76,6 +76,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "heron",
+    "apps.accountancy",
     "apps.articles",
     "apps.book",
     "apps.centers_purchasing",
