@@ -56,8 +56,6 @@ class EdiForm(forms.ModelForm):
     montant_facture_TTC = NullZeroDecimalField()
 
     class Meta:
-        """
-        Meta Class for elements model
-        """
+        """class Meta du modèle django"""
         model = EdiImport
         exclude = ["pk"]

@@ -113,7 +113,7 @@ CLAMD_TCP_ADDR = "127.0.0.1"
 
 ENVIRONNEMENT = "PRODUCTION"
 
-# REPERTOIRE DU SERVEUR SAGE
+# REPERTOIRE DU SERVEUR Sage X3
 ACUITIS_EM_DIR = Path("/media/acuitis_edi")
 ACUISENS_EM_DIR = Path("/media/acuisens_edi")
 ACUITEST_EM_DIR = Path("/media/acuitest_edi")

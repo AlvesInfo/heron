@@ -41,19 +41,22 @@ def fixtures_pays():
     with file.open(encoding="utf8") as csv_file:
         csv_rows: csv = csv.reader(csv_file, delimiter=";", quotechar='"')
         list_keys: list = [
-            "pays",
-            "iso_pays",
-            "sigle_monaie",
-            "nom_monaie",
-            "iso_monaie",
-            "ind_tel",
+            "country_iso",
+            "country_iso_3",
+            "country_insee",
+            "country_iso_num",
+            "country_deb",
+            "country",
+            "currency_iso",
+            "lang_iso",
             "cee",
+            "country_vat_num",
         ]
 
         for row in csv_rows:
             try:
                 row[6] = validate_boolean(row[6])
-                Pays.objects.update_or_create(**dict(zip(list_keys, row)))
+                Country.objects.update_or_create(**dict(zip(list_keys, row)))
             except IntegrityError:
                 pass
 

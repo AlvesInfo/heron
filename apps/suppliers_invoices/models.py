@@ -1,3 +1,16 @@
+# pylint: disable=E0401,R0903
+"""
+FR : Module des modèles de factures founisseurs
+EN : supplier invoice templates module
+
+Commentaire:
+
+created at: 2021-11-07
+created by: Paulo ALVES
+
+modified at: 2021-11-07
+modified by: Paulo ALVES
+"""
 import uuid
 
 from django.db import models
@@ -5,8 +18,6 @@ from django.db import models
 from heron.models import FlagsTable
 from apps.articles.models import Article
 from apps.book.models import Society
-from apps.parameters.models import SubFamilly, Category, BudgetCode
-from apps.users.models import User
 
 
 class Incoice(FlagsTable):
@@ -14,7 +25,13 @@ class Incoice(FlagsTable):
     FR : Factures fournisseurs
     EN : Suppliers Invoices
     """
-    supplier = models.ForeignKey(Society, on_delete=models.PROTECT, related_name="detail_society")
+
+    supplier = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="detail_society",
+    )
     invoice_number = models.CharField(max_length=35)
     invoice_date = models.DateField()
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
@@ -22,20 +39,30 @@ class Incoice(FlagsTable):
     flag_sage = models.BooleanField(default=False)
 
     # Identification
-    uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.supplier} - {self.invoice_number} - {self.invoice_date}"
 
-    @staticmethod
-    def set_import():
+    @property
+    def set_import(self):
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
         return "methode d'import à retourner"
 
     @staticmethod
     def set_export():
+        """
+        FR : Retourne la methode pour exporter le fihier destiné à l'intégration dans Sage X3
+        EN : Returns the method to export the file intended for integration in Sage X3
+        """
         return "methode d'export à retourner"
 
     class Meta:
+        """class Meta du modèle django"""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["supplier", "invoice_number", "invoice_date__year"], name="unique_invoice"
@@ -48,6 +75,7 @@ class InvoiceDetail(FlagsTable):
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
     """
+
     invoice = models.ForeignKey(Incoice, on_delete=models.CASCADE, related_name="detail_invoice")
 
     # Article
@@ -62,7 +90,12 @@ class InvoiceDetail(FlagsTable):
     axe_rfa = models.CharField(null=True, blank=True, max_length=10)
 
     # Maison
-    maison = models.ForeignKey(Society, on_delete=models.PROTECT)
+    maison = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="maison_society",
+    )
 
     # Commande / BL
     acuitis_order_number = models.CharField(null=True, blank=True, max_length=80)

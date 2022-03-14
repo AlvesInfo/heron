@@ -1,4 +1,7 @@
+import uuid
+
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.conf import settings
 from django.db import models, connection
 from django.db.utils import IntegrityError
 from django.utils import timezone
@@ -61,12 +64,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     subordonates = models.ManyToManyField("self", through="UserChief", symmetrical=False)
     secure_session_key = models.CharField(null=True, blank=True, max_length=50)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
     class Meta:
+        """class Meta du modèle django"""
         verbose_name = "user"
         verbose_name_plural = "users"
         db_table = "auth_user"
@@ -119,17 +126,21 @@ class User(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
     def save(self, *args, **kwargs):
-        super(User, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class UserSession(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
 
 class UserChief(models.Model):
-    chief = models.ForeignKey("User", related_name="chief", on_delete=models.CASCADE)
-    subordonate = models.ForeignKey("User", related_name="subordonate", on_delete=models.CASCADE)
+    chief = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="chief", on_delete=models.CASCADE
+    )
+    subordonate = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="subordonate", on_delete=models.CASCADE
+    )
 
 
 class AuthGroupName(models.Model):
@@ -155,5 +166,5 @@ class AuthGroupAccessStaff(models.Model):
 class UploadUserFile(models.Model):
     file = models.FileField(upload_to="users/")
     base_name_file = models.CharField(blank=True, null=True, max_length=255)
-    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True)
     type_insert = models.IntegerField(choices=((0, "users"), (1, "staff"), (2, "admin")), default=0)

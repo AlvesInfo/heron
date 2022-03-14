@@ -1,8 +1,27 @@
+# pylint: disable=E0401,R0903
+"""
+FR : Module de préparation à l'import des factures fournisseurs
+EN : Preparation module for importing supplier invoices
+
+Commentaire:
+
+created at: 2021-11-07
+created by: Paulo ALVES
+
+modified at: 2021-11-07
+modified by: Paulo ALVES
+"""
 from django.db import models
-from heron.models import DatesTable, FlagsTable
+from heron.models import FlagsTable
 
 
 class EdiImport(FlagsTable):
+    """
+    Table de préparation à l'import des factures fournisseurs edi et spécifique
+    FR : Table Import EDI
+    EN : Edi Import table
+    """
+
     uuid_identification = models.UUIDField()
     fournisseur = models.CharField(null=True, blank=True, max_length=35)
     siret_fournisseur = models.CharField(null=True, blank=True, max_length=20)

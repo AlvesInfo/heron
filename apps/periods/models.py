@@ -1,22 +1,42 @@
+# pylint: disable=E0401,R0903
+"""
+FR : Module des models des périodes
+EN : Periods models module
+
+Commentaire:
+
+created at: 2021-11-07
+created by: Paulo ALVES
+
+modified at: 2021-11-07
+modified by: Paulo ALVES
+"""
 from django.db import models
 
 
 class Periode(models.Model):
+    """
+    Table des Peridoe, sert à selectionner des dates périodes et between
+    FR : Périodes
+    EN : Periods
+    """
 
-    annee = models.IntegerField(default=0, verbose_name="année")
-    type_periode = models.CharField(
+    year = models.IntegerField(default=0, verbose_name="année")
+    period_type = models.CharField(
         blank=True, null=True, max_length=35, verbose_name="type de période"
     )
-    libelle = models.CharField(
-        blank=True, null=True, max_length=35, verbose_name="libellé"
-    )
-    date_debut = models.DateField()
-    date_fin = models.DateField()
+    wording = models.CharField(blank=True, null=True, max_length=35, verbose_name="libellé")
+    start_date = models.DateField()
+    end_date = models.DateField()
 
     def __str__(self):
-        return "{0} - {1} - {2}".format(self.annee, self.type_periode, self.libelle)
+        return f"{self.year} - {self.period_type} - {self.wording}"
 
     class Meta:
-        unique_together = (
-            ("annee", "type_periode", "libelle", "date_debut", "date_fin"),
-        )
+        """class Meta du modèle django"""
+
+        ordering = [
+            "period_type",
+            "start_date",
+        ]
+        unique_together = (("year", "period_type", "wording", "start_date", "end_date"),)

@@ -194,6 +194,7 @@ class UploadStaffsForm(forms.ModelForm):
         file = forms.FileField(validators=[validate_file_infection])
 
     class Meta:
+        """class Meta du modèle django"""
         model = UploadUserFile
         fields = ("file",)
 
