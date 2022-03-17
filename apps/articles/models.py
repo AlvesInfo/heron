@@ -41,7 +41,7 @@ class Article(FlagsTable):
     supplier = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="third_party_num",
         related_name="supplier_society",
     )
     reference = models.CharField(max_length=35)
@@ -125,7 +125,7 @@ class Article(FlagsTable):
     made_in = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="country_iso",
         related_name="article_country",
         null=True,
     )

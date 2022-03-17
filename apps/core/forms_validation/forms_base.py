@@ -82,6 +82,31 @@ class FrenchNullBooleanField(forms.BooleanField):
         return super().clean(value)
 
 
+class SageNullBooleanField(forms.BooleanField):
+    """
+    FR: forms.field valide les booléens pour Sage
+    EN: forms.field wich velidate for Sage boolean
+    """
+
+    def clean(self, value):
+        """
+        FR: booléens méthode propre
+            :param value: valeur à valider
+            :return: méthode Clean
+        EN: frenh boolean clean method
+            :param value: value to validate
+            :return: Clean method
+        """
+        if str(value).lower() in {2, '2'}:
+            value = "true"
+        elif str(value).lower() in {1, "1"}:
+            value = "false"
+        else:
+            value = None
+
+        return super().clean(value)
+
+
 class NullZeroDecimalField(forms.DecimalField):
     """
     FR: forms.field qui renvoie 0 si le champ est vide

@@ -1,16 +1,16 @@
 # pylint: disable=E0401,R0903
 """
-FR : Module des modèles de comptabilité sage pour validations et vérifications
+FR : Module des modèles de comptabilité sage pour forms_validation et vérifications
      des élements à importer de Sage X3
-EN : Sage accounting models module for validations and verifications
+EN : Sage accounting models module for forms_validation and verifications
      elements to import of Sage X3
 
 Commentaire:
 
-created at: 2021-11-07
+created at: 2021-09-09
 created by: Paulo ALVES
 
-modified at: 2021-11-07
+modified at: 2021-09-09
 modified by: Paulo ALVES
 """
 
@@ -30,30 +30,58 @@ class AccountingTypeSage:
 
 class AccountSage(FlagsTable):
     """
-    Table des comptes Sage X3
+    Table des comptes Sage X3 - GACCOUNT
     FR : Comptes au sens comptable de Sage X3
     EN : Accounts in the accounting sense of Sage X3
     """
 
-    # TODO : à reprendre en vérifiant par rapport aux reprises déjà faites
-    code_plan_sage = models.CharField(max_length=10)
-    account = models.CharField(max_length=35)
-    collective = models.CharField(null=True, blank=True, max_length=15)
-    auxiliary = models.BooleanField()
-    analytical_obligatory = models.BooleanField()
-    nb_axes = models.IntegerField(default=0)
-    vat_default = models.CharField(null=True, blank=True, max_length=15)
+    code_plan_sage = models.CharField(max_length=10)  # COA
+    account = models.CharField(max_length=35)  # ACC
+    name = models.CharField(null=True, max_length=30, verbose_name="intitulé")  # DES
+    short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")  # DESSHO
+    collective = models.BooleanField(null=True)  # SAC
+    call_code = models.CharField(
+        null=True, blank=True, max_length=15, verbose_name="code d'appel"
+    )  # ACCSHO
+    analytic = models.BooleanField(null=True, default=False)  # AUZBPR
+    nb_axes = models.IntegerField(default=0)  # DACDIENBR
+    axe_00 = models.CharField(null=True, blank=True, max_length=10)  # DIE
+    section_00 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF
+    axe_01 = models.CharField(null=True, blank=True, max_length=10)  # DIE(1)
+    section_01 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(1)
+    axe_02 = models.CharField(null=True, blank=True, max_length=10)  # DIE(2)
+    section_02 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(2)
+    axe_03 = models.CharField(null=True, blank=True, max_length=10)  # DIE(3)
+    section_03 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(3)
+    axe_04 = models.CharField(null=True, blank=True, max_length=10)  # DIE(4)
+    section_04 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(4)
+    axe_05 = models.CharField(null=True, blank=True, max_length=10)  # DIE(5)
+    section_05 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(5)
+    axe_06 = models.CharField(null=True, blank=True, max_length=10)  # DIE(6)
+    section_06 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(6)
+    axe_07 = models.CharField(null=True, blank=True, max_length=10)  # DIE(7)
+    section_07 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(7)
+    axe_08 = models.CharField(null=True, blank=True, max_length=10)  # DIE(8)
+    section_08 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(8)
+    axe_09 = models.CharField(null=True, blank=True, max_length=10)  # DIE(9)
+    section_09 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(9)
+    vat_default = models.CharField(null=True, blank=True, max_length=15)  # VAT
+    chargeback_x3 = models.BooleanField(default=False, verbose_name="refacturable X3")  # XFLGREFAC
+    bu_suc = models.CharField(null=True, blank=True, max_length=20)  # ZBUSUC
 
-    @property
-    def file_import_sage(self):
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBIACCOUNT_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -61,15 +89,39 @@ class AccountSage(FlagsTable):
         return {
             "code_plan_sage": 0,
             "account": 1,
-            "collective": 2,
-            "auxiliary": 3,
-            "analytical_obligatory": 4,
-            "nb_axes": 5,
-            "vat_default": 6,
+            "name": 2,
+            "short_name": 3,
+            "collective": 4,
+            "call_code": 5,
+            "analytic": 6,
+            "nb_axes": 7,
+            "axe_00": 8,
+            "section_00": 9,
+            "axe_01": 10,
+            "section_01": 11,
+            "axe_02": 12,
+            "section_02": 13,
+            "axe_03": 14,
+            "section_03": 15,
+            "axe_04": 16,
+            "section_04": 17,
+            "axe_05": 18,
+            "section_05": 19,
+            "axe_06": 20,
+            "section_06": 21,
+            "axe_07": 22,
+            "section_07": 23,
+            "axe_08": 24,
+            "section_08": 25,
+            "axe_09": 26,
+            "section_09": 27,
+            "vat_default": 28,
+            "chargeback_x3": 29,
+            "bu_suc": 30,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -117,16 +169,16 @@ class AxeSage(FlagsTable):
     axe = models.CharField(unique=True, choices=Axe.choices, max_length=10)
     name = models.CharField(null=True, blank=True, max_length=30)
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBIAXES_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -136,8 +188,8 @@ class AxeSage(FlagsTable):
             "name": 1,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -221,8 +273,8 @@ class SectionSage(FlagsTable):
     axe = models.ForeignKey(
         AxeSage, on_delete=models.PROTECT, to_field="axe", related_name="axe_axe"
     )
-    section = models.CharField(unique=True, max_length=15)
-    chargeable = models.BooleanField(default=True)
+    section = models.CharField(max_length=15)
+    chargeable = models.BooleanField(null=True, default=True)
     regroup_01 = models.CharField(null=True, blank=True, max_length=15)
     regroup_02 = models.CharField(null=True, blank=True, max_length=15)
 
@@ -232,16 +284,16 @@ class SectionSage(FlagsTable):
     axes = models.Manager()
     objects = SectionSageQuerySet.as_manager()
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBICCE_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -254,8 +306,8 @@ class SectionSage(FlagsTable):
             "regroup_02": 4,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -300,16 +352,16 @@ class VatRegimeSage(FlagsTable):
     sale_class = models.CharField(null=True, max_length=10, verbose_name="classe vente")
     regime_type = models.CharField(null=True, max_length=20, verbose_name="type de régime")
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBIREG_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -324,8 +376,8 @@ class VatRegimeSage(FlagsTable):
             "regime_type": 6,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -351,26 +403,24 @@ class VatSage(FlagsTable):
     ====================================================
     Tva          | vat         | TABVAT     | VAT
     Intitulé     | name        | TABVAT     | VATDES
-    Taux         | rate        | TABVAT     | VATRAT
     Régime       | vat_regime  | TABVAT     | VATVAC
     ====================================================
     """
 
     vat = models.CharField(null=True, blank=True, max_length=5)
     name = models.CharField(null=True, blank=True, max_length=30)
-    rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     vat_regime = models.CharField(null=True, blank=True, max_length=5)
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBIVAT_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -378,12 +428,11 @@ class VatSage(FlagsTable):
         return {
             "vat": 0,
             "name": 1,
-            "rate": 2,
-            "vat_regime": 3,
+            "vat_regime": 2,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -399,42 +448,62 @@ class VatSage(FlagsTable):
         ordering = ["vat"]
 
 
-class ThirdPartySageVatSage:
+class VatRatSage(FlagsTable):
     """
-    Table des tiers Sage X3
-    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
-    ici on ne fait que commenter la structure et préciser la méthode d'import
-    FR : Tiers au sens de Sage X3
-    EN : Third party as defined by Sage X3
+    Table des taux et nom de TVA Sage X3
+    FR : TVA au sens de Sage X3
+    EN : VAT as defined by Sage X3
+    ==========================================================
+    champ        | model attr.    | table SAGE    | Champ Sage
+    ==========================================================
+    Tva          | vat            | TABRATVAT     | VAT
+    Date début   | vat_start_date | TABRATVAT     | STRDAT
+    Taux         | rate           | TABRATVAT     | VATRAT
+    Régime       | vat_regime     | TABRATVAT     | VATEXEFLG
+    ==========================================================
     """
 
-    @property
-    def file_import_sage(self):
+    vat = models.ForeignKey(VatSage, on_delete=models.PROTECT, to_field="vat")
+    vat_start_date = models.CharField(blank=True, max_length=30)
+    rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    exoneration = models.BooleanField(null=True)
+
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
-        return "ZBIBPS_journalier.heron", "ZBIBPC_journalier.heron"
+        return "ZBIRATVAT_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
         """
-        # TODO : mapping à faire pour les champs du modèle Book lignes par ligne
         return {
-            "A": {},
-            "B": {},
+            "vat": 0,
+            "vat_start_date": 1,
+            "rate": 2,
+            "exoneration": 3,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
         """
         return "methode d'import à retourner"
+
+    def __str__(self):
+        return f"{self.vat} - {self.vat_start_date} - {self.rate}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["vat", "-vat_start_date"]
 
 
 class PaymentCondition(FlagsTable):
@@ -455,16 +524,16 @@ class PaymentCondition(FlagsTable):
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBIPTE_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -475,8 +544,8 @@ class PaymentCondition(FlagsTable):
             "short_name": 2,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -564,16 +633,16 @@ class TabDivSage(FlagsTable):
     tab_div = models.Manager()
     objects = TabDivQuerySet.as_manager()
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBIDIV_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -618,8 +687,8 @@ class TabDivSage(FlagsTable):
             "flag_active": 34,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -661,16 +730,16 @@ class CategorySage(FlagsTable):
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     cur = models.CharField(null=True, max_length=3, verbose_name="devise")
 
-    @property
-    def file_import_sage(self):
+    @staticmethod
+    def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
         return "ZBICATC_journalier.heron", "ZBICATS_journalier.heron"
 
-    @property
-    def get_columns_import(self):
+    @staticmethod
+    def get_columns_import():
         """
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
@@ -683,8 +752,8 @@ class CategorySage(FlagsTable):
             "cur": 4,
         }
 
-    @property
-    def set_import(self):
+    @staticmethod
+    def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
         EN : Returns the method to call to import the fixtures from the model
@@ -698,3 +767,70 @@ class CategorySage(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["code"]
+
+
+class CurrencySage(FlagsTable):
+    """
+    Table des devises TABCHANGE de Sage X3
+    FR : Table des devises définie par Sage X3
+    EN : Currency table as defined by Sage X3
+    =================================================================
+    champ          | model attr.   | table SAGE    | Champ Sage
+    =================================================================
+    Initiale       | initial       |                | C ou S
+    Catégorie      | code          | BPCCATEG       | BCGCOD - BSGCOD
+    Intitulé       | name          | BPCCATEG       | DESAXX
+    Intitulé court | short_name    | BPCCATEG       | SHOAXX
+    Devise         | cur           | BPCCATEG       | CUR
+    =================================================================
+    """
+
+    currency_iso_current = models.CharField(blank=True, null=True, max_length=3)
+    currency_iso_change = models.CharField(blank=True, null=True, max_length=3)
+    exchange_date = models.DateField(auto_now_add=True, verbose_name="créé le")
+    average_exchange_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    purchase_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
+    sale_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
+    cee = models.BooleanField(null=True, default=False)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBICUR_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "initials": 0,
+            "code": 1,
+            "name": 2,
+            "short_name": 3,
+            "cur": 4,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+    def __str__(self):
+        return f"{self.currency_iso_current} - {self.currency_iso_change}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["currency_iso_current", "currency_iso_change", "exchange_date"]
+        unique_together = (("currency_iso_current", "currency_iso_change", "exchange_date"),)

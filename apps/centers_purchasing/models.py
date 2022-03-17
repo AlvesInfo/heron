@@ -23,7 +23,7 @@ from apps.parameters.models import SalePriceCategory
 class Action(FlagsTable):
     """
     Table des Actions. Elle permettra d'avoir une liste centralisée,
-    des actions à réaliser en fonction de la centrale d'achat, ou pour des validations
+    des actions à réaliser en fonction de la centrale d'achat, ou pour des forms_validation
     ou modifications de valeurs à la volée.
     FR : Actions
     EN : Actions
@@ -143,7 +143,11 @@ class SignboardModel(FlagsTable):
     EN : Templates for Signs
     """
 
-    sign_board = models.ForeignKey(Signboard, on_delete=models.PROTECT)
+    sign_board = models.ForeignKey(
+        Signboard,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+    )
     name = models.CharField(unique=True, max_length=80)
     short_name = models.CharField(null=True, blank=True, max_length=20)
     action = models.CharField(null=True, blank=True, max_length=80)

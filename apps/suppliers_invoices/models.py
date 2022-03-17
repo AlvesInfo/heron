@@ -29,14 +29,14 @@ class Incoice(FlagsTable):
     supplier = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="third_party_num",
         related_name="detail_society",
     )
     invoice_number = models.CharField(max_length=35)
     invoice_date = models.DateField()
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
     invoice_type = models.CharField(max_length=3)
-    flag_sage = models.BooleanField(default=False)
+    flag_sage = models.BooleanField(null=True, default=False)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -76,10 +76,20 @@ class InvoiceDetail(FlagsTable):
     EN : Suppliers Invoices detail
     """
 
-    invoice = models.ForeignKey(Incoice, on_delete=models.CASCADE, related_name="detail_invoice")
+    invoice = models.ForeignKey(
+        Incoice,
+        on_delete=models.CASCADE,
+        to_field="uuid_identification",
+        related_name="detail_invoice",
+    )
 
     # Article
-    article = models.ForeignKey(Article, on_delete=models.PROTECT, related_name="detail_article")
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="detail_article",
+    )
 
     # Sage
     axe_bu = models.CharField(null=True, blank=True, max_length=10)
@@ -93,7 +103,7 @@ class InvoiceDetail(FlagsTable):
     maison = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="third_party_num",
         related_name="maison_society",
     )
 

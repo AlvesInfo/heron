@@ -67,7 +67,7 @@ class Nature(FlagsTable):
 class Society(FlagsTable):
     """
     Répertoire des sociétés Fournisseurs / CLients,
-    correspondant à la table BPSUPPLIER, BPCUSTOMER des tiers Sage X3
+    correspondant à la table BPARTNER, BPSUPPLIER et BPCUSTOMER des tiers Sage X3
     FR : Table des sociétés
     EN : Societies table
     """
@@ -87,6 +87,10 @@ class Society(FlagsTable):
         FAMILLE = 2, _("Famille Article")
         ARTICLE = 3, _("Article")
 
+    third_party_num = models.CharField(
+        unique=True, max_length=15, verbose_name="tiers X3"
+    )  # BPRNUM
+
     nature = models.ForeignKey(
         Nature,
         on_delete=models.PROTECT,
@@ -94,28 +98,24 @@ class Society(FlagsTable):
         related_name="society_nature",
         null=True,
     )
+    name = models.CharField(null=True, blank=True, max_length=80)  # BPRNAM_0
     short_name = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="intitulé Court"
     )  # BPRSHO
-    name = models.CharField(max_length=80)  # BPRNAM_0
     corporate_name = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="raison sociale"
     )  # BPRNAM_1
-    code_tiers_x3 = models.CharField(
-        null=True, blank=True, max_length=15, verbose_name="tiers X3"
-    )  # BPRNUM
     code_plan_sage = models.CharField(max_length=10, verbose_name="code plan X3")
     siren_number = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="n° siren"
-    )  # CRN
+    )  # ?
     siret_number = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="n° siret"
     )  # CRN
     vat_cee_number = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="n° tva intracommunataire"
     )  # EECNUM
-    vat_number = models.CharField(null=True, blank=True, max_length=20, verbose_name="n° tva")
-    third_party_vat_regime = 1
+    vat_number = models.CharField(null=True, blank=True, max_length=20)  # VATNUM
     client_category = models.ForeignKey(
         CategorySage,
         on_delete=models.PROTECT,
@@ -142,8 +142,21 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=10, verbose_name="code naf"
     )  # NAF
     currency = models.CharField(default="EUR", max_length=3, verbose_name="monaie")  # CUR
-    cry = models.CharField(null=True, blank=True, max_length=3, verbose_name="pays")  # CRY
-    language = models.CharField(null=True, blank=True, max_length=3, verbose_name="pays")  # LAN
+    country = models.CharField(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country_iso",
+        related_name="article_country",
+        null=True,
+        verbose_name="pays",
+    )  # CRY
+    language = models.CharField(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country_iso",
+        related_name="article_country",
+        null=True,
+    )  # LAN
     budget_code = models.ForeignKey(
         TabDivSage,
         null=True,
@@ -156,14 +169,14 @@ class Society(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     # Supplier type
-    is_client = models.BooleanField(default=False)  # BPCFLG
-    is_agent = models.BooleanField(default=False)  # REPFLG
-    is_prospect = models.BooleanField(default=False)  # PPTFLG
-    is_supplier = models.BooleanField(default=False)  # BPSFLG
-    is_various = models.BooleanField(default=False)  # BPRACC
-    is_service_provider = models.BooleanField(default=False)  # PRVFLG
-    is_transporter = models.BooleanField(default=False)  # BPTFLG
-    is_contractor = models.BooleanField(default=False)  # DOOFLG
+    is_client = models.BooleanField(null=True, default=False)  # BPCFLG
+    is_agent = models.BooleanField(null=True, default=False)  # REPFLG
+    is_prospect = models.BooleanField(null=True, default=False)  # PPTFLG
+    is_supplier = models.BooleanField(null=True, default=False)  # BPSFLG
+    is_various = models.BooleanField(null=True, default=False)  # BPRACC
+    is_service_provider = models.BooleanField(null=True, default=False)  # PRVFLG
+    is_transporter = models.BooleanField(null=True, default=False)  # BPTFLG
+    is_contractor = models.BooleanField(null=True, default=False)  # DOOFLG
 
     # Paiements
     payment_condition_supplier = models.ForeignKey(
@@ -199,7 +212,11 @@ class Society(FlagsTable):
     code_cct_x3 = models.CharField(null=True, blank=True, max_length=15, verbose_name="cct X3")
     code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
     sign_board = models.ForeignKey(
-        Signboard, on_delete=models.PROTECT, null=True, verbose_name="ensigne"
+        Signboard,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        verbose_name="enseigne",
     )
     opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
     closing_date = models.DateField(null=True, verbose_name="date de fermeture")
@@ -218,7 +235,10 @@ class Society(FlagsTable):
         verbose_name="montant de droit de renouvellement",
     )
     sale_price_category = models.ForeignKey(
-        SalePriceCategory, on_delete=models.PROTECT, verbose_name="categorie de prix"
+        SalePriceCategory,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        verbose_name="categorie de prix",
     )
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="coefiscient de vente générique"
@@ -226,18 +246,21 @@ class Society(FlagsTable):
     credit_account = models.ForeignKey(
         AccountSage,
         on_delete=models.PROTECT,
+        to_field="uuid_identification",
         related_name="credit_account",
         verbose_name="compte X3 au crédit",
     )
     debit_account = models.ForeignKey(
         AccountSage,
         on_delete=models.PROTECT,
+        to_field="uuid_identification",
         related_name="debit_account",
         verbose_name="compte X3 au débit",
     )
     prov_account = models.ForeignKey(
         AccountSage,
         on_delete=models.PROTECT,
+        to_field="uuid_identification",
         related_name="prov_account",
         verbose_name="compte X3 de provision",
     )
@@ -264,7 +287,7 @@ class Society(FlagsTable):
 
 class Address(FlagsTable):
     """
-    Adresses liées aux sociétés
+    Adresses liées aux sociétés, table BPADDRESS de Sage X3
     FR : Table des adresses
     EN : Addresses table
     """
@@ -273,24 +296,45 @@ class Address(FlagsTable):
     society = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
-        to_field="uuid_identification",
+        to_field="third_party_num",
         related_name="adresse_society",
-    )
-    default_adress = models.BooleanField(default=True)
-    address_code = models.CharField(null=True, blank=True, max_length=10)
-    address_number = models.CharField(null=True, blank=True, max_length=10)
+    )  # BPANUM
+    default_adress = models.BooleanField(null=True, default=False)  # BPAADDFLG
+    address_code = models.CharField(null=True, blank=True, max_length=20)  # BPAADD
+    address_type = models.CharField(null=True, blank=True, max_length=20)  # BPATYP
+    address_number = models.CharField(null=True, blank=True, max_length=20)
     road_type = models.CharField(null=True, blank=True, max_length=35)
-    line_01 = models.CharField(max_length=80)
-    line_02 = models.CharField(null=True, blank=True, max_length=80)
-    line_03 = models.CharField(null=True, blank=True, max_length=80)
-    state = models.CharField(null=True, blank=True, max_length=80)
+    line_01 = models.CharField(max_length=80)  # BPAADDLIG(0)
+    line_02 = models.CharField(null=True, blank=True, max_length=80)  # BPAADDLIG(1)
+    line_03 = models.CharField(null=True, blank=True, max_length=80)  # BPAADDLIG(2)
+    state = models.CharField(null=True, blank=True, max_length=80)  # SAT
     region = models.CharField(null=True, blank=True, max_length=80)
-    postal_code = models.CharField(null=True, blank=True, max_length=35)
-    city = models.CharField(null=True, blank=True, max_length=80)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="adresse_country")
+    postal_code = models.CharField(null=True, blank=True, max_length=35)  # POSCOD
+    city = models.CharField(null=True, blank=True, max_length=80)  # CTY
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country_iso",
+        related_name="adresse_country",
+        null=True,
+    )  # CRY
     building = models.CharField(null=True, blank=True, max_length=80)
     floor = models.CharField(null=True, blank=True, max_length=80)
-    phone_number = models.CharField(null=True, blank=True, max_length=35)
+    phone_number_01 = models.CharField(null=True, blank=True, max_length=35)  # TEL(0)
+    phone_number_02 = models.CharField(null=True, blank=True, max_length=35)  # TEL(1)
+    phone_number_03 = models.CharField(null=True, blank=True, max_length=35)  # TEL(2)
+    phone_number_04 = models.CharField(null=True, blank=True, max_length=35)  # TEL(3)
+    phone_number_05 = models.CharField(null=True, blank=True, max_length=35)  # TEL(4)
+    mobile_number = models.CharField(null=True, blank=True, max_length=35)  # MOB
+    email_01 = models.EmailField(null=True, blank=True)  # WEB(0)
+    email_02 = models.EmailField(null=True, blank=True)  # WEB(1)
+    email_03 = models.EmailField(null=True, blank=True)  # WEB(2)
+    email_04 = models.EmailField(null=True, blank=True)  # WEB(3)
+    email_05 = models.EmailField(null=True, blank=True)  # WEB(4)
+    web_site = models.CharField(null=True, blank=True, max_length=250)  # FCYWEB
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.city}"
@@ -325,7 +369,7 @@ class DocumentsSubscription(FlagsTable):
 
 class Contact(FlagsTable):
     """
-    Contact des Sociétés
+    Contact des Sociétés, tables CONTACT et CONTACTCRM de Sage X3
     FR : Table des Contacts
     EN : Table of Contacts
     """
@@ -333,22 +377,53 @@ class Contact(FlagsTable):
     society = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
-        to_field="uuid_identification",
+        to_field="third_party_num",
         related_name="contact_society",
-    )
+    )  # BPANUM
+    code = models.CharField(null=True, blank=True, max_length=15)  # CCNCRM
+    service = models.CharField(null=True, blank=True, max_length=30)  # CNTSRV
+    role = models.CharField(null=True, blank=True, max_length=15)  # CNTMSS
     nature = models.ForeignKey(
         Nature,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        null=True,
         related_name="contact_nature",
+        null=True,
+        limit_choices_to={"for_contact": True},
     )
-    default_contact = models.BooleanField(default=True)
-    first_name = models.CharField(null=True, blank=True, max_length=80)
-    last_name = models.CharField(null=True, blank=True, max_length=80)
-    phone_number = models.CharField(null=True, blank=True, max_length=35)
-    mobile_number = models.CharField(null=True, blank=True, max_length=35)
-    email = models.EmailField(null=True, blank=True)
+    civility = models.CharField(null=True, blank=True, max_length=20)  # CNTTTL
+    first_name = models.CharField(null=True, blank=True, max_length=80)  # CNTFNA
+    last_name = models.CharField(null=True, blank=True, max_length=80)  # CNTLNA
+    language = models.CharField(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country_iso",
+        related_name="article_country",
+        null=True,
+    )  # CNTLAN
+    category = models.CharField(null=True, blank=True, max_length=20)  # CNTCSP
+    address_number = models.CharField(null=True, blank=True, max_length=20)
+    road_type = models.CharField(null=True, blank=True, max_length=35)
+    line_01 = models.CharField(max_length=80)  # ADD(0)
+    line_02 = models.CharField(null=True, blank=True, max_length=80)  # ADD(1)
+    line_03 = models.CharField(null=True, blank=True, max_length=80)  # ADD(2)
+    state = models.CharField(null=True, blank=True, max_length=80)  # SAT
+    region = models.CharField(null=True, blank=True, max_length=80)
+    postal_code = models.CharField(null=True, blank=True, max_length=35)  # ZIP
+    city = models.CharField(null=True, blank=True, max_length=80)  # CTY
+    country = models.CharField(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country_iso",
+        related_name="article_country",
+        null=True,
+        verbose_name="pays",
+    )  # CRY
+    building = models.CharField(null=True, blank=True, max_length=80)
+    floor = models.CharField(null=True, blank=True, max_length=80)
+    phone_number = models.CharField(null=True, blank=True, max_length=35)  # CNTETS
+    mobile_number = models.CharField(null=True, blank=True, max_length=35)  # CNTMOB
+    email = models.EmailField(null=True, blank=True)  # CNTEMA
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -401,23 +476,386 @@ class SocietyBank(FlagsTable):
     society = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
-        to_field="uuid_identification",
+        to_field="third_party_num",
         related_name="bank_society",
-    )
-    payee = models.CharField(null=True, blank=True, max_length=80)
-    bank_name = models.CharField(max_length=35)
-    bank_code = models.CharField(unique=True, max_length=5)
-    counter_code = models.CharField(null=True, blank=True, max_length=5)
-    account_number = models.CharField(unique=True, max_length=11)
-    account_key = models.CharField(null=True, blank=True, max_length=2)
-    iban = models.CharField(null=True, blank=True, max_length=50)
-    code_swift = models.CharField(null=True, blank=True, max_length=27)
-    is_default = models.BooleanField(default=False)
+    )  # BPANUM
+    account_number = models.CharField(null=True, blank=True, max_length=50)  # BIDNUM
+    address = models.CharField(null=True, blank=True, max_length=50)  # BPAADD
+    payee = models.CharField(
+        null=True, blank=True, max_length=50, verbose_name="bénéficiaire"
+    )  # BNF
+    domiciliation_01 = models.CharField(null=True, blank=True, max_length=50)  # PAB1
+    domiciliation_02 = models.CharField(null=True, blank=True, max_length=50)  # PAB2
+    domiciliation_03 = models.CharField(null=True, blank=True, max_length=50)  # PAB3
+    domiciliation_04 = models.CharField(null=True, blank=True, max_length=50)  # PAB4
+    iban_prefix = models.CharField(null=True, blank=True, max_length=10)  # IBAN
+    bic_code = models.CharField(null=True, blank=True, max_length=20)  # BICCOD
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country_iso",
+        related_name="adresse_country",
+        null=True,
+    )  # CRY
+    currency = models.CharField(blank=True, null=True, max_length=3)  # CUR
+    is_default = models.BooleanField(null=True, default=False)  # BIDNUMFLG
+
+    # bank_name = models.CharField(max_length=35)
+    # bank_code = models.CharField(unique=True, max_length=5)
+    # counter_code = models.CharField(null=True, blank=True, max_length=5)
+    # account_key = models.CharField(null=True, blank=True, max_length=2)
+    # iban = models.CharField(null=True, blank=True, max_length=50)
+    # code_swift = models.CharField(null=True, blank=True, max_length=27)
 
     def __str__(self):
-        return f"{self.society} - {self.bank_name}"
+        return f"{self.society} - {self.account_number}"
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["bank_name"]
+        ordering = ["society", "-is_default", "account_number"]
+
+
+class BprBookSage:
+    """
+    Table des tiers Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Tiers au sens de Sage X3
+    EN : Third party as defined by Sage X3
+    """
+
+    model = Society
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIBPR_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "third_party_num": 0,
+            "name": 1,
+            "short_name": 2,
+            "corporate_name": 3,
+            "siret_number": 4,
+            "vat_cee_number": 5,
+            "vat_number": 6,
+            "naf_code": 7,
+            "currency": 8,
+            "country": 9,
+            "language": 10,
+            "budget_code": 11,
+            "reviser": 12,
+            "is_client": 13,
+            "is_agent": 14,
+            "is_prospect": 15,
+            "is_supplier": 16,
+            "is_various": 17,
+            "is_service_provider": 18,
+            "is_transporter": 19,
+            "is_contractor": 20,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+
+class BpsBookSage:
+    """
+    Table des tiers Fournisseurs Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Tiers au sens de Sage X3
+    EN : Third party as defined by Sage X3
+    """
+
+    model = Society
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIBPS_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "third_party_num": 0,
+            "payment_condition_supplier": 1,
+            "vat_sheme_supplier": 2,
+            "account_supplier_code": 3,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+
+class BpcBookSage:
+    """
+    Table des tiers Clients Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Tiers au sens de Sage X3
+    EN : Third party as defined by Sage X3
+    """
+
+    model = Society
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIBPC_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "third_party_num": 0,
+            "payment_condition_client": 1,
+            "vat_sheme_client": 2,
+            "account_client_code": 3,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+
+class BookAdressesSage:
+    """
+    Table des adresses des tiers Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Adresses des Tiers au sens de Sage X3
+    EN : Adresses Third party as defined by Sage X3
+    """
+
+    model = Address
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIADDR_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "society": 0,
+            "default_adress": 1,
+            "address_code": 2,
+            "address_type": 3,
+            "line_01": 4,
+            "line_02": 5,
+            "line_03": 6,
+            "state": 7,
+            "postal_code": 8,
+            "city": 9,
+            "country": 10,
+            "phone_number_01": 11,
+            "phone_number_02": 12,
+            "phone_number_03": 13,
+            "phone_number_04": 14,
+            "phone_number_05": 15,
+            "mobile": 16,
+            "email_01": 17,
+            "email_02": 18,
+            "email_03": 19,
+            "email_04": 20,
+            "email_05": 21,
+            "web_site": 22,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+
+class CodeContactsSage:
+    """
+    Table des Codes Contacts des tiers Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Code Contacts des Tiers au sens de Sage X3
+    EN : Contacts Code Third party as defined by Sage X3
+    """
+
+    model = Contact
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBICONTACT_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "society": 0,
+            "code": 1,
+            "service": 2,
+            "role": 3,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+
+class BookContactsSage:
+    """
+    Table des Contacts des tiers Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Contacts des Tiers au sens de Sage X3
+    EN : Contacts Third party as defined by Sage X3
+    """
+
+    model = Contact
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBICONTCRM_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "society": 0,
+            "civility": 1,
+            "first_name": 2,
+            "last_name": 3,
+            "language": 4,
+            "category": 5,
+            "line_01": 6,
+            "line_02": 7,
+            "line_03": 8,
+            "state": 9,
+            "postal_code": 10,
+            "city": 11,
+            "country": 12,
+            "phone_number": 13,
+            "mobile_number": 14,
+            "email": 15,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"
+
+
+class BookBanksSage:
+    """
+    Table des Banques des tiers Sage X3
+    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    ici on ne fait que commenter la structure et préciser la méthode d'import
+    FR : Banques des Tiers au sens de Sage X3
+    EN : Banks Third party as defined by Sage X3
+    """
+
+    model = SocietyBank
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIBANK_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        # TODO : mapping à faire pour les champs du modèle Book lignes par ligne
+        return {
+            "society": 0,
+            "account_number": 1,
+            "address": 2,
+            "payee": 3,
+            "domiciliation_01": 4,
+            "domiciliation_02": 5,
+            "domiciliation_03": 6,
+            "domiciliation_04": 7,
+            "iban_prefix": 8,
+            "bic_code": 9,
+            "country": 10,
+            "currency": 11,
+            "is_default": 12,
+        }
+
+    @staticmethod
+    def get_import():
+        """
+        FR : Retourne la methode à appeler pour importer les fixtures du modèle
+        EN : Returns the method to call to import the fixtures from the model
+        """
+        return "methode d'import à retourner"

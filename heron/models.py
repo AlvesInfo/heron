@@ -41,9 +41,9 @@ class FlagsTable(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     modified_at = models.DateTimeField(auto_now=True, verbose_name=_("modified at"))
-    active = models.BooleanField(default=False)
-    to_delete = models.BooleanField(default=False)
-    visible = models.BooleanField(default=True)
+    active = models.BooleanField(null=True, default=False)
+    to_delete = models.BooleanField(null=True, default=False)
+    visible = models.BooleanField(null=True, default=True)
     flag_delete = models.BooleanField(null=True)
     flag_to_delete = models.BooleanField(null=True)
     flag_active = models.BooleanField(null=True)

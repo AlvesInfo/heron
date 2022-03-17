@@ -44,7 +44,7 @@ class IterFileToInsertError(Exception):
 
 
 class ValidationError(Exception):
-    """Gestion d'erreur de validations"""
+    """Gestion d'erreur de forms_validation"""
 
 
 def encoding_detect(path_file: Path):
