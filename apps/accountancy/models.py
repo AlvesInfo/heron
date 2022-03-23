@@ -16,7 +16,6 @@ modified by: Paulo ALVES
 
 import uuid
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 
 from heron.models import FlagsTable
 
@@ -266,7 +265,7 @@ class SectionSage(FlagsTable):
     """
 
     axe = models.ForeignKey(
-        AxeSage, on_delete=models.PROTECT, to_field="axe", related_name="axe_axe"
+        AxeSage, on_delete=models.CASCADE, to_field="axe", related_name="axe_axe"
     )
     section = models.CharField(max_length=15)
     name = models.CharField(null=True, blank=True, max_length=30, verbose_name="intitulé")
@@ -464,7 +463,7 @@ class VatRatSage(FlagsTable):
     ==========================================================
     """
 
-    vat = models.ForeignKey(VatSage, on_delete=models.PROTECT, to_field="vat")
+    vat = models.ForeignKey(VatSage, on_delete=models.CASCADE, to_field="vat")
     vat_start_date = models.CharField(blank=True, max_length=30)
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     exoneration = models.BooleanField(null=True)

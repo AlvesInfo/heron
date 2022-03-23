@@ -34,12 +34,22 @@ class Incoice(FlagsTable):
     )
     invoice_number = models.CharField(max_length=35)
     invoice_date = models.DateField()
+    invoice_year = models.IntegerField()
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
     invoice_type = models.CharField(max_length=3)
     flag_sage = models.BooleanField(null=True, default=False)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def save(self, *args, **kwargs):
+        """
+        FR : On met l'année par défaut suivant la date de la facture
+        EN : We set the year by default according to the date of the invoice
+        """
+        self.invoice_year = self.invoice_date.year
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.supplier} - {self.invoice_number} - {self.invoice_date}"
@@ -65,7 +75,7 @@ class Incoice(FlagsTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["supplier", "invoice_number", "invoice_date__year"], name="unique_invoice"
+                fields=["supplier", "invoice_number", "invoice_year"], name="unique_invoice"
             )
         ]
 

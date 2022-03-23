@@ -72,11 +72,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
-    class Meta:
-        """class Meta du modèle django"""
-        verbose_name = "user"
-        verbose_name_plural = "users"
-        db_table = "auth_user"
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     def __str__(self):
         first_name = "" if not self.first_name else (self.first_name + " ")
@@ -125,8 +122,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         """Email this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    class Meta:
+        """class Meta du modèle django"""
+
+        verbose_name = "user"
+        verbose_name_plural = "users"
+        db_table = "auth_user"
 
 
 class UserSession(models.Model):
