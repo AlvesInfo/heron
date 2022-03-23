@@ -75,12 +75,12 @@ LOGGING = {
             "formatter": "verbose",
         },
         # Send in connexion_file
-        "connection": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": f"{VAR_LOG_DIR}/connect.log",
-            "formatter": "simple",
-        },
+        # "connection": {
+        #     "level": "INFO",
+        #     "class": "logging.FileHandler",
+        #     "filename": f"{VAR_LOG_DIR}/connect.log",
+        #     "formatter": "simple",
+        # },
     },
     "loggers": {
         # all messages
