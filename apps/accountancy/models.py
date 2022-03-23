@@ -143,31 +143,23 @@ class AccountSage(FlagsTable):
 
 class AxeSage(FlagsTable):
     """
-    Table des axes Sage X3
+    Table des axes GDIE Sage X3
     FR : Axes au sens Sage X3
     EN : Axes in the sense of Sage X3
-    ================================================
-    champ    | model attr. | table SAGE | Champ Sage
-    ================================================
-    Axe      | axe         | GDIE       | DIE
-    Intitulé | name        | GDIE       | DES
-    ================================================
+    ======================================================
+    champ          | model attr. | table SAGE | Champ Sage
+    ======================================================
+    Axe            | axe         | GDIE       | DIE
+    Intitulé       | name        | GDIE       | DES
+    Intitulécourt  | short_name  | GDIE       | DESSHO
+    ======================================================
     """
 
-    class Axe(models.TextChoices):
-        """
-        Axes Choices
-        """
-
-        BU = "BU", _("BU")
-        CCT = "CCT", _("CCT")
-        PRJ = "PRJ", _("PRJ")
-        PRO = "PRO", _("PRO")
-        PYS = "PYS", _("PYS")
-        RFA = "RFA", _("RFA")
-
-    axe = models.CharField(unique=True, choices=Axe.choices, max_length=10)
-    name = models.CharField(null=True, blank=True, max_length=30)
+    axe = models.CharField(unique=True, max_length=10)
+    name = models.CharField(null=True, blank=True, max_length=30, verbose_name="intitulé")
+    short_name = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="intitulé court"
+    )
 
     @staticmethod
     def file_import_sage():
@@ -186,6 +178,7 @@ class AxeSage(FlagsTable):
         return {
             "axe": 0,
             "name": 1,
+            "short_name": 2,
         }
 
     @staticmethod
@@ -256,24 +249,30 @@ class SectionSageQuerySet(models.QuerySet):
 
 class SectionSage(FlagsTable):
     """
-    Table des sections Sage X3
+    Table des sections CACCE Sage X3
     FR : Section au sens Sage X3
     EN : Sections in the sense of Sage X3
-    =====================================================
-    champ        | model attr. | table SAGE  | Champ Sage
-    =====================================================
-    Axe          | axe         | CACCE       | DIE
-    Section      | section     | CACCE       | CCE
-    Refacturable | chargeable  | CACCE       | XFLREFAC
-    Regroupement | regroup_01  | CACCE       | ZREG1
-    Regroupement | regroup_02  | CACCE       | ZREG2
-    =====================================================
+    ========================================================
+    champ           | model attr. | table SAGE  | Champ Sage
+    ========================================================
+    Axe             | axe         | CACCE       | DIE
+    Section         | section     | CACCE       | CCE
+    Intitulé        | name        | CACCE        | DES
+    Intitulé court  | short_name  | CACCE        | DESSHO
+    Refacturable    | chargeable  | CACCE       | XFLREFAC
+    Regroupement    | regroup_01  | CACCE       | ZREG1
+    Regroupement    | regroup_02  | CACCE       | ZREG2
+    ========================================================
     """
 
     axe = models.ForeignKey(
         AxeSage, on_delete=models.PROTECT, to_field="axe", related_name="axe_axe"
     )
     section = models.CharField(max_length=15)
+    name = models.CharField(null=True, blank=True, max_length=30, verbose_name="intitulé")
+    short_name = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="intitulé court"
+    )
     chargeable = models.BooleanField(null=True, default=True)
     regroup_01 = models.CharField(null=True, blank=True, max_length=15)
     regroup_02 = models.CharField(null=True, blank=True, max_length=15)
@@ -301,9 +300,11 @@ class SectionSage(FlagsTable):
         return {
             "axe": 0,
             "section": 1,
-            "chargeable": 2,
-            "regroup_01": 3,
-            "regroup_02": 4,
+            "name": 2,
+            "short_name": 3,
+            "chargeable": 4,
+            "regroup_01": 5,
+            "regroup_02": 6,
         }
 
     @staticmethod
@@ -332,17 +333,17 @@ class VatRegimeSage(FlagsTable):
     Table des régimes de TVA Sage X3
     FR : TVA au sens de Sage X3
     EN : VAT as defined by Sage X3
-    =========================================================
-    champ          | model attr. | table SAGE    | Champ Sage
-    =========================================================
-    Régime         | vat_regime  | TABVACBPR     | VACBPR
-    Actif          | flag_active | TABVACBPR     | ENAFLG
-    Intitulé       | name        | TABVACBPR     | DESAXX
-    Intitulé court | short_name  | TABVACBPR     | SHOAXX
-    Code taxe      | vat_code    | TABVACBPR     | VAT
-    Classe vente   | sale_class  | TABVACBPR     | SALCLA
-    Type de régime | regime_type | TABVACBPR     | REGVAC
-    =========================================================
+    ======================================================================
+    champ          | model attr.              | table SAGE    | Champ Sage
+    ======================================================================
+    Régime         | vat_regime               | TABVACBPR     | VACBPR
+    Actif          | flag_active (FlagsTable) | TABVACBPR     | ENAFLG
+    Intitulé       | name                     | TABVACBPR     | DESAXX
+    Intitulé court | short_name               | TABVACBPR     | SHOAXX
+    Code taxe      | vat_code                 | TABVACBPR     | VAT
+    Classe vente   | sale_class               | TABVACBPR     | SALCLA
+    Type de régime | regime_type              | TABVACBPR     | REGVAC
+    ======================================================================
     """
 
     vat_regime = models.CharField(null=True, blank=True, max_length=5)
@@ -407,7 +408,7 @@ class VatSage(FlagsTable):
     ====================================================
     """
 
-    vat = models.CharField(null=True, blank=True, max_length=5)
+    vat = models.CharField(unique=True, max_length=5)
     name = models.CharField(null=True, blank=True, max_length=30)
     vat_regime = models.CharField(null=True, blank=True, max_length=5)
 
@@ -745,7 +746,7 @@ class CategorySage(FlagsTable):
         EN : Returns the position of the columns
         """
         return {
-            "initials": 0,
+            "initial": 0,
             "code": 1,
             "name": 2,
             "short_name": 3,
@@ -775,23 +776,29 @@ class CurrencySage(FlagsTable):
     FR : Table des devises définie par Sage X3
     EN : Currency table as defined by Sage X3
     =================================================================
-    champ          | model attr.   | table SAGE    | Champ Sage
+    champ          | model attr.            | table SAGE | Champ Sage
     =================================================================
-    Initiale       | initial       |                | C ou S
-    Catégorie      | code          | BPCCATEG       | BCGCOD - BSGCOD
-    Intitulé       | name          | BPCCATEG       | DESAXX
-    Intitulé court | short_name    | BPCCATEG       | SHOAXX
-    Devise         | cur           | BPCCATEG       | CUR
+    Devise         | currency_current       | TABCHANGE  | CUR
+    Devise dest.   | currency_change        | TABCHANGE  | CURDEN
+    Date cours     | exchange_date          | TABCHANGE  | CHGSTRDAT
+    Type de cours  | exchange_type          | TABCHANGE  | CHGTYP
+    Cours achat    | exchange_rate          | TABCHANGE  | CHGRAT
+    Cours inverse  | exchange_inverse       | TABCHANGE  | REVCOURS
+    Diviseur       | divider                | TABCHANGE  | CHGDIV
+    Date modif     | modification_date      | TABCHANGE  | UPDDAT
+    Cours vente    | purchase_exchange_rate |            |
     =================================================================
     """
 
-    currency_iso_current = models.CharField(blank=True, null=True, max_length=3)
-    currency_iso_change = models.CharField(blank=True, null=True, max_length=3)
-    exchange_date = models.DateField(auto_now_add=True, verbose_name="créé le")
-    average_exchange_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
-    purchase_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
+    currency_current = models.CharField(blank=True, null=True, max_length=3)
+    currency_change = models.CharField(blank=True, null=True, max_length=3)
+    exchange_date = models.DateField(verbose_name="créé le")
+    exchange_type = models.IntegerField(default=1)
+    exchange_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    exchange_inverse = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    divider = models.DecimalField(max_digits=20, decimal_places=5, default=1)
+    modification_date = models.DateField(verbose_name="modifié le")
     sale_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
-    cee = models.BooleanField(null=True, default=False)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -811,11 +818,14 @@ class CurrencySage(FlagsTable):
         EN : Returns the position of the columns
         """
         return {
-            "initials": 0,
-            "code": 1,
-            "name": 2,
-            "short_name": 3,
-            "cur": 4,
+            "currency_current": 0,
+            "currency_change": 1,
+            "exchange_date": 2,
+            "exchange_type": 3,
+            "exchange_rate": 4,
+            "exchange_inverse": 5,
+            "divider": 6,
+            "modification_date": 7,
         }
 
     @staticmethod
@@ -827,10 +837,10 @@ class CurrencySage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
-        return f"{self.currency_iso_current} - {self.currency_iso_change}"
+        return f"{self.currency_change} - {self.currency_change}"
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["currency_iso_current", "currency_iso_change", "exchange_date"]
-        unique_together = (("currency_iso_current", "currency_iso_change", "exchange_date"),)
+        ordering = ["currency_current", "currency_change", "exchange_date"]
+        unique_together = (("currency_current", "currency_change", "exchange_date"),)

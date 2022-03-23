@@ -126,7 +126,7 @@ class Article(FlagsTable):
         Country,
         on_delete=models.PROTECT,
         to_field="country_iso",
-        related_name="article_country",
+        related_name="made_in_country",
         null=True,
     )
     item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)

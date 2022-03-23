@@ -140,6 +140,7 @@ class VatRatSageForm(forms.ModelForm):
     """Validation de l'import ZBIRATVAT des Taux de TVA Sage X3"""
 
     exoneration = SageNullBooleanField()
+    vat_start_date = forms.DateField(input_formats=["%d%m%y"])
 
     class Meta:
         """class Meta du forms.ModelForm django"""
@@ -224,7 +225,7 @@ class CategorySageForm(forms.ModelForm):
 
         model = CategorySage
         fields = [
-            "initials",
+            "initial",
             "code",
             "name",
             "short_name",
@@ -235,12 +236,20 @@ class CategorySageForm(forms.ModelForm):
 class CurrencySageForm(forms.ModelForm):
     """Validation de l'import ZBICUR des Taux de Change Sage X3"""
 
+    exchange_date = forms.DateField(input_formats=["%d%m%y"])
+    modification_date = forms.DateField(input_formats=["%d%m%y"])
+
     class Meta:
         """class Meta du forms.ModelForm django"""
 
         model = CurrencySage
         fields = [
-            "code",
-            "name",
-            "short_name",
+            "currency_current",
+            "currency_change",
+            "exchange_date",
+            "exchange_type",
+            "exchange_rate",
+            "exchange_inverse",
+            "divider",
+            "modification_date",
         ]

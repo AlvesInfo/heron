@@ -20,10 +20,16 @@ from django.utils.translation import ugettext_lazy as _
 
 from heron.models import FlagsTable
 
-from apps.accountancy.models import AccountSage, PaymentCondition, TabDivSage, CategorySage
+from apps.accountancy.models import (
+    AccountSage,
+    PaymentCondition,
+    TabDivSage,
+    CategorySage,
+    # CurrencySage,
+)
 from apps.centers_purchasing.models import Signboard
-from apps.countries.models import Country
 from apps.parameters.models import SalePriceCategory
+from apps.countries.models import Country
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
@@ -142,19 +148,19 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=10, verbose_name="code naf"
     )  # NAF
     currency = models.CharField(default="EUR", max_length=3, verbose_name="monaie")  # CUR
-    country = models.CharField(
+    country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country_iso",
-        related_name="article_country",
+        related_name="society_country_country",
         null=True,
         verbose_name="pays",
     )  # CRY
-    language = models.CharField(
+    language = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country_iso",
-        related_name="article_country",
+        related_name="society_language_country",
         null=True,
     )  # LAN
     budget_code = models.ForeignKey(
@@ -297,7 +303,7 @@ class Address(FlagsTable):
         Society,
         on_delete=models.CASCADE,
         to_field="third_party_num",
-        related_name="adresse_society",
+        related_name="society_society",
     )  # BPANUM
     default_adress = models.BooleanField(null=True, default=False)  # BPAADDFLG
     address_code = models.CharField(null=True, blank=True, max_length=20)  # BPAADD
@@ -387,18 +393,18 @@ class Contact(FlagsTable):
         Nature,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="contact_nature",
+        related_name="contact_nature_country",
         null=True,
         limit_choices_to={"for_contact": True},
     )
     civility = models.CharField(null=True, blank=True, max_length=20)  # CNTTTL
     first_name = models.CharField(null=True, blank=True, max_length=80)  # CNTFNA
     last_name = models.CharField(null=True, blank=True, max_length=80)  # CNTLNA
-    language = models.CharField(
+    language = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country_iso",
-        related_name="article_country",
+        related_name="contact_language_country",
         null=True,
     )  # CNTLAN
     category = models.CharField(null=True, blank=True, max_length=20)  # CNTCSP
@@ -411,11 +417,11 @@ class Contact(FlagsTable):
     region = models.CharField(null=True, blank=True, max_length=80)
     postal_code = models.CharField(null=True, blank=True, max_length=35)  # ZIP
     city = models.CharField(null=True, blank=True, max_length=80)  # CTY
-    country = models.CharField(
+    country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country_iso",
-        related_name="article_country",
+        related_name="contact_country_country",
         null=True,
         verbose_name="pays",
     )  # CRY
@@ -494,7 +500,7 @@ class SocietyBank(FlagsTable):
         Country,
         on_delete=models.PROTECT,
         to_field="country_iso",
-        related_name="adresse_country",
+        related_name="bank_country",
         null=True,
     )  # CRY
     currency = models.CharField(blank=True, null=True, max_length=3)  # CUR
