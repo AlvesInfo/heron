@@ -23,7 +23,10 @@ MIDDLEWARE = [] + MIDDLEWARE + []
 # X_FRAME_OPTIONS = "DENY"
 
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# LOG DIRECTORY
 VAR_LOG_DIR = "/var/log/heron"
+Path.mkdir(VAR_LOG_DIR, exist_ok=True)
 
 # log django.log
 DJANGO_LOG = (Path(VAR_LOG_DIR) / "django.log").resolve()
