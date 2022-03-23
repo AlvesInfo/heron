@@ -223,10 +223,6 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 FILES_DIR = (Path(BASE_DIR) / "files").resolve()
 Path.mkdir(FILES_DIR, exist_ok=True)
 
-# REPERTOIRE DES FICHIERS
-IMAGES_DIR = Path(BASE_DIR / "files/static/images").resolve()
-Path.mkdir(IMAGES_DIR, exist_ok=True)
-
 # REPERTOIRE DES BACKUP (SAUVEGARDE)
 BACKUP_DIR = (Path(BASE_DIR) / "files/backup").resolve()
 Path.mkdir(BACKUP_DIR, exist_ok=True)
@@ -278,6 +274,7 @@ STATIC_ROOT = (Path(BASE_DIR) / "files/static").resolve()
 Path.mkdir(BASE_DIR / "files/static/css", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/js", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/img", exist_ok=True)
+Path.mkdir(BASE_DIR / "files/static/images", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/fonts", exist_ok=True)
 Path.mkdir(BASE_DIR / "files/static/vendor", exist_ok=True)
 
@@ -285,6 +282,7 @@ STATICFILES_DIRS = [
     (Path(BASE_DIR) / "files/static/css").resolve(),
     (Path(BASE_DIR) / "files/static/js").resolve(),
     (Path(BASE_DIR) / "files/static/img").resolve(),
+    (Path(BASE_DIR) / "files/static/images").resolve(),
     (Path(BASE_DIR) / "files/static/fonts").resolve(),
     (Path(BASE_DIR) / "files/static/vendor").resolve(),
 ]
