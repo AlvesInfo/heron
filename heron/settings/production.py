@@ -74,8 +74,8 @@ LOGGING = {
             "filename": f"{VAR_LOG_DIR}/import_logfile.log",
             "formatter": "verbose",
         },
-        # Send in connexion-file
-        "connexion-file": {
+        # Send in connexion_file
+        "connexion_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": f"{VAR_LOG_DIR}/connect.log",
@@ -89,7 +89,7 @@ LOGGING = {
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
         "connexion": {
-            "handlers": ["connexion-file"],
+            "handlers": ["connexion_file"],
             "level": "INFO",
             "propagate": True,
         },
