@@ -25,6 +25,22 @@ MIDDLEWARE = [] + MIDDLEWARE + []
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 VAR_LOG_DIR = "/var/log/heron"
 
+# log django.log
+DJANGO_LOG = (Path(VAR_LOG_DIR) / "django.log").resolve()
+Path.mkdir(DJANGO_LOG, exist_ok=True)
+
+# log timer_heron.log
+TIMER_HERON_LOG = (Path(VAR_LOG_DIR) / "timer_heron.log").resolve()
+Path.mkdir(TIMER_HERON_LOG, exist_ok=True)
+
+# log import_logfile.log
+IMPORT_LOG = (Path(VAR_LOG_DIR) / "import_logfile.log").resolve()
+Path.mkdir(IMPORT_LOG, exist_ok=True)
+
+# log connect.log
+GONNECT_LOG = (Path(VAR_LOG_DIR) / "connect.log").resolve()
+Path.mkdir(GONNECT_LOG, exist_ok=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
