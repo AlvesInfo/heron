@@ -88,10 +88,10 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        "connect": {
-            "handlers": ["connection"],
-            "propagate": True,
-        },
+        # "connect": {
+        #     "handlers": ["connection"],
+        #     "propagate": True,
+        # },
         "timer_heron": {"handlers": ["timer_heron"]},
         "imports": {"handlers": ["import_logfile"], "propagate": False},
     },
