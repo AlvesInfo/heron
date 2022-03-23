@@ -28,22 +28,6 @@ MIDDLEWARE = [] + MIDDLEWARE + []
 VAR_LOG_DIR = Path("/var/log/heron").resolve()
 Path.mkdir(VAR_LOG_DIR, exist_ok=True)
 
-# log django.log
-DJANGO_LOG = (Path(VAR_LOG_DIR) / "django.log").resolve()
-Path.mkdir(DJANGO_LOG, exist_ok=True)
-
-# log timer_heron.log
-TIMER_HERON_LOG = (Path(VAR_LOG_DIR) / "timer_heron.log").resolve()
-Path.mkdir(TIMER_HERON_LOG, exist_ok=True)
-
-# log import_logfile.log
-IMPORT_LOG = (Path(VAR_LOG_DIR) / "import_logfile.log").resolve()
-Path.mkdir(IMPORT_LOG, exist_ok=True)
-
-# log connect.log
-GONNECT_LOG = (Path(VAR_LOG_DIR) / "connect.log").resolve()
-Path.mkdir(GONNECT_LOG, exist_ok=True)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
