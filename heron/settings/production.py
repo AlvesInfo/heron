@@ -1,4 +1,4 @@
-from heron.settings.base import INSTALLED_APPS, MIDDLEWARE, WHITELIST
+from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST
 
 DEBUG = False
 
