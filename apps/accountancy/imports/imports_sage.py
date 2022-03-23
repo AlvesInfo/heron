@@ -24,7 +24,6 @@ from apps.accountancy.models import (
     PaymentCondition,
     TabDivSage,
     CategorySage,
-    CurrencySage,
 )
 from apps.accountancy.forms import (
     AccountSageForm,
@@ -36,7 +35,6 @@ from apps.accountancy.forms import (
     PaymentConditionForm,
     TabDivSageForm,
     CategorySageForm,
-    CurrencySageForm,
 )
 
 
@@ -50,7 +48,6 @@ IMPORTS = (
     (PaymentCondition, PaymentConditionForm),
     (TabDivSage, TabDivSageForm),
     (CategorySage, CategorySageForm),
-    (CurrencySage, CurrencySageForm),
 )
 
 
@@ -65,21 +62,16 @@ def import_loop():
         if isinstance(file_test, (str,)):
             file_for_import = sage_dir / file_test
             # import_method(file_for_import, columns)
-            print(file_for_import, columns, import_method, form, sep=" - ")
+            print(model, file_for_import, columns, import_method, form, sep=" - ")
         else:
             for file in file_test:
                 file_for_import = sage_dir / file
                 # import_method(file_for_import, columns)
-                print(file_for_import, columns, import_method, form, sep=" - ")
+                print(model, file_for_import, columns, import_method, form, sep=" - ")
 
 
 if __name__ == "__main__":
     import_loop()
-    for cls in IMPORTS:
-        if hasattr(cls, "model"):
-            print(cls.model)
-        else:
-            print(cls)
 
 
 """

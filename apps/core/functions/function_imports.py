@@ -77,7 +77,7 @@ def excel_file_to_csv_string_io(excel_path, csv_string_io, header=True):
     success = True
 
     try:
-        data = pd.read_excel(excel_path)
+        data = pd.read_excel(excel_path, engine="openpyxl")
         data.to_csv(
             csv_string_io,
             sep=";",

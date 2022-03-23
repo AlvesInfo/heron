@@ -409,6 +409,7 @@ class VatSage(FlagsTable):
 
     vat = models.CharField(unique=True, max_length=5)
     name = models.CharField(null=True, blank=True, max_length=30)
+    short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     vat_regime = models.CharField(null=True, blank=True, max_length=5)
 
     @staticmethod
@@ -428,7 +429,8 @@ class VatSage(FlagsTable):
         return {
             "vat": 0,
             "name": 1,
-            "vat_regime": 2,
+            "short_name": 2,
+            "vat_regime": 3,
         }
 
     @staticmethod
@@ -682,9 +684,10 @@ class TabDivSage(FlagsTable):
             "n_15": 31,
             "name": 32,
             "short_name": 33,
+            "def_val": 34,
             # Issu de l'héritage de FlagsTable
             # From the legacy of FlagsTable
-            "flag_active": 34,
+            "flag_active": 35,
         }
 
     @staticmethod

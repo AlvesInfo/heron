@@ -32,6 +32,26 @@ class TruncatedTextField(forms.CharField):
         return super().clean(value)
 
 
+class TildeTextField(forms.CharField):
+    """
+    FR: forms.field qui récupère le premier élément du texte splité sur les ~~
+    EN: forms.field which retrieves the first element of the split text on the ~~
+    """
+
+    def clean(self, value):
+        """
+        FR: Troncature de texte avant méthode propre
+            :param value: valeur à valider
+            :return: méthode Clean
+        EN: text truncation before clean method
+            :param value: value to validate
+            :return: Clean method
+        """
+        value = "" if value is None else value.split("~~")[0]
+
+        return super().clean(value)
+
+
 class FrenchBooleanField(forms.BooleanField):
     """
     FR: forms.field valide les booléens français
