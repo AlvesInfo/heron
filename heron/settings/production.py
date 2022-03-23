@@ -89,7 +89,7 @@ LOGGING = {
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
         "connexion": {
-            "handlers": ["connexions"],
+            "handlers": ["production_logfile"],
             "propagate": True,
         },
         "timer_heron": {"handlers": ["timer_heron"], "level": "DEBUG"},
