@@ -90,7 +90,6 @@ LOGGING = {
         "production": {"handlers": ["production_logfile"], "propagate": True},
         "connexion": {
             "handlers": ["connexion_file"],
-            "level": "INFO",
             "propagate": True,
         },
         "timer_heron": {"handlers": ["timer_heron"], "level": "DEBUG"},
