@@ -75,12 +75,12 @@ LOGGING = {
             "formatter": "verbose",
         },
         # Send in connexion_file
-        # "connection": {
-        #     "level": "INFO",
-        #     "class": "logging.FileHandler",
-        #     "filename": f"{VAR_LOG_DIR}/connect.log",
-        #     "formatter": "simple",
-        # },
+        "connexion": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{VAR_LOG_DIR}/connect.log",
+            "formatter": "simple",
+        },
     },
     "loggers": {
         # all messages
@@ -88,10 +88,10 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        # "connect": {
-        #     "handlers": ["connection"],
-        #     "propagate": True,
-        # },
+        "connect": {
+            "handlers": ["connexion"],
+            "propagate": True,
+        },
         "timer_heron": {"handlers": ["timer_heron"]},
         "imports": {"handlers": ["import_logfile"], "propagate": False},
     },
