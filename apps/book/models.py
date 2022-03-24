@@ -126,17 +126,17 @@ class Society(FlagsTable):
         CategorySage,
         on_delete=models.PROTECT,
         null=True,
-        to_field="code",
         related_name="client_category",
         verbose_name="catégorie",
+        limit_choices_to={"initial": "C"},
     )  # BCGCOD
     supplier_category = models.ForeignKey(
         CategorySage,
         on_delete=models.PROTECT,
         null=True,
-        to_field="code",
         related_name="supplier_category",
         verbose_name="catégorie",
+        limit_choices_to={"initial": "S"},
     )  # BSGCOD
     supplier_identifier = models.CharField(
         null=True, blank=True, max_length=70, verbose_name="identifiant fournisseur"
@@ -167,7 +167,6 @@ class Society(FlagsTable):
         TabDivSage,
         null=True,
         on_delete=models.PROTECT,
-        to_field="code",
         limit_choices_to={"num_table": "6100"},
         verbose_name="code budget",
     )  # Z_CODBUD

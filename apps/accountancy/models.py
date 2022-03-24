@@ -120,6 +120,14 @@ class AccountSage(FlagsTable):
         }
 
     @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "code_plan_sage", "account"
+
+    @staticmethod
     def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
@@ -179,6 +187,14 @@ class AxeSage(FlagsTable):
             "name": 1,
             "short_name": 2,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "axe"
 
     @staticmethod
     def get_import():
@@ -307,6 +323,14 @@ class SectionSage(FlagsTable):
         }
 
     @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "axe", "section"
+
+    @staticmethod
     def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
@@ -345,7 +369,7 @@ class VatRegimeSage(FlagsTable):
     ======================================================================
     """
 
-    vat_regime = models.CharField(null=True, blank=True, max_length=5)
+    vat_regime = models.CharField(unique=True, max_length=5)
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     vat_code = models.CharField(null=True, max_length=5, verbose_name="code taxe")
@@ -375,6 +399,14 @@ class VatRegimeSage(FlagsTable):
             "sale_class": 5,
             "regime_type": 6,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "vat_regime"
 
     @staticmethod
     def get_import():
@@ -432,6 +464,14 @@ class VatSage(FlagsTable):
             "short_name": 2,
             "vat_regime": 3,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "vat"
 
     @staticmethod
     def get_import():
@@ -492,6 +532,14 @@ class VatRatSage(FlagsTable):
         }
 
     @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "vat", "vat_start_date", "rate"
+
+    @staticmethod
     def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
@@ -505,6 +553,7 @@ class VatRatSage(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
+        unique_together = (("vat", "vat_start_date", "rate"),)
         ordering = ["vat", "-vat_start_date"]
 
 
@@ -545,6 +594,14 @@ class PaymentCondition(FlagsTable):
             "name": 1,
             "short_name": 2,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "code"
 
     @staticmethod
     def get_import():
@@ -597,7 +654,7 @@ class TabDivSage(FlagsTable):
     """
 
     num_table = models.IntegerField(verbose_name="n° table divers Sage X3")
-    code = models.CharField(unique=True, max_length=35)
+    code = models.CharField(max_length=35)
     a_01 = models.CharField(null=True, max_length=40)
     a_02 = models.CharField(null=True, max_length=40)
     a_03 = models.CharField(null=True, max_length=40)
@@ -691,6 +748,14 @@ class TabDivSage(FlagsTable):
         }
 
     @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "num_table", "code"
+
+    @staticmethod
     def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
@@ -728,7 +793,7 @@ class CategorySage(FlagsTable):
     """
 
     initial = models.CharField(max_length=1)
-    code = models.CharField(unique=True, max_length=5)
+    code = models.CharField(max_length=5)
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     cur = models.CharField(null=True, max_length=3, verbose_name="devise")
@@ -756,6 +821,14 @@ class CategorySage(FlagsTable):
         }
 
     @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "initial", "code"
+
+    @staticmethod
     def get_import():
         """
         FR : Retourne la methode à appeler pour importer les fixtures du modèle
@@ -770,6 +843,7 @@ class CategorySage(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["code"]
+        unique_together = (("initial", "code"),)
 
 
 class CurrencySage(FlagsTable):
@@ -829,6 +903,14 @@ class CurrencySage(FlagsTable):
             "divider": 6,
             "modification_date": 7,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return "currency_current", "currency_change", "exchange_date"
 
     @staticmethod
     def get_import():

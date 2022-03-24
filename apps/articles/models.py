@@ -68,7 +68,6 @@ class Article(FlagsTable):
         TabDivSage,
         null=True,
         on_delete=models.PROTECT,
-        to_field="code",
         limit_choices_to={"num_table": "6100"},
         related_name="budget_code_tab_div",
         verbose_name="code budget",

@@ -1,5 +1,4 @@
 # pylint: disable=E0401
-# flake8: noqa: E501
 """Module pour validation de fichiers à intégrer en base de donnée
 
 Commentaire:
@@ -31,11 +30,11 @@ class EncodingError(Exception):
     """Exception sniff encodig"""
 
 
-class ExcelToCsvIncompatibleFileError(Exception):
+class ExcelToCsvFileError(Exception):
     """Exception transformation excel"""
 
 
-class FileCsvToStringIoError(Exception):
+class CsvFileToStringIoError(Exception):
     """Exception envoi du fichier dans un StringIO"""
 
 
@@ -67,19 +66,19 @@ def encoding_detect(path_file: Path):
     return detector.result["encoding"]
 
 
-def excel_file_to_csv_string_io(excel_path, csv_string_io, header=True):
+def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
     """Fonction qui transforme un fichier excel en csv
-    :param excel_path: string_io excel à passer en csv
-    :param csv_string_io: string_io en csv
+    :param excel_file: string_io excel à passer en csv
+    :param string_io_file: string_io en csv
     :param header: entête
     :return: fichier excel en csv
     """
     success = True
 
     try:
-        data = pd.read_excel(excel_path, engine="openpyxl")
+        data = pd.read_excel(excel_file.resolve(), engine="openpyxl")
         data.to_csv(
-            csv_string_io,
+            string_io_file,
             sep=";",
             header=header,
             index=False,
@@ -87,48 +86,31 @@ def excel_file_to_csv_string_io(excel_path, csv_string_io, header=True):
             quoting=csv.QUOTE_ALL,
             encoding="utf8",
         )
-        csv_string_io.seek(0)
+        string_io_file.seek(0)
 
     except ValueError as error:
-        raise ExcelToCsvIncompatibleFileError(
-            f"Impossible de déterminer si le fichier {csv_string_io!r}, est un fichier excel"
+        raise ExcelToCsvFileError(
+            f"Impossible de déterminer si le fichier {excel_file.name!r}, est un fichier excel"
         ) from error
 
     return success
 
 
-def file_to_csv_string_io(file: Path, csv_string_io: io.StringIO, mode_csv_dict: Dict = None):
+def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
     """Fonction qui transforme un fichier en csv
-    :param file: string_io excel à passer en csv
-    :param csv_string_io: string_io en csv
-    :param mode_csv_dict: dictionnaire des caractéristiques du fichier
-                        "sep" : séparateur du fichier, par défaut ";"
-                        "line_terminator": séparateur de lignes du fichier par défaut "\n"
-                        "quoting": type de quoting par défaut csv.QUOTE_ALL
-                        "quotechar": le caractère de quoting par défaut '"'
+    :param file: fichier csv, instance de Path (pathlib)
+    :param string_io_file: fichier de type io.StringIO
     :return: string_io au format csv
     """
     try:
-        mode_csv_dict = mode_csv_dict or {}
-        csv_dict = {
-            "delimiter": mode_csv_dict.get("delimiter", ";"),
-            "lineterminator": mode_csv_dict.get("lineterminator", "\n"),
-            "quoting": mode_csv_dict.get("quoting", csv.QUOTE_ALL),
-            "quotechar": mode_csv_dict.get("quotechar", '"'),
-        }
         encoding = encoding_detect(file)
 
         with file.open("r", encoding=encoding, errors="replace") as csv_file:
-            csv_reader = csv.reader(csv_file, **csv_dict)
-
-            for line in csv_reader:
-                line_to_wrtie = ";".join(f'"{value}"' for value in line) + "\n"
-                csv_string_io.write(line_to_wrtie)
-
-            csv_string_io.seek(0)
+            string_io_file.write(csv_file.read())
+            string_io_file.seek(0)
 
     except Exception as error:
-        raise FileCsvToStringIoError(f"file_to_csv_string_io : {file.name!r}") from error
+        raise CsvFileToStringIoError(f"file_to_csv_string_io : {file.name!r}") from error
 
 
 class IterFileToInsert:
@@ -155,27 +137,27 @@ class IterFileToInsert:
                             (index commence à 0)
                             {"db_col_1" : 3, "db_col" : 0, ..., }
 
-        :param header_line: line du header, ou None
+        :param header_line: line du header commence à 1
         :param mode_csv_dict: dictionnaire des caractéristiques du fichier
                 {
                     "delimiter" : séparateur du fichier, par défaut ";"
                     "lineterminator": séparateur de lignes du fichier par défaut "\n"
-                    "quoting": type de quoting par défaut csv.QUOTE_ALL
+                    "quoting": type de quoting par défaut csv.QUOTE_NONNUMERIC
                     "quotechar": le caractère de quoting par défaut '"'
                 }
         """
         self.file_to_iter = file_to_iter
         self.csv_io = io.StringIO()
         self.columns_dict = columns_dict
-        self.header_line = header_line
-        self.first_line = 0 if header_line is None else header_line + 1
+        self.header_line = header_line if header_line is None else header_line - 1
+        self.first_line = 0 if header_line is None else header_line
         self.mode_csv_dict = mode_csv_dict or {}
         self.csv_reader = csv.reader(
             self.csv_io.readlines(),
-            delimiter=self.mode_csv_dict.get("delimiter") or ";",
-            quotechar=self.mode_csv_dict.get("quotechar") or '"',
-            lineterminator=self.mode_csv_dict.get("lineterminator") or "\n",
-            quoting=self.mode_csv_dict.get("quoting") or csv.QUOTE_ALL,
+            delimiter=self.mode_csv_dict.get("delimiter", ";"),
+            quotechar=self.mode_csv_dict.get("quotechar", '"'),
+            lineterminator=self.mode_csv_dict.get("lineterminator", "\n"),
+            quoting=self.mode_csv_dict.get("quoting", csv.QUOTE_ALL),
         )
         self.get_io()
 
@@ -199,28 +181,28 @@ class IterFileToInsert:
             if self.file_to_iter.suffix in {".xls", ".xlsx"}:
                 excel_file_to_csv_string_io(self.file_to_iter, self.csv_io)
             else:
-                file_to_csv_string_io(self.file_to_iter, self.csv_io, self.mode_csv_dict)
+                file_to_csv_string_io(self.file_to_iter, self.csv_io)
 
-        except ExcelToCsvError:
-            IMPORT_LOGGER.exception("excel_excel_to_csv_string_io")
+        except Exception as error:
+            raise ExcelToCsvError(
+                "une erreur dans la transformation du fichier en csv StringIO"
+            ) from error
 
     def close_buffer(self):
         """Fonction de fermeture du buffer io.StringIO"""
         if not self.csv_io.closed:
             self.csv_io.close()
 
-    def seek_in_line_position(self, csv_reader, row_index):
+    def seek_in_line_position(self, row_index):
         """Placement sur la première ligne demandée
-        :param csv_reader: instance de csv reader
         :param row_index: première ligne ou se placer
         """
-        self.csv_io.seek(0)
-        for _ in range(row_index):
-            next(csv_reader)
+        self.csv_io.seek(row_index or 0)
+        self.csv_io.seek(row_index or 0)
 
     def get_csv_reader(self):
         """Instancie csv reader"""
-        self.seek_in_line_position(self.csv_io, self.header_line)
+        self.seek_in_line_position(self.header_line or 0)
         self.csv_reader = csv.reader(self.csv_io.readlines(), delimiter=";", quotechar='"')
 
     def check_nb_columns(self):
@@ -231,14 +213,10 @@ class IterFileToInsert:
 
         if demand_nb_cols > file_nb_cols:
             raise IterFileToInsertError(
-                "Les éléments n'ont pu être importés : le fichier comporte %s colonne%s, "
-                "il est exigé au moins %s colonne%s"
-                % (
-                    file_nb_cols,
-                    "s" if file_nb_cols > 1 else "",
-                    demand_nb_cols,
-                    "s" if demand_nb_cols > 1 else "",
-                )
+                f"Les éléments n'ont pu être importés : le fichier comporte {file_nb_cols} "
+                f"colonne{'s' if file_nb_cols > 1 else ''}, "
+                f"il est exigé au moins {demand_nb_cols} "
+                f"colonne{'s' if demand_nb_cols > 1 else ''}"
             )
 
     @staticmethod
@@ -248,15 +226,12 @@ class IterFileToInsert:
         :param header_set_in_file: set des colonnes de la bd
         """
         if not header_set_on_demand.issubset(header_set_in_file):
+            values = ", ".join(
+                f'"{value}"' for value in header_set_on_demand.difference(header_set_in_file)
+            )
             raise IterFileToInsertError(
                 "Les éléments n'ont pu être importés, "
-                "le fichier ne contient pas les colonnes demandées : %s"
-                % (
-                    ", ".join(
-                        f'"{value}"'
-                        for value in header_set_on_demand.difference(header_set_in_file)
-                    ),
-                )
+                f"le fichier ne contient pas les colonnes demandées : {values}"
             )
 
     def get_columns_rows_if_columns_none(self):
@@ -326,28 +301,27 @@ class IterFileToInsert:
         yield from self.get_chunk_dict_rows()
 
 
-class Validation(IterFileToInsert):
+class ModelFormInsertion(IterFileToInsert):
     """class pour la validation et l'insertion"""
 
-    def __init__(self, validator, *args, map_line=None, insertion="insert_or_none", **kwargs):
+    def __init__(self, validator, *args, map_line=None, uniques=(), **kwargs):
         """
         :param validator: Validateur pour le fichier, le validateur doit avoir les méthodes :
-                            - is_valid() pour insertion en base
+                            - is_valid() pour validation
                             - save() pour insertion en base
                             - une property errors qui renvoie les erreurs
+                            si on a unique avec des noms de champs alors on va update ou create
         :param map_line: fonction de transformation des données avant validation,
         cela peut être un tuple ou une liste avec les numéros de colonnes
         ou un dictionnaire avec le nom des colonnes
-        :param insertion: "insert": insertion hors erreurs
-                          "insert_or_none": insertion si pas d'erreurs
-                          "upsert": upsert
-                          "upsert_or_none": upsert si pas d'erreur
+        :param uniques: si l'on veut faire un update on envoie les champs uniques
         :param args: arguments de l'héritage
         :param kwargs: dict des arguments de l'héritage
         """
         super().__init__(*args, **kwargs)
         self.validator = validator
         self.map_line = map_line
+        self.uniques = uniques
         self.map_line_dict = isinstance(self.map_line, (dict,))
         self.errors = []
 
@@ -383,7 +357,26 @@ class Validation(IterFileToInsert):
         sont bonnes ou ajoute les erreurs par lignes
         """
         for i, data_dict in enumerate(self.get_chunk_dict_rows(), 1):
-            validator = self.validator(data=data_dict)
+            # Si on envoie les champs uniques alors on update
+            if self.uniques:
+                form = self.validator(data=data_dict)
+                form.is_valid()
+                attrs_instance = {
+                    key: value
+                    for key, value in {
+                        key: value
+                        for key, value in form.clean().items()
+                        if key in self.uniques
+                    }.items()
+                }
+                model = self.validator._meta.model
+                try:
+                    instance = model.objects.get(**attrs_instance)
+                    validator = self.validator(data=data_dict, instance=instance)
+                except model.DoesNotExist:
+                    validator = self.validator(data=data_dict)
+            else:
+                validator = self.validator(data=data_dict)
 
             if validator.is_valid():
                 validator.save()
@@ -396,6 +389,7 @@ class Validation(IterFileToInsert):
 
 
 def main():
+    """Fonction main pour lancement dans __main__"""
     print(__name__)
 
 
