@@ -37,7 +37,8 @@ méthodes pour la class IterFileToInsert à tester :
     chunk_dict
     write_io
 """
-# TODO :
+# TODO : finaliser les test complets de TestIterFileToInsert, car il y a des méthodes
+#  dont tous les paramètres n'ont pas été testés
 
 
 class TestIterFileToInsert:

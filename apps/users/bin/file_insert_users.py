@@ -26,12 +26,11 @@ from django.contrib.sites.shortcuts import get_current_site
 
 from apps.users.models import AuthGroupAccessStaff
 from apps.core.functions.functions_setups import settings
-from apps.core.bin.validate_file import IterFileToInsert
+from apps.core.functions.function_imports import IterFileToInsertError, IterFileToInsert
 from apps.users.serializers.serializer_for_insert_users import UsersSerializerUsers
 from apps.users.models import User, UploadUserFile
 
 from apps.core.functions.functions_excel import ExcelToCsv
-from apps.core.bin.validate_file import IterFileToInsertError
 
 logger = logging.getLogger("connexion")
 
@@ -62,7 +61,7 @@ def insert_users(xls_file, request):
                 "fonction": "fonction",
             }
 
-            with IterFileToInsert(csv_file, columns_dict, header_line=0) as file_iter:
+            with IterFileToInsert(csv_file, columns_dict, first_line=1) as file_iter:
                 try:
                     for dict_user in file_iter.chunk_file():
                         user = UsersSerializerUsers(

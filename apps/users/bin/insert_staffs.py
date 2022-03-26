@@ -15,7 +15,7 @@ from django.contrib.auth.models import Group
 
 from apps.users.models import AuthGroupAccessStaff
 from apps.core.functions.functions_setups import settings
-from apps.core.bin.validate_file import IterFileToInsert
+from apps.core.functions.function_imports import IterFileToInsert
 from apps.users.serializers.serializer_for_insert_users import UsersSerializer
 from apps.users.models import User, UploadUserFile
 
@@ -41,7 +41,7 @@ def insert_staffs(csv_file):
             "password": "password",
         }
 
-        with IterFileToInsert(csv_file, columns_dict, header_line=0) as file_iter:
+        with IterFileToInsert(csv_file, columns_dict, first_line=1) as file_iter:
             for dict_user in file_iter.chunk_file():
                 user = UsersSerializer(
                     data={**dict_user, **{"is_superuser": False, "is_staff": True}}
