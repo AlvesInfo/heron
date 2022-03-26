@@ -304,7 +304,6 @@ class Address(FlagsTable):
     EN : Addresses table
     """
 
-    # TODO : Faire la validation de l'adresse par défaut une seule par société
     society = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
@@ -346,6 +345,22 @@ class Address(FlagsTable):
     email_04 = models.EmailField(null=True, blank=True)  # WEB(3)
     email_05 = models.EmailField(null=True, blank=True)  # WEB(4)
     web_site = models.CharField(null=True, blank=True, max_length=250)  # FCYWEB
+
+    def save(self, *args, **kwargs):
+        """
+        FR : Avant la sauvegarde on clean les données
+        EN : Before the backup we clean the data
+        """
+        # Avant la sauvegarde on vérifie si dans l'instance à sauvegarder le champ default_adress
+        # est à True et si c'est le cas alors on update d'abord les autres à False pour la même
+        # société
+
+        if self.default_adress:
+            Address.objects.filter(society=self.society, default_adress=True).update(
+                default_adress=False
+            )
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.city}"
@@ -878,7 +893,6 @@ class BookBanksSage:
         FR : Retourne la position des colonnes
         EN : Returns the position of the columns
         """
-        # TODO : mapping à faire pour les champs du modèle Book lignes par ligne
         return {
             "society": 0,
             "account_number": 1,

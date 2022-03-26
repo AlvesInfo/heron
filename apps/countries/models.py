@@ -67,9 +67,6 @@ class ExchangeRate(models.Model):
     sale_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
     cee = models.BooleanField(default=False)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return f"{self.currency_iso_current} - {self.currency_iso_change}"
 
