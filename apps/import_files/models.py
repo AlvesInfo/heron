@@ -55,6 +55,7 @@ class ErrorsShaImportFIles(DatesTable):
         null=True,
         to_field="uuid_identification",
         related_name="sha_file_sha",
+        db_column="sha_file",
     )
     file_line = models.IntegerField(null=True)
     column = models.CharField(null=True, blank=True, max_length=80)

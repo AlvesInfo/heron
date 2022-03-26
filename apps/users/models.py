@@ -131,16 +131,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserSession(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        db_column="user",
+    )
+    session = models.ForeignKey(
+        Session,
+        on_delete=models.CASCADE,
+        db_column="session",
+    )
 
 
 class UserChief(models.Model):
     chief = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="chief", on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL,
+        related_name="chief",
+        on_delete=models.CASCADE,
+        db_column="chief",
     )
     subordonate = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="subordonate", on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL,
+        related_name="subordonate",
+        on_delete=models.CASCADE,
+        db_column="subordonate",
     )
 
 
@@ -167,5 +181,10 @@ class AuthGroupAccessStaff(models.Model):
 class UploadUserFile(models.Model):
     file = models.FileField(upload_to="users/")
     base_name_file = models.CharField(blank=True, null=True, max_length=255)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        db_column="user",
+    )
     type_insert = models.IntegerField(choices=((0, "users"), (1, "staff"), (2, "admin")), default=0)

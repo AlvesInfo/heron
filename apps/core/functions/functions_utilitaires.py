@@ -2,13 +2,10 @@
 Module Utilitaires
 """
 import os
-import sys
 import glob
-import zipfile
 from itertools import chain, islice, accumulate
 import re
 import time
-from math import acos, cos, radians, sin
 from operator import itemgetter
 from chardet.universaldetector import UniversalDetector
 from decimal import Decimal
@@ -19,9 +16,10 @@ import lxml.html
 import pendulum
 from pendulum.exceptions import ParserError
 
-# from django.utils.text imports slugify
 
-from apps.core.functions.functions_logs import LOG_FILE, write_log
+class EncodingError(Exception):
+    """Exception sniff encodig"""
+
 
 N_DIC = {
     "A": {
@@ -260,9 +258,9 @@ def iter_slice(iterable, taille, form=tuple):
             rows = iter_slice(l, 4)
             for r in rows:
                 print(r)
-            ...(1, 2, 3, 4)
-            ...(5, 6, 7, 8)
-            ...(9, )
+            ... (1, 2, 3, 4)
+            ... (5, 6, 7, 8)
+            ... (9, )
         :param iterable: List, tuple, set, str etc...
         :param taille: Nombre
         :param form: Format de sortie, par default tuple, mais on peut choisir, list, set ...
@@ -331,7 +329,7 @@ def verif_chiffres(numbers, l_g=None, between=None):
     """
     Fonction qui vérifie un nombre
         :param numbers: Nombre à vérifier
-        :param l_g: Si l'on veut vérifier le nombre de chiffre
+        :param l_g: Si l'on veut vérifier le nombre de chiffres
         :param between: Si l'on veut vérifier un intervalle,
                         doit être un tuple ou une liste (1998, 2010)
         :return: True si valide sinon None
@@ -405,7 +403,7 @@ def get_list_duplicates(lst, equals=lambda x, y: x == y):
         # On récupère chaque élément de la liste, sauf le dernier
         elem = verif_list[i_1]
 
-        # On le compare à l'élément suivant, et chaque élément après l'élément suivant
+        # On le compare à l'élément suivant et chaque élément après l'élément suivant
         i_2 = i_1 + 1
         while i_2 <= l_g:
             # En cas d'égalité, on retire l'élément de la liste, et on décrémente la longueur de la
@@ -560,13 +558,21 @@ def list_file(path, extension=None, reverse=None, first=None, name_part=None):
 
 
 def encoding_detect(path_file):
-    detector = UniversalDetector()
-    with open(path_file, "rb") as file:
-        for line in file:
-            detector.feed(line)
-            if detector.done:
-                break
-        detector.close()
+    """Fonction qui renvoi l'encoding le plus probable de du fichier passé en paramètre"""
+    try:
+        detector = UniversalDetector()
+
+        with open(path_file, "rb") as file:
+            for line in file:
+                detector.feed(line)
+
+                if detector.done:
+                    break
+
+            detector.close()
+
+    except Exception as error:
+        raise EncodingError(f"encoding_detect : {path_file.name !r}") from error
 
     return detector.result["encoding"]
 
@@ -734,9 +740,3 @@ def get_zero_decimal(value):
         return test_value.replace(to_delete, "").replace(to_replace, ".")
 
     return test_value.replace(",", ".") or "0"
-
-
-if __name__ == "__main__":
-    FILE_NAME = "test_resrechliste.csv"
-    PATH_FILE = f"D:/TELECHARGEMENT/{FILE_NAME}"
-    print(encoding_detect(PATH_FILE))

@@ -140,6 +140,7 @@ class SendFilesMail(FlagsTable):
         on_delete=models.CASCADE,
         to_field="uuid_identification",
         related_name="file_send_file",
+        db_column="file",
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -147,6 +148,7 @@ class SendFilesMail(FlagsTable):
         to_field="uuid_identification",
         related_name="user_send_file",
         null=True,
+        db_column="user",
     )
     email = models.EmailField(null=True, blank=True)
 

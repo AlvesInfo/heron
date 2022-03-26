@@ -16,18 +16,16 @@ from typing import Dict
 import csv
 from operator import itemgetter
 
-from chardet.universaldetector import UniversalDetector
 import pandas as pd
+
+from apps.core.functions.functions_utilitaires import encoding_detect
+
 
 IMPORT_LOGGER = logging.getLogger("imports")
 
 
 class ExcelToCsvError(Exception):
-    """Exception niveau module"""
-
-
-class EncodingError(Exception):
-    """Exception sniff encodig"""
+    """Exception transformation excel"""
 
 
 class ExcelToCsvFileError(Exception):
@@ -48,26 +46,6 @@ class GetAddDictError(IterFileToInsertError):
 
 class ValidationError(Exception):
     """Gestion d'erreur de validation"""
-
-
-def encoding_detect(path_file: Path):
-    """Fonction qui renvoie"""
-    try:
-        detector = UniversalDetector()
-
-        with open(path_file, "rb") as file:
-            for line in file:
-                detector.feed(line)
-
-                if detector.done:
-                    break
-
-            detector.close()
-
-    except Exception as error:
-        raise EncodingError(f"encoding_detect : {path_file.name !r}") from error
-
-    return detector.result["encoding"]
 
 
 def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
@@ -385,7 +363,9 @@ class IterFileToInsert:
                 continue
 
             if self.add_fields_dict:
-                csv_writer.writerow(itemgetter(*postion_list)(line) + self.add_fields_dict.values())
+                csv_writer.writerow(
+                    list(itemgetter(*postion_list)(line)) + self.get_add_values
+                )
             else:
                 csv_writer.writerow(itemgetter(*postion_list)(line))
 
@@ -574,7 +554,7 @@ class IterFileToInsert:
 #         :param strict: True ou False
 #         :param errors_limits: nbre d'erreurs maxi à remonter
 #         :param save: si l'on veut que le serializer sauvegarde les données in time validation,
-#                      cette méthode est beaucoup moins efficace que les autres methodes implémentées
+#                     cette méthode est beaucoup moins efficace que les autres methodes implémentées
 #         """
 #         test_errors = False
 #

@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 import datetime
 import uuid
+import time
 
 from pydantic import ValidationError
 from apps.core.validation.pydantic_validators_base import (
@@ -39,6 +40,7 @@ from apps.accountancy.models import (
 
 
 class AccountSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFieldsBase):
+    """Schema Djantic pour validation du modèle AccountSage"""
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
@@ -46,11 +48,7 @@ class AccountSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanF
 
     class Config:
         model = AccountSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "uuid_identification",
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
@@ -60,10 +58,7 @@ class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
 
     class Config:
         model = AxeSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class SectionSagechema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFieldsBase):
@@ -76,11 +71,7 @@ class SectionSagechema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFi
 
     class Config:
         model = SectionSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "uuid_identification",
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class VatRegimeSagechema(ModelSchema, SageTruncateStrFieldsBase):
@@ -90,10 +81,7 @@ class VatRegimeSagechema(ModelSchema, SageTruncateStrFieldsBase):
 
     class Config:
         model = VatRegimeSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class VatSagechema(ModelSchema, SageTruncateStrFieldsBase):
@@ -103,10 +91,7 @@ class VatSagechema(ModelSchema, SageTruncateStrFieldsBase):
 
     class Config:
         model = VatSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class VatRatSageSchema(
@@ -124,10 +109,7 @@ class VatRatSageSchema(
 
     class Config:
         model = VatRatSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class PaymentConditionSchema(ModelSchema, SageTruncateStrFieldsBase):
@@ -137,10 +119,7 @@ class PaymentConditionSchema(ModelSchema, SageTruncateStrFieldsBase):
 
     class Config:
         model = PaymentCondition
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class TabDivSageSchema(
@@ -155,10 +134,7 @@ class TabDivSageSchema(
 
     class Config:
         model = TabDivSage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class CategorySageSchema(ModelSchema, SageTruncateStrFieldsBase):
@@ -168,10 +144,7 @@ class CategorySageSchema(ModelSchema, SageTruncateStrFieldsBase):
 
     class Config:
         model = CategorySage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 class CurrencySageSchema(
@@ -188,38 +161,33 @@ class CurrencySageSchema(
 
     class Config:
         model = CurrencySage
-        include = [key for key in model.get_columns_import().keys()] + [
-            "uuid_identification",
-            "created_at",
-            "modified_at",
-        ]
+        include = list(model.get_columns_import())
 
 
 def main():
-    import time
 
-    data_dict = {
-        "code_plan_sage": 0,
-        "account": "    zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz             ",
-        "name": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
-        "short_name": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
-    }
-    start = time.time()
-    t = None
-    for i in range(1):
-        try:
-            t = AccountSageSchema(**data_dict)
-            # AccountSage.objects.update_or_create(**t.dict())
-        except ValidationError as errors:
-            print(i + 1, errors.errors())
-            # raise Exception from errors
-        else:...
-            # print(i + 1, t.dict())
-    print(f"validation par djantic en {time.time() - start} s")
-    import djantic
-
-    if isinstance(AccountSageSchema, (djantic.main.ModelSchemaMetaclass, )):
-        print(type(AccountSageSchema))
+    # data_dict = {
+    #     "code_plan_sage": "zzzzzzzzzzzzzzzzzzzzzzzzz",
+    #     "account": "    zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz             ",
+    #     "name": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+    #     "short_name": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+    # }
+    # start = time.time()
+    # t = None
+    # for i in range(1):
+    #     try:
+    #         t = AccountSageSchema(**data_dict)
+    #         # AccountSage.objects.update_or_create(**t.dict())
+    #     except ValidationError as errors:
+    #         print(i + 1, errors.errors())
+    #         # raise Exception from errors
+    #     else:...
+    #         # print(i + 1, t.dict())
+    # print(f"validation par djantic en {time.time() - start} s")
+    # import djantic
+    #
+    # if isinstance(AccountSageSchema, (djantic.main.ModelSchemaMetaclass, )):
+    #     print(type(AccountSageSchema))
     # start = time.time()
     # f = None
     # for i in range(1_000_000):
@@ -278,5 +246,30 @@ def main():
     print(f"validation par djantic en {time.time() - start} s")
 
 
+def essai_SectionSagechema():
+
+    data_dict = {
+        "axe": "001",
+        "section": "NAF",
+        "name": "Prèmière section",
+        "short_name": "first section",
+        "chargeable": "2",
+    }
+    start = time.time()
+
+    for i in range(1):
+        try:
+            t = SectionSagechema(**data_dict)
+        except ValidationError as errors:
+            print(i + 1, errors.errors())
+            # raise Exception from errors
+        else:
+            ...
+            print(i + 1, t.dict())
+
+    print(f"validation par djantic en {time.time() - start} s")
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    essai_SectionSagechema()

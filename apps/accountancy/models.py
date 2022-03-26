@@ -119,6 +119,11 @@ class AccountSage(FlagsTable):
             "vat_default": 28,
             "chargeback_x3": 29,
             "bu_suc": 30,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "uuid_identification": 31,
+            "created_at": 32,
+            "modified_at": 33,
         }
 
     @staticmethod
@@ -129,11 +134,11 @@ class AccountSage(FlagsTable):
         """
         return "code_plan_sage", "account"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -188,6 +193,10 @@ class AxeSage(FlagsTable):
             "axe": 0,
             "name": 1,
             "short_name": 2,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 3,
+            "modified_at": 4,
         }
 
     @staticmethod
@@ -198,11 +207,11 @@ class AxeSage(FlagsTable):
         """
         return "axe"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -283,7 +292,11 @@ class SectionSage(FlagsTable):
     """
 
     axe = models.ForeignKey(
-        AxeSage, on_delete=models.CASCADE, to_field="axe", related_name="axe_axe"
+        AxeSage,
+        on_delete=models.CASCADE,
+        to_field="axe",
+        related_name="axe_axe",
+        db_column="axe",
     )
     section = models.CharField(max_length=15)
     name = models.CharField(null=True, blank=True, max_length=30, verbose_name="intitulé")
@@ -322,6 +335,11 @@ class SectionSage(FlagsTable):
             "chargeable": 4,
             "regroup_01": 5,
             "regroup_02": 6,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "uuid_identification": 7,
+            "created_at": 8,
+            "modified_at": 9,
         }
 
     @staticmethod
@@ -332,11 +350,11 @@ class SectionSage(FlagsTable):
         """
         return "axe", "section"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -400,6 +418,10 @@ class VatRegimeSage(FlagsTable):
             "vat_code": 4,
             "sale_class": 5,
             "regime_type": 6,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 7,
+            "modified_at": 8,
         }
 
     @staticmethod
@@ -410,11 +432,11 @@ class VatRegimeSage(FlagsTable):
         """
         return "vat_regime"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -465,6 +487,10 @@ class VatSage(FlagsTable):
             "name": 1,
             "short_name": 2,
             "vat_regime": 3,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 4,
+            "modified_at": 5,
         }
 
     @staticmethod
@@ -475,11 +501,11 @@ class VatSage(FlagsTable):
         """
         return "vat"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -507,7 +533,12 @@ class VatRatSage(FlagsTable):
     ==========================================================
     """
 
-    vat = models.ForeignKey(VatSage, on_delete=models.CASCADE, to_field="vat")
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.CASCADE,
+        to_field="vat",
+        db_column="vat",
+    )
     vat_start_date = models.DateField()
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     exoneration = models.BooleanField(null=True)
@@ -531,6 +562,10 @@ class VatRatSage(FlagsTable):
             "vat_start_date": 1,
             "rate": 2,
             "exoneration": 3,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 4,
+            "modified_at": 5,
         }
 
     @staticmethod
@@ -541,11 +576,11 @@ class VatRatSage(FlagsTable):
         """
         return "vat", "vat_start_date", "rate"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -595,6 +630,10 @@ class PaymentCondition(FlagsTable):
             "code": 0,
             "name": 1,
             "short_name": 2,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 3,
+            "modified_at": 4,
         }
 
     @staticmethod
@@ -605,11 +644,11 @@ class PaymentCondition(FlagsTable):
         """
         return "code"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -747,6 +786,8 @@ class TabDivSage(FlagsTable):
             # Issu de l'héritage de FlagsTable
             # From the legacy of FlagsTable
             "flag_active": 35,
+            "created_at": 36,
+            "modified_at": 37,
         }
 
     @staticmethod
@@ -757,11 +798,11 @@ class TabDivSage(FlagsTable):
         """
         return "num_table", "code"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -820,6 +861,10 @@ class CategorySage(FlagsTable):
             "name": 2,
             "short_name": 3,
             "cur": 4,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 5,
+            "modified_at": 6,
         }
 
     @staticmethod
@@ -830,11 +875,11 @@ class CategorySage(FlagsTable):
         """
         return "initial", "code"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -903,6 +948,11 @@ class CurrencySage(FlagsTable):
             "exchange_inverse": 5,
             "divider": 6,
             "modification_date": 7,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "uuid_identification": 8,
+            "created_at": 9,
+            "modified_at": 10,
         }
 
     @staticmethod
@@ -913,11 +963,11 @@ class CurrencySage(FlagsTable):
         """
         return "currency_current", "currency_change", "exchange_date"
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 

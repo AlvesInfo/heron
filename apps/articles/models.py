@@ -43,6 +43,7 @@ class Article(FlagsTable):
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="supplier_society",
+        db_column="supplier",
     )
     reference = models.CharField(max_length=35)
     ean_code = models.CharField(null=True, blank=True, max_length=35)
@@ -56,6 +57,7 @@ class Article(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="big_category_category",
+        db_column="big_category",
     )
     sub_familly = models.ForeignKey(
         SubFamilly,
@@ -63,6 +65,7 @@ class Article(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="sub_fmaily_subfamilly",
+        db_column="sub_familly",
     )
     budget_code = models.ForeignKey(
         TabDivSage,
@@ -71,6 +74,7 @@ class Article(FlagsTable):
         limit_choices_to={"num_table": "6100"},
         related_name="budget_code_tab_div",
         verbose_name="code budget",
+        db_column="budget_code",
     )
     axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
     axe_bu = models.ForeignKey(
@@ -80,6 +84,7 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "BU"},
         related_name="bu_section",
+        db_column="axe_bu",
     )
     axe_cct = models.ForeignKey(
         SectionSage,
@@ -88,6 +93,7 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "CCT"},
         related_name="cct_section",
+        db_column="axe_cct",
     )
     axe_prj = models.ForeignKey(
         SectionSage,
@@ -96,6 +102,7 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRJ"},
         related_name="prj_section",
+        db_column="axe_prj",
     )
     axe_pro = models.ForeignKey(
         SectionSage,
@@ -104,6 +111,7 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
         related_name="pro_section",
+        db_column="axe_pro",
     )
     axe_pys = models.ForeignKey(
         SectionSage,
@@ -112,6 +120,7 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PYS"},
         related_name="pys_section",
+        db_column="axe_pys",
     )
     axe_rfa = models.ForeignKey(
         SectionSage,
@@ -120,6 +129,7 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "RFA"},
         related_name="rfa_section",
+        db_column="axe_rfa",
     )
     made_in = models.ForeignKey(
         Country,
@@ -127,6 +137,7 @@ class Article(FlagsTable):
         to_field="country_iso",
         related_name="made_in_country",
         null=True,
+        db_column="made_in",
     )
     item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     unit_weight = models.CharField(
@@ -163,12 +174,14 @@ class SellingPrice(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="sale_price_sale_price_category",
+        db_column="sale_price_category",
     )
     article = models.ForeignKey(
         Article,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="sale_price_article",
+        db_column="article",
     )
     currency = models.CharField(max_length=3, default="EUR")
     sale_price = models.DecimalField(max_digits=20, decimal_places=5)
@@ -199,12 +212,14 @@ class SalePriceHistory(DatesTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="history_sale_price_category",
+        db_column="sale_price_category",
     )
     article = models.ForeignKey(
         Article,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="history_sale_price_article",
+        db_column="article",
     )
     currency = models.CharField(max_length=3, default="EUR")
     sale_price = models.DecimalField(max_digits=20, decimal_places=5)
@@ -255,12 +270,14 @@ class SubscriptionArtcile(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="subscription_subscription_article",
+        db_column="subscription",
     )
     selling_price = models.ForeignKey(
         SellingPrice,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="selling_price_selling_price",
+        db_column="selling_price",
     )
     qty = models.DecimalField(decimal_places=5, default=1, max_digits=20, verbose_name="quantité")
 

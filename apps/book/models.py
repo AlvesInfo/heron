@@ -103,6 +103,7 @@ class Society(FlagsTable):
         to_field="uuid_identification",
         related_name="society_nature",
         null=True,
+        db_column="nature",
     )
     name = models.CharField(null=True, blank=True, max_length=80)  # BPRNAM_0
     short_name = models.CharField(
@@ -129,6 +130,7 @@ class Society(FlagsTable):
         related_name="client_category",
         verbose_name="catégorie",
         limit_choices_to={"initial": "C"},
+        db_column="client_category",
     )  # BCGCOD
     supplier_category = models.ForeignKey(
         CategorySage,
@@ -137,6 +139,7 @@ class Society(FlagsTable):
         related_name="supplier_category",
         verbose_name="catégorie",
         limit_choices_to={"initial": "S"},
+        db_column="supplier_category",
     )  # BSGCOD
     supplier_identifier = models.CharField(
         null=True, blank=True, max_length=70, verbose_name="identifiant fournisseur"
@@ -155,6 +158,7 @@ class Society(FlagsTable):
         related_name="society_country_country",
         null=True,
         verbose_name="pays",
+        db_column="country",
     )  # CRY
     language = models.ForeignKey(
         Country,
@@ -162,6 +166,7 @@ class Society(FlagsTable):
         to_field="country_iso",
         related_name="society_language_country",
         null=True,
+        db_column="language",
     )  # LAN
     budget_code = models.ForeignKey(
         TabDivSage,
@@ -169,6 +174,7 @@ class Society(FlagsTable):
         on_delete=models.PROTECT,
         limit_choices_to={"num_table": "6100"},
         verbose_name="code budget",
+        db_column="budget_code",
     )  # Z_CODBUD
     reviser = models.CharField(null=True, blank=True, max_length=5)  # Z_REVUSR
     comment = models.TextField(null=True, blank=True)
@@ -191,6 +197,7 @@ class Society(FlagsTable):
         to_field="code",
         related_name="society_supplier_payment",
         verbose_name="conditions de paiement fournisseur",
+        db_column="payment_condition_supplier",
     )  # PTE - BPSUPPLIER (Table TABPAYTERM)
     vat_sheme_supplier = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
@@ -205,6 +212,7 @@ class Society(FlagsTable):
         to_field="code",
         related_name="society_client_payment",
         verbose_name="conditions de paiement client",
+        db_column="payment_condition_client",
     )  # PTE - BPCUSTOMER (Table TABPAYTERM)
     vat_sheme_client = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
@@ -222,6 +230,7 @@ class Society(FlagsTable):
         null=True,
         to_field="uuid_identification",
         verbose_name="enseigne",
+        db_column="sign_board",
     )
     opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
     closing_date = models.DateField(null=True, verbose_name="date de fermeture")
@@ -244,6 +253,7 @@ class Society(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         verbose_name="categorie de prix",
+        db_column="sale_price_category",
     )
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="coefiscient de vente générique"
@@ -254,6 +264,7 @@ class Society(FlagsTable):
         to_field="uuid_identification",
         related_name="credit_account",
         verbose_name="compte X3 au crédit",
+        db_column="credit_account",
     )
     debit_account = models.ForeignKey(
         AccountSage,
@@ -261,6 +272,7 @@ class Society(FlagsTable):
         to_field="uuid_identification",
         related_name="debit_account",
         verbose_name="compte X3 au débit",
+        db_column="debit_account",
     )
     prov_account = models.ForeignKey(
         AccountSage,
@@ -268,6 +280,7 @@ class Society(FlagsTable):
         to_field="uuid_identification",
         related_name="prov_account",
         verbose_name="compte X3 de provision",
+        db_column="prov_account",
     )
     sage_vat_by_default = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="tva X3 par défaut"
@@ -303,6 +316,7 @@ class Address(FlagsTable):
         on_delete=models.CASCADE,
         to_field="third_party_num",
         related_name="society_society",
+        db_column="society",
     )  # BPANUM
     default_adress = models.BooleanField(null=True, default=False)  # BPAADDFLG
     address_code = models.CharField(null=True, blank=True, max_length=20)  # BPAADD
@@ -322,6 +336,7 @@ class Address(FlagsTable):
         to_field="country_iso",
         related_name="adresse_country",
         null=True,
+        db_column="country",
     )  # CRY
     building = models.CharField(null=True, blank=True, max_length=80)
     floor = models.CharField(null=True, blank=True, max_length=80)
@@ -384,6 +399,7 @@ class Contact(FlagsTable):
         on_delete=models.CASCADE,
         to_field="third_party_num",
         related_name="contact_society",
+        db_column="society",
     )  # BPANUM
     code = models.CharField(null=True, blank=True, max_length=15)  # CCNCRM
     service = models.CharField(null=True, blank=True, max_length=30)  # CNTSRV
@@ -395,6 +411,7 @@ class Contact(FlagsTable):
         related_name="contact_nature_country",
         null=True,
         limit_choices_to={"for_contact": True},
+        db_column="nature",
     )
     civility = models.CharField(null=True, blank=True, max_length=20)  # CNTTTL
     first_name = models.CharField(null=True, blank=True, max_length=80)  # CNTFNA
@@ -405,6 +422,7 @@ class Contact(FlagsTable):
         to_field="country_iso",
         related_name="contact_language_country",
         null=True,
+        db_column="language",
     )  # CNTLAN
     category = models.CharField(null=True, blank=True, max_length=20)  # CNTCSP
     address_number = models.CharField(null=True, blank=True, max_length=20)
@@ -423,6 +441,7 @@ class Contact(FlagsTable):
         related_name="contact_country_country",
         null=True,
         verbose_name="pays",
+        db_column="country",
     )  # CRY
     building = models.CharField(null=True, blank=True, max_length=80)
     floor = models.CharField(null=True, blank=True, max_length=80)
@@ -454,12 +473,14 @@ class ContactExchange(models.Model):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="exchange_contact",
+        db_column="contact",
     )
     document = models.ForeignKey(
         DocumentsSubscription,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="document_contact",
+        db_column="document",
     )
 
     def __str__(self):
@@ -483,6 +504,7 @@ class SocietyBank(FlagsTable):
         on_delete=models.CASCADE,
         to_field="third_party_num",
         related_name="bank_society",
+        db_column="society",
     )  # BPANUM
     account_number = models.CharField(null=True, blank=True, max_length=50)  # BIDNUM
     address = models.CharField(null=True, blank=True, max_length=50)  # BPAADD
@@ -501,6 +523,7 @@ class SocietyBank(FlagsTable):
         to_field="country_iso",
         related_name="bank_country",
         null=True,
+        db_column="country",
     )  # CRY
     currency = models.CharField(blank=True, null=True, max_length=3)  # CUR
     is_default = models.BooleanField(null=True, default=False)  # BIDNUMFLG
@@ -570,11 +593,11 @@ class BprBookSage:
             "is_contractor": 20,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -611,11 +634,11 @@ class BpsBookSage:
             "account_supplier_code": 3,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -652,11 +675,11 @@ class BpcBookSage:
             "account_client_code": 3,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -712,11 +735,11 @@ class BookAdressesSage:
             "web_site": 22,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -753,11 +776,11 @@ class CodeContactsSage:
             "role": 3,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -806,11 +829,11 @@ class BookContactsSage:
             "email": 15,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -857,10 +880,10 @@ class BookBanksSage:
             "is_default": 12,
         }
 
-    @staticmethod
-    def get_import():
+    @property
+    def get_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"

@@ -215,6 +215,29 @@ POSITIONS_LIST = [
 ]
 
 
+FISRT_LINE = (
+    '"brylpgokecmkcrwbcqwz";"cfizirlmrltglxwtfqng";"zoendkprthwslupzavoe";"iafiejwdlbufxlzhkoos";'
+    '"tizumxngxtwffqbavemn";"hplmfgukjvxpiyrcdktf";"sxlbqblmanaxbwlnrxyg";"anrucgozvgozzifaqqrj";'
+    '"";"akvvgbmanlerkhyyuwnn";"fxsybylzlbtrukamjtdc";"tfweqchfnfscflgcgogf";'
+    '"ddbmwuyiljxabcyhseal";"vmfmclchamofbubbykio";"paacuspbhvxfthywrjmp";"ashdfvkyxroezwurtuoo";'
+    '"kpnubwvxydvmqylckcvg";"iastmjhjqbkoiizymjao";"bxwauugvyeihxcrxvfeo";"aalybgnyzvpmashqsani";'
+    '"bipglrpilsgwxvdymvlx";"eclwefcktuhrbvfzfjqo";"aaihsksivddlgdbhdbfk";"xgcfpmoratvepysrlcmn";'''
+    '"kmxrfnnxgqmsfdkmtfsd"\r\n'
+)
+
+
+FISRT_LINE_AJOUTS = (
+    '"brylpgokecmkcrwbcqwz";"cfizirlmrltglxwtfqng";"zoendkprthwslupzavoe";"iafiejwdlbufxlzhkoos";'
+    '"tizumxngxtwffqbavemn";"hplmfgukjvxpiyrcdktf";"sxlbqblmanaxbwlnrxyg";"anrucgozvgozzifaqqrj";'
+    '"";"akvvgbmanlerkhyyuwnn";"fxsybylzlbtrukamjtdc";"tfweqchfnfscflgcgogf";'
+    '"ddbmwuyiljxabcyhseal";"vmfmclchamofbubbykio";"paacuspbhvxfthywrjmp";"ashdfvkyxroezwurtuoo";'
+    '"kpnubwvxydvmqylckcvg";"iastmjhjqbkoiizymjao";"bxwauugvyeihxcrxvfeo";"aalybgnyzvpmashqsani";'
+    '"bipglrpilsgwxvdymvlx";"eclwefcktuhrbvfzfjqo";"aaihsksivddlgdbhdbfk";"xgcfpmoratvepysrlcmn";'''
+    '"kmxrfnnxgqmsfdkmtfsd";"ae931c24-531b-425b-8b98-496d7a816fe9";'
+    '"2022-03-25T23:16:16.139984+00:00";"2022-03-25T23:16:16.139984+00:00"\r\n'
+)
+
+
 def add_uuid():
     return UUID("ae931c24-531b-425b-8b98-496d7a816fe9")
 

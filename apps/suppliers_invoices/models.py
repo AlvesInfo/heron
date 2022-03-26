@@ -31,6 +31,7 @@ class Incoice(FlagsTable):
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="detail_society",
+        db_column="supplier",
     )
     invoice_number = models.CharField(max_length=35)
     invoice_date = models.DateField()
@@ -57,8 +58,8 @@ class Incoice(FlagsTable):
     @property
     def set_import(self):
         """
-        FR : Retourne la methode à appeler pour importer les fixtures du modèle
-        EN : Returns the method to call to import the fixtures from the model
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
         """
         return "methode d'import à retourner"
 
@@ -91,6 +92,7 @@ class InvoiceDetail(FlagsTable):
         on_delete=models.CASCADE,
         to_field="uuid_identification",
         related_name="detail_invoice",
+        db_column="invoice",
     )
 
     # Article
@@ -99,6 +101,7 @@ class InvoiceDetail(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="detail_article",
+        db_column="article",
     )
 
     # Sage
@@ -115,6 +118,7 @@ class InvoiceDetail(FlagsTable):
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="maison_society",
+        db_column="maison",
     )
 
     # Commande / BL

@@ -51,13 +51,25 @@ class FlagsTable(models.Model):
     flag_to_validated = models.BooleanField(null=True)
     flag_valide = models.BooleanField(null=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+        db_column="created_by",
     )
     modified_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+        db_column="modified_by",
     )
     delete_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="+"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+        db_column="delete_by",
     )
 
     class Meta:

@@ -72,6 +72,7 @@ class ChildCenterPurchase(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         verbose_name="centrale mère",
+        db_column="base_center",
     )
     name = models.CharField(unique=True, max_length=80)
     short_name = models.CharField(null=True, blank=True, max_length=20)
@@ -105,12 +106,14 @@ class Signboard(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         verbose_name="centrale",
+        db_column="center",
     )
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         verbose_name="Catégorie de prix générique",
+        db_column="sale_price_category",
     )
     name = models.CharField(unique=True, max_length=80)
     short_name = models.CharField(null=True, blank=True, max_length=20)
@@ -121,6 +124,7 @@ class Signboard(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         verbose_name="langue",
+        db_column="language",
     )
     comment = models.TextField(null=True, blank=True)
 
@@ -147,6 +151,7 @@ class SignboardModel(FlagsTable):
         Signboard,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
+        db_column="sign_board",
     )
     name = models.CharField(unique=True, max_length=80)
     short_name = models.CharField(null=True, blank=True, max_length=20)
@@ -225,12 +230,14 @@ class SignboardModelTranslate(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="sign_board_translate",
+        db_column="sign_board",
     )
     translation = models.ForeignKey(
         Translation,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="translation_translate",
+        db_column="translation",
     )
 
     # Identification
@@ -257,6 +264,7 @@ class TranslationParamaters(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="parameter_model_translate",
+        db_column="translation",
     )
     prefix_suffix = models.CharField(max_length=1, default="$")
     model = models.CharField(max_length=80)
