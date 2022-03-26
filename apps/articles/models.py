@@ -55,7 +55,7 @@ class Article(FlagsTable):
         Category,
         on_delete=models.PROTECT,
         null=True,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="big_category_category",
         db_column="big_category",
     )
@@ -63,7 +63,7 @@ class Article(FlagsTable):
         SubFamilly,
         on_delete=models.PROTECT,
         null=True,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="sub_fmaily_subfamilly",
         db_column="sub_familly",
     )
@@ -172,7 +172,7 @@ class SellingPrice(FlagsTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="sale_price_sale_price_category",
         db_column="sale_price_category",
     )
@@ -210,7 +210,7 @@ class SalePriceHistory(DatesTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="history_sale_price_category",
         db_column="sale_price_category",
     )
@@ -246,9 +246,6 @@ class Subscription(FlagsTable):
 
     name = models.CharField(unique=True, max_length=80)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return self.name
 
@@ -268,7 +265,7 @@ class SubscriptionArtcile(FlagsTable):
     subscription = models.ForeignKey(
         Subscription,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="subscription_subscription_article",
         db_column="subscription",
     )

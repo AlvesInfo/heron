@@ -43,9 +43,6 @@ class Country(models.Model):
         null=True, blank=True, max_length=3, verbose_name="code pays tva"
     )
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return f"{self.country} - {self.currency_iso}"
 
@@ -93,7 +90,7 @@ class ValidationPostalCode(models.Model):
     country = models.OneToOneField(
         Country,
         on_delete=models.CASCADE,
-        to_field="uuid_identification",
+        to_field="country_iso",
         related_name="post_code_country",
     )
     number_char = models.IntegerField(default=0, verbose_name="nombre de caractères")
@@ -119,7 +116,7 @@ class ValidationIntraVies(models.Model):
     country = models.OneToOneField(
         Country,
         on_delete=models.CASCADE,
-        to_field="uuid_identification",
+        to_field="country_iso",
         related_name="vies_country",
     )
     prefix = models.CharField(blank=True, null=True, max_length=2)

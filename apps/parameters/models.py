@@ -34,6 +34,7 @@ class Parameters(FlagsTable):
     unit = models.CharField(blank=True, null=True, max_length=20)
     validator = models.CharField(blank=True, null=True, max_length=50)
     operation = models.CharField(blank=True, null=True, max_length=200)
+    module = models.CharField(blank=True, null=True, max_length=50)
     func = models.CharField(blank=True, null=True, max_length=50)
     rate = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     base = models.CharField(blank=True, null=True, max_length=50)
@@ -52,9 +53,6 @@ class Parameters(FlagsTable):
     num_03 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     num_04 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     num_05 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
@@ -83,7 +81,7 @@ class Counter(FlagsTable):
         ADA = 6, _("Début d'année")
         AFA = 7, _("Fin d'année")
 
-    name = models.CharField(max_length=35, verbose_name="Type de numérotation")
+    name = models.CharField(unique=True, max_length=35, verbose_name="Type de numérotation")
     prefix = models.CharField(max_length=5, verbose_name="préfix")
     iso_date = models.CharField(null=True, blank=True, max_length=10)
     date_type = models.CharField(
@@ -91,9 +89,6 @@ class Counter(FlagsTable):
     )
     num = models.IntegerField(default=1)
     suffix = models.CharField(max_length=35, verbose_name="suffix")
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
@@ -112,12 +107,9 @@ class SendFiles(FlagsTable):
     """
 
     name = models.CharField(unique=True, max_length=35, verbose_name="type d'envoi")
-    file = models.CharField(unique=True, max_length=35)
+    file = models.CharField(max_length=35)
     description = models.CharField(null=True, blank=True, max_length=100)
     periodicity = models.CharField(null=True, blank=True, max_length=20)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
@@ -138,7 +130,7 @@ class SendFilesMail(FlagsTable):
     file = models.ForeignKey(
         SendFiles,
         on_delete=models.CASCADE,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="file_send_file",
         db_column="file",
     )
@@ -151,9 +143,6 @@ class SendFilesMail(FlagsTable):
         db_column="user",
     )
     email = models.EmailField(null=True, blank=True)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.file} - {self.user} - {self.email}"
@@ -180,9 +169,6 @@ class SubFamilly(FlagsTable):
 
     name = models.CharField(unique=True, max_length=35)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return self.name
 
@@ -202,9 +188,6 @@ class Category(FlagsTable):
     name = models.CharField(unique=True, max_length=35)
     ranking = models.IntegerField(unique=True)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return f"{self.ranking} - {self.name}"
 
@@ -223,9 +206,6 @@ class Periodicity(FlagsTable):
 
     name = models.CharField(unique=True, max_length=35)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return self.name
 
@@ -243,12 +223,9 @@ class SalePriceCategory(FlagsTable):
     EN : Sale Price Category
     """
 
-    name = models.CharField(max_length=80)
+    name = models.CharField(unique=True, max_length=80)
     coefficient = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     comment = models.TextField(null=True, blank=True)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
@@ -267,9 +244,6 @@ class ActionPermission(FlagsTable):
     """
 
     name = models.CharField(unique=True, max_length=35)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     class Meta:
         """class Meta du modèle django"""

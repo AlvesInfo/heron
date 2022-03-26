@@ -11,6 +11,8 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+import uuid
+
 from django.db import models
 from heron.models import FlagsTable
 
@@ -22,7 +24,7 @@ class EdiImport(FlagsTable):
     EN : Edi Import table
     """
 
-    uuid_identification = models.UUIDField()
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     fournisseur = models.CharField(null=True, blank=True, max_length=35)
     siret_fournisseur = models.CharField(null=True, blank=True, max_length=20)
     siret_payeur = models.CharField(null=True, blank=True, max_length=20)

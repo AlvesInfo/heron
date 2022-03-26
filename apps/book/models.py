@@ -46,9 +46,6 @@ class Nature(FlagsTable):
     to_display = models.CharField(null=True, blank=True, max_length=35)
     for_contact = models.BooleanField(null=True, default=None)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def save(self, *args, **kwargs):
         """
         FR : Avant la sauvegarde on clean les données
@@ -100,7 +97,7 @@ class Society(FlagsTable):
     nature = models.ForeignKey(
         Nature,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="society_nature",
         null=True,
         db_column="nature",
@@ -228,7 +225,7 @@ class Society(FlagsTable):
         Signboard,
         on_delete=models.PROTECT,
         null=True,
-        to_field="uuid_identification",
+        to_field="name",
         verbose_name="enseigne",
         db_column="sign_board",
     )
@@ -251,7 +248,7 @@ class Society(FlagsTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         verbose_name="categorie de prix",
         db_column="sale_price_category",
     )
@@ -290,9 +287,6 @@ class Society(FlagsTable):
     # RFA
     rfa_frequence = models.IntegerField(choices=Frequence.choices, default=Frequence.MENSUEL)
     rfa_remise = models.IntegerField(choices=Remise.choices, default=Remise.TOTAL)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.nature}{' - ' if self.nature else ''}{self.name}"
@@ -353,9 +347,6 @@ class Address(FlagsTable):
     email_05 = models.EmailField(null=True, blank=True)  # WEB(4)
     web_site = models.CharField(null=True, blank=True, max_length=250)  # FCYWEB
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return f"{self.city}"
 
@@ -374,9 +365,6 @@ class DocumentsSubscription(FlagsTable):
 
     name = models.CharField(unique=True, max_length=35)
     comment = models.TextField(null=True, blank=True)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
@@ -401,13 +389,13 @@ class Contact(FlagsTable):
         related_name="contact_society",
         db_column="society",
     )  # BPANUM
-    code = models.CharField(null=True, blank=True, max_length=15)  # CCNCRM
+    code = models.CharField(max_length=15)  # CCNCRM
     service = models.CharField(null=True, blank=True, max_length=30)  # CNTSRV
     role = models.CharField(null=True, blank=True, max_length=15)  # CNTMSS
     nature = models.ForeignKey(
         Nature,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="contact_nature_country",
         null=True,
         limit_choices_to={"for_contact": True},
@@ -459,6 +447,7 @@ class Contact(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["last_name", "first_name"]
+        unique_together = (("society", "code"),)
 
 
 class ContactExchange(models.Model):
@@ -478,7 +467,7 @@ class ContactExchange(models.Model):
     document = models.ForeignKey(
         DocumentsSubscription,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="document_contact",
         db_column="document",
     )
@@ -547,7 +536,7 @@ class SocietyBank(FlagsTable):
 class BprBookSage:
     """
     Table des tiers Sage X3
-    pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
+    pour imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Tiers au sens de Sage X3
     EN : Third party as defined by Sage X3
@@ -591,6 +580,10 @@ class BprBookSage:
             "is_service_provider": 18,
             "is_transporter": 19,
             "is_contractor": 20,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 21,
+            "modified_at": 22,
         }
 
     @property
@@ -632,6 +625,10 @@ class BpsBookSage:
             "payment_condition_supplier": 1,
             "vat_sheme_supplier": 2,
             "account_supplier_code": 3,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 4,
+            "modified_at": 5,
         }
 
     @property
@@ -673,6 +670,10 @@ class BpcBookSage:
             "payment_condition_client": 1,
             "vat_sheme_client": 2,
             "account_client_code": 3,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 4,
+            "modified_at": 5,
         }
 
     @property
@@ -733,6 +734,10 @@ class BookAdressesSage:
             "email_04": 20,
             "email_05": 21,
             "web_site": 22,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 23,
+            "modified_at": 24,
         }
 
     @property
@@ -774,6 +779,11 @@ class CodeContactsSage:
             "code": 1,
             "service": 2,
             "role": 3,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "uuid_identification": 4,
+            "created_at": 5,
+            "modified_at": 6,
         }
 
     @property
@@ -827,6 +837,11 @@ class BookContactsSage:
             "phone_number": 13,
             "mobile_number": 14,
             "email": 15,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "uuid_identification": 16,
+            "created_at": 17,
+            "modified_at": 18,
         }
 
     @property
@@ -878,6 +893,10 @@ class BookBanksSage:
             "country": 10,
             "currency": 11,
             "is_default": 12,
+            # Issu de l'héritage de FlagsTable
+            # From the legacy of FlagsTable
+            "created_at": 13,
+            "modified_at": 14,
         }
 
     @property

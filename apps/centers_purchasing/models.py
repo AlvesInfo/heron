@@ -47,9 +47,6 @@ class PrincipalCenterPurchase(FlagsTable):
     )
     comment = models.TextField(null=True, blank=True)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return self.name
 
@@ -70,7 +67,7 @@ class ChildCenterPurchase(FlagsTable):
     base_center = models.ForeignKey(
         PrincipalCenterPurchase,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         verbose_name="centrale mère",
         db_column="base_center",
     )
@@ -80,9 +77,6 @@ class ChildCenterPurchase(FlagsTable):
         max_digits=20, decimal_places=5, default=1, verbose_name="coefficient niveau Centrale Fille"
     )
     comment = models.TextField(null=True, blank=True)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.base_center} - {self.name}"
@@ -104,14 +98,14 @@ class Signboard(FlagsTable):
     center = models.ForeignKey(
         ChildCenterPurchase,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         verbose_name="centrale",
         db_column="center",
     )
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         verbose_name="Catégorie de prix générique",
         db_column="sale_price_category",
     )
@@ -122,14 +116,11 @@ class Signboard(FlagsTable):
     language = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="country_iso",
         verbose_name="langue",
         db_column="language",
     )
     comment = models.TextField(null=True, blank=True)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.center} - {self.name}"
@@ -150,16 +141,13 @@ class SignboardModel(FlagsTable):
     sign_board = models.ForeignKey(
         Signboard,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         db_column="sign_board",
     )
     name = models.CharField(unique=True, max_length=80)
     short_name = models.CharField(null=True, blank=True, max_length=20)
     action = models.CharField(null=True, blank=True, max_length=80)
     comment = models.TextField(null=True, blank=True)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.sign_board} - {self.name}"
@@ -206,9 +194,6 @@ class Translation(FlagsTable):
     latvian_text = models.TextField(null=True, blank=True)
     maltese_text = models.TextField(null=True, blank=True)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
     def __str__(self):
         return self.name
 
@@ -228,14 +213,14 @@ class SignboardModelTranslate(FlagsTable):
     sign_board = models.ForeignKey(
         SignboardModel,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="sign_board_translate",
         db_column="sign_board",
     )
     translation = models.ForeignKey(
         Translation,
         on_delete=models.PROTECT,
-        to_field="uuid_identification",
+        to_field="name",
         related_name="translation_translate",
         db_column="translation",
     )
