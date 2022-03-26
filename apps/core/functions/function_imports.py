@@ -1,5 +1,5 @@
-# pylint: disable=E0401
-"""Module pour validation de fichiers à intégrer en base de donnée
+# pylint: disable=E0401,R0902,R0913,W0212,W0105
+"""Module pour validation et import en base de donnée, de fichiers à intégrer
 
 Commentaire:
 
@@ -42,8 +42,12 @@ class IterFileToInsertError(Exception):
     """Gestion d'erreur d'itération d'un fichier à insérer"""
 
 
+class GetAddDictError(IterFileToInsertError):
+    """Gestion d'erreur d'itération d'un fichier à insérer"""
+
+
 class ValidationError(Exception):
-    """Gestion d'erreur de forms_validation"""
+    """Gestion d'erreur de validation"""
 
 
 def encoding_detect(path_file: Path):
@@ -76,6 +80,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
     success = True
 
     try:
+        # noinspection PyArgumentList
         data = pd.read_excel(excel_file.resolve(), engine="openpyxl")
         data.to_csv(
             string_io_file,
@@ -114,59 +119,92 @@ def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
 
 
 class IterFileToInsert:
-    """Iterateur de dictionnaire de données, ou ligne à ligne, d'un fichier ou d'un fichier
-    bufferisé avec séparateur de type csv à insérer"""
+    """Iterateur de dictionnaire de données ou ligne à ligne"""
 
     def __init__(
         self,
         file_to_iter: Path,
         columns_dict: Dict,
-        header_line: int = None,
+        first_line: int = 1,
         mode_csv_dict: Dict = None,
+        exclude_rows_dict=None,
+        add_fields_dict=None,
     ):
-        """Instanciation de la classe
-        :param file_to_iter: fichier de type Path à insérer
-        :param columns_dict: Plusieurs choix possibles :
-                        - pour récupérer le nombre de colonnes dans l'ordre du fichier
-                            {"db_col_1" : None, "db_col_2" : None, ..., }
-
-                        - pour récupérer seulement les colonnes souhaitées par leur nom
-                            {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ..., }
-
-                        - pour récupérer seulement les colonnes souhaitées par leur index
-                            (index commence à 0)
-                            {"db_col_1" : 3, "db_col" : 0, ..., }
-
-        :param header_line: line du header commence à 1
-        :param mode_csv_dict: dictionnaire des caractéristiques du fichier
-                {
-                    "delimiter" : séparateur du fichier, par défaut ";"
-                    "lineterminator": séparateur de lignes du fichier par défaut "\n"
-                    "quoting": type de quoting par défaut csv.QUOTE_NONNUMERIC
-                    "quotechar": le caractère de quoting par défaut '"'
-                }
         """
+        :param file_to_iter:        Fichier de type Path à insérer
+        :param columns_dict:        Plusieurs choix possibles pour :
+                                    - Récupérer le nombre de colonnes dans l'ordre du fichier
+                                        {"db_col_1" : None, "db_col_2" : None, ..., }
+
+                                    - Récupérer seulement les colonnes souhaitées par leur nom
+                                        {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
+
+                                    - Récupérer seulement les colonnes souhaitées par leur index
+                                        (index commence à 0)
+                                        {"db_col_1" : 3, "db_col" : 0, ..., }
+
+        :param first_line:          Première ligne du fichier commence à 1 par defaut
+        :param mode_csv_dict:       Dictionnaire des caractéristiques du fichier
+                                    {
+                                        "delimiter" : séparateur du fichier, par défaut ";"
+                                        "lineterminator": Passage à la ligne par défaut "\n"
+                                        "quoting": type de quoting par défaut csv.QUOTE_ALL
+                                        "quotechar": le caractère de quoting par défaut '"'
+                                    }
+        :param exclude_rows_dict:   Lignes non souhaitées,
+                                    décision sur le n° de colonne (index commence à 1)
+                                    {
+                                        "N°colonne": "texte à rechercher",
+                                        "N°colonne": "texte à rechercher",
+                                        "N°colonne": "texte à rechercher",
+                                    }
+        :param add_fields_dict:     Ajout de colonnes à la vollée, pour
+                                    par exemple rajouter un uuid, created_date, modified_date, ...
+                                    Si l'on veut appliquer une fonction à chaque ligne,
+                                    alors on passe un tuple :
+                                        (référence à la fonction à appliquer, dict de ses attributs)
+                                    {
+                                        "uuid_identification": (uuid.uuid4, {}),
+                                        "created_date": datetime.isoformat,
+                                        "modified_date": datetime.isoformat,
+                                    }
+        """
+        self.exclude_rows = exclude_rows_dict or {}
+        self.add_fields_dict = add_fields_dict or {}
         self.file_to_iter = file_to_iter
         self.csv_io = io.StringIO()
         self.columns_dict = columns_dict
-        self.header_line = header_line if header_line is None else header_line - 1
-        self.first_line = 0 if header_line is None else header_line
+        self.first_line = 0
         self.mode_csv_dict = mode_csv_dict or {}
-        self.csv_reader = csv.reader(
-            self.csv_io.readlines(),
-            delimiter=self.mode_csv_dict.get("delimiter", ";"),
-            quotechar=self.mode_csv_dict.get("quotechar", '"'),
-            lineterminator=self.mode_csv_dict.get("lineterminator", "\n"),
-            quoting=self.mode_csv_dict.get("quoting", csv.QUOTE_ALL),
-        )
+        self.delimiter = self.mode_csv_dict.get("delimiter", ";")
+        self.quotechar = self.mode_csv_dict.get("quotechar", '"')
+        self.lineterminator = self.mode_csv_dict.get("lineterminator", "\n")
+        self.quoting = self.mode_csv_dict.get("quoting", csv.QUOTE_ALL)
+        self.columns = list(self.columns_dict)
         self.get_io()
+        self.csv_io.seek(0)
+
+        # Pour connaître la position (seek) à partir de laquelle récupérer les lignes du fichier
+        for i, line in enumerate(self.csv_io):
+            if i == (first_line - 1):
+                break
+            self.first_line += len(line)
+
+        self.csv_io.seek(self.first_line)
+        self.csv_reader = csv.reader(
+            self.csv_io,
+            delimiter=self.delimiter,
+            quotechar=self.quotechar,
+            lineterminator=self.lineterminator,
+            quoting=self.quoting,
+        )
 
     def __enter__(self):
         """Pré context manager"""
         return self
 
     def __exit__(self, tipe, value, traceback):
-        """Post context manager, pour fermer
+        """Post context manager, pour fermer le fichier de type io.StringIO
         :param tipe: valeur du type venant de la sortie de la classe
         :param value: valeur venant de la sortie de la classe
         :param traceback: traceback sur une éventuele exception de la sortie de la classe
@@ -174,224 +212,467 @@ class IterFileToInsert:
         self.close_buffer()
 
     def get_io(self):
-        """Fonction qui renvoie un io.StringIO, Il y aura un prétraitement différent si le fichier
-        envoyé est un fichier à plat ou un fichier Excel
+        """Ecriture des données dans le fichier self.csv_io de type io.StringIO de l'instance.
+        Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel
         """
         try:
             if self.file_to_iter.suffix in {".xls", ".xlsx"}:
                 excel_file_to_csv_string_io(self.file_to_iter, self.csv_io)
             else:
                 file_to_csv_string_io(self.file_to_iter, self.csv_io)
-
         except Exception as error:
             raise ExcelToCsvError(
-                "une erreur dans la transformation du fichier en csv StringIO"
+                f"une erreur dans la transformation du fichier {self.file_to_iter.name!r} "
+                "en csv StringIO"
             ) from error
 
     def close_buffer(self):
-        """Fonction de fermeture du buffer io.StringIO"""
+        """Fermeture du buffer io.StringIO"""
         if not self.csv_io.closed:
             self.csv_io.close()
 
-    def seek_in_line_position(self, row_index):
-        """Placement sur la première ligne demandée
-        :param row_index: première ligne ou se placer
-        """
-        self.csv_io.seek(row_index or 0)
-        self.csv_io.seek(row_index or 0)
-
     def get_csv_reader(self):
-        """Instancie csv reader"""
-        self.seek_in_line_position(self.header_line or 0)
-        self.csv_reader = csv.reader(self.csv_io.readlines(), delimiter=";", quotechar='"')
+        """Instanciation l'attribut d'instance self.csv_reader"""
+        self.csv_io.seek(self.first_line)
+        self.csv_reader = csv.reader(
+            self.csv_io.readlines(), delimiter=self.delimiter, quotechar=self.quotechar
+        )
 
     def check_nb_columns(self):
-        """Fonction qui check si on a le nombre de colonnes suffisantes"""
+        """Check si on a le nombre de colonnes suffisantes"""
         self.get_csv_reader()
         file_nb_cols = len(next(self.csv_reader))
-        demand_nb_cols = len(self.columns_dict.keys())
+        demand_nb_cols = len(self.columns_dict)
 
         if demand_nb_cols > file_nb_cols:
             raise IterFileToInsertError(
-                f"Les éléments n'ont pu être importés : le fichier comporte {file_nb_cols} "
+                f"Erreur sur les colonnes : le fichier comporte {file_nb_cols} "
                 f"colonne{'s' if file_nb_cols > 1 else ''}, "
                 f"il est exigé au moins {demand_nb_cols} "
                 f"colonne{'s' if demand_nb_cols > 1 else ''}"
             )
 
     @staticmethod
-    def get_check_columns(header_set_on_demand, header_set_in_file):
+    def get_check_columns(header_on_demand, header_in_file):
         """Check des colonnes, si invalid alors on raise une erreur
-        :param header_set_on_demand: set des colonnes demandées
-        :param header_set_in_file: set des colonnes de la bd
+        :param header_on_demand: set des colonnes demandées
+        :param header_in_file: set des colonnes de la bd
         """
-        if not header_set_on_demand.issubset(header_set_in_file):
+        if not set(header_on_demand).issubset(set(header_in_file)):
             values = ", ".join(
-                f'"{value}"' for value in header_set_on_demand.difference(header_set_in_file)
+                f'"{value}"' for value in set(header_on_demand).difference(set(header_in_file))
             )
             raise IterFileToInsertError(
-                "Les éléments n'ont pu être importés, "
-                f"le fichier ne contient pas les colonnes demandées : {values}"
+                "Erreur sur les colonnes : "
+                f"le fichier ne contient pas les colonnes demandées suivantes : {values}\n"
+                f"le fichier contient les colonnes suivantes : {', '.join(header_in_file)}"
             )
 
-    def get_columns_rows_if_columns_none(self):
-        """Si l'on ne demande pas de colonnes"""
-        rows = [key for key, _ in enumerate(self.columns_dict.items())]
-        self.get_csv_reader()
+    def get_positons_for_none_columns(self):
+        """
+        Position des colonnes demandées dans l'attribut d'instance self.columns_dict,
+        dans la même position que le fichier
+        :return: Liste des positions des colonnes
+        """
+        postion_list = list(range(len(self.columns_dict)))
 
-        return rows
+        return postion_list
 
-    def get_columns_rows_if_columns_name(self):
-        """Si l'on a toutes les colonnes demandées dans le fichier"""
-        self.get_csv_reader()
+    def get_positions_if_columns_named(self):
+        """
+        Position des colonnes nommées dans l'attribut d'instance self.columns_dict
+        :return: Liste des positions des colonnes
+        """
         header_list_in_file = next(self.csv_reader)
-        header_set_in_file = set(header_list_in_file)
-        header_set_on_demand = set(self.columns_dict.values())
-        self.get_check_columns(header_set_on_demand, header_set_in_file)
-        # On va maintenant rechercher la position des colonnes du fichier
-        columns, rows = [], []
+        header_in_file = header_list_in_file
+        header_on_demand = list(self.columns_dict.values())
+        self.get_check_columns(header_on_demand, header_in_file)
 
-        for key, value in self.columns_dict.items():
-            columns.append(key)
-            rows.append(header_list_in_file.index(value))
+        postion_list = [header_list_in_file.index(value) for value in self.columns_dict.values()]
 
-        return columns, rows
+        return postion_list
 
     def get_header(self):
-        """Fonction qui récupère les index des colonnes du fichier à garder"""
+        """
+        :return: Liste des positions des colonnes
+        """
         self.check_nb_columns()
+        self.get_csv_reader()
         columns_type = list(self.columns_dict.values())[0]
 
-        # Si l'on a des noms de colonnes à récupérer
+        # Si l'on a des noms de colonnes du fichier à récupérer
         if isinstance(columns_type, (str,)):
-            return self.get_columns_rows_if_columns_name()
+            return self.get_positions_if_columns_named()
 
-        columns = list(self.columns_dict.keys())
-
-        # Si l'on n'a pas d'entêtes
+        # Dans la position des colonnes du fichier
         if columns_type is None:
-            return columns, self.get_columns_rows_if_columns_none()
+            return self.get_positons_for_none_columns()
 
         # Si l'on a des numéros de colonnes à récupérer
-        self.get_csv_reader()
-        return columns, list(self.columns_dict.values())
+        return list(self.columns_dict.values())
 
-    def get_chunk_dict_rows(self):
-        """Itérateur des lignes du fichier retraité
-        :return: itérateur des lignes
+    @property
+    def get_add_dict(self):
         """
-        columns, rows = self.get_header()
+        :return: Dictionnaire des noms d'attributs et valeurs à ajouter à la vollée dans le fichier
+        """
+        try:
+            add_dict = {
+                key: value[0](**value[1]) if isinstance(value, (tuple,)) else value
+                for key, value in self.add_fields_dict.items()
+            }
+        except IndexError as error:
+            raise GetAddDictError(
+                "La méthode get_add_dict a besoins d'un tuple de 2 élements"
+            ) from error
+
+        return add_dict
+
+    @property
+    def get_add_values(self):
+        """
+        :return: Liste des valeurs à ajouter à la vollée dans le fichier
+        """
+        add_list = [
+            value[0](**value[1]) if isinstance(value, (tuple,)) else value
+            for value in self.add_fields_dict.values()
+        ]
+        return add_list
+
+    def chunk_dict(self, all_lines=False):
+        """
+        Générateurs du dictionaire des lignes du fichier, avec le nom des colonnes à récupérer
+        :param all_lines: si dans le fichier il y a des lignes vides
+                            all_lines=False, shorcut l'itération des lignes vides
+                            all_lines=True, iterre même sur des lignes des lignes vides
+        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
+        """
+        postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
         for line in self.csv_reader:
-            yield dict(zip(columns, itemgetter(*rows)(line)))
+            if (not line and not all_lines) or any(
+                str(value).strip().upper() in str(line[index - 1]).strip().upper()
+                for index, value in self.exclude_rows.items()
+            ):
+                continue
 
-    def get_chunk_io(self, chunk_io: io.StringIO):
-        """Renvoie le fichier StringIO avec les bonnes colonnes"""
-        _, rows = self.get_header()
-
-        # on renvoie pour chaque ligne du fichier le dictionnaire de données
-        for line in self.csv_reader:
-            chunk_io.write(";".join(itemgetter(*rows)(line)) + "\n")
-
-    def __call__(self):
-        """Itérateur des lignes du fichier retraitées à l'appel de la classe, en dictionnaire
-        :return: itérateur des lignes
-        """
-        yield from self.get_chunk_dict_rows()
-
-
-class ModelFormInsertion(IterFileToInsert):
-    """class pour la validation et l'insertion"""
-
-    def __init__(self, validator, *args, map_line=None, uniques=(), **kwargs):
-        """
-        :param validator: Validateur pour le fichier, le validateur doit avoir les méthodes :
-                            - is_valid() pour validation
-                            - save() pour insertion en base
-                            - une property errors qui renvoie les erreurs
-                            si on a unique avec des noms de champs alors on va update ou create
-        :param map_line: fonction de transformation des données avant validation,
-        cela peut être un tuple ou une liste avec les numéros de colonnes
-        ou un dictionnaire avec le nom des colonnes
-        :param uniques: si l'on veut faire un update on envoie les champs uniques
-        :param args: arguments de l'héritage
-        :param kwargs: dict des arguments de l'héritage
-        """
-        super().__init__(*args, **kwargs)
-        self.validator = validator
-        self.map_line = map_line
-        self.uniques = uniques
-        self.map_line_dict = isinstance(self.map_line, (dict,))
-        self.errors = []
-
-    def get_errors(self, num_ligne, errors):
-        """Rempli la list error de l'instance"""
-        error_dict = {f"ligne n°{num_ligne:>6} : ": []}
-
-        for champ, details in errors.items():
-            error, *_ = details
-            error_dict[f"ligne n°{num_ligne:>6} : "].append({champ: str(error)})
-
-        self.errors.append(error_dict)
-
-    def get_transform_list_line(self, line):
-        """Fonction qui va gérer les remplacements à faire à partir d'une liste"""
-        for index, func in enumerate(self.map_line):
-            line[index] = func(line[index])
-
-    def get_transform_dict_line(self, line):
-        """Fonction qui va gérer les remplacements à faire à partir d'un dictionnaire"""
-        for key, func in self.map_line.items():
-            line[key] = func(line.get(key))
-
-    def set_transform_line(self, line):
-        """Fonction qui applique la transformation en place de la ligne à tranformer"""
-        if self.map_line_dict:
-            self.get_transform_dict_line(line)
-        else:
-            self.get_transform_list_line(line)
-
-    def iter_validation(self):
-        """Parcours les éléments du fichier à valider, puis insère en base si les données
-        sont bonnes ou ajoute les erreurs par lignes
-        """
-        for i, data_dict in enumerate(self.get_chunk_dict_rows(), 1):
-            # Si on envoie les champs uniques alors on update
-            if self.uniques:
-                form = self.validator(data=data_dict)
-                form.is_valid()
-                attrs_instance = {
-                    key: value
-                    for key, value in {
-                        key: value
-                        for key, value in form.clean().items()
-                        if key in self.uniques
-                    }.items()
+            if self.add_fields_dict:
+                yield {
+                    **dict(zip(self.columns, itemgetter(*postion_list)(line))),
+                    **self.get_add_dict,
                 }
-                model = self.validator._meta.model
-                try:
-                    instance = model.objects.get(**attrs_instance)
-                    validator = self.validator(data=data_dict, instance=instance)
-                except model.DoesNotExist:
-                    validator = self.validator(data=data_dict)
             else:
-                validator = self.validator(data=data_dict)
+                yield dict(zip(self.columns, itemgetter(*postion_list)(line)))
 
-            if validator.is_valid():
-                validator.save()
+    def write_io(self, chunk_file_io: io.StringIO, all_lines=False):
+        """
+        Rempli le fichier io.StringIO reçu avec lignes du fichier avec les colonnes à récupérer
+        :param chunk_file_io:   Fichier de type io.StringIO à remplir
+        :param all_lines:       Si dans le fichier il y a des lignes vides
+                                    all_lines=False, shorcut l'itération des lignes vides
+                                    all_lines=True, iterre même sur des lignes des lignes vides
+        """
+        postion_list = self.get_header()
+        csv_writer = csv.writer(chunk_file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+
+        # on écrit dans le fichier io.StringIO reçu les lignes du fichier à récupérer
+        for line in self.csv_reader:
+            if (not line and not all_lines) or any(
+                str(value).strip().upper() in str(line[index - 1]).strip().upper()
+                for index, value in self.exclude_rows.items()
+            ):
+                continue
+
+            if self.add_fields_dict:
+                csv_writer.writerow(itemgetter(*postion_list)(line) + self.add_fields_dict.values())
             else:
-                self.get_errors(i, validator.errors)
-
-    def validate(self):
-        """Validation des lignes du fichier, sauvegarde et renvoi des erreurs s'il y en a eu"""
-        self.iter_validation()
+                csv_writer.writerow(itemgetter(*postion_list)(line))
 
 
-def main():
-    """Fonction main pour lancement dans __main__"""
-    print(__name__)
+# class ModelFormInsertion(IterFileToInsert):
+#     """class pour la validation et l'insertion"""
+#
+#     def __init__(self, validator, *args, map_line=None, uniques=(), **kwargs):
+#         """
+#         :param validator: Validateur pour le fichier, le validateur doit avoir les méthodes :
+#                             - is_valid() pour validation
+#                             - save() pour insertion en base
+#                             - une property errors qui renvoie les erreurs
+#                             si on a unique avec des noms de champs alors on va update ou create
+#         :param map_line: fonction de transformation des données avant validation,
+#         cela peut être un tuple ou une liste avec les numéros de colonnes
+#         ou un dictionnaire avec le nom des colonnes
+#         :param uniques: si l'on veut faire un update on envoie les champs uniques
+#         :param args: arguments de l'héritage
+#         :param kwargs: dict des arguments de l'héritage
+#         """
+#         super().__init__(*args, **kwargs)
+#         self.validator = validator
+#         self.map_line = map_line
+#         self.uniques = uniques
+#         self.map_line_dict = isinstance(self.map_line, (dict,))
+#         self.errors = []
+#
+#     def get_errors(self, num_ligne, errors):
+#         """Rempli la list error de l'instance"""
+#         error_dict = {f"ligne n°{num_ligne:>6} : ": []}
+#
+#         for champ, details in errors.items():
+#             error, *_ = details
+#             error_dict[f"ligne n°{num_ligne:>6} : "].append({champ: str(error)})
+#
+#         self.errors.append(error_dict)
+#
+#     def get_transform_list_line(self, line):
+#         """Méthode qui va gérer les remplacements à faire à partir d'une liste"""
+#         for index, func in enumerate(self.map_line):
+#             line[index] = func(line[index])
+#
+#     def get_transform_dict_line(self, line):
+#         """Méthode qui va gérer les remplacements à faire à partir d'un dictionnaire"""
+#         for key, func in self.map_line.items():
+#             line[key] = func(line.get(key))
+#
+#     def set_transform_line(self, line):
+#         """Méthode qui applique la transformation en place de la ligne à tranformer"""
+#         if self.map_line_dict:
+#             self.get_transform_dict_line(line)
+#         else:
+#             self.get_transform_list_line(line)
+#
+#     def iter_validation(self):
+#         """Parcours les éléments du fichier à valider, puis insère en base si les données
+#         sont bonnes ou ajoute les erreurs par lignes
+#         """
+#         for i, data_dict in enumerate(self.chunk_dict(), 1):
+#             # Si on envoie les champs uniques alors on update
+#             if self.uniques:
+#                 validator = self.validator(data=data_dict)
+#                 validator.is_valid()
+#
+#                 # On va tester que l'on a tous les champs uniques
+#                 uniques_list = {key for key in validator.clean() if key in self.uniques}
+#
+#                 if uniques_list == set(self.uniques):
+#                     attrs_instance = {
+#                         key: value
+#                         for key, value in validator.clean().items()
+#                         if key in self.uniques
+#                     }
+#                     model = self.validator._meta.model
+#
+#                     try:
+#                         instance = model.objects.get(**attrs_instance)
+#                         validator = self.validator(data=data_dict, instance=instance)
+#
+#                     except model.DoesNotExist:
+#                         validator = self.validator(data=data_dict)
+#                 else:
+#                     validator = self.validator(data=data_dict)
+#             else:
+#                 validator = self.validator(data=data_dict)
+#
+#             if validator.is_valid():
+#                 validator.save()
+#             else:
+#                 self.get_errors(i, validator.errors)
+#
+#     def validate(self):
+#         """Validation des lignes du fichier, sauvegarde et renvoi des erreurs s'il y en a eu"""
+#         try:
+#             self.iter_validation()
+#         except Exception as error:
+#             raise ValidationError("une erreur c'est produite pendant la validation") from error
+#
+#
+# class ImportModelFileFactory(IterFileToInsert):
+#     """class Import Model File Factory"""
+#
+#     def __init__(self, model, validator, *args, **kwargs):
+#         """
+#         :param validator: validateur des champs du fichier, peut être du type serializer DRF,
+#                           mais doit avoir une method is_valid et une méthode save
+#         """
+#         super().__init__(*args, **kwargs)
+#         self.model = model
+#         self.validator = validator
+#         self.errors = []
+#         self.iter_valide_data_file = io.StringIO()
+#
+#     def __enter__(self):
+#         """Pré context manager"""
+#         return self
+#
+#     def __exit__(self, tipe, value, traceback):
+#         """Post context manager, pour fermer
+#         :param tipe: valeur du type venant de la sortie de la classe
+#         :param value: valeur venant de la sortie de la classe
+#         :param traceback: traceback sur une éventuele exception de la sortie de la classe
+#         """
+#         self.close_buffer()
+#
+#     def close_buffer(self):
+#         """Méthode de fermeture du buffer"""
+#         if isinstance(self.iter_valide_data_file, (io.StringIO,)):
+#             self.iter_valide_data_file.close()
+#
+#     def _set_errors(self, ligne, errors, errors_limits):
+#         """Remplie la list error de l'instance"""
+#
+#         if not len(self.errors) >= errors_limits:
+#             list_or_dict = "dict"
+#
+#             try:
+#                 dict(errors)
+#             except ValueError:
+#                 list_or_dict = "list"
+#
+#             if list_or_dict == "dict":
+#                 error_dict = {f"Ligne n°{ligne:>5} : ": []}
+#
+#                 for champ, details in errors.items():
+#                     error, *_ = details
+#                     error_dict[f"Ligne n°{ligne:>5} : "].append({champ: str(error)})
+#
+#                 self.errors.append(error_dict)
+#
+#             else:
+#                 for i, dict_row in enumerate(errors, ligne):
+#                     if len(self.errors) >= errors_limits:
+#                         break
+#
+#                     if dict_row:
+#                         error_dict = {f"Ligne n°{i:>5} : ": []}
+#
+#                         for champ, details in dict_row.items():
+#                             error, *_ = details
+#                             error_dict[f"Ligne n°{i:>5} : "].append({champ: str(error)})
+#
+#                         self.errors.append(error_dict)
+#
+#     def get_validate_file(self, strict=False):
+#         """
+#         :param strict: True ou False
+#         :return: Retourne un fichier de type IO.StringIO, avec seulement les lignes valides
+#         """
+#         self.validate(strict)
+#         self.iter_valide_data_file.seek(0)
+#         return self.iter_valide_data_file
+#
+#     def get_errors(self):
+#         """
+#         :return: Retourne les erreurs de validation
+#         """
+#         return self.errors
+#
+#     def validate(self, strict=False, errors_limits=100, save=False):
+#         """
+#         Parcours ligne par ligne du fichier pour validation, puis ajoute la ligne dans fichier
+#         io.StringIO les data validées ou on ajoute les erreurs dans une liste.
+#         Si aucunes de lignes du fichier ne doit être fausse alors on valide l'ensemble
+#         :param strict: True ou False
+#         :param errors_limits: nbre d'erreurs maxi à remonter
+#         :param save: si l'on veut que le serializer sauvegarde les données in time validation,
+#                      cette méthode est beaucoup moins efficace que les autres methodes implémentées
+#         """
+#         test_errors = False
+#
+#         if strict:
+#             serializer = self.validator(data=list(self.chunk_dict()), many=True)
+#
+#             if serializer.is_valid():
+#                 self.iter_valide_data_file.writelines(
+#                     f"{self.delimiter}".join(str(value) for value in row.values()) + "\n"
+#                     for row in serializer.data
+#                 )
+#                 if save:
+#                     serializer.save()
+#             else:
+#                 test_errors = True
+#                 self._set_errors(self.first_line + 1, serializer.errors, errors_limits)
+#         else:
+#             for i, data_dict in enumerate(self.chunk_dict(), self.first_line + 1):
+#                 serializer = self.validator(data=data_dict)
+#
+#                 if serializer.is_valid():
+#                     self.iter_valide_data_file.write(
+#                         f"{self.delimiter}".join(str(value) for value in serializer.data.values())
+#                         + "\n"
+#                     )
+#                     if save:
+#                         serializer.save()
+#                 else:
+#                     test_errors = True
+#                     self._set_errors(i, serializer.errors, errors_limits)
+#
+#         return test_errors
+#
+#     def csv_reader_insertion(self):
+#         """
+#         :return: Retourne une instance de csv.reader du fichier à intégrer
+#         """
+#         self.iter_valide_data_file.seek(0)
+#
+#         for row in csv.reader(
+#             self.iter_valide_data_file, delimiter=self.delimiter, quotechar=self.quotechar
+#         ):
+#             yield dict(zip(self.columns, row))
+#
+#     def django_method_save(self):
+#         """
+#         Insertion par le modèle django et bulk_create
+#         """
+#         self.iter_valide_data_file.seek(0)
+#         self.model.objects.bulk_create(
+#             [self.model(**row_dict) for row_dict in self.csv_reader_insertion()]
+#         )
+#
+#     def bulk_insert(self, cnx):
+#         """
+#         Insertion directe en BDD par copy_from psycopg2. La méthode est très efficiente,
+#         mais ne permet pas de gérer les conflits
+#         :param cnx: connection postgresql
+#         """
+#         self.iter_valide_data_file.seek(0)
+#         with cnx.cursor() as cursor:
+#             cursor.copy_from(
+#                 self.iter_valide_data_file,
+#                 self.model.objects.model._meta.db_table,
+#                 columns=self.columns_dict,
+#                 sep=self.delimiter,
+#                 size=1024,
+#             )
+#             cnx.commit()
 
 
-if __name__ == "__main__":
-    main()
+'''
+def postgres_upsert(self, cnx, insert_mode="upsert", fields_dict=None, fields_set=None):
+    """
+    Insertion en BDD par postgres_upsert et io.StringIO
+    :param cnx: connection postgresql
+    :param insert_mode: mode d'insertion souhaité choix possibles:
+                        - insert : Insertion normale, génère une erreur en cas de conflit.
+                                   Il vaut prévilégier la méthode bulk_insert, ci-dessus.
+                        - upsert : Insertion en create ou update
+                        - do_nothing : insertion si conflit ne fait rien, ne génère pas d'erreur
+
+    :param fields_dict: Dictonnaire des champs à utiliser pour les insertions en base.
+                            True pour les champs uniques et False pour les champs à update
+                            ex : fields_dict = {"unique": True, "other": False, ...}
+                            Attention! les champs devront être dans le même ordre
+                            que les colonnes du fichier
+    :param cnx: connexion à Postgresql
+    :param fields_set: set de champ à exclure en cas de conflit à l'insertion et à ne pas
+                       mettre à jour, comme par exmple le champ created_at, qui devrait être
+                       créé la première fois et ne pas être mis à jour
+    """
+    if fields_dict is None and insert_mode in {"upsert", "do_nothing"}:
+        raise IterFileToInsertError(
+            "Pour un upsert ou un do_nothing il faut les colonnes unique constraint !"
+        )
+
+    self.iter_valide_data_file.seek(0)
+    post_upsert = PostresDjangoUpsert(self.model, fields_dict, cnx, fields_set)
+    post_upsert.set_insertion(file=self.iter_valide_data_file, insert_mode=insert_mode)
+'''

@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from django import forms
 
-from apps.core.forms_validation.forms_base import SageNullBooleanField, TildeTextField
+from apps.core.validation.forms_base import SageNullBooleanField, TildeTextField
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,

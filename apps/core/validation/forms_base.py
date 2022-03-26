@@ -47,7 +47,8 @@ class TildeTextField(forms.CharField):
             :param value: value to validate
             :return: Clean method
         """
-        value = "" if value is None else value.split("~~")[0]
+        if isinstance(value, (str,)):
+            value = "" if value is None else value.split("~~")[0]
 
         return super().clean(value)
 
@@ -67,9 +68,9 @@ class FrenchBooleanField(forms.BooleanField):
             :param value: value to validate
             :return: Clean method
         """
-        if str(value).lower() in {'true', '1', 'yes', 'oui', 'vrai'}:
+        if str(value).lower() in {"true", "1", "yes", "oui", "vrai"}:
             value = "true"
-        elif str(value).lower() in {'False', 'false', '0', '', 'non', 'faux'}:
+        elif str(value).lower() in {"False", "false", "0", "", "non", "faux"}:
             value = "false"
         else:
             value = "false"
@@ -92,9 +93,9 @@ class FrenchNullBooleanField(forms.BooleanField):
             :param value: value to validate
             :return: Clean method
         """
-        if str(value).lower() in {'true', '1', 'yes', 'oui', 'vrai'}:
+        if str(value).lower() in {"true", "1", "yes", "oui", "vrai"}:
             value = "true"
-        elif str(value).lower() in {'False', 'false', '0', 'non', 'faux'}:
+        elif str(value).lower() in {"False", "false", "0", "non", "faux"}:
             value = "false"
         else:
             value = None
@@ -117,7 +118,7 @@ class SageNullBooleanField(forms.BooleanField):
             :param value: value to validate
             :return: Clean method
         """
-        if str(value).lower() in {2, '2'}:
+        if str(value).lower() in {2, "2"}:
             value = "true"
         elif str(value).lower() in {1, "1"}:
             value = "false"

@@ -15,7 +15,7 @@ from operator import itemgetter
 
 
 class IterFileToInsertError(Exception):
-    """Gestion d'erreur de forms_validation"""
+    """Gestion d'erreur de validation"""
     ...
 
 

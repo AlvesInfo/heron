@@ -23,7 +23,7 @@ from apps.parameters.models import SalePriceCategory
 class Action(FlagsTable):
     """
     Table des Actions. Elle permettra d'avoir une liste centralisée,
-    des actions à réaliser en fonction de la centrale d'achat, ou pour des forms_validation
+    des actions à réaliser en fonction de la centrale d'achat, ou pour des validation
     ou modifications de valeurs à la volée.
     FR : Actions
     EN : Actions

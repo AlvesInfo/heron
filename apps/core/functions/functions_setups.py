@@ -7,6 +7,7 @@ import platform
 
 import django
 from django.db import connection, connections
+from django.db.utils import IntegrityError
 
 BASE_DIR = r"D:\SitesWeb\heron"
 
@@ -24,3 +25,4 @@ import heron.settings as settings
 settings = settings
 connection = connection
 connections = connections
+IntegrityError = IntegrityError

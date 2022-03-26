@@ -1,8 +1,8 @@
 # pylint: disable=E0401,R0903
 """
-FR : Module des modèles de comptabilité sage pour forms_validation et vérifications
+FR : Module des modèles de comptabilité sage pour validation et vérifications
      des élements à importer de Sage X3
-EN : Sage accounting models module for forms_validation and verifications
+EN : Sage accounting models module for validation and verifications
      elements to import of Sage X3
 
 Commentaire:
@@ -65,7 +65,9 @@ class AccountSage(FlagsTable):
     axe_09 = models.CharField(null=True, blank=True, max_length=10)  # DIE(9)
     section_09 = models.CharField(null=True, blank=True, max_length=15)  # CCEDEF(9)
     vat_default = models.CharField(null=True, blank=True, max_length=15)  # VAT
-    chargeback_x3 = models.BooleanField(default=False, verbose_name="refacturable X3")  # XFLGREFAC
+    chargeback_x3 = models.BooleanField(
+        null=True, default=False, verbose_name="refacturable X3"
+    )  # XFLGREFAC
     bu_suc = models.CharField(null=True, blank=True, max_length=20)  # ZBUSUC
 
     # Identification
@@ -506,7 +508,7 @@ class VatRatSage(FlagsTable):
     """
 
     vat = models.ForeignKey(VatSage, on_delete=models.CASCADE, to_field="vat")
-    vat_start_date = models.CharField(blank=True, max_length=30)
+    vat_start_date = models.DateField()
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     exoneration = models.BooleanField(null=True)
 
@@ -866,15 +868,14 @@ class CurrencySage(FlagsTable):
     =================================================================
     """
 
-    currency_current = models.CharField(blank=True, null=True, max_length=3)
-    currency_change = models.CharField(blank=True, null=True, max_length=3)
+    currency_current = models.CharField(max_length=3)
+    currency_change = models.CharField(max_length=3)
     exchange_date = models.DateField(verbose_name="créé le")
     exchange_type = models.IntegerField(default=1)
-    exchange_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
-    exchange_inverse = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    exchange_rate = models.DecimalField(max_digits=20, decimal_places=5)
+    exchange_inverse = models.DecimalField(max_digits=20, decimal_places=5)
     divider = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     modification_date = models.DateField(verbose_name="modifié le")
-    sale_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

@@ -494,18 +494,30 @@ def get_random_name(size=10):
     return "".join(random.SystemRandom().choice(ascii_choices) for _ in range(size)).lower()
 
 
-class PostresUpsert:
+class PostresDjangoUpsert:
     """
     Class pour l'insertion en base de donnée de fichier de type csv
     (de préférence au format io. StringIO) par des méthodes de copy_from psycopg2.
     Ces méthodes d'insertion sont plus rapides, mais elle empêche d'avoir les erreurs par lignes
     """
 
-    def __init__(self, model: models.Model, dict_get_fields: AnyStr, cnx: connection, fields=None):
+    def __init__(self, model: models.Model, fields_dict: AnyStr, cnx: connection, fields_set=None):
+        """
+        :param model:       Model Django
+        :param fields_dict: Dictonnaire des champs à utiliser pour les insertions en base.
+                            True pour les champs uniques et False pour les champs à update
+                            ex : fields_dict = {"unique": True, "other": False, ...}
+                            Attention! les champs devront être dans le même ordre
+                            que les colonnes du fichier
+        :param cnx:         Connexion à Postgresql
+        :param fields_set:  Set de champ à exclure en cas de conflit à l'insertion et à ne pas
+                            mettre à jour, par exemple comme le champ created_at, qui devrait être
+                            créé la première fois et ne pas être mis à jour
+        """
         self.model = model
-        self.dict_get_fields = dict_get_fields
+        self.fields_dict = fields_dict
         self.cnx = cnx
-        self.fields = fields
+        self.fields_set = set() if fields_set is None else fields_set
         self.meta = self.model._meta
         self.table_name = self.meta.db_table
         self.temp_table_name = self.get_temp_table_name()
@@ -516,19 +528,21 @@ class PostresUpsert:
         :param name: nom de table à tester
         :return: bool
         """
-        cursor = self.cnx.cursor()
-        sql = f"""SELECT 1 FROM information_schema."tables" WHERE table_name='{name}'"""
-        cursor.execute(sql)
-        return cursor.fetchone() is not None
+        with self.cnx.cursor() as cursor:
+            sql = f"""SELECT 1 FROM information_schema."tables" WHERE table_name='{name}'"""
+            cursor.execute(sql)
+            test_exists = cursor.fetchone() is not None
+
+        return test_exists
 
     def get_temp_table_name(self):
         """
         Retourne le nom de la table temporaire en s'assurant que le nom n'existe pas
-        :return: nom de la table temporaire
+        :return: Nom de la table temporaire
         """
-        name = ""
+        name = None
 
-        while not name:
+        while name is None:
             test_name = f"{get_random_name()}_{self.table_name}"
 
             if not self.table_is_exists(test_name):
@@ -538,42 +552,48 @@ class PostresUpsert:
 
     def get_column_properties(self, field_key: AnyStr):
         """
-        Retourne les paramètres de création
         :param field_key: champ du model django à retouner
-        :return:
+        :return: Le Sql des paramètres de création de la table temporaire
         """
         field_attr = self.meta.get_field(field_key)
-        return f' "{field_attr.column}" ' f"{field_attr.db_type(connection)}"
+        return f' "{field_attr.column}" {field_attr.db_type(connection)}'
 
     def get_columns_upsert(self):
         """
-        :return: Retourne les clauses de ON CONFICT ... UPDATE
+        :return: Les clauses du SQL d'un upsert ON CONFICT ... UPDATE
         """
         fields_upsert_dict = {
             "conflict": [],
             "update": [],
         }
-        for field_key, bool_value in self.dict_get_fields.items():
+
+        for field_key, bool_value in self.fields_dict.items():
             if bool_value:
                 fields_upsert_dict.get("conflict").append(field_key)
             else:
-                fields_upsert_dict.get("update").append(field_key)
+                if field_key not in self.fields_set:
+                    fields_upsert_dict.get("update").append(field_key)
 
         return fields_upsert_dict
 
     @property
     def get_colmuns_table(self):
         """
-        Retourne les champs de la table pour l'insert
-        :return: champs de la table pour insert
+        :return: le SQL des champs de la table pour l'insert
         """
-        return ", ".join(f'"{column}"' for column in self.dict_get_fields.keys())
+        return ", ".join(f'"{column}"' for column in self.fields_dict)
+
+    @property
+    def get_insert_values(self):
+        """
+        :return: Le SQL des interpolations des champs à inserrer
+        """
+        return ", ".join(f"%({column})s" for column in self.fields_dict)
 
     @property
     def get_insert(self):
         """
-        Renvoi le début de la requête d'insertion
-        :return: début de la requête d'insertion
+        :return: Le début du SQL de la requête d'insertion
         """
         return (
             f'INSERT INTO "{self.table_name}" ({self.get_colmuns_table}) '
@@ -583,17 +603,15 @@ class PostresUpsert:
     @property
     def get_ddl_temp_table(self):
         """
-        Retourne le DDL de crétaion d'une table temporaire
-        :return: texte de Creation du DDL
+        :return: Le SQL du DDL de crétaion d'une table temporaire
         """
-        columns_list = [self.get_column_properties(field) for field in self.dict_get_fields.keys()]
-        return f"""CREATE TEMPORARY TABLE "{self.temp_table_name}" ({",".join(columns_list)[1:]})"""
+        columns_list = [self.get_column_properties(field) for field in self.fields_dict]
+        return f'CREATE TEMPORARY TABLE "{self.temp_table_name}" ({",".join(columns_list)[1:]})'
 
     @property
     def get_query_upsert(self):
         """
-        Retourne la requête d'insertion en mode upsert
-        :return: clause du conflict de la requête
+        :return: Le SQL la clause ON CONFLICT ... DO UPDATE pour la requête upsert
         """
         conflict_columns = ", ".join(
             f'"{column}"' for column in self.get_columns_upsert().get("conflict")
@@ -606,25 +624,21 @@ class PostresUpsert:
     @property
     def get_query_do_nothing(self):
         """
-        Retourne la requête d'insertion en mode do nothing
-        en cas d'insertion souffrant d'une erreur ne fait rien
-        :return: texte de la requête à exécuter
+        :return: La clause ON CONFLICT DO NOTHING pour la requête upsert
         """
         return f"{self.get_insert} ON CONFLICT DO NOTHING"
 
     @property
     def get_query_insert(self):
         """
-        Retourne la requête d'insertion en mode upsert
-        :return: texte de la requête à exécuter
+        :return: Le SQL d'insertion en mode upsert
         """
         return self.get_insert
 
     @property
     def get_drop_temp(self):
         """
-        Retourne la requête de suppression de la table provisoire
-        :return: requête de suppression de la table provisoire
+        :return: Le SQL de suppression de la table provisoire
         """
         return f'DROP TABLE IF EXISTS "{self.temp_table_name}"'
 
@@ -636,8 +650,7 @@ class PostresUpsert:
         insert_mode: AnyStr = "upsert",
     ):
         """
-        Realise l'insertion choisie (upsert, nothing, normale)
-        :return:
+        Realise l'insertion choisie (upsert, do_nothing, insert)
         """
         insert_mode_dict = {
             "upsert": self.get_query_upsert,
@@ -649,17 +662,19 @@ class PostresUpsert:
             raise PostgresUpsertError("La methode d'insertion choisie n'existe pas")
 
         with self.cnx.cursor() as cursor:
-            try:
-                if insert_mode == "insert" and self.fields:
-                    cursor.copy_from(file, self.table_name, sep=sep, size=size, columns=self.fields)
-                else:
-                    cursor.execute(self.get_ddl_temp_table)
-                    cursor.copy_from(file, self.temp_table_name, sep=sep, size=size)
-                    cursor.execute(insert_mode_dict.get(insert_mode))
-                    cursor.execute(self.get_drop_temp)
+            if insert_mode == "insert":
+                cursor.copy_from(
+                    file, self.table_name, sep=sep, size=size, columns=list(self.fields_dict)
+                )
+            else:
+                cursor.execute(self.get_ddl_temp_table)
+                cursor.copy_from(file, self.temp_table_name, sep=sep, size=size)
+                cursor.execute(insert_mode_dict.get(insert_mode))
+                cursor.execute(self.get_drop_temp)
 
-            except Exception as error:
-                raise PostgresUpsertError("set_insertion") from error
+    def set_insertion_copy_expert(self):
+        with self.cnx.cursor() as cursor:
+            cursor.copy_expert()
 
 
 if __name__ == "__main__":

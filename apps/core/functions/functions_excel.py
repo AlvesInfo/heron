@@ -143,7 +143,7 @@ def excel_excel_to_csv_string_io(excel_string_io, csv_string_io, header=True, sh
             header=header,
             index=False,
             line_terminator="\n",
-            quoting=csv.QUOTE_NONNUMERIC,
+            quoting=csv.QUOTE_ALL,
         )
         csv_string_io.seek(0)
     except ExcelToCsvError:
@@ -170,7 +170,7 @@ def excel_xhtml_to_csv(fichier_excel, fichier_csv, header=True):
         with codecs.open(fichier_excel, "r", encoding=encoding, errors="replace") as file:
 
             with open(fichier_csv, "w", newline="", encoding="utf-8") as csvfile:
-                csv_write = csv.writer(csvfile, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+                csv_write = csv.writer(csvfile, delimiter=";", quoting=csv.QUOTE_ALL)
                 soup = BeautifulSoup(file, "lxml-xml")
                 for i, t_r in enumerate(soup.find_all("tr")):
                     ligne = ""

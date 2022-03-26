@@ -589,7 +589,7 @@ def slicing_parser(iterable):
     )
 
 
-def get_decimal(num):
+def get_decimal_zero(num):
     """
     Fonction qui vérifie les chiffres en Decimal
         :param num: chiffres qui vient en argument
@@ -605,7 +605,7 @@ def get_decimal(num):
 def str_amount(decimal_amount):
     """
     Fonction qui retourne un montant à deux chiffres après la virgule
-        :param decimal_amount: montant avec séparateur .
+        :param decimal_amount: montant avec séparateur.
         :return: str montant à deux chiffres après la virgule
     """
     amount, *dec = str(decimal_amount).split(".")
@@ -630,8 +630,8 @@ def str_amount(decimal_amount):
 
 def get_client_ip(request):
     """Récupère l'adresse ip si elle existe
-        :param request:
-        :return:
+    :param request:
+    :return:
     """
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
@@ -674,6 +674,66 @@ def get_html_to_text(value):
         return "" if value is None else lxml.html.fromstring(value).text_content()[:32767]
     except lxml.etree.ParserError:
         return ""
+
+
+def get_decimal(value):
+    test_value = str(value).strip().replace(" ", "")
+    test_decimal = [
+        val
+        for val in test_value
+        if val not in {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", "."}
+    ]
+
+    if test_decimal:
+        return value
+
+    if "." in test_value and "," in test_value:
+        to_replace = ""
+        to_delete = ""
+        for letter in test_value:
+            if letter == ".":
+                to_delete = letter
+                to_replace = ","
+                break
+
+            if letter == ",":
+                to_delete = letter
+                to_replace = "."
+                break
+
+        return test_value.replace(to_delete, "").replace(to_replace, ".")
+
+    return test_value.replace(",", ".")
+
+
+def get_zero_decimal(value):
+    test_value = str(value).strip().replace(" ", "")
+    test_decimal = [
+        val
+        for val in test_value
+        if val not in {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", "."}
+    ]
+
+    if test_decimal:
+        return value
+
+    if "." in test_value and "," in test_value:
+        to_replace = ""
+        to_delete = ""
+        for letter in test_value:
+            if letter == ".":
+                to_delete = letter
+                to_replace = ","
+                break
+
+            if letter == ",":
+                to_delete = letter
+                to_replace = "."
+                break
+
+        return test_value.replace(to_delete, "").replace(to_replace, ".")
+
+    return test_value.replace(",", ".") or "0"
 
 
 if __name__ == "__main__":
