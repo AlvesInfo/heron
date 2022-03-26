@@ -97,7 +97,11 @@ def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
 
 
 class IterFileToInsert:
-    """Iterateur de dictionnaire de données ou ligne à ligne"""
+    """
+    Iterateur de dictionnaire de données ou ligne à ligne
+    Attention! Si cette classe n'est pas appelée par le context manager il faudra penser à fermer le
+    fichier de type io.StringIO : self.csv_io, par la méthode d'instance self.close_buffer
+    """
 
     def __init__(
         self,
@@ -159,7 +163,7 @@ class IterFileToInsert:
         self.lineterminator = self.mode_csv_dict.get("lineterminator", "\n")
         self.quoting = self.mode_csv_dict.get("quoting", csv.QUOTE_ALL)
         self.columns = list(self.columns_dict)
-        self.get_io()
+        self._get_io()
         self.csv_io.seek(0)
 
         # Pour connaître la position (seek) à partir de laquelle récupérer les lignes du fichier
@@ -189,7 +193,7 @@ class IterFileToInsert:
         """
         self.close_buffer()
 
-    def get_io(self):
+    def _get_io(self):
         """Ecriture des données dans le fichier self.csv_io de type io.StringIO de l'instance.
         Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel
         """
@@ -209,16 +213,16 @@ class IterFileToInsert:
         if not self.csv_io.closed:
             self.csv_io.close()
 
-    def get_csv_reader(self):
+    def _get_csv_reader(self):
         """Instanciation l'attribut d'instance self.csv_reader"""
         self.csv_io.seek(self.first_line)
         self.csv_reader = csv.reader(
             self.csv_io.readlines(), delimiter=self.delimiter, quotechar=self.quotechar
         )
 
-    def check_nb_columns(self):
+    def _check_nb_columns(self):
         """Check si on a le nombre de colonnes suffisantes"""
-        self.get_csv_reader()
+        self._get_csv_reader()
         file_nb_cols = len(next(self.csv_reader))
         demand_nb_cols = len(self.columns_dict)
 
@@ -231,7 +235,7 @@ class IterFileToInsert:
             )
 
     @staticmethod
-    def get_check_columns(header_on_demand, header_in_file):
+    def _get_check_columns(header_on_demand, header_in_file):
         """Check des colonnes, si invalid alors on raise une erreur
         :param header_on_demand: set des colonnes demandées
         :param header_in_file: set des colonnes de la bd
@@ -264,7 +268,7 @@ class IterFileToInsert:
         header_list_in_file = next(self.csv_reader)
         header_in_file = header_list_in_file
         header_on_demand = list(self.columns_dict.values())
-        self.get_check_columns(header_on_demand, header_in_file)
+        self._get_check_columns(header_on_demand, header_in_file)
 
         postion_list = [header_list_in_file.index(value) for value in self.columns_dict.values()]
 
@@ -274,8 +278,8 @@ class IterFileToInsert:
         """
         :return: Liste des positions des colonnes
         """
-        self.check_nb_columns()
-        self.get_csv_reader()
+        self._check_nb_columns()
+        self._get_csv_reader()
         columns_type = list(self.columns_dict.values())[0]
 
         # Si l'on a des noms de colonnes du fichier à récupérer

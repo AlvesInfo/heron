@@ -26,6 +26,19 @@ from apps.core.tests.test_fixtures.function_imports_contants import (
 )
 from apps.core.functions.function_imports import IterFileToInsert
 
+"""
+méthodes pour la class IterFileToInsert à tester :
+    close_buffer
+    get_positons_for_none_columns
+    get_positions_if_columns_named
+    get_header
+    get_add_dict
+    get_add_values
+    chunk_dict
+    write_io
+"""
+# TODO :
+
 
 class TestIterFileToInsert:
     """Test de la class IterFileToInsert du module function_imports"""
@@ -179,4 +192,4 @@ class TestIterFileToInsert:
 def test_excel_file_to_csv_string_io():
     """Test de la transformation d'un fichier Excel en csv"""
     # TODO : Ecrire la fonction de test complète : test_excel_file_to_csv_string_io
-    assert 1 == 1
+    assert 1 == int("1")
