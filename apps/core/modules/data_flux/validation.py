@@ -16,6 +16,17 @@ modified at: 2021-10-30
 modified by: Paulo ALVES
 """
 import io
+import redis
+
+from apps.core.functions.functions_setups import settings
+
+
+try:
+    cache = redis.StrictRedis(
+        host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_PASSWORD
+    )
+except redis.exceptions.ConnectionError:
+    cache = None
 
 
 class ErrorsSaveTemplate:
@@ -55,3 +66,9 @@ class Validation:
     """
     Validation des modèles de données à intégrer en base
     """
+
+
+if __name__ == "__main__":
+
+    cache.set("t", "test")
+    print(cache.get("t"))
