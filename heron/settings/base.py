@@ -96,6 +96,7 @@ LOCAL_APPS = [
     "apps.permissions",
     "apps.suppliers_invoices",
     "apps.suppliers_validations",
+    "apps.traces",
     "apps.users",
 ]
 

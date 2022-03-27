@@ -1,7 +1,6 @@
 from pathlib import Path
 
-from apps.core.functions.functions_setups import connection, IntegrityError
-from apps.core.functions.function_imports import ModelFormInsertion, IterFileToInsert, PostresDjangoUpsert
+from apps.core.functions.function_imports import ModelFormInsertion, IterFileToInsert
 from apps.accountancy.models import CurrencySage
 from apps.accountancy.forms.forms_sage import CurrencySageForm
 
@@ -64,7 +63,7 @@ columns_dict_z = (
 
 
 def essai_iter_file_to_insert(file):
-    from apps.accountancy.validation.djantic_sage import CurrencySageSchema
+    from apps.accountancy.validations.djantic_sage import CurrencySageSchema
     from pydantic import ValidationError
 
     with IterFileToInsert(

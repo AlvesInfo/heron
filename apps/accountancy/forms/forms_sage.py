@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from django import forms
 
-from apps.core.validation.forms_base import SageNullBooleanField, TildeTextField
+from apps.core.validations.forms_base import SageNullBooleanField, TildeTextField
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
@@ -77,6 +77,7 @@ class AccountSageForm(forms.ModelForm):
 
 class AxeSageForm(forms.ModelForm):
     """Validation de l'import ZBIAXES des Axes Sage X3"""
+
     name = TildeTextField()
     short_name = TildeTextField()
 
@@ -115,6 +116,7 @@ class SectionSageForm(forms.ModelForm):
 
 class VatRegimeSageForm(forms.ModelForm):
     """Validation de l'import ZBIVAT des Régimes de TVA Sage X3"""
+
     flag_active = SageNullBooleanField()
     name = TildeTextField()
     short_name = TildeTextField()
@@ -136,6 +138,7 @@ class VatRegimeSageForm(forms.ModelForm):
 
 class VatSageForm(forms.ModelForm):
     """Validation de l'import ZBIRATVAT des TVA Sage X3"""
+
     name = TildeTextField()
     short_name = TildeTextField()
 
@@ -171,6 +174,7 @@ class VatRatSageForm(forms.ModelForm):
 
 class PaymentConditionForm(forms.ModelForm):
     """Validation de l'import ZBIPTE des Conditions de paiement Sage X3"""
+
     name = TildeTextField()
     short_name = TildeTextField()
 
@@ -239,6 +243,7 @@ class TabDivSageForm(forms.ModelForm):
 
 class CategorySageForm(forms.ModelForm):
     """Validation de l'import ZBICATC des Catégories Sage X3"""
+
     name = TildeTextField()
     short_name = TildeTextField()
 

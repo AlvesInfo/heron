@@ -373,102 +373,102 @@ class IterFileToInsert:
                 csv_writer.writerow(itemgetter(*postion_list)(line))
 
 
-# class ModelFormInsertion(IterFileToInsert):
-#     """class pour la validation et l'insertion"""
-#
-#     def __init__(self, validator, *args, map_line=None, uniques=(), **kwargs):
-#         """
-#         :param validator: Validateur pour le fichier, le validateur doit avoir les méthodes :
-#                             - is_valid() pour validation
-#                             - save() pour insertion en base
-#                             - une property errors qui renvoie les erreurs
-#                             si on a unique avec des noms de champs alors on va update ou create
-#         :param map_line: fonction de transformation des données avant validation,
-#         cela peut être un tuple ou une liste avec les numéros de colonnes
-#         ou un dictionnaire avec le nom des colonnes
-#         :param uniques: si l'on veut faire un update on envoie les champs uniques
-#         :param args: arguments de l'héritage
-#         :param kwargs: dict des arguments de l'héritage
-#         """
-#         super().__init__(*args, **kwargs)
-#         self.validator = validator
-#         self.map_line = map_line
-#         self.uniques = uniques
-#         self.map_line_dict = isinstance(self.map_line, (dict,))
-#         self.errors = []
-#
-#     def get_errors(self, num_ligne, errors):
-#         """Rempli la list error de l'instance"""
-#         error_dict = {f"ligne n°{num_ligne:>6} : ": []}
-#
-#         for champ, details in errors.items():
-#             error, *_ = details
-#             error_dict[f"ligne n°{num_ligne:>6} : "].append({champ: str(error)})
-#
-#         self.errors.append(error_dict)
-#
-#     def get_transform_list_line(self, line):
-#         """Méthode qui va gérer les remplacements à faire à partir d'une liste"""
-#         for index, func in enumerate(self.map_line):
-#             line[index] = func(line[index])
-#
-#     def get_transform_dict_line(self, line):
-#         """Méthode qui va gérer les remplacements à faire à partir d'un dictionnaire"""
-#         for key, func in self.map_line.items():
-#             line[key] = func(line.get(key))
-#
-#     def set_transform_line(self, line):
-#         """Méthode qui applique la transformation en place de la ligne à tranformer"""
-#         if self.map_line_dict:
-#             self.get_transform_dict_line(line)
-#         else:
-#             self.get_transform_list_line(line)
-#
-#     def iter_validation(self):
-#         """Parcours les éléments du fichier à valider, puis insère en base si les données
-#         sont bonnes ou ajoute les erreurs par lignes
-#         """
-#         for i, data_dict in enumerate(self.chunk_dict(), 1):
-#             # Si on envoie les champs uniques alors on update
-#             if self.uniques:
-#                 validator = self.validator(data=data_dict)
-#                 validator.is_valid()
-#
-#                 # On va tester que l'on a tous les champs uniques
-#                 uniques_list = {key for key in validator.clean() if key in self.uniques}
-#
-#                 if uniques_list == set(self.uniques):
-#                     attrs_instance = {
-#                         key: value
-#                         for key, value in validator.clean().items()
-#                         if key in self.uniques
-#                     }
-#                     model = self.validator._meta.model
-#
-#                     try:
-#                         instance = model.objects.get(**attrs_instance)
-#                         validator = self.validator(data=data_dict, instance=instance)
-#
-#                     except model.DoesNotExist:
-#                         validator = self.validator(data=data_dict)
-#                 else:
-#                     validator = self.validator(data=data_dict)
-#             else:
-#                 validator = self.validator(data=data_dict)
-#
-#             if validator.is_valid():
-#                 validator.save()
-#             else:
-#                 self.get_errors(i, validator.errors)
-#
-#     def validate(self):
-#         """Validation des lignes du fichier, sauvegarde et renvoi des erreurs s'il y en a eu"""
-#         try:
-#             self.iter_validation()
-#         except Exception as error:
-#             raise ValidationError("une erreur c'est produite pendant la validation") from error
-#
-#
+class ModelFormInsertion(IterFileToInsert):
+    """class pour la validation et l'insertion"""
+
+    def __init__(self, validator, *args, map_line=None, uniques=(), **kwargs):
+        """
+        :param validator:   Validateur pour le fichier, le validateur doit avoir les méthodes :
+                                - is_valid() pour validation
+                                - save() pour insertion en base
+                                - une property errors qui renvoie les erreurs
+                            Si on a unique avec des noms de champs alors on va update ou create
+        :param map_line:    Fonction de transformation des données avant validation,
+                            cela peut être un tuple ou une liste avec les numéros de colonnes
+                            ou un dictionnaire avec le nom des colonnes
+        :param uniques:     Si l'on veut faire un update on envoie les champs uniques
+        :param args:        Arguments de l'héritage
+        :param kwargs:      Dictionnaire des arguments de l'héritage
+        """
+        super().__init__(*args, **kwargs)
+        self.validator = validator
+        self.map_line = map_line
+        self.uniques = uniques
+        self.map_line_dict = isinstance(self.map_line, (dict,))
+        self.errors = []
+
+    def get_errors(self, num_ligne, errors):
+        """Rempli la list error de l'instance"""
+        error_dict = {f"ligne n°{num_ligne:>6} : ": []}
+
+        for champ, details in errors.items():
+            error, *_ = details
+            error_dict[f"ligne n°{num_ligne:>6} : "].append({champ: str(error)})
+
+        self.errors.append(error_dict)
+
+    def get_transform_list_line(self, line):
+        """Méthode qui va gérer les remplacements à faire à partir d'une liste"""
+        for index, func in enumerate(self.map_line):
+            line[index] = func(line[index])
+
+    def get_transform_dict_line(self, line):
+        """Méthode qui va gérer les remplacements à faire à partir d'un dictionnaire"""
+        for key, func in self.map_line.items():
+            line[key] = func(line.get(key))
+
+    def set_transform_line(self, line):
+        """Méthode qui applique la transformation en place de la ligne à tranformer"""
+        if self.map_line_dict:
+            self.get_transform_dict_line(line)
+        else:
+            self.get_transform_list_line(line)
+
+    def iter_validation(self):
+        """Parcours les éléments du fichier à valider, puis insère en base si les données
+        sont bonnes ou ajoute les erreurs par lignes
+        """
+        for i, data_dict in enumerate(self.chunk_dict(), 1):
+            # Si on envoie les champs uniques alors on update
+            if self.uniques:
+                validator = self.validator(data=data_dict)
+                validator.is_valid()
+
+                # On va tester que l'on a tous les champs uniques
+                uniques_list = {key for key in validator.clean() if key in self.uniques}
+
+                if uniques_list == set(self.uniques):
+                    attrs_instance = {
+                        key: value
+                        for key, value in validator.clean().items()
+                        if key in self.uniques
+                    }
+                    model = self.validator._meta.model
+
+                    try:
+                        instance = model.objects.get(**attrs_instance)
+                        validator = self.validator(data=data_dict, instance=instance)
+
+                    except model.DoesNotExist:
+                        validator = self.validator(data=data_dict)
+                else:
+                    validator = self.validator(data=data_dict)
+            else:
+                validator = self.validator(data=data_dict)
+
+            if validator.is_valid():
+                validator.save()
+            else:
+                self.get_errors(i, validator.errors)
+
+    def validate(self):
+        """Validation des lignes du fichier, sauvegarde et renvoi des erreurs s'il y en a eu"""
+        try:
+            self.iter_validation()
+        except Exception as error:
+            raise ValidationError("une erreur c'est produite pendant la validation") from error
+
+
 # class ImportModelFileFactory(IterFileToInsert):
 #     """class Import Model File Factory"""
 #

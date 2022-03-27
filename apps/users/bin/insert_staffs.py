@@ -16,7 +16,7 @@ from django.contrib.auth.models import Group
 from apps.users.models import AuthGroupAccessStaff
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.function_imports import IterFileToInsert
-from apps.users.serializers.serializer_for_insert_users import UsersSerializer
+from apps.users.forms.forms_serializers.serializer_for_insert_users import UsersSerializer
 from apps.users.models import User, UploadUserFile
 
 

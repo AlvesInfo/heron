@@ -460,6 +460,7 @@ class ApiLoader(CleanDataLoader):
     """
     ApiLoader pour importer un flux de données par API et le cleanner en vue d'une insertion en base
     """
+
     # TOOD : Finaliser API loader
     def __init__(
         self,

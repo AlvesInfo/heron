@@ -16,7 +16,7 @@ import uuid
 import time
 
 from pydantic import BaseModel, ValidationError
-from apps.core.validation.pydantic_validators_base import (
+from apps.core.validations.pydantic_validators_base import (
     NullZeroDecimalFieldBase,
     SageTruncateStrFieldsBase,
     SageDateFieldsBase,
@@ -24,7 +24,6 @@ from apps.core.validation.pydantic_validators_base import (
 )
 from django.utils import timezone
 from djantic import ModelSchema
-from apps.core.functions.functions_setups import settings
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,

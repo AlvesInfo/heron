@@ -9,7 +9,7 @@ for django verions == 1.11 | 2.0 | 2.1 | 2.2 | 3.2
 """
 from django import forms
 
-from apps.core.validation.forms_base import TruncatedTextField, NullZeroDecimalField
+from apps.core.validations.forms_base import TruncatedTextField, NullZeroDecimalField
 from apps.edi.models import EdiImport
 
 

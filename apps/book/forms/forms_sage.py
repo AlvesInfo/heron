@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from django import forms
 
-from apps.core.validation.forms_base import SageNullBooleanField
+from apps.core.validations.forms_base import SageNullBooleanField
 from apps.book.models import (
     Society,
     Address,

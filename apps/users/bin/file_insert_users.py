@@ -27,7 +27,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from apps.users.models import AuthGroupAccessStaff
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.function_imports import IterFileToInsertError, IterFileToInsert
-from apps.users.serializers.serializer_for_insert_users import UsersSerializerUsers
+from apps.users.forms.forms_serializers.serializer_for_insert_users import UsersSerializerUsers
 from apps.users.models import User, UploadUserFile
 
 from apps.core.functions.functions_excel import ExcelToCsv
