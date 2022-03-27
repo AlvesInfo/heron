@@ -1,5 +1,8 @@
 # pylint: disable=E0401
 """Module de loaders pour traitements des flux à intégrer en BDD
+Flux implémentés :
+    File loader
+    API loader
 
 Commentaire:
 
@@ -18,7 +21,6 @@ from operator import itemgetter
 
 from chardet.universaldetector import UniversalDetector
 import pandas as pd
-
 
 IMPORT_LOGGER = logging.getLogger("imports")
 
@@ -89,7 +91,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
             header=header,
             index=False,
             line_terminator="\n",
-            quoting=csv.QUOTE_ALL,
+            quoting=csv.QUOTE_NONNUMERIC,
             encoding="utf8",
         )
         string_io_file.seek(0)
@@ -129,48 +131,7 @@ class CleanDataLoader:
         first_line: int = 1,
         params_dict: Dict = None,
     ):
-        """
-        :param source:          Source initiale des données
-        :param columns_dict:    Plusieurs choix possibles pour :
-                                - Récupérer le nombre de colonnes dans l'ordre du fichier
-                                    {"db_col_1" : None, "db_col_2" : None, ..., }
-
-                                - Récupérer seulement les colonnes souhaitées par leur nom
-                                    {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
-
-                                - Récupérer seulement les colonnes souhaitées par leur index
-                                    (index commence à 0)
-                                    {"db_col_1" : 3, "db_col" : 0, ..., }
-
-        :param first_line:      Première ligne du flux de données commence à 1 par defaut
-
-        :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
-                                params_dict = {
-
-                                    # attribus du paramétrage csv
-                                    "delimiter" : séparateur du fichier, par défaut ";"
-                                    "lineterminator": Passage à la ligne par défaut "\n"
-                                    "quoting": type de quoting par défaut csv.QUOTE_ALL
-                                    "quotechar": le caractère de quoting par défaut '"'
-
-                                    # Lignes non souhaitées par n° Colonne (index commence à 1)
-                                    "exclude_rows_dict": {
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                    },
-
-                                    # Ajout de colonnes à la vollée, pour
-                                    # par exemple rajouter un uuid, created_date, ...
-                                    # Si l'on veut appliquer une fonction à chaque ligne,
-                                    # alors on passe un tuple :
-                                    # (référence à la fonction à appliquer, dict des attributs)
-                                    "add_fields_dict": {
-                                        "uuid_identification": (uuid.uuid4, {}),
-                                        "created_date": datetime.isoformat,
-                                        "modified_date": datetime.isoformat,
-                                }
-        """
+        """Initialisation de la class"""
         self.source = source
         self.source = source
         self.columns_dict = columns_dict
@@ -181,15 +142,15 @@ class CleanDataLoader:
         """Pré context manager"""
         return self
 
-    def open(self):
+    def open(self, flux_params_dict: Dict = None):
         """Méthode d'ouverture du flux de données"""
         raise NotImplementedError
 
-    def read(self, all_lines=False):
+    def read(self, all_lines: bool = False):
         """Méthode de lecture du flux de donnée au format io.StringIO"""
         raise NotImplementedError
 
-    def read_dict(self, all_lines=False):
+    def read_dict(self, all_lines: bool = False):
         """Méthode de lecture du flux de donnée sous forme d'un dictionnaire"""
         raise NotImplementedError
 
@@ -197,7 +158,7 @@ class CleanDataLoader:
         """Méthode de fermeture du flux de données"""
         raise NotImplementedError
 
-    def load(self, read_methode="data", all_lines=False):
+    def load(self, read_methode: str = "data", all_lines: bool = False):
         """
         Générateur du flux de données
         :param read_methode: data pour un flux texte et data_dict pour un flux de dictionnaire
@@ -206,7 +167,7 @@ class CleanDataLoader:
                                 all_lines = True -> iterre même sur des lignes des lignes vides
         :return:
         """
-        self.open()
+        self.open(self.params_dict)
 
         if read_methode == "data":
             yield from self.read(all_lines)
@@ -237,7 +198,48 @@ class FileLoader(CleanDataLoader):
         first_line: int = 1,
         params_dict: Dict = None,
     ):
-        """Initialisation de la class"""
+        """
+        :param source:          Fichier source à transfomer
+        :param columns_dict:    Plusieurs choix possibles pour :
+                                - Récupérer le nombre de colonnes dans l'ordre du fichier
+                                    {"db_col_1" : None, "db_col_2" : None, ..., }
+
+                                - Récupérer seulement les colonnes souhaitées par leur nom
+                                    {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
+
+                                - Récupérer seulement les colonnes souhaitées par leur index
+                                    (index commence à 0)
+                                    {"db_col_1" : 3, "db_col" : 0, ..., }
+
+        :param first_line:      Première ligne du flux de données commence à 1 par defaut
+
+        :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
+                                params_dict = {
+
+                                    # attribus du paramétrage csv
+                                    "delimiter" : séparateur du fichier, par défaut ";"
+                                    "lineterminator": Passage à la ligne par défaut "\n"
+                                    "quoting": type de quoting par défaut csv.QUOTE_NONNUMERIC
+                                    "quotechar": le caractère de quoting par défaut '"'
+
+                                    # Lignes non souhaitées par n° Colonne (index commence à 1)
+                                    "exclude_rows_dict": {
+                                        "N°colonne": "texte à rechercher",
+                                        "N°colonne": "texte à rechercher",
+                                        "N°colonne": "texte à rechercher",
+                                    },
+
+                                    # Ajout de colonnes à la vollée, pour
+                                    # par exemple rajouter un uuid, created_date, ...
+                                    # Si l'on veut appliquer une fonction à chaque ligne,
+                                    # alors on passe un tuple :
+                                    # (référence à la fonction à appliquer, dict des attributs)
+                                    "add_fields_dict": {
+                                        "uuid_identification": (uuid.uuid4, {}),
+                                        "created_date": datetime.isoformat,
+                                        "modified_date": datetime.isoformat,
+                                }
+        """
         super().__init__(source, columns_dict, first_line, params_dict)
 
         self.csv_io = io.StringIO()
@@ -257,17 +259,17 @@ class FileLoader(CleanDataLoader):
             delimiter=self.params_dict.get("delimiter", ";"),
             quotechar=self.params_dict.get("quotechar", '"'),
             lineterminator=self.params_dict.get("lineterminator", "\n"),
-            quoting=self.params_dict.get("quoting", csv.QUOTE_ALL),
+            quoting=self.params_dict.get("quoting", csv.QUOTE_NONNUMERIC),
         )
 
-    def open(self):
+    def open(self, flux_params_dict: Dict = None):
         """
-        Surcharge de la méthode open, mais nous avon pas besoins
+        Surcharge de la méthode open, mais nous n'en avons pas besoins
         """
 
     def _get_io(self):
         """
-        Ecriture des données dans le fichier self.csv_io de type io.StringIO de l'instance.
+        Ecriture des données brutes dans le fichier self.csv_io de type io.StringIO de l'instance.
         Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel
         """
         try:
@@ -276,8 +278,6 @@ class FileLoader(CleanDataLoader):
                 excel_file_to_csv_string_io(self.source, self.csv_io)
             else:
                 file_to_csv_string_io(self.source, self.csv_io)
-
-            self.csv_io.seek(0)
 
         except Exception as error:
             raise ExcelToCsvError(
@@ -426,7 +426,7 @@ class FileLoader(CleanDataLoader):
 
     def read_dict(self, all_lines=False):
         """
-        Générateurs du dictionaire des lignes du fichier, avec le nom des colonnes à récupérer
+        Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
         :param all_lines: si dans le fichier il y a des lignes vides
                             all_lines=False, shorcut l'itération des lignes vides
                             all_lines=True, iterre même sur des lignes des lignes vides
@@ -449,6 +449,95 @@ class FileLoader(CleanDataLoader):
                 }
             else:
                 yield dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line)))
+
+    def close(self):
+        """Fermeture du buffer io.StringIO"""
+        if not self.csv_io.closed:
+            self.csv_io.close()
+
+
+class ApiLoader(CleanDataLoader):
+    """
+    ApiLoader pour importer un flux de données par API et le cleanner en vue d'une insertion en base
+    """
+    # TOOD : Finaliser API loader
+    def __init__(
+        self,
+        source: Any,
+        columns_dict: Dict,
+        first_line: int = 1,
+        params_dict: Dict = None,
+    ):
+        """
+        :param source:          Source de l'api
+        :param columns_dict:    Plusieurs choix possibles pour :
+                                - Récupérer le nombre de colonnes dans l'ordre de l'api
+                                    {"db_col_1" : None, "db_col_2" : None, ..., }
+
+                                - Récupérer seulement les colonnes souhaitées par leur nom
+                                    {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
+
+                                - Récupérer seulement les colonnes souhaitées par leur index
+                                    (index commence à 0)
+                                    {"db_col_1" : 3, "db_col" : 0, ..., }
+
+        :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
+                                params_dict = {
+
+                                    # Lignes non souhaitées par n° Colonne (index commence à 1)
+                                    "exclude_rows_dict": {
+                                        "N°colonne": "texte à rechercher",
+                                        "N°colonne": "texte à rechercher",
+                                        "N°colonne": "texte à rechercher",
+                                    },
+
+                                    # Ajout de colonnes à la vollée, pour
+                                    # par exemple rajouter un uuid, created_date, ...
+                                    # Si l'on veut appliquer une fonction à chaque ligne,
+                                    # alors on passe un tuple :
+                                    # (référence à la fonction à appliquer, dict des attributs)
+                                    "add_fields_dict": {
+                                        "uuid_identification": (uuid.uuid4, {}),
+                                        "created_date": datetime.isoformat,
+                                        "modified_date": datetime.isoformat,
+                                }
+        """
+        super().__init__(source, columns_dict, first_line, params_dict)
+        self.csv_io = io.StringIO()
+        self._get_io()
+        self.csv_io.seek(0)
+
+    def open(self, flux_params_dict: Dict = None):
+        """
+        Surcharge de la méthode open, mais nous n'en avons pas besoins
+        """
+
+    def _get_io(self):
+        """
+        Ecriture des données brutes dans le fichier self.csv_io de type io.StringIO de l'instance.
+        """
+
+    def _get_csv_reader(self):
+        """Instanciation l'attribut d'instance self.csv_reader"""
+
+    def read(self, all_lines=False):
+        """
+        Méthode de lecture du flux de donnée au format io.StringIO
+        :param all_lines:       Si dans le fichier il y a des lignes vides :
+                                    all_lines = False -> shorcut l'itération des lignes vides
+                                    all_lines = True -> iterre même sur des lignes des lignes vides
+        """
+        return "ApiLodaer non finalisée"
+
+    def read_dict(self, all_lines=False):
+        """
+        Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
+        :param all_lines: si dans le fichier il y a des lignes vides
+                            all_lines=False, shorcut l'itération des lignes vides
+                            all_lines=True, iterre même sur des lignes des lignes vides
+        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
+        """
+        yield {"message": "ApiLodaer non finalisée"}
 
     def close(self):
         """Fermeture du buffer io.StringIO"""
