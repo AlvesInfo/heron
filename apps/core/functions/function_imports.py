@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0902,R0913,W0212,W0105
+# pylint: disable=E0401
 """Module pour validation et import en base de donnée, de fichiers à intégrer
 
 Commentaire:
@@ -108,9 +108,7 @@ class IterFileToInsert:
         file_to_iter: Path,
         columns_dict: Dict,
         first_line: int = 1,
-        mode_csv_dict: Dict = None,
-        exclude_rows_dict=None,
-        add_fields_dict=None,
+        params_dict: Dict = None,
     ):
         """
         :param file_to_iter:        Fichier de type Path à insérer
@@ -126,43 +124,39 @@ class IterFileToInsert:
                                         {"db_col_1" : 3, "db_col" : 0, ..., }
 
         :param first_line:          Première ligne du fichier commence à 1 par defaut
-        :param mode_csv_dict:       Dictionnaire des caractéristiques du fichier
-                                    {
+
+        :param params_dict:         Dictionnaire des paramètres à appliquer
+                                    params_dict = {
+
+                                        # attribus du paramétrage csv
                                         "delimiter" : séparateur du fichier, par défaut ";"
                                         "lineterminator": Passage à la ligne par défaut "\n"
                                         "quoting": type de quoting par défaut csv.QUOTE_ALL
                                         "quotechar": le caractère de quoting par défaut '"'
-                                    }
-        :param exclude_rows_dict:   Lignes non souhaitées,
-                                    décision sur le n° de colonne (index commence à 1)
-                                    {
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                    }
-        :param add_fields_dict:     Ajout de colonnes à la vollée, pour
-                                    par exemple rajouter un uuid, created_date, modified_date, ...
-                                    Si l'on veut appliquer une fonction à chaque ligne,
-                                    alors on passe un tuple :
-                                        (référence à la fonction à appliquer, dict de ses attributs)
-                                    {
-                                        "uuid_identification": (uuid.uuid4, {}),
-                                        "created_date": datetime.isoformat,
-                                        "modified_date": datetime.isoformat,
+
+                                        # Lignes non souhaitées par n° Colonne (index commence à 1)
+                                        "exclude_rows_dict": {
+                                            "N°colonne": "texte à rechercher",
+                                            "N°colonne": "texte à rechercher",
+                                            "N°colonne": "texte à rechercher",
+                                        },
+
+                                        # Ajout de colonnes à la vollée, pour
+                                        # par exemple rajouter un uuid, created_date, ...
+                                        # Si l'on veut appliquer une fonction à chaque ligne,
+                                        # alors on passe un tuple :
+                                        # (référence à la fonction à appliquer, dict des attributs)
+                                        "add_fields_dict": {
+                                            "uuid_identification": (uuid.uuid4, {}),
+                                            "created_date": datetime.isoformat,
+                                            "modified_date": datetime.isoformat,
                                     }
         """
-        self.exclude_rows = exclude_rows_dict or {}
-        self.add_fields_dict = add_fields_dict or {}
         self.file_to_iter = file_to_iter
         self.csv_io = io.StringIO()
         self.columns_dict = columns_dict
         self.first_line = 0
-        self.mode_csv_dict = mode_csv_dict or {}
-        self.delimiter = self.mode_csv_dict.get("delimiter", ";")
-        self.quotechar = self.mode_csv_dict.get("quotechar", '"')
-        self.lineterminator = self.mode_csv_dict.get("lineterminator", "\n")
-        self.quoting = self.mode_csv_dict.get("quoting", csv.QUOTE_ALL)
-        self.columns = list(self.columns_dict)
+        self.params_dict = params_dict or {}
         self._get_io()
         self.csv_io.seek(0)
 
@@ -175,10 +169,10 @@ class IterFileToInsert:
         self.csv_io.seek(self.first_line)
         self.csv_reader = csv.reader(
             self.csv_io,
-            delimiter=self.delimiter,
-            quotechar=self.quotechar,
-            lineterminator=self.lineterminator,
-            quoting=self.quoting,
+            delimiter=self.params_dict.get("delimiter", ";"),
+            quotechar=self.params_dict.get("quotechar", '"'),
+            lineterminator=self.params_dict.get("lineterminator", "\n"),
+            quoting=self.params_dict.get("quoting", csv.QUOTE_ALL),
         )
 
     def __enter__(self):
@@ -217,7 +211,9 @@ class IterFileToInsert:
         """Instanciation l'attribut d'instance self.csv_reader"""
         self.csv_io.seek(self.first_line)
         self.csv_reader = csv.reader(
-            self.csv_io.readlines(), delimiter=self.delimiter, quotechar=self.quotechar
+            self.csv_io.readlines(),
+            delimiter=self.params_dict.get("delimiter", ";"),
+            quotechar=self.params_dict.get("quotechar", '"'),
         )
 
     def _check_nb_columns(self):
@@ -301,7 +297,7 @@ class IterFileToInsert:
         try:
             add_dict = {
                 key: value[0](**value[1]) if isinstance(value, (tuple,)) else value
-                for key, value in self.add_fields_dict.items()
+                for key, value in self.params_dict.get("add_fields_dict", {}).items()
             }
         except IndexError as error:
             raise GetAddDictError(
@@ -317,7 +313,7 @@ class IterFileToInsert:
         """
         add_list = [
             value[0](**value[1]) if isinstance(value, (tuple,)) else value
-            for value in self.add_fields_dict.values()
+            for value in self.params_dict.get("add_fields_dict", {}).values()
         ]
         return add_list
 
@@ -335,41 +331,44 @@ class IterFileToInsert:
         for line in self.csv_reader:
             if (not line and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.exclude_rows.items()
+                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
                 continue
 
-            if self.add_fields_dict:
+            if self.params_dict.get("add_fields_dict", {}):
                 yield {
-                    **dict(zip(self.columns, itemgetter(*postion_list)(line))),
+                    **dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line))),
                     **self.get_add_dict,
                 }
             else:
-                yield dict(zip(self.columns, itemgetter(*postion_list)(line)))
+                yield dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line)))
 
     def write_io(self, chunk_file_io: io.StringIO, all_lines=False):
         """
         Rempli le fichier io.StringIO reçu avec lignes du fichier avec les colonnes à récupérer
         :param chunk_file_io:   Fichier de type io.StringIO à remplir
-        :param all_lines:       Si dans le fichier il y a des lignes vides
-                                    all_lines=False, shorcut l'itération des lignes vides
-                                    all_lines=True, iterre même sur des lignes des lignes vides
+        :param all_lines:       Si dans le fichier il y a des lignes vides :
+                                    all_lines = False -> shorcut l'itération des lignes vides
+                                    all_lines = True -> iterre même sur des lignes des lignes vides
         """
         postion_list = self.get_header()
-        csv_writer = csv.writer(chunk_file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        csv_writer = csv.writer(
+            chunk_file_io,
+            delimiter=self.params_dict.get("delimiter", ";"),
+            quotechar=self.params_dict.get("quotechar", '"'),
+            quoting=csv.QUOTE_ALL,
+        )
 
         # on écrit dans le fichier io.StringIO reçu les lignes du fichier à récupérer
         for line in self.csv_reader:
             if (not line and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.exclude_rows.items()
+                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
                 continue
 
-            if self.add_fields_dict:
-                csv_writer.writerow(
-                    list(itemgetter(*postion_list)(line)) + self.get_add_values
-                )
+            if self.params_dict.get("add_fields_dict", {}):
+                csv_writer.writerow(list(itemgetter(*postion_list)(line)) + self.get_add_values)
             else:
                 csv_writer.writerow(itemgetter(*postion_list)(line))
 

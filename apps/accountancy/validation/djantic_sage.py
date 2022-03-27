@@ -15,7 +15,7 @@ import datetime
 import uuid
 import time
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from apps.core.validation.pydantic_validators_base import (
     NullZeroDecimalFieldBase,
     SageTruncateStrFieldsBase,
@@ -61,7 +61,7 @@ class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
         include = list(model.get_columns_import())
 
 
-class SectionSagechema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFieldsBase):
+class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFieldsBase):
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
@@ -233,7 +233,7 @@ def main():
     }
     start = time.time()
     t = None
-    for i in range(1):
+    for i in range(10_000):
         try:
             t = TabDivSageSchema(**data_dict)
         except ValidationError as errors:
@@ -246,27 +246,47 @@ def main():
     print(f"validation par djantic en {time.time() - start} s")
 
 
+class SectionSagePydanticSchema(BaseModel):
+    axe: str
+    section: str
+    name: str
+    short_name: str
+    chargeable: str
+
+
+class SectionSageDjanticSchema(ModelSchema):
+    test: str = None
+
+    class Config:
+        model = SectionSage
+        include = list(model.get_columns_import())
+
+
 def essai_SectionSagechema():
+
+    errors_dict = {}
 
     data_dict = {
         "axe": "001",
         "section": "NAF",
         "name": "Prèmière section",
         "short_name": "first section",
-        "chargeable": "2",
+        "chargeable": "zzzzzzzzzzzz",
     }
     start = time.time()
 
-    for i in range(1):
+    for i in range(100_000):
         try:
-            t = SectionSagechema(**data_dict)
+            t = SectionSageDjanticSchema(**data_dict)
         except ValidationError as errors:
-            print(i + 1, errors.errors())
+            errors_dict[i] = errors.errors()
+            # print(i + 1, errors.errors())
             # raise Exception from errors
         else:
             ...
-            print(i + 1, t.dict())
+            # print(i + 1, t.dict())
 
+    print(errors_dict)
     print(f"validation par djantic en {time.time() - start} s")
 
 

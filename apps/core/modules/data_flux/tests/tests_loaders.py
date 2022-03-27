@@ -9,10 +9,9 @@ created by: Paulo ALVES
 modified at: 2021-10-30
 modified by: Paulo ALVES
 """
-import io
 from uuid import UUID
 
-from apps.core.tests.test_fixtures.function_imports_contants import (
+from apps.core.modules.data_flux.test_fixtures.loaders_contants import (
     COLUMNS_DICT_NONE,
     COLUMNS_DICT_INT,
     COLUMNS_DICT_NAMED,
@@ -24,30 +23,30 @@ from apps.core.tests.test_fixtures.function_imports_contants import (
     FISRT_LINE_AJOUTS,
     FILE,
 )
-from apps.core.functions.function_imports import IterFileToInsert
+from apps.core.modules.data_flux.loaders import FileLoader
 
 """
-méthodes pour la class IterFileToInsert à tester :
+méthodes pour la class FileLoader à tester :
     close_buffer
     get_positons_for_none_columns
     get_positions_if_columns_named
     get_header
     get_add_dict
     get_add_values
-    chunk_dict
+    read_dict
     write_io
 """
-# TODO : finaliser les test complets de TestIterFileToInsert, car il y a des méthodes
+# TODO : finaliser les test complets de FileLoader, car il y a des méthodes
 #  dont tous les paramètres n'ont pas été testés
 
 
-class TestIterFileToInsert:
-    """Test de la class IterFileToInsert du module function_imports"""
+class TestFileLoader:
+    """Test de la class FileLoader du module function_imports"""
 
     def test_get_positons_for_none_columns(self):
         """Test de récupération de la postions des colonnes à récupérer"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             columns_dict=COLUMNS_DICT_NONE,
             first_line=2,
         ) as file_to_insert:
@@ -55,8 +54,8 @@ class TestIterFileToInsert:
 
     def test_get_positions_if_columns_named(self):
         """Test de récupération de la postions des colonnes à récupérer"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             columns_dict=COLUMNS_DICT_NAMED,
             first_line=1,
         ) as file_to_insert:
@@ -64,8 +63,8 @@ class TestIterFileToInsert:
 
     def test_get_header(self):
         """Test de récupération de la postions des colonnes à récupérer"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_NONE,
         ) as file_to_insert:
@@ -73,8 +72,8 @@ class TestIterFileToInsert:
 
     def test_get_header_int(self):
         """Test de récupération de la postions des colonnes à récupérer"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_INT,
         ) as file_to_insert:
@@ -82,8 +81,8 @@ class TestIterFileToInsert:
 
     def test_get_header_name(self):
         """Test de récupération de la postions des colonnes à récupérer"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=1,
             columns_dict=COLUMNS_DICT_NAMED,
         ) as file_to_insert:
@@ -91,8 +90,8 @@ class TestIterFileToInsert:
 
     def test_get_add_dict(self):
         """Test si l'on fait un ajout d'attribus à chaques lignes"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_NONE,
             params_dict=PARAMS_DICT,
@@ -106,8 +105,8 @@ class TestIterFileToInsert:
 
     def test_get_add_values(self):
         """Test si l'on fait un ajout d'attribus à chaques lignes"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_NONE,
             params_dict=PARAMS_DICT,
@@ -121,73 +120,65 @@ class TestIterFileToInsert:
 
     def test_chunk_dict(self):
         """Test avec COLUMNS_DICT_NONE sans ajouts"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_NONE,
         ) as file_to_insert:
-            for row in file_to_insert.chunk_dict():
+            for row in file_to_insert.read_dict():
                 assert row == DICT_TO_TEST
 
     def test_chunk_dict_avec_ajouts(self):
         """Test avec COLUMNS_DICT_NONE avec ajouts"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_NONE,
             params_dict=PARAMS_DICT,
         ) as file_to_insert:
-            for row in file_to_insert.chunk_dict():
+            for row in file_to_insert.read_dict():
                 assert row == DICT_TO_TEST_AJOUTS
 
     def test_chunk_dict_int(self):
         """Test avec COLUMNS_DICT_INT"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=2,
             columns_dict=COLUMNS_DICT_INT,
         ) as file_to_insert:
-            for row in file_to_insert.chunk_dict():
+            for row in file_to_insert.read_dict():
                 assert row == DICT_TO_TEST
 
     def test_chunk_dict_name(self):
         """Test avec COLUMNS_DICT_INT"""
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        with FileLoader(
+            source=FILE,
             first_line=1,
             columns_dict=COLUMNS_DICT_NAMED,
         ) as file_to_insert:
-            for row in file_to_insert.chunk_dict():
+            for row in file_to_insert.load(read_methode="data_dict"):
                 assert row == DICT_TO_TEST
 
     def test_write_io(self):
-        """Test du remplissage d'un fichier io.StringIO"""
-        chunk_file_io = io.StringIO()
-
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        """Test de lecture ligne à ligne des données cleanées"""
+        with FileLoader(
+            source=FILE,
             first_line=1,
             columns_dict=COLUMNS_DICT_NAMED,
         ) as file_to_insert:
-            file_to_insert.write_io(chunk_file_io=chunk_file_io)
-            assert chunk_file_io.getvalue() == FISRT_LINE
-
-        chunk_file_io.close()
+            for row in file_to_insert.load(read_methode="data"):
+                assert row == FISRT_LINE
 
     def test_write_io_ajouts(self):
-        """Test du remplissage d'un fichier io.StringIO"""
-        chunk_file_io = io.StringIO()
-
-        with IterFileToInsert(
-            file_to_iter=FILE,
+        """Test de lecture ligne à ligne des données cleanées"""
+        with FileLoader(
+            source=FILE,
             first_line=1,
             columns_dict=COLUMNS_DICT_NAMED,
             params_dict=PARAMS_DICT,
         ) as file_to_insert:
-            file_to_insert.write_io(chunk_file_io=chunk_file_io)
-            assert chunk_file_io.getvalue() == FISRT_LINE_AJOUTS
-
-        chunk_file_io.close()
+            for row in file_to_insert.load(read_methode="data"):
+                assert row == FISRT_LINE_AJOUTS
 
 
 def test_excel_file_to_csv_string_io():

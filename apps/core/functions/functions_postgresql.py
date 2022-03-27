@@ -497,27 +497,30 @@ def get_random_name(size=10):
 class PostresDjangoUpsert:
     """
     Class pour l'insertion en base de donnée de fichier de type csv
-    (de préférence au format io. StringIO) par des méthodes de copy_from psycopg2.
+    (de préférence au format io.StringIO) par des méthodes de copy_from psycopg2.
     Ces méthodes d'insertion sont plus rapides, mais elle empêche d'avoir les erreurs par lignes
     """
 
-    def __init__(self, model: models.Model, fields_dict: AnyStr, cnx: connection, fields_set=None):
+    def __init__(
+        self, model: models.Model, fields_dict: AnyStr, cnx: connection, exclude_fields_set=None
+    ):
         """
-        :param model:       Model Django
-        :param fields_dict: Dictonnaire des champs à utiliser pour les insertions en base.
-                            True pour les champs uniques et False pour les champs à update
-                            ex : fields_dict = {"unique": True, "other": False, ...}
-                            Attention! les champs devront être dans le même ordre
-                            que les colonnes du fichier
-        :param cnx:         Connexion à Postgresql
-        :param fields_set:  Set de champ à exclure en cas de conflit à l'insertion et à ne pas
-                            mettre à jour, par exemple comme le champ created_at, qui devrait être
-                            créé la première fois et ne pas être mis à jour
+        :param model:               Model Django
+        :param fields_dict:         Dictonnaire des champs à utiliser pour les insertions en base.
+                                    True pour les champs uniques et False pour les champs à update
+                                    ex : fields_dict = {"unique": True, "other": False, ...}
+                                    Attention! les champs devront être dans le même ordre
+                                    que les colonnes du fichier
+        :param cnx:                 Connexion à Postgresql
+        :param exclude_fields_set:  Set de champ à exclure en cas de conflit à l'insertion
+                                    et à ne pas mettre à jour,
+                                    par exemple comme le champ created_at, qui devrait être
+                                    créé la première fois et ne pas être mis à jour
         """
         self.model = model
         self.fields_dict = fields_dict
         self.cnx = cnx
-        self.fields_set = set() if fields_set is None else fields_set
+        self.exclude_fields_set = set() if exclude_fields_set is None else exclude_fields_set
         self.meta = self.model._meta
         self.table_name = self.meta.db_table
         self.temp_table_name = self.get_temp_table_name()
@@ -571,7 +574,7 @@ class PostresDjangoUpsert:
             if bool_value:
                 fields_upsert_dict.get("conflict").append(field_key)
             else:
-                if field_key not in self.fields_set:
+                if field_key not in self.exclude_fields_set:
                     fields_upsert_dict.get("update").append(field_key)
 
         return fields_upsert_dict

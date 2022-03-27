@@ -13,7 +13,7 @@ from pathlib import Path
 
 from django.contrib.auth.models import Group
 
-from apps.corebin.validate_file import IterFileToInsert
+from apps.core.functions.function_imports import IterFileToInsert
 from apps.users.snippets.serializer_for_insert_users import UsersSerializer
 from apps.users.models import User
 
