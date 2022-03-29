@@ -250,4 +250,4 @@ PARAMS_DICT = {
     }
 }
 
-FILE = Path(settings.APPS_DIR) / "core/tests/test_fixtures/function_imports_fixtures.csv"
+FILE = Path(settings.APPS_DIR) / "data_flux/test_fixtures/function_imports_fixtures.csv"
