@@ -87,6 +87,7 @@ LOCAL_APPS = [
     "apps.clients_invoices",
     "apps.clients_validations",
     "apps.core",
+    "apps.data_flux",
     "apps.countries",
     "apps.edi",
     "apps.groups",

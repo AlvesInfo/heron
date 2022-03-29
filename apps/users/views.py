@@ -19,7 +19,7 @@ from django.utils.decorators import method_decorator
 
 from heron import settings
 from apps.users.models import User, UserSession, AuthGroupName, UploadUserFile, AuthGroupAccessStaff
-from apps.users.forms import (
+from apps.users.forms.forms_django.forms import (
     UserLoginForm,
     UserRegisterForm,
     UpdateProfilForm,

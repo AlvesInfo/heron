@@ -15,15 +15,18 @@ import datetime
 import uuid
 import time
 
+import pydantic
 from pydantic import BaseModel, ValidationError
+from django.utils import timezone
+from djantic import ModelSchema
+import djantic
+from apps.core.functions.functions_setups import settings
 from apps.core.validations.pydantic_validators_base import (
     NullZeroDecimalFieldBase,
     SageTruncateStrFieldsBase,
     SageDateFieldsBase,
     SageNullBooleanFieldsBase,
 )
-from django.utils import timezone
-from djantic import ModelSchema
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
@@ -40,6 +43,7 @@ from apps.accountancy.models import (
 
 class AccountSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFieldsBase):
     """Schema Djantic pour validation du modèle AccountSage"""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
@@ -231,7 +235,7 @@ def main():
         "exoneration": "0",
     }
     start = time.time()
-    t = None
+
     for i in range(10_000):
         try:
             t = TabDivSageSchema(**data_dict)
@@ -274,8 +278,16 @@ def essai_SectionSagechema():
     }
     start = time.time()
 
-    for i in range(100_000):
+    for i in range(1):
         try:
+            print(
+                " isinstance : ",
+                isinstance(SectionSagePydanticSchema, (type(BaseModel), type(ModelSchema))),
+            )
+            print(
+                " isinstance : ",
+                isinstance(SectionSageDjanticSchema, (type(BaseModel), type(ModelSchema))),
+            )
             t = SectionSageDjanticSchema(**data_dict)
         except ValidationError as errors:
             errors_dict[i] = errors.errors()
@@ -285,7 +297,7 @@ def essai_SectionSagechema():
             ...
             # print(i + 1, t.dict())
 
-    print(errors_dict)
+    # print(errors_dict)
     print(f"validation par djantic en {time.time() - start} s")
 
 

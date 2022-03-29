@@ -28,6 +28,12 @@ class Seria(serializers.Serializer):
     text = MaxLenghtCharField(max_length=10)
 
 
+class SeriaModel(serializers.ModelSerializer):
+    class Meta:
+        model = EdiImport
+        fields = "__all__"
+
+
 def main():
     data = [{"text": "ceci est un texte très très long"}, {"text": None}]
     s = Seria(data=data, many=True)
@@ -42,6 +48,10 @@ if __name__ == '__main__':
     print(
         "Ser, is instance serializer : ",
         isinstance(Seria, (type(serializers.Serializer), type(serializers.ModelSerializer)))
+    )
+    print(
+        "SeriaModel, is instance serializer : ",
+        isinstance(SeriaModel, (type(serializers.Serializer), type(serializers.ModelSerializer)))
     )
     print(
         "DjangoForm, is instance forms : ",

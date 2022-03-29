@@ -18,9 +18,9 @@ from django.db import models
 
 class DatesTable(models.Model):
     """
-    Table Abstraite des dates, création et modification
-    FR : Table des Dates
-    EN : Dates Table
+    Table Abstraite de base pour les tables
+    FR : Table Abstraite de Base Dates
+    EN : Flags Abstract Table Dates
     """
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
@@ -34,22 +34,22 @@ class DatesTable(models.Model):
 
 class FlagsTable(models.Model):
     """
-    Table Abstraite des dates, création et modification, flags et users
-    FR : Table des Flags
-    EN : Flags Table
+    Table Abstraite de base pour les tables
+    FR : Table Abstraite de Base Flags
+    EN : Flags Abstract Table Flags
     """
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     modified_at = models.DateTimeField(auto_now=True, verbose_name=_("modified at"))
     active = models.BooleanField(null=True, default=False)
-    to_delete = models.BooleanField(null=True, default=False)
-    visible = models.BooleanField(null=True, default=True)
-    flag_delete = models.BooleanField(null=True)
+    delete = models.BooleanField(null=True, default=False)
+    export = models.BooleanField(null=True, default=False)
+    valid = models.BooleanField(null=True, default=False)
+    flag_to_active = models.BooleanField(null=True)
     flag_to_delete = models.BooleanField(null=True)
-    flag_active = models.BooleanField(null=True)
-    flag_export = models.BooleanField(null=True)
-    flag_to_validated = models.BooleanField(null=True)
-    flag_valide = models.BooleanField(null=True)
+    flag_to_export = models.BooleanField(null=True)
+    flag_to_valid = models.BooleanField(null=True)
+
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

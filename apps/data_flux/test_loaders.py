@@ -11,7 +11,7 @@ modified by: Paulo ALVES
 """
 from uuid import UUID
 
-from apps.core.modules.data_flux.test_fixtures.loaders_contants import (
+from apps.data_flux.test_fixtures.loaders_contants import (
     COLUMNS_DICT_NONE,
     COLUMNS_DICT_INT,
     COLUMNS_DICT_NAMED,
@@ -23,7 +23,7 @@ from apps.core.modules.data_flux.test_fixtures.loaders_contants import (
     FISRT_LINE_AJOUTS,
     FILE,
 )
-from apps.core.modules.data_flux.loaders import FileLoader
+from apps.data_flux.loaders import FileLoader
 
 """
 méthodes pour la class FileLoader à tester :

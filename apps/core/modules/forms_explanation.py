@@ -2,6 +2,7 @@ import datetime
 
 from django import forms
 
+from apps.core.functions.functions_setups import settings
 from apps.core.validations.forms_base import SageNullBooleanField, TildeTextField
 from apps.accountancy.models import (
     SectionSage,
@@ -38,7 +39,7 @@ class SectionSageFormForm(forms.Form):
     short_name = TildeTextField()
 
 
-def main():
+def forms_django():
     """Les erreurs dans un form:
     form.errors.as_data()  -> Dictionnaire avec une instance de ValidationError
         ex. : {
@@ -104,4 +105,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    forms_django()
