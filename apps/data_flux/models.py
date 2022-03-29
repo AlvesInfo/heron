@@ -57,14 +57,15 @@ class Trace(BaseFlux):
 
 
 class Line(models.Model):
-    class Insertion(models.TextChoices):
+    class Insertiontype(models.TextChoices):
         """Insertion choices"""
 
         IN = "Create", _("Create")
         UP = "Update", _("Update")
-        ER = "Error", _("Error")
+        ER = "Errors", _("Errors")
         PA = "Passed", _("Passed")
 
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     trace = models.ForeignKey(
         Trace,
         on_delete=models.PROTECT,
@@ -72,8 +73,22 @@ class Line(models.Model):
         related_name="line_trace",
         db_column="trace",
     )
-    insertion = models.CharField(
-        null=True, blank=True, max_length=20, choices=Insertion.choices
+    insertion_type = models.CharField(
+        null=True, blank=True, max_length=20, choices=Insertiontype.choices
     )
-    line = models.IntegerField()
-    designation = models.TextField()
+    line = models.IntegerField(null=True)
+    designation = models.TextField(null=True)
+
+
+class Error(models.Model):
+    line = models.ForeignKey(
+        Line,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="error_line",
+        db_column="line",
+    )
+    attribute = models.CharField(null=True, blank=True, max_length=80)
+    message = models.CharField(null=True, blank=True, max_length=255)
+    data_expected = models.TextField(null=True, blank=True)
+    data_received = models.TextField(null=True, blank=True)

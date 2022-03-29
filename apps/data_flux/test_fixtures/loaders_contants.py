@@ -10,7 +10,6 @@ modified at: 2021-10-30
 modified by: Paulo ALVES
 """
 from uuid import UUID
-from datetime import datetime
 from pathlib import Path
 
 from apps.core.functions.functions_setups import settings
@@ -221,7 +220,8 @@ FISRT_LINE = (
     '"";"akvvgbmanlerkhyyuwnn";"fxsybylzlbtrukamjtdc";"tfweqchfnfscflgcgogf";'
     '"ddbmwuyiljxabcyhseal";"vmfmclchamofbubbykio";"paacuspbhvxfthywrjmp";"ashdfvkyxroezwurtuoo";'
     '"kpnubwvxydvmqylckcvg";"iastmjhjqbkoiizymjao";"bxwauugvyeihxcrxvfeo";"aalybgnyzvpmashqsani";'
-    '"bipglrpilsgwxvdymvlx";"eclwefcktuhrbvfzfjqo";"aaihsksivddlgdbhdbfk";"xgcfpmoratvepysrlcmn";'''
+    '"bipglrpilsgwxvdymvlx";"eclwefcktuhrbvfzfjqo";"aaihsksivddlgdbhdbfk";"xgcfpmoratvepysrlcmn";'
+    ""
     '"kmxrfnnxgqmsfdkmtfsd"'
 )
 
@@ -232,13 +232,15 @@ FISRT_LINE_AJOUTS = (
     '"";"akvvgbmanlerkhyyuwnn";"fxsybylzlbtrukamjtdc";"tfweqchfnfscflgcgogf";'
     '"ddbmwuyiljxabcyhseal";"vmfmclchamofbubbykio";"paacuspbhvxfthywrjmp";"ashdfvkyxroezwurtuoo";'
     '"kpnubwvxydvmqylckcvg";"iastmjhjqbkoiizymjao";"bxwauugvyeihxcrxvfeo";"aalybgnyzvpmashqsani";'
-    '"bipglrpilsgwxvdymvlx";"eclwefcktuhrbvfzfjqo";"aaihsksivddlgdbhdbfk";"xgcfpmoratvepysrlcmn";'''
+    '"bipglrpilsgwxvdymvlx";"eclwefcktuhrbvfzfjqo";"aaihsksivddlgdbhdbfk";"xgcfpmoratvepysrlcmn";'
+    ""
     '"kmxrfnnxgqmsfdkmtfsd";"ae931c24-531b-425b-8b98-496d7a816fe9";'
     '"2022-03-25T23:16:16.139984+00:00";"2022-03-25T23:16:16.139984+00:00"'
 )
 
 
 def add_uuid():
+    """fonction d'ajout duuid"""
     return UUID("ae931c24-531b-425b-8b98-496d7a816fe9")
 
 

@@ -105,4 +105,48 @@ def forms_django():
 
 
 if __name__ == "__main__":
-    forms_django()
+    # forms_django()
+    from apps.data_flux.models import Trace, Line, Error
+    num_line = None
+    e_dict = {
+        "champ_00": [
+            {
+                "message": "message_01",
+                "data_expexted": "donnée_01 attendue",
+                "data_received": "donnée_01 reçue",
+            },
+            {
+                "message": "message_02",
+                "data_expexted": "donnée_02 attendue",
+                "data_received": "donnée_02 reçue",
+            },
+        ],
+        "champ_02": [
+            {
+                "message": "message_01",
+                "data_expexted": "donnée_01 attendue",
+                "data_received": "donnée_01 reçue",
+            },
+        ],
+    }
+    trace = Trace.objects.get(pk=1)
+    line_object = Line.objects.create(
+        trace=trace,
+        insertion_type="Errors",
+        line=num_line,
+        designation="une erreur c'est produite"
+    )
+
+    Error.objects.bulk_create(
+        [
+            Error(
+                line=line_object,
+                attribute=attribute,
+                message=messages_dict.get("message"),
+                data_expected=messages_dict.get("data_expected"),
+                data_received=messages_dict.get("data_received"),
+            )
+            for attribute, errors_list in e_dict.items()
+            for messages_dict in errors_list
+        ]
+    )

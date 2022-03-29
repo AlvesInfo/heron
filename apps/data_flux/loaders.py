@@ -54,7 +54,7 @@ class ValidationError(Exception):
 
 
 def encoding_detect(path_file):
-    """Fonction qui renvoi l'encoding le plus probable de du fichier passé en paramètre"""
+    """Fonction qui renvoi l'encoding le plus probable du fichier passé en paramètre"""
     try:
         detector = UniversalDetector()
 
@@ -258,15 +258,7 @@ class FileLoader(CleanDataLoader):
                 break
             self.first_line += len(line)
 
-        self.csv_io.seek(self.first_line)
-        self.csv_reader = csv.reader(
-            self.csv_io,
-            delimiter=self.params_dict.get("delimiter", ";"),
-            quotechar=self.params_dict.get("quotechar", '"'),
-            lineterminator=self.params_dict.get("lineterminator", "\n"),
-            quoting=self.params_dict.get("quoting", csv.QUOTE_NONNUMERIC),
-            escapechar=self.params_dict.get("escapechar", '"'),
-        )
+        self._get_csv_reader()
 
     def open(self, flux_params_dict: Dict = None):
         """
@@ -292,12 +284,14 @@ class FileLoader(CleanDataLoader):
             ) from error
 
     def _get_csv_reader(self):
-        """Instanciation l'attribut d'instance self.csv_reader"""
+        """Le csv.reader étant un générateur on initialise self.csv_reader à chaque fois"""
         self.csv_io.seek(self.first_line)
         self.csv_reader = csv.reader(
-            self.csv_io.readlines(),
+            self.csv_io,
             delimiter=self.params_dict.get("delimiter", ";"),
             quotechar=self.params_dict.get("quotechar", '"'),
+            lineterminator=self.params_dict.get("lineterminator", "\n"),
+            quoting=self.params_dict.get("quoting", csv.QUOTE_ALL),
         )
 
     def _check_nb_columns(self):
@@ -346,10 +340,8 @@ class FileLoader(CleanDataLoader):
         :return: Liste des positions des colonnes
         """
         header_list_in_file = next(self.csv_reader)
-        header_in_file = header_list_in_file
         header_on_demand = list(self.columns_dict.values())
-        self._get_check_columns(header_on_demand, header_in_file)
-
+        self._get_check_columns(header_on_demand, header_list_in_file)
         postion_list = [header_list_in_file.index(value) for value in self.columns_dict.values()]
 
         return postion_list
