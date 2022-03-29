@@ -89,8 +89,8 @@ class UserRegisterForm(forms.Form):
         # validation des mots de passe depuis les validator issus des settings
         try:
             validate_password(password)
-        except ValidationError as errors:
-            for msg in errors:
+        except ValidationError as except_errors:
+            for msg in except_errors:
                 self.add_error("password", msg)
 
 

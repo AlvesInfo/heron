@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=
 """Module des Exception du module data_flux
 
 Commentaire:
@@ -11,5 +11,13 @@ modified by: Paulo ALVES
 """
 
 
-class ValidationErrors(Exception):
+class ValidationError(Exception):
     """Exception du module de Validation"""
+
+
+class IsValidError(ValidationError, AssertionError):
+    """Exception sur appel de forms.errors avant fomrs.is_valid()"""
+
+
+class FluxtypeError(ValidationError):
+    """Le lux de validation doit être un dictionnaire"""

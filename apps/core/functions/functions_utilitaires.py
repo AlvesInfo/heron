@@ -571,8 +571,8 @@ def encoding_detect(path_file):
 
             detector.close()
 
-    except Exception as error:
-        raise EncodingError(f"encoding_detect : {path_file.name !r}") from error
+    except Exception as except_error:
+        raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
 
     return detector.result["encoding"]
 

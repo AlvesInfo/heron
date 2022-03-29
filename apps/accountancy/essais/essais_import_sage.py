@@ -85,8 +85,8 @@ def essai_iter_file_to_insert(file):
             print(i, row)
             try:
                 t = CurrencySageSchema(**row)
-            except ValidationError as errors:
-                print(i + 1, errors.errors())
+            except ValidationError as except_error:
+                print(i + 1, except_error.errors())
                 # raise Exception from errors
             else:
                 # ...

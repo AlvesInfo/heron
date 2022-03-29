@@ -70,8 +70,8 @@ class PoolPostgresql:
                     )
                     break
 
-                except psycopg2.Error as error:
-                    log_line = f"PoolPostgresql error: {error}\n"
+                except psycopg2.Error as except_error:
+                    log_line = f"PoolPostgresql error: {except_error}\n"
                     print(log_line)
 
                 i += 1
@@ -87,8 +87,8 @@ class PoolPostgresql:
                 self.pool_connect()
             cnx = self.__class__.pool_cnx.getconn(key=self.key)
 
-        except psycopg2.pool.PoolError as error:
-            if error == "cnx pool is closed":
+        except psycopg2.pool.PoolError as except_error:
+            if except_error == "cnx pool is closed":
                 self.pool_connect()
                 self.cnx = self.get_cnx()
             else:
@@ -147,8 +147,8 @@ class WithCnxPostgresql:
                 self.connexion = psycopg2.connect(**kwargs_cnx)
                 break
 
-            except psycopg2.Error as error:
-                log_line = f"WithCnxPostgresql error: {error}\n"
+            except psycopg2.Error as except_error:
+                log_line = f"WithCnxPostgresql error: {except_error}\n"
                 print(log_line)
 
             i += 1
@@ -177,8 +177,8 @@ def cnx_postgresql(string_of_connexion):
         kwargs_cnx = parse_dsn(string_of_connexion)
         connexion = psycopg2.connect(**kwargs_cnx)
 
-    except psycopg2.Error as error:
-        log_line = f"cnx_postgresql error: {error}\n"
+    except psycopg2.Error as except_error:
+        log_line = f"cnx_postgresql error: {except_error}\n"
         print(log_line)
         connexion = None
 
@@ -200,8 +200,8 @@ def query_select(cnx, sql_requete=None):
                 list_rows = cur.fetchall()
             return list_rows
 
-        except psycopg2.Error as error:
-            log_line = f"query_select error: {error}\n"
+        except psycopg2.Error as except_error:
+            log_line = f"query_select error: {except_error}\n"
             print(log_line)
             # write_log(self.log_file, log_line)
             # envoi_mail_erreur(log_line)
@@ -223,8 +223,8 @@ def query_real_dict_cursor(cnx, sql_requete=None):
                 list_rows = cur.fetchall()
             return list_rows
 
-        except psycopg2.Error as error:
-            log_line = f"query_real_dict_cursor error: {error}\n"
+        except psycopg2.Error as except_error:
+            log_line = f"query_real_dict_cursor error: {except_error}\n"
             print(log_line)
             # write_log(self.log_file, log_line)
             # envoi_mail_erreur(log_line)
@@ -249,8 +249,8 @@ def query_execute(cnx, sql_requete=None):
                 cnx.commit()
             return True
 
-        except psycopg2.Error as error:
-            log_line = f"query_execute error: {error}\n"
+        except psycopg2.Error as except_error:
+            log_line = f"query_execute error: {except_error}\n"
             print(log_line)
             # write_log(self.log_file, log_line)
             # envoi_mail_erreur(log_line)
@@ -274,8 +274,8 @@ def query_dict(cnx, sql_requete=None):
                 columns = [col[0] for col in cur.description]
                 return [dict(zip(columns, row)) for row in cur.fetchall()]
 
-        except psycopg2.Error as error:
-            log_line = f"query_real_dict_cursor error: {error}\n"
+        except psycopg2.Error as except_error:
+            log_line = f"query_real_dict_cursor error: {except_error}\n"
             print(log_line)
 
     return None
@@ -308,8 +308,8 @@ def copy_from(cnx, file, table, sep=";", columns=None, size=8192, null=None, hea
 
                 return True, "succes"
 
-    except psycopg2.Error as error:
-        log_line = f"copy_from error: {error!r}\n"
+    except psycopg2.Error as except_error:
+        log_line = f"copy_from error: {except_error!r}\n"
         print(log_line)
         # write_log(self.log_file, log_line)
         # envoi_mail_erreur(log_line)

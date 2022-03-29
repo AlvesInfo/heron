@@ -181,8 +181,8 @@ def main():
     #     try:
     #         t = AccountSageSchema(**data_dict)
     #         # AccountSage.objects.update_or_create(**t.dict())
-    #     except ValidationError as errors:
-    #         print(i + 1, errors.errors())
+    #     except ValidationError as except_error:
+    #         print(i + 1, except_error.errors())
     #         # raise Exception from errors
     #     else:...
     #         # print(i + 1, t.dict())
@@ -211,8 +211,8 @@ def main():
     # for i in range(1):
     #     try:
     #         t = VatRatSageSchema(**data_dict)
-    #     except ValidationError as errors:
-    #         print(i + 1, errors.errors())
+    #     except ValidationError as except_error:
+    #         print(i + 1, except_error.errors())
     #         # raise Exception from errors
     #     else:
     #         ...
@@ -239,8 +239,8 @@ def main():
     for i in range(10_000):
         try:
             t = TabDivSageSchema(**data_dict)
-        except ValidationError as errors:
-            print(i + 1, errors.errors())
+        except ValidationError as except_error:
+            print(i + 1, except_error.errors())
             # raise Exception from errors
         else:
             ...
@@ -258,7 +258,7 @@ class SectionSagePydanticSchema(BaseModel):
 
 
 class SectionSageDjanticSchema(ModelSchema):
-    test: str = None
+    test: str
 
     class Config:
         model = SectionSage
@@ -289,13 +289,13 @@ def essai_SectionSagechema():
                 isinstance(SectionSageDjanticSchema, (type(BaseModel), type(ModelSchema))),
             )
             t = SectionSageDjanticSchema(**data_dict)
-        except ValidationError as errors:
-            errors_dict[i] = errors.errors()
-            # print(i + 1, errors.errors())
-            # raise Exception from errors
+        except ValidationError as except_error:
+            errors_dict[i] = except_error.errors()
+            print(i + 1, except_error.errors())
+            # raise Exception from except_error
         else:
-            ...
-            # print(i + 1, t.dict())
+            # ...
+            print(i + 1, t.dict())
 
     # print(errors_dict)
     print(f"validation par djantic en {time.time() - start} s")

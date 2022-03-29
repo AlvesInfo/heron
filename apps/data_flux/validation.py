@@ -26,7 +26,7 @@ from django.db import models, connection
 from django import forms
 
 # noinspection PyCompatibility
-from exceptions import ValidationErrors
+from exceptions import ValidationError, IsValidError, FluxtypeError
 from models import Trace, Line, Error
 
 
@@ -43,6 +43,7 @@ class TraceTemplate:
         self.application_name = application_name
         self.flow_name = flow_name
         self.trace = None
+        self.num_ligne = 0
 
     def initialize(self, trace_tracking_number: uuid):
         """
@@ -55,30 +56,30 @@ class TraceTemplate:
             flow_name=self.flow_name,
         )
 
-    def get_errors_format(self, error):
+    def get_formatted_error(self, error_validator):
         """
         Formatage de l'erreur passée en paramètre
-        :param error: erreur arrivée du validateur
+        :param error_validator: erreur arrivée du validateur
         :return: Dict
         """
         raise NotImplementedError
 
-    @staticmethod
-    def _add_line(insertion_type: str, line: int = None, designation: str = None):
+    def _add_line(self, insertion_type: str = "Unknown", line: int = None, designation: str = None):
         """
         Ajoute une ligne à l'instance self.trace_instance
         :param insertion_type:  type d'insertion dans la table:
-                                    "Create" pour une ligne en création
-                                    "Update" Pour une ligne en update
+                                    "Create"  Pour une ligne en création
+                                    "Update"  Pour une ligne en update
                                     "Errors"  Pour une ligne en erreur
-                                    "Passed" Pour une ligne en update
+                                    "Passed"  Pour une ligne en update
+                                    "Unknown" Pour une ligne en inconnue sera mis par défaut
         :param line: N° de ligne traitée
         :param designation: désignation de la ligne à inserrer
         """
-
+        self.num_ligne += 1
         return Line.objects.create(
             insertion_type=insertion_type,
-            line=line,
+            line=line or self.num_ligne,
             designation=designation,
         )
 
@@ -127,7 +128,7 @@ class TraceTemplate:
                         }
         """
         line = self._add_line("Error", line, "une erreur c'est produite")
-        errors_format = self.get_errors_format(error)
+        errors_format = self.get_formatted_error(error)
         for error_dict in errors_format.items():
             Error.objects.bulk_create(
                 [
@@ -160,10 +161,10 @@ class DjangoTrace(TraceTemplate):
     Formate la sortie des erreurs de validation pour les formulaires Django
     """
 
-    def get_errors_format(self, error):
+    def get_formatted_error(self, error_validator):
         """
         Formatage de l'error passée en paramètre
-        :param error: erreur arrivée du validateur
+        :param error_validator: erreur arrivée du validateur
         :return: {
                     "champ_00": [
                                     {
@@ -186,6 +187,19 @@ class DjangoTrace(TraceTemplate):
                     ], ...
                 }
         """
+        error_dict = {
+            key: [
+                {
+                    "message": str(value),
+                    "data_received": "aucune valeur reçue"
+                    if error_validator.data.get(key) is None
+                    else error_validator.data.get(key),
+                }
+                for value in row
+            ]
+            for key, row in error_validator.errors.items()
+        }
+        return error_dict
 
 
 class DrfTrace(TraceTemplate):
@@ -193,10 +207,10 @@ class DrfTrace(TraceTemplate):
     Formate la sortie des erreurs de validation pour les serializers DRF
     """
 
-    def get_errors_format(self, error):
+    def get_formatted_error(self, error_validator):
         """
         Formatage de l'error passée en paramètre
-        :param error: erreur arrivée du validateur
+        :param error_validator: erreur arrivée du validateur
         :return: {
                     "champ_00": [
                                     {
@@ -219,6 +233,24 @@ class DrfTrace(TraceTemplate):
                     ], ...
                 }
         """
+        try:
+            error_dict = {
+                key: [
+                    {
+                        "message": str(value),
+                        "data_received": "aucune valeur reçue"
+                        if error_validator.data.get(key) is None
+                        else error_validator.data.get(key),
+                    }
+                    for value in row
+                ]
+                for key, row in error_validator.errors.items()
+            }
+            return error_dict
+        except AssertionError as except_error:
+            raise IsValidError(
+                "validator.errors a été appelé avent validator.is_valid()"
+            ) from except_error
 
 
 class PydanticTrace(TraceTemplate):
@@ -226,10 +258,10 @@ class PydanticTrace(TraceTemplate):
     Formate la sortie des erreurs de validation pour les models Pydantic
     """
 
-    def get_errors_format(self, error):
+    def get_formatted_error(self, error_validator):
         """
         Formatage de l'error passée en paramètre
-        :param error: erreur arrivée du validateur
+        :param error_validator: erreur arrivée du validateur
         :return: {
                     "champ_00": [
                                     {
@@ -346,10 +378,11 @@ class ValidationTemplate:
     def validate(self):
         """Lancement de la validation"""
         if not isinstance(self.first_element, (dict,)):
-            raise ValidationErrors(
+            raise FluxtypeError(
                 "La validation ne peut avoir lieu car le flux des données, "
-                "doit être un flux de dictionnaire"
+                "doit être un flux de dictionnaires"
             )
+
         try:
             with connection.cursor() as cursor:
                 errors_bool, validation_text = self.is_valid(
@@ -357,8 +390,11 @@ class ValidationTemplate:
                 )
                 self._save_errors_trace(cursor)
                 return errors_bool, validation_text
-        except Exception as error:
-            raise ValidationErrors("Une erreur c'est produite à l'appel de validate") from error
+
+        except Exception as except_error:
+            raise ValidationError(
+                "Une erreur c'est produite à l'appel de validate"
+            ) from except_error
 
 
 class DjangoValidation(ValidationTemplate):
@@ -588,11 +624,14 @@ class Validation:
 
     def _get_params_default(self):
         """
-        Attribue les valeurs par défaut nécéssaires pour la validation
-        :return:
+        Attribue les valeurs par défaut nécéssaires pour la validation,
+        à l'attribut d'instance self.params_dict
         """
+        if "application_name" not in self.params_dict:
+            self.params_dict["application_name"] = "unkown"
+
         if "flow_name" not in self.params_dict:
-            self.params_dict["flow_name"] = str(uuid.uuid4())
+            self.params_dict["flow_name"] = "unkown"
 
         if "nb_errors_max" not in self.params_dict:
             self.params_dict["nb_errors_max"] = 100
@@ -600,17 +639,14 @@ class Validation:
         if "insert_method" not in self.params_dict:
             self.params_dict["insert_method"] = "insert"
 
-        if "application_name" not in self.params_dict:
-            self.params_dict["application_name"] = "unkown"
-
     def get_validation_instance(self):
         """Instance le validateur désiré"""
 
-        if isinstance(self.validator, (str,)):
+        if self.validator is None:
             validation_test = self.params_dict.get("validation")
 
             if not isinstance(validation_test, (tuple, list)) and len(validation_test) != 2:
-                raise ValidationErrors(
+                raise ValidationError(
                     "l'attribut 'validation' du paramètre params_dict "
                     "doit être un tuple ou une liste : (ValidationTemplate, TraceTemplate)"
                 )
@@ -618,12 +654,12 @@ class Validation:
             validation, form_errors = self.params_dict.get("validation")
 
             if not isinstance(validation, (type(ValidationTemplate),)):
-                raise ValidationErrors(
+                raise ValidationError(
                     "La class Validation doit être un instance de ValidationTemplate"
                 )
 
             if not isinstance(form_errors, (type(TraceTemplate),)):
-                raise ValidationErrors("La class Validation doit être un instance de TraceTemplate")
+                raise ValidationError("La class Validation doit être un instance de TraceTemplate")
 
             self.to_validate = validation(
                 validators=(self.validator, form_errors),
@@ -650,7 +686,7 @@ class Validation:
                 params_dict=self.params_dict,
             )
         else:
-            raise ValidationErrors(
+            raise ValidationError(
                 f"Le type de validateur {str(self.validator)}est inconnu "
                 "ou l'attribut 'validation' du paramètre params_dict est manquant"
             )

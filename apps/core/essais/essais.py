@@ -115,8 +115,8 @@ def essais_inserts():
 
         print(f"copy_expert : {final} s -> copy : {copie} s -- insert : {insert} s")
 
-    except Exception as errors:
-        raise Exception("") from errors
+    except Exception as except_error:
+        raise Exception("") from except_error
 
     file.close()
 

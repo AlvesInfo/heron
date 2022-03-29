@@ -71,10 +71,10 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
         )
         string_io_file.seek(0)
 
-    except ValueError as error:
+    except ValueError as except_error:
         raise ExcelToCsvFileError(
             f"Impossible de déterminer si le fichier {excel_file.name!r}, est un fichier excel"
-        ) from error
+        ) from except_error
 
     return success
 
@@ -92,8 +92,8 @@ def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
             string_io_file.write(csv_file.read())
             string_io_file.seek(0)
 
-    except Exception as error:
-        raise CsvFileToStringIoError(f"file_to_csv_string_io : {file.name!r}") from error
+    except Exception as except_error:
+        raise CsvFileToStringIoError(f"file_to_csv_string_io : {file.name!r}") from except_error
 
 
 class IterFileToInsert:
@@ -196,11 +196,11 @@ class IterFileToInsert:
                 excel_file_to_csv_string_io(self.file_to_iter, self.csv_io)
             else:
                 file_to_csv_string_io(self.file_to_iter, self.csv_io)
-        except Exception as error:
+        except Exception as except_error:
             raise ExcelToCsvError(
                 f"une erreur dans la transformation du fichier {self.file_to_iter.name!r} "
                 "en csv StringIO"
-            ) from error
+            ) from except_error
 
     def close_buffer(self):
         """Fermeture du buffer io.StringIO"""
@@ -299,10 +299,10 @@ class IterFileToInsert:
                 key: value[0](**value[1]) if isinstance(value, (tuple,)) else value
                 for key, value in self.params_dict.get("add_fields_dict", {}).items()
             }
-        except IndexError as error:
+        except IndexError as except_error:
             raise GetAddDictError(
                 "La méthode get_add_dict a besoins d'un tuple de 2 élements"
-            ) from error
+            ) from except_error
 
         return add_dict
 
@@ -465,8 +465,8 @@ class ModelFormInsertion(IterFileToInsert):
         """Validation des lignes du fichier, sauvegarde et renvoi des erreurs s'il y en a eu"""
         try:
             self.iter_validation()
-        except Exception as error:
-            raise ValidationError("une erreur c'est produite pendant la validation") from error
+        except Exception as except_error:
+            raise ValidationError("une erreur c'est produite pendant la validation") from except_error
 
 
 # class ImportModelFileFactory(IterFileToInsert):
