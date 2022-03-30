@@ -106,6 +106,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -197,7 +198,7 @@ AUTH_USER_MODEL = "users.User"
 
 SITE_ID = 2
 
-LANGUAGE_CODE = "fr-FR"
+LANGUAGE_CODE = "fr"
 LANGUAGES = [("fr", _("French"))]
 TIME_ZONE = "Europe/Paris"
 SHORT_DATE_FORMAT = "d/m/Y"

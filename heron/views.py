@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.translation import gettext_lazy as _
 
 from apps.users.models import User
 from apps.core.functions.functions_utilitaires import get_client_ip
@@ -14,7 +15,7 @@ logger = logging.getLogger("connexion")
 
 
 def home(request):
-    context = {"environnement": settings.ENVIRONNEMENT}
+    context = {"environnement": settings.ENVIRONNEMENT, "traduc": _("field required")}
     return render(request, "heron/base_semantic.html", context=context)
 
 
