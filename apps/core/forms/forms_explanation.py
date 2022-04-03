@@ -97,7 +97,7 @@ def forms_django():
             {
                 "message": str(value),
                 "data_received": "aucune valeur reçue"
-                if f.data.get(key) is None
+                if not f.data.get(key)
                 else f.data.get(key),
             }
             for value in row

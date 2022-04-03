@@ -6,6 +6,9 @@ import glob
 from itertools import chain, islice, accumulate
 import re
 import time
+from decimal import Decimal
+import datetime
+from typing import Iterable
 from operator import itemgetter
 from chardet.universaldetector import UniversalDetector
 from decimal import Decimal
@@ -19,6 +22,43 @@ from pendulum.exceptions import ParserError
 
 class EncodingError(Exception):
     """Exception sniff encodig"""
+
+
+def overlaps(
+    iterable_1: [int, float, Decimal, type(datetime)],
+    iterable_2: [int, float, Decimal, type(datetime)],
+):
+    """
+    :param iterable_1: iterable de int, float, Decimal ou de datetime
+    :param iterable_2: iterable de int, float, Decimal ou de datetime
+    :return: Renvoie True si iterable_1 overlap iterable_2 sinon False
+    >>> overlaps([0, 3], [3, 4])
+    True
+    >>> overlaps([3, 4], [0, 3])
+    True
+    >>> overlaps([-1, 0], [0, 3])
+    True
+    >>> overlaps([0, 3], [-1, 0])
+    True
+    >>> overlaps([0, 3], [4, 6])
+    False
+    >>> overlaps([0, 3], [-4, -6])
+    False
+    >>> from datetime import date
+    >>> overlaps([date(2022, 1, 1), date(2022, 1,3)], [date(2022, 1, 3), date(2022, 1,6)])
+    True
+    >>> overlaps([date(2022, 1, 1), date(2022, 1,3)], [date(2021, 12, 20), date(2022, 1, 1)])
+    True
+    >>> overlaps([date(2022, 1, 1), date(2022, 1,3)], [date(2021, 12, 20), date(2021, 12, 31)])
+    False
+    >>> overlaps([date(2022, 1, 1), date(2022, 1,3)], [date(2022, 1, 2), date(2022, 1,2)])
+    True
+    >>> overlaps([date(2022, 1, 1), date(2022, 1,3)], [date(2022, 1, 6), date(2022, 1,8)])
+    False
+    """
+    return max(iterable_1) >= min(iterable_2) >= min(iterable_1) or max(iterable_2) >= min(
+        iterable_1
+    ) >= min(iterable_2)
 
 
 N_DIC = {

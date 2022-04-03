@@ -292,6 +292,19 @@ def essai_SectionSagechema():
         except ValidationError as except_error:
             errors_dict[i] = except_error.errors()
             print(i + 1, except_error.errors())
+            print(str(except_error.args[1].dict))
+            error_dict = {
+                ", ".join(dict_row.get("loc")): [
+                    {
+                        "message": dict_row.get("msg"),
+                        "data_received": "aucune valeur reçue"
+                        if not data_dict.get(", ".join(dict_row.get("loc")))
+                        else data_dict.get(", ".join(dict_row.get("loc"))),
+                    }
+                ]
+                for dict_row in except_error.errors()
+            }
+            print(error_dict)
             # raise Exception from except_error
         else:
             # ...

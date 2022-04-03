@@ -291,7 +291,7 @@ class FileLoader(CleanDataLoader):
             delimiter=self.params_dict.get("delimiter", ";"),
             quotechar=self.params_dict.get("quotechar", '"'),
             lineterminator=self.params_dict.get("lineterminator", "\n"),
-            quoting=self.params_dict.get("quoting", csv.QUOTE_ALL),
+            quoting=self.params_dict.get("quoting", csv.QUOTE_NONNUMERIC),
         )
 
     def _check_nb_columns(self):
@@ -474,6 +474,10 @@ class FileLoader(CleanDataLoader):
         """Fermeture du buffer io.StringIO"""
         if not self.csv_io.closed:
             self.csv_io.close()
+        try:
+            del self.csv_io
+        except NameError:
+            pass
 
 
 class ApiJsonLoader(CleanDataLoader):

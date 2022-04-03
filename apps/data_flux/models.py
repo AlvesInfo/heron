@@ -24,6 +24,7 @@ class BaseFlux(models.Model):
     """
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
+    final_at = models.DateTimeField(auto_now=True, verbose_name=_("final at"))
     to_active = models.BooleanField(null=True, default=False)
     to_delete = models.BooleanField(null=True, default=False)
     delete = models.BooleanField(null=True)
@@ -50,10 +51,15 @@ class Trace(BaseFlux):
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    trace_name = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     application_name = models.CharField(max_length=35)
     flow_name = models.CharField(max_length=80)
     errors = models.BooleanField(default=False)
     comment = models.TextField(null=True, blank=True)
+    created_numbers_records = models.IntegerField(null=True)
+    updated_numbers_records = models.IntegerField(null=True)
+    errors_numbers_records = models.IntegerField(null=True)
+    unknown_numbers_records = models.IntegerField(null=True)
 
 
 class Line(models.Model):
@@ -76,7 +82,7 @@ class Line(models.Model):
     insertion_type = models.CharField(
         null=True, blank=True, max_length=20, choices=Insertiontype.choices
     )
-    line = models.IntegerField(null=True)
+    num_line = models.IntegerField(null=True)
     designation = models.TextField(null=True)
 
 
@@ -92,3 +98,17 @@ class Error(models.Model):
     message = models.CharField(null=True, blank=True, max_length=255)
     data_expected = models.TextField(null=True, blank=True)
     data_received = models.TextField(null=True, blank=True)
+
+
+class Essais(models.Model):
+    col_texte = models.CharField(max_length=12)
+    col_2 = models.CharField(null=True, blank=True, max_length=10)
+    col_3 = models.CharField(null=True, blank=True, max_length=100)
+    col_int = models.IntegerField(null=True)
+
+
+class EssaisZ(models.Model):
+    col_texte = models.CharField(max_length=12)
+    col_2 = models.CharField(null=True, blank=True, max_length=10)
+    col_3 = models.CharField(null=True, blank=True, max_length=100)
+    col_int = models.IntegerField(unique=True)

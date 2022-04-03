@@ -55,8 +55,18 @@ def essais_inserts():
     import io
     import csv
     import time
-    from psycopg2 import sql
-    from apps.core.functions.functions_setups import connection
+    from apps.core.functions.functions_setups import settings
+    from apps.data_flux.postgres_save import (
+        PostgresDjangoUpsert,
+        PostgresDjangoError,
+        PostgresCardinalityViolationError,
+        PostgresTypeError,
+        PostgresUniqueError,
+        PostgresInsertMethodError,
+    )
+    from apps.data_flux.models import Essais, EssaisZ
+
+    from apps.data_flux.loggers import INSERT_LOGGER_FLUX
 
     file = io.StringIO()
 
@@ -72,8 +82,8 @@ def essais_inserts():
     w.writerow(["000", t, 90])
     print("génération fichier texte")
 
-    for _ in range(100_000):
-        file.write("""aaaaaaaaaaaa;"zzzzzzzzzzzzzzzzzz""zzzzzzzzzzzzzzzzz";"10"\n""")
+    for _ in range(1_000):
+        file.write("""aaaaaaaaaaaa;"zzzzzzzzzzzzzzzzzz""zzzzzzzzzzzzzzzzz";"1Z"\n""")
 
     print("fin génération fichier texte")
 
@@ -81,42 +91,56 @@ def essais_inserts():
         start_i = time.time()
         file.seek(0)
 
-        with connection.cursor() as cursor:
-            fields = sql.SQL(",").join(
-                [
-                    sql.Identifier("col_texte"),
-                    sql.Identifier("col_3"),
-                    sql.Identifier("col_int"),
-                ]
-            )
-            table = sql.Identifier("aa_essais")
-            sql_copy = sql.SQL(
-                "COPY {table} ({fields}) FROM STDIN WITH DELIMITER AS ';' CSV"
-            ).format(fields=fields, table=table)
-            cursor.copy_expert(sql=sql_copy, file=file)
-            copie = round(time.time() - start_i, 2)
+        # test_01 = PostgresDjangoUpsert(
+        #     Essais, {"col_texte": False, "col_3": False, "col_int": True}
+        # )
+        # test_01.insert(file, insert_mode="insert")
+        # copie = round(time.time() - start_i, 2)
+        # print("copie : ", copie)
 
-            start = time.time()
-            table_insert = sql.Identifier("aa_essais_1")
-            sql_insert = sql.SQL(
-                """
-                INSERT INTO {table_insert} ({fields})
-                SELECT {fields} FROM {table} 
-                ON CONFLICT DO NOTHING
-                """
-            ).format(table_insert=table_insert, table=table, fields=fields, )
-            cursor.execute(sql_insert)
-            # print(cursor.mogrify(sql_insert).decode())
-            insert = round(time.time() - start, 2)
-            final = round(time.time() - start_i, 2)
+        # start = time.time()
+        # file.seek(0)
+        # test_02 = PostgresDjangoUpsert(
+        #     EssaisZ, {"col_texte": False, "col_3": False, "col_int": True}
+        # )
+        # test_02.insert(file, insert_mode="do_nothing")
+        # do_nothing = round(time.time() - start, 2)
+        # print("do_nothing : ", do_nothing)
 
-            sql_delete = sql.SQL("DELETE FROM {table}").format(table=table)
-            cursor.execute(sql_delete)
+        start = time.time()
+        file.seek(0)
+        test_03 = PostgresDjangoUpsert(
+            EssaisZ, {"col_texte": False, "col_3": False, "col_int": True}
+        )
+        test_03.insert(file, insert_mode="upsert")
+        upsert = round(time.time() - start, 2)
+        print("upsert : ", upsert)
 
-        print(f"copy_expert : {final} s -> copy : {copie} s -- insert : {insert} s")
+        final = round(time.time() - start_i, 2)
 
-    except Exception as except_error:
-        raise Exception("") from except_error
+        print(
+            f"copy_expert : {final} s -> "
+            # f"copy insert : {copie} s -- "
+            # f"copy do_nothing : {do_nothing} s -- "
+            f"copy upsert : {upsert} s"
+        )
+
+    except PostgresInsertMethodError:
+        INSERT_LOGGER_FLUX.exception("La methode d'insertion choisie n'existe pas")
+
+    except PostgresCardinalityViolationError:
+        INSERT_LOGGER_FLUX.exception(
+            f"Plusieurs mise à jour pour le même élément reçu, table : {EssaisZ._meta.db_table!r}"
+        )
+
+    except PostgresTypeError:
+        INSERT_LOGGER_FLUX.exception("Erreur de type")
+
+    except PostgresUniqueError:
+        INSERT_LOGGER_FLUX.exception("Erreur sur clé dupliquée")
+
+    except PostgresDjangoError:
+        INSERT_LOGGER_FLUX.exception("Erreur inconnue")
 
     file.close()
 

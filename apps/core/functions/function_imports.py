@@ -466,7 +466,9 @@ class ModelFormInsertion(IterFileToInsert):
         try:
             self.iter_validation()
         except Exception as except_error:
-            raise ValidationError("une erreur c'est produite pendant la validation") from except_error
+            raise ValidationError(
+                "une erreur c'est produite pendant la validation"
+            ) from except_error
 
 
 # class ImportModelFileFactory(IterFileToInsert):

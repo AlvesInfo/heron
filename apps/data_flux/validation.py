@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=E0401,
 """Module de validation des flux à intégrer en BDD
 
 Instances de validation implémentées :
@@ -15,14 +15,19 @@ created by: Paulo ALVES
 modified at: 2021-10-30
 modified by: Paulo ALVES
 """
+import csv
+import io
 from itertools import chain
 import uuid
-from typing import Any, AnyStr, Dict, Iterable
+from typing import Any, Dict, Iterable
+
+import pendulum
 from pydantic import BaseModel
 from djantic import ModelSchema
 from rest_framework import serializers as seria
 
-from django.db import models, connection
+from django.db import models
+from django.db.models import Count, Q
 from django import forms
 
 # noinspection PyCompatibility
@@ -35,26 +40,59 @@ class TraceTemplate:
     Implémentation de sauvegarde de traces d'import de flux
     """
 
-    def __init__(self, application_name: AnyStr, flow_name: AnyStr):
+    def __init__(self, params_dict: Dict):
         """
-        :param application_name: Apllication ayant lancé la validation
-        :param flow_name: nom du flux, du fichier, de l'Api ....
-        """
-        self.application_name = application_name
-        self.flow_name = flow_name
-        self.trace = None
-        self.num_ligne = 0
+        :param params_dict: Dictionnaire des paramètres :
+                        params_dict = {
 
-    def initialize(self, trace_tracking_number: uuid):
+                            # Numéro de suivi de trace de bout en bout
+                            "trace_tracking_number": "uuid4"
+
+                            # Nom de la trace de bout en bout
+                            "trace_tracking_name": "trace_name"
+
+                            # Application ou user ayant envoyé le flux
+                            "application_name": "application_name"
+
+                            # Nom du flux pour le nommage des erreurs du fichier, api, ...
+                            "flow_name": "flow_name",
         """
-        Instanciation du models Trace
+        self.trace_number = params_dict.get("trace_tracking_number") or uuid.uuid4()
+        self.trace = self.initialize(
+            params_dict.get("trace_tracking_name"),
+            params_dict.get("application_name"),
+            params_dict.get("flow_name"),
+            params_dict.get("comment"),
+        )
+        self.lines_list = []
+        self.errors_list = []
+
+    def initialize(self, trace_name, application_name, flow_name, comment):
+        """
+        Instanciation du models Trace, Attributes :
+                                                    uuid_identification
+                                                    trace_name
+                                                    application_name
+                                                    flow_name
+                                                    errors
+                                                    comment
+                                                    created_numbers_records
+                                                    updated_numbers_records
+                                                    errors_numbers_records
         param trace_tracking_number: N° de Trace de bout en bout
         """
         self.trace = Trace.objects.create(
-            uuid_identification=trace_tracking_number or uuid.uuid4(),
-            application_name=self.application_name,
-            flow_name=self.flow_name,
+            uuid_identification=self.trace_number,
+            trace_name=trace_name,
+            application_name=application_name,
+            flow_name=flow_name,
+            comment=comment,
+            created_numbers_records=0,
+            updated_numbers_records=0,
+            errors_numbers_records=0,
+            unknown_numbers_records=0,
         )
+        return self.trace
 
     def get_formatted_error(self, error_validator):
         """
@@ -64,7 +102,9 @@ class TraceTemplate:
         """
         raise NotImplementedError
 
-    def _add_line(self, insertion_type: str = "Unknown", line: int = None, designation: str = None):
+    def add_line(
+        self, insertion_type: str = "Unknown", num_line: int = None, designation: str = None
+    ):
         """
         Ajoute une ligne à l'instance self.trace_instance
         :param insertion_type:  type d'insertion dans la table:
@@ -73,87 +113,93 @@ class TraceTemplate:
                                     "Errors"  Pour une ligne en erreur
                                     "Passed"  Pour une ligne en update
                                     "Unknown" Pour une ligne en inconnue sera mis par défaut
-        :param line: N° de ligne traitée
+        :param num_line: N° de ligne traitée
         :param designation: désignation de la ligne à inserrer
         """
-        self.num_ligne += 1
-        return Line.objects.create(
-            insertion_type=insertion_type,
-            line=line or self.num_ligne,
-            designation=designation,
+        insertion_dict = {
+            "Create": "cette ligne à bien été créée",
+            "Update": "cette ligne à bien été modifiée",
+            "Errors": "Cette ligne à généré une erreur",
+            "Passed": "Cette ligne n'a pas été traitée",
+            "Unknown": "Cette ligne n'a pas été traitée",
+        }
+        uuid_line_identification = uuid.uuid4()
+        self.lines_list.append(
+            {
+                "uuid_identification": uuid_line_identification,
+                "trace": self.trace.uuid_identification,
+                "insertion_type": insertion_type,
+                "num_line": num_line,
+                "designation": designation or insertion_dict.get(insertion_type),
+            }
         )
+        return uuid_line_identification
 
-    def add_create(self, line, create):
-        """
-        Ajout d'une ligne en creation dans la trace
-        :param line: N° de ligne traitée
-        :param create: désignation de la création
-        """
-        self._add_line("Create", line, create)
-
-    def add_update(self, line, update):
-        """
-        Ajout d'une ligne d'update dans la trace
-        :param line: N° de ligne traitée
-        :param update: désignation de l'update
-        """
-        self._add_line("Update", line, update)
-
-    def add_error(self, line: str, error: Any):
+    def add_error(self, num_line: str, error: Any):
         """
         Ajout d'une ligne d'erreur dans la trace
-        :param line:    N° de ligne traitée
+        :param num_line:    N° de ligne traitée
         :param error:   Erreurs venant de la validation. Les erreurs par lignes seront traduitent
                         par la trace du validator qui sera organisé comme suit:
                         error_dict = {
                             "champ_00": [
                                 {
                                     "message": "message_01",
-                                    "data_expexted": "donnée_01 attendue",
+                                    "data_expected": "donnée_01 attendue",
                                     "data_received": "donnée_01 reçue",
                                 },
                                 {
                                     "message": "message_02",
-                                    "data_expexted": "donnée_02 attendue",
+                                    "data_expected": "donnée_02 attendue",
                                     "data_received": "donnée_02 reçue",
                                 }, ...
                             ],
                             "champ_02": [
                                 {
                                     "message": "message_01",
-                                    "data_expexted": "donnée_01 attendue",
+                                    "data_expected": "donnée_01 attendue",
                                     "data_received": "donnée_01 reçue",
                                 },
                             ], ...
                         }
         """
-        line = self._add_line("Error", line, "une erreur c'est produite")
         errors_format = self.get_formatted_error(error)
-        for error_dict in errors_format.items():
-            Error.objects.bulk_create(
-                [
-                    Error(
-                        line=line,
-                        attribute=attribute,
-                        message=messages_dict.get("message"),
-                        data_expected=messages_dict.get("data_expected"),
-                        data_received=messages_dict.get("data_received"),
-                    )
-                    for attribute, errors_list in error_dict.items()
-                    for messages_dict in errors_list
-                ]
-            )
 
-    def add_passed(self, line, passed):
-        """
-        Ajout d'une ligne dont on a passé l'insertion dans la trace
-        :param line: N° de ligne traitée
-        :param passed: désignation de l'update
-        """
-        self._add_line("Passed", line, passed)
+        for attribute, errors_list in errors_format.items():
+            uuid_error_line = self.add_line(insertion_type="Errors", num_line=num_line)
+
+            for messages_dict in errors_list:
+                self.errors_list.append(
+                    {
+                        "line": uuid_error_line,
+                        "attribute": attribute,
+                        "message": messages_dict.get("message"),
+                        "data_expected": messages_dict.get("data_expected"),
+                        "data_received": messages_dict.get("data_received"),
+                    }
+                )
 
     def save(self):
-        """Sauvegarde de l'intégralité des erreurs en base"""
+
+
+
+
+        """Sauvegarde finale, pour le comptage des differents état des enregistrements"""
+        create = Count("insertion_type", filter=Q(insertion_type="Create"))
+        update = Count("insertion_type", filter=Q(insertion_type="Update"))
+        errors = Count("insertion_type", filter=Q(insertion_type="Errors"))
+        passed = Count("insertion_type", filter=Q(insertion_type="Passed"))
+        unknown = Count("insertion_type", filter=Q(insertion_type="Unknown"))
+        counts_dict = Line.objects.filter(trace="316519e0-fb3a-414c-ad68-15585b4f6bf4").aggregate(
+            create=create, update=update, errors=errors, passed=passed, unknown=unknown
+        )
+        self.trace.update(
+            created_numbers_records=counts_dict.get("create"),
+            updated_numbers_records=counts_dict.get("update"),
+            errors_numbers_records=counts_dict.get("errors"),
+            passed_numbers_records=counts_dict.get("passed"),
+            unknown_numbers_records=counts_dict.get("unknown"),
+        )
 
 
 class DjangoTrace(TraceTemplate):
@@ -163,25 +209,25 @@ class DjangoTrace(TraceTemplate):
 
     def get_formatted_error(self, error_validator):
         """
-        Formatage de l'error passée en paramètre
+        Formatage de l'erreur passée en paramètre
         :param error_validator: erreur arrivée du validateur
         :return: {
                     "champ_00": [
                                     {
                                         "message": "message_01",
-                                        "data_expexted": "donnée_01 attendue",
+                                        "data_expected": "donnée_01 attendue",
                                         "data_received": "donnée_01 reçue",
                                     },
                                     {
                                         "message": "message_02",
-                                        "data_expexted": "donnée_02 attendue",
+                                        "data_expected": "donnée_02 attendue",
                                         "data_received": "donnée_02 reçue",
                                     }, ...
                     ],
                     "champ_02": [
                                     {
                                         "message": "message_01",
-                                        "data_expexted": "donnée_01 attendue",
+                                        "data_expected": "donnée_01 attendue",
                                         "data_received": "donnée_01 reçue",
                                     },
                     ], ...
@@ -192,7 +238,7 @@ class DjangoTrace(TraceTemplate):
                 {
                     "message": str(value),
                     "data_received": "aucune valeur reçue"
-                    if error_validator.data.get(key) is None
+                    if not error_validator.data.get(key)
                     else error_validator.data.get(key),
                 }
                 for value in row
@@ -209,25 +255,25 @@ class DrfTrace(TraceTemplate):
 
     def get_formatted_error(self, error_validator):
         """
-        Formatage de l'error passée en paramètre
+        Formatage de l'erreur passée en paramètre
         :param error_validator: erreur arrivée du validateur
         :return: {
                     "champ_00": [
                                     {
                                         "message": "message_01",
-                                        "data_expexted": "donnée_01 attendue"
+                                        "data_expected": "donnée_01 attendue"
                                         "data_received": "donnée_01 reçue"
                                     },
                                     {
                                         "message": "message_02",
-                                        "data_expexted": "donnée_02 attendue"
+                                        "data_expected": "donnée_02 attendue"
                                         "data_received": "donnée_02 reçue"
                                     }, ...
                     ],
                     "champ_02": [
                                     {
                                         "message": "message_01",
-                                        "data_expexted": "donnée_01 attendue"
+                                        "data_expected": "donnée_01 attendue"
                                         "data_received": "donnée_01 reçue"
                                     },
                     ], ...
@@ -239,7 +285,7 @@ class DrfTrace(TraceTemplate):
                     {
                         "message": str(value),
                         "data_received": "aucune valeur reçue"
-                        if error_validator.data.get(key) is None
+                        if not error_validator.data.get(key)
                         else error_validator.data.get(key),
                     }
                     for value in row
@@ -249,7 +295,7 @@ class DrfTrace(TraceTemplate):
             return error_dict
         except AssertionError as except_error:
             raise IsValidError(
-                "validator.errors a été appelé avent validator.is_valid()"
+                "validator.errors a été appelé avant validator.is_valid()"
             ) from except_error
 
 
@@ -260,30 +306,44 @@ class PydanticTrace(TraceTemplate):
 
     def get_formatted_error(self, error_validator):
         """
-        Formatage de l'error passée en paramètre
-        :param error_validator: erreur arrivée du validateur
+        Formatage de l'erreur passée en paramètre
+        :param error_validator: erreur arrivée du validateur,
+                                sous forme de tuple (erreurs, data_received)
         :return: {
                     "champ_00": [
                                     {
                                         "message": "message_01",
-                                        "data_expexted": "donnée_01 attendue"
+                                        "data_expected": "donnée_01 attendue"
                                         "data_received": "donnée_01 reçue"
                                     },
                                     {
                                         "message": "message_02",
-                                        "data_expexted": "donnée_02 attendue"
+                                        "data_expected": "donnée_02 attendue"
                                         "data_received": "donnée_02 reçue"
                                     }, ...
                     ],
                     "champ_02": [
                                     {
                                         "message": "message_01",
-                                        "data_expexted": "donnée_01 attendue"
+                                        "data_expected": "donnée_01 attendue"
                                         "data_received": "donnée_01 reçue"
                                     },
                     ], ...
                 }
         """
+        errors_dict, data_dict = error_validator
+        error_dict = {
+            ", ".join(dict_row.get("loc")): [
+                {
+                    "message": dict_row.get("msg"),
+                    "data_received": "aucune valeur reçue"
+                    if not data_dict.get(", ".join(dict_row.get("loc")))
+                    else data_dict.get(", ".join(dict_row.get("loc"))),
+                }
+            ]
+            for dict_row in errors_dict
+        }
+        return error_dict
 
 
 class ValidationTemplate:
@@ -302,7 +362,7 @@ class ValidationTemplate:
             ],
             TraceTemplate,
         ],
-        dict_flow: Dict,
+        dict_flow: Iterable[Dict],
         params_dict: Dict,
     ):
         """
@@ -313,6 +373,9 @@ class ValidationTemplate:
 
                                     # Numéro de suivi de trace de bout en bout
                                     "trace_tracking_number": "uuid4"
+
+                                    # Nom de la trace de bout en bout
+                                    "trace_tracking_name": "trace_name"
 
                                     # Application ou user ayant envoyé le flux
                                     "application_name": "application_name"
@@ -337,19 +400,16 @@ class ValidationTemplate:
                                                         # update ligne à ligne
                                                         "upsert"
 
-                                    # Foreign Keys, pour validation des clés étrangères
+                                    # Foreign Keys, pour validation des clés étrangères,
+                                    # non implémenté pour le moment
                                     "foreign_key": ("attr_01", "attr_01", ....)
                                 }
         """
         self.validator_class, self.errors_class = validators
-        self.application_name = params_dict.get("application_name")
-        self.flow_name = params_dict.get("flow_name")
-        self.trace_instance = self.errors_class(self.application_name, self.flow_name)
+        self.trace_instance = self.errors_class(params_dict)
         self.dict_flow = dict_flow
-        self.first_element = next(dict_flow)
-        self.trace_instance.initialize(
-            trace_tracking_number=params_dict.get("trace_tracking_number")
-        )
+        self.first_element = next(iter(dict_flow))
+        self.nb_errors_max = params_dict.get("nb_errors_max")
 
     def _add_error(self, line, error):
         """
@@ -361,15 +421,15 @@ class ValidationTemplate:
 
     def _save_errors_trace(self, cursor):
         """
-        Retourne l'instance des erreurs
+        Sauvergarde toutes les erreurs de l'instance self.trace_instance
         :param cursor: cursor de connexion à la BDD Postgresql du Projet
         """
         self.trace_instance.save(cursor)
 
-    def is_valid(self, datas, cursor):
+    def is_valid(self, data_dict, cursor):
         """
         Validation des données par la méthode is_valid
-        :param datas: Données à valider
+        :param data_dict: Données à valider
         :param cursor: cursor de connexion à la BDD Postgresql du Projet
         :return: (Bool errors), "texte pour affichage éventuel"
         """
@@ -378,20 +438,29 @@ class ValidationTemplate:
     def validate(self):
         """Lancement de la validation"""
         if not isinstance(self.first_element, (dict,)):
+            now = pendulum.now().format(r"\du dddd DD MMMM YYYY à HH:MM:SS", locale="fr")
+            self._add_error(
+                line=0, error=f"La validation n'a pu avoir lieu, vérifier les fichiers de log {now}"
+            )
             raise FluxtypeError(
                 "La validation ne peut avoir lieu car le flux des données, "
                 "doit être un flux de dictionnaires"
             )
 
         try:
-            with connection.cursor() as cursor:
-                errors_bool, validation_text = self.is_valid(
-                    chain([self.first_element], self.dict_flow), cursor
-                )
-                self._save_errors_trace(cursor)
-                return errors_bool, validation_text
+
+            for data_dict in enumerate(chain([self.first_element], self.dict_flow), 1):
+                pass
 
         except Exception as except_error:
+            now = pendulum.now().format(r"\du dddd DD MMMM YYYY à HH:MM:SS", locale="fr")
+            self._add_error(
+                line=0,
+                error=(
+                    "Une erreur c'est produite à l'appel de validate, "
+                    f"vérifier les fichiers de log {now}"
+                ),
+            )
             raise ValidationError(
                 "Une erreur c'est produite à l'appel de validate"
             ) from except_error
@@ -422,9 +491,6 @@ class DjangoValidation(ValidationTemplate):
         :param params_dict: Dictionnaire des paramètres :
                                 params_dict = {
 
-                                    # Nom du flux pour le nommage des erreurs du fichier, api, ...
-                                    "flow_name": "flow_name",
-
                                     # Nombre d'erreurs maximum avant arrêt de la validation
                                     "nb_errors_max": 100,
 
@@ -442,17 +508,22 @@ class DjangoValidation(ValidationTemplate):
                                                         # update ligne à ligne
                                                         "upsert"
 
-                                    # Foreign Keys, pour validation des clés étrangères
+                                    # Foreign Keys, pour validation des clés étrangères,
+                                    # non implémenté pour le moment
                                     "foreign_key": ("attr_01", "attr_01", ....)
                                 }
         """
         super().__init__(validators, dict_flow, params_dict)
-        self.nb_errors_max = params_dict.get("nb_errors_max")
         self.insert_method = params_dict.get("insert_method")
         self.foreign_key = params_dict.get("foreign_key", tuple())
 
-    def is_valid(self, datas, cursor):
-        """Lancement de la validation"""
+    def is_valid(self, data_dict, cursor):
+        """
+        Validation des données par la méthode is_valid
+        :param data_dict: Données à valider
+        :param cursor: cursor de connexion à la BDD Postgresql du Projet
+        :return: (Bool errors), "texte pour affichage éventuel"
+        """
 
 
 class DrfValidation(ValidationTemplate):
@@ -497,7 +568,9 @@ class DrfValidation(ValidationTemplate):
                                                         # update ligne à ligne
                                                         "upsert"
 
-                                    # Foreign Keys, pour validation des clés étrangères
+                                    # Foreign Keys, pour validation des clés étrangères,
+                                    # non implémenté pour le moment,
+                                    # non implémenté pour le moment
                                     "foreign_key": ("attr_01", "attr_01", ....)
                                 }
         """
@@ -506,10 +579,10 @@ class DrfValidation(ValidationTemplate):
         self.insert_method = params_dict.get("insert_method")
         self.foreign_key = params_dict.get("foreign_key", tuple())
 
-    def is_valid(self, datas, cursor):
+    def is_valid(self, data_dict, cursor):
         """
         Validation des données par la méthode is_valid
-        :param datas: Données à valider
+        :param data_dict: Données à valider
         :param cursor: cursor de connexion à la BDD Postgresql du Projet
         :return: (Bool errors), "texte pour affichage éventuel"
         """
@@ -540,16 +613,14 @@ class PydanticValidation(ValidationTemplate):
         :param params_dict: Dictionnaire des paramètres :
                                 params_dict = {
 
-                                    # Nom du flux pour le nommage des erreurs du fichier, api, ...
-                                    "flow_name": "flow_name",
-
                                     # Nombre d'erreurs maximum avant arrêt de la validation
                                     "nb_errors_max": 100,
 
                                     # Methode d'insertion en base des données une fois validées
                                     "insert_method": "insert" ou "do_nothing" ou "upsert"
 
-                                    # Foreign Keys, pour validation des clés étrangères
+                                    # Foreign Keys, pour validation des clés étrangères,
+                                    # non implémenté pour le moment
                                     "foreign_key": ("attr_01", "attr_01", ....)
                                 }
         """
@@ -558,10 +629,10 @@ class PydanticValidation(ValidationTemplate):
         self.insert_method = params_dict.get("insert_method")
         self.foreign_key = params_dict.get("foreign_key", tuple())
 
-    def is_valid(self, datas, cursor):
+    def is_valid(self, data_dict, cursor):
         """
         Validation des données par la méthode is_valid
-        :param datas: Données à valider
+        :param data_dict: Données à valider
         :param cursor: cursor de connexion à la BDD Postgresql du Projet
         :return: (Bool errors), "texte pour affichage éventuel"
         """
@@ -596,6 +667,9 @@ class Validation:
                                     # Numéro de suivi de trace de bout en bout
                                     "trace_tracking_number": "uuid4"
 
+                                    # Nom de la trace de bout en bout
+                                    "trace_tracking_name": "trace_name"
+
                                     # Application ou user ayant envoyé le flux
                                     "application_name": "application_name"
 
@@ -608,7 +682,8 @@ class Validation:
                                     # Methode d'insertion en base des données une fois validées
                                     "insert_method": "insert" ou "do_nothing" ou "upsert"
 
-                                    # Foreign Keys, pour validation des clés étrangères
+                                    # Foreign Keys, pour validation des clés étrangères,
+                                    # non implémenté pour le moment
                                     "foreign_key": ("attr_01", "attr_01", ....)
 
                                     # tuple des class de ValidationTemplate et TraceTemplate
@@ -661,35 +736,31 @@ class Validation:
             if not isinstance(form_errors, (type(TraceTemplate),)):
                 raise ValidationError("La class Validation doit être un instance de TraceTemplate")
 
-            self.to_validate = validation(
-                validators=(self.validator, form_errors),
-                dict_flow=self.dict_flow,
-                params_dict=self.params_dict,
-            )
-
         elif isinstance(self.validator, (type(forms.Form), type(forms.ModelForm))):
-            self.to_validate = DjangoValidation(
-                validators=(self.validator, DjangoTrace),
-                dict_flow=self.dict_flow,
-                params_dict=self.params_dict,
-            )
+            validation = DjangoValidation
+            form_errors = DjangoTrace
+
         elif isinstance(self.validator, (type(seria.Serializer), type(seria.ModelSerializer))):
-            self.to_validate = DrfValidation(
-                validators=(self.validator, DrfTrace),
-                dict_flow=self.dict_flow,
-                params_dict=self.params_dict,
-            )
+            validation = DrfValidation
+            form_errors = DrfTrace
+
         elif isinstance(self.validator, (type(BaseModel), type(ModelSchema))):
-            self.to_validate = PydanticValidation(
-                validators=(self.validator, PydanticTrace),
-                dict_flow=self.dict_flow,
-                params_dict=self.params_dict,
-            )
+            validation = PydanticValidation
+            form_errors = PydanticTrace
+
         else:
             raise ValidationError(
                 f"Le type de validateur {str(self.validator)}est inconnu "
                 "ou l'attribut 'validation' du paramètre params_dict est manquant"
             )
+
+        # noinspection PyArgumentList
+        self.to_validate = validation(
+            model=self.model,
+            validators=(self.validator, form_errors),
+            dict_flow=self.dict_flow,
+            params_dict=self.params_dict,
+        )
 
     def validate(self):
         """Lancement de la validation"""

@@ -404,7 +404,7 @@ class Contact(FlagsTable):
         related_name="contact_society",
         db_column="society",
     )  # BPANUM
-    code = models.CharField(max_length=15)  # CCNCRM
+    code = models.CharField(unique=True, max_length=15)  # CCNCRM
     service = models.CharField(null=True, blank=True, max_length=30)  # CNTSRV
     role = models.CharField(null=True, blank=True, max_length=15)  # CNTMSS
     nature = models.ForeignKey(

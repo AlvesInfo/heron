@@ -23,7 +23,7 @@ from apps.data_flux.test_fixtures.loaders_contants import (
     FISRT_LINE_AJOUTS,
     FILE,
 )
-from apps.data_flux.loaders import FileLoader
+from apps.data_flux.loader import FileLoader
 
 """
 méthodes pour la class FileLoader à tester :
