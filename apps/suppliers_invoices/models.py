@@ -20,7 +20,7 @@ from apps.articles.models import Article
 from apps.book.models import Society
 
 
-class Incoice(FlagsTable):
+class Invoice(FlagsTable):
     """
     FR : Factures fournisseurs
     EN : Suppliers Invoices
@@ -76,7 +76,7 @@ class Incoice(FlagsTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["supplier", "invoice_number", "invoice_year"], name="unique_invoice"
+                fields=["created_by", "supplier", "invoice_number", "invoice_year"], name="unique_invoice"
             )
         ]
 
@@ -88,7 +88,7 @@ class InvoiceDetail(FlagsTable):
     """
 
     invoice = models.ForeignKey(
-        Incoice,
+        Invoice,
         on_delete=models.CASCADE,
         to_field="uuid_identification",
         related_name="detail_invoice",

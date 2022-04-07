@@ -1,8 +1,23 @@
 # pylint: disable=E0401
-"""Module de loaders pour traitements des flux à intégrer en BDD
+"""
+Module de loaders pour traitements des flux à intégrer en BDD, avec une pré-validation.
+Ces flux renvoient des modes de consommation du flux, tels que :
+    - read() : list des données
+    - read_list() : dictionnaire de données
+    - read_dict() : flux io.StringIO
+    - load(data ou data_list ou data_dict) : yield l'un des flux ci-dessus.
+
 Flux implémentés :
-    File loader
-    API loader
+    FileLoader
+
+Flux à Implémenter :
+    ApiJsonLoader
+    ApiXmlLoader
+
+Pour l'implémentation FileLoader et dans le cas d'un fichier Excel comme source il sera transformé
+en fichier csv, sinon le fichier source devra avoir une structure de csv.
+
+Il faut utiliser le context manager afin de bien fermer les sources ou appeler la méthode close()
 
 Commentaire:
 
@@ -13,7 +28,6 @@ modified at: 2021-10-30
 modified by: Paulo ALVES
 """
 import io
-import logging
 from pathlib import Path
 from typing import Dict, Any
 import csv
@@ -22,7 +36,7 @@ from operator import itemgetter
 from chardet.universaldetector import UniversalDetector
 import pandas as pd
 
-IMPORT_LOGGER = logging.getLogger("imports")
+from .loggers import LOADER_LOGGER
 
 
 class EncodingError(Exception):
@@ -68,6 +82,7 @@ def encoding_detect(path_file):
             detector.close()
 
     except Exception as except_error:
+        LOADER_LOGGER.exception("Erreur sur encoding_detect")
         raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
 
     return detector.result["encoding"]
@@ -75,10 +90,10 @@ def encoding_detect(path_file):
 
 def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
     """Fonction qui transforme un fichier excel en csv
-    :param excel_file: string_io excel à passer en csv
-    :param string_io_file: string_io en csv
-    :param header: entête
-    :return: fichier excel en csv
+    :param excel_file:      String_io excel à passer en csv
+    :param string_io_file:  String_io en csv
+    :param header:          Entête
+    :return: Fichier excel en csv
     """
     success = True
 
@@ -97,6 +112,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
         string_io_file.seek(0)
 
     except ValueError as except_error:
+        LOADER_LOGGER.exception("Erreur sur excel_file_to_csv_string_io")
         raise ExcelToCsvFileError(
             f"Impossible de déterminer si le fichier {excel_file.name!r}, est un fichier excel"
         ) from except_error
@@ -105,10 +121,10 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
 
 
 def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
-    """Fonction qui transforme un fichier en csv
-    :param file: fichier csv, instance de Path (pathlib)
-    :param string_io_file: fichier de type io.StringIO
-    :return: string_io au format csv
+    """Fonction qui transforme un fichier en csv, reçu de type fichier et transformation en STringIO
+    :param file:            Fichier csv, instance de Path (pathlib)
+    :param string_io_file:  Fichier de type io.StringIO
+    :return: String_io au format csv
     """
     try:
         encoding = encoding_detect(file)
@@ -118,6 +134,7 @@ def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
             string_io_file.seek(0)
 
     except Exception as except_error:
+        LOADER_LOGGER.exception("Erreur sur file_to_csv_string_io")
         raise CsvFileToStringIoError(f"file_to_csv_string_io : {file.name!r}") from except_error
 
 
@@ -133,10 +150,11 @@ class CleanDataLoader:
     ):
         """Initialisation de la class"""
         self.source = source
-        self.source = source
         self.columns_dict = columns_dict
         self.first_line = first_line
         self.params_dict = params_dict or {}
+
+        # TODO : Implémenter une méthode pour les Traces du loader
 
     def __enter__(self):
         """Pré context manager"""
@@ -165,15 +183,17 @@ class CleanDataLoader:
     def load(self, read_methode: str = "data", all_lines: bool = False):
         """
         Générateur du flux de données
-        :param read_methode: data pour un flux texte et data_dict pour un flux de dictionnaire
+        :param read_methode: Data pour un flux texte et data_dict pour un flux de dictionnaire
         :param all_lines:    Si dans le flux il y a des lignes vides :
                                 all_lines = False -> shorcut l'itération des lignes vides
                                 all_lines = True -> iterre même sur des lignes des lignes vides
-        :return:
         """
         self.open(self.params_dict)
 
         if read_methode == "data":
+            yield from self.read(all_lines)
+
+        if read_methode == "data_list":
             yield from self.read(all_lines)
 
         if read_methode == "data_dict":
@@ -183,9 +203,9 @@ class CleanDataLoader:
 
     def __exit__(self, tipe, value, traceback):
         """Post context manager, pour fermer la source de données
-        :param tipe: valeur du type venant de la sortie de la classe
-        :param value: valeur venant de la sortie de la classe
-        :param traceback: traceback sur une éventuele exception de la sortie de la classe
+        :param tipe:      Valeur du type venant de la sortie de la classe
+        :param value:     Valeur venant de la sortie de la classe
+        :param traceback: Traceback sur une éventuele exception de la sortie de la classe
         """
         self.close()
 
@@ -278,13 +298,17 @@ class FileLoader(CleanDataLoader):
                 file_to_csv_string_io(self.source, self.csv_io)
 
         except Exception as except_error:
+            LOADER_LOGGER.exception("Erreur sur FileLoader._set_io")
             raise ExcelToCsvError(
                 f"une erreur dans la transformation du fichier {self.source.name!r} "
                 "en csv StringIO"
             ) from except_error
 
     def _get_csv_reader(self):
-        """Le csv.reader étant un générateur on initialise self.csv_reader à chaque fois"""
+        """
+        Le csv.reader étant un générateur on initialise self.csv_reader à chaque fois,
+        afin de pouvoir faire des opérations comme next() dessus
+        """
         self.csv_io.seek(self.first_line)
         self.csv_reader = csv.reader(
             self.csv_io,
@@ -301,6 +325,7 @@ class FileLoader(CleanDataLoader):
         demand_nb_cols = len(self.columns_dict)
 
         if demand_nb_cols > file_nb_cols:
+            LOADER_LOGGER.exception("Erreur sur FileLoader._check_nb_columns")
             raise IterFileToInsertError(
                 f"Erreur sur les colonnes : le fichier comporte {file_nb_cols} "
                 f"colonne{'s' if file_nb_cols > 1 else ''}, "
@@ -310,14 +335,17 @@ class FileLoader(CleanDataLoader):
 
     @staticmethod
     def _get_check_columns(header_on_demand, header_in_file):
-        """Check des colonnes, si invalid alors on raise une erreur
+        """
+        Check des colonnes, si l'on a les mêmes dans le fichier et celles demandées.
+        Si invalid alors on raise une erreur
         :param header_on_demand: set des colonnes demandées
-        :param header_in_file: set des colonnes de la bd
+        :param header_in_file: set des colonnes de la bdd
         """
         if not set(header_on_demand).issubset(set(header_in_file)):
             values = ", ".join(
                 f'"{value}"' for value in set(header_on_demand).difference(set(header_in_file))
             )
+            LOADER_LOGGER.exception("Erreur sur FileLoader._get_check_columns")
             raise IterFileToInsertError(
                 "Erreur sur les colonnes : "
                 f"le fichier ne contient pas les colonnes demandées suivantes : {values}\n"
@@ -376,6 +404,7 @@ class FileLoader(CleanDataLoader):
                 for key, value in self.params_dict.get("add_fields_dict", {}).items()
             }
         except IndexError as except_error:
+            LOADER_LOGGER.exception("Erreur sur FileLoader.get_add_dict")
             raise GetAddDictError(
                 "La méthode get_add_dict a besoins d'un tuple de 2 élements"
             ) from except_error
@@ -396,9 +425,9 @@ class FileLoader(CleanDataLoader):
     def read(self, all_lines=False):
         """
         Méthode de lecture du flux de donées au format io.StringIO
-        :param all_lines:   Si dans le fichier il y a des lignes vides :
-                                all_lines = False -> shorcut l'itération des lignes vides
-                                all_lines = True -> iterre même sur des lignes des lignes vides
+        :param all_lines: Si dans le fichier il y a des lignes vides :
+                            all_lines = False -> shorcut l'itération des lignes vides
+                            all_lines = True -> iterre même sur des lignes des lignes vides
         """
         postion_list = self.get_header()
 
@@ -425,9 +454,9 @@ class FileLoader(CleanDataLoader):
     def read_list(self, all_lines: bool = False):
         """
         Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
-        :param all_lines:       Si dans le fichier il y a des lignes vides :
-                                    all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes des lignes vides
+        :param all_lines: Si dans le fichier il y a des lignes vides :
+                            all_lines = False -> shorcut l'itération des lignes vides
+                            all_lines = True -> iterre même sur des lignes des lignes vides
         """
         postion_list = self.get_header()
 
@@ -447,7 +476,7 @@ class FileLoader(CleanDataLoader):
     def read_dict(self, all_lines=False):
         """
         Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
-        :param all_lines: si dans le fichier il y a des lignes vides
+        :param all_lines: Si dans le fichier il y a des lignes vides
                             all_lines=False, shorcut l'itération des lignes vides
                             all_lines=True, iterre même sur des lignes des lignes vides
         :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
@@ -511,30 +540,6 @@ class ApiJsonLoader(CleanDataLoader):
 
         :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
                                 params_dict = {
-
-                                    # attribus du paramétrage csv
-                                    "delimiter" : séparateur du fichier, par défaut ";"
-                                    "lineterminator": Passage à la ligne par défaut "\n"
-                                    "quoting": type de quoting par défaut csv.QUOTE_NONNUMERIC
-                                    "quotechar": le caractère de quoting par défaut '"'
-                                    "escapechar": le caractère de quoting par défaut '"'
-
-                                    # Lignes non souhaitées par n° Colonne (index commence à 1)
-                                    "exclude_rows_dict": {
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                    },
-
-                                    # Ajout de colonnes à la vollée, pour
-                                    # par exemple rajouter un uuid, created_date, ...
-                                    # Si l'on veut appliquer une fonction à chaque ligne,
-                                    # alors on passe un tuple :
-                                    # (référence à la fonction à appliquer, dict des attributs)
-                                    "add_fields_dict": {
-                                        "uuid_identification": (uuid.uuid4, {}),
-                                        "created_date": datetime.isoformat,
-                                        "modified_date": datetime.isoformat,
                                 }
         """
         super().__init__(source, columns_dict, first_line, params_dict)
@@ -620,30 +625,6 @@ class ApiXmlLoader(CleanDataLoader):
 
         :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
                                 params_dict = {
-
-                                    # attribus du paramétrage csv
-                                    "delimiter" : séparateur du fichier, par défaut ";"
-                                    "lineterminator": Passage à la ligne par défaut "\n"
-                                    "quoting": type de quoting par défaut csv.QUOTE_NONNUMERIC
-                                    "quotechar": le caractère de quoting par défaut '"'
-                                    "escapechar": le caractère de quoting par défaut '"'
-
-                                    # Lignes non souhaitées par n° Colonne (index commence à 1)
-                                    "exclude_rows_dict": {
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                        "N°colonne": "texte à rechercher",
-                                    },
-
-                                    # Ajout de colonnes à la vollée, pour
-                                    # par exemple rajouter un uuid, created_date, ...
-                                    # Si l'on veut appliquer une fonction à chaque ligne,
-                                    # alors on passe un tuple :
-                                    # (référence à la fonction à appliquer, dict des attributs)
-                                    "add_fields_dict": {
-                                        "uuid_identification": (uuid.uuid4, {}),
-                                        "created_date": datetime.isoformat,
-                                        "modified_date": datetime.isoformat,
                                 }
         """
         super().__init__(source, columns_dict, first_line, params_dict)

@@ -33,6 +33,7 @@ from django import forms
 # noinspection PyCompatibility
 from exceptions import ValidationError, IsValidError, FluxtypeError
 from models import Trace, Line, Error
+from .loggers import VALIDATION_LOGGER
 
 
 class TraceTemplate:
@@ -181,9 +182,6 @@ class TraceTemplate:
 
     def save(self):
 
-
-
-
         """Sauvegarde finale, pour le comptage des differents état des enregistrements"""
         create = Count("insertion_type", filter=Q(insertion_type="Create"))
         update = Count("insertion_type", filter=Q(insertion_type="Update"))
@@ -294,6 +292,7 @@ class DrfTrace(TraceTemplate):
             }
             return error_dict
         except AssertionError as except_error:
+            VALIDATION_LOGGER.exception("Erreur sur DrfTrace.get_formatted_error")
             raise IsValidError(
                 "validator.errors a été appelé avant validator.is_valid()"
             ) from except_error
@@ -461,6 +460,7 @@ class ValidationTemplate:
                     f"vérifier les fichiers de log {now}"
                 ),
             )
+            VALIDATION_LOGGER.exception("Erreur sur ValidationTemplate.validate")
             raise ValidationError(
                 "Une erreur c'est produite à l'appel de validate"
             ) from except_error

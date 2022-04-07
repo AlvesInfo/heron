@@ -112,3 +112,12 @@ class EssaisZ(models.Model):
     col_2 = models.CharField(null=True, blank=True, max_length=10)
     col_3 = models.CharField(null=True, blank=True, max_length=100)
     col_int = models.IntegerField(unique=True)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["col_texte", "col_2", "col_3"], name="unique_essaisz"
+            )
+        ]

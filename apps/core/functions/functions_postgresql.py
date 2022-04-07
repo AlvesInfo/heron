@@ -384,7 +384,7 @@ def executebatch(cur, sql, iterable, page_size=500):
                 count_final += nbre
                 # print(count_final)
         except:
-            print(sys.exc_info())
+            # print("sys.exc_info() : ", sys.exc_info()[1])
             # print(sqls)
             POSTGRES_LOGGER.exception("execute_bash")
             erreur = None
@@ -429,8 +429,7 @@ def execute_prepared_upsert(kwargs_upsert):
         insert += f"${str(i + 1)}, "
         colonnes += f'"{champ}", '
         execute += "%s, "
-
-    colonnes = f"{0})"
+    colonnes = f"{colonnes[:-2]})"
     insert = f"{insert[:-2]})"
     prepare = f"""
     {prepare[:-2]}) AS INSERT INTO "{kwargs_upsert['table']}" {colonnes} VALUES {insert} 
@@ -457,27 +456,26 @@ def execute_prepared_upsert(kwargs_upsert):
             prepare = f"{prepare[:-2]};"
 
     page_size = kwargs_upsert.get("page_size", 500)
-
-    # print(prepare)
-    # print(execute)
-    # print(kwargs_upsert['rows'])
+    print(prepare)
+    print(insert)
+    print(execute)
     try:
-        with kwargs_upsert["cnx"] as cnx:
-            with cnx.cursor() as cursor:
-                cursor.execute(prepare)
-                error, tup_count = executebatch(
-                    cursor, execute, kwargs_upsert["rows"], page_size=page_size
-                )
-                cursor.execute("DEALLOCATE stmt")
+        # with kwargs_upsert["cnx"] as cnx:
+        with kwargs_upsert["cnx"].cursor() as cursor:
+            cursor.execute(prepare)
+            error, tup_count = executebatch(
+                cursor, execute, kwargs_upsert["rows"], page_size=page_size
+            )
+            cursor.execute("DEALLOCATE stmt")
 
     except psycopg2.Error as err:
         POSTGRES_LOGGER.exception("execute_prepared_upsert")
         tup_count = err
         error = None
         try:
-            with kwargs_upsert["cnx"] as cnx:
-                with cnx.cursor() as cursor:
-                    cursor.execute("DEALLOCATE stmt")
+            # with kwargs_upsert["cnx"] as cnx:
+            with kwargs_upsert["cnx"].cursor() as cursor:
+                cursor.execute("DEALLOCATE stmt")
         except:
             POSTGRES_LOGGER.exception("deallocate stmt")
 

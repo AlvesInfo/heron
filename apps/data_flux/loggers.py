@@ -52,24 +52,24 @@ LOGGING = {
             "formatter": "verbose",
         },
         # Send in postgres_save data_flux
-        "insert_logfile": {
+        "postgres_save_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{VAR_LOG_DIR}/insert_flux.log",
+            "filename": f"{VAR_LOG_DIR}/postgres_save_flux.log",
             "formatter": "verbose",
         },
     },
     "loggers": {
         # all messages
         "": {"handlers": ["console"], "propagate": True},
-        "loader": {"handlers": ["loader_logfile"], "propagate": False},
-        "validation": {"handlers": ["validation_logfile"], "propagate": False},
-        "insert": {"handlers": ["insert_logfile"], "propagate": False},
+        "loader": {"handlers": ["loader_logfile"], "propagate": True},
+        "validation": {"handlers": ["validation_logfile"], "propagate": True},
+        "postgres_save": {"handlers": ["postgres_save_logfile"], "propagate": True},
     },
 }
 
 dictConfig(LOGGING)
 
-LOADER_LOGGER_FLUX = logging.getLogger("loader")
-VALIDATION_LOGGER_FLUX = logging.getLogger("validation")
-INSERT_LOGGER_FLUX = logging.getLogger("insert")
+LOADER_LOGGER = logging.getLogger("loader")
+VALIDATION_LOGGER = logging.getLogger("validation")
+POSTGRES_SAVE_LOGGER = logging.getLogger("postgres_save")
