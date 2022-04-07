@@ -90,12 +90,12 @@ def essais_inserts():
         start_i = time.time()
         file.seek(0)
 
-        test_01 = PostgresDjangoUpsert(
-            Essais, {"col_texte": False, "col_3": False, "col_int": True}
-        )
-        test_01.insert(file, insert_mode="insert")
-        copie = round(time.time() - start_i, 2)
-        print("copie : ", copie)
+        # test_01 = PostgresDjangoUpsert(
+        #     Essais, {"col_texte": False, "col_3": False, "col_int": True}
+        # )
+        # test_01.insertion(file, insert_mode="insert")
+        # copie = round(time.time() - start_i, 2)
+        # print("copie : ", copie)
 
         # =================================================================
 
@@ -104,7 +104,7 @@ def essais_inserts():
         # test_02 = PostgresDjangoUpsert(
         #     Essais, {"col_texte": False, "col_3": False, "col_int": True}
         # )
-        # test_02.insert(file, insert_mode="do_nothing")
+        # test_02.insertion(file, insert_mode="do_nothing")
         # do_nothing = round(time.time() - start, 2)
         # print("do_nothing : ", do_nothing)
 
@@ -115,7 +115,7 @@ def essais_inserts():
         # test_03 = PostgresDjangoUpsert(
         #     Essais, {"col_texte": False, "col_3": False, "col_int": True}
         # )
-        # test_03.insert(file, insert_mode="upsert")
+        # test_03.insertion(file, insert_mode="upsert")
         # upsert = round(time.time() - start, 2)
         # print("upsert : ", upsert)
 
@@ -133,7 +133,7 @@ def essais_inserts():
         #     lineterminator="\n",
         #     quoting=csv.QUOTE_ALL,
         # )
-        # test_04.insert(
+        # test_04.insertion(
         #     file,
         #     insert_mode="prepared",
         #     kwargs_prepared={

@@ -108,6 +108,12 @@ class Essais(models.Model):
 
 
 class EssaisZ(models.Model):
+    trace = models.ForeignKey(
+        Trace,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+    )
     col_texte = models.CharField(max_length=12)
     col_2 = models.CharField(null=True, blank=True, max_length=10)
     col_3 = models.CharField(null=True, blank=True, max_length=100)
@@ -117,7 +123,5 @@ class EssaisZ(models.Model):
         """class Meta du modèle django"""
 
         constraints = [
-            models.UniqueConstraint(
-                fields=["col_texte", "col_2", "col_3"], name="unique_essaisz"
-            )
+            models.UniqueConstraint(fields=["col_texte", "col_2", "col_3"], name="unique_essaisz")
         ]

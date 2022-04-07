@@ -76,7 +76,7 @@ class Invoice(FlagsTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["created_by", "supplier", "invoice_number", "invoice_year"], name="unique_invoice"
+                fields=["supplier", "invoice_number", "invoice_year"], name="unique_invoice"
             )
         ]
 

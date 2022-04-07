@@ -24,6 +24,7 @@ import django
 from django.db import models, connection
 
 from .loggers import POSTGRES_SAVE_LOGGER
+from .models import Trace, Line
 
 
 class PostgresDjangoError(Exception):
@@ -150,7 +151,6 @@ class PostgresDjangoUpsert:
     et execute_batch psycopg2.
     """
 
-    # TODO : Implémentation de la validation des clés éxistantes à implémenter
     def __init__(
         self,
         model: models.Model,
@@ -402,7 +402,7 @@ class PostgresDjangoUpsert:
 
         return sql_drop
 
-    def insert(
+    def insertion(
         self,
         file: io.StringIO,
         insert_mode: AnyStr = "upsert",
@@ -531,65 +531,142 @@ class PostgresDjangoUpsert:
 
         return True
 
-    def check_columns_constraints(self):
-        """"""
-        uniques = []
-        foreign_keys = {}
+    def get_columns_constraints(self, cursor):
+        """
+        :param cursor: Cursor de connexion psycopg2 à Postgresql
+        :return: Retourne les contraintes d'unicité et les foreign key obligatoire
+        """
+        uniques_list = []
+        foreign_keys_dict = {}
 
-        with self.cnx.cursor() as cursor:
-            cursor.execute(
-                sql.SQL(
-                    """
-            select
-                pgc.contype, 
-                ccu.table_name,
-                case when pgc.contype = 'u' then '' else pga.attname end as column,
-                string_agg(distinct ccu.column_name, ';') as constraint_columns
-            from pg_constraint pgc
-                join pg_namespace nsp on nsp.oid = pgc.connamespace
-                join pg_class  cls on pgc.conrelid = cls.oid
-                left join information_schema.constraint_column_usage ccu
-                       on pgc.conname = ccu.constraint_name
-                      and nsp.nspname = ccu.constraint_schema
-                left join pg_attribute pga
-                       on pga.attrelid = pgc.conrelid
-                      and pga.attnum   = ANY(pgc.conkey) 
-            where cls.relname = '{table_name}'
-            and contype  in ('f', 'u')
-            group by case when pgc.contype = 'u' then '' else pga.attname end,
-                     cls.relname, 
-                     ccu.table_name, 
-                     pgc.contype, 
-                     pgc.conkey
-            """
-                ).format(table_name=sql.SQL(self.table_name))
-            )
+        cursor.execute(
+            sql.SQL(
+                """
+        select column_name
+        from information_schema.columns 
+        where table_name = '{table_name}'
+        """
+            ).format(table_name=sql.SQL(self.temp_table_name))
+        )
+        columns_temps_table = {columns[0] for columns in cursor.fetchall()}
 
-            for constraints in cursor.fetchall():
-                test_constraints = constraints[0]
-                if test_constraints == 'u':
-                    uniques.append(constraints[3].split(";"))
+        cursor.execute(
+            sql.SQL(
+                """
+        select
+            pgc.contype, 
+            ccu.table_name,
+            case when pgc.contype = 'u' then '' else pga.attname end as column,
+            string_agg(distinct ccu.column_name, ';') as constraint_columns,
+            case 
+                when pgc.contype = 'u' then false
+                when is_nullable='YES' then false 
+                else true 
+            end as mandatory
+        from pg_constraint pgc
+            join pg_namespace nsp on nsp.oid = pgc.connamespace
+            join pg_class  cls on pgc.conrelid = cls.oid
+            left join information_schema.constraint_column_usage ccu
+                   on pgc.conname = ccu.constraint_name
+                  and nsp.nspname = ccu.constraint_schema
+            left join pg_attribute pga
+                   on pga.attrelid = pgc.conrelid
+                  and pga.attnum   = ANY(pgc.conkey) 
+            left join information_schema.columns ccc
+                on nsp.nspname = ccc.table_schema 
+                and pga.attname = ccc.column_name
+        where cls.relname = '{table_name}'
+        and contype  in ('f', 'u')
+        group by case when pgc.contype = 'u' then '' else pga.attname end,
+                 cls.relname, 
+                 ccu.table_name, 
+                 pgc.contype, 
+                 pgc.conkey,
+                 case 
+                    when pgc.contype = 'u' then false
+                    when is_nullable='YES' then false 
+                    else true 
+                 end
+        """
+            ).format(table_name=sql.SQL(self.table_name))
+        )
 
-                if test_constraints == 'f':
-                    table = constraints[1]
-                    if foreign_keys.get(table):
-                        foreign_keys[table].append((constraints[2], constraints[3]))
-                    else:
-                        foreign_keys[table] = [(constraints[2], constraints[3])]
+        for constraints in cursor.fetchall():
+            test_constraints = constraints[0]
+            constraint_columns = constraints[3]
 
-        return uniques, foreign_keys
+            if test_constraints == "u":
 
-    def check_unique_key(self):
-        """"""
+                uniques_list.append(
+                    [
+                        column
+                        for column in constraints[3].split(";")
+                        if column in columns_temps_table
+                    ]
+                )
 
-    def check_foreign_key(self):
-        """"""
+            if test_constraints == "f":
+                table = constraints[1]
+                column = constraints[2]
+                mandatory = constraints[4]
+                # if column in columns_temps_table:
+                if foreign_keys_dict.get(table):
+                    foreign_keys_dict[table].append((column, constraint_columns, mandatory))
+                else:
+                    foreign_keys_dict[table] = [(column, constraint_columns, mandatory)]
+
+        return uniques_list, foreign_keys_dict
+
+    @staticmethod
+    def check_unique_key(cursor, table, uniques_list):
+        """
+        :param cursor:       Cursor de connexion psycopg2 à Postgresql
+        :param table:        Table en BDD à tester
+        :param uniques_list: Liste des champs uniques dans la tables y compris groupe d'unicité
+        :return: Check des combinaisons  clefs uniques dans la table
+        """
+        base_sql = """
+        select '{columns}' as col, {separate_columns}::TEXT as val, count({concat_columns}) as nb
+        from {table}
+        group by {separate_columns}::TEXT
+        having count({concat_columns}) > 1
+        """
+
+        sql_uniques = "union all".join(
+            [
+                base_sql.format(
+                    columns="__".join(cols),
+                    separate_columns=(
+                        f"""concat({", ' | ', ".join([f'"{col}"' for col in cols])})"""
+                        if len(cols) > 1
+                        else f'"{cols[0]}"'
+                    ),
+                    concat_columns=(
+                        f"""concat({" , ".join([f'"{col}"' for col in cols])})"""
+                        if len(cols) > 1
+                        else f'"{cols[0]}"'
+                    ),
+                    table=table,
+                )
+                for cols in uniques_list
+            ]
+        )
+        cursor.execute(sql.SQL(sql_uniques))
+
+        return cursor.fetchall()
+
+    def check_foreign_key(self, cursor):
+        """
+        :param cursor: Cursor de connexion psycopg2 à Postgresql
+        :return: Check que les clefs étrangères existent dans la table liée
+        """
 
     def insert_with_pre_validation(
         self,
         file: io.StringIO,
         delimiter: AnyStr = ";",
         quote_character: AnyStr = '"',
+        trace: Trace = None,
     ):
         """
         Méthode pour insertion avec auparavant, une pré-validation, des clés primaires
@@ -597,46 +674,55 @@ class PostgresDjangoUpsert:
         :param file:            Fichier au format io.StringIO
         :param delimiter:       Séparateur des lignes du fichier
         :param quote_character: Quatation des champs
+        :param trace:           models Django Trace, pour tracer un import
         :return:
         """
-
+        # TODO : Implémentation de la validation des clés éxistantes à finir d'implémenter
         numbered_io_file = io.StringIO()
-        errors = []
+
+        if trace:
+            error_line = Line
+            print(error_line)
 
         for i, line in enumerate(file):
             numbered_io_file.write(f"{quote_character}{str(i)}{quote_character}{delimiter}" + line)
 
         numbered_io_file.seek(0)
 
-        cursor = self.cnx.cursor()
-        # copy dans une table provisoire pour un do_nothing ou un upsert
-        fields = self.get_fields(bool_pk=True)
-        delimiter = sql.SQL(delimiter)
-        quote_character = sql.SQL(quote_character)
-        sql_expert = (
-            "COPY {table} ({fields}) "
-            "FROM STDIN "
-            "WITH "
-            "DELIMITER AS '{delimiter}' "
-            "CSV "
-            "QUOTE AS '{quote_character}'"
-        )
-        table = sql.Identifier(self.temp_table_name)
-        cursor.execute(self.get_ddl_temp_table(bool_pk=True))
-        sql_copy = sql.SQL(sql_expert).format(
-            table=table,
-            fields=fields,
-            delimiter=delimiter,
-            quote_character=quote_character,
-        )
-        cursor.copy_expert(sql=sql_copy, file=numbered_io_file)
+        with self.cnx.cursor() as cursor:
+            # copy dans une table provisoire pour un do_nothing ou un upsert
+            fields = self.get_fields(bool_pk=True)
+            delimiter = sql.SQL(delimiter)
+            quote_character = sql.SQL(quote_character)
+            sql_expert = (
+                "COPY {table} ({fields}) "
+                "FROM STDIN "
+                "WITH "
+                "DELIMITER AS '{delimiter}' "
+                "CSV "
+                "QUOTE AS '{quote_character}'"
+            )
+            table = sql.Identifier(self.temp_table_name)
+            cursor.execute(self.get_ddl_temp_table(bool_pk=True))
+            sql_copy = sql.SQL(sql_expert).format(
+                table=table,
+                fields=fields,
+                delimiter=delimiter,
+                quote_character=quote_character,
+            )
+            cursor.copy_expert(sql=sql_copy, file=numbered_io_file)
 
-        uniques, foreign_keys = self.check_columns_constraints()
+            uniques_list, foreign_keys_dict = self.get_columns_constraints(cursor)
 
-        print(uniques, foreign_keys)
+            print(uniques_list, foreign_keys_dict)
+            if any(uniques_list):
+                uniques = self.check_unique_key(cursor, self.temp_table_name, uniques_list)
 
-        # # do_nothing ou upsert
-        # cursor.execute(insert_mode_dict.get(insert_mode))
+                for columns, values, number in uniques:
+                    print("values : ", "--".join(columns.split("__")), values, number)
 
-        # suppression de la table provisoire
-        cursor.execute(self.get_drop_temp)
+            # # do_nothing ou upsert
+            # cursor.execute(insert_mode_dict.get(insert_mode))
+
+            # suppression de la table provisoire
+            cursor.execute(self.get_drop_temp)
