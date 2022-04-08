@@ -330,11 +330,11 @@ from django.db import connection
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.models import Trace
 from apps.data_flux.loader import (
+    GetAddDictError,
     IterFileToInsertError,
     ExcelToCsvError,
     FileToCsvError,
     FileLoader,
-    GetAddDictError,
 )
 from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
@@ -407,6 +407,7 @@ if __name__ == "__main__":
                 quote_character='"',
             )
 
+    # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:
         print("GetAddDictError : ", except_error)
 
@@ -419,6 +420,7 @@ if __name__ == "__main__":
     except FileToCsvError as except_error:
         print("FileToCsvError : ", except_error)
 
+    # Exceptions PostgresDjangoUpsert ==============================================================
     except PostgresKeyError as except_error:
         print("PostgresKeyError : ", except_error)
 

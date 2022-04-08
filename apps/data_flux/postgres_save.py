@@ -25,34 +25,15 @@ from django.db import models, connection
 
 from .loggers import POSTGRES_SAVE_LOGGER
 from .models import Trace, Line
-
-
-class PostgresDjangoError(Exception):
-    """Exceptions pour l'upsert dans une table postgresql"""
-
-
-class PostgresInsertMethodError(PostgresDjangoError):
-    """Exceptions pour l'upsert dans une table postgresql"""
-
-
-class PostgresCardinalityViolationError(PostgresDjangoError):
-    """Exceptions pour l'upsert dans une table postgresql"""
-
-
-class PostgresUniqueError(PostgresDjangoError):
-    """Exceptions pour l'upsert dans une table postgresql"""
-
-
-class PostgresKeyError(PostgresDjangoError):
-    """Exceptions pour une clef demandée qui n'existe pas dans une table postgresql"""
-
-
-class PostgresTypeError(PostgresDjangoError):
-    """Exceptions pour un type en erreur dans une table postgresql"""
-
-
-class PostgresPreparedError(PostgresDjangoError):
-    """Exceptions pour un execute_bach psycopg2"""
+from .exceptions import (
+    PostgresDjangoError,
+    PostgresInsertMethodError,
+    PostgresCardinalityViolationError,
+    PostgresUniqueError,
+    PostgresKeyError,
+    PostgresTypeError,
+    PostgresPreparedError,
+)
 
 
 def iter_slice(iterable, taille, form=tuple):

@@ -36,37 +36,15 @@ from operator import itemgetter
 from chardet.universaldetector import UniversalDetector
 import pandas as pd
 
-
-class IterFileToInsertError(Exception):
-    """Gestion d'erreur d'itération d'un fichier à insérer"""
-
-
-class GetAddDictError(IterFileToInsertError):
-    """Gestion d'erreur d'itération d'un fichier à insérer"""
-
-
-class EncodingError(Exception):
-    """Exception sniff encodig"""
-
-
-class ExcelToCsvError(Exception):
-    """Exception transformation excel"""
-
-
-class FileToCsvError(Exception):
-    """Exception transformation fichier en csv"""
-
-
-class ExcelToCsvFileError(Exception):
-    """Exception transformation excel"""
-
-
-class CsvFileToStringIoError(Exception):
-    """Exception envoi du fichier dans un StringIO"""
-
-
-class ValidationError(Exception):
-    """Gestion d'erreur de validation"""
+from .exceptions import (
+    IterFileToInsertError,
+    GetAddDictError,
+    EncodingError,
+    ExcelToCsvError,
+    FileToCsvError,
+    ExcelToCsvFileError,
+    CsvFileToStringIoError,
+)
 
 
 def encoding_detect(path_file):
