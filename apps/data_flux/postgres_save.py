@@ -16,7 +16,7 @@ import random
 import string
 import csv
 from itertools import chain, islice
-from typing import AnyStr, Dict, Tuple
+from typing import AnyStr, Dict
 
 from psycopg2 import sql
 import psycopg2
@@ -41,6 +41,10 @@ class PostgresCardinalityViolationError(PostgresDjangoError):
 
 class PostgresUniqueError(PostgresDjangoError):
     """Exceptions pour l'upsert dans une table postgresql"""
+
+
+class PostgresKeyError(PostgresDjangoError):
+    """Exceptions pour une clef demandée qui n'existe pas dans une table postgresql"""
 
 
 class PostgresTypeError(PostgresDjangoError):
@@ -156,7 +160,7 @@ class PostgresDjangoUpsert:
         model: models.Model,
         fields_dict: Dict,
         cnx: connection = connection,
-        foreign_key: Tuple = None,
+        exclude_update_fields: set = None,
     ):
         """
         :param model:       Model Django
@@ -165,18 +169,16 @@ class PostgresDjangoUpsert:
                             ex : fields_dict = {"unique": True, "other": False, ...}
                             Attention! les champs devront être dans le même ordre
                             que les colonnes du fichier
-        :param foreign_key: object connexion à Postgresql
-        :param foreign_key: Tuple des clefs étrangères et tuples d'uniques_togheter pour
-                            vérification qu'elles existent bien, avant insertion des données
-                            ("trace", ("date", "mode"))
-                            pour l'instant cette partie n'est pas implémentée
+        :param cnx:         Object connexion à Postgresql
         """
         self.model = model
         self.fields_dict = fields_dict
-        self.foreygn_key = foreign_key
         self.meta = self.model._meta
         self.table_name = self.meta.db_table
         self.cnx = cnx
+        if exclude_update_fields is None:
+            exclude_update_fields = set()
+        self.exclude_update_fields = exclude_update_fields
         self.temp_table_name = self.get_temp_table_name()
 
     def table_is_exists(self, table_name):
@@ -213,7 +215,13 @@ class PostgresDjangoUpsert:
         :param field_key: champ du model django à retouner
         :return: Le Sql des paramètres de création de la table temporaire
         """
-        field_attr = self.meta.get_field(field_key)
+        try:
+            field_attr = self.meta.get_field(field_key)
+        except django.core.exceptions.FieldDoesNotExist as except_error:
+            raise PostgresKeyError(
+                f"""la clé "{field_key}" n'éxiste pas dans la table"""
+            ) from except_error
+
         return f' "{field_attr.column}" {field_attr.db_type(self.cnx)}'
 
     def get_prepare_batch(self, stmt_name: AnyStr):
@@ -340,6 +348,7 @@ class PostgresDjangoUpsert:
             [
                 sql.SQL("{field}=EXCLUDED.{field}").format(field=sql.Identifier(field))
                 for field in self.get_columns_upsert().get("update")
+                if field not in self.exclude_update_fields
             ]
         )
         return fields_conflict, update_columns
@@ -418,8 +427,9 @@ class PostgresDjangoUpsert:
         :param quote_character: Quatation des champs
         :param kwargs_prepared: Dictionnaire des attributs nécessaires à la requête préparée
                                 kwargs_prepared = {
-                                    mode:      "insert" ou "do_nothing" ou "upsert"
-                                    page_size: None ou nbre par iteration par défault 500
+                                    "mode": "insert" ou "do_nothing" ou "upsert",
+                                    "page_size": None ou nbre par iteration par défault 500,
+
                                 }
         """
 
@@ -428,6 +438,7 @@ class PostgresDjangoUpsert:
             "do_nothing": self.get_query_do_nothing,
             "upsert": self.get_query_upsert,
             "prepared": "",
+            "pre_validation": "",
         }
 
         if insert_mode not in insert_mode_dict:
@@ -494,6 +505,14 @@ class PostgresDjangoUpsert:
                     )
 
                     return error, tup_count
+
+                elif insert_mode == "pre_validation":
+                    self.insert_with_pre_validation(
+                        file,
+                        delimiter=delimiter,
+                        quote_character=quote_character,
+                        trace=kwargs_prepared.get("trace"),
+                    )
 
                 else:
                     # copy dans une table provisoire pour un do_nothing ou un upsert
@@ -596,7 +615,6 @@ class PostgresDjangoUpsert:
             constraint_columns = constraints[3]
 
             if test_constraints == "u":
-
                 uniques_list.append(
                     [
                         column

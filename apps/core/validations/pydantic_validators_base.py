@@ -142,10 +142,10 @@ class SageBooleanFieldsBase(BaseModel):
         if str(field.type_) == "<class 'bool'>":
             str_value = str(value).lower()
 
-            if str_value in {"2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
+            if str_value in {"2.0", "2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
                 return True
 
-            if str_value in {"1", "off", "f", "false", "n", "no", "", "non", "faux"}:
+            if str_value in {"1.0", "1", "off", "f", "false", "n", "no", "", "non", "faux"}:
                 return False
 
         return value
@@ -160,12 +160,29 @@ class SageNullBooleanFieldsBase(BaseModel):
         if str(field.type_) == "<class 'bool'>":
             str_value = str(value).lower()
 
-            if str_value in {"2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
+            if str_value in {"2.0", "2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
                 return True
 
-            if str_value in {"1", "off", "f", "false", "n", "no", "", "non", "faux"}:
+            if str_value in {"1.0", "1", "off", "f", "false", "n", "no", "", "non", "faux"}:
                 return False
 
             return None
+
+        return value
+
+
+class SageNullFalseBooleanFieldsBase(BaseModel):
+    """Validation qui pré valide les booléens Sage et qui peuvent être null=True Dajngo"""
+
+    @validator("*", pre=True, always=True)
+    def sage_null_boolean(cls, value, field):
+
+        if str(field.type_) == "<class 'bool'>":
+            str_value = str(value).lower()
+
+            if str_value in {"2.0", "2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
+                return True
+
+            return False
 
         return value

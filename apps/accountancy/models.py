@@ -119,11 +119,6 @@ class AccountSage(FlagsTable):
             "vat_default": 28,
             "chargeback_x3": 29,
             "bu_suc": 30,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "uuid_identification": 31,
-            "created_at": 32,
-            "modified_at": 33,
         }
 
     @staticmethod
@@ -193,10 +188,6 @@ class AxeSage(FlagsTable):
             "axe": 0,
             "name": 1,
             "short_name": 2,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 3,
-            "modified_at": 4,
         }
 
     @staticmethod
@@ -335,11 +326,6 @@ class SectionSage(FlagsTable):
             "chargeable": 4,
             "regroup_01": 5,
             "regroup_02": 6,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "uuid_identification": 7,
-            "created_at": 8,
-            "modified_at": 9,
         }
 
     @staticmethod
@@ -418,10 +404,6 @@ class VatRegimeSage(FlagsTable):
             "vat_code": 4,
             "sale_class": 5,
             "regime_type": 6,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 7,
-            "modified_at": 8,
         }
 
     @staticmethod
@@ -487,10 +469,6 @@ class VatSage(FlagsTable):
             "name": 1,
             "short_name": 2,
             "vat_regime": 3,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 4,
-            "modified_at": 5,
         }
 
     @staticmethod
@@ -562,10 +540,6 @@ class VatRatSage(FlagsTable):
             "vat_start_date": 1,
             "rate": 2,
             "exoneration": 3,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 4,
-            "modified_at": 5,
         }
 
     @staticmethod
@@ -630,10 +604,6 @@ class PaymentCondition(FlagsTable):
             "code": 0,
             "name": 1,
             "short_name": 2,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 3,
-            "modified_at": 4,
         }
 
     @staticmethod
@@ -783,11 +753,6 @@ class TabDivSage(FlagsTable):
             "name": 32,
             "short_name": 33,
             "def_val": 34,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "flag_active": 35,
-            "created_at": 36,
-            "modified_at": 37,
         }
 
     @staticmethod
@@ -861,10 +826,6 @@ class CategorySage(FlagsTable):
             "name": 2,
             "short_name": 3,
             "cur": 4,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 5,
-            "modified_at": 6,
         }
 
     @staticmethod
@@ -948,11 +909,6 @@ class CurrencySage(FlagsTable):
             "exchange_inverse": 5,
             "divider": 6,
             "modification_date": 7,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "uuid_identification": 8,
-            "created_at": 9,
-            "modified_at": 10,
         }
 
     @staticmethod

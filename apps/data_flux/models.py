@@ -51,15 +51,19 @@ class Trace(BaseFlux):
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    trace_name = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    application_name = models.CharField(max_length=35)
-    flow_name = models.CharField(max_length=80)
+    trace_name = models.CharField(max_length=80)
+    file_name = models.CharField(null=True, blank=True, max_length=255)
+    application_name = models.CharField(null=True, blank=True, max_length=80)
+    flow_name = models.CharField(null=True, blank=True, max_length=80)
     errors = models.BooleanField(default=False)
     comment = models.TextField(null=True, blank=True)
     created_numbers_records = models.IntegerField(null=True)
     updated_numbers_records = models.IntegerField(null=True)
     errors_numbers_records = models.IntegerField(null=True)
     unknown_numbers_records = models.IntegerField(null=True)
+    time_to_process = models.DecimalField(
+        null=True, max_digits=20, decimal_places=2, verbose_name="temps de traitement", default=0
+    )
 
 
 class Line(models.Model):

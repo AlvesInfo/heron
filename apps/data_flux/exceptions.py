@@ -11,13 +11,13 @@ modified by: Paulo ALVES
 """
 
 
-class ValidationError(Exception):
+class ValidationFormError(Exception):
     """Exception du module de Validation"""
 
 
-class IsValidError(ValidationError, AssertionError):
+class IsValidError(ValidationFormError, AssertionError):
     """Exception sur appel de forms.errors avant fomrs.is_valid()"""
 
 
-class FluxtypeError(ValidationError):
+class FluxtypeError(ValidationFormError):
     """Le lux de validation doit être un dictionnaire"""

@@ -36,7 +36,13 @@ from operator import itemgetter
 from chardet.universaldetector import UniversalDetector
 import pandas as pd
 
-from .loggers import LOADER_LOGGER
+
+class IterFileToInsertError(Exception):
+    """Gestion d'erreur d'itération d'un fichier à insérer"""
+
+
+class GetAddDictError(IterFileToInsertError):
+    """Gestion d'erreur d'itération d'un fichier à insérer"""
 
 
 class EncodingError(Exception):
@@ -47,20 +53,16 @@ class ExcelToCsvError(Exception):
     """Exception transformation excel"""
 
 
+class FileToCsvError(Exception):
+    """Exception transformation fichier en csv"""
+
+
 class ExcelToCsvFileError(Exception):
     """Exception transformation excel"""
 
 
 class CsvFileToStringIoError(Exception):
     """Exception envoi du fichier dans un StringIO"""
-
-
-class IterFileToInsertError(Exception):
-    """Gestion d'erreur d'itération d'un fichier à insérer"""
-
-
-class GetAddDictError(IterFileToInsertError):
-    """Gestion d'erreur d'itération d'un fichier à insérer"""
 
 
 class ValidationError(Exception):
@@ -82,20 +84,18 @@ def encoding_detect(path_file):
             detector.close()
 
     except Exception as except_error:
-        LOADER_LOGGER.exception("Erreur sur encoding_detect")
         raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
 
     return detector.result["encoding"]
 
 
 def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
-    """Fonction qui transforme un fichier excel en csv
+    """
+    Fonction qui transforme un fichier excel en csv et rempli le string_io_file passer en paramètre
     :param excel_file:      String_io excel à passer en csv
     :param string_io_file:  String_io en csv
     :param header:          Entête
-    :return: Fichier excel en csv
     """
-    success = True
 
     try:
         # noinspection PyArgumentList
@@ -112,12 +112,9 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
         string_io_file.seek(0)
 
     except ValueError as except_error:
-        LOADER_LOGGER.exception("Erreur sur excel_file_to_csv_string_io")
         raise ExcelToCsvFileError(
             f"Impossible de déterminer si le fichier {excel_file.name!r}, est un fichier excel"
         ) from except_error
-
-    return success
 
 
 def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
@@ -133,8 +130,12 @@ def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
             string_io_file.write(csv_file.read())
             string_io_file.seek(0)
 
+    except EncodingError as except_error:
+        raise CsvFileToStringIoError(
+            f"file_to_csv_string_io : {file.name!r}, errur sur la détermination de l'encoding"
+        ) from except_error
+
     except Exception as except_error:
-        LOADER_LOGGER.exception("Erreur sur file_to_csv_string_io")
         raise CsvFileToStringIoError(f"file_to_csv_string_io : {file.name!r}") from except_error
 
 
@@ -263,7 +264,7 @@ class FileLoader(CleanDataLoader):
                                         "uuid_identification": (uuid.uuid4, {}),
                                         "created_date": datetime.isoformat,
                                         "modified_date": datetime.isoformat,
-                                }
+                                    }
         """
         super().__init__(source, columns_dict, first_line, params_dict)
 
@@ -297,9 +298,14 @@ class FileLoader(CleanDataLoader):
             else:
                 file_to_csv_string_io(self.source, self.csv_io)
 
-        except Exception as except_error:
-            LOADER_LOGGER.exception("Erreur sur FileLoader._set_io")
+        except ExcelToCsvFileError as except_error:
             raise ExcelToCsvError(
+                f"une erreur dans la transformation du fichier {self.source.name!r} "
+                "excel en csv StringIO"
+            ) from except_error
+
+        except CsvFileToStringIoError as except_error:
+            raise FileToCsvError(
                 f"une erreur dans la transformation du fichier {self.source.name!r} "
                 "en csv StringIO"
             ) from except_error
@@ -325,16 +331,14 @@ class FileLoader(CleanDataLoader):
         demand_nb_cols = len(self.columns_dict)
 
         if demand_nb_cols > file_nb_cols:
-            LOADER_LOGGER.exception("Erreur sur FileLoader._check_nb_columns")
             raise IterFileToInsertError(
-                f"Erreur sur les colonnes : le fichier comporte {file_nb_cols} "
+                f"Erreur sur les colonnes : le fichier {self.source.name} comporte {file_nb_cols} "
                 f"colonne{'s' if file_nb_cols > 1 else ''}, "
                 f"il est exigé au moins {demand_nb_cols} "
                 f"colonne{'s' if demand_nb_cols > 1 else ''}"
             )
 
-    @staticmethod
-    def _get_check_columns(header_on_demand, header_in_file):
+    def _get_check_columns(self, header_on_demand, header_in_file):
         """
         Check des colonnes, si l'on a les mêmes dans le fichier et celles demandées.
         Si invalid alors on raise une erreur
@@ -345,10 +349,10 @@ class FileLoader(CleanDataLoader):
             values = ", ".join(
                 f'"{value}"' for value in set(header_on_demand).difference(set(header_in_file))
             )
-            LOADER_LOGGER.exception("Erreur sur FileLoader._get_check_columns")
             raise IterFileToInsertError(
                 "Erreur sur les colonnes : "
-                f"le fichier ne contient pas les colonnes demandées suivantes : {values}\n"
+                f"le fichier {self.source.name} ne contient pas "
+                f"les colonnes demandées suivantes : {values}\n"
                 f"le fichier contient les colonnes suivantes : {', '.join(header_in_file)}"
             )
 
@@ -404,7 +408,6 @@ class FileLoader(CleanDataLoader):
                 for key, value in self.params_dict.get("add_fields_dict", {}).items()
             }
         except IndexError as except_error:
-            LOADER_LOGGER.exception("Erreur sur FileLoader.get_add_dict")
             raise GetAddDictError(
                 "La méthode get_add_dict a besoins d'un tuple de 2 élements"
             ) from except_error
@@ -450,6 +453,19 @@ class FileLoader(CleanDataLoader):
                 yield f'{self.params_dict.get("delimiter", ";")}'.join(
                     [f'"{str(value)}"' for value in itemgetter(*postion_list)(line)]
                 )
+
+    def make_io(self, csv_io: io.StringIO, all_lines=False):
+        """
+        Ecrit le csv dans le fichier de type io.StringIO envoyé
+        :param csv_io: Fichier de type io.StringIO
+        :param all_lines: Si dans le fichier il y a des lignes vides :
+                            all_lines = False -> shorcut l'itération des lignes vides
+                            all_lines = True -> iterre même sur des lignes des lignes vides
+        """
+        for line in self.read(all_lines):
+            csv_io.write(line + "\n")
+
+        csv_io.seek(0)
 
     def read_list(self, all_lines: bool = False):
         """
@@ -501,11 +517,11 @@ class FileLoader(CleanDataLoader):
 
     def close(self):
         """Fermeture du buffer io.StringIO"""
-        if not self.csv_io.closed:
-            self.csv_io.close()
         try:
+            if not self.csv_io.closed:
+                self.csv_io.close()
             del self.csv_io
-        except NameError:
+        except (AttributeError, NameError):
             pass
 
 
