@@ -172,7 +172,7 @@ class IterFileToInsert:
             delimiter=self.params_dict.get("delimiter", ";"),
             quotechar=self.params_dict.get("quotechar", '"'),
             lineterminator=self.params_dict.get("lineterminator", "\n"),
-            quoting=self.params_dict.get("quoting", csv.QUOTE_ALL),
+            quoting=self.params_dict.get("quoting", csv.QUOTE_MINIMAL),
         )
 
     def __enter__(self):

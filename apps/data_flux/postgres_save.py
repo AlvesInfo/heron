@@ -474,7 +474,7 @@ class PostgresDjangoUpsert:
                         delimiter=";",
                         quotechar='"',
                         lineterminator="\n",
-                        quoting=csv.QUOTE_ALL,
+                        quoting=csv.QUOTE_MINIMAL,
                     )
                     error, tup_count = execute_prepared_upsert(
                         cursor,
@@ -499,13 +499,14 @@ class PostgresDjangoUpsert:
                     # copy dans une table provisoire pour un do_nothing ou un upsert
                     table = sql.Identifier(self.temp_table_name)
                     cursor.execute(self.get_ddl_temp_table())
-
+                    # print(cursor.mogrify(self.get_ddl_temp_table()).decode())
                     sql_copy = sql.SQL(sql_expert).format(
                         table=table,
                         fields=fields,
                         delimiter=delimiter,
                         quote_character=quote_character,
                     )
+                    # print(cursor.mogrify(sql_copy).decode())
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert

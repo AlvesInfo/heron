@@ -190,8 +190,8 @@ class Society(FlagsTable):
     payment_condition_supplier = models.ForeignKey(
         PaymentCondition,
         null=True,
-        on_delete=models.PROTECT,
-        to_field="code",
+        on_delete=models.SET_NULL,
+        to_field="auuid",
         related_name="society_supplier_payment",
         verbose_name="conditions de paiement fournisseur",
         db_column="payment_condition_supplier",
@@ -205,8 +205,8 @@ class Society(FlagsTable):
     payment_condition_client = models.ForeignKey(
         PaymentCondition,
         null=True,
-        on_delete=models.PROTECT,
-        to_field="code",
+        on_delete=models.SET_NULL,
+        to_field="auuid",
         related_name="society_client_payment",
         verbose_name="conditions de paiement client",
         db_column="payment_condition_client",

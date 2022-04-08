@@ -234,6 +234,14 @@ Path.mkdir(FILES_DIR, exist_ok=True)
 BACKUP_DIR = (Path(BASE_DIR) / "files/backup").resolve()
 Path.mkdir(BACKUP_DIR, exist_ok=True)
 
+# REPERTOIRE DES BACKUP SAGE
+BACKUP_SAGE_DIR = (Path(BASE_DIR) / "files/backup/sage").resolve()
+Path.mkdir(BACKUP_SAGE_DIR, exist_ok=True)
+
+# REPERTOIRE DES BACKUP FACTURES FOURNISSEURS
+BACKUP_SUPPLIERS_DIR = (Path(BASE_DIR) / "files/backup/suppliers_invoices_files").resolve()
+Path.mkdir(BACKUP_SUPPLIERS_DIR, exist_ok=True)
+
 # REPERTOIRES DE MEDIA
 MEDIA_DIR = (Path(BASE_DIR) / "files/media").resolve()
 Path.mkdir(MEDIA_DIR, exist_ok=True)
@@ -245,6 +253,14 @@ Path.mkdir(STATIC_DIR, exist_ok=True)
 # REPERTOIRES DE TRAITEMENTS
 PROCESSING_DIR = (Path(BASE_DIR) / "files/processing").resolve()
 Path.mkdir(PROCESSING_DIR, exist_ok=True)
+
+# REPERTOIRES DE TRAITEMENTS DES IMPORTS DE FICHIERS SAGE
+PROCESSING_SAGE_DIR = (Path(BASE_DIR) / "files/processing/sage").resolve()
+Path.mkdir(PROCESSING_SAGE_DIR, exist_ok=True)
+
+# REPERTOIRES DE TRAITEMENTS DES FACTURES FOURNISSEURS
+PROCESSING_SUPPLIERS_DIR = (Path(BASE_DIR) / "files/processing/suppliers_invoices_files").resolve()
+Path.mkdir(PROCESSING_SUPPLIERS_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS A EXPORTER
 EXPORT_DIR = (Path(BASE_DIR) / "files/export").resolve()

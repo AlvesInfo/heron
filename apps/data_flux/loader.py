@@ -84,7 +84,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
             header=header,
             index=False,
             line_terminator="\n",
-            quoting=csv.QUOTE_NONNUMERIC,
+            quoting=csv.QUOTE_ALL,
             encoding="utf8",
         )
         string_io_file.seek(0)
@@ -132,6 +132,7 @@ class CleanDataLoader:
         self.columns_dict = columns_dict
         self.first_line = first_line
         self.params_dict = params_dict or {}
+        self.trace = params_dict.get("trace")
 
         # TODO : Implémenter une méthode pour les Traces du loader
 
@@ -218,11 +219,13 @@ class FileLoader(CleanDataLoader):
 
         :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
                                 params_dict = {
+                                    # model Django Trace pour fichiers trace
+                                    "trace" : Trace
 
                                     # attribus du paramétrage csv
                                     "delimiter" : séparateur du fichier, par défaut ";"
                                     "lineterminator": Passage à la ligne par défaut "\n"
-                                    "quoting": type de quoting par défaut csv.QUOTE_NONNUMERIC
+                                    "quoting": type de quoting par défaut csv.QUOTE_MINIMAL
                                     "quotechar": le caractère de quoting par défaut '"'
                                     "escapechar": le caractère de quoting par défaut '"'
 
@@ -277,16 +280,26 @@ class FileLoader(CleanDataLoader):
                 file_to_csv_string_io(self.source, self.csv_io)
 
         except ExcelToCsvFileError as except_error:
-            raise ExcelToCsvError(
+            comment = (
                 f"une erreur dans la transformation du fichier {self.source.name!r} "
                 "excel en csv StringIO"
-            ) from except_error
+            )
+            if self.trace:
+                self.trace.errors = True
+                self.trace.comment = comment
+                self.trace.save()
+            raise ExcelToCsvError(comment) from except_error
 
         except CsvFileToStringIoError as except_error:
-            raise FileToCsvError(
+            comment = (
                 f"une erreur dans la transformation du fichier {self.source.name!r} "
                 "en csv StringIO"
-            ) from except_error
+            )
+            if self.trace:
+                self.trace.errors = True
+                self.trace.comment = comment
+                self.trace.save()
+            raise FileToCsvError(comment) from except_error
 
     def _get_csv_reader(self):
         """
@@ -299,7 +312,7 @@ class FileLoader(CleanDataLoader):
             delimiter=self.params_dict.get("delimiter", ";"),
             quotechar=self.params_dict.get("quotechar", '"'),
             lineterminator=self.params_dict.get("lineterminator", "\n"),
-            quoting=self.params_dict.get("quoting", csv.QUOTE_NONNUMERIC),
+            quoting=self.params_dict.get("quoting", csv.QUOTE_MINIMAL),
         )
 
     def _check_nb_columns(self):
@@ -309,12 +322,17 @@ class FileLoader(CleanDataLoader):
         demand_nb_cols = len(self.columns_dict)
 
         if demand_nb_cols > file_nb_cols:
-            raise IterFileToInsertError(
+            comment = (
                 f"Erreur sur les colonnes : le fichier {self.source.name} comporte {file_nb_cols} "
                 f"colonne{'s' if file_nb_cols > 1 else ''}, "
                 f"il est exigé au moins {demand_nb_cols} "
                 f"colonne{'s' if demand_nb_cols > 1 else ''}"
             )
+            if self.trace:
+                self.trace.errors = True
+                self.trace.comment = comment
+                self.trace.save()
+            raise IterFileToInsertError(comment)
 
     def _get_check_columns(self, header_on_demand, header_in_file):
         """
@@ -327,12 +345,17 @@ class FileLoader(CleanDataLoader):
             values = ", ".join(
                 f'"{value}"' for value in set(header_on_demand).difference(set(header_in_file))
             )
-            raise IterFileToInsertError(
+            comment = (
                 "Erreur sur les colonnes : "
                 f"le fichier {self.source.name} ne contient pas "
                 f"les colonnes demandées suivantes : {values}\n"
                 f"le fichier contient les colonnes suivantes : {', '.join(header_in_file)}"
             )
+            if self.trace:
+                self.trace.errors = True
+                self.trace.comment = comment
+                self.trace.save()
+            raise IterFileToInsertError(comment)
 
     def get_positons_for_none_columns(self):
         """
@@ -386,9 +409,12 @@ class FileLoader(CleanDataLoader):
                 for key, value in self.params_dict.get("add_fields_dict", {}).items()
             }
         except IndexError as except_error:
-            raise GetAddDictError(
-                "La méthode get_add_dict a besoins d'un tuple de 2 élements"
-            ) from except_error
+            comment = "La méthode get_add_dict a besoins d'un tuple de 2 élements"
+            if self.trace:
+                self.trace.errors = True
+                self.trace.comment = comment
+                self.trace.save()
+            raise GetAddDictError(comment) from except_error
 
         return add_dict
 
@@ -534,6 +560,8 @@ class ApiJsonLoader(CleanDataLoader):
 
         :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
                                 params_dict = {
+                                    # model Django Trace pour fichiers trace
+                                    "trace" : Trace
                                 }
         """
         super().__init__(source, columns_dict, first_line, params_dict)
@@ -619,6 +647,8 @@ class ApiXmlLoader(CleanDataLoader):
 
         :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
                                 params_dict = {
+                                    # model Django Trace pour fichiers trace
+                                    "trace" : Trace
                                 }
         """
         super().__init__(source, columns_dict, first_line, params_dict)

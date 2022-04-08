@@ -22,13 +22,6 @@ from django.utils import timezone
 from djantic import ModelSchema
 import djantic
 from apps.core.functions.functions_setups import settings
-from apps.core.validations.pydantic_validators_base import (
-    NullZeroDecimalFieldBase,
-    SageTruncateStrFieldsBase,
-    SageDateFieldsBase,
-    SageNullFalseBooleanFieldsBase,
-    SageNullBooleanFieldsBase,
-)
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
@@ -39,138 +32,18 @@ from apps.accountancy.models import (
     PaymentCondition,
     TabDivSage,
     CategorySage,
-    CurrencySage,
 )
-
-
-class AccountSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    """Schema Djantic pour validation du modèle AccountSage"""
-
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-    uuid_identification: uuid.UUID = uuid.uuid4()
-
-    class Config:
-        model = AccountSage
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-            "uuid_identification",
-        ]
-
-
-class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-
-    class Config:
-        model = AxeSage
-        include = list(model.get_columns_import())
-
-
-class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullBooleanFieldsBase):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-    axe: str
-    chargeable: bool = None
-    uuid_identification: uuid.UUID = uuid.uuid4()
-
-    class Config:
-        model = SectionSage
-        include = list(model.get_columns_import())
-
-
-class VatRegimeSagechema(ModelSchema, SageTruncateStrFieldsBase):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-
-    class Config:
-        model = VatRegimeSage
-        include = list(model.get_columns_import())
-
-
-class VatSagechema(ModelSchema, SageTruncateStrFieldsBase):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-
-    class Config:
-        model = VatSage
-        include = list(model.get_columns_import())
-
-
-class VatRatSageSchema(
-    ModelSchema,
-    SageTruncateStrFieldsBase,
-    SageDateFieldsBase,
-    SageNullBooleanFieldsBase,
-    NullZeroDecimalFieldBase,
-):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-    vat: str
-    exoneration: bool = None
-
-    class Config:
-        model = VatRatSage
-        include = list(model.get_columns_import())
-
-
-class PaymentConditionSchema(ModelSchema, SageTruncateStrFieldsBase):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-
-    class Config:
-        model = PaymentCondition
-        include = list(model.get_columns_import())
-
-
-class TabDivSageSchema(
-    ModelSchema,
-    SageTruncateStrFieldsBase,
-    SageNullBooleanFieldsBase,
-    NullZeroDecimalFieldBase,
-):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-
-    class Config:
-        model = TabDivSage
-        include = list(model.get_columns_import())
-
-
-class CategorySageSchema(ModelSchema, SageTruncateStrFieldsBase):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-
-    class Config:
-        model = CategorySage
-        include = list(model.get_columns_import())
-
-
-class CurrencySageSchema(
-    ModelSchema,
-    SageTruncateStrFieldsBase,
-    SageDateFieldsBase,
-    SageNullBooleanFieldsBase,
-    NullZeroDecimalFieldBase,
-):
-    now = timezone.now()
-    created_at: datetime.datetime = now
-    modified_at: datetime.datetime = now
-    uuid_identification: uuid.UUID = uuid.uuid4()
-
-    class Config:
-        model = CurrencySage
-        include = list(model.get_columns_import())
+from apps.accountancy.forms.forms_djantic.sage import (
+    AccountSageSchema,
+    AxeSageSchema,
+    SectionSageSchema,
+    VatRegimeSageSchema,
+    VatSageSchema,
+    VatRatSageSchema,
+    PaymentConditionSchema,
+    TabDivSageSchema,
+    CategorySageSchema,
+)
 
 
 def main():
@@ -353,7 +226,7 @@ if __name__ == "__main__":
         file_name=source.name,
         application_name="Import Sage",
         flow_name="AccountSage",
-        comment="import journalier des comptes comptables Sage",
+        comment="import journalier ZBIACCOUNT_journalier.heron des comptes comptables Sage",
         created_numbers_records=0,
         updated_numbers_records=0,
         errors_numbers_records=0,
@@ -396,7 +269,7 @@ if __name__ == "__main__":
                 model=AccountSage,
                 fields_dict=fields_dict,
                 cnx=connection,
-                exclude_update_fields={"created_at", "modified_at", "uuid_identification"}
+                exclude_update_fields={"created_at", "modified_at", "uuid_identification"},
             )
             file_io.seek(0)
 

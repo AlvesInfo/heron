@@ -1,4 +1,4 @@
-# pylint: disable=E0401,
+# pylint: disable=E0401,E1101
 """Module de validation des flux à intégrer en BDD
 
 Instances de validation implémentées :
@@ -31,7 +31,12 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 # noinspection PyCompatibility
-from .exceptions import ValidationFormError, IsValidError, FluxtypeError
+from .exceptions import (
+    ValidationError,
+    ValidationFormError,
+    IsValidError,
+    FluxtypeError,
+)
 from .models import Trace, Line, Error
 from .loggers import VALIDATION_LOGGER
 
@@ -556,10 +561,11 @@ class DjangoValidation(ValidationTemplate):
         """
         form = validator(**data_dict)
 
-        if not form.is_valid():
-            return form.errors
+        if form.is_valid():
+            csv_writer.writerow([form.cleaned_data.get(key) for key in validator.Config.include])
+            return False
 
-        return False
+        return form.errors
 
 
 class DrfValidation(ValidationTemplate):
@@ -599,10 +605,11 @@ class DrfValidation(ValidationTemplate):
         """
         form = validator(**data_dict)
 
-        if not form.is_valid():
-            return form.errors
+        if form.is_valid():
+            csv_writer.writerow([form.data.get(key) for key in validator.Config.include])
+            return False
 
-        return False
+        return form.errors
 
 
 class PydanticValidation(ValidationTemplate):
@@ -642,7 +649,6 @@ class PydanticValidation(ValidationTemplate):
         """
         try:
             form = validator(**data_dict)
-            # print(form.dict())
             csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
         except ValidationError as except_error:
             return except_error.errors()

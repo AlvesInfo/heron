@@ -142,3 +142,4 @@ files/log/*
 /files/media
 /files/secure_media
 /files/static
+/files/processing/

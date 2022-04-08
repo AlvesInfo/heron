@@ -366,7 +366,7 @@ class VatRegimeSage(FlagsTable):
     champ          | model attr.              | table SAGE    | Champ Sage
     ======================================================================
     Régime         | vat_regime               | TABVACBPR     | VACBPR
-    Actif          | flag_active (FlagsTable) | TABVACBPR     | ENAFLG
+    Actif          | active (FlagsTable)      | TABVACBPR     | ENAFLG
     Intitulé       | name                     | TABVACBPR     | DESAXX
     Intitulé court | short_name               | TABVACBPR     | SHOAXX
     Code taxe      | vat_code                 | TABVACBPR     | VAT
@@ -398,7 +398,7 @@ class VatRegimeSage(FlagsTable):
         """
         return {
             "vat_regime": 0,
-            "flag_active": 1,
+            "active": 1,
             "name": 2,
             "short_name": 3,
             "vat_code": 4,
@@ -582,9 +582,10 @@ class PaymentCondition(FlagsTable):
     =========================================================
     """
 
-    code = models.CharField(unique=True, max_length=35)
+    code = models.CharField(max_length=35)
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
+    auuid = models.CharField(unique=True, max_length=80, verbose_name="n° champ unique")
 
     @staticmethod
     def file_import_sage():
@@ -604,6 +605,7 @@ class PaymentCondition(FlagsTable):
             "code": 0,
             "name": 1,
             "short_name": 2,
+            "auuid": 3,
         }
 
     @staticmethod
@@ -612,7 +614,7 @@ class PaymentCondition(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "code"
+        return "auuid"
 
     @property
     def get_import(self):
@@ -627,7 +629,6 @@ class PaymentCondition(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
-
         ordering = ["code"]
 
 

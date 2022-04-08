@@ -117,7 +117,7 @@ class SectionSageForm(forms.ModelForm):
 class VatRegimeSageForm(forms.ModelForm):
     """Validation de l'import ZBIVAT des Régimes de TVA Sage X3"""
 
-    flag_active = SageNullBooleanField()
+    active = SageNullBooleanField()
     name = TildeTextField()
     short_name = TildeTextField()
 
@@ -127,7 +127,7 @@ class VatRegimeSageForm(forms.ModelForm):
         model = VatRegimeSage
         fields = [
             "vat_regime",
-            "flag_active",
+            "active",
             "name",
             "short_name",
             "vat_code",
@@ -193,7 +193,7 @@ class TabDivSageForm(forms.ModelForm):
     """Validation de l'import ZBIDIV des Tables Diverses Sage X3"""
 
     def_val = SageNullBooleanField()
-    flag_active = SageNullBooleanField()
+    active = SageNullBooleanField()
     name = TildeTextField()
     short_name = TildeTextField()
 
@@ -237,7 +237,7 @@ class TabDivSageForm(forms.ModelForm):
             "name",
             "short_name",
             "def_val",
-            "flag_active",
+            "active",
         ]
 
 
