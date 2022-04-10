@@ -60,86 +60,99 @@ class EdiImport(models.Model):
         null=True, blank=True, max_length=80, verbose_name="IMD avec F 1ère position"
     )
     qty = models.DecimalField(
-        decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
+        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
     unit_weight = models.CharField(null=True, blank=True, max_length=20)
     packaging_qty = models.DecimalField(
-        decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 52"
+        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 52"
     )
     gross_unit_price = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="Prix unitaire brut PRI avec AAB et GRP",
     )
     net_unit_price = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="prix unitaire net PRI avec AAA et NTP",
     )
     packaging_price = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="prix emballage MOA avec 8 quand ALC avec M et PC",
     )
     transport_price = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="prix transport MOA avec 8 quand ALC avec M et FC",
     )
     gross_price = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="montant brut MOA avec 8 quand ALC avec H",
     )
     discount_price_01 = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="remise 1 MOA avec 8 quand ALC avec H",
     )
     discount_price_02 = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="remise 2 MOA avec 8 quand ALC avec H",
     )
     discount_price_03 = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="remise 3 MOA avec 98"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="remise 3 MOA avec 98"
     )
     net_amount = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="montant net MOA avec 125"
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="montant net MOA avec 125",
     )
     vat_rate = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="taux de tva TAX avec 7 quand ALC avec Y",
     )
     vat_amount = models.DecimalField(
+        null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="montant de tva montant tva calculé",
     )
     amount_with_vat = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
     client_name = models.CharField(null=True, blank=True, max_length=80)
     serial_number = models.TextField(null=True, blank=True, max_length=1000)
     comment = models.CharField(null=True, blank=True, max_length=120)
     montant_facture_HT = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
     )
     montant_facture_TVA = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
     )
     montant_facture_TTC = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
     active = models.BooleanField(null=True, default=False)
     delete = models.BooleanField(null=True, default=False)

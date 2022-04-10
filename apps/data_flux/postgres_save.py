@@ -1,4 +1,4 @@
-# pylint: disable=C0303,E0401,R0913,R0914,W1203
+# pylint: disable=C0303,E0401,R0913,R0914
 """
 Module d'insertion en base de donnée Postgresql,
 Par des méthode rapides de psycopg2
@@ -203,7 +203,11 @@ class PostgresDjangoUpsert:
                 f"""la clé "{field_key}" n'éxiste pas dans la table"""
             ) from except_error
 
-        return f' "{field_attr.column}" {field_attr.db_type(self.cnx)}'
+        return (
+            f' "{field_attr.column}" '
+            f"{field_attr.db_type(self.cnx)} "
+            f'{"NOT NULL" if not self.meta.get_field(field_key).null else "NULL"}'
+        )
 
     def get_prepare_batch(self, stmt_name: AnyStr):
         """

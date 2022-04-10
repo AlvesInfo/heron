@@ -195,6 +195,8 @@ class SageDateFieldsBase(BaseModel):
     def sage_date(cls, value, field):
 
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
             if not value:
                 return None
 
@@ -210,6 +212,8 @@ class GenericDateFieldsBase(BaseModel):
     def generic_date(cls, value, field):
 
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
             if not value:
                 return None
 
@@ -225,10 +229,11 @@ class DdMmYyyyyDateFieldsBase(BaseModel):
     def yyyy_date(cls, value, field):
 
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
-            if not value:
-                return None
 
-            value = datetime.datetime.strptime(value, "%d/%m/%Y")
+            if value:
+                value = datetime.datetime.strptime(value, "%d/%m/%Y")
+            else:
+                value = None
 
         return value
 
@@ -239,7 +244,10 @@ class IsoDateFieldsBase(BaseModel):
     @validator("*", pre=True, always=True)
     def iso_date(cls, value, field):
 
+        value = str(value).strip()
+
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
+
             if not value:
                 return None
 
@@ -255,6 +263,8 @@ class IsoInverseDateFieldsBase(BaseModel):
     def iso_inv_date(cls, value, field):
 
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
             if not value:
                 return None
 
@@ -270,6 +280,8 @@ class PointDateFieldsBase(BaseModel):
     def point_date(cls, value, field):
 
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
             if not value:
                 return None
 

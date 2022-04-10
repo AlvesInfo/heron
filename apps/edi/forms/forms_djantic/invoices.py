@@ -20,10 +20,10 @@ from apps.core.validations.pydantic_validators_base import (
     TruncateStrFieldsBase,
     DecimalFieldBase,
     NullZeroDecimalFieldBase,
+    
     GenericDateFieldsBase,
     DdMmYyyyyDateFieldsBase,
     IsoDateFieldsBase,
-    IsoInverseDateFieldsBase,
     PointDateFieldsBase,
     TvaEyeConfor,
     TvaGenerique,
@@ -36,7 +36,12 @@ from apps.edi.parameters.invoices_imports import get_columns
 
 
 class BbrgBulkSchema(
-    ModelSchema, TruncateStrFieldsBase, NullZeroDecimalFieldBase, DecimalFieldBase
+    ModelSchema,
+    TruncateStrFieldsBase,
+    NullZeroDecimalFieldBase,
+    
+    GenericDateFieldsBase,
+    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle BbrgVerre"""
 
@@ -50,7 +55,11 @@ class BbrgBulkSchema(
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "BbrgBulk")) + ["uuid_identification"]
+        include = list(get_columns(ColumnDefinition, "BbrgBulk")) + [
+            "uuid_identification",
+            "supplier",
+            "supplier_ident",
+        ]
 
 
 class EdiSchema(ModelSchema, TruncateStrFieldsBase, NullZeroDecimalFieldBase, DecimalFieldBase):
@@ -71,6 +80,7 @@ class EyeConfortSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     PointDateFieldsBase,
     TvaEyeConfor,
     DecimalFieldBase,
@@ -98,6 +108,7 @@ class GeneriqueSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     GenericDateFieldsBase,
     TvaGenerique,
     DecimalFieldBase,
@@ -119,13 +130,14 @@ class HearingSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     TvaGenerique,
     DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Hearing"""
 
-    uuid_identification: uuid.UUID = None
+    uuid_identification: uuid.UUID
     supplier_ident: str
     qty: Decimal = 1
     packaging_qty: Decimal = 1
@@ -144,6 +156,7 @@ class IntersonSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     DdMmYyyyyDateFieldsBase,
     TvaInterson,
     DecimalFieldBase,
@@ -166,6 +179,7 @@ class JohnsonSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     PointDateFieldsBase,
     DecimalFieldBase,
 ):
@@ -192,6 +206,7 @@ class LmcSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     DecimalFieldBase,
 ):
@@ -216,6 +231,7 @@ class NewsonSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     PointDateFieldsBase,
     TvaNewson,
     DecimalFieldBase,
@@ -243,6 +259,7 @@ class PhonakSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     TvaGenerique,
     DecimalFieldBase,
@@ -293,6 +310,7 @@ class SigniaSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     DdMmYyyyyDateFieldsBase,
     TvaWidex,
     DecimalFieldBase,
@@ -320,6 +338,7 @@ class StarkeySchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     TvaGenerique,
     DecimalFieldBase,
@@ -345,6 +364,7 @@ class TechnidisSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     DdMmYyyyyDateFieldsBase,
     TvaWidex,
     DecimalFieldBase,
@@ -366,6 +386,7 @@ class UnitronSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     TvaGenerique,
     DecimalFieldBase,
@@ -391,6 +412,7 @@ class WidexSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     TvaWidex,
     DecimalFieldBase,
@@ -416,6 +438,7 @@ class WidexGaSchema(
     ModelSchema,
     TruncateStrFieldsBase,
     NullZeroDecimalFieldBase,
+    
     IsoDateFieldsBase,
     TvaWidex,
     DecimalFieldBase,

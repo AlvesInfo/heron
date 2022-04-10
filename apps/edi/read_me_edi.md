@@ -34,3 +34,5 @@ FileLoader._get_sanitaze(l):
 6.  Créer une fonction pour l'import, dans le fichier apps.edi.imports_suppliers_invoices. Prendre exemple sur les fonctions déjà existantes.
 ---
 7. Rajouter dans le dictionnaire des process, la fonction précédemment créée, dans le fichier apps.edi.loops.imports_loop.
+___
+8. QTY = 1 si Null

@@ -12,7 +12,6 @@ modified at: 2022-04-08
 modified by: Paulo ALVES
 """
 import io
-from uuid import uuid4
 from pathlib import Path
 
 import redis
@@ -21,6 +20,7 @@ from django.utils import timezone
 
 from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
+from apps.edi.bin.edi_pre_processing import bulk_translate_file
 from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport
 from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
 from apps.edi.forms.forms_djantic.invoices import (
@@ -68,7 +68,7 @@ def get_supplier_name(table_name: str):
     """
     try:
         name = SupplierDefinition.objects.get(table_name=table_name)
-
+        print(name, table_name)
         if isinstance(cache, (dict,)):
             cache[f"{table_name}_supplier"] = name.supplier_name
             cache[f"{table_name}_siret"] = name.supplier_siret
@@ -119,6 +119,13 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
 
     try:
         print("Import : ", flow_name)
+        columns_dict = get_columns(ColumnDefinition, flow_name)
+
+        if not columns_dict:
+            # Si le mapping entre les colonnes de la table EdiImport et les colonnes du fichier,
+            # ne sont pas dans la table ColumnDefinition, alors l'import ne peut se faire
+            raise TypeError("Vous n'avez pas de colonnes à récupérer")
+
         flow_dict = get_loader_params_dict(SupplierDefinition, flow_name)
         params_dict_load = {
             **params_dict_loader,
@@ -131,8 +138,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             "file_io": valide_file_io,
             "nb_errors_max": 50,
         }
-        columns_dict = get_columns(ColumnDefinition, flow_name)
-
+        nbre = 2
         with FileLoader(
             source=source,
             columns_dict=columns_dict,
@@ -140,10 +146,10 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             params_dict=params_dict_load,
         ) as file_load:
 
-            # for i, line in enumerate(file_load.read_dict(), 1):
-            #     if i == 10:
-            #         break
-            #     print(line)
+            for i, line in enumerate(file_load.read_dict(), 1):
+                if i == nbre:
+                    break
+                print(line)
 
             validation = Validation(
                 dict_flow=file_load.read_dict(),
@@ -153,33 +159,33 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             )
             error_lines = validation.validate()
 
-            # postgres_upsert = PostgresDjangoUpsert(
-            #     model=model,
-            #     fields_dict=validator.Config.include,
-            #     cnx=connection,
-            #     exclude_update_fields={},
-            # )
+            postgres_upsert = PostgresDjangoUpsert(
+                model=model,
+                fields_dict={key: False for key in validator.Config.include},
+                cnx=connection,
+                exclude_update_fields={},
+            )
 
             valide_file_io.seek(0)
 
             for i, line in enumerate(valide_file_io, 1):
-                if i == 10:
+                if i == nbre:
                     break
                 print(line, end="")
+
+            valide_file_io.seek(0)
+
+            postgres_upsert.insertion(
+                file=valide_file_io,
+                insert_mode="insert",
+                delimiter=";",
+                quote_character='"',
+            )
 
             if error_lines:
                 print("\nLignes en erreur : ", error_lines)
             else:
                 print("\nPas d'erreurs")
-
-            valide_file_io.seek(0)
-
-            # postgres_upsert.insertion(
-            #     file=valide_file_io,
-            #     insert_mode="insert",
-            #     delimiter=";",
-            #     quote_character='"',
-            # )
 
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:
@@ -245,12 +251,14 @@ def bbgr_bulk(file_path: Path):
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier": cache.get("BbgrBulk_supplier") or get_supplier_name("BbgrBulk"),
-            "supplier_ident": cache.get("BbgrBulk_siret") or get_supplier_ident("BbgrBulk"),
-            "uuid_identification": uuid4(),
+            "supplier": cache.get("BbrgBulk_supplier") or get_supplier_name("BbrgBulk"),
+            "supplier_ident": cache.get("BbrgBulk_siret") or get_supplier_ident("BbrgBulk"),
+            "uuid_identification": trace.uuid_identification,
         },
     }
-    make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    new_file_path = bulk_translate_file(file_path)
+    make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
+    new_file_path.unlink()
 
     return trace
 
@@ -271,7 +279,7 @@ def edi(file_path: Path):
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -297,7 +305,7 @@ def eye_confort(file_path: Path):
         "add_fields_dict": {
             "supplier": cache.get("EyeConfort_supplier") or get_supplier_name("EyeConfort"),
             "supplier_ident": cache.get("EyeConfort_siret") or get_supplier_ident("EyeConfort"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -321,7 +329,7 @@ def generique(file_path: Path):
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -346,7 +354,7 @@ def hearing(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Hearing_siret") or get_supplier_ident("Hearing"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -370,7 +378,7 @@ def interson(file_path: Path):
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -396,7 +404,7 @@ def johnson(file_path: Path):
         "add_fields_dict": {
             "supplier": cache.get("Johnson_supplier") or get_supplier_name("Johnson"),
             "supplier_ident": cache.get("Johnson_siret") or get_supplier_ident("Johnson"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
         "exclude_rows_dict": {1: "Total"},
     }
@@ -422,7 +430,7 @@ def Lmc(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Lmc_siret") or get_supplier_ident("Lmc"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -448,7 +456,7 @@ def newson(file_path: Path):
         "add_fields_dict": {
             "supplier": cache.get("Newson_supplier") or get_supplier_name("Newson"),
             "supplier_ident": cache.get("Newson_siret") or get_supplier_ident("Newson"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -473,7 +481,7 @@ def Phonak(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Phonak_siret") or get_supplier_ident("Phonak"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -498,7 +506,7 @@ def prodition(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Prodition_siret") or get_supplier_ident("Prodition"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -524,7 +532,7 @@ def signia(file_path: Path):
         "add_fields_dict": {
             "supplier": cache.get("Signia_supplier") or get_supplier_name("Signia"),
             "supplier_ident": cache.get("Signia_siret") or get_supplier_ident("Signia"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -549,7 +557,7 @@ def starkey(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Starkey_siret") or get_supplier_ident("Starkey"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -573,7 +581,7 @@ def technidis(file_path: Path):
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -598,7 +606,7 @@ def unitron(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Unitron_siret") or get_supplier_ident("Unitron"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -623,7 +631,7 @@ def widex(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("Widex_siret") or get_supplier_ident("Widex"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -648,7 +656,7 @@ def widex_ga(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "supplier_ident": cache.get("WidexGa_siret") or get_supplier_ident("WidexGa"),
-            "uuid_identification": uuid4(),
+            "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)

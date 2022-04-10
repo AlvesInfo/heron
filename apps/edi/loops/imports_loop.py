@@ -38,7 +38,7 @@ from apps.edi.imports.imports_suppliers_incoices import (
 )
 
 processing_dict = {
-    "BBGR_BULK": bbgr_bulk,
+    "BBRG_BULK": bbgr_bulk,
     "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,
@@ -68,6 +68,7 @@ def process():
 
     for directory, function in processing_dict.items():
         files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / directory
+
         for file in files_directory.glob("*"):
             start = time.time()
             error = False
@@ -81,6 +82,7 @@ def process():
 
             except TypeError as except_error:
                 error = True
+                print("TypeError : ", except_error)
                 EDI_LOGGER.exception(f"TypeError : {except_error!r}")
 
             except Exception as except_error:
