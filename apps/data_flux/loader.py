@@ -33,6 +33,7 @@ from typing import Dict, Any
 import csv
 from operator import itemgetter
 
+import openpyxl
 from chardet.universaldetector import UniversalDetector
 import pandas as pd
 
@@ -64,7 +65,12 @@ def encoding_detect(path_file):
     except Exception as except_error:
         raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
 
-    return detector.result["encoding"]
+    if detector.result["confidence"] > 0.66:
+        encoding = detector.result["encoding"]
+    else:
+        encoding = "utf8"
+
+    return encoding
 
 
 def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
@@ -77,7 +83,11 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
 
     try:
         # noinspection PyArgumentList
-        data = pd.read_excel(excel_file.resolve(), engine="openpyxl")
+        try:
+            data = pd.read_excel(excel_file.resolve(), engine="openpyxl")
+        except openpyxl.utils.exceptions.InvalidFileException:
+            data = pd.read_excel(excel_file.resolve(), engine="xlrd")
+
         data.to_csv(
             string_io_file,
             sep=";",
@@ -95,14 +105,15 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
         ) from except_error
 
 
-def file_to_csv_string_io(file: Path, string_io_file: io.StringIO):
+def file_to_csv_string_io(file: Path, string_io_file: io.StringIO, encoding_file: str = None):
     """Fonction qui transforme un fichier en csv, reçu de type fichier et transformation en STringIO
     :param file:            Fichier csv, instance de Path (pathlib)
     :param string_io_file:  Fichier de type io.StringIO
+    :param encoding_file:   Encoding du fichier si on le connait
     :return: String_io au format csv
     """
     try:
-        encoding = encoding_detect(file)
+        encoding = encoding_file or encoding_detect(file)
 
         with file.open("r", encoding=encoding, errors="replace") as csv_file:
             string_io_file.write(csv_file.read())
@@ -222,6 +233,9 @@ class FileLoader(CleanDataLoader):
                                     # model Django Trace pour fichiers trace
                                     "trace" : Trace
 
+                                    # Encoding du fichier si on le connait
+                                    "encoding": "ISO-8859-1"
+
                                     # attribus du paramétrage csv
                                     "delimiter" : séparateur du fichier, par défaut ";"
                                     "lineterminator": Passage à la ligne par défaut "\n"
@@ -273,11 +287,10 @@ class FileLoader(CleanDataLoader):
         Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel
         """
         try:
-
-            if self.source.suffix in {".xls", ".xlsx"}:
+            if self.source.suffix in {".xls", ".xlsx", ".XLS", "XLSX"}:
                 excel_file_to_csv_string_io(self.source, self.csv_io)
             else:
-                file_to_csv_string_io(self.source, self.csv_io)
+                file_to_csv_string_io(self.source, self.csv_io, self.params_dict.get("encoding"))
 
         except ExcelToCsvFileError as except_error:
             comment = (
@@ -367,12 +380,31 @@ class FileLoader(CleanDataLoader):
 
         return postion_list
 
+    @staticmethod
+    def _get_sanitaze(header_lit):
+        """
+        :param header_lit: list des entêtes du fichier
+        :return: liste des entêtes du fichier cleannées
+        """
+        sanitaze = [
+            str(value)
+            .strip()
+            .lower()
+            .replace(" ", "_")
+            .replace("\n", "")
+            .replace("\r", "")
+            .replace("\t", "")
+            .replace("°", "")
+            for value in header_lit
+        ]
+        return sanitaze
+
     def get_positions_if_columns_named(self):
         """
         Position des colonnes nommées dans l'attribut d'instance self.columns_dict
         :return: Liste des positions des colonnes
         """
-        header_list_in_file = next(self.csv_reader)
+        header_list_in_file = self._get_sanitaze(next(self.csv_reader))
         header_on_demand = list(self.columns_dict.values())
         self._get_check_columns(header_on_demand, header_list_in_file)
         postion_list = [header_list_in_file.index(value) for value in self.columns_dict.values()]
@@ -440,7 +472,7 @@ class FileLoader(CleanDataLoader):
 
         # on renvoie pour chaque ligne du fichier les données au format csv
         for line in self.csv_reader:
-            if (not line and not all_lines) or any(
+            if (not any(line) and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
                 for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
@@ -482,7 +514,7 @@ class FileLoader(CleanDataLoader):
 
         # on renvoie pour chaque ligne du fichier les données dans un tableau, une liste
         for line in self.csv_reader:
-            if (not line and not all_lines) or any(
+            if (not any(line) and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
                 for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
@@ -505,7 +537,7 @@ class FileLoader(CleanDataLoader):
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
         for line in self.csv_reader:
-            if (not line and not all_lines) or any(
+            if (not any(line) and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
                 for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):

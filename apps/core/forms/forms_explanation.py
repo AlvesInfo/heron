@@ -156,12 +156,12 @@ if __name__ == "__main__":
     #     [
     #         Error(
     #             line=line_object,
-    #             attribute=attribute,
+    #             attr=attr,
     #             message=messages_dict.get("message"),
     #             data_expected=messages_dict.get("data_expected"),
     #             data_received=messages_dict.get("data_received"),
     #         )
-    #         for attribute, errors_list in e_dict.items()
+    #         for attr, errors_list in e_dict.items()
     #         for messages_dict in errors_list
     #     ]
     # )

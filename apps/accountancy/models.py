@@ -127,7 +127,7 @@ class AccountSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "code_plan_sage", "account"
+        return {"code_plan_sage", "account"}
 
     @property
     def get_import(self):
@@ -196,7 +196,7 @@ class AxeSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "axe"
+        return {"axe"}
 
     @property
     def get_import(self):
@@ -334,7 +334,7 @@ class SectionSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "axe", "section"
+        return {"axe", "section"}
 
     @property
     def get_import(self):
@@ -412,7 +412,7 @@ class VatRegimeSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "vat_regime"
+        return {"vat_regime"}
 
     @property
     def get_import(self):
@@ -477,7 +477,7 @@ class VatSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "vat"
+        return {"vat"}
 
     @property
     def get_import(self):
@@ -548,7 +548,7 @@ class VatRatSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "vat", "vat_start_date", "rate"
+        return {"vat", "vat_start_date", "rate"}
 
     @property
     def get_import(self):
@@ -614,7 +614,7 @@ class PaymentCondition(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "auuid"
+        return {"auuid"}
 
     @property
     def get_import(self):
@@ -762,7 +762,7 @@ class TabDivSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "num_table", "code"
+        return {"num_table", "code"}
 
     @property
     def get_import(self):
@@ -835,7 +835,7 @@ class CategorySage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "initial", "code"
+        return {"initial", "code"}
 
     @property
     def get_import(self):
@@ -918,7 +918,7 @@ class CurrencySage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return "currency_current", "currency_change", "exchange_date"
+        return {"currency_current", "currency_change", "exchange_date"}
 
     @property
     def get_import(self):

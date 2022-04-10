@@ -1,4 +1,4 @@
-# pylint: disable=
+# pylint: disable=W0703,W1203
 """
 FR : Module d'import en boucle des modèles de Sage X3
 EN : Loop import module for Sage X3 models
@@ -47,7 +47,7 @@ def get_processing_files():
     file_list = []
 
     for file in Path(settings.ACUITIS_EM_DIR).glob("*"):
-        if file.name in processing_dict.keys():
+        if file.name in processing_dict:
             destination = Path(settings.PROCESSING_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
             file_list.append(destination)
@@ -82,7 +82,7 @@ def process():
             if error and trace:
                 trace.errors = True
                 trace.comment = (
-                        "Une erreur c'est produite veuillez consulter les logs\n" + trace.comment
+                    trace.comment + "\nUne erreur c'est produite veuillez consulter les logs"
                 )
                 trace.save()
 

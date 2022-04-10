@@ -18,8 +18,8 @@ class EdiForm(forms.ModelForm):
     FR : EdiForm pour la validation des fichiers edi
     EN : EdiForm for edi files validation
     """
-    fournisseur = TruncatedTextField()
-    siret_fournisseur = TruncatedTextField()
+    supplier = TruncatedTextField()
+    supplier_ident = TruncatedTextField()
     siret_payeur = TruncatedTextField()
     code_fournisseur = TruncatedTextField()
     code_maison = TruncatedTextField()

@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0903,R0913,W0703,W1203
+# pylint: disable=E0401,R0913,W0703,W1203
 """
 FR : Module d'import des modèles de Sage X3
 EN : Import module for Sage X3 models
@@ -43,7 +43,7 @@ from apps.accountancy.forms.forms_djantic.sage import (
     CategorySageSchema,
 )
 from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
-from apps.data_flux.models import Trace
+from apps.data_flux.trace import get_trace
 from apps.data_flux.loader import (
     GetAddDictError,
     IterFileToInsertError,
@@ -56,44 +56,17 @@ from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, Po
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
-def get_trace(trace_name, file_name, application_name, flow_name, comment):
+def make_insert(model, source, trace, validator, params_dict_loader):
     """
-    Créé la base de la trace
-    :param trace_name: trace_name
-    :param file_name: file_name
-    :param application_name: application_name
-    :param flow_name: flow_name
-    :param comment: comment
-    :return: Trace Object
-    """
-    trace = Trace.objects.create(
-        created_at=timezone.now(),
-        uuid_identification=uuid4(),
-        trace_name=trace_name,
-        file_name=file_name,
-        application_name=application_name,
-        flow_name=flow_name,
-        comment=comment,
-        created_numbers_records=0,
-        updated_numbers_records=0,
-        errors_numbers_records=0,
-        unknown_numbers_records=0,
-    )
-    return trace
-
-
-def make_insert(model, source, trace, validator, params_dict_loader, valide_file_io):
-    """
-    Realise l'insertion
-    :param model:
-    :param source:
-    :param trace:
-    :param validator:
-    :param params_dict_loader:
-    :param valide_file_io:
-    :return:
+    Réalise la lecture, transformation du fichier, la validation et l'insertion en base
+    :param model:               model au sens Django
+    :param source:              Fichier source
+    :param trace:               Trace à utiliser
+    :param validator:           Validateur des données en entrée
+    :param params_dict_loader:  Dictionnaire de paramètres
     """
     error = False
+    valide_file_io = io.StringIO()
 
     try:
         params_dict_validation = {
@@ -184,11 +157,17 @@ def make_insert(model, source, trace, validator, params_dict_loader, valide_file
         if error:
             trace.errors = True
             trace.comment = (
-                "Une erreur c'est produite veuillez consulter les logs\n" + trace.comment
+                trace.comment + "\nUne erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
         trace.save()
+        try:
+            if not valide_file_io.closed:
+                valide_file_io.close()
+            del valide_file_io
+        except (AttributeError, NameError):
+            pass
 
 
 def account_sage(file_path: Path):
@@ -204,7 +183,6 @@ def account_sage(file_path: Path):
     flow_name = "AccountSage"
     comment = f"import journalier {file_name} des Comptes comptables Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -213,7 +191,7 @@ def account_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -231,7 +209,6 @@ def axe_sage(file_path: Path):
     flow_name = "AxeSage"
     comment = f"import journalier {file_name} des Axes Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -239,7 +216,7 @@ def axe_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -257,7 +234,6 @@ def section_sage(file_path: Path):
     flow_name = "SectionSage"
     comment = f"import journalier {file_name} des Sections Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -266,7 +242,7 @@ def section_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -284,7 +260,6 @@ def vat_regime_sage(file_path: Path):
     flow_name = "VatRegimeSage"
     comment = f"import journalier {file_name} des Régimes de taxe Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -292,7 +267,7 @@ def vat_regime_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -310,7 +285,6 @@ def vat_sage(file_path: Path):
     flow_name = "VatSage"
     comment = f"import journalier {file_name} des Taxes Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -318,7 +292,7 @@ def vat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -336,7 +310,6 @@ def vat_rat_sage(file_path: Path):
     flow_name = "VatRatSage"
     comment = f"import journalier {file_name} des Taux de Taxes Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -344,7 +317,7 @@ def vat_rat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -362,7 +335,6 @@ def payement_condition(file_path: Path):
     flow_name = "PaymentCondition"
     comment = f"import journalier {file_name} des Conditions de paiements Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -370,7 +342,7 @@ def payement_condition(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -388,7 +360,6 @@ def tab_div_sage(file_path: Path):
     flow_name = "TabDivSage"
     comment = f"import journalier {file_name} des Tables Diverses Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -396,7 +367,7 @@ def tab_div_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace
 
@@ -414,7 +385,6 @@ def category_sage(file_path: Path):
     flow_name = "CategorySage"
     comment = f"import journalier {file_name} des Catégories Clients et Fournisseurs Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    valide_file_io = io.StringIO()
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
@@ -422,6 +392,6 @@ def category_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    make_insert(model, file_path, trace, validator, params_dict_loader, valide_file_io)
+    make_insert(model, file_path, trace, validator, params_dict_loader)
 
     return trace

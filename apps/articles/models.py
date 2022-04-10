@@ -47,8 +47,8 @@ class Article(FlagsTable):
     )
     reference = models.CharField(max_length=35)
     ean_code = models.CharField(null=True, blank=True, max_length=35)
-    libelle = models.CharField(null=True, blank=True, max_length=80)
-    libelle_heron = models.CharField(null=True, blank=True, max_length=80)
+    libelle = models.CharField(null=True, blank=True, max_length=150)
+    libelle_heron = models.CharField(null=True, blank=True, max_length=150)
     brand = models.CharField(null=True, blank=True, max_length=80)
     manufacturer = models.CharField(null=True, blank=True, max_length=80)
     big_category = models.ForeignKey(

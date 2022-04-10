@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=E0401,R0903
 """Module du modèle de données pour la gestion d'erreurs et de lecture trace
 
 Commentaire:
@@ -67,6 +67,12 @@ class Trace(BaseFlux):
 
 
 class Line(models.Model):
+    """
+    Table pour les lignes des traces
+    FR : Table Lignes Traces Apllicatives
+    EN : Applications Traces Lines Table
+    """
+
     class Insertiontype(models.TextChoices):
         """Insertion choices"""
 
@@ -91,6 +97,12 @@ class Line(models.Model):
 
 
 class Error(models.Model):
+    """
+    Table pour les lignes d'erreurs des traces
+    FR : Table Lignes Erreurs Traces Apllicatives
+    EN : Applications Traces Lines Errors Table
+    """
+
     line = models.ForeignKey(
         Line,
         on_delete=models.PROTECT,
@@ -98,13 +110,16 @@ class Error(models.Model):
         related_name="error_line",
         db_column="line",
     )
-    attribute = models.CharField(null=True, blank=True, max_length=80)
+    attr_name = models.CharField(null=True, blank=True, max_length=80)
+    file_column = models.CharField(null=True, blank=True, max_length=80)
     message = models.CharField(null=True, blank=True, max_length=255)
     data_expected = models.TextField(null=True, blank=True)
     data_received = models.TextField(null=True, blank=True)
 
 
 class Essais(models.Model):
+    """EssaiS"""
+
     col_texte = models.CharField(max_length=12)
     col_2 = models.CharField(null=True, blank=True, max_length=10)
     col_3 = models.CharField(null=True, blank=True, max_length=100)
@@ -112,6 +127,8 @@ class Essais(models.Model):
 
 
 class EssaisZ(models.Model):
+    """EssaiSZ"""
+
     trace = models.ForeignKey(
         Trace,
         null=True,

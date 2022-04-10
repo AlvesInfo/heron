@@ -1,4 +1,4 @@
-# pylint: disable=E0401,E1101
+# pylint: disable=C0303,E0401,E1101
 """Module de validation des flux à intégrer en BDD
 
 Instances de validation implémentées :
@@ -21,12 +21,13 @@ import uuid
 from typing import Any, Dict, Iterable
 
 import pendulum
+import pydantic
 from pydantic import BaseModel, ValidationError
 from djantic import ModelSchema
 from rest_framework import serializers as seria
 
 from django import forms
-from django.db import models
+from django.db import connection, models
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -72,8 +73,7 @@ class TraceTemplate:
         self.trace_number = params_dict.get("trace_uuid") or uuid.uuid4()
         self.params_dict = params_dict
         self.trace = params_dict.get("trace") or self.initialize()
-        self.lines_list = []
-        self.errors_list = []
+        self.errors = False
 
     def initialize(self):
         """
@@ -124,16 +124,16 @@ class TraceTemplate:
             "Unknown": "Cette ligne n'a pas été traitée",
         }
         uuid_line_identification = uuid.uuid4()
-        self.lines_list.append(
-            {
+        line = Line.objects.create(
+            **{
                 "uuid_identification": uuid_line_identification,
-                "trace": self.trace.uuid_identification,
+                "trace": self.trace,
                 "insertion_type": insertion_type,
                 "num_line": num_line,
                 "designation": designation or insertion_dict.get(insertion_type),
             }
         )
-        return uuid_line_identification
+        return line
 
     def add_error(self, num_line: str, error: Any):
         """
@@ -163,29 +163,29 @@ class TraceTemplate:
                              ], ...
                          }
         """
-        errors_format = self.get_formatted_error(error)
+        self.errors = True
+        formatted_errors = self.get_formatted_error(error)
+        line = self.add_line(insertion_type="Errors", num_line=num_line)
+        print("\nErreur : ", formatted_errors)
+        for attr_name, errors_list in formatted_errors.items():
 
-        for attribute, errors_list in errors_format.items():
-            uuid_error_line = self.add_line(insertion_type="Errors", num_line=num_line)
-
-            for messages_dict in errors_list:
-                self.errors_list.append(
-                    {
-                        "line": uuid_error_line,
-                        "attribute": attribute,
-                        "message": messages_dict.get("message"),
-                        "data_expected": messages_dict.get("data_expected"),
-                        "data_received": messages_dict.get("data_received"),
-                    }
-                )
+            Error.objects.bulk_create(
+                [
+                    Error(
+                        **{
+                            "line": line,
+                            "attr_name": attr_name,
+                            "message": messages_dict.get("message"),
+                            "data_expected": messages_dict.get("data_expected"),
+                            "data_received": messages_dict.get("data_received"),
+                        }
+                    )
+                    for messages_dict in errors_list
+                ]
+            )
 
     def save(self):
         """Sauvegarde de l'ensemble de la trace y compris les lignes et les erreurs"""
-        if self.lines_list:
-            Line.objects.create([Line(**line_dict) for line_dict in self.lines_list])
-
-        if self.errors_list:
-            Error.objects.create([Error(**error_dict) for error_dict in self.errors_list])
 
         # Sauvegarde finale, pour le comptage des differents état des enregistrements
         create = Count("insertion_type", filter=Q(insertion_type="Create"))
@@ -198,12 +198,37 @@ class TraceTemplate:
         )
 
         self.trace.final_at = timezone.now()
+        self.trace.errors = self.errors
         self.trace.created_numbers_records = counts_dict.get("create")
         self.trace.updated_numbers_records = counts_dict.get("update")
         self.trace.errors_numbers_records = counts_dict.get("errors")
         self.trace.passed_numbers_records = counts_dict.get("passed")
         self.trace.unknown_numbers_records = counts_dict.get("unknown")
         self.trace.save()
+
+        # mise à jour des champs de colonnes pour avoir une meilleure indication dans les traces
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+            update data_flux_error err 
+            set file_column = maj.file_column
+            from (
+                select dfe.id, ec.file_column
+                from data_flux_trace dft  
+                join data_flux_line dfl 
+                on dft.uuid_identification = dfl.trace 
+                join data_flux_error dfe 
+                on dfl.uuid_identification = dfe.line 
+                join edi_columndefinition ec  
+                on dft.flow_name = ec.table_name 
+                and dfe.attr_name = ec.attr_name 
+                where dft.uuid_identification = %(uuid_identification)s
+                and dfe.file_column isnull
+            ) maj
+            where err.id = maj.id
+            """,
+                {"uuid_identification": self.trace.uuid_identification},
+            )
 
 
 class DjangoTrace(TraceTemplate):
@@ -501,7 +526,7 @@ class ValidationTemplate:
 
                 # si l'on dépasse le nombre d'erreurs max demandées,
                 # alors on stoppe le contrôle des lignes
-                if nb_errors_max and nb_errors > nb_errors_max:
+                if nb_errors_max and nb_errors >= nb_errors_max:
                     break
 
         except Exception as except_error:
@@ -650,8 +675,8 @@ class PydanticValidation(ValidationTemplate):
         try:
             form = validator(**data_dict)
             csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
-        except ValidationError as except_error:
-            return except_error.errors()
+        except (pydantic.error_wrappers.ValidationError, ValidationError) as except_error:
+            return except_error.errors(), data_dict
 
         return False
 

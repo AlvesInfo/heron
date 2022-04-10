@@ -77,6 +77,13 @@ LOGGING = {
             "filename": f"{VAR_LOG_DIR}/import_logfile.log",
             "formatter": "verbose",
         },
+        # Send in import_logfile
+        "edi_logfile": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{VAR_LOG_DIR}/edi_logfile.log",
+            "formatter": "verbose",
+        },
         # Send in connexion_file
         "connexion": {
             "level": "INFO",
@@ -96,7 +103,8 @@ LOGGING = {
             "propagate": True,
         },
         "timer_heron": {"handlers": ["timer_heron"]},
-        "imports": {"handlers": ["import_logfile"], "propagate": False},
+        "imports": {"handlers": ["import_logfile"], "propagate": True},
+        "edi": {"handlers": ["edi_logfile"], "propagate": True},
     },
 }
 

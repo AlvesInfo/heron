@@ -238,10 +238,6 @@ Path.mkdir(BACKUP_DIR, exist_ok=True)
 BACKUP_SAGE_DIR = (Path(BASE_DIR) / "files/backup/sage").resolve()
 Path.mkdir(BACKUP_SAGE_DIR, exist_ok=True)
 
-# REPERTOIRE DES BACKUP FACTURES FOURNISSEURS
-BACKUP_SUPPLIERS_DIR = (Path(BASE_DIR) / "files/backup/suppliers_invoices_files").resolve()
-Path.mkdir(BACKUP_SUPPLIERS_DIR, exist_ok=True)
-
 # REPERTOIRES DE MEDIA
 MEDIA_DIR = (Path(BASE_DIR) / "files/media").resolve()
 Path.mkdir(MEDIA_DIR, exist_ok=True)

@@ -19,6 +19,7 @@ MIDDLEWARE = (
 )
 
 LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
+LOG_EDI_FILE = (Path(LOG_DIR) / "edi_file.log").resolve()
 LOG_IMPORT_FILE = (Path(LOG_DIR) / "import_file.log").resolve()
 LOG_CONNEXION = (Path(LOG_DIR) / "connection.log").resolve()
 
@@ -60,6 +61,13 @@ LOGGING = {
             "filename": LOG_IMPORT_FILE,
             "formatter": "verbose",
         },
+        # Send in import_logfile
+        "edi_logfile": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": LOG_EDI_FILE,
+            "formatter": "verbose",
+        },
         # Send in connexion-file
         "connexion-file": {
             "level": "INFO",
@@ -73,8 +81,9 @@ LOGGING = {
         # 5xx ERRROR and 4xx WARNING
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
-        "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": False},
-        "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": False},
+        "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": True},
+        "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": True},
+        "edi": {"handlers": ["edi_logfile"], "propagate": True},
     },
 }
 
