@@ -64,10 +64,12 @@ def process():
     dans le répertoire de processing/suppliers_invoices_files
     """
     import time
-    start = time.time()
+    start_initial = time.time()
+
     for directory, function in processing_dict.items():
         files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / directory
         for file in files_directory.glob("*"):
+            start = time.time()
             error = False
             trace = None
 
@@ -93,7 +95,13 @@ def process():
                     )
                     trace.save()
 
-        print(f"validation in : {time.time() - start} s")
+            print(f"Validation {file.name} in : {time.time() - start} s")
+            print(
+                "\n\n======================================================================="
+                "======================================================================="
+            )
+
+    print(f"All validations : {time.time() - start_initial} s")
 
 
 if __name__ == "__main__":

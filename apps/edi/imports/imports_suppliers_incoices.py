@@ -140,10 +140,10 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             params_dict=params_dict_load,
         ) as file_load:
 
-            for i, line in enumerate(file_load.read_dict(), 1):
-                if i == 10:
-                    break
-                print(line)
+            # for i, line in enumerate(file_load.read_dict(), 1):
+            #     if i == 10:
+            #         break
+            #     print(line)
 
             validation = Validation(
                 dict_flow=file_load.read_dict(),
@@ -168,18 +168,9 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
                 print(line, end="")
 
             if error_lines:
-                print(
-                    "\nLignes en erreur : ",
-                    error_lines,
-                    "\n======================================================================="
-                    "=======================================================================",
-                )
+                print("\nLignes en erreur : ", error_lines)
             else:
-                print(
-                    "\nPas d'erreurs",
-                    "\n\n======================================================================="
-                    "======================================================================="
-                )
+                print("\nPas d'erreurs")
 
             valide_file_io.seek(0)
 
