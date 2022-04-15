@@ -39,9 +39,11 @@ class Invoice(FlagsTable):
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
     invoice_type = models.CharField(max_length=3)
     flag_sage = models.BooleanField(null=True, default=False)
+    comment = models.CharField(null=True, blank=True, max_length=255)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_file = models.UUIDField(editable=False)
 
     def save(self, *args, **kwargs):
         """
@@ -161,4 +163,20 @@ class InvoiceDetail(FlagsTable):
     # Other descriptions
     client_name = models.CharField(null=True, blank=True, max_length=80)
     serial_number = models.TextField(null=True, blank=True, max_length=1000)
-    comment = models.CharField(null=True, blank=True, max_length=120)
+    comment = models.CharField(null=True, blank=True, max_length=255)
+
+
+class InvoiceSerials(models.Model):
+    """
+    FR : Detail des n° de série
+    EN : Serial numbers detail
+    """
+
+    invoice = models.ForeignKey(
+        Invoice,
+        on_delete=models.CASCADE,
+        to_field="uuid_identification",
+        related_name="serial_invoice",
+        db_column="invoice",
+    )
+    serial = models.CharField(max_length=255)

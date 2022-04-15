@@ -79,16 +79,17 @@ def make_insert(model, source, trace, validator, params_dict_loader):
             key: key in model.get_uniques()
             for key in {**model.get_columns_import(), **params_dict_loader.get("add_fields_dict")}
         }
-
+        nbre = 2
         with FileLoader(
             source=source,
             columns_dict=model.get_columns_import(),
             params_dict=params_dict_loader,
         ) as file_load:
 
-            # print(fields_dict)
-            # for line in file_load.read_dict():
-            #     print(line)
+            for i, line in enumerate(file_load.read_dict(), 1):
+                if i == nbre:
+                    break
+                print(line)
 
             validation = Validation(
                 dict_flow=file_load.read_dict(),
@@ -97,9 +98,6 @@ def make_insert(model, source, trace, validator, params_dict_loader):
                 params_dict=params_dict_validation,
             )
             error_lines = validation.validate()
-
-            if error_lines:
-                print(error_lines)
 
             postgres_upsert = PostgresDjangoUpsert(
                 model=model,
@@ -110,10 +108,12 @@ def make_insert(model, source, trace, validator, params_dict_loader):
 
             valide_file_io.seek(0)
 
-            # for line in valide_file_io:
-            #     print(line, end="")
-            #
-            # valide_file_io.seek(0)
+            for i, line in enumerate(valide_file_io, 1):
+                if i == nbre:
+                    break
+                print(line, end="")
+
+            valide_file_io.seek(0)
 
             postgres_upsert.insertion(
                 file=valide_file_io,
@@ -121,6 +121,11 @@ def make_insert(model, source, trace, validator, params_dict_loader):
                 delimiter=";",
                 quote_character='"',
             )
+
+            if error_lines:
+                print("\nLignes en erreur : ", error_lines)
+            else:
+                print("\nPas d'erreurs")
 
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:

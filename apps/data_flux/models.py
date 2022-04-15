@@ -29,6 +29,7 @@ class BaseFlux(models.Model):
     to_delete = models.BooleanField(null=True, default=False)
     delete = models.BooleanField(null=True)
     active = models.BooleanField(null=True)
+    acquitted = models.BooleanField(null=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -36,6 +37,14 @@ class BaseFlux(models.Model):
         related_name="+",
         db_column="created_by",
     )
+    acquitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+        db_column="acquitted_by",
+    )
+    level_group = models.CharField(null=True, blank=True, max_length=80)
 
     class Meta:
         """class Meta du modèle django"""

@@ -21,6 +21,81 @@ from apps.core.functions.functions_utilitaires import get_decimal, get_zero_deci
 # print(field.name, field.type_, type(field), dir(field.type_))
 
 
+# VALIDATEUR GENERIQUE REPRENANT ===================================================================
+# TruncateStrFieldsBase
+# NullZeroDecimalFieldBase
+# DecimalFieldBase
+# ==================================================================================================
+
+
+class ValidateFieldsBase(BaseModel):
+    """Validation :
+    pré tronque le texte à la valeur du max_length
+    pré valide les Decimal python, pour avoir zéro, par defaut
+    pré valide les Decimal python
+    pré valide les dates python
+    """
+
+    @validator("*", pre=True, always=True)
+    def truncate(cls, value, field):
+
+        if hasattr(field.type_, "max_length"):
+            value = (
+                None
+                if not value
+                else str("" if value is None else str(value).split("~~", maxsplit=1)[0]).strip()[
+                    : field.type_.max_length
+                ]
+            )
+
+        return value
+
+    @validator("*", pre=True, always=True)
+    def fiels_decimal(cls, value, field):
+        if str(field.type_) == "<class 'decimal.Decimal'>":
+            return get_decimal(get_zero_decimal(value))
+
+        return value
+
+    @validator("*", pre=True, always=True)
+    def input_format_date(cls, value, field):
+
+        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
+            try:
+                value = datetime.datetime.strptime(value, "%Y-%m-%d")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%d/%m/%Y")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%d.%m.%Y")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%d-%m-%Y")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%Y%m%d")
+                return value
+            except ValueError:
+                pass
+
+        return value
+
+
 # GESTION DE TEXTE =================================================================================
 
 
@@ -188,6 +263,48 @@ class NullZeroDecimalFieldBase(BaseModel):
 # GESTION DE DATE ==================================================================================
 
 
+class ParserDateBase(BaseModel):
+    """Validation qui pré valide les DateField Django"""
+
+    @validator("*", pre=True, always=True)
+    def parser_date(cls, value, field):
+
+        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
+            try:
+                value = datetime.datetime.strptime(value, "%Y-%m-%d")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%d/%m/%Y")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%d.%m.%Y")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%d-%m-%Y")
+                return value
+            except ValueError:
+                pass
+
+            try:
+                value = datetime.datetime.strptime(value, "%Y%m%d")
+                return value
+            except ValueError:
+                pass
+
+        return value
+
+
 class SageDateFieldsBase(BaseModel):
     """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyy"""
 
@@ -325,6 +442,9 @@ class TvaGenerique(BaseModel):
         }:
             value = Decimal(value) / Decimal("10000")
 
+        if not value:
+            value = Decimal("0")
+
         return value
 
 
@@ -352,14 +472,17 @@ class TvaWidex(BaseModel):
 
     @validator("vat_rate", pre=True, check_fields=False)
     def tva_widex(cls, value):
-        value = str(value).replace(",", ".")
+        value = str(value).replace(",", ".").lstrip("0")
+
         if value in {
             "0.0",
             "00.0",
             "00",
+            "0",
             "6.0",
             "06.0",
             "06",
+            "6",
             "5.5",
             "05.5",
             "20.0",
@@ -378,6 +501,9 @@ class TvaWidex(BaseModel):
             elif Decimal(value) == Decimal("6") or Decimal(value) == Decimal("5.5"):
                 value = Decimal(".055")
 
+        if not value:
+            value = Decimal("0")
+
         return value
 
 
@@ -387,7 +513,10 @@ class TvaNewson(BaseModel):
     @validator("vat_rate", pre=True, check_fields=False)
     def tva_newson(cls, value):
 
-        if value == "C3":
+        if value in {"C0", "C1", "C2}"}:
+            value = Decimal("0")
+
+        elif value == "C3":
             value = Decimal(".055")
 
         elif value == "C4":

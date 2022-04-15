@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0913,W0703,W1203
+# pylint: disable=E0401,R0912,R0913,R0914,R0915,W0703,W1203
 """
 FR : Module d'import des factures founisseurs EDI
 EN : Import module for EDI incoives suppliers
@@ -21,6 +21,24 @@ from django.utils import timezone
 from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing import bulk_translate_file
+from apps.edi.bin.edi_post_processing import (
+    bulk_post_insert,
+    eye_confort_post_insert,
+    generique_post_insert,
+    hearing_post_insert,
+    interson_post_insert,
+    johnson_post_insert,
+    lmc_post_insert,
+    newson_post_insert,
+    phonak_post_insert,
+    prodition_post_insert,
+    signia_post_insert,
+    starkey_post_insert,
+    technidis_post_insert,
+    unitron_post_insert,
+    widex_post_insert,
+    widexga_post_insert,
+)
 from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport
 from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
 from apps.edi.forms.forms_djantic.invoices import (
@@ -54,53 +72,71 @@ from apps.data_flux.loader import (
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
 
 try:
-    cache = redis.StrictRedis()
+    cache = redis.StrictRedis(
+        # host=settings.REDIS_HOST,
+        # port=settings.REDIS_PORT,
+        # password=settings.REDIS_PASSWORD,
+    )
 except redis.exceptions.ConnectionError:
     cache = {}
 
 proccessing_dir = Path(settings.PROCESSING_SUPPLIERS_DIR)
 
 
-def get_supplier_name(table_name: str):
+def get_supplier_name(flow_name: str):
     """
-    :param table_name: champ table_name dans la table SupplierDefinition
-    :return: Retourne le supplier_name du fournisseur dans la table SupplierDefinition
+    :param flow_name: champ flow_name dans la table SupplierDefinition
+    :return: Retourne le supplier du fournisseur dans la table SupplierDefinition
     """
     try:
-        name = SupplierDefinition.objects.get(table_name=table_name)
-        print(name, table_name)
+        name = SupplierDefinition.objects.get(flow_name=flow_name)
+        print(name, flow_name)
         if isinstance(cache, (dict,)):
-            cache[f"{table_name}_supplier"] = name.supplier_name
-            cache[f"{table_name}_siret"] = name.supplier_siret
+            cache[f"{flow_name}_supplier"] = name.supplier
+            cache[f"{flow_name}_ident"] = name.supplier_ident
         else:
-            cache.set(f"{table_name}_supplier", name.supplier_name)
-            cache.set(f"{table_name}_siret", name.supplier_siret)
+            cache.set(f"{flow_name}_supplier", name.supplier)
+            cache.set(f"{flow_name}_ident", name.supplier_ident)
 
-        return name.supplier_name
+        return name.supplier
 
     except SupplierDefinition.DoesNotExist:
         return None
 
 
-def get_supplier_ident(table_name: str):
+def get_supplier_ident(flow_name: str):
     """
-    :param table_name: champ table_name dans la table SupplierDefinition
-    :return: Retourne le supplier_siret du fournisseur dans la table SupplierDefinition
+    :param flow_name: champ flow_name dans la table SupplierDefinition
+    :return: Retourne le supplier_ident du fournisseur dans la table SupplierDefinition
     """
     try:
-        name = SupplierDefinition.objects.get(table_name=table_name)
+        name = SupplierDefinition.objects.get(flow_name=flow_name)
 
         if isinstance(cache, (dict,)):
-            cache[f"{table_name}_siret"] = name.supplier_siret
-            cache[f"{table_name}_supplier"] = name.supplier_name
+            cache[f"{flow_name}_ident"] = name.supplier_ident
+            cache[f"{flow_name}_supplier"] = name.supplier
         else:
-            cache.set(f"{table_name}_siret", name.supplier_siret)
-            cache.set(f"{table_name}_supplier", name.supplier_name)
+            cache.set(f"{flow_name}_ident", name.supplier_ident)
+            cache.set(f"{flow_name}_supplier", name.supplier)
 
-        return name.supplier_siret
+        return name.supplier_ident
 
     except SupplierDefinition.DoesNotExist:
         return None
+
+
+def get_supplier(flow_name):
+    """Get supplier name in cache ou model SupplierDefinition"""
+    return (
+        cache.get(f"{flow_name}_supplier").decode() if cache.get(f"{flow_name}") else None
+    ) or get_supplier_name(flow_name)
+
+
+def get_ident(flow_name):
+    """Get supplier ident in cache ou model SupplierDefinition"""
+    return (
+        cache.get(f"{flow_name}_ident").decode() if cache.get(f"{flow_name}") else None
+    ) or get_supplier_ident(flow_name)
 
 
 def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
@@ -246,19 +282,21 @@ def bbgr_bulk(file_path: Path):
     trace_name = "Import BBGR Bulk"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "BbrgBulk"
-    comment = f"import des factures BBGR Bulk"
+    comment = "import des factures BBGR Bulk"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier": cache.get("BbrgBulk_supplier") or get_supplier_name("BbrgBulk"),
-            "supplier_ident": cache.get("BbrgBulk_siret") or get_supplier_ident("BbrgBulk"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     new_file_path = bulk_translate_file(file_path)
     make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     new_file_path.unlink()
+    bulk_post_insert(flow_name)
 
     return trace
 
@@ -274,11 +312,12 @@ def edi(file_path: Path):
     trace_name = "Import Edi"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Edi"
-    comment = f"import des factures Edi opto 33"
+    comment = "import des factures Edi opto 33"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
+            "flow_name": flow_name,
             "uuid_identification": trace.uuid_identification,
         },
     }
@@ -298,17 +337,19 @@ def eye_confort(file_path: Path):
     trace_name = "Import EyeConfort"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "EyeConfort"
-    comment = f"import des factures EyeConfort"
+    comment = "import des factures EyeConfort"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier": cache.get("EyeConfort_supplier") or get_supplier_name("EyeConfort"),
-            "supplier_ident": cache.get("EyeConfort_siret") or get_supplier_ident("EyeConfort"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    eye_confort_post_insert(flow_name)
 
     return trace
 
@@ -324,15 +365,17 @@ def generique(file_path: Path):
     trace_name = "Import Génerique"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Generique"
-    comment = f"import des factures au format du cahier des charges Génerique"
+    comment = "import des factures au format du cahier des charges Génerique"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
+            "flow_name": flow_name,
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    generique_post_insert(flow_name)
 
     return trace
 
@@ -348,16 +391,19 @@ def hearing(file_path: Path):
     trace_name = "Import Hearing"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Hearing"
-    comment = f"import des factures Hearing"
+    comment = "import des factures Hearing"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Hearing_siret") or get_supplier_ident("Hearing"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    hearing_post_insert(flow_name)
 
     return trace
 
@@ -373,15 +419,19 @@ def interson(file_path: Path):
     trace_name = "Import Interson"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Interson"
-    comment = f"import des factures Interson"
+    comment = "import des factures Interson"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    interson_post_insert(flow_name)
 
     return trace
 
@@ -397,23 +447,25 @@ def johnson(file_path: Path):
     trace_name = "Import Johnson"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Johnson"
-    comment = f"import des factures Johnson"
+    comment = "import des factures Johnson"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier": cache.get("Johnson_supplier") or get_supplier_name("Johnson"),
-            "supplier_ident": cache.get("Johnson_siret") or get_supplier_ident("Johnson"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
         "exclude_rows_dict": {1: "Total"},
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    johnson_post_insert(flow_name)
 
     return trace
 
 
-def Lmc(file_path: Path):
+def lmc(file_path: Path):
     """
     Import du fichier des factures Lmc
     :param file_path: Path du fichier à traiter
@@ -424,16 +476,19 @@ def Lmc(file_path: Path):
     trace_name = "Import Lmc"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Lmc"
-    comment = f"import des factures Lmc"
+    comment = "import des factures Lmc"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Lmc_siret") or get_supplier_ident("Lmc"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    lmc_post_insert(flow_name)
 
     return trace
 
@@ -449,22 +504,24 @@ def newson(file_path: Path):
     trace_name = "Import Newson"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Newson"
-    comment = f"import des factures Newson"
+    comment = "import des factures Newson"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier": cache.get("Newson_supplier") or get_supplier_name("Newson"),
-            "supplier_ident": cache.get("Newson_siret") or get_supplier_ident("Newson"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    newson_post_insert(flow_name)
 
     return trace
 
 
-def Phonak(file_path: Path):
+def phonak(file_path: Path):
     """
     Import du fichier des factures Phonak
     :param file_path: Path du fichier à traiter
@@ -475,16 +532,19 @@ def Phonak(file_path: Path):
     trace_name = "Import Phonak"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Phonak"
-    comment = f"import des factures Phonak"
+    comment = "import des factures Phonak"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Phonak_siret") or get_supplier_ident("Phonak"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    phonak_post_insert(flow_name)
 
     return trace
 
@@ -500,16 +560,19 @@ def prodition(file_path: Path):
     trace_name = "Import Prodition"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Prodition"
-    comment = f"import des factures Prodition"
+    comment = "import des factures Prodition"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Prodition_siret") or get_supplier_ident("Prodition"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    prodition_post_insert(flow_name)
 
     return trace
 
@@ -525,17 +588,19 @@ def signia(file_path: Path):
     trace_name = "Import Signia"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Signia"
-    comment = f"import des factures Signia"
+    comment = "import des factures Signia"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier": cache.get("Signia_supplier") or get_supplier_name("Signia"),
-            "supplier_ident": cache.get("Signia_siret") or get_supplier_ident("Signia"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    signia_post_insert(flow_name)
 
     return trace
 
@@ -551,16 +616,19 @@ def starkey(file_path: Path):
     trace_name = "Import Starkey"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Starkey"
-    comment = f"import des factures Starkey"
+    comment = "import des factures Starkey"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Starkey_siret") or get_supplier_ident("Starkey"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    starkey_post_insert(flow_name)
 
     return trace
 
@@ -576,15 +644,19 @@ def technidis(file_path: Path):
     trace_name = "Import Technidis"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Technidis"
-    comment = f"import des factures Technidis"
+    comment = "import des factures Technidis"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    technidis_post_insert(flow_name)
 
     return trace
 
@@ -600,16 +672,19 @@ def unitron(file_path: Path):
     trace_name = "Import Unitron"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Unitron"
-    comment = f"import des factures Unitron"
+    comment = "import des factures Unitron"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Unitron_siret") or get_supplier_ident("Unitron"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    unitron_post_insert(flow_name)
 
     return trace
 
@@ -625,16 +700,19 @@ def widex(file_path: Path):
     trace_name = "Import Widex"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Widex"
-    comment = f"import des factures Widex"
+    comment = "import des factures Widex"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("Widex_siret") or get_supplier_ident("Widex"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    widex_post_insert(flow_name)
 
     return trace
 
@@ -650,15 +728,18 @@ def widex_ga(file_path: Path):
     trace_name = "Import WidexGa"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "WidexGa"
-    comment = f"import des factures Widex Grand Audition"
+    comment = "import des factures Widex Grand Audition"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
-            "supplier_ident": cache.get("WidexGa_siret") or get_supplier_ident("WidexGa"),
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
         },
     }
     make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    widexga_post_insert(flow_name)
 
     return trace

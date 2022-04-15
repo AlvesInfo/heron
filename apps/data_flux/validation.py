@@ -220,7 +220,7 @@ class TraceTemplate:
                 join data_flux_error dfe 
                 on dfl.uuid_identification = dfe.line 
                 join edi_columndefinition ec  
-                on dft.flow_name = ec.table_name 
+                on dft.flow_name = ec.flow_name 
                 and dfe.attr_name = ec.attr_name 
                 where dft.uuid_identification = %(uuid_identification)s
                 and dfe.file_column isnull

@@ -27,11 +27,12 @@ class EdiImport(models.Model):
 
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
     third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
+    flow_name = models.CharField(max_length=80)
     supplier = models.CharField(null=True, blank=True, max_length=35)
     supplier_ident = models.CharField(null=True, blank=True, max_length=20)
     siret_payeur = models.CharField(null=True, blank=True, max_length=20)
     code_fournisseur = models.CharField(null=True, blank=True, max_length=30)
-    code_maison = models.CharField(null=True, blank=True, max_length=30, default="AF000")
+    code_maison = models.CharField(null=True, blank=True, max_length=30)
     maison = models.CharField(null=True, blank=True, max_length=80, verbose_name="libellé maison")
     acuitis_order_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
@@ -80,19 +81,40 @@ class EdiImport(models.Model):
         default=0,
         verbose_name="prix unitaire net PRI avec AAA et NTP",
     )
-    packaging_price = models.DecimalField(
+    packaging_amount = models.DecimalField(
         null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="prix emballage MOA avec 8 quand ALC avec M et PC",
     )
-    transport_price = models.DecimalField(
+    transport_amount = models.DecimalField(
         null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
         verbose_name="prix transport MOA avec 8 quand ALC avec M et FC",
+    )
+    insurance_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix assurance",
+    )
+    fob_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix transport MOA avec 8 quand ALC avec M et FC",
+    )
+    fees_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix assurance",
     )
     gross_price = models.DecimalField(
         null=True,
@@ -155,17 +177,17 @@ class EdiImport(models.Model):
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
     active = models.BooleanField(null=True, default=False)
-    delete = models.BooleanField(null=True, default=False)
-    export = models.BooleanField(null=True, default=False)
+    to_delete = models.BooleanField(null=True, default=False)
+    to_export = models.BooleanField(null=True, default=False)
     valid = models.BooleanField(null=True, default=False)
 
 
 class SupplierDefinition(DatesTable):
     """Table de définition des entêtes des fichiers fournisseurs"""
 
-    table_name = models.CharField(unique=True, max_length=80)
-    supplier_name = models.CharField(null=True, blank=True, max_length=35)
-    supplier_siret = models.CharField(null=True, blank=True, max_length=20)
+    flow_name = models.CharField(unique=True, max_length=80)
+    supplier = models.CharField(null=True, blank=True, max_length=35)
+    supplier_ident = models.CharField(null=True, blank=True, max_length=20)
     first_line = models.IntegerField(default=1)
     encoding = models.CharField(null=True, blank=True, max_length=20)
     delimiter = models.CharField(null=True, blank=True, max_length=10, default=";")
@@ -178,12 +200,12 @@ class SupplierDefinition(DatesTable):
 class ColumnDefinition(models.Model):
     """Table de définition des entêtes de l'ordre et du formatage"""
 
-    table_name = models.ForeignKey(
+    flow_name = models.ForeignKey(
         SupplierDefinition,
         on_delete=models.PROTECT,
-        to_field="table_name",
+        to_field="flow_name",
         related_name="columns_suppliers",
-        db_column="table_name",
+        db_column="flow_name",
     )
     ranking = models.IntegerField(null=True)
     attr_name = models.CharField(max_length=120)
@@ -197,4 +219,4 @@ class ColumnDefinition(models.Model):
         """class Meta"""
 
         ordering = ["ranking"]
-        unique_together = (("table_name", "ranking"),)
+        unique_together = (("flow_name", "ranking"),)

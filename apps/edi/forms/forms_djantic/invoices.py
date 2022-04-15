@@ -17,14 +17,7 @@ import uuid
 from djantic import ModelSchema
 
 from apps.core.validations.pydantic_validators_base import (
-    TruncateStrFieldsBase,
-    DecimalFieldBase,
-    NullZeroDecimalFieldBase,
-    
-    GenericDateFieldsBase,
-    DdMmYyyyyDateFieldsBase,
-    IsoDateFieldsBase,
-    PointDateFieldsBase,
+    ValidateFieldsBase,
     TvaEyeConfor,
     TvaGenerique,
     TvaInterson,
@@ -37,19 +30,14 @@ from apps.edi.parameters.invoices_imports import get_columns
 
 class BbrgBulkSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    GenericDateFieldsBase,
-    DecimalFieldBase,
+    ValidateFieldsBase,
+    TvaWidex,
 ):
     """Schema Djantic pour validation du modèle BbrgVerre"""
 
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -57,41 +45,43 @@ class BbrgBulkSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "BbrgBulk")) + [
             "uuid_identification",
+            "flow_name",
             "supplier",
             "supplier_ident",
         ]
 
 
-class EdiSchema(ModelSchema, TruncateStrFieldsBase, NullZeroDecimalFieldBase, DecimalFieldBase):
+class EdiSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+):
     """Schema Djantic pour validation du modèle Edi"""
 
     uuid_identification: uuid.UUID
     qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "Edi")) + ["uuid_identification"]
+        include = list(get_columns(ColumnDefinition, "Edi")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+        ]
 
 
 class EyeConfortSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    PointDateFieldsBase,
+    ValidateFieldsBase,
     TvaEyeConfor,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Eye_confort"""
 
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -99,6 +89,7 @@ class EyeConfortSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "EyeConfort")) + [
             "uuid_identification",
+            "flow_name",
             "supplier",
             "supplier_ident",
         ]
@@ -106,41 +97,33 @@ class EyeConfortSchema(
 
 class GeneriqueSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    GenericDateFieldsBase,
+    ValidateFieldsBase,
     TvaGenerique,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Generique"""
 
     uuid_identification: uuid.UUID
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "Generique")) + ["uuid_identification"]
+        include = list(get_columns(ColumnDefinition, "Generique")) + [
+            "uuid_identification",
+            "flow_name",
+        ]
 
 
 class HearingSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaGenerique,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Hearing"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -148,48 +131,44 @@ class HearingSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Hearing")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class IntersonSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    DdMmYyyyyDateFieldsBase,
+    ValidateFieldsBase,
     TvaInterson,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Interson"""
 
     uuid_identification: uuid.UUID
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
-    devise: str = "EUR"
+    supplier: str
+    supplier_ident: str
 
     class Config:
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "Interson")) + ["uuid_identification"]
+        include = list(get_columns(ColumnDefinition, "Interson")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+        ]
 
 
 class JohnsonSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    PointDateFieldsBase,
-    DecimalFieldBase,
+    ValidateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle Johnson"""
 
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -197,6 +176,7 @@ class JohnsonSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Johnson")) + [
             "uuid_identification",
+            "flow_name",
             "supplier",
             "supplier_ident",
         ]
@@ -204,18 +184,13 @@ class JohnsonSchema(
 
 class LmcSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
-    DecimalFieldBase,
+    ValidateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle Lmc"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -223,26 +198,22 @@ class LmcSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Lmc")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class NewsonSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    PointDateFieldsBase,
+    ValidateFieldsBase,
     TvaNewson,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Newson"""
 
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -250,6 +221,7 @@ class NewsonSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Newson")) + [
             "uuid_identification",
+            "flow_name",
             "supplier",
             "supplier_ident",
         ]
@@ -257,19 +229,14 @@ class NewsonSchema(
 
 class PhonakSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaGenerique,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Phonak"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -277,24 +244,22 @@ class PhonakSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Phonak")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class ProditionSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaGenerique,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Prodition"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -302,26 +267,22 @@ class ProditionSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Prodition")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class SigniaSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    DdMmYyyyyDateFieldsBase,
+    ValidateFieldsBase,
     TvaWidex,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Signia"""
 
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -329,6 +290,7 @@ class SigniaSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Signia")) + [
             "uuid_identification",
+            "flow_name",
             "supplier",
             "supplier_ident",
         ]
@@ -336,19 +298,14 @@ class SigniaSchema(
 
 class StarkeySchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaGenerique,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Starkey"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -356,47 +313,45 @@ class StarkeySchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Starkey")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class TechnidisSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    DdMmYyyyyDateFieldsBase,
+    ValidateFieldsBase,
     TvaWidex,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Technidis"""
 
     uuid_identification: uuid.UUID
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
+    supplier: str
+    supplier_ident: str
 
     class Config:
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "Technidis")) + ["uuid_identification"]
+        include = list(get_columns(ColumnDefinition, "Technidis")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+        ]
 
 
 class UnitronSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaGenerique,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Unitron"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -404,25 +359,22 @@ class UnitronSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Unitron")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class WidexSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaWidex,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle Widex"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -430,25 +382,22 @@ class WidexSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Widex")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]
 
 
 class WidexGaSchema(
     ModelSchema,
-    TruncateStrFieldsBase,
-    NullZeroDecimalFieldBase,
-    
-    IsoDateFieldsBase,
+    ValidateFieldsBase,
     TvaWidex,
-    DecimalFieldBase,
 ):
     """Schema Djantic pour validation du modèle WidexGa"""
 
     uuid_identification: uuid.UUID
+    supplier: str
     supplier_ident: str
-    qty: Decimal = 1
-    packaging_qty: Decimal = 1
 
     class Config:
         """Config"""
@@ -456,5 +405,7 @@ class WidexGaSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "WidexGa")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "supplier_ident",
         ]

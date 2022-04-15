@@ -15,39 +15,39 @@ from typing import AnyStr, Dict
 from django.db import models
 
 
-def get_columns(model: models.Model, table_name: AnyStr) -> Dict:
+def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
     """
     :param model:       model au sens django
-    :param table_name:  Nom de la table
+    :param flow_name:  Nom de la table
     :return: Le Dictionnaire de correspondance entre le modèle et l'entête du fichier
     """
     return {
         dict_row.get("attr_name"): int(dict_row.get("file_column"))
         if dict_row.get("file_column").isnumeric()
         else dict_row.get("file_column")
-        for dict_row in model.objects.filter(table_name=table_name)
+        for dict_row in model.objects.filter(flow_name=flow_name)
         .order_by("ranking")
         .values("attr_name", "file_column")
     }
 
 
-def get_first_line(model: models.Model, table_name: AnyStr) -> int:
+def get_first_line(model: models.Model, flow_name: AnyStr) -> int:
     """
     :param model:       model SupplierDefinition django
-    :param table_name:  Nom de la table
+    :param flow_name:  Nom de la table
     :return: Retourne la première ligne du fichier
     """
     try:
-        first_line_object = model.objects.get(table_name=table_name)
+        first_line_object = model.objects.get(flow_name=flow_name)
         return first_line_object.first_line
     except model.DoesNotExist:
         return 1
 
 
-def get_loader_params_dict(model: models.Model, table_name: AnyStr) -> int:
+def get_loader_params_dict(model: models.Model, flow_name: AnyStr) -> int:
     """
     :param model:       model SupplierDefinition django
-    :param table_name:  Nom de la table
+    :param flow_name:  Nom de la table
     :return: Retourne le dictionnaire des paramètres pour le loader
     """
     try:
@@ -57,7 +57,7 @@ def get_loader_params_dict(model: models.Model, table_name: AnyStr) -> int:
             "lineterminator",
             "quotechar",
             "escapechar",
-        ).get(table_name=table_name)
+        ).get(flow_name=flow_name)
 
         params_dict = {
             "encoding": object_dict.get("encoding") or None,
