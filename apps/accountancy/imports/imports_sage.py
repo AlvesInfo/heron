@@ -125,7 +125,7 @@ def make_insert(model, source, trace, validator, params_dict_loader):
             if error_lines:
                 print("\nLignes en erreur : ", error_lines)
             else:
-                print("\nPas d'erreurs")
+                print("\nPas d'erreurs\n")
 
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:
