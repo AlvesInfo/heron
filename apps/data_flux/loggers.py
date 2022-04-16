@@ -2,10 +2,10 @@ from pathlib import Path
 import logging
 from logging.config import dictConfig
 
-logs_dir = Path("/var/log")
+logs_dir = Path("/var/log/heron")
 
 if logs_dir.is_dir():
-    VAR_LOG_DIR = Path("/var/log/data_flux").resolve()
+    VAR_LOG_DIR = Path("/var/log/heron/data_flux").resolve()
     Path.mkdir(VAR_LOG_DIR, exist_ok=True)
 
 else:
