@@ -19,6 +19,12 @@ def home(request):
     return render(request, "heron/base_semantic.html", context=context)
 
 
+def import_edi(request):
+    from apps.edi.loops.imports_loop_pool import main
+    main()
+    return redirect("home")
+
+
 def reactivate(request, uidb64, token):
     """Fonction de réactivation du compte suuites à des tentatives de connexions sur ce compte
         :param request: request

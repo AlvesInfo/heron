@@ -10,12 +10,13 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView,
 )
-from heron.views import home, reactivate, logout_email, modals_views
+from heron.views import home, reactivate, logout_email, modals_views, import_edi
 
 
 urlpatterns = [
     path("back-heron-plateforme/", admin.site.urls),
     path("", home, name="home"),
+    path("import_edi/", import_edi, name="import_edi"),
     path("accounts/", include(("apps.users.urls", "apps.users"), namespace="accounts")),
     path("modale/", modals_views, name="modale"),
     path("logout_email/", logout_email, name="logout_email"),

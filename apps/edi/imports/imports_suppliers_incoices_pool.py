@@ -17,8 +17,7 @@ from pathlib import Path
 import redis
 from django.utils import timezone
 
-from apps.core.functions.functions_setups import settings
-from apps.core.functions.functions_postgresql import cnx_postgresql
+from apps.core.functions.functions_setups import settings, connection
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing import bulk_translate_file
 from apps.edi.bin.edi_post_processing_pool import (
@@ -81,16 +80,6 @@ except redis.exceptions.ConnectionError:
     cache = {}
 
 proccessing_dir = Path(settings.PROCESSING_SUPPLIERS_DIR)
-
-cnx_string = (
-    f"dbname={settings.NAME_DATABASE} "
-    f"user={settings.USER_DATABASE} "
-    f"password={settings.PASSWORD_DATABASE} "
-    f"host={settings.HOST_DATABASE} "
-    f"port={settings.PORT_DATABASE}"
-)
-
-connection = cnx_postgresql(cnx_string)
 
 
 def get_supplier_name(flow_name: str):
