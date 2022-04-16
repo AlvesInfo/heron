@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 from typing import AnyStr, Dict
 from django.db import models
+from apps.edi.loggers import EDI_LOGGER
 
 
 def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
@@ -21,6 +22,7 @@ def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
     :param flow_name:  Nom de la table
     :return: Le Dictionnaire de correspondance entre le modèle et l'entête du fichier
     """
+    EDI_LOGGER.warning(f"{model} - {flow_name}")
     return {
         dict_row.get("attr_name"): int(dict_row.get("file_column"))
         if dict_row.get("file_column").isnumeric()
