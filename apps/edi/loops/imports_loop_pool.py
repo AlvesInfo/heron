@@ -114,7 +114,7 @@ def proc_files(process_object):
     )
 
 
-def loop_proc():
+def loop_proc(proc_files_list):
     """Lancement des process en pool"""
     from concurrent.futures import ProcessPoolExecutor
 
@@ -124,7 +124,7 @@ def loop_proc():
     post_processing_all()
 
 
-def loop_pool_proc():
+def loop_pool_proc(proc_files_list):
     """Lancement des process en pool"""
     from multiprocessing import Pool
 
@@ -134,10 +134,14 @@ def loop_pool_proc():
     post_processing_all()
 
 
-if __name__ == "__main__":
+def main():
     import time
     start_all = time.time()
-    proc_files_list = get_files()
-    loop_proc()
-    # loop_pool_proc()
+    proc_files_l = get_files()
+    loop_proc(proc_files_l)
+    # loop_pool_proc(proc_files_l)
     print(f"All validations : {time.time() - start_all} s")
+
+
+if __name__ == "__main__":
+    main()
