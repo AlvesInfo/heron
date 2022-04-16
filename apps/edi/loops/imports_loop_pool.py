@@ -107,7 +107,7 @@ def proc_files(process_object):
             )
             trace.save()
 
-    print(
+    EDI_LOGGER.warning(
             to_print + f"Validation {file.name} in : {time.time() - start_initial} s" +
             "\n\n======================================================================="
             "======================================================================="
