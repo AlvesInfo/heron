@@ -135,6 +135,7 @@ def loop_pool_proc(proc_files_list):
 
 
 def main():
+    from apps.core.functions.functions_setups import connection
     import time
     start_all = time.time()
     proc_files_l = get_files()

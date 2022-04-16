@@ -15,10 +15,9 @@ import io
 from pathlib import Path
 
 import redis
-from django.db import connection
 from django.utils import timezone
 
-from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_setups import settings, connection
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing import bulk_translate_file
 from apps.edi.bin.edi_post_processing_pool import (
