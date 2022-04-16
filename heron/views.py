@@ -20,7 +20,7 @@ def home(request):
 
 
 def import_edi(request):
-    from apps.edi.loops.imports_loop_pool import main
+    from apps.edi.loops.imports_loop import main
     main()
     return redirect("home")
 

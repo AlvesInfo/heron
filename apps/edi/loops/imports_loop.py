@@ -111,5 +111,9 @@ def process():
     print(f"All validations : {time.time() - start_initial} s")
 
 
-if __name__ == "__main__":
+def main():
     process()
+
+
+if __name__ == "__main__":
+    main()
