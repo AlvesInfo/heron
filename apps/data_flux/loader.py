@@ -66,7 +66,6 @@ def encoding_detect(path_file):
 
     except Exception as except_error:
         raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
-    LOADER_LOGGER.warning(detector.result["encoding"], " - ", detector.result["confidence"])
 
     if detector.result["confidence"] > 0.66:
         encoding = detector.result["encoding"]

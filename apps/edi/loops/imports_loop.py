@@ -99,16 +99,16 @@ def process():
                     )
                     trace.save()
 
-            print(to_print)
-            print(f"Validation {file.name} in : {time.time() - start} s")
-            print(
+            EDI_LOGGER.warning(
+                to_print +
+                f" Validation {file.name} in : {time.time() - start} s" 
                 "\n\n======================================================================="
                 "======================================================================="
             )
-    print("avant post_processing_all()")
+
     post_processing_all()
 
-    print(f"All validations : {time.time() - start_initial} s")
+    EDI_LOGGER.warning(f"All validations : {time.time() - start_initial} s")
 
 
 def main():
