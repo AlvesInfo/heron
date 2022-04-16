@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Dict, Any
 import csv
 from operator import itemgetter
+import zipfile
 
 import openpyxl
 from chardet.universaldetector import UniversalDetector
@@ -65,7 +66,7 @@ def encoding_detect(path_file):
 
     except Exception as except_error:
         raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
-    LOADER_LOGGER.warning(detector.result["encoding"])
+    LOADER_LOGGER.warning(detector.result["encoding"], " - ", detector.result["confidence"])
 
     if detector.result["confidence"] > 0.66:
         encoding = detector.result["encoding"]
@@ -89,7 +90,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
         # noinspection PyArgumentList
         try:
             data = pd.read_excel(excel_file.resolve(), engine="openpyxl")
-        except openpyxl.utils.exceptions.InvalidFileException:
+        except (openpyxl.utils.exceptions.InvalidFileException, zipfile.BadZipFile):
             data = pd.read_excel(excel_file.resolve(), engine="xlrd")
 
         data.to_csv(
