@@ -29,6 +29,7 @@ set
     "to_delete" = false,
     "to_export" = false
 where ("valid" = false or "valid" isnull)
+and uuid_identification = %(uuid_identification)s
 """
 )
 SQL_FAC_UPDATE = sql.SQL(
@@ -41,14 +42,14 @@ set
     "valid"=true   
 from (
     select 
-        "flow_name",
+        "uuid_identification",
         "invoice_number",
         sum("mont_HT") as "montant_facture_HT",
         sum("mont_TVA") as "montant_facture_TVA",
         sum("mont_TTC") as "montant_facture_TTC"
     from (
         select 
-            "flow_name",
+            "uuid_identification",
             "invoice_number",
             sum("montant_HT")::numeric as "mont_HT",
             round((sum("montant_HT")::numeric * "vat_rate"::numeric), 2) as "mont_TVA",
@@ -62,18 +63,18 @@ from (
             "vat_rate"
         from (
             select 
-                "flow_name",
+                "uuid_identification",
                 "invoice_number",
                 round(sum("net_amount")::numeric, 2) as "montant_HT",
                 "vat_rate"
             from "edi_ediimport" 
-            group by "flow_name", "invoice_number", "vat_rate"
+            group by "uuid_identification", "invoice_number", "vat_rate"
         ) as vat_tot
-        group by "flow_name", "invoice_number", "vat_rate"
+        group by "uuid_identification", "invoice_number", "vat_rate"
     ) as "tot_amount"
-    group by "flow_name", "invoice_number"
+    group by "uuid_identification", "invoice_number"
 ) edi_fac
-where edi."flow_name" = edi_fac."flow_name" 
+where edi."uuid_identification" = edi_fac."uuid_identification" 
 and edi."invoice_number" = edi_fac."invoice_number"
 and ("valid" = false or "valid" isnull)
 """
@@ -86,11 +87,11 @@ def post_processing_all():
         cursor.execute(SQL_FAC_UPDATE)
         
 
-def bulk_post_insert(flow_name: AnyStr):
+def bulk_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier BBGR Bulk
     et rajout des lignes de port et d'emballage en EMB et PORT en créant des lignes
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     charges_dict = {
         "packaging_amount": "EMBALLAGE",
@@ -103,8 +104,7 @@ def bulk_post_insert(flow_name: AnyStr):
     # Ajout des lignes de packaging pour la facture concernée ======================================
     packaging_amount_dict = (
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True))
-        .exclude(Q(packaging_amount=0) | Q(packaging_amount__isnull=True))
-        .filter(flow_name=flow_name)
+        .filter(uuid_identification=uuid_identification)
         .values("invoice_number", *list(charges_dict))
         .annotate(dcount=Count("invoice_number"))
     )
@@ -126,16 +126,20 @@ def bulk_post_insert(flow_name: AnyStr):
                 "montant_facture_HT",
                 "montant_facture_TVA",
                 "montant_facture_TTC",
-                "flow_name",
+                "uuid_identification",
+                "packaging_amount",
+                "transport_amount",
+                "insurance_amount",
+                "fob_amount",
+                "fees_amount",
             )
             .first()
         )
-        vat_rate = edi.get("vat_rate")
 
         for key, value in packaging_dict.items():
             if key in charges_dict and value:
-                print(edi.get("invoice_number"), edi.get("montant_facture_TTC"))
                 libelle = charges_dict.get(key)
+
                 bulk_list.append(
                     EdiImport(
                         uuid_identification=edi.get("uuid_identification"),
@@ -151,15 +155,15 @@ def bulk_post_insert(flow_name: AnyStr):
                         famille=libelle,
                         net_unit_price=value,
                         net_amount=value,
-                        vat_rate=vat_rate,
+                        vat_rate=edi.get("vat_rate"),
                         montant_facture_HT=edi.get("montant_facture_HT"),
                         montant_facture_TVA=edi.get("montant_facture_TVA"),
                         montant_facture_TTC=edi.get("montant_facture_TTC"),
-                        flow_name=edi.get("flow_name"),
                     )
                 )
-                print(edi.get("montant_facture_TTC"))
-    EdiImport.objects.bulk_create(bulk_list)
+
+    if bulk_list:
+        EdiImport.objects.bulk_create(bulk_list)
 
     # Mise à jour des autres champs ================================================================
     sql_update = sql.SQL(
@@ -169,23 +173,23 @@ def bulk_post_insert(flow_name: AnyStr):
         "famille" = case when "famille" is null then 'VERRE' else "famille" end,
         "gross_unit_price" = "net_unit_price",
         "gross_price" = "net_amount"
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        EdiImport.objects.filter(flow_name=flow_name).update(valid=True)
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        EdiImport.objects.filter(uuid_identification=uuid_identification).update(valid=True)
 
 
-def eye_confort_post_insert(flow_name: AnyStr):
+def eye_confort_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier EyeConfort
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -194,40 +198,40 @@ def eye_confort_post_insert(flow_name: AnyStr):
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def generique_post_insert(flow_name: AnyStr):
+def generique_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier EyeConfort
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def hearing_post_insert(flow_name: AnyStr):
+def hearing_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier Hearing
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -237,20 +241,20 @@ def hearing_post_insert(flow_name: AnyStr):
         "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "net_amount" = round("net_amount"::numeric, 2)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def interson_post_insert(flow_name: AnyStr):
+def interson_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier Interson
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -259,20 +263,20 @@ def interson_post_insert(flow_name: AnyStr):
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_price" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
         "net_amount" = round("net_unit_price"::numeric * "qty"::numeric, 2)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def johnson_post_insert(flow_name: AnyStr):
+def johnson_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier JOHNSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -282,20 +286,20 @@ def johnson_post_insert(flow_name: AnyStr):
         "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "gross_price" = "net_amount"::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def lmc_post_insert(flow_name: AnyStr):
+def lmc_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier LMC
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -303,20 +307,20 @@ def lmc_post_insert(flow_name: AnyStr):
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_price" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def newson_post_insert(flow_name: AnyStr):
+def newson_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -325,20 +329,20 @@ def newson_post_insert(flow_name: AnyStr):
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def phonak_post_insert(flow_name: AnyStr):
+def phonak_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -347,20 +351,20 @@ def phonak_post_insert(flow_name: AnyStr):
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def prodition_post_insert(flow_name: AnyStr):
+def prodition_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_libele = sql.SQL(
         """
@@ -372,7 +376,7 @@ def prodition_post_insert(flow_name: AnyStr):
                         then "famille" 
                         else "libelle" 
                     end
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
@@ -394,21 +398,21 @@ def prodition_post_insert(flow_name: AnyStr):
                     end,
         "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s  
+    where "uuid_identification" = %(uuid_identification)s 
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_libele, {"flow_name": flow_name})
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_libele, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def signia_post_insert(flow_name: AnyStr):
+def signia_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier SIGNA
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -422,20 +426,20 @@ def signia_post_insert(flow_name: AnyStr):
                             when "invoice_type" = '304' then '381' 
                             else '400' 
                         end
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def starkey_post_insert(flow_name: AnyStr):
+def starkey_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -443,20 +447,20 @@ def starkey_post_insert(flow_name: AnyStr):
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def technidis_post_insert(flow_name: AnyStr):
+def technidis_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -464,20 +468,20 @@ def technidis_post_insert(flow_name: AnyStr):
     set 
         "invoice_type" = case when "invoice_type" = 'F' then '380' else '381' end,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def unitron_post_insert(flow_name: AnyStr):
+def unitron_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -486,20 +490,20 @@ def unitron_post_insert(flow_name: AnyStr):
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def widex_post_insert(flow_name: AnyStr):
+def widex_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -525,20 +529,20 @@ def widex_post_insert(flow_name: AnyStr):
             / "qty"::numeric
         )::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
-def widexga_post_insert(flow_name: AnyStr):
+def widexga_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier NEWSON
-    :param flow_name: flow_name
+    :param uuid_identification: uuid_identification
     """
     sql_update = sql.SQL(
         """
@@ -564,11 +568,11 @@ def widexga_post_insert(flow_name: AnyStr):
             / "qty"::numeric
         )::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "flow_name" = %(flow_name)s 
+    where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY)
-        cursor.execute(sql_update, {"flow_name": flow_name})
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})

@@ -21,7 +21,7 @@ from django.utils import timezone
 from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing import bulk_translate_file
-from apps.edi.bin.edi_post_processing import (
+from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
@@ -222,7 +222,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             if error_lines:
                 to_print += f"\nLignes en erreur : {error_lines}\n"
             else:
-                to_print += "\nPas d'erreurs\n"
+                to_print += "\nPas d'erreurs"
 
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:
@@ -299,7 +299,7 @@ def bbgr_bulk(file_path: Path):
     new_file_path = bulk_translate_file(file_path)
     to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     new_file_path.unlink()
-    bulk_post_insert(flow_name)
+    bulk_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -352,7 +352,7 @@ def eye_confort(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    eye_confort_post_insert(flow_name)
+    eye_confort_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -378,7 +378,7 @@ def generique(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    generique_post_insert(flow_name)
+    generique_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -406,7 +406,7 @@ def hearing(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    hearing_post_insert(flow_name)
+    hearing_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -434,7 +434,7 @@ def interson(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    interson_post_insert(flow_name)
+    interson_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -463,7 +463,7 @@ def johnson(file_path: Path):
         "exclude_rows_dict": {1: "Total"},
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    johnson_post_insert(flow_name)
+    johnson_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -491,7 +491,7 @@ def lmc(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    lmc_post_insert(flow_name)
+    lmc_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -519,7 +519,7 @@ def newson(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    newson_post_insert(flow_name)
+    newson_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -547,7 +547,7 @@ def phonak(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    phonak_post_insert(flow_name)
+    phonak_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -575,7 +575,7 @@ def prodition(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    prodition_post_insert(flow_name)
+    prodition_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -603,7 +603,7 @@ def signia(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    signia_post_insert(flow_name)
+    signia_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -631,7 +631,7 @@ def starkey(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    starkey_post_insert(flow_name)
+    starkey_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -659,7 +659,7 @@ def technidis(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    technidis_post_insert(flow_name)
+    technidis_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -687,7 +687,7 @@ def unitron(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    unitron_post_insert(flow_name)
+    unitron_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -715,7 +715,7 @@ def widex(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    widex_post_insert(flow_name)
+    widex_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
@@ -743,6 +743,6 @@ def widex_ga(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    widexga_post_insert(flow_name)
+    widexga_post_insert(trace.uuid_identification)
 
     return trace, to_print

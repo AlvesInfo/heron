@@ -36,25 +36,26 @@ from apps.edi.imports.imports_suppliers_incoices import (
     widex,
     widex_ga,
 )
+from apps.edi.bin.edi_post_processing import post_processing_all
 
 processing_dict = {
     "BBRG_BULK": bbgr_bulk,
-    # "EDI": edi,
-    # "EYE_CONFORT": eye_confort,
-    # "GENERIQUE": generique,
-    # "HEARING": hearing,
-    # "INTERSON": interson,
-    # "JOHNSON": johnson,
-    # "LMC": lmc,
-    # "NEWSON": newson,
-    # "PHONAK": phonak,
-    # "PRODITION": prodition,
-    # "SIGNIA": signia,
-    # "STARKEY": starkey,
-    # "TECHNIDIS": technidis,
-    # "UNITRON": unitron,
-    # "WIDEX": widex,
-    # "WIDEX_GA": widex_ga,
+    "EDI": edi,
+    "EYE_CONFORT": eye_confort,
+    "GENERIQUE": generique,
+    "HEARING": hearing,
+    "INTERSON": interson,
+    "JOHNSON": johnson,
+    "LMC": lmc,
+    "NEWSON": newson,
+    "PHONAK": phonak,
+    "PRODITION": prodition,
+    "SIGNIA": signia,
+    "STARKEY": starkey,
+    "TECHNIDIS": technidis,
+    "UNITRON": unitron,
+    "WIDEX": widex,
+    "WIDEX_GA": widex_ga,
 }
 
 
@@ -73,10 +74,11 @@ def process():
             start = time.time()
             error = False
             trace = None
+            to_print = ""
 
             try:
 
-                trace = processing_dict.get(directory)(file)
+                trace, to_print = processing_dict.get(directory)(file)
                 # destination = Path(settings.BACKUP_SAGE_DIR) / file.name
                 # shutil.move(file.resolve(), destination.resolve())
 
@@ -97,11 +99,14 @@ def process():
                     )
                     trace.save()
 
+            print(to_print)
             print(f"Validation {file.name} in : {time.time() - start} s")
             print(
                 "\n\n======================================================================="
                 "======================================================================="
             )
+    print("avant post_processing_all()")
+    post_processing_all()
 
     print(f"All validations : {time.time() - start_initial} s")
 

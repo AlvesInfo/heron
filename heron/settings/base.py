@@ -76,6 +76,9 @@ THIRD_PARTY_APPS = [
     "crispy_forms_semantic_ui",
     "ckeditor",
     "chartjs",
+    "dynamic_preferences",
+    # comment the following line if you don't want to use user preferences
+    "dynamic_preferences.users.apps.UserPreferencesConfig",
 ]
 
 LOCAL_APPS = [
@@ -132,6 +135,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "dynamic_preferences.processors.global_preferences",
                 "heron.processors.title",
                 "heron.processors.user_group",
                 "heron.processors.groups_processor",
@@ -319,4 +323,13 @@ CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 CKEDITOR_CONFIGS = {
     "default": {"toolbar": "basic", "height": 374, "width": 688},
     "basic_ckeditor": {"toolbar": "Basic"},
+}
+
+# available settings with their default values
+DYNAMIC_PREFERENCES = {
+    "MANAGER_ATTRIBUTE": "preferences",
+    "ENABLE_GLOBAL_MODEL_AUTO_REGISTRATION": True,
+    "ENABLE_CACHE": True,
+    "CACHE_NAME": "default",
+    "VALIDATE_NAMES": True,
 }
