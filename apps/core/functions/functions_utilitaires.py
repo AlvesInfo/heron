@@ -311,7 +311,7 @@ def iter_slice(iterable, taille, form=tuple):
         while True:
             yield form(chain((next(i_t),), islice(i_t, taille - 1)))
     except StopIteration:
-        pass
+        return
 
 
 def iter_slicing(iterable):

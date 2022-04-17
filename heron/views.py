@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.shortcuts import render, redirect, reverse
 from django.conf import settings
@@ -13,24 +14,35 @@ from heron.forms import ModalForms
 
 logger = logging.getLogger("connexion")
 
+start = 0
+
 
 def home(request):
-    context = {"environnement": settings.ENVIRONNEMENT, "traduc": _("field required")}
+    global start
+    context = {
+        "environnement": settings.ENVIRONNEMENT,
+        "traduc": _("field required"),
+        "start": f"Import en {start:.2f} s" if start else ""
+    }
+    start = 0
     return render(request, "heron/base_semantic.html", context=context)
 
 
 def import_edi(request):
     from apps.edi.loops.imports_loop_pool import main
+    global start
+    start_initial = time.time()
     main()
+    start = time.time() - start_initial
     return redirect("home")
 
 
 def reactivate(request, uidb64, token):
     """Fonction de réactivation du compte suuites à des tentatives de connexions sur ce compte
-        :param request: request
-        :param uidb64: uidb64 - pk de l'user
-        :param token: token pour vérifier la connexion
-        :return: url
+    :param request: request
+    :param uidb64: uidb64 - pk de l'user
+    :param token: token pour vérifier la connexion
+    :return: url
     """
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))

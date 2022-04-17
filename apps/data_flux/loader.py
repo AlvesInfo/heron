@@ -187,12 +187,15 @@ class CleanDataLoader:
 
         if read_methode == "data":
             yield from self.read(all_lines)
+            return
 
         if read_methode == "data_list":
             yield from self.read(all_lines)
+            return
 
         if read_methode == "data_dict":
             yield from self.read_dict(all_lines)
+            return
 
         self.close()
 
@@ -483,6 +486,7 @@ class FileLoader(CleanDataLoader):
                 continue
 
             if self.params_dict.get("add_fields_dict", {}):
+
                 yield f'{self.params_dict.get("delimiter", ";")}'.join(
                     [
                         f'"{str(value)}"'
@@ -626,6 +630,7 @@ class ApiJsonLoader(CleanDataLoader):
                                     all_lines = True -> iterre même sur des lignes des lignes vides
         """
         yield "ApiLodaer non finalisée"
+        return
 
     def read_list(self, all_lines: bool = False):
         """
@@ -635,6 +640,7 @@ class ApiJsonLoader(CleanDataLoader):
                                     all_lines = True -> iterre même sur des lignes des lignes vides
         """
         yield "ApiLodaer non finalisée"
+        return
 
     def read_dict(self, all_lines=False):
         """
@@ -645,6 +651,7 @@ class ApiJsonLoader(CleanDataLoader):
         :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
         """
         yield {"message": "ApiLodaer non finalisée"}
+        return
 
     def close(self):
         """Fermeture du buffer io.StringIO"""
@@ -713,6 +720,7 @@ class ApiXmlLoader(CleanDataLoader):
                                     all_lines = True -> iterre même sur des lignes des lignes vides
         """
         yield "ApiLodaer non finalisée"
+        return
 
     def read_list(self, all_lines: bool = False):
         """
@@ -722,6 +730,7 @@ class ApiXmlLoader(CleanDataLoader):
                                     all_lines = True -> iterre même sur des lignes des lignes vides
         """
         yield "ApiLodaer non finalisée"
+        return
 
     def read_dict(self, all_lines=False):
         """
@@ -732,6 +741,7 @@ class ApiXmlLoader(CleanDataLoader):
         :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
         """
         yield {"message": "ApiLodaer non finalisée"}
+        return
 
     def close(self):
         """Fermeture du buffer io.StringIO"""
