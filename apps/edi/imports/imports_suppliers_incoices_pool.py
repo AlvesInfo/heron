@@ -99,8 +99,11 @@ def get_suppliers(flow_name: str):
         )
         cursor.execute(sql_supplier, {"flow_name": flow_name})
         results = cursor.fetchall()
-
-    return results[0] if results else ("", "")
+        EDI_LOGGER.warning(
+            f"results : {str(results)} -- "
+            f"{str((results[0][0], results[0][1])) if results else ('', '')}"
+        )
+    return (results[0][0], results[0][1]) if results else ("", "")
 
 
 def get_supplier_name(flow_name: str):
