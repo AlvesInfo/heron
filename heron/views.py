@@ -38,10 +38,10 @@ def import_edi(request):
     global start_normal
     global start_thread
     start_initial = time.time()
-    main()
+    # main_normal()
     start_normal = time.time() - start_initial
     start = time.time()
-    main_normal()
+    main()
     start_thread = time.time() - start
     return redirect("home")
 
