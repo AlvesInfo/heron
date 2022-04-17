@@ -47,7 +47,6 @@ from .exceptions import (
     ExcelToCsvFileError,
     CsvFileToStringIoError,
 )
-from apps.data_flux.loggers import LOADER_LOGGER
 
 
 def encoding_detect(path_file):

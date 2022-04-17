@@ -116,9 +116,9 @@ def proc_files(process_object):
 
 def loop_proc(proc_files_list):
     """Lancement des process en pool"""
-    from concurrent.futures import ThreadPoolExecutor
+    from concurrent.futures import ProcessPoolExecutor
 
-    with ThreadPoolExecutor() as executor:
+    with ProcessPoolExecutor() as executor:
         executor.map(proc_files, proc_files_list)
 
     post_processing_all()
