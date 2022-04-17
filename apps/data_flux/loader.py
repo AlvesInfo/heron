@@ -72,8 +72,6 @@ def encoding_detect(path_file):
     else:
         encoding = "utf8"
 
-    LOADER_LOGGER.warning(encoding)
-
     return encoding
 
 
