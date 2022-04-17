@@ -38,7 +38,7 @@ def import_edi(request):
     global start_normal
     global start_thread
     start_initial = time.time()
-    # main_normal()
+    main_normal()
     start_normal = time.time() - start_initial
     start = time.time()
     main()
