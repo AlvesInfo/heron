@@ -24,7 +24,7 @@ def home(request):
     context = {
         "environnement": settings.ENVIRONNEMENT,
         "traduc": _("field required"),
-        "start": f"Import en {start_normal:.2f} s" if start_normal else "",
+        "start_normal": f"Import en {start_normal:.2f} s" if start_normal else "",
         "start_thread": f"Import en {start_thread:.2f} s" if start_thread else "",
     }
     start_normal = 0
