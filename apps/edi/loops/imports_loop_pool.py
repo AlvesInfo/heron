@@ -118,7 +118,7 @@ def loop_proc(proc_files_list):
     """Lancement des process en pool"""
     from concurrent import futures
 
-    with futures.ProcessPoolExecutor() as executor:
+    with futures.ThreadPoolExecutor() as executor:
         processes = [executor.submit(proc_files, file) for file in proc_files_list]
 
         for process in futures.as_completed(processes):
