@@ -72,7 +72,3 @@ dictConfig(LOGGING)
 LOADER_LOGGER = logging.getLogger("loader")
 VALIDATION_LOGGER = logging.getLogger("validation")
 POSTGRES_SAVE_LOGGER = logging.getLogger("postgres_save")
-
-LOADER_LOGGER.warning("test")
-VALIDATION_LOGGER.warning("test")
-POSTGRES_SAVE_LOGGER.warning("test")
