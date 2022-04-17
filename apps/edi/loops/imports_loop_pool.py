@@ -138,8 +138,8 @@ def main():
     import time
     start_all = time.time()
     proc_files_l = get_files()
-    loop_proc(proc_files_l)
-    # loop_pool_proc(proc_files_l)
+    # loop_proc(proc_files_l)
+    loop_pool_proc(proc_files_l)
     print(f"All validations : {time.time() - start_all} s")
     EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 
