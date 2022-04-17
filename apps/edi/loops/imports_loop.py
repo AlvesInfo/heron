@@ -106,7 +106,7 @@ def process():
                 "======================================================================="
             )
 
-    post_processing_all()
+    # post_processing_all()
 
     EDI_LOGGER.warning(f"All validations : {time.time() - start_initial} s")
 

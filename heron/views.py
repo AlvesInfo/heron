@@ -43,9 +43,9 @@ def import_edi(request):
     global start_normal
     global start_thread
     global start_pool
-    # start_initial = time.time()
-    # main_normal()
-    # start_normal = time.time() - start_initial
+    start_initial = time.time()
+    main_normal()
+    start_normal = time.time() - start_initial
     start = time.time()
     main()
     start_thread = time.time() - start
