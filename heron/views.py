@@ -24,7 +24,7 @@ def home(request):
         "traduc": _("field required"),
         "start_thread": f"Import Thread en {start_thread:.2f} s" if start_thread else "Import Thread",
     }
-    start_thread = 0
+    # start_thread = 0
     return render(request, "heron/base_semantic.html", context=context)
 
 
