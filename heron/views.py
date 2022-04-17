@@ -37,9 +37,9 @@ def home(request):
 
 
 def import_edi(request):
-    from apps.edi.loops.imports_loop_pool import main, main_pool
+    from apps.edi.loops.imports_loop_pool import main
     from apps.edi.loops.imports_loop import main as main_normal
-    from apps.edi.bin.edi_post_processing_pool import post_processing_all
+    # from apps.edi.bin.edi_post_processing_pool import post_processing_all
     global start_normal
     global start_thread
     global start_pool
@@ -52,7 +52,7 @@ def import_edi(request):
     # start = time.time()
     # main_pool()
     # start_pool = time.time() - start
-    post_processing_all()
+    # post_processing_all()
     return redirect("home")
 
 
