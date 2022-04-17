@@ -5,12 +5,11 @@ from logging.config import dictConfig
 logs_dir = Path("/var/log/heron")
 
 if logs_dir.is_dir():
-    VAR_LOG_DIR = Path("/var/log/heron/data_flux").resolve()
+    VAR_LOG_DIR = Path("/var/log/heron").resolve()
     Path.mkdir(VAR_LOG_DIR, exist_ok=True)
 
 else:
     VAR_LOG_DIR = Path("./log").resolve()
-    print(VAR_LOG_DIR)
     Path.mkdir(VAR_LOG_DIR, exist_ok=True)
 
 LOGGING = {
@@ -73,3 +72,7 @@ dictConfig(LOGGING)
 LOADER_LOGGER = logging.getLogger("loader")
 VALIDATION_LOGGER = logging.getLogger("validation")
 POSTGRES_SAVE_LOGGER = logging.getLogger("postgres_save")
+
+LOADER_LOGGER.warning("test")
+VALIDATION_LOGGER.warning("test")
+POSTGRES_SAVE_LOGGER.warning("test")
