@@ -135,8 +135,6 @@ def main():
     start_all = time.time()
     proc_files_l = get_files()
     loop_proc(proc_files_l)
-    # post_processing_all()
-    # loop_pool_proc(proc_files_l)
     print(f"All validations : {time.time() - start_all} s")
     EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 
@@ -146,7 +144,6 @@ def main_pool():
     start_all = time.time()
     proc_files_l = get_files()
     loop_pool_proc(proc_files_l)
-    # post_processing_all()
     print(f"All validations : {time.time() - start_all} s")
     EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 
