@@ -35,48 +35,48 @@ and uuid_identification = %(uuid_identification)s
 SQL_FAC_UPDATE = sql.SQL(
     """
 update "edi_ediimport" edi
-set 
+set
     "montant_facture_HT" = edi_fac."montant_facture_HT",
     "montant_facture_TVA" = edi_fac."montant_facture_TVA",
     "montant_facture_TTC" = edi_fac."montant_facture_TTC",
-    "valid"=true   
+    "valid"=true
 from (
-    select 
+    select
         "uuid_identification",
         "invoice_number",
         sum("mont_HT") as "montant_facture_HT",
         sum("mont_TVA") as "montant_facture_TVA",
         sum("mont_TTC") as "montant_facture_TTC"
     from (
-        select 
+        select
             "uuid_identification",
             "invoice_number",
             sum("montant_HT")::numeric as "mont_HT",
             round((sum("montant_HT")::numeric * "vat_rate"::numeric), 2) as "mont_TVA",
             round(
                 (
-                    sum("montant_HT")::numeric + 
+                    sum("montant_HT")::numeric +
                     (sum("montant_HT")::numeric * "vat_rate"::numeric)
                 )
                 , 2
             ) as "mont_TTC",
             "vat_rate"
         from (
-            select 
+            select
                 "uuid_identification",
                 "invoice_number",
                 round(sum("net_amount")::numeric, 2) as "montant_HT",
                 "vat_rate"
-            from "edi_ediimport" 
+            from "edi_ediimport"
+            where ("valid" = false or "valid" isnull)
             group by "uuid_identification", "invoice_number", "vat_rate"
         ) as vat_tot
         group by "uuid_identification", "invoice_number", "vat_rate"
     ) as "tot_amount"
     group by "uuid_identification", "invoice_number"
 ) edi_fac
-where edi."uuid_identification" = edi_fac."uuid_identification" 
+where edi."uuid_identification" = edi_fac."uuid_identification"
 and edi."invoice_number" = edi_fac."invoice_number"
-and ("valid" = false or "valid" isnull)
 """
 )
 
