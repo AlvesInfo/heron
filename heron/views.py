@@ -22,7 +22,9 @@ def home(request):
     context = {
         "environnement": settings.ENVIRONNEMENT,
         "traduc": _("field required"),
-        "start_thread": f"Import Thread en {start_thread:.2f} s" if start_thread else "Import Thread",
+        "start_thread": f"Import Thread en {start_thread:.2f} s"
+        if start_thread
+        else "Import Thread",
     }
     # start_thread = 0
     return render(request, "heron/base_semantic.html", context=context)
@@ -31,6 +33,7 @@ def home(request):
 def import_edi(request):
     from apps.edi.loops.imports_loop_pool import main
     from apps.edi.bin.edi_post_processing_pool import post_processing_all
+
     global start_thread
     start = time.time()
     main()

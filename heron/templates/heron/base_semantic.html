@@ -69,10 +69,7 @@
             INSERT EDI FILES</button>
         </a>
         <br>
-        <br>
-        <h1>{{ start_normal }}</h1>
         <h1>{{ start_thread }}</h1>
-        <h1>{{ start_pool }}</h1>
 
         {% block logo %}
         {% endblock logo %}
@@ -85,8 +82,10 @@
 
         {% block content %}
         {% endblock content %}
+        <br>
         Environement : {{ environnement }}
-        traduc : {{ traduc }}
+        <br>
+        traduc :  {% translate traduc %}
         {% block footer %}
         {% endblock footer %}
 
