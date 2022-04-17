@@ -16,33 +16,43 @@ logger = logging.getLogger("connexion")
 
 start_normal = 0
 start_thread = 0
+start_pool = 0
 
 
 def home(request):
     global start_normal
     global start_thread
+    global start_pool
     context = {
         "environnement": settings.ENVIRONNEMENT,
         "traduc": _("field required"),
-        "start_normal": f"Import en {start_normal:.2f} s" if start_normal else "",
-        "start_thread": f"Import en {start_thread:.2f} s" if start_thread else "",
+        "start_normal": f"Import Normal en {start_normal:.2f} s" if start_normal else "",
+        "start_thread": f"Import Thread en {start_thread:.2f} s" if start_thread else "",
+        "start_pool": f"Import Pool en {start_pool:.2f} s" if start_pool else "",
     }
     start_normal = 0
     start_thread = 0
+    start_pool = 0
     return render(request, "heron/base_semantic.html", context=context)
 
 
 def import_edi(request):
-    from apps.edi.loops.imports_loop_pool import main
+    from apps.edi.loops.imports_loop_pool import main, main_pool
     from apps.edi.loops.imports_loop import main as main_normal
+    from apps.edi.bin.edi_post_processing_pool import post_processing_all
     global start_normal
     global start_thread
-    start_initial = time.time()
-    main_normal()
-    start_normal = time.time() - start_initial
+    global start_pool
+    # start_initial = time.time()
+    # main_normal()
+    # start_normal = time.time() - start_initial
     start = time.time()
     main()
     start_thread = time.time() - start
+    # start = time.time()
+    # main_pool()
+    # start_pool = time.time() - start
+    post_processing_all()
     return redirect("home")
 
 

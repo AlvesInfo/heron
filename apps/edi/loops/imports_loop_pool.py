@@ -121,8 +121,6 @@ def loop_proc(proc_files_list):
     with ThreadPoolExecutor() as executor:
         executor.map(proc_files, proc_files_list)
 
-    post_processing_all()
-
 
 def loop_pool_proc(proc_files_list):
     """Lancement des process en pool"""
@@ -137,8 +135,18 @@ def main():
     start_all = time.time()
     proc_files_l = get_files()
     loop_proc(proc_files_l)
-    post_processing_all()
+    # post_processing_all()
     # loop_pool_proc(proc_files_l)
+    print(f"All validations : {time.time() - start_all} s")
+    EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+
+
+def main_pool():
+    import time
+    start_all = time.time()
+    proc_files_l = get_files()
+    loop_pool_proc(proc_files_l)
+    # post_processing_all()
     print(f"All validations : {time.time() - start_all} s")
     EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 

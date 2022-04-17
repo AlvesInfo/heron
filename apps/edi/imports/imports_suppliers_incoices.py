@@ -100,9 +100,7 @@ def get_suppliers(flow_name: str):
         )
         cursor.execute(sql_supplier, {"flow_name": flow_name})
         results = cursor.fetchall()
-        EDI_LOGGER.warning(
-            f"results : {str(results)}"
-        )
+
     return (results[0][0], results[0][1]) if results else ("", "")
 
 
@@ -112,7 +110,6 @@ def get_supplier_name(flow_name: str):
     :return: Retourne le supplier du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
-    EDI_LOGGER.warning(supplier, supplier_ident, flow_name)
 
     if isinstance(cache, (dict,)):
         cache[f"{flow_name}_supplier"] = supplier
@@ -130,7 +127,6 @@ def get_supplier_ident(flow_name: str):
     :return: Retourne le supplier_ident du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
-    EDI_LOGGER.warning(supplier, supplier_ident, flow_name)
 
     if isinstance(cache, (dict,)):
         cache[f"{flow_name}_ident"] = supplier_ident
