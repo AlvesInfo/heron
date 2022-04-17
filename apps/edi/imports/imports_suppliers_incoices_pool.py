@@ -16,6 +16,7 @@ from pathlib import Path
 
 import redis
 from django.utils import timezone
+from psycopg2 import sql
 
 from apps.core.functions.functions_setups import settings, connection
 from apps.edi.loggers import EDI_LOGGER
@@ -41,7 +42,7 @@ from apps.edi.bin.edi_post_processing_pool import (
 from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport
 from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
 from apps.edi.forms.forms_djantic.forms_invoices import (
-    BbrgBulkSchema,
+    BbgrBulkSchema,
     EdiSchema,
     EyeConfortSchema,
     GeneriqueSchema,
@@ -82,25 +83,47 @@ except redis.exceptions.ConnectionError:
 proccessing_dir = Path(settings.PROCESSING_SUPPLIERS_DIR)
 
 
+def get_suppliers(flow_name: str):
+    """
+    :param flow_name: champ flow_name dans la table SupplierDefinition
+    :return: Retourne le supplier et l'indentifier du fournisseur dans la table SupplierDefinition
+    """
+    with connection.cursor() as cursor:
+        sql_supplier = sql.SQL(
+            """
+        select  
+            "supplier", "supplier_ident" 
+        from edi_supplierdefinition es 
+        where "flow_name" = %(flow_name)s
+        """
+        )
+        cursor.execute(sql_supplier, {"flow_name": flow_name})
+        results = cursor.fetchall()
+
+        if results:
+            supplier, supplier_ident = results[0]
+        else:
+            supplier, supplier_ident = "", ""
+
+        return supplier, supplier_ident
+
+
 def get_supplier_name(flow_name: str):
     """
     :param flow_name: champ flow_name dans la table SupplierDefinition
     :return: Retourne le supplier du fournisseur dans la table SupplierDefinition
     """
-    try:
-        name = SupplierDefinition.objects.get(flow_name=flow_name)
-        print(name, flow_name)
-        if isinstance(cache, (dict,)):
-            cache[f"{flow_name}_supplier"] = name.supplier
-            cache[f"{flow_name}_ident"] = name.supplier_ident
-        else:
-            cache.set(f"{flow_name}_supplier", name.supplier)
-            cache.set(f"{flow_name}_ident", name.supplier_ident)
+    supplier, supplier_ident = get_suppliers(flow_name)
+    EDI_LOGGER.warning(supplier, supplier_ident, flow_name)
 
-        return name.supplier
+    if isinstance(cache, (dict,)):
+        cache[f"{flow_name}_supplier"] = supplier
+        cache[f"{flow_name}_ident"] = supplier_ident
+    else:
+        cache.set(f"{flow_name}_supplier", supplier)
+        cache.set(f"{flow_name}_ident", supplier_ident)
 
-    except SupplierDefinition.DoesNotExist:
-        return None
+    return supplier
 
 
 def get_supplier_ident(flow_name: str):
@@ -108,20 +131,17 @@ def get_supplier_ident(flow_name: str):
     :param flow_name: champ flow_name dans la table SupplierDefinition
     :return: Retourne le supplier_ident du fournisseur dans la table SupplierDefinition
     """
-    try:
-        name = SupplierDefinition.objects.get(flow_name=flow_name)
+    supplier, supplier_ident = get_suppliers(flow_name)
+    EDI_LOGGER.warning(supplier, supplier_ident, flow_name)
 
-        if isinstance(cache, (dict,)):
-            cache[f"{flow_name}_ident"] = name.supplier_ident
-            cache[f"{flow_name}_supplier"] = name.supplier
-        else:
-            cache.set(f"{flow_name}_ident", name.supplier_ident)
-            cache.set(f"{flow_name}_supplier", name.supplier)
+    if isinstance(cache, (dict,)):
+        cache[f"{flow_name}_ident"] = supplier_ident
+        cache[f"{flow_name}_supplier"] = supplier
+    else:
+        cache.set(f"{flow_name}_ident", supplier_ident)
+        cache.set(f"{flow_name}_supplier", supplier)
 
-        return name.supplier_ident
-
-    except SupplierDefinition.DoesNotExist:
-        return None
+    return supplier_ident
 
 
 def get_supplier(flow_name):
@@ -279,11 +299,11 @@ def bbgr_bulk(file_path: Path):
     :param file_path: Path du fichier à traiter
     """
     model = EdiImport
-    validator = BbrgBulkSchema
+    validator = BbgrBulkSchema
     file_name = file_path.name
     trace_name = "Import BBGR Bulk"
     application_name = "edi_imports_imports_suppliers_incoices"
-    flow_name = "BbrgBulk"
+    flow_name = "BbgrBulk"
     comment = "import des factures BBGR Bulk"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {

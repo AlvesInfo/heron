@@ -28,7 +28,7 @@ from apps.edi.models import EdiImport, ColumnDefinition
 from apps.edi.parameters.invoices_imports import get_columns
 
 
-class BbrgBulkSchema(
+class BbgrBulkSchema(
     ModelSchema,
     ValidateFieldsBase,
     TvaWidex,
@@ -43,7 +43,7 @@ class BbrgBulkSchema(
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "BbrgBulk")) + [
+        include = list(get_columns(ColumnDefinition, "BbgrBulk")) + [
             "uuid_identification",
             "flow_name",
             "supplier",
