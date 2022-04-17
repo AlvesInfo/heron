@@ -14,26 +14,35 @@ from heron.forms import ModalForms
 
 logger = logging.getLogger("connexion")
 
-start = 0
+start_normal = 0
+start_thread = 0
 
 
 def home(request):
-    global start
+    global start_normal
+    global start_thread
     context = {
         "environnement": settings.ENVIRONNEMENT,
         "traduc": _("field required"),
-        "start": f"Import en {start:.2f} s" if start else ""
+        "start": f"Import en {start_normal:.2f} s" if start_normal else "",
+        "start_thread": f"Import en {start_thread:.2f} s" if start_thread else "",
     }
-    start = 0
+    start_normal = 0
+    start_thread = 0
     return render(request, "heron/base_semantic.html", context=context)
 
 
 def import_edi(request):
     from apps.edi.loops.imports_loop_pool import main
-    global start
+    from apps.edi.loops.imports_loop import main as main_normal
+    global start_normal
+    global start_thread
     start_initial = time.time()
     main()
-    start = time.time() - start_initial
+    start_normal = time.time() - start_initial
+    start = time.time()
+    main_normal()
+    start_thread = time.time() - start
     return redirect("home")
 
 
