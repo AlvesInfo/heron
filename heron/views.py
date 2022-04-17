@@ -35,8 +35,7 @@ def import_edi(request):
     start = time.time()
     main()
     start_thread = time.time() - start
-    time.sleep(2)
-    post_processing_all()
+    # post_processing_all()
     return redirect("home")
 
 
