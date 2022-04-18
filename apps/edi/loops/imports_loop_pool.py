@@ -16,21 +16,21 @@ import platform
 import sys
 from pathlib import Path
 
-import django
-
-BASE_DIR = r"D:\SitesWeb\heron"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/palves/heron"
-
-sys.path.append(BASE_DIR)
-sys.path.append(BASE_DIR + "/heron")
-sys.path.append(BASE_DIR + '/apps')
-print(sys.modules)
-print(sys.path)
-print(sys.platform)
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-django.setup()
+# import django
+#
+# BASE_DIR = r"D:\SitesWeb\heron"
+#
+# if platform.uname().node not in ["PauloMSI", "MSI"]:
+#     BASE_DIR = "/home/paulo/heron"
+#
+# sys.path.append(BASE_DIR)
+# sys.path.append(BASE_DIR + "/heron")
+# sys.path.append(BASE_DIR + '/apps')
+# print(sys.modules)
+# print(sys.path)
+# print(sys.platform)
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+# django.setup()
 
 from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER

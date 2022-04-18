@@ -14,7 +14,7 @@ if platform.uname().node == "DESKP082":
     sys.path.insert(0, BASE_DIR)
     sys.path.append(BASE_DIR)
 else:
-    BASE_DIR = "/home/palves/heron"
+    BASE_DIR = "/home/paulo/heron"
 
 from heron.settings import (
     EMAIL_HOST,

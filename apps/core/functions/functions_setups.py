@@ -12,7 +12,7 @@ from django.db.utils import IntegrityError
 BASE_DIR = r"D:\SitesWeb\heron"
 
 if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/palves/heron"
+    BASE_DIR = "/home/paulo/heron"
 
 sys.path.insert(0, BASE_DIR)
 sys.path.append(BASE_DIR)
