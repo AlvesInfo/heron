@@ -27,7 +27,9 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 
 sys.path.insert(0, BASE_DIR)
 sys.path.append(BASE_DIR)
-
+print(sys.modules)
+print(sys.path)
+print(sys.platform)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
