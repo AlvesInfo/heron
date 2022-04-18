@@ -11,12 +11,10 @@ created by: Paulo ALVES
 modified at: 2022-04-09
 modified by: Paulo ALVES
 """
-import shutil
-from pathlib import Path
-import csv
 import os
-import sys
 import platform
+import sys
+from pathlib import Path
 
 import django
 
@@ -25,8 +23,9 @@ BASE_DIR = r"D:\SitesWeb\heron"
 if platform.uname().node not in ["PauloMSI", "MSI"]:
     BASE_DIR = "/home/palves/heron"
 
-sys.path.insert(0, BASE_DIR)
 sys.path.append(BASE_DIR)
+sys.path.append(BASE_DIR + "/heron")
+sys.path.append(BASE_DIR + '/apps')
 print(sys.modules)
 print(sys.path)
 print(sys.platform)
@@ -54,7 +53,6 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex,
     widex_ga,
 )
-from apps.edi.bin.edi_post_processing_pool import post_processing_all
 
 processing_dict = {
     "BBRG_BULK": bbgr_bulk,
