@@ -14,6 +14,22 @@ modified by: Paulo ALVES
 import shutil
 from pathlib import Path
 import csv
+import os
+import sys
+import platform
+
+import django
+
+BASE_DIR = r"D:\SitesWeb\heron"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/palves/heron"
+
+sys.path.insert(0, BASE_DIR)
+sys.path.append(BASE_DIR)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+django.setup()
 
 from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
