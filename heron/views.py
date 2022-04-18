@@ -32,13 +32,11 @@ def home(request):
 
 def import_edi(request):
     from apps.edi.loops.imports_loop_pool import main
-    from apps.edi.bin.edi_post_processing_pool import post_processing_all
 
     global start_thread
     start = time.time()
     main()
     start_thread = time.time() - start
-    post_processing_all()
     return redirect("home")
 
 

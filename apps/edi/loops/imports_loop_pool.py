@@ -52,6 +52,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex,
     widex_ga,
 )
+from apps.edi.bin.edi_post_processing_pool import post_processing_all
 
 processing_dict = {
     "BBRG_BULK": bbgr_bulk,
@@ -135,6 +136,8 @@ def loop_proc(proc_files_list):
 
     with ThreadPoolExecutor() as executor:
         executor.map(proc_files, proc_files_list)
+
+    post_processing_all()
 
 
 def loop_pool_proc(proc_files_list):
