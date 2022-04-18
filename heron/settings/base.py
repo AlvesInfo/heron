@@ -7,6 +7,8 @@ from pathlib import Path
 
 from decouple import Csv, AutoConfig
 from django.utils.translation import gettext_lazy as _
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.pool import NullPool
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -333,3 +335,26 @@ DYNAMIC_PREFERENCES = {
     "CACHE_NAME": "default",
     "VALIDATE_NAMES": True,
 }
+
+engine = create_engine(
+    f"postgresql+psycopg2://"
+    f"{USER_DATABASE}:{USER_DATABASE}"
+    f"@"
+    f"{HOST_DATABASE}:{PORT_DATABASE}"
+    f"/"
+    f"{NAME_DATABASE}",
+    future=True,
+    poolclass=NullPool,
+)
+
+meta_data_heron = MetaData()
+
+with engine.connect() as connection:
+    meta_data_heron.reflect(connection)
+
+TraceError = meta_data_heron.tables["data_flux_error"]
+TraceLine = meta_data_heron.tables["data_flux_line"]
+Trace = meta_data_heron.tables["data_flux_trace"]
+EdiImport = meta_data_heron.tables["edi_ediimport"]
+EdiSupplier = meta_data_heron.tables["edi_supplierdefinition"]
+EdiColumns = meta_data_heron.tables["edi_columndefinition"]

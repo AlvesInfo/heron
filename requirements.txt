@@ -170,7 +170,7 @@ sniffio==1.2.0
 social-auth-core==4.0.2
 sortedcontainers==2.4.0
 soupsieve==2.3.1
-SQLAlchemy==1.4.32
+SQLAlchemy==1.4.35
 sqlparse==0.4.2
 stack-data==0.2.0
 starlette==0.17.1
