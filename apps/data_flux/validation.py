@@ -762,7 +762,7 @@ class Validation:
             self.params_dict["insert_method"] = "insert"
 
     def get_validation_instance(self):
-        """Instance le validateur désiré"""
+        """Instancie le validateur désiré"""
 
         if self.validator is None:
             validation_test = self.params_dict.get("validation")

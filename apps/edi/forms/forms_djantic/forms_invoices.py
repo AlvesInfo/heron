@@ -409,3 +409,23 @@ class WidexGaSchema(
             "supplier",
             "supplier_ident",
         ]
+
+
+def main():
+    class EdiEssais(ModelSchema):
+        class Config:
+            """Config"""
+
+            model = EdiImport
+            include = ["uuid_identification", "invoice_date"]
+
+    try:
+        data = {
+                "uuid_identification": uuid.uuid4(),
+                "invoice_date": "2060-12-22"
+        }
+        # noinspection PyArgumentList
+        essais = EdiEssais(**data)
+        print(essais.dict())
+    except Exception as error:
+        print(error)
