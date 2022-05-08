@@ -675,6 +675,7 @@ class PydanticValidation(ValidationTemplate):
         try:
             form = validator(**data_dict)
             csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
+
         except (pydantic.error_wrappers.ValidationError, ValidationError) as except_error:
             return except_error.errors(), data_dict
 
@@ -701,7 +702,7 @@ class Validation:
         params_dict: Dict = None,
     ):
         """
-        :param dict_flow:   Itérable de dict, pour validation par **kwargs
+        :param dict_flow:   Itérable de dict, pour validation
         :param model:       Model au sens Django
         :param validator:   Validateur de données peut être forms, serializer, pydantic, ....
         :param params_dict: Dictionnaire des paramètres :

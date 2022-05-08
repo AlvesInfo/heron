@@ -269,7 +269,7 @@ class ParserDateBase(BaseModel):
     @validator("*", pre=True, always=True)
     def parser_date(cls, value, field):
 
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+        if hasattr(field.type_, "day") and isinstance(value, (str,)) and value:
             value = str(value).strip()
 
             try:
@@ -365,8 +365,26 @@ class IsoDateFieldsBase(BaseModel):
 
         if hasattr(field.type_, "day") and isinstance(value, (str,)):
 
-            if not value:
+            if not value or value == "None":
                 return None
+
+            value = datetime.datetime.strptime(value, "%Y-%m-%d")
+
+        return value
+
+
+class IsoDefaultDateFieldsBase(BaseModel):
+    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
+
+    @validator("*", pre=True, always=True)
+    def iso_date(cls, value, field):
+
+        value = str(value).strip()
+
+        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+
+            if not value or value == "None":
+                return datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
 
             value = datetime.datetime.strptime(value, "%Y-%m-%d")
 

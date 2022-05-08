@@ -9,7 +9,7 @@ import django
 from django.db import connection, connections
 from django.db.utils import IntegrityError
 
-BASE_DIR = r"D:\SitesWeb\heron"
+BASE_DIR = r"C:\SitesWeb\heron"
 
 if platform.uname().node not in ["PauloMSI", "MSI"]:
     BASE_DIR = "/home/paulo/heron"

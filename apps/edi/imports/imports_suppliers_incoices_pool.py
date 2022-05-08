@@ -23,6 +23,7 @@ from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing import bulk_translate_file
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
+    edi_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
     hearing_post_insert,
@@ -68,6 +69,7 @@ from apps.data_flux.loader import (
     ExcelToCsvError,
     FileToCsvError,
     FileLoader,
+    Opto33Loader,
 )
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
 
@@ -190,17 +192,18 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             "nb_errors_max": 50,
         }
         nbre = 2
-        with FileLoader(
+
+        if flow_name == "Edi":
+            LOADER = Opto33Loader
+        else:
+            LOADER = FileLoader
+
+        with LOADER(
             source=source,
             columns_dict=columns_dict,
             first_line=get_first_line(SupplierDefinition, flow_name),
             params_dict=params_dict_load,
         ) as file_load:
-
-            for i, line in enumerate(file_load.read_dict(), 1):
-                if i == nbre:
-                    break
-                to_print += f"{line}\n"
 
             validation = Validation(
                 dict_flow=file_load.read_dict(),
@@ -339,6 +342,7 @@ def edi(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    edi_post_insert(trace.uuid_identification)
 
     return trace, to_print
 

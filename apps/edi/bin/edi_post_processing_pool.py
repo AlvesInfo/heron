@@ -69,6 +69,8 @@ from (
                 "vat_rate"
             from "edi_ediimport"
             where ("valid" = false or "valid" isnull)
+            and ("montant_facture_TTC" isnull or "montant_facture_TTC" = 0)
+            and ("montant_facture_HT" isnull or "montant_facture_HT" = 0)
             group by "uuid_identification", "invoice_number", "vat_rate"
         ) as vat_tot
         group by "uuid_identification", "invoice_number", "vat_rate"
@@ -77,6 +79,7 @@ from (
 ) edi_fac
 where edi."uuid_identification" = edi_fac."uuid_identification"
 and edi."invoice_number" = edi_fac."invoice_number"
+and ("montant_facture_TTC" is null or "montant_facture_TTC" = 0)
 """
 )
 
@@ -184,6 +187,39 @@ def bulk_post_insert(uuid_identification: AnyStr):
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         EdiImport.objects.filter(uuid_identification=uuid_identification).update(valid=True)
+
+
+def edi_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier Opto33 EDI
+    :param uuid_identification: uuid_identification
+    """
+    sql_update_fac_tva = """
+    update "edi_ediimport"
+    set 
+        "montant_facture_TVA" = "montant_facture_TTC" - "montant_facture_HT",
+        "reference_article" = case 
+                                when "reference_article" isnull or "reference_article" = '' 
+                                then "ean_code"
+                                else "reference_article"
+                              end,
+        "acuitis_order_date" = case 
+                                when "acuitis_order_date" = '1900-01-01' 
+                                then null
+                                else "acuitis_order_date"
+                               end,
+        "delivery_date" = case 
+                            when "delivery_date" = '1900-01-01' 
+                            then null
+                            else "delivery_date"
+                           end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_fac_tva, {"uuid_identification": uuid_identification})
 
 
 def eye_confort_post_insert(uuid_identification: AnyStr):

@@ -23,6 +23,7 @@ from apps.core.validations.pydantic_validators_base import (
     TvaInterson,
     TvaWidex,
     TvaNewson,
+    IsoDefaultDateFieldsBase,
 )
 from apps.edi.models import EdiImport, ColumnDefinition
 from apps.edi.parameters.invoices_imports import get_columns
@@ -54,6 +55,7 @@ class BbgrBulkSchema(
 class EdiSchema(
     ModelSchema,
     ValidateFieldsBase,
+    IsoDefaultDateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle Edi"""
 
@@ -67,8 +69,6 @@ class EdiSchema(
         include = list(get_columns(ColumnDefinition, "Edi")) + [
             "uuid_identification",
             "flow_name",
-            "supplier",
-            "supplier_ident",
         ]
 
 

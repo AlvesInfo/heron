@@ -88,3 +88,54 @@ class PostgresTypeError(PostgresDjangoError):
 class PostgresPreparedError(PostgresDjangoError):
     """Exceptions pour un execute_bach psycopg2"""
 
+
+# Exceptions des types Path  =======================================================================
+
+
+class PathTypeError(Exception):
+    """
+    class of exceptions variables that are not instances of pathlib.Path
+    """
+
+
+class PathFileTypeError(Exception):
+    """
+    class of exceptions variables that are not instances of pathlib.Path
+    """
+
+
+class PathUnzipError(Exception):
+    """
+    class of exceptions for unzip errors
+    """
+
+
+# Exceptions du module Opto33 parser ===============================================================
+
+
+class OptoMontError(ValueError):
+    """
+    Class for exceptions Opto 33 mont
+    """
+
+
+class OptoDateError(ValueError):
+    """
+    Class for exceptions Opto 33 date
+    """
+
+
+class OptoLinesError(ValueError):
+    """
+    Class for exceptions Opto 33 numbers lines
+    """
+
+
+class OptoQualifierError(ValueError):
+    """
+    Class for exceptions Opto 33 date
+    """
+
+
+class OptoParserError(Exception):
+    """Class for exceptions Opto 33 file parser"""

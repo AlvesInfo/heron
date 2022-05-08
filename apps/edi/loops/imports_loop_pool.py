@@ -18,7 +18,7 @@ from pathlib import Path
 
 import django
 
-BASE_DIR = r"D:\SitesWeb\heron"
+BASE_DIR = r"C:\SitesWeb\heron"
 
 if platform.uname().node not in ["PauloMSI", "MSI"]:
     BASE_DIR = "/home/paulo/heron"
@@ -55,23 +55,23 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
 
 processing_dict = {
-    "BBRG_BULK": bbgr_bulk,
+    # "BBRG_BULK": bbgr_bulk,
     "EDI": edi,
-    "EYE_CONFORT": eye_confort,
-    "GENERIQUE": generique,
-    "HEARING": hearing,
-    "INTERSON": interson,
-    "JOHNSON": johnson,
-    "LMC": lmc,
-    "NEWSON": newson,
-    "PHONAK": phonak,
-    "PRODITION": prodition,
-    "SIGNIA": signia,
-    "STARKEY": starkey,
-    "TECHNIDIS": technidis,
-    "UNITRON": unitron,
-    "WIDEX": widex,
-    "WIDEX_GA": widex_ga,
+    # "EYE_CONFORT": eye_confort,
+    # "GENERIQUE": generique,
+    # "HEARING": hearing,
+    # "INTERSON": interson,
+    # "JOHNSON": johnson,
+    # "LMC": lmc,
+    # "NEWSON": newson,
+    # "PHONAK": phonak,
+    # "PRODITION": prodition,
+    # "SIGNIA": signia,
+    # "STARKEY": starkey,
+    # "TECHNIDIS": technidis,
+    # "UNITRON": unitron,
+    # "WIDEX": widex,
+    # "WIDEX_GA": widex_ga,
 }
 
 
@@ -137,7 +137,7 @@ def loop_proc(proc_files_list):
     with ThreadPoolExecutor() as executor:
         executor.map(proc_files, proc_files_list)
 
-    post_processing_all()
+    # post_processing_all()
 
 
 def loop_pool_proc(proc_files_list):

@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import platform
 
-BASE_DIR = r"D:\SitesWeb\heron"
+BASE_DIR = r"C:\SitesWeb\heron"
 
 if platform.uname().node == "DESKP082":
     sys.path.insert(0, BASE_DIR)
