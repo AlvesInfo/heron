@@ -116,7 +116,7 @@ class EdiImport(models.Model):
         default=0,
         verbose_name="prix assurance",
     )
-    gross_price = models.DecimalField(
+    gross_amount = models.DecimalField(
         null=True,
         max_digits=20,
         decimal_places=5,

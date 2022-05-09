@@ -137,7 +137,7 @@ def loop_proc(proc_files_list):
     with ThreadPoolExecutor() as executor:
         executor.map(proc_files, proc_files_list)
 
-    # post_processing_all()
+    post_processing_all()
 
 
 def loop_pool_proc(proc_files_list):

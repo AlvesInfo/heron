@@ -168,7 +168,7 @@ def bulk_post_insert(flow_name: AnyStr):
     set 
         "famille" = case when "famille" is null then 'VERRE' else "famille" end,
         "gross_unit_price" = "net_unit_price",
-        "gross_price" = "net_amount"
+        "gross_amount" = "net_amount"
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
     """
@@ -192,7 +192,7 @@ def eye_confort_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
@@ -234,7 +234,7 @@ def hearing_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "net_amount" = round("net_amount"::numeric, 2)::numeric
     where "flow_name" = %(flow_name)s 
@@ -257,7 +257,7 @@ def interson_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_price" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
+        "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
         "net_amount" = round("net_unit_price"::numeric * "qty"::numeric, 2)::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
@@ -281,7 +281,7 @@ def johnson_post_insert(flow_name: AnyStr):
         "invoice_type" = case when "qty" >= 0 then '380' else '381' end,
         "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "gross_price" = "net_amount"::numeric
+        "gross_amount" = "net_amount"::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
     """
@@ -302,7 +302,7 @@ def lmc_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_price" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric
+        "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
     """
@@ -323,7 +323,7 @@ def newson_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
@@ -345,7 +345,7 @@ def phonak_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
@@ -392,7 +392,7 @@ def prodition_post_insert(flow_name: AnyStr):
                         then "reference_article" 
                         else "libelle" 
                     end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "flow_name" = %(flow_name)s  
     and ("valid" = false or "valid" isnull)
@@ -484,7 +484,7 @@ def unitron_post_insert(flow_name: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "flow_name" = %(flow_name)s 
     and ("valid" = false or "valid" isnull)
@@ -511,16 +511,16 @@ def widex_post_insert(flow_name: AnyStr):
                         then "reference_article" 
                         else "famille" 
                     end,
-        "gross_price" = case 
-                            when "gross_price" is null or "gross_price" = 0 
+        "gross_amount" = case 
+                            when "gross_amount" is null or "gross_amount" = 0 
                             then "net_amount"::numeric 
-                            else "gross_price"::numeric 
+                            else "gross_amount"::numeric 
                         end,
         "gross_unit_price" = (
             case 
-                when "gross_price" is null or "gross_price" = 0 
+                when "gross_amount" is null or "gross_amount" = 0 
                 then "net_amount"::numeric 
-                else "gross_price"::numeric 
+                else "gross_amount"::numeric 
             end 
             / "qty"::numeric
         )::numeric,
@@ -550,16 +550,16 @@ def widexga_post_insert(flow_name: AnyStr):
                         then "reference_article" 
                         else "famille" 
                     end,
-        "gross_price" = case 
-                            when "gross_price" is null or "gross_price" = 0 
+        "gross_amount" = case 
+                            when "gross_amount" is null or "gross_amount" = 0 
                             then "net_amount"::numeric 
-                            else "gross_price"::numeric 
+                            else "gross_amount"::numeric 
                         end,
         "gross_unit_price" = (
             case 
-                when "gross_price" is null or "gross_price" = 0 
+                when "gross_amount" is null or "gross_amount" = 0 
                 then "net_amount"::numeric 
-                else "gross_price"::numeric 
+                else "gross_amount"::numeric 
             end 
             / "qty"::numeric
         )::numeric,

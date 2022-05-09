@@ -137,7 +137,7 @@ class InvoiceDetail(FlagsTable):
     net_unit_price = models.DecimalField(
         max_digits=20, decimal_places=5, default=0, verbose_name="prix unitaire net"
     )
-    gross_price = models.DecimalField(
+    gross_amount = models.DecimalField(
         max_digits=20, decimal_places=5, default=0, verbose_name="montant brut"
     )
     discount_price_01 = models.DecimalField(

@@ -83,7 +83,7 @@ INVOICE_QUALIFIER_MAPPING = {
     ("AAA", "NTP"): "net_unit_price",
     ("", ""): "packaging_amount",
     ("MOA", "8"): "transport_amount",
-    ("MOA", "98"): "gross_price",
+    ("MOA", "98"): "gross_amount",
     ("MOA", "125"): "net_amount",
     ("", ""): "vat_rate",
     ("", ""): "vat_amount",
@@ -120,7 +120,7 @@ INVOICE_DICT = {
     "net_unit_price": "0",
     "packaging_amount": "0",
     "transport_amount": "0",
-    "gross_price": "0",
+    "gross_amount": "0",
     "net_amount": "0",
     "vat_rate": "0",
     "vat_amount": "0",
@@ -298,7 +298,7 @@ class EDIQualifierParser:
         :param data: list of values
         """
         moa_dict = {
-            "98": "gross_price",
+            "98": "gross_amount",
             "125": "net_amount",
             "128": "amount_with_vat",
         }
@@ -310,7 +310,7 @@ class EDIQualifierParser:
             return {
                 "gross_unit_price": amount,
                 "net_unit_price": amount,
-                "gross_price": amount,
+                "gross_amount": amount,
                 "net_amount": amount,
                 "emb_port_price": amount,
             }

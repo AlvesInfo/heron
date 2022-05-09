@@ -53,12 +53,10 @@ from (
             "invoice_number",
             sum("montant_HT")::numeric as "mont_HT",
             round((sum("montant_HT")::numeric * "vat_rate"::numeric), 2) as "mont_TVA",
-            round(
-                (
-                    sum("montant_HT")::numeric +
-                    (sum("montant_HT")::numeric * "vat_rate"::numeric)
-                )
-                , 2
+            (
+                sum("montant_HT")::numeric +
+                round((sum("montant_HT")::numeric * "vat_rate"::numeric), 2)
+
             ) as "mont_TTC",
             "vat_rate"
         from (
@@ -69,8 +67,11 @@ from (
                 "vat_rate"
             from "edi_ediimport"
             where ("valid" = false or "valid" isnull)
-            and ("montant_facture_TTC" isnull or "montant_facture_TTC" = 0)
-            and ("montant_facture_HT" isnull or "montant_facture_HT" = 0)
+            and (
+                ("montant_facture_TTC" isnull or "montant_facture_TTC" = 0)
+                or 
+                ("montant_facture_HT" isnull or "montant_facture_HT" = 0)
+            )
             group by "uuid_identification", "invoice_number", "vat_rate"
         ) as vat_tot
         group by "uuid_identification", "invoice_number", "vat_rate"
@@ -79,7 +80,6 @@ from (
 ) edi_fac
 where edi."uuid_identification" = edi_fac."uuid_identification"
 and edi."invoice_number" = edi_fac."invoice_number"
-and ("montant_facture_TTC" is null or "montant_facture_TTC" = 0)
 """
 )
 
@@ -88,7 +88,7 @@ def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
     with connection.cursor() as cursor:
         cursor.execute(SQL_FAC_UPDATE)
-        
+
 
 def bulk_post_insert(uuid_identification: AnyStr):
     """
@@ -175,7 +175,7 @@ def bulk_post_insert(uuid_identification: AnyStr):
     set 
         "famille" = case when "famille" is null then 'VERRE' else "famille" end,
         "gross_unit_price" = "net_unit_price",
-        "gross_price" = "net_amount"
+        "gross_amount" = "net_amount"
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
@@ -232,7 +232,7 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
@@ -274,7 +274,7 @@ def hearing_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "net_amount" = round("net_amount"::numeric, 2)::numeric
     where "uuid_identification" = %(uuid_identification)s
@@ -297,7 +297,7 @@ def interson_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_price" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
+        "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
         "net_amount" = round("net_unit_price"::numeric * "qty"::numeric, 2)::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
@@ -321,15 +321,38 @@ def johnson_post_insert(uuid_identification: AnyStr):
         "invoice_type" = case when "qty" >= 0 then '380' else '381' end,
         "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "gross_price" = "net_amount"::numeric
+        "gross_amount" = "net_amount"::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_update_vat_rate = """
+    update "edi_ediimport" "ed" 
+    set "vat_rate" = "req"."taux_tva" 
+    from (
+        select
+            case 
+                when "net_amount" isnull or "net_amount" = 0 then 0
+                when round("amount_with_vat"::numeric/"net_amount"::numeric, 2) 
+                        between 1.19 and 1.21 
+                        then .2 
+                when round("amount_with_vat"::numeric/"net_amount"::numeric, 2) 
+                        between 1.045 and 1.065 
+                        then .055
+            end as "taux_tva",
+            "uuid_identification", 
+            "edi"."id"
+        from "edi_ediimport" "edi"
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+    ) "req" 
+    where "req"."id" = "ed"."id"
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_vat_rate, {"uuid_identification": uuid_identification})
 
 
 def lmc_post_insert(uuid_identification: AnyStr):
@@ -342,7 +365,7 @@ def lmc_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_price" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric
+        "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
@@ -363,7 +386,7 @@ def newson_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
@@ -385,7 +408,7 @@ def phonak_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
@@ -432,7 +455,7 @@ def prodition_post_insert(uuid_identification: AnyStr):
                         then "reference_article" 
                         else "libelle" 
                     end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "uuid_identification" = %(uuid_identification)s 
     and ("valid" = false or "valid" isnull)
@@ -466,10 +489,29 @@ def signia_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                            when "net_amount" > 0 then abs("gross_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def starkey_post_insert(uuid_identification: AnyStr):
@@ -487,10 +529,36 @@ def starkey_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 
+                                then (
+                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
+                                    * 
+                                    -1::numeric
+                                )
+                            when "net_amount" > 0 
+                                then (
+                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
+                                )
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def technidis_post_insert(uuid_identification: AnyStr):
@@ -508,10 +576,37 @@ def technidis_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 
+                                then (
+                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
+                                    * 
+                                    -1::numeric
+                                )
+                            when "net_amount" > 0 
+                                then (
+                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
+                                )
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def unitron_post_insert(uuid_identification: AnyStr):
@@ -524,7 +619,7 @@ def unitron_post_insert(uuid_identification: AnyStr):
     update "edi_ediimport"
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_price"::numeric / "qty"::numeric)::numeric,
+        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
@@ -551,16 +646,16 @@ def widex_post_insert(uuid_identification: AnyStr):
                         then "reference_article" 
                         else "famille" 
                     end,
-        "gross_price" = case 
-                            when "gross_price" is null or "gross_price" = 0 
+        "gross_amount" = case 
+                            when "gross_amount" is null or "gross_amount" = 0 
                             then "net_amount"::numeric 
-                            else "gross_price"::numeric 
+                            else "gross_amount"::numeric 
                         end,
         "gross_unit_price" = (
             case 
-                when "gross_price" is null or "gross_price" = 0 
+                when "gross_amount" is null or "gross_amount" = 0 
                 then "net_amount"::numeric 
-                else "gross_price"::numeric 
+                else "gross_amount"::numeric 
             end 
             / "qty"::numeric
         )::numeric,
@@ -569,10 +664,29 @@ def widex_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                            when "net_amount" > 0 then abs("gross_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def widexga_post_insert(uuid_identification: AnyStr):
@@ -590,16 +704,16 @@ def widexga_post_insert(uuid_identification: AnyStr):
                         then "reference_article" 
                         else "famille" 
                     end,
-        "gross_price" = case 
-                            when "gross_price" is null or "gross_price" = 0 
+        "gross_amount" = case 
+                            when "gross_amount" is null or "gross_amount" = 0 
                             then "net_amount"::numeric 
-                            else "gross_price"::numeric 
+                            else "gross_amount"::numeric 
                         end,
         "gross_unit_price" = (
             case 
-                when "gross_price" is null or "gross_price" = 0 
+                when "gross_amount" is null or "gross_amount" = 0 
                 then "net_amount"::numeric 
-                else "gross_price"::numeric 
+                else "gross_amount"::numeric 
             end 
             / "qty"::numeric
         )::numeric,
@@ -608,7 +722,26 @@ def widexga_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                            when "net_amount" > 0 then abs("gross_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
