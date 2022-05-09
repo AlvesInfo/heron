@@ -233,15 +233,35 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
+        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+        "amount_with_vat" = "net_amount"::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                            when "net_amount" > 0 then abs("gross_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def generique_post_insert(uuid_identification: AnyStr):
@@ -348,11 +368,30 @@ def johnson_post_insert(uuid_identification: AnyStr):
     ) "req" 
     where "req"."id" = "ed"."id"
     """
+    sql_update_units = """
+    update "edi_ediimport"
+    set 
+        "qty" = case 
+                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                    when "net_amount" > 0 then abs("qty")::numeric
+                    else "qty" 
+                end,
+        "gross_unit_price" = abs("gross_unit_price"),
+        "net_unit_price" = abs("net_unit_price"),
+        "gross_amount" = case 
+                            when "net_amount" = 0 then 0
+                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                            when "net_amount" > 0 then abs("gross_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_vat_rate, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def lmc_post_insert(uuid_identification: AnyStr):
