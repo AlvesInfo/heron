@@ -234,6 +234,8 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
         "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+        "vat_rate" = 0,
+        "vat_amount" = 0,
         "amount_with_vat" = "net_amount"::numeric
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
