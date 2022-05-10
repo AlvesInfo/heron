@@ -30,13 +30,15 @@
                       <div class="right menu">
                         <form action="{% url 'book:export_list_societies' %}"
                               method="post"
-                              enctype="multipart/form-data">
+                              enctype="multipart/form-data"
+                              style="display: flex;"
+                        >
                         {% csrf_token %}
                           <a href=""
                              class="item"
                              style="margin-right: 0;">
                               <button class="ui green button" name="export_list_societies" style="font-size: 10px !important;">
-                                  REPERTOIRE
+                                  TIERS
                               </button>
                           </a>
                           <a href=""

@@ -92,7 +92,7 @@ def export_list_societies(request):
             today = pendulum.now()
             if "export_list_societies" in request.POST:
                 societies = Society.objects.all()
-                file_name = f"LISTING_DU_REPERTOIRE_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                file_name = f"LISTING_DES_TIERS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
             elif "export_list_clients" in request.POST:
                 societies = Society.objects.filter(is_client=True)
