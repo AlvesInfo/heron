@@ -91,6 +91,20 @@ LOGGING = {
             "filename": f"{VAR_LOG_DIR}/connect.log",
             "formatter": "simple",
         },
+        # error_views
+        "error_views": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{VAR_LOG_DIR}/error_views.log",
+            "formatter": "verbose",
+        },
+        # export_excel
+        "export_excel": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{VAR_LOG_DIR}/export_excel.log",
+            "formatter": "verbose",
+        },
     },
     "loggers": {
         # all messages
@@ -105,6 +119,8 @@ LOGGING = {
         "timer_heron": {"handlers": ["timer_heron"]},
         "imports": {"handlers": ["import_logfile"], "propagate": True},
         "edi": {"handlers": ["edi_logfile"], "propagate": True},
+        "error_views": {"handlers": ["error_views"], "propagate": True},
+        "export_excel": {"handlers": ["export_excel"], "propagate": True},
     },
 }
 

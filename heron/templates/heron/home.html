@@ -11,19 +11,21 @@
 
 {% block content %}
 
-    <br><br>
-    <div class="ui stackable sixteen column grid" style="margin-top: -10px;">
+        <a href="{% url 'import_edi' %}">
+        <button class="ui inverted brown button button-menu" value=""
+                style="height: 60px !important;width: 180px !important;font-size: 12px !important;text-align: center;">
+            INSERT EDI FILES</button>
+        </a>
+        <br>
+        <h1>{{ start_thread }}</h1>
+        <br>
+        <br>
 
-        <div class="five wide column menubas"></div>
-
-        <div class="six wide column menubas" style="text-align: center;">
-            <div style="margin-bottom: 50px;"></div>
-            <img src="{%  static "LOGO_ANS_2020_Largeur.jpg" %}" alt="logo" style="width: 68%;height: 54%;margin: 50px 20px;">
-
-            <h2>Outil de gestion opérationnel des projets</h2>
-        </div>
-        <div class="five wide column menubas"></div>
-    </div>
+        <a href="{% url 'book:supplier_list' %}">
+            <button class="ui inverted brown button button-menu" value=""
+                style="height: 60px !important;width: 180px !important;font-size: 12px !important;text-align: center;">
+            SUPPLIERS</button>
+        </a>
 
 
     {% if not user.is_authenticated %}
@@ -34,11 +36,8 @@
         <br>
         <h4 class="colorheron" style="text-align: center;color: #456ba5;">Vous devez être connecté, pour pouvoir utiliser ce site</h4>
         <div class="ui row" style="text-align: center;color: #456ba5;">
-            <button class="ui blue basic button" >
-                <a href="{% if environnement == 'PRODUCTION' %}{% url 'oidc_urls:oidc_authentication_init' %}{% else %}{% url 'accounts:login' %}{% endif %}">Connexion</a>
-            </button>
         </div>
 
-{% endif %}
+    {% endif %}
 
 {% endblock content %}

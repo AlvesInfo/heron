@@ -1,0 +1,174 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% load filters_tags %}
+
+{% block head_js %}
+    <script src="{% static 'delete_oject_model.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <!-- Messages ---------------------------------------------------------- -->
+        {% include 'heron/messages_messages.html' %}
+        {% include 'heron/messages_forms.html' %}
+        {% include 'heron/messages_delete.html' %}
+        <!-- end --------------------------------------------------------------- -->
+          <br>
+          <div class="ui equal width grid center">
+              <div class="three wide column" style="text-align: center;vertical-align: middle">
+                <div class="sprite-logo-grand-header_FR" style="zoom: 70%;"></div>
+              </div>
+
+              <div class="eleven wide column">
+                  <div class="ui stackable container menu">
+                      <a href="/" class="item" style="font-weight: bold !important;font-size: 12px;">
+                        <i class="large blue-color home icon"></i>
+                      </a>
+                      <div class="right menu">
+                        <form action="{% url 'book:export_list_societies' %}"
+                              method="post"
+                              enctype="multipart/form-data">
+                        {% csrf_token %}
+                          <a href=""
+                             class="item"
+                             style="margin-right: 0;">
+                              <button class="ui green button" name="export_list_societies" style="font-size: 10px !important;">
+                                  REPERTOIRE
+                              </button>
+                          </a>
+                          <a href=""
+                             class="item"
+                             style="margin-right: 0;">
+                              <button class="ui green button" name="export_list_clients" style="font-size: 10px !important;">
+                                  CLIENTS
+                              </button>
+                          </a>
+                          <a href=""
+                             class="item"
+                             style="margin-right: 0;">
+                              <button class="ui green button" name="export_list_supplierss" style="font-size: 10px !important;">
+                                  FOURNISSEURS
+                              </button>
+                          </a>
+                        </form>
+                      </div>
+                  </div>
+              </div>
+              <div class="two wide column"></div>
+          </div>
+
+          <hr style="color: #188fb3;background-color: #188fb3;">
+
+            <div class="ui segment">
+              <div class="ui equal width grid center">
+
+                <div class="two wide column"></div>
+
+                <div class="column">
+                </div>
+
+                <div class="column" style="text-align: center;">
+                  <h2 class="color-blue-do">Répertoire</h2>
+                </div>
+
+                <div class="column">
+
+                </div>
+
+                <div class="two wide column"></div>
+
+              </div>
+            </div>
+
+            <div class="ui segment">
+              <div class="ui equal width grid center">
+                  <div class="four wide column"></div>
+
+                  <div class="eight wide column">
+
+                    <table id="table_document"
+                       class="ui celled table"
+                       style="font-size: 12px;text-align: center;font-weight:bold;">
+                        <thead>
+                            <tr>
+                                <th class="no-sort" style="text-align: center;">Modifier</th>
+                                <th>Société</th>
+                                <th>code société</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for society in societies %}
+                            <tr id="id_{{ society.id }}" class="hide_plans">
+
+                                <td data-value="{{ society.code_society }}"
+                                    style="width: 10px;text-align: center;">
+                                    <a href="">
+                                        <i class="edit icon modification"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                  {% if society.third_party_num %}
+                                    {{ society.third_party_num }}
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if society.name %}
+                                    {{ society.name }}
+                                  {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                  </div>
+                  <div class="four wide column"></div>
+
+              </div>
+            </div>
+
+
+        <div class="ui equal width grid center"></div>
+        {% include "heron/modal_delete.html" %}
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+
+            // FONCTION SEMANTIC UI POUR INITIALISATION DES DROPDOWNS
+            $('.dropdown').dropdown({});
+
+            // FRAMEWORK DATA-TABLE POUR AVOIR UN SCROLL VERTICAL
+            $('#table_document').DataTable({
+                "info": false,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"
+                },
+                "lengthMenu": [[20, 50, -1], [20, 50, "Tous"]]
+            });
+
+        });
+
+    </script>
+
+{% endblock script %}

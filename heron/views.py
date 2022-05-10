@@ -27,7 +27,7 @@ def home(request):
         else "Import Thread",
     }
     # start_thread = 0
-    return render(request, "heron/base_semantic.html", context=context)
+    return render(request, "heron/home.html", context=context)
 
 
 def import_edi(request):

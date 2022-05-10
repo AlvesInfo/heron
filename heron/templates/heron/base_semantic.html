@@ -63,13 +63,6 @@
     </head>
 
     <body>
-        <a href="{% url 'import_edi' %}">
-        <button class="ui inverted brown button button-menu" value=""
-                style="height: 60px !important;width: 180px !important;font-size: 12px !important;text-align: center;">
-            INSERT EDI FILES</button>
-        </a>
-        <br>
-        <h1>{{ start_thread }}</h1>
 
         {% block logo %}
         {% endblock logo %}
@@ -82,10 +75,7 @@
 
         {% block content %}
         {% endblock content %}
-        <br>
-        Environement : {{ environnement }}
-        <br>
-        traduc :  {% translate traduc %}
+
         {% block footer %}
         {% endblock footer %}
 

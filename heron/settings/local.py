@@ -22,6 +22,8 @@ LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
 LOG_EDI_FILE = (Path(LOG_DIR) / "edi_file.log").resolve()
 LOG_IMPORT_FILE = (Path(LOG_DIR) / "import_file.log").resolve()
 LOG_CONNEXION = (Path(LOG_DIR) / "connection.log").resolve()
+LOG_ERROR_VIEWS = (Path(LOG_DIR) / "error_views.log").resolve()
+LOG_EXPORT_ECEL = (Path(LOG_DIR) / "export_excel.log").resolve()
 
 LOGGING = {
     "version": 1,
@@ -75,6 +77,20 @@ LOGGING = {
             "filename": LOG_CONNEXION,
             "formatter": "verbose",
         },
+        # error_views
+        "error_views": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": LOG_ERROR_VIEWS,
+            "formatter": "verbose",
+        },
+        # export_excel
+        "export_excel": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": LOG_EXPORT_ECEL,
+            "formatter": "verbose",
+        },
     },
     "loggers": {
         # all messages
@@ -84,6 +100,8 @@ LOGGING = {
         "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": True},
         "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": True},
         "edi": {"handlers": ["edi_logfile"], "propagate": True},
+        "error_views": {"handlers": ["error_views"], "propagate": True},
+        "export_excel": {"handlers": ["export_excel"], "propagate": True},
     },
 }
 
