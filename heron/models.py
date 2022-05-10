@@ -45,10 +45,10 @@ class FlagsTable(models.Model):
     delete = models.BooleanField(null=True, default=False)
     export = models.BooleanField(null=True, default=False)
     valid = models.BooleanField(null=True, default=False)
-    flag_to_active = models.BooleanField(null=True)
-    flag_to_delete = models.BooleanField(null=True)
-    flag_to_export = models.BooleanField(null=True)
-    flag_to_valid = models.BooleanField(null=True)
+    flag_to_active = models.BooleanField(null=True, default=False)
+    flag_to_delete = models.BooleanField(null=True, default=False)
+    flag_to_export = models.BooleanField(null=True, default=False)
+    flag_to_valid = models.BooleanField(null=True, default=False)
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

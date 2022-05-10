@@ -109,7 +109,9 @@ class Society(FlagsTable):
     corporate_name = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="raison sociale"
     )  # BPRNAM_1
-    code_plan_sage = models.CharField(max_length=10, verbose_name="code plan X3")
+    code_plan_sage = models.CharField(
+        null=True, blank=True, max_length=10, verbose_name="code plan X3"
+    )
     siren_number = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="n° siren"
     )  # ?
@@ -147,32 +149,22 @@ class Society(FlagsTable):
     naf_code = models.CharField(
         null=True, blank=True, max_length=10, verbose_name="code naf"
     )  # NAF
-    currency = models.CharField(default="EUR", max_length=3, verbose_name="monaie")  # CUR
+    currency = models.CharField(
+        null=True, default="EUR", max_length=3, verbose_name="monaie"
+    )  # CUR
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="country_iso",
+        to_field="country",
         related_name="society_country_country",
         null=True,
         verbose_name="pays",
         db_column="country",
-    )  # CRY
-    language = models.ForeignKey(
-        Country,
-        on_delete=models.PROTECT,
-        to_field="country_iso",
-        related_name="society_language_country",
-        null=True,
-        db_column="language",
-    )  # LAN
-    budget_code = models.ForeignKey(
-        TabDivSage,
-        null=True,
-        on_delete=models.PROTECT,
-        limit_choices_to={"num_table": "6100"},
-        verbose_name="code budget",
-        db_column="budget_code",
-    )  # Z_CODBUD
+    )  # CRY models Country
+    language = models.CharField(null=True, blank=True, max_length=80)  # LAN models Country
+    budget_code = models.CharField(
+        null=True, blank=True, max_length=80
+    )  # Z_CODBUD models TabDivSage limit_choices_to={"num_table": "6100"}
     reviser = models.CharField(null=True, blank=True, max_length=5)  # Z_REVUSR
     comment = models.TextField(null=True, blank=True)
 
@@ -187,14 +179,8 @@ class Society(FlagsTable):
     is_contractor = models.BooleanField(null=True, default=False)  # DOOFLG
 
     # Paiements
-    payment_condition_supplier = models.ForeignKey(
-        PaymentCondition,
-        null=True,
-        on_delete=models.SET_NULL,
-        to_field="auuid",
-        related_name="society_supplier_payment",
-        verbose_name="conditions de paiement fournisseur",
-        db_column="payment_condition_supplier",
+    payment_condition_supplier = models.CharField(
+        null=True, blank=True, max_length=80
     )  # PTE - BPSUPPLIER (Table TABPAYTERM)
     vat_sheme_supplier = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
@@ -202,14 +188,8 @@ class Society(FlagsTable):
     account_supplier_code = models.CharField(
         null=True, blank=True, max_length=10
     )  # ACCCOD - BPSUPPLIER (Table GACCCODE)
-    payment_condition_client = models.ForeignKey(
-        PaymentCondition,
-        null=True,
-        on_delete=models.SET_NULL,
-        to_field="auuid",
-        related_name="society_client_payment",
-        verbose_name="conditions de paiement client",
-        db_column="payment_condition_client",
+    payment_condition_client = models.CharField(
+        null=True, blank=True, max_length=80
     )  # PTE - BPCUSTOMER (Table TABPAYTERM)
     vat_sheme_client = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
@@ -248,16 +228,22 @@ class Society(FlagsTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
+        null=True,
         to_field="name",
         verbose_name="categorie de prix",
         db_column="sale_price_category",
     )
     generic_coefficient = models.DecimalField(
-        max_digits=20, decimal_places=5, default=1, verbose_name="coefiscient de vente générique"
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=1,
+        verbose_name="coeficient de vente générique",
     )
     credit_account = models.ForeignKey(
         AccountSage,
         on_delete=models.PROTECT,
+        null=True,
         to_field="uuid_identification",
         related_name="credit_account",
         verbose_name="compte X3 au crédit",
@@ -266,6 +252,7 @@ class Society(FlagsTable):
     debit_account = models.ForeignKey(
         AccountSage,
         on_delete=models.PROTECT,
+        null=True,
         to_field="uuid_identification",
         related_name="debit_account",
         verbose_name="compte X3 au débit",
@@ -274,6 +261,7 @@ class Society(FlagsTable):
     prov_account = models.ForeignKey(
         AccountSage,
         on_delete=models.PROTECT,
+        null=True,
         to_field="uuid_identification",
         related_name="prov_account",
         verbose_name="compte X3 de provision",
@@ -285,8 +273,10 @@ class Society(FlagsTable):
     sage_pan_code = models.CharField(null=True, blank=True, max_length=10)
 
     # RFA
-    rfa_frequence = models.IntegerField(choices=Frequence.choices, default=Frequence.MENSUEL)
-    rfa_remise = models.IntegerField(choices=Remise.choices, default=Remise.TOTAL)
+    rfa_frequence = models.IntegerField(
+        null=True, choices=Frequence.choices, default=Frequence.MENSUEL
+    )
+    rfa_remise = models.IntegerField(null=True, choices=Remise.choices, default=Remise.TOTAL)
 
     def __str__(self):
         return f"{self.nature}{' - ' if self.nature else ''}{self.name}"
@@ -316,7 +306,7 @@ class Address(FlagsTable):
     address_type = models.CharField(null=True, blank=True, max_length=20)  # BPATYP
     address_number = models.CharField(null=True, blank=True, max_length=20)
     road_type = models.CharField(null=True, blank=True, max_length=35)
-    line_01 = models.CharField(max_length=80)  # BPAADDLIG(0)
+    line_01 = models.CharField(null=True, max_length=80)  # BPAADDLIG(0)
     line_02 = models.CharField(null=True, blank=True, max_length=80)  # BPAADDLIG(1)
     line_03 = models.CharField(null=True, blank=True, max_length=80)  # BPAADDLIG(2)
     state = models.CharField(null=True, blank=True, max_length=80)  # SAT
@@ -326,7 +316,7 @@ class Address(FlagsTable):
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="country_iso",
+        to_field="country",
         related_name="adresse_country",
         null=True,
         db_column="country",
@@ -338,13 +328,13 @@ class Address(FlagsTable):
     phone_number_03 = models.CharField(null=True, blank=True, max_length=35)  # TEL(2)
     phone_number_04 = models.CharField(null=True, blank=True, max_length=35)  # TEL(3)
     phone_number_05 = models.CharField(null=True, blank=True, max_length=35)  # TEL(4)
-    mobile_number = models.CharField(null=True, blank=True, max_length=35)  # MOB
     email_01 = models.EmailField(null=True, blank=True)  # WEB(0)
     email_02 = models.EmailField(null=True, blank=True)  # WEB(1)
     email_03 = models.EmailField(null=True, blank=True)  # WEB(2)
     email_04 = models.EmailField(null=True, blank=True)  # WEB(3)
     email_05 = models.EmailField(null=True, blank=True)  # WEB(4)
     web_site = models.CharField(null=True, blank=True, max_length=250)  # FCYWEB
+    mobile_number = models.CharField(null=True, blank=True, max_length=35)  # MOB
 
     def save(self, *args, **kwargs):
         """
@@ -369,6 +359,7 @@ class Address(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["country"]
+        unique_together = (("society", "address_code"),)
 
 
 class DocumentsSubscription(FlagsTable):
@@ -404,7 +395,7 @@ class Contact(FlagsTable):
         related_name="contact_society",
         db_column="society",
     )  # BPANUM
-    code = models.CharField(unique=True, max_length=15)  # CCNCRM
+    code = models.CharField(max_length=15)  # CCNCRM
     service = models.CharField(null=True, blank=True, max_length=30)  # CNTSRV
     role = models.CharField(null=True, blank=True, max_length=15)  # CNTMSS
     nature = models.ForeignKey(
@@ -419,33 +410,18 @@ class Contact(FlagsTable):
     civility = models.CharField(null=True, blank=True, max_length=20)  # CNTTTL
     first_name = models.CharField(null=True, blank=True, max_length=80)  # CNTFNA
     last_name = models.CharField(null=True, blank=True, max_length=80)  # CNTLNA
-    language = models.ForeignKey(
-        Country,
-        on_delete=models.PROTECT,
-        to_field="country_iso",
-        related_name="contact_language_country",
-        null=True,
-        db_column="language",
-    )  # CNTLAN
+    language = models.CharField(null=True, blank=True, max_length=20)  # CNTLAN models Country
     category = models.CharField(null=True, blank=True, max_length=20)  # CNTCSP
     address_number = models.CharField(null=True, blank=True, max_length=20)
     road_type = models.CharField(null=True, blank=True, max_length=35)
-    line_01 = models.CharField(max_length=80)  # ADD(0)
+    line_01 = models.CharField(null=True, max_length=80)  # ADD(0)
     line_02 = models.CharField(null=True, blank=True, max_length=80)  # ADD(1)
     line_03 = models.CharField(null=True, blank=True, max_length=80)  # ADD(2)
     state = models.CharField(null=True, blank=True, max_length=80)  # SAT
     region = models.CharField(null=True, blank=True, max_length=80)
     postal_code = models.CharField(null=True, blank=True, max_length=35)  # ZIP
     city = models.CharField(null=True, blank=True, max_length=80)  # CTY
-    country = models.ForeignKey(
-        Country,
-        on_delete=models.PROTECT,
-        to_field="country_iso",
-        related_name="contact_country_country",
-        null=True,
-        verbose_name="pays",
-        db_column="country",
-    )  # CRY
+    country = models.CharField(null=True, blank=True, max_length=20)  # CRY models Country
     building = models.CharField(null=True, blank=True, max_length=80)
     floor = models.CharField(null=True, blank=True, max_length=80)
     phone_number = models.CharField(null=True, blank=True, max_length=35)  # CNTETS
@@ -524,7 +500,7 @@ class SocietyBank(FlagsTable):
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="country_iso",
+        to_field="country",
         related_name="bank_country",
         null=True,
         db_column="country",
@@ -546,6 +522,7 @@ class SocietyBank(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["society", "-is_default", "account_number"]
+        unique_together = (("society", "account_number"),)
 
 
 class BprBookSage:
@@ -585,21 +562,25 @@ class BprBookSage:
             "currency": 8,
             "country": 9,
             "language": 10,
-            "budget_code": 11,
-            "reviser": 12,
-            "is_client": 13,
-            "is_agent": 14,
-            "is_prospect": 15,
-            "is_supplier": 16,
-            "is_various": 17,
-            "is_service_provider": 18,
-            "is_transporter": 19,
-            "is_contractor": 20,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 21,
-            "modified_at": 22,
+            "is_client": 11,
+            "is_agent": 12,
+            "is_prospect": 13,
+            "is_supplier": 14,
+            "is_various": 15,
+            "is_service_provider": 16,
+            "is_transporter": 17,
+            "is_contractor": 18,
+            "budget_code": 19,
+            "reviser": 20,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"third_party_num"}
 
     @property
     def get_import(self):
@@ -640,11 +621,15 @@ class BpsBookSage:
             "payment_condition_supplier": 1,
             "vat_sheme_supplier": 2,
             "account_supplier_code": 3,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 4,
-            "modified_at": 5,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"third_party_num"}
 
     @property
     def get_import(self):
@@ -685,11 +670,15 @@ class BpcBookSage:
             "payment_condition_client": 1,
             "vat_sheme_client": 2,
             "account_client_code": 3,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 4,
-            "modified_at": 5,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"third_party_num"}
 
     @property
     def get_import(self):
@@ -730,30 +719,33 @@ class BookAdressesSage:
             "default_adress": 1,
             "address_code": 2,
             "address_type": 3,
-            "line_01": 4,
-            "line_02": 5,
-            "line_03": 6,
-            "state": 7,
-            "postal_code": 8,
-            "city": 9,
-            "country": 10,
-            "phone_number_01": 11,
-            "phone_number_02": 12,
-            "phone_number_03": 13,
-            "phone_number_04": 14,
-            "phone_number_05": 15,
-            "mobile": 16,
+            "line_01": 5,
+            "line_02": 6,
+            "line_03": 7,
+            "state": 8,
+            "postal_code": 9,
+            "city": 10,
+            "country": 11,
+            "phone_number_01": 12,
+            "phone_number_02": 13,
+            "phone_number_03": 14,
+            "phone_number_04": 15,
+            "phone_number_05": 16,
             "email_01": 17,
             "email_02": 18,
             "email_03": 19,
             "email_04": 20,
-            "email_05": 21,
-            "web_site": 22,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 23,
-            "modified_at": 24,
+            "email_05": 20,
+            "web_site": 21,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"society", "address_code"}
 
     @property
     def get_import(self):
@@ -794,12 +786,15 @@ class CodeContactsSage:
             "code": 1,
             "service": 2,
             "role": 3,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "uuid_identification": 4,
-            "created_at": 5,
-            "modified_at": 6,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"society", "code"}
 
     @property
     def get_import(self):
@@ -852,12 +847,15 @@ class BookContactsSage:
             "phone_number": 13,
             "mobile_number": 14,
             "email": 15,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "uuid_identification": 16,
-            "created_at": 17,
-            "modified_at": 18,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {}
 
     @property
     def get_import(self):
@@ -907,11 +905,15 @@ class BookBanksSage:
             "country": 10,
             "currency": 11,
             "is_default": 12,
-            # Issu de l'héritage de FlagsTable
-            # From the legacy of FlagsTable
-            "created_at": 13,
-            "modified_at": 14,
         }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"society", "account_number"}
 
     @property
     def get_import(self):

@@ -116,7 +116,7 @@ class Signboard(FlagsTable):
     language = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="country_iso",
+        to_field="country",
         verbose_name="langue",
         db_column="language",
     )

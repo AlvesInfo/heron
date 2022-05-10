@@ -41,7 +41,7 @@ def fixtures_pays():
     with file.open(encoding="utf8") as csv_file:
         csv_rows: csv = csv.reader(csv_file, delimiter=";", quotechar='"')
         list_keys: list = [
-            "country_iso",
+            "country",
             "country_iso_3",
             "country_insee",
             "country_iso_num",

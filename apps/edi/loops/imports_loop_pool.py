@@ -24,10 +24,7 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
     BASE_DIR = "/home/paulo/heron"
 
 sys.path.append(BASE_DIR)
-# sys.path.append(BASE_DIR + "/heron")
-# sys.path.append(BASE_DIR + '/apps')
-print(sys.path)
-print(sys.platform)
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
@@ -94,6 +91,7 @@ def proc_files(process_object):
     dans le répertoire de processing/suppliers_invoices_files
     """
     import time
+
     start_initial = time.time()
 
     error = False
@@ -121,12 +119,15 @@ def proc_files(process_object):
             trace.comment = (
                 trace.comment + "\nUne erreur c'est produite veuillez consulter les logs"
             )
+
+        if trace is not None:
             trace.save()
 
     EDI_LOGGER.warning(
-            to_print + f"Validation {file.name} in : {time.time() - start_initial} s" +
-            "\n\n======================================================================="
-            "======================================================================="
+        to_print
+        + f"Validation {file.name} in : {time.time() - start_initial} s"
+        + "\n\n======================================================================="
+        "======================================================================="
     )
 
 
@@ -150,6 +151,7 @@ def loop_pool_proc(proc_files_list):
 
 def main():
     import time
+
     start_all = time.time()
     proc_files_l = get_files()
     loop_proc(proc_files_l)
@@ -159,6 +161,7 @@ def main():
 
 def main_pool():
     import time
+
     start_all = time.time()
     proc_files_l = get_files()
     loop_pool_proc(proc_files_l)

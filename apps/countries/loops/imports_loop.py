@@ -14,45 +14,26 @@ modified by: Paulo ALVES
 import shutil
 from pathlib import Path
 
-from apps.accountancy.loggers import IMPORT_LOGGER
+from apps.book.loggers import IMPORT_LOGGER
 from apps.core.functions.functions_setups import settings
-from apps.accountancy.imports.imports_sage import (
-    account_sage,
-    axe_sage,
-    section_sage,
-    vat_regime_sage,
-    vat_sage,
-    vat_rat_sage,
-    payement_condition,
-    tab_div_sage,
-    category_sage,
-)
+from apps.countries.imports.imports_sage import pays_sage
 
 processing_dict = {
-    "ZBIACCOUNT_journalier.heron": account_sage,
-    "ZBIAXES_journalier.heron": axe_sage,
-    "ZBICCE_journalier.heron": section_sage,
-    "ZBIREG_journalier.heron": vat_regime_sage,
-    "ZBIVAT_journalier.heron": vat_sage,
-    "ZBIRATVAT_journalier.heron": vat_rat_sage,
-    "ZBIPTE_journalier.heron": payement_condition,
-    "ZBIDIV_journalier.heron": tab_div_sage,
-    "ZBICATC_journalier.heron": category_sage,
-    "ZBICATS_journalier.heron": category_sage,
+    "ZBICRY_journalier.heron": pays_sage,
 }
 
 
 def get_processing_files():
     """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3"""
-    file_list = []
+    pre_file_list = list(processing_dict)
 
     for file in Path(settings.ACUITIS_EM_DIR).glob("*"):
         if file.name in processing_dict:
             destination = Path(settings.PROCESSING_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
-            file_list.append(destination)
+            pre_file_list.insert(pre_file_list.index(file.name), destination)
 
-    return file_list
+    return [file_to_insert for file_to_insert in pre_file_list if Path(file_to_insert).is_file()]
 
 
 def process():

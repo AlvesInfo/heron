@@ -180,6 +180,12 @@ class EdiImport(models.Model):
     to_delete = models.BooleanField(null=True, default=False)
     to_export = models.BooleanField(null=True, default=False)
     valid = models.BooleanField(null=True, default=False)
+    vat_rate_exists = models.BooleanField(null=True, default=False)
+    supplier_exists = models.BooleanField(null=True, default=False)
+    maison_exists = models.BooleanField(null=True, default=False)
+    article_exists = models.BooleanField(null=True, default=False)
+    axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
+    # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
 
 
 class SupplierDefinition(DatesTable):

@@ -11,7 +11,6 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
-import uuid
 from django.db import models
 
 
@@ -22,29 +21,93 @@ class Country(models.Model):
     EN : Countries
     """
 
-    country_iso = models.CharField(primary_key=True, max_length=3, verbose_name="code pays iso 2")
-    country_iso_3 = models.CharField(
-        null=True, blank=True, max_length=3, verbose_name="code pays iso 3"
-    )
-    country_insee = models.IntegerField(null=True, verbose_name="code pays insee")
-    country_iso_num = models.IntegerField(null=True, verbose_name="code pays iso num")
+    country = models.CharField(
+        primary_key=True, max_length=3, verbose_name="code pays iso 2"
+    )  # CRY
+    country_name = models.CharField(max_length=80)  # CRYDES
     country_deb = models.CharField(
         null=True, blank=True, max_length=3, verbose_name="code pays deb"
-    )
-    country = models.CharField(max_length=80)
+    )  # EECCOD
+    country_insee = models.CharField(
+        null=True, max_length=80, verbose_name="code pays insee"
+    )  # CINSEE
+    country_iso = models.CharField(
+        null=True, blank=True, max_length=3, verbose_name="code pays iso 2"
+    )  # ISO
+    country_iso_3 = models.CharField(
+        null=True, blank=True, max_length=3, verbose_name="code pays iso 3"
+    )  # ISOA3
+    country_iso_num = models.IntegerField(null=True, verbose_name="code pays iso num")  # ISONUM
+    lang_iso = models.CharField(blank=True, null=True, max_length=3)  # LAN
+    cee = models.BooleanField(default=False)  # EECFLG
+    cee_date = models.DateField(null=True)  # EECDAT
+    cee_date_quit = models.DateField(null=True)  # EECDATOUT
+    script_control = models.CharField(null=True, blank=True, max_length=255)  # CTLPRG
+    currency_iso = models.CharField(blank=True, null=True, max_length=3)  # CUR
+    format_naf = models.CharField(null=True, blank=True, max_length=255)  # NAFFMT
+    format_tel = models.CharField(null=True, blank=True, max_length=255)  # TELFMT
+    format_imp = models.CharField(null=True, blank=True, max_length=255)  # POSCODCRY
+    format_ville = models.CharField(null=True, blank=True, max_length=255)  # CTYCODFMT
     currency_sigle = models.CharField(blank=True, null=True, max_length=3)
     currency_name = models.CharField(blank=True, null=True, max_length=35)
-    currency_iso = models.CharField(blank=True, null=True, max_length=3)
     phone_indicatif = models.CharField(blank=True, null=True, max_length=15)
-    lang_iso = models.CharField(blank=True, null=True, max_length=3)
     language = models.CharField(null=True, blank=True, max_length=35)
-    cee = models.BooleanField(default=False)
     country_vat_num = models.CharField(
         null=True, blank=True, max_length=3, verbose_name="code pays tva"
     )
 
     def __str__(self):
         return f"{self.country} - {self.currency_iso}"
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIADDR_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "country": 0,
+            "country_name": 1,
+            "country_deb": 2,
+            "country_insee": 3,
+            "country_iso": 4,
+            "country_iso_3": 5,
+            "country_iso_num": 6,
+            "lang_iso": 7,
+            "cee": 8,
+            "cee_date": 9,
+            "cee_date_quit": 10,
+            "script_control": 11,
+            "currency_iso": 12,
+            "format_naf": 13,
+            "format_tel": 14,
+            "format_imp": 15,
+            "format_ville": 16,
+        }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"country"}
+
+    @property
+    def get_import(self):
+        """
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
+        """
+        return "methode d'import à retourner"
 
     class Meta:
         """class Meta du modèle django"""
@@ -87,7 +150,7 @@ class ValidationPostalCode(models.Model):
     country = models.OneToOneField(
         Country,
         on_delete=models.CASCADE,
-        to_field="country_iso",
+        to_field="country",
         related_name="post_code_country",
     )
     number_char = models.IntegerField(default=0, verbose_name="nombre de caractères")
@@ -113,7 +176,7 @@ class ValidationIntraVies(models.Model):
     country = models.OneToOneField(
         Country,
         on_delete=models.CASCADE,
-        to_field="country_iso",
+        to_field="country",
         related_name="vies_country",
     )
     prefix = models.CharField(blank=True, null=True, max_length=2)

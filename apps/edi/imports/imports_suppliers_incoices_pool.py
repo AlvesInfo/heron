@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0912,R0913,R0914,R0915,W0703,W1203
+# pylint: disable=C0303,E0401,W1203,W0703,R0912,R0913,R0914,R0915
 """
 FR : Module d'import des factures founisseurs EDI
 EN : Import module for EDI incoives suppliers
@@ -71,6 +71,16 @@ from apps.data_flux.loader import (
     FileLoader,
     Opto33Loader,
 )
+from apps.data_flux.exceptions import (
+    OptoDateError,
+    OptoLinesError,
+    OptoQualifierError,
+    OptoIdError,
+    OptoNumberError,
+    OptoParserError,
+    PathTypeError,
+    PathFileError,
+)
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
 
 try:
@@ -101,9 +111,7 @@ def get_suppliers(flow_name: str):
         )
         cursor.execute(sql_supplier, {"flow_name": flow_name})
         results = cursor.fetchall()
-        EDI_LOGGER.warning(
-            f"results : {str(results)}"
-        )
+        EDI_LOGGER.warning(f"results : {str(results)}")
     return (results[0][0], results[0][1]) if results else ("", "")
 
 
@@ -169,6 +177,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
     error = False
     valide_file_io = io.StringIO()
     to_print = ""
+
     try:
 
         to_print += f"Import : {flow_name}\n"
@@ -191,7 +200,6 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             "file_io": valide_file_io,
             "nb_errors_max": 50,
         }
-        nbre = 2
 
         if flow_name == "Edi":
             LOADER = Opto33Loader
@@ -219,13 +227,6 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
                 cnx=connection,
                 exclude_update_fields={},
             )
-
-            valide_file_io.seek(0)
-
-            for i, line in enumerate(valide_file_io, 1):
-                if i == nbre:
-                    break
-                to_print += f"{line}"
 
             valide_file_io.seek(0)
 
@@ -258,6 +259,39 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
         error = True
         EDI_LOGGER.exception(f"FileToCsvError : {except_error!r}")
 
+    # Exceptions Opto33Loader ======================================================================
+    except OptoDateError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"OptoDateError : {except_error!r}")
+
+    except OptoLinesError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"OptoLinesError : {except_error!r}")
+
+    except OptoQualifierError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"OptoQualifierError : {except_error!r}")
+
+    except OptoIdError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"OptoIdError : {except_error!r}")
+
+    except OptoNumberError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"OptoNumberError : {except_error!r}")
+
+    except OptoParserError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"OptoParserError : {except_error!r}")
+
+    except PathTypeError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"PathTypeError : {except_error!r}")
+
+    except PathFileError as except_error:
+        error = True
+        EDI_LOGGER.exception(f"PathFileError : {except_error!r}")
+
     # Exceptions PostgresDjangoUpsert ==============================================================
     except PostgresKeyError as except_error:
         error = True
@@ -285,6 +319,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             if not valide_file_io.closed:
                 valide_file_io.close()
             del valide_file_io
+
         except (AttributeError, NameError):
             pass
 

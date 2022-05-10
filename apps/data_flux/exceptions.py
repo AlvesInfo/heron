@@ -98,7 +98,7 @@ class PathTypeError(Exception):
     """
 
 
-class PathFileTypeError(Exception):
+class PathFileError(Exception):
     """
     class of exceptions variables that are not instances of pathlib.Path
     """
@@ -135,6 +135,14 @@ class OptoQualifierError(ValueError):
     """
     Class for exceptions Opto 33 date
     """
+
+
+class OptoIdError(Exception):
+    """Class for exceptions Opto 33 file parser"""
+
+
+class OptoNumberError(Exception):
+    """Class for exceptions Opto 33 file parser"""
 
 
 class OptoParserError(Exception):

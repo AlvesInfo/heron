@@ -134,7 +134,7 @@ class Article(FlagsTable):
     made_in = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        to_field="country_iso",
+        to_field="country",
         related_name="made_in_country",
         null=True,
         db_column="made_in",
@@ -147,6 +147,7 @@ class Article(FlagsTable):
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     catalog_price = models.CharField(null=True, blank=True, max_length=35)
     comment = models.TextField(null=True, blank=True)
+    new_article = models.BooleanField(null=True, default=False)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -286,3 +287,51 @@ class SubscriptionArtcile(FlagsTable):
 
         ordering = ["subscription", "selling_price"]
         unique_together = (("subscription", "selling_price"),)
+
+
+class SupplierArticleAxePro(FlagsTable):
+    """
+    Nommage des familles à appliquer pour les fournisseurs
+    """
+    name = models.CharField(unique=True, max_length=80)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+
+class FamilleAxePro(FlagsTable):
+    """
+    Table des statistiques liées à l'axe pro
+    """
+
+    name = models.ForeignKey(
+        SupplierArticleAxePro,
+        on_delete=models.PROTECT,
+        to_field="name",
+        related_name="famille_axe_pro_section",
+        db_column="name",
+    )
+    familly_type = models.CharField(null=True, blank=True, max_length=80)
+    supplier_axe = models.CharField(null=True, blank=True, max_length=80)
+    supplier_familly = models.CharField(max_length=80)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="famille_axe_pro_section",
+        db_column="axe_pro",
+    )
+    comment = models.CharField(null=True, blank=True, max_length=150)
+    regex = models.CharField(null=True, blank=True, max_length=150)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return f"{self.name} - {self.supplier_familly} - {self.axe_pro}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        unique_together = (("name", "supplier_familly"),)

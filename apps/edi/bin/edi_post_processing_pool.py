@@ -43,7 +43,12 @@ def post_processing_all():
         "montant_facture_HT" = edi_fac."montant_facture_HT",
         "montant_facture_TVA" = edi_fac."montant_facture_TVA",
         "montant_facture_TTC" = edi_fac."montant_facture_TTC",
-        "valid"=true
+        "valid"=true,
+        "vat_rate_exists" = false,
+        "supplier_exists" = false,
+        "maison_exists" = false,
+        "article_exists" = false,
+        "axe_pro_supplier_exists" = false
     from (
         select
             "uuid_identification",
