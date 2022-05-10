@@ -1,4 +1,4 @@
-# pylint: disable=
+# pylint: disable=E0401,C0413
 """
 FR : Module de lancement de la boucle d'import des fichiers sage par supervisor
 EN : Module for launching the sage file import loop by supervisor
