@@ -177,6 +177,7 @@ class Society(FlagsTable):
     is_service_provider = models.BooleanField(null=True, default=False)  # PRVFLG
     is_transporter = models.BooleanField(null=True, default=False)  # BPTFLG
     is_contractor = models.BooleanField(null=True, default=False)  # DOOFLG
+    is_physical_person = models.BooleanField(null=True, default=False)  # LEGETT
 
     # Paiements
     payment_condition_supplier = models.CharField(
@@ -572,6 +573,7 @@ class BprBookSage:
             "is_contractor": 18,
             "budget_code": 19,
             "reviser": 20,
+            "is_physical_person": 21,
         }
 
     @staticmethod

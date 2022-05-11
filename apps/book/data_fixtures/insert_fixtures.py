@@ -24,9 +24,9 @@ def fixtures_nature():
     with file.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
         list_keys = [
-            "category",
+            "name",
             "to_display",
-            "for_contact",
+            "active",
         ]
 
         for row in csv_rows:

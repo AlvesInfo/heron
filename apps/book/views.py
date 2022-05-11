@@ -30,54 +30,27 @@ class SuppliersList(ListView):
     template_name = "book/supplier_list.html"
 
 
-# class UpdateComptes(UpdateView):
-#     model = Compte
-#     fields = [
-#         "site_em",
-#         "nom_compte",
-#         "banque",
-#         "maison",
-#         "code_guichet",
-#         "num_compte",
-#         "clef",
-#         "iban",
-#         "code_swift",
-#         "compte_banque_em",
-#         "journal_em",
-#         "axe_bu",
-#         "axe_pro",
-#         "axe_prj",
-#         "axe_pys",
-#         "regex_remises",
-#         "regex_tpe",
-#         "regex_ozit",
-#         "regex_franfinance",
-#         "regex_amex",
-#         "regex_mutuelles",
-#         "regex_tva",
-#         "regex_pnf",
-#         "regex_vir",
-#         "regex_credit",
-#         "regex_centralisation",
-#         "regex_frais_cb",
-#     ]
-#     template_name = "banque/update_comptes.html"
-#     success_message = "Le compt %(compte)s a été modifié avec success"
-#     error_message = "Le compt %(compte)s n'a pu être modifié, une erreur c'est produite"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["chevron_retour"] = reverse("banque:groupe_banque:list_comptes")
-#         return context
-#
-#     def form_valid(self, form):
-#         form.instance.user_modify = self.request.user
-#         self.request.session["level"] = 20
-#         return super().form_valid(form)
-#
-#     def form_invalid(self, form):
-#         self.request.session["level"] = 50
-#         return super().form_invalid(form)
+class UpdateComptes(UpdateView):
+    model = Society
+    fields = [
+    ]
+    template_name = "book/update_comptes.html"
+    success_message = "Le Tiers %(supplier)s a été modifié avec success"
+    error_message = "Le Tiers %(supplier)s n'a pu être modifié, une erreur c'est produite"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["chevron_retour"] = reverse("banque:groupe_banque:list_comptes")
+        return context
+
+    def form_valid(self, form):
+        form.instance.user_modify = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 def export_list_societies(request):
