@@ -278,6 +278,8 @@ class Society(FlagsTable):
         null=True, choices=Frequence.choices, default=Frequence.MENSUEL
     )
     rfa_remise = models.IntegerField(null=True, choices=Remise.choices, default=Remise.TOTAL)
+    invoice_supplier_name = models.CharField(null=True, blank=True, max_length=80)
+    invoice_client_name = models.CharField(null=True, blank=True, max_length=80)
 
     def __str__(self):
         return f"{self.nature}{' - ' if self.nature else ''}{self.name}"
