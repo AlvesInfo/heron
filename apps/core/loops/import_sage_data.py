@@ -39,14 +39,9 @@ if __name__ == "__main__":
         maintenant = datetime.now()
         heure = maintenant.hour
         minute = maintenant.minute
-        print("heure -> ", heure, ':', minute)
 
         if heure == 6 and minute == 30:
-            process_countries()
-            process_accountancy()
-            process_book()
-
-        if heure == 13 and minute == 51:
+            print("lancement import sage : ", maintenant)
             process_countries()
             process_accountancy()
             process_book()
