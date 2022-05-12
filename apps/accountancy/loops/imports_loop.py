@@ -46,7 +46,7 @@ def get_processing_files():
     """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3"""
     file_list = []
 
-    for file in Path(settings.ACUITIS_EM_DIR).glob("*"):
+    for file in Path(settings.ACUITIS_ARCHIVE_EM_DIR).glob("*"):
         if file.name in processing_dict:
             destination = Path(settings.PROCESSING_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())

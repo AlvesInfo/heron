@@ -141,6 +141,7 @@ ENVIRONNEMENT = "PRODUCTION"
 
 # REPERTOIRE DU SERVEUR Sage X3
 ACUITIS_EM_DIR = Path("/media/acuitis_edi")
+ACUITIS_ARCHIVE_EM_DIR = Path("/media/acuitis_edi/ARCHIVE")
 ACUISENS_EM_DIR = Path("/media/acuisens_edi")
 ACUITEST_EM_DIR = Path("/media/acuitest_edi")
 ACUIREP_EM_DIR = Path("/media/acuirep_edi")
