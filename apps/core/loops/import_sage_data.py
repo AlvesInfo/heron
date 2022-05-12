@@ -46,7 +46,7 @@ if __name__ == "__main__":
             process_accountancy()
             process_book()
 
-        if heure == 13 and minute == 30:
+        if heure == 13 and minute == 51:
             process_countries()
             process_accountancy()
             process_book()

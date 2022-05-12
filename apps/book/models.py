@@ -91,7 +91,7 @@ class Society(FlagsTable):
         ARTICLE = 3, _("Article")
 
     third_party_num = models.CharField(
-        unique=True, max_length=15, verbose_name="tiers X3"
+        unique=True, max_length=15, verbose_name="N° de tiers X3"
     )  # BPRNUM
 
     nature = models.ForeignKey(
@@ -127,7 +127,7 @@ class Society(FlagsTable):
         on_delete=models.PROTECT,
         null=True,
         related_name="client_category",
-        verbose_name="catégorie",
+        verbose_name="catégorie client",
         limit_choices_to={"initial": "C"},
         db_column="client_category",
     )  # BCGCOD
@@ -136,7 +136,7 @@ class Society(FlagsTable):
         on_delete=models.PROTECT,
         null=True,
         related_name="supplier_category",
-        verbose_name="catégorie",
+        verbose_name="catégorie fournisseur",
         limit_choices_to={"initial": "S"},
         db_column="supplier_category",
     )  # BSGCOD
@@ -181,22 +181,22 @@ class Society(FlagsTable):
 
     # Paiements
     payment_condition_supplier = models.CharField(
-        null=True, blank=True, max_length=80
+        null=True, blank=True, max_length=80, verbose_name="conditions de paiement"
     )  # PTE - BPSUPPLIER (Table TABPAYTERM)
     vat_sheme_supplier = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
     )  # VACBPR - BPSUPPLIER (Table TABVACBPR)
     account_supplier_code = models.CharField(
-        null=True, blank=True, max_length=10
+        null=True, blank=True, max_length=10, verbose_name=""
     )  # ACCCOD - BPSUPPLIER (Table GACCCODE)
     payment_condition_client = models.CharField(
-        null=True, blank=True, max_length=80
+        null=True, blank=True, max_length=80, verbose_name=""
     )  # PTE - BPCUSTOMER (Table TABPAYTERM)
     vat_sheme_client = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
     )  # VACBPR - BPCUSTOMER (Table TABVACBPR)
     account_client_code = models.CharField(
-        null=True, blank=True, max_length=10
+        null=True, blank=True, max_length=10, verbose_name=""
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
 
     # Maisons part
@@ -278,8 +278,12 @@ class Society(FlagsTable):
         null=True, choices=Frequence.choices, default=Frequence.MENSUEL
     )
     rfa_remise = models.IntegerField(null=True, choices=Remise.choices, default=Remise.TOTAL)
-    invoice_supplier_name = models.CharField(null=True, blank=True, max_length=80)
-    invoice_client_name = models.CharField(null=True, blank=True, max_length=80)
+    invoice_supplier_name = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Fournisseur"
+    )
+    invoice_client_name = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Client"
+    )
 
     def __str__(self):
         return f"{self.nature}{' - ' if self.nature else ''}{self.name}"
