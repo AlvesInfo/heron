@@ -16,7 +16,7 @@ import io
 from django.db import connection
 from django.utils import timezone
 
-from apps.accountancy.loggers import IMPORT_LOGGER
+from heron.loggers import IMPORT_LOGGER
 from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
 from apps.data_flux.loader import (
     GetAddDictError,

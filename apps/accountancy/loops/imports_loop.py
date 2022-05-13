@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 import shutil
 from pathlib import Path
 
-from apps.accountancy.loggers import IMPORT_LOGGER
+from heron.loggers import IMPORT_LOGGER
 from apps.core.functions.functions_setups import settings
 from apps.accountancy.imports.imports_sage import (
     account_sage,
@@ -27,6 +27,7 @@ from apps.accountancy.imports.imports_sage import (
     tab_div_sage,
     category_sage,
 )
+from apps.accountancy.imports.ajout_cct import update_cct_sage
 
 processing_dict = {
     "ZBIACCOUNT_journalier.heron": account_sage,
@@ -87,6 +88,8 @@ def process():
 
             if trace is not None:
                 trace.save()
+
+    update_cct_sage()
 
 
 if __name__ == "__main__":

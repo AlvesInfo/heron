@@ -1,0 +1,184 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% load filters_tags %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+          <br>
+          <div class="ui equal width grid center">
+              <div class="three wide column" style="text-align: center;vertical-align: middle">
+                <div class="sprite-logo-grand-header_FR" style="zoom: 70%;"></div>
+              </div>
+
+              <div class="eleven wide column">
+                  <div class="ui stackable container menu">
+                      <a href="/" class="item" style="font-weight: bold !important;font-size: 12px;">
+                        <i class="large blue-color home icon"></i>
+                      </a>
+                      <div class="right menu">
+                        <form action="{% url 'centers_clients:export_list_maisons' %}"
+                              method="post"
+                              enctype="multipart/form-data"
+                              style="display: flex;"
+                        >
+                        {% csrf_token %}
+                          <a href=""
+                             class="item"
+                             style="margin-right: 0;">
+                              <button class="ui green button" name="export_list_maisons" style="font-size: 10px !important;">
+                                  Maisons
+                              </button>
+                          </a>
+
+                        </form>
+                      </div>
+                  </div>
+              </div>
+              <div class="two wide column"></div>
+          </div>
+
+          <hr style="color: #188fb3;background-color: #188fb3;">
+
+            <div class="ui segment">
+              <div class="ui equal width grid center">
+
+                <div class="two wide column"></div>
+
+                <div class="column">
+                </div>
+
+                <div class="column" style="text-align: center;">
+                  <h3 class="color-blue-do">Maisons</h3>
+                </div>
+
+                <div class="column">
+
+                </div>
+
+                <div class="two wide column"></div>
+
+              </div>
+            </div>
+
+            <!-- Messages ---------------------------------------------------------- -->
+            {% include 'heron/messages_messages.html' %}
+            {% include 'heron/messages_forms.html' %}
+            <!-- end --------------------------------------------------------------- -->
+
+            <div class="ui segment">
+              <div class="ui equal width grid center">
+                  <div class="two wide column"></div>
+
+                  <div class="twelve wide column">
+
+                    <table id="table_document"
+                       class="ui celled table"
+                       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+                        <thead>
+                            <tr>
+                                <th class="no-sort" style="text-align: center;">Modifier</th>
+                                <th>CCT</th>
+                                <th>Intitulé</th>
+                                <th>Enseigne</th>
+                                <th>Devise</th>
+                                <th>Langue</th>
+                                <th>Pays</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for maison in maisons %}
+                            <tr id="id_{{ maison.pk }}" class="hide_plans">
+
+                                <td data-value="{{ maison.third_party_num }}"
+                                    style="text-align: center;">
+                                    {% if maison.is_supplier %}
+                                        <a href="{% url 'book:update_supplier' pk=maison.pk %}">
+                                            <i class="edit icon modification"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                  {% if maison.cct %}
+                                    {{ maison.cct }}
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if maison.intitule %}
+                                    {{ maison.intitule }}
+                                  {% endif %}
+                                </td>
+                                <td style="text-align: left;">
+                                  {% if maison.sign_board %}
+                                    {{ maison.sign_board }}
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if maison.currency %}
+                                    {{ maison.currency }}
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if maison.language %}
+                                    {{ maison.language }}
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if maison.country %}
+                                    {{ maison.country }}
+                                  {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                  </div>
+                  <div class="two wide column"></div>
+
+              </div>
+            </div>
+
+
+        <div class="ui equal width grid center"></div>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+
+            // FONCTION SEMANTIC UI POUR INITIALISATION DES DROPDOWNS
+            $('.dropdown').dropdown({});
+
+            // FRAMEWORK DATA-TABLE POUR AVOIR UN SCROLL VERTICAL
+            $('#table_document').DataTable({
+                "info": false,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"
+                },
+                "lengthMenu": [[20, 50, -1], [20, 50, "Tous"]]
+            });
+
+        });
+
+    </script>
+
+{% endblock script %}

@@ -274,8 +274,8 @@ class SectionSage(FlagsTable):
     ========================================================
     Axe             | axe         | CACCE       | DIE
     Section         | section     | CACCE       | CCE
-    Intitulé        | name        | CACCE        | DES
-    Intitulé court  | short_name  | CACCE        | DESSHO
+    Intitulé        | name        | CACCE       | DES
+    Intitulé court  | short_name  | CACCE       | DESSHO
     Refacturable    | chargeable  | CACCE       | XFLREFAC
     Regroupement    | regroup_01  | CACCE       | ZREG1
     Regroupement    | regroup_02  | CACCE       | ZREG2
@@ -355,6 +355,34 @@ class SectionSage(FlagsTable):
         index_together = [
             ["axe", "section"],
         ]
+
+
+class CctSage(FlagsTable):
+    """
+    Table des sections CACCE Sage X3, on ne prends que l'axe cct
+    FR : Section au sens Sage X3
+    EN : Sections in the sense of Sage X3
+    """
+
+    cct = models.CharField(unique=True, max_length=15)
+    name = models.CharField(null=True, blank=True, max_length=30, verbose_name="intitulé")
+    short_name = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="intitulé court"
+    )
+    chargeable = models.BooleanField(null=True, default=True)
+    regroup_01 = models.CharField(null=True, blank=True, max_length=15)
+    regroup_02 = models.CharField(null=True, blank=True, max_length=15)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return f"{self.cct} - {self.name}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["cct"]
 
 
 class VatRegimeSage(FlagsTable):

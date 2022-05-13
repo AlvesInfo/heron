@@ -192,6 +192,22 @@ class Maison(FlagsTable):
         null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Client"
     )
 
+    currency = models.CharField(
+        null=True, default="EUR", max_length=3, verbose_name="monaie"
+    )
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country",
+        related_name="maison_country",
+        null=True,
+        verbose_name="pays",
+        db_column="country",
+    )
+    language = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="langue"
+    )
+
     def save(self, *args, **kwargs):
         """
         FR : Avant la sauvegarde on clean les données

@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 import shutil
 from pathlib import Path
 
-from apps.book.loggers import IMPORT_LOGGER
+from heron.loggers import IMPORT_LOGGER
 from apps.core.functions.functions_setups import settings
 from apps.book.imports.imports_sage import (
     bpr_sage,

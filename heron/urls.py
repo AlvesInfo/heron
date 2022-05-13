@@ -52,6 +52,13 @@ urlpatterns = [
     ),
     path("book/", include(("apps.book.urls", "apps.book"), namespace="book")),
     path(
+        "centers_clients/",
+        include(
+            ("apps.centers_clients.urls", "apps.centers_clients"),
+            namespace="centers_clients",
+        ),
+    ),
+    path(
         "centers_purchasing/",
         include(
             ("apps.centers_purchasing.urls", "apps.centers_purchasing"),

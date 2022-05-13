@@ -7,9 +7,10 @@ import pendulum
 from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, UpdateView
+
+from heron.loggers import ERROR_VIEWS_LOGGER
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.book.loggers import ERROR_VIEWS_LOGGER
-from apps.book.excel_outputs.fiche_liste_societies import excel_liste_societies
+from apps.book.excel_outputs.book_excel_societies_list import excel_liste_societies
 from apps.book.models import Society
 
 
@@ -32,7 +33,7 @@ class UpdateSupplier(SuccessMessageMixin, UpdateView):
         "invoice_supplier_name",
         "invoice_supplier_identifiaction",
     ]
-    template_name = "book/update_supplier.html"
+    template_name = "book/supplier_update.html"
     success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
     error_message = "La Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
 

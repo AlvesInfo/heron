@@ -56,6 +56,7 @@ def essais_inserts():
     import csv
     import time
     from apps.core.functions.functions_setups import settings
+    from heron.loggers import IMPORT_LOGGER
     from apps.data_flux.postgres_save import (
         PostgresDjangoUpsert,
         PostgresDjangoError,
@@ -65,7 +66,6 @@ def essais_inserts():
         PostgresInsertMethodError,
     )
     from apps.data_flux.models import Essais, EssaisZ
-    from apps.core.functions.loggers import IMPORT_LOGGER
 
     file = io.StringIO()
 

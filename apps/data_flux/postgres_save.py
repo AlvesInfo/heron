@@ -409,7 +409,7 @@ class PostgresDjangoUpsert:
         :param file:            Fichier au format io.StringIO
         :param insert_mode:     Mode d'insertion choisi
         :param delimiter:       Séparateur des lignes du fichier
-        :param quote_character: Quatation des champs
+        :param quote_character: Quotation des champs
         :param kwargs_prepared: Dictionnaire des attributs nécessaires à la requête préparée
                                 kwargs_prepared = {
                                     "mode": "insert" ou "do_nothing" ou "upsert",

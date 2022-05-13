@@ -12,8 +12,8 @@ modified by: Paulo ALVES
 
 import io
 
+from heron.loggers import EXPORT_EXCEL_LOGGER
 from apps.core.functions.functions_excel import GenericExcel
-from apps.book.loggers import EXPORT_EXCEL_LOGGER
 from apps.core.functions.functions_setups import CNX_STRING
 from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.core.excel_outputs.excel_writer import (
@@ -93,7 +93,7 @@ class GetRows:
             return cursor.fetchall()
 
 
-def excel_liste_societies(
+def excel_liste_maisons(
     file_io: io.BytesIO, file_name: str, societies: Society.objects, society_type: str
 ) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
