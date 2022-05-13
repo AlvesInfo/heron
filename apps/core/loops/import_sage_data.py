@@ -34,6 +34,13 @@ from apps.accountancy.loops.imports_loop import process as process_accountancy
 from apps.book.loops.imports_loop import process as process_book
 
 
+def main():
+    """Main Function"""
+    process_countries()
+    process_accountancy()
+    process_book()
+
+
 if __name__ == "__main__":
     while True:
         maintenant = datetime.now()
@@ -42,8 +49,6 @@ if __name__ == "__main__":
 
         if heure == 6 and minute == 30:
             print("lancement import sage : ", maintenant)
-            process_countries()
-            process_accountancy()
-            process_book()
+            main()
 
         time.sleep(60)

@@ -7,10 +7,6 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-        <!-- Messages ---------------------------------------------------------- -->
-        {% include 'heron/messages_messages.html' %}
-        {% include 'heron/messages_forms.html' %}
-        <!-- end --------------------------------------------------------------- -->
           <br>
           <div class="ui equal width grid center">
               <div class="three wide column" style="text-align: center;vertical-align: middle">
@@ -80,11 +76,16 @@
               </div>
             </div>
 
+            <!-- Messages ---------------------------------------------------------- -->
+            {% include 'heron/messages_messages.html' %}
+            {% include 'heron/messages_forms.html' %}
+            <!-- end --------------------------------------------------------------- -->
+
             <div class="ui segment">
               <div class="ui equal width grid center">
-                  <div class="four wide column"></div>
+                  <div class="two wide column"></div>
 
-                  <div class="eight wide column">
+                  <div class="twelve wide column">
 
                     <table id="table_document"
                        class="ui celled table"
@@ -92,7 +93,7 @@
                         <thead>
                             <tr>
                                 <th class="no-sort" style="text-align: center;">Modifier</th>
-                                <th>Société</th>
+                                <th>Tiers X3</th>
                                 <th>Nom</th>
                                 <th>Fournisseur</th>
                                 <th>Client</th>
@@ -100,13 +101,15 @@
                         </thead>
                         <tbody>
                         {% for society in societies %}
-                            <tr id="id_{{ society.id }}" class="hide_plans">
+                            <tr id="id_{{ society.pk }}" class="hide_plans">
 
-                                <td data-value="{{ society.code_society }}"
+                                <td data-value="{{ society.third_party_num }}"
                                     style="width: 10px;text-align: center;">
-                                    <a href="">
-                                        <i class="edit icon modification"></i>
-                                    </a>
+                                    {% if society.is_supplier %}
+                                        <a href="{% url 'book:update_supplier' pk=society.pk %}">
+                                            <i class="edit icon modification"></i>
+                                        </a>
+                                    {% endif %}
                                 </td>
                                 <td>
                                   {% if society.third_party_num %}
@@ -134,7 +137,7 @@
                     </table>
 
                   </div>
-                  <div class="four wide column"></div>
+                  <div class="two wide column"></div>
 
               </div>
             </div>

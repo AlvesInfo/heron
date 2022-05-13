@@ -40,8 +40,8 @@ class PrincipalCenterPurchase(FlagsTable):
     EN : Principal Center Purchase
     """
 
-    name = models.CharField(unique=True, max_length=80)
-    short_name = models.CharField(null=True, blank=True, max_length=20)
+    code = models.CharField(unique=True, max_length=15)
+    name = models.CharField(max_length=80)
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coefficient niveau Centrale Mère"
     )
@@ -64,15 +64,15 @@ class ChildCenterPurchase(FlagsTable):
     EN : Child Center Purchase
     """
 
+    code = models.CharField(unique=True, max_length=15)
     base_center = models.ForeignKey(
         PrincipalCenterPurchase,
         on_delete=models.PROTECT,
-        to_field="name",
+        to_field="code",
         verbose_name="centrale mère",
         db_column="base_center",
     )
-    name = models.CharField(unique=True, max_length=80)
-    short_name = models.CharField(null=True, blank=True, max_length=20)
+    name = models.CharField(max_length=80)
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="coefficient niveau Centrale Fille"
     )
@@ -95,10 +95,11 @@ class Signboard(FlagsTable):
     EN : Signboard
     """
 
+    code = models.CharField(unique=True, max_length=15)
     center = models.ForeignKey(
         ChildCenterPurchase,
         on_delete=models.PROTECT,
-        to_field="name",
+        to_field="code",
         verbose_name="centrale",
         db_column="center",
     )
@@ -110,7 +111,6 @@ class Signboard(FlagsTable):
         db_column="sale_price_category",
     )
     name = models.CharField(unique=True, max_length=80)
-    short_name = models.CharField(null=True, blank=True, max_length=20)
     logo = models.ImageField(null=True, upload_to="logos")
     generic_coefficient = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     language = models.ForeignKey(
@@ -141,7 +141,7 @@ class SignboardModel(FlagsTable):
     sign_board = models.ForeignKey(
         Signboard,
         on_delete=models.PROTECT,
-        to_field="name",
+        to_field="code",
         db_column="sign_board",
     )
     name = models.CharField(unique=True, max_length=80)
@@ -210,12 +210,12 @@ class SignboardModelTranslate(FlagsTable):
     EN : Sign Templates / Translations
     """
 
-    sign_board = models.ForeignKey(
+    sign_board_model = models.ForeignKey(
         SignboardModel,
         on_delete=models.PROTECT,
         to_field="name",
         related_name="sign_board_translate",
-        db_column="sign_board",
+        db_column="sign_board_model",
     )
     translation = models.ForeignKey(
         Translation,
@@ -229,12 +229,12 @@ class SignboardModelTranslate(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        return f"{self.sign_board} - {self.translation}"
+        return f"{self.sign_board_model} - {self.translation}"
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["sign_board", "translation"]
+        ordering = ["sign_board_model", "translation"]
 
 
 class TranslationParamaters(FlagsTable):

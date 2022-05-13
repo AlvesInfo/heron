@@ -1,6 +1,6 @@
 # pylint: disable=R0903
 """
-Views
+Views des Tiers X3
 """
 import os
 from pathlib import Path
@@ -24,22 +24,30 @@ from apps.book.models import Society
 
 
 # ECRANS DES FOURNISSEURS ==========================================================================
-class SuppliersList(ListView):
+class SocietiesList(ListView):
+    """View de la liste des Tiers X3"""
     model = Society
     context_object_name = "societies"
-    template_name = "book/supplier_list.html"
+    template_name = "book/societies_list.html"
 
 
-class UpdateComptes(UpdateView):
+class UpdateSupplier(SuccessMessageMixin, UpdateView):
     model = Society
-    fields = []
-    template_name = "book/update_comptes.html"
-    success_message = "Le Tiers %(supplier)s a été modifié avec success"
-    error_message = "Le Tiers %(supplier)s n'a pu être modifié, une erreur c'est produite"
+    fields = [
+        "third_party_num",
+        "name",
+        "siret_number",
+        "vat_cee_number",
+        "invoice_supplier_name",
+        "invoice_supplier_identifiaction",
+    ]
+    template_name = "book/update_supplier.html"
+    success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
+    error_message = "La Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("banque:groupe_banque:list_comptes")
+        context["chevron_retour"] = reverse("book:societies_list")
         return context
 
     def form_valid(self, form):
@@ -62,27 +70,26 @@ def export_list_societies(request):
         try:
 
             today = pendulum.now()
+            societies = Society
+
             if "export_list_societies" in request.POST:
-                societies = Society.objects.all()
                 society_type = "tiers"
                 file_name = f"LISTING_DES_TIERS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
             elif "export_list_clients" in request.POST:
-                societies = Society.objects.filter(is_client=True)
                 society_type = "clients"
                 file_name = (
                     f"LISTING_DES_CLIENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
                 )
 
             elif "export_list_supplierss" in request.POST:
-                societies = Society.objects.filter(is_supplier=True)
                 society_type = "suppliers"
                 file_name = (
                     f"LISTING_DES_FOURNISSEURS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
                 )
 
             else:
-                return redirect(reverse("book:supplier_list"))
+                return redirect(reverse("book:societies_list"))
 
             return response_file(
                 excel_liste_societies, file_name, CONTENT_TYPE_EXCEL, societies, society_type
@@ -91,4 +98,4 @@ def export_list_societies(request):
         except:
             ERROR_VIEWS_LOGGER.exception("view : export_list_societies")
 
-    return redirect(reverse("book:supplier_list"))
+    return redirect(reverse("book:societies_list"))

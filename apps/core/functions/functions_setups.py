@@ -26,3 +26,4 @@ settings = settings
 connection = connection
 connections = connections
 IntegrityError = IntegrityError
+CNX_STRING = settings.CNX_STRING

@@ -14,7 +14,8 @@ import io
 
 from apps.core.functions.functions_excel import GenericExcel
 from apps.book.loggers import EXPORT_EXCEL_LOGGER
-
+from apps.core.functions.functions_setups import CNX_STRING
+from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.core.excel_outputs.excel_writer import (
     titre_page_writer,
     output_day_writer,
@@ -29,134 +30,67 @@ from apps.book.excel_outputs.book_columns import SocietiesColumns
 class GetRows:
     """Class pour choix des méthodes get_clean rows en fonction du type des sociétés"""
 
-    def __init__(self, societies: Society.objects):
+    def __init__(self, societies: Society.objects, society_type: str):
         self.societies = societies
 
-    def get_clean_rows_tiers(self) -> iter:
-        """Renvoie les lignes du query_set avec les colonnes souhaitées et cleannées"""
-        return (
-            (
-                society.third_party_num,
-                society.name,
-                society.short_name,
-                society.corporate_name,
-                society.siret_number,
-                society.vat_cee_number,
-                society.vat_number,
-                society.naf_code,
-                society.currency,
-                society.language,
-                society.country.country_name,
-                society.reviser,
-                society.client_category,
-                society.supplier_category,
-                society.budget_code,
-                "X" if society.is_client else "",
-                "X" if society.is_agent else "",
-                "X" if society.is_prospect else "",
-                "X" if society.is_supplier else "",
-                "X" if society.is_various else "",
-                "X" if society.is_service_provider else "",
-                "X" if society.is_transporter else "",
-                "X" if society.is_contractor else "",
-                "X" if society.is_physical_person else "",
-                society.payment_condition_supplier,
-                society.vat_sheme_supplier,
-                society.account_supplier_code,
-                society.payment_condition_client,
-                society.vat_sheme_client,
-                society.account_client_code,
-            )
-            for society in self.societies
-        )
+        if society_type == "clients":
+            self.clause = "where is_client = true"
+            self.tiers = """
+                case when is_client = true then 'X' else '' end as is_client,
+            """
+        elif society_type == "suppliers":
+            self.clause = "where is_supplier = true"
+            self.tiers = """
+                case when is_supplier = true then 'X' else '' end as is_supplier,
+                invoice_supplier_name,
+                invoice_supplier_identifiaction,
+            """
+        else:
+            self.clause = ""
+            self.tiers = """
+                case when is_client = true then 'X' else '' end as is_client,
+                case when is_agent = true then 'X' else '' end as is_agent,
+                case when is_prospect = true then 'X' else '' end as is_prospect,
+                case when is_supplier = true then 'X' else '' end as is_supplier,
+                case when is_various = true then 'X' else '' end as is_various,
+                case when is_service_provider = true then 'X' else '' end as is_service_provider,
+                case when is_transporter = true then 'X' else '' end as is_transporter,
+                case when is_contractor = true then 'X' else '' end as is_contractor,
+                case when is_physical_person = true then 'X' else '' end as is_physical_person,
+            """
 
-    def get_clean_rows_suppliers(self) -> iter:
-        """Renvoie les lignes du query_set avec les colonnes souhaitées et cleannées"""
-        return (
-            (
-                society.third_party_num,
-                society.name,
-                society.short_name,
-                society.corporate_name,
-                society.siret_number,
-                society.vat_cee_number,
-                society.vat_number,
-                society.naf_code,
-                society.currency,
-                society.language,
-                society.country.country_name,
-                society.reviser,
-                society.supplier_category,
-                society.budget_code,
-                society.payment_condition_supplier,
-                society.vat_sheme_supplier,
-                society.account_supplier_code,
-                society.supplier_identifier,
-                society.invoice_supplier_name,
-                society.comment,
-                society.created_by,
-                society.modified_by,
-                society.delete_by,
-                "X" if society.active else "",
-                "X" if society.export else "",
-            )
-            for society in self.societies
-        )
+        self.query = f"""
+        select 
+            third_party_num,
+            name,
+            short_name,
+            corporate_name,
+            siret_number,
+            vat_cee_number,
+            vat_number,
+            naf_code,
+            currency,
+            "language",
+            "country",
+            reviser,
+            client_category,
+            supplier_category,
+            budget_code,
+            {self.tiers}
+            payment_condition_supplier,
+            vat_sheme_supplier,
+            account_supplier_code,
+            payment_condition_client,
+            vat_sheme_client,
+            account_client_code
+        from {self.societies._meta.db_table}
+        {self.clause}
+        """
 
-    def get_clean_rows_clients(self) -> iter:
-        """Renvoie les lignes du query_set avec les colonnes souhaitées et cleannées"""
-        return (
-            (
-                society.third_party_num,
-                society.name,
-                society.short_name,
-                society.corporate_name,
-                society.siret_number,
-                society.vat_cee_number,
-                society.vat_number,
-                society.naf_code,
-                society.currency,
-                society.language,
-                society.country.country_name,
-                society.reviser,
-                society.client_category,
-                society.budget_code,
-                society.payment_condition_client,
-                society.vat_sheme_client,
-                society.account_client_code,
-                society.sign_board,
-                society.sale_price_category,
-                society.code_cct,
-                society.code_cosium,
-                society.code_bbgr,
-                society.opening_date,
-                society.closing_date,
-                society.signature_franchise_date,
-                society.agreement_franchise_end_date,
-                society.agreement_renew_date,
-                society.entry_fee_amount,
-                society.renew_fee_amoount,
-                society.generic_coefficient,
-                society.sage_vat_by_default,
-                society.sage_plan_code,
-                society.rfa_frequence,
-                society.rfa_remise,
-                society.siren_number,
-                society.credit_account,
-                society.debit_account,
-                society.prov_account,
-                society.extourne_account,
-                society.client_identifier,
-                society.invoice_client_name,
-                society.comment,
-                society.created_by,
-                society.modified_by,
-                society.delete_by,
-                society.active,
-                society.export,
-            )
-            for society in self.societies
-        )
+    def get_clean_rows(self) -> iter:
+        with cnx_postgresql(CNX_STRING).cursor() as cursor:
+            cursor.execute(self.query)
+            return cursor.fetchall()
 
 
 def excel_liste_societies(
@@ -168,7 +102,7 @@ def excel_liste_societies(
     list_excel = [file_io, [titre]]
     excel = GenericExcel(list_excel)
     columns = getattr(SocietiesColumns, f"columns_list_{society_type}")
-    get_clean_rows = getattr(GetRows(societies), f"get_clean_rows_{society_type}")
+    get_clean_rows = getattr(GetRows(societies, society_type), f"get_clean_rows")
 
     try:
         titre_page_writer(excel, 1, 0, 0, columns, titre)
