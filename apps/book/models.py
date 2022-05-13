@@ -204,7 +204,7 @@ class Society(FlagsTable):
         unique=True,
         null=True,
         blank=True,
-        max_length=80,
+        max_length=20,
         verbose_name="identifiant Fournisseur pour l'edi",
     )
 
