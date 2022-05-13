@@ -76,3 +76,22 @@ class FlagsTable(models.Model):
         """class Meta du modèle django"""
 
         abstract = True
+
+
+class DbTableAuthorisation(models.Model):
+    """
+    Table pour savoir si un utlisateur peux visualiser ou modifier un champ
+    FR : Table pour les Flags d'authorisation
+    EN : Flags Table authorisation
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+    )
+    model_to_consult = models.CharField(max_length=255, verbose_name="model django")
+    all_table = models.BooleanField(default=False)
+
+    to_display = models.BooleanField(default=True)
+    to_edit = models.BooleanField(default=True)

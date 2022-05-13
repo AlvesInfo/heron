@@ -42,7 +42,7 @@ class Nature(FlagsTable):
     EN : Nature table
     """
 
-    name = models.CharField(unique=True, blank=True, max_length=35)
+    name = models.CharField(unique=True, blank=True, max_length=80)
     to_display = models.CharField(null=True, blank=True, max_length=35)
     for_contact = models.BooleanField(null=True, default=None)
 
@@ -109,9 +109,6 @@ class Society(FlagsTable):
     corporate_name = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="raison sociale"
     )  # BPRNAM_1
-    code_plan_sage = models.CharField(
-        null=True, blank=True, max_length=10, verbose_name="code plan X3"
-    )
     siren_number = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="n° siren"
     )  # ?
@@ -161,23 +158,39 @@ class Society(FlagsTable):
         verbose_name="pays",
         db_column="country",
     )  # CRY models Country
-    language = models.CharField(null=True, blank=True, max_length=80)  # LAN models Country
+    language = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="langue"
+    )  # LAN models Country
     budget_code = models.CharField(
-        null=True, blank=True, max_length=80
+        null=True, blank=True, max_length=80, verbose_name="code budget"
     )  # Z_CODBUD models TabDivSage limit_choices_to={"num_table": "6100"}
-    reviser = models.CharField(null=True, blank=True, max_length=5)  # Z_REVUSR
-    comment = models.TextField(null=True, blank=True)
+    reviser = models.CharField(
+        null=True, blank=True, max_length=5, verbose_name="réviseur"
+    )  # Z_REVUSR
+    comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
 
     # Supplier type
-    is_client = models.BooleanField(null=True, default=False)  # BPCFLG
-    is_agent = models.BooleanField(null=True, default=False)  # REPFLG
-    is_prospect = models.BooleanField(null=True, default=False)  # PPTFLG
-    is_supplier = models.BooleanField(null=True, default=False)  # BPSFLG
-    is_various = models.BooleanField(null=True, default=False)  # BPRACC
-    is_service_provider = models.BooleanField(null=True, default=False)  # PRVFLG
-    is_transporter = models.BooleanField(null=True, default=False)  # BPTFLG
-    is_contractor = models.BooleanField(null=True, default=False)  # DOOFLG
-    is_physical_person = models.BooleanField(null=True, default=False)  # LEGETT
+    is_client = models.BooleanField(null=True, default=False, verbose_name="Client")  # BPCFLG
+    is_agent = models.BooleanField(null=True, default=False, verbose_name="Représentant")  # REPFLG
+    is_prospect = models.BooleanField(null=True, default=False, verbose_name="Prospect")  # PPTFLG
+    is_supplier = models.BooleanField(
+        null=True, default=False, verbose_name="Fournisseur"
+    )  # BPSFLG
+    is_various = models.BooleanField(
+        null=True, default=False, verbose_name="Tiers Divers"
+    )  # BPRACC
+    is_service_provider = models.BooleanField(
+        null=True, default=False, verbose_name="Prestataire"
+    )  # PRVFLG
+    is_transporter = models.BooleanField(
+        null=True, default=False, verbose_name="Transporteur"
+    )  # BPTFLG
+    is_contractor = models.BooleanField(
+        null=True, default=False, verbose_name="Donneur d'ordre"
+    )  # DOOFLG
+    is_physical_person = models.BooleanField(
+        null=True, default=False, verbose_name="Personne physique"
+    )  # LEGETT
 
     # Paiements
     payment_condition_supplier = models.CharField(
@@ -187,21 +200,22 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
     )  # VACBPR - BPSUPPLIER (Table TABVACBPR)
     account_supplier_code = models.CharField(
-        null=True, blank=True, max_length=10, verbose_name=""
+        null=True, blank=True, max_length=10, verbose_name="code comptable fournisseur"
     )  # ACCCOD - BPSUPPLIER (Table GACCCODE)
     payment_condition_client = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name=""
+        null=True, blank=True, max_length=80, verbose_name="condition de paiement"
     )  # PTE - BPCUSTOMER (Table TABPAYTERM)
     vat_sheme_client = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
     )  # VACBPR - BPCUSTOMER (Table TABVACBPR)
     account_client_code = models.CharField(
-        null=True, blank=True, max_length=10, verbose_name=""
+        null=True, blank=True, max_length=10, verbose_name="code comptable client"
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
 
     # Maisons part
-    code_cct_x3 = models.CharField(null=True, blank=True, max_length=15, verbose_name="cct X3")
+    code_cct = models.CharField(null=True, blank=True, max_length=15, verbose_name="cct")
     code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
+    code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
     sign_board = models.ForeignKey(
         Signboard,
         on_delete=models.PROTECT,
@@ -247,7 +261,7 @@ class Society(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="credit_account",
-        verbose_name="compte X3 au crédit",
+        verbose_name="compte X3 par défaut de crédit",
         db_column="credit_account",
     )
     debit_account = models.ForeignKey(
@@ -256,7 +270,7 @@ class Society(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="debit_account",
-        verbose_name="compte X3 au débit",
+        verbose_name="compte X3 par défaut de débit",
         db_column="debit_account",
     )
     prov_account = models.ForeignKey(
@@ -265,19 +279,38 @@ class Society(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="prov_account",
-        verbose_name="compte X3 de provision",
+        verbose_name="compte X3 par défaut de provision",
         db_column="prov_account",
+    )
+    extourne_account = models.ForeignKey(
+        AccountSage,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="extourne_account",
+        verbose_name="compte X3 par défaut d'extourne",
+        db_column="extourne_account",
     )
     sage_vat_by_default = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="tva X3 par défaut"
     )
-    sage_pan_code = models.CharField(null=True, blank=True, max_length=10)
+    sage_plan_code = models.CharField(
+        null=True, blank=True, max_length=10, verbose_name="code plan sage"
+    )
 
     # RFA
     rfa_frequence = models.IntegerField(
-        null=True, choices=Frequence.choices, default=Frequence.MENSUEL
+        null=True,
+        choices=Frequence.choices,
+        default=Frequence.MENSUEL,
+        verbose_name="fréquence des rfa",
     )
-    rfa_remise = models.IntegerField(null=True, choices=Remise.choices, default=Remise.TOTAL)
+    rfa_remise = models.IntegerField(
+        null=True,
+        choices=Remise.choices,
+        default=Remise.TOTAL,
+        verbose_name="taux de remboursement rfa",
+    )
     invoice_supplier_name = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Fournisseur"
     )
@@ -376,7 +409,7 @@ class DocumentsSubscription(FlagsTable):
     EN : Table of subscriptions to sending documents
     """
 
-    name = models.CharField(unique=True, max_length=35)
+    name = models.CharField(unique=True, max_length=80)
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):

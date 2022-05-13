@@ -1,4 +1,4 @@
-# pylint: disable=E
+# pylint: disable=R0903
 """
 Views
 """
@@ -32,8 +32,7 @@ class SuppliersList(ListView):
 
 class UpdateComptes(UpdateView):
     model = Society
-    fields = [
-    ]
+    fields = []
     template_name = "book/update_comptes.html"
     success_message = "Le Tiers %(supplier)s a été modifié avec success"
     error_message = "Le Tiers %(supplier)s n'a pu être modifié, une erreur c'est produite"
@@ -65,14 +64,19 @@ def export_list_societies(request):
             today = pendulum.now()
             if "export_list_societies" in request.POST:
                 societies = Society.objects.all()
+                society_type = "tiers"
                 file_name = f"LISTING_DES_TIERS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
             elif "export_list_clients" in request.POST:
                 societies = Society.objects.filter(is_client=True)
-                file_name = f"LISTING_DES_CLIENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                society_type = "clients"
+                file_name = (
+                    f"LISTING_DES_CLIENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                )
 
             elif "export_list_supplierss" in request.POST:
                 societies = Society.objects.filter(is_supplier=True)
+                society_type = "suppliers"
                 file_name = (
                     f"LISTING_DES_FOURNISSEURS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
                 )
@@ -81,10 +85,7 @@ def export_list_societies(request):
                 return redirect(reverse("book:supplier_list"))
 
             return response_file(
-                excel_liste_societies,
-                file_name,
-                CONTENT_TYPE_EXCEL,
-                societies,
+                excel_liste_societies, file_name, CONTENT_TYPE_EXCEL, societies, society_type
             )
 
         except:

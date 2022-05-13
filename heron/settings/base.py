@@ -88,6 +88,7 @@ LOCAL_APPS = [
     "apps.accountancy",
     "apps.articles",
     "apps.book",
+    "apps.centers_clients",
     "apps.centers_purchasing",
     "apps.clients_invoices",
     "apps.clients_validations",

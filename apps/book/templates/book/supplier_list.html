@@ -4,17 +4,12 @@
 
 {% load filters_tags %}
 
-{% block head_js %}
-    <script src="{% static 'delete_oject_model.js' %}"></script>
-{% endblock %}
-
 {% block content %}
 
     {% if user.is_authenticated %}
         <!-- Messages ---------------------------------------------------------- -->
         {% include 'heron/messages_messages.html' %}
         {% include 'heron/messages_forms.html' %}
-        {% include 'heron/messages_delete.html' %}
         <!-- end --------------------------------------------------------------- -->
           <br>
           <div class="ui equal width grid center">
@@ -99,6 +94,8 @@
                                 <th class="no-sort" style="text-align: center;">Modifier</th>
                                 <th>Société</th>
                                 <th>Nom</th>
+                                <th>Fournisseur</th>
+                                <th>Client</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -121,6 +118,16 @@
                                     {{ society.name }}
                                   {% endif %}
                                 </td>
+                                <td>
+                                  {% if society.is_supplier %}
+                                    X
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if society.is_client %}
+                                      X
+                                  {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -134,7 +141,6 @@
 
 
         <div class="ui equal width grid center"></div>
-        {% include "heron/modal_delete.html" %}
 
     {% else %}
 

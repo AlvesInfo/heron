@@ -57,7 +57,7 @@ class Country(models.Model):
     )
 
     def __str__(self):
-        return f"{self.country} - {self.currency_iso}"
+        return f"{self.country_name}"
 
     @staticmethod
     def file_import_sage():

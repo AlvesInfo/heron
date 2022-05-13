@@ -61,11 +61,5 @@ l = [
 
 if __name__ == '__main__':
     for row in l:
-        print(row.split(" = ")[0])
-
-    for row in l:
-        print(f'society.{row.split(" = ")[0]}')
-
-    for row in l:
-        print(f'"entete": "{row.split(" = ")[0]}-{row.split(" = ")[-1]}"')
+        print(row.split(" = ")[0], '\t', f'society.{row.split(" = ")[0]}')
 

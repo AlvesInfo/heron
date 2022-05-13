@@ -81,7 +81,7 @@ class Counter(FlagsTable):
         ADA = 6, _("Début d'année")
         AFA = 7, _("Fin d'année")
 
-    name = models.CharField(unique=True, max_length=35, verbose_name="Type de numérotation")
+    name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
     prefix = models.CharField(max_length=5, verbose_name="préfix")
     iso_date = models.CharField(null=True, blank=True, max_length=10)
     date_type = models.CharField(
@@ -106,7 +106,7 @@ class SendFiles(FlagsTable):
     EN : SendFiles
     """
 
-    name = models.CharField(unique=True, max_length=35, verbose_name="type d'envoi")
+    name = models.CharField(unique=True, max_length=80, verbose_name="type d'envoi")
     file = models.CharField(max_length=35)
     description = models.CharField(null=True, blank=True, max_length=100)
     periodicity = models.CharField(null=True, blank=True, max_length=20)
@@ -167,7 +167,7 @@ class SubFamilly(FlagsTable):
     EN : Sub Famillies
     """
 
-    name = models.CharField(unique=True, max_length=35)
+    name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
         return self.name
@@ -185,7 +185,7 @@ class Category(FlagsTable):
     EN : Categories
     """
 
-    name = models.CharField(unique=True, max_length=35)
+    name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
 
     def __str__(self):
@@ -204,7 +204,7 @@ class Periodicity(FlagsTable):
     EN : Periodicity
     """
 
-    name = models.CharField(unique=True, max_length=35)
+    name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
         return self.name
@@ -243,7 +243,7 @@ class ActionPermission(FlagsTable):
     EN : Action / Permission
     """
 
-    name = models.CharField(unique=True, max_length=35)
+    name = models.CharField(unique=True, max_length=80)
 
     class Meta:
         """class Meta du modèle django"""
