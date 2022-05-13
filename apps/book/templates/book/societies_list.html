@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="column" style="text-align: center;">
-                  <h2 class="color-blue-do">Tiers Sage X3</h2>
+                  <h3 class="color-blue-do">Tiers Sage X3</h3>
                 </div>
 
                 <div class="column">
@@ -89,7 +89,7 @@
 
                     <table id="table_document"
                        class="ui celled table"
-                       style="font-size: 10px;text-align: center;">
+                       style="font-size: 12px !important;text-align: center;font-weight: 900;">
                         <thead>
                             <tr>
                                 <th class="no-sort" style="text-align: center;">Modifier</th>
@@ -104,7 +104,7 @@
                             <tr id="id_{{ society.pk }}" class="hide_plans">
 
                                 <td data-value="{{ society.third_party_num }}"
-                                    style="width: 10px;text-align: center;">
+                                    style="text-align: center;">
                                     {% if society.is_supplier %}
                                         <a href="{% url 'book:update_supplier' pk=society.pk %}">
                                             <i class="edit icon modification"></i>

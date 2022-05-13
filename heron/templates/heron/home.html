@@ -10,17 +10,7 @@
 {% endblock menu_principal %}
 
 {% block content %}
-
-        <a href="{% url 'import_edi' %}">
-        <button class="ui inverted brown button button-menu" value=""
-                style="height: 60px !important;width: 180px !important;font-size: 12px !important;text-align: center;">
-            INSERT EDI FILES</button>
-        </a>
         <br>
-        <h1>{{ start_thread }}</h1>
-        <br>
-        <br>
-
         <a href="{% url 'book:societies_list' %}">
             <button class="ui inverted brown button button-menu" value=""
                 style="height: 60px !important;width: 180px !important;font-size: 12px !important;text-align: center;">
