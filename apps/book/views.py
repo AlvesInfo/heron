@@ -2,21 +2,11 @@
 """
 Views des Tiers X3
 """
-import os
-from pathlib import Path
-import hashlib
-from datetime import timedelta, date
 
 import pendulum
-from django.http import JsonResponse
 from django.shortcuts import redirect, reverse
-from django.views.generic.edit import FormView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, UpdateView, CreateView
-from django.views.decorators.csrf import csrf_protect
-from django.db.models import Q
-
-from heron import settings
+from django.views.generic import ListView, UpdateView
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.book.loggers import ERROR_VIEWS_LOGGER
 from apps.book.excel_outputs.fiche_liste_societies import excel_liste_societies
@@ -32,6 +22,7 @@ class SocietiesList(ListView):
 
 
 class UpdateSupplier(SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
     model = Society
     fields = [
         "third_party_num",
