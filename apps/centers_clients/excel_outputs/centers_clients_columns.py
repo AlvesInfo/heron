@@ -34,7 +34,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "CCT X3",
+        "entete": "Centrale Fille",
         "f_entete": {
             **f_entetes,
             **{
@@ -87,7 +87,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {**f_ligne, **{}},
@@ -98,7 +98,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -114,7 +114,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -130,7 +130,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -146,7 +146,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -163,7 +163,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -180,7 +180,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -197,7 +197,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -214,7 +214,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFE699",
             },
         },
         "f_ligne": {
@@ -231,7 +231,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -247,7 +247,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -263,7 +263,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {**f_ligne, **{}},
@@ -274,7 +274,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {**f_ligne, **{}},
@@ -285,7 +285,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -301,7 +301,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -317,7 +317,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -333,7 +333,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -349,7 +349,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -365,7 +365,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {
@@ -381,7 +381,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {**f_ligne, **{}},
@@ -392,7 +392,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {**f_ligne, **{}},
@@ -403,7 +403,7 @@ columns_list_maisons = [
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#C9C9C9",
             },
         },
         "f_ligne": {**f_ligne, **{}},
@@ -426,7 +426,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Pays",
+        "entete": "Langue",
         "f_entete": {
             **f_entetes,
             **{
@@ -442,7 +442,263 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Langue",
+        "entete": "Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Immeuble Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Adresse Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Code Postal Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Ville Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Pays Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Téléphone Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Mobile Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "e-mail Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Immeuble Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Adresse Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Code Postal Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Ville Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Pays Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Téléphone Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Mobile Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "e-mail Maison",
         "f_entete": {
             **f_entetes,
             **{

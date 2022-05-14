@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load filters_tags %}
+
 {% block content %}
 
 {% if user.is_authenticated %}
@@ -37,7 +39,7 @@
               <div class="two wide column"></div>
           </div>
           <hr style="color: #188fb3;background-color: #188fb3;">
-          <div class="ui segment">
+          <div class="ui segment" style="margin: 10px">
             <div class="ui equal width grid center">
 
               <div class="one wide column">
@@ -66,7 +68,7 @@
             {% include 'heron/messages_delete.html' %}
             <!-- end --------------------------------------------------------------- -->
 
-            <div class="ui segment">
+            <div class="ui segment" style="margin: 10px">
               <div class="ui equal width grid center">
 
                 <div class="four wide column"></div>

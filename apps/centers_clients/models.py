@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from heron.models import FlagsTable
 
 from apps.accountancy.models import CctSage, AccountSage
-from apps.book.models import Society
+from apps.book.models import Society, Address
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
 from apps.parameters.models import SalePriceCategory
 from apps.countries.models import Country
@@ -81,6 +81,14 @@ class Maison(FlagsTable):
         related_name="maison_cct",
         verbose_name="cct x3",
         db_column="cct",
+    )
+    tiers = models.ForeignKey(
+        Society,
+        on_delete=models.CASCADE,
+        to_field="third_party_num",
+        related_name="tiers_maison",
+        verbose_name="tiers X3",
+        db_column="tiers",
     )
     center_purchase = models.OneToOneField(
         ChildCenterPurchase,
@@ -206,16 +214,55 @@ class Maison(FlagsTable):
     )
 
     currency = models.CharField(null=True, default="EUR", max_length=3, verbose_name="monaie")
-    country = models.ForeignKey(
+    language = models.CharField(null=True, blank=True, max_length=80, verbose_name="langue")
+
+    # Adresse Tiers
+    immeuble_tiers = models.CharField(
+        blank=True, null=True, max_length=200, verbose_name="immeuble tiers"
+    )
+    adresse_tiers = models.CharField(
+        blank=True, null=True, max_length=200, verbose_name="adresse tiers"
+    )
+    code_postal_tiers = models.CharField(
+        blank=True, null=True, max_length=15, verbose_name="code postal tiers"
+    )
+    ville_tiers = models.CharField(blank=True, null=True, max_length=50, verbose_name="ville tiers")
+    pays_tiers = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country",
-        related_name="maison_country",
+        related_name="country_tiers_country",
+        null=True,
+        verbose_name="pays tiers",
+        db_column="pays_tiers",
+    )
+    telephone_tiers = models.CharField(
+        blank=True, null=True, max_length=25, verbose_name="téléphone tiers"
+    )
+    mobile_tiers = models.CharField(
+        blank=True, null=True, max_length=25, verbose_name="mobile tiers"
+    )
+    email_tiers = models.EmailField(
+        blank=True, null=True, max_length=85, verbose_name="email tiers"
+    )
+
+    # Adresse Maison
+    immeuble = models.CharField(blank=True, null=True, max_length=200, verbose_name="immeuble")
+    adresse = models.CharField(blank=True, null=True, max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(blank=True, null=True, max_length=15, verbose_name="code postal")
+    ville = models.CharField(blank=True, null=True, max_length=50, verbose_name="ville")
+    pays = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country",
+        related_name="coutry_maison_country",
         null=True,
         verbose_name="pays",
-        db_column="country",
+        db_column="pays",
     )
-    language = models.CharField(null=True, blank=True, max_length=80, verbose_name="langue")
+    telephone = models.CharField(blank=True, null=True, max_length=25, verbose_name="téléphone")
+    mobile = models.CharField(blank=True, null=True, max_length=25, verbose_name="mobile")
+    email = models.EmailField(blank=True, null=True, max_length=85, verbose_name="email")
 
     def save(self, *args, **kwargs):
         """
