@@ -17,7 +17,7 @@ def point(value):
 @register.filter(name="left_trunc")
 @stringfilter
 def left_trunc(value, num):
-    return value[int(num):]
+    return value[int(num) :]
 
 
 @register.filter(name="right_trunc")

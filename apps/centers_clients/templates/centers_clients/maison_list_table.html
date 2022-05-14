@@ -1,0 +1,78 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="twelve wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;">Modifier</th>
+                <th>CCT</th>
+                <th>Intitulé</th>
+                <th>Centrale</th>
+                <th>Enseigne</th>
+                <th>Devise</th>
+                <th>Langue</th>
+                <th>Pays</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for maison in maisons %}
+            <tr id="id_{{ maison.pk }}" class="hide_plans">
+
+                <td data-value="{{ maison.third_party_num }}"
+                    style="text-align: center;">
+                    <a href="{% url 'centers_clients:update_maison' pk=maison.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.cct %}
+                    {{ maison.cct }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if maison.intitule %}
+                    {{ maison.intitule }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if maison.center_purchase %}
+                    {{ maison.center_purchase }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.sign_board %}
+                    {{ maison.sign_board }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.currency %}
+                    {{ maison.currency }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.language %}
+                    {{ maison.language }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.country %}
+                    {{ maison.country }}
+                  {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

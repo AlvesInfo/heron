@@ -17,13 +17,16 @@ from apps.book.models import Society
 # ECRANS DES FOURNISSEURS ==========================================================================
 class SocietiesList(ListView):
     """View de la liste des Tiers X3"""
+
     model = Society
     context_object_name = "societies"
     template_name = "book/societies_list.html"
+    extra_context = {"titre_table": "Tiers X3"}
 
 
 class UpdateSupplier(SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+
     model = Society
     fields = [
         "third_party_num",
@@ -40,6 +43,11 @@ class UpdateSupplier(SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("book:societies_list")
+        context["titre_table"] = (
+            f"Mise à jour Tiers X3: "
+            f"{context.get('object').third_party_num} - "
+            f"{context.get('object').name}"
+        )
         return context
 
     def form_valid(self, form):

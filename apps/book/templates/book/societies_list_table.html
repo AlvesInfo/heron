@@ -1,0 +1,63 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="twelve wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+
+            <tr>
+                <th class="no-sort" style="text-align: center;">Modifier</th>
+                <th>Tiers X3</th>
+                <th>Nom</th>
+                <th>Fournisseur</th>
+                <th>Client</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for society in societies %}
+            <tr id="id_{{ society.pk }}" class="hide_plans">
+
+                <td data-value="{{ society.third_party_num }}"
+                    style="text-align: center;">
+                    {% if society.is_supplier %}
+                        <a href="{% url 'book:update_supplier' pk=society.pk %}">
+                            <i class="edit icon modification"></i>
+                        </a>
+                    {% endif %}
+                </td>
+                <td>
+                  {% if society.third_party_num %}
+                    {{ society.third_party_num }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if society.name %}
+                    {{ society.name }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if society.is_supplier %}
+                    X
+                  {% endif %}
+                </td>
+                <td>
+                  {% if society.is_client %}
+                      X
+                  {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

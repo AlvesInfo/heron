@@ -1,0 +1,24 @@
+{% extends "heron/menu_courant.html" %}
+
+{% block right_menu %}
+   <a href="{% url 'centers_clients:maisons_create' %}" class="item" style="margin-right: 0;">
+      <button class="ui blue button" name="create_centre_cout" style="font-size: 10px !important;">
+        CREATION
+      </button>
+    </a>
+    <form action="{% url 'centers_clients:export_list_maisons' %}"
+          method="post"
+          enctype="multipart/form-data"
+          style="display: flex;"
+    >
+    {% csrf_token %}
+      <a href=""
+         class="item"
+         style="margin-right: 0;">
+          <button class="ui green button" name="export_list_maisons" style="font-size: 10px !important;">
+              LISTING MAISONS
+          </button>
+      </a>
+
+    </form>
+{% endblock right_menu %}

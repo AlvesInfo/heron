@@ -112,7 +112,7 @@ class Country(models.Model):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["country"]
+        ordering = ["country_name"]
 
 
 class ExchangeRate(models.Model):

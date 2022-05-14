@@ -1,0 +1,32 @@
+{% extends "heron/menu_courant.html" %}
+
+{% block right_menu %}
+    <form action="{% url 'book:export_list_societies' %}"
+      method="post"
+      enctype="multipart/form-data"
+      style="display: flex;"
+    >
+    {% csrf_token %}
+      <a href=""
+         class="item"
+         style="margin-right: 0;">
+          <button class="ui green button" name="export_list_societies" style="font-size: 10px !important;">
+              LISTING TIERS
+          </button>
+      </a>
+      <a href=""
+         class="item"
+         style="margin-right: 0;">
+          <button class="ui green button" name="export_list_clients" style="font-size: 10px !important;">
+              LISTING CLIENTS
+          </button>
+      </a>
+      <a href=""
+         class="item"
+         style="margin-right: 0;">
+          <button class="ui green button" name="export_list_supplierss" style="font-size: 10px !important;">
+              LISTING FOURNISSEURS
+          </button>
+      </a>
+    </form>
+{% endblock right_menu %}

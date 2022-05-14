@@ -209,7 +209,7 @@ class Society(FlagsTable):
     )
 
     def __str__(self):
-        return f"{self.nature}{' - ' if self.nature else ''}{self.name}"
+        return f"{self.third_party_num} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
@@ -287,7 +287,7 @@ class Address(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.city}"
+        return f"{self.society} - {self.address_code}"
 
     class Meta:
         """class Meta du modèle django"""

@@ -26,7 +26,7 @@ from apps.countries.models import Country
 
 class ClientFamilly(FlagsTable):
     """
-    Tables des familles des maisons
+    Table des familles des maisons
     FR : Table des Familles
     EN : Families table
     """
@@ -54,7 +54,7 @@ class ClientFamilly(FlagsTable):
 
 class Maison(FlagsTable):
     """
-    Table des maisons
+    Table des Maisons
     FR : Table des Maisons
     EN : Shop table
     """
@@ -106,7 +106,7 @@ class Maison(FlagsTable):
         verbose_name="Enseigne",
         db_column="sign_board",
     )
-    intitule = models.CharField(max_length=30)
+    intitule = models.CharField(max_length=50)
     intitule_court = models.CharField(max_length=12)
     client_familly = models.ForeignKey(
         ClientFamilly,
@@ -309,3 +309,36 @@ class NotExportMaisonSupllier(FlagsTable):
     class Meta:
         ordering = ["cct", "society__name"]
         unique_together = (("cct", "society"),)
+
+
+class MaisonBi(models.Model):
+    """
+    Table des Maisons issue de la B.I
+    FR : Table des Maisons
+    EN : Shop table
+    """
+
+    code_maison = models.CharField(primary_key=True, max_length=15, verbose_name="code maison")
+    intitule = models.CharField(null=True, blank=True, max_length=50)
+    intitule_court = models.CharField(null=True, blank=True, max_length=12)
+    code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
+    code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
+    opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
+    closing_date = models.DateField(null=True, verbose_name="date de fermeture")
+    immeuble = models.CharField(blank=True, null=True, max_length=200, verbose_name="immeuble")
+    adresse = models.CharField(blank=True, null=True, max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(blank=True, null=True, max_length=15, verbose_name="code postal")
+    ville = models.CharField(blank=True, null=True, max_length=50, verbose_name="ville")
+    pays = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country",
+        related_name="coutry_maison_bi_country",
+        null=True,
+        verbose_name="pays",
+        db_column="pays",
+    )
+    telephone = models.CharField(blank=True, null=True, max_length=25, verbose_name="téléphone")
+    email = models.EmailField(blank=True, null=True, max_length=85, verbose_name="email")
+    is_new = models.BooleanField(default=True)
+    is_modify = models.BooleanField(default=False)
