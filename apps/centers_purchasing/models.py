@@ -48,7 +48,7 @@ class PrincipalCenterPurchase(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.code} - {self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -79,7 +79,7 @@ class ChildCenterPurchase(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.base_center} - {self.name}"
+        return f"{self.code} - {self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -96,13 +96,6 @@ class Signboard(FlagsTable):
     """
 
     code = models.CharField(unique=True, max_length=15)
-    center = models.ForeignKey(
-        ChildCenterPurchase,
-        on_delete=models.PROTECT,
-        to_field="code",
-        verbose_name="centrale",
-        db_column="center",
-    )
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
@@ -123,12 +116,12 @@ class Signboard(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.center} - {self.name}"
+        return f"{self.code} - {self.name}"
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["center", "name"]
+        ordering = ["name"]
 
 
 class SignboardModel(FlagsTable):

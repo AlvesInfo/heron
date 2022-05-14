@@ -377,7 +377,7 @@ class CctSage(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        return f"{self.cct} - {self.name}"
+        return f"{self.cct}"
 
     class Meta:
         """class Meta du modèle django"""

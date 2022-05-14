@@ -59,14 +59,12 @@ def fixtures():
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
 
         for row in csv_rows:
-            code, center, sale_price_category, name, generic_coefficient, language = row
-            center = ChildCenterPurchase.objects.get(code=center)
+            code, sale_price_category, name, generic_coefficient, language = row
             sale_price_category = SalePriceCategory.objects.get(name=sale_price_category)
             language = Country.objects.get(country=language)
             try:
                 Signboard.objects.update_or_create(
                     code=code,
-                    center=center,
                     sale_price_category=sale_price_category,
                     name=name,
                     generic_coefficient=generic_coefficient,

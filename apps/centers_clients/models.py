@@ -11,16 +11,15 @@ created by: Paulo ALVES
 modified at: 2022-04-07
 modified by: Paulo ALVES
 """
-import uuid
-
 from django.db import models
+from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
 
-from apps.accountancy.models import SectionSage, AccountSage
+from apps.accountancy.models import CctSage, AccountSage
 from apps.book.models import Society
-from apps.centers_purchasing.models import Signboard
+from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
 from apps.parameters.models import SalePriceCategory
 from apps.countries.models import Country
 
@@ -31,6 +30,7 @@ class ClientFamilly(FlagsTable):
     FR : Table des Familles
     EN : Families table
     """
+
     name = models.CharField(unique=True, max_length=80)
     comment = models.CharField(null=True, blank=True, max_length=255)
 
@@ -58,6 +58,7 @@ class Maison(FlagsTable):
     FR : Table des Maisons
     EN : Shop table
     """
+
     class Frequence(models.TextChoices):
         """Frequence choices"""
 
@@ -74,18 +75,27 @@ class Maison(FlagsTable):
         ARTICLE = 3, _("Article")
 
     cct = models.OneToOneField(
-        SectionSage,
+        CctSage,
         on_delete=models.PROTECT,
-        limit_choices_to={"axe": "CCT"},
+        to_field="cct",
         related_name="maison_cct",
-        verbose_name="code maison",
+        verbose_name="cct x3",
         db_column="cct",
+    )
+    center_purchase = models.OneToOneField(
+        ChildCenterPurchase,
+        on_delete=models.PROTECT,
+        to_field="code",
+        related_name="maison_center_purchase",
+        verbose_name="Centrale Fille",
+        db_column="center_purchase",
     )
     sign_board = models.ForeignKey(
         Signboard,
         on_delete=models.PROTECT,
-        to_field="name",
+        to_field="code",
         related_name="maison_sign_board",
+        verbose_name="Enseigne",
         db_column="sign_board",
     )
     intitule = models.CharField(max_length=30)
@@ -95,10 +105,11 @@ class Maison(FlagsTable):
         on_delete=models.PROTECT,
         to_field="name",
         related_name="maison_client_familly",
+        verbose_name="catégorie client",
         db_column="client_familly",
     )
 
-    code_maison = models.CharField(null=True, blank=True, max_length=15, verbose_name="cct")
+    code_maison = models.CharField(null=True, blank=True, max_length=15, verbose_name="code maison")
     code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
     code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
     opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
@@ -107,7 +118,9 @@ class Maison(FlagsTable):
     agreement_franchise_end_date = models.DateField(
         null=True, verbose_name="date de signature de fin de contrat"
     )
-    agreement_renew_date = models.DateField(null=True, verbose_name="date de renouvelement contrat")
+    agreement_renew_date = models.DateField(
+        null=True, verbose_name="date de renouvellement contrat"
+    )
     entry_fee_amount = models.DecimalField(
         max_digits=20, decimal_places=5, null=True, verbose_name="montant de droit d'entrée"
     )
@@ -138,7 +151,7 @@ class Maison(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="credit_account",
-        verbose_name="compte X3 par défaut de crédit",
+        verbose_name="compte X3 par défaut au crédit",
         db_column="credit_account",
     )
     debit_account = models.ForeignKey(
@@ -147,7 +160,7 @@ class Maison(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="debit_account",
-        verbose_name="compte X3 par défaut de débit",
+        verbose_name="compte X3 par défaut au débit",
         db_column="debit_account",
     )
     prov_account = models.ForeignKey(
@@ -156,7 +169,7 @@ class Maison(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="prov_account",
-        verbose_name="compte X3 par défaut de provision",
+        verbose_name="compte X3 par défaut sur provision",
         db_column="prov_account",
     )
     extourne_account = models.ForeignKey(
@@ -165,7 +178,7 @@ class Maison(FlagsTable):
         null=True,
         to_field="uuid_identification",
         related_name="extourne_account",
-        verbose_name="compte X3 par défaut d'extourne",
+        verbose_name="compte X3 par défaut sur extourne",
         db_column="extourne_account",
     )
     sage_vat_by_default = models.CharField(
@@ -192,9 +205,7 @@ class Maison(FlagsTable):
         null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Client"
     )
 
-    currency = models.CharField(
-        null=True, default="EUR", max_length=3, verbose_name="monaie"
-    )
+    currency = models.CharField(null=True, default="EUR", max_length=3, verbose_name="monaie")
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
@@ -204,9 +215,7 @@ class Maison(FlagsTable):
         verbose_name="pays",
         db_column="country",
     )
-    language = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="langue"
-    )
+    language = models.CharField(null=True, blank=True, max_length=80, verbose_name="langue")
 
     def save(self, *args, **kwargs):
         """
@@ -220,6 +229,10 @@ class Maison(FlagsTable):
 
     def __str__(self):
         return f"{self.code_maison} - {self.intitule}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_clients:maisons_list")
 
     class Meta:
         ordering = ["code_maison"]

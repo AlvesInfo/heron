@@ -19,6 +19,11 @@
                         <i class="large blue-color home icon"></i>
                       </a>
                       <div class="right menu">
+                        <a href="{% url 'centers_clients:maisons_create' %}" class="item">
+                          <button class="ui blue button" name="create_centre_cout" style="font-size: 12px !important;">
+                            CREATION
+                          </button>
+                        </a>
                         <form action="{% url 'centers_clients:export_list_maisons' %}"
                               method="post"
                               enctype="multipart/form-data"
@@ -82,6 +87,7 @@
                                 <th class="no-sort" style="text-align: center;">Modifier</th>
                                 <th>CCT</th>
                                 <th>Intitulé</th>
+                                <th>Centrale</th>
                                 <th>Enseigne</th>
                                 <th>Devise</th>
                                 <th>Langue</th>
@@ -94,13 +100,11 @@
 
                                 <td data-value="{{ maison.third_party_num }}"
                                     style="text-align: center;">
-                                    {% if maison.is_supplier %}
-                                        <a href="{% url 'book:update_supplier' pk=maison.pk %}">
-                                            <i class="edit icon modification"></i>
-                                        </a>
-                                    {% endif %}
+                                    <a href="{% url 'centers_clients:update_maison' pk=maison.pk %}">
+                                        <i class="edit icon modification"></i>
+                                    </a>
                                 </td>
-                                <td>
+                                <td style="text-align: center;">
                                   {% if maison.cct %}
                                     {{ maison.cct }}
                                   {% endif %}
@@ -110,22 +114,27 @@
                                     {{ maison.intitule }}
                                   {% endif %}
                                 </td>
-                                <td style="text-align: left;">
+                                <td>
+                                  {% if maison.center_purchase %}
+                                    {{ maison.center_purchase }}
+                                  {% endif %}
+                                </td>
+                                <td style="text-align: center;">
                                   {% if maison.sign_board %}
                                     {{ maison.sign_board }}
                                   {% endif %}
                                 </td>
-                                <td>
+                                <td style="text-align: center;">
                                   {% if maison.currency %}
                                     {{ maison.currency }}
                                   {% endif %}
                                 </td>
-                                <td>
+                                <td style="text-align: center;">
                                   {% if maison.language %}
                                     {{ maison.language }}
                                   {% endif %}
                                 </td>
-                                <td>
+                                <td style="text-align: center;">
                                   {% if maison.country %}
                                     {{ maison.country }}
                                   {% endif %}

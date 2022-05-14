@@ -88,6 +88,7 @@ class GetRows:
         """
 
     def get_clean_rows(self) -> iter:
+        """Retourne les lignes à écrire"""
         with cnx_postgresql(CNX_STRING).cursor() as cursor:
             cursor.execute(self.query)
             return cursor.fetchall()

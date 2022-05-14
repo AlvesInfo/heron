@@ -23,89 +23,62 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
-from apps.book.models import Society
-from apps.book.excel_outputs.book_columns import SocietiesColumns
+from apps.centers_clients.models import Maison
+from apps.centers_clients.excel_outputs.centers_clients_columns import columns_list_maisons
 
 
-class GetRows:
-    """Class pour choix des méthodes get_clean rows en fonction du type des sociétés"""
+def get_clean_rows():
+    """Retourne les lignes à écrire"""
 
-    def __init__(self, societies: Society.objects, society_type: str):
-        self.societies = societies
-
-        if society_type == "clients":
-            self.clause = "where is_client = true"
-            self.tiers = """
-                case when is_client = true then 'X' else '' end as is_client,
-            """
-        elif society_type == "suppliers":
-            self.clause = "where is_supplier = true"
-            self.tiers = """
-                case when is_supplier = true then 'X' else '' end as is_supplier,
-                invoice_supplier_name,
-                invoice_supplier_identifiaction,
-            """
-        else:
-            self.clause = ""
-            self.tiers = """
-                case when is_client = true then 'X' else '' end as is_client,
-                case when is_agent = true then 'X' else '' end as is_agent,
-                case when is_prospect = true then 'X' else '' end as is_prospect,
-                case when is_supplier = true then 'X' else '' end as is_supplier,
-                case when is_various = true then 'X' else '' end as is_various,
-                case when is_service_provider = true then 'X' else '' end as is_service_provider,
-                case when is_transporter = true then 'X' else '' end as is_transporter,
-                case when is_contractor = true then 'X' else '' end as is_contractor,
-                case when is_physical_person = true then 'X' else '' end as is_physical_person,
-            """
-
-        self.query = f"""
-        select 
-            third_party_num,
-            name,
-            short_name,
-            corporate_name,
-            siret_number,
-            vat_cee_number,
-            vat_number,
-            naf_code,
-            currency,
-            "language",
-            "country",
-            reviser,
-            client_category,
-            supplier_category,
-            budget_code,
-            {self.tiers}
-            payment_condition_supplier,
-            vat_sheme_supplier,
-            account_supplier_code,
-            payment_condition_client,
-            vat_sheme_client,
-            account_client_code
-        from {self.societies._meta.db_table}
-        {self.clause}
-        """
-
-    def get_clean_rows(self) -> iter:
-        with cnx_postgresql(CNX_STRING).cursor() as cursor:
-            cursor.execute(self.query)
-            return cursor.fetchall()
+    query = f"""
+    select 
+        cct,
+        center_purchase,
+        sign_board,
+        intitule,
+        intitule_court,
+        client_familly,
+        code_maison,
+        code_cosium,
+        code_bbgr,
+        opening_date,
+        closing_date,
+        signature_franchise_date,
+        agreement_franchise_end_date,
+        agreement_renew_date,
+        entry_fee_amount,
+        renew_fee_amoount,
+        sale_price_category,
+        generic_coefficient,
+        credit_account,
+        debit_account,
+        prov_account,
+        extourne_account,
+        sage_vat_by_default,
+        sage_plan_code,
+        rfa_frequence,
+        rfa_remise,
+        invoice_client_name,
+        currency,
+        country,
+        "language"
+    from {Maison._meta.db_table}
+    """
+    with cnx_postgresql(CNX_STRING).cursor() as cursor:
+        cursor.execute(query)
+        return cursor.fetchall()
 
 
 def excel_liste_maisons(
-    file_io: io.BytesIO, file_name: str, societies: Society.objects, society_type: str
+    file_io: io.BytesIO, file_name: str
 ) -> dict:
-    """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    titre_list = file_name.split("_")
-    titre = " ".join(titre_list[:3])
-    list_excel = [file_io, [titre]]
+    """Fonction de génération du fichier de liste des maisons"""
+    list_excel = [file_io, ["LISTE DES MAISONS"]]
     excel = GenericExcel(list_excel)
-    columns = getattr(SocietiesColumns, f"columns_list_{society_type}")
-    get_clean_rows = getattr(GetRows(societies, society_type), f"get_clean_rows")
+    columns = columns_list_maisons
 
     try:
-        titre_page_writer(excel, 1, 0, 0, columns, titre)
+        titre_page_writer(excel, 1, 0, 0, columns, "LISTE DES MAISONS")
         output_day_writer(excel, 1, 1, 0)
         columns_headers_writer(excel, 1, 3, 0, columns)
         f_lignes = [dict_row.get("f_ligne") for dict_row in columns]

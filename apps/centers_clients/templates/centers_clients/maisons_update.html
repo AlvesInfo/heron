@@ -48,7 +48,7 @@
 
               <div class="twelve wide column" style="text-align: center;">
                 <h3 class="color-blue-do">
-                    Mise à jour Tiers X3 : {{ form.third_party_num.value }} - {{ form.name.value }}
+                    Mise à jour de la Maison : {{ form.cct.value }} - {{ form.intitule.value }}
                 </h3>
               </div>
 
@@ -73,21 +73,21 @@
 
                 <div class="eight wide column">
                   <div class="ui segment">
-                    <h4 class="ui floated header">Tiers</h4>
+                    <h4 class="ui floated header">Maison</h4>
                     <div class="ui clearing divider"></div>
                     <div class="ui mini form">
                       <!-- ===================================================================== -->
                       <div class="fields" style="font-size: 12px;font-weight:900;">
 
                         <div class="six wide field">
-                              <label for="id_third_party_num">
-                                N° Tiers X3&nbsp;:
+                              <label for="id_cct">
+                                CCT X3&nbsp;:
                               </label>
-                            <input type="text" name="third_party_num"
-                                 value="{{ form.third_party_num.value }}"
+                            <input type="text" name="cct"
+                                 value="{{ form.cct.value }}"
                                  maxlength="15"
                                  required=""
-                                 id="id_third_party_num"
+                                 id="id_cct"
                                  readonly
                                  style="background-color: cornsilk;font-weight: bold;">
                         </div>
@@ -106,63 +106,7 @@
                         </div>
 
                       </div>
-                      <!-- ===================================================================== -->
-                      <div class="fields" style="font-size: 12px;font-weight:bold;">
 
-                        <div class="six wide field">
-                              <label for="id_siret_number">
-                                N° Siret&nbsp;:
-                              </label>
-                            <input type="text" name="siret_number"
-                                 value="{{ form.siret_number.value }}"
-                                 maxlength="20"
-                                 required=""
-                                 id="id_siret_number"
-                                 readonly
-                                 style="background-color: cornsilk;font-weight: bold;">
-                        </div>
-
-                        <div class="six wide field">
-                              <label for="id_vat_cee_number">
-                                N° TVA Intracommunautaire&nbsp;:
-                              </label>
-                            <input type="text" name="vat_cee_number"
-                                 value="{{ form.vat_cee_number.value }}"
-                                 maxlength="20"
-                                 required=""
-                                 id="id_vat_cee_number"
-                                 readonly
-                                 style="background-color: cornsilk;font-weight: bold;">
-                        </div>
-
-                      </div>
-                      <!-- ===================================================================== -->
-                      <div class="fields" style="font-size: 12px;font-weight:bold;">
-
-                        <div class="six wide field">
-                              <label for="id_invoice_supplier_identifiaction">
-                                identifiant du fournisseur pour l'EDI&nbsp;:
-                              </label>
-                              {{ form.invoice_supplier_identifiaction }}
-                        </div>
-
-                        <div class="ten wide field">
-                            <label for="id_invoice_supplier_name">
-                                Nom du fournisseur pour l'EDI&nbsp;:
-                            </label>
-                            {% if form.invoice_supplier_name.value == None or form.invoice_supplier_name.value == '' %}
-                                <input type="text" name="invoice_supplier_name"
-                                     value="{{ form.name.value }}"
-                                     maxlength="80"
-                                     required=""
-                                     id="id_invoice_supplier_name"
-                                     style="font-weight: bold;">
-                            {% else %}
-                              {{ form.invoice_supplier_name }}
-                            {% endif %}
-                        </div>
-
-                      </div>
                <!-- ===================================================================== -->
                     </div>
                   </div>

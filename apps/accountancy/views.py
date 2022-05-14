@@ -51,7 +51,7 @@ class UpdateBanque(UpdateView):
         return context
 
     def form_valid(self, form):
-        form.instance.user_modify = self.request.user
+        form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         return super().form_valid(form)
 

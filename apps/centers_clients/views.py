@@ -6,7 +6,7 @@ Views des Maisons
 import pendulum
 from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import ERROR_VIEWS_LOGGER
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -25,6 +25,116 @@ class MaisonsList(ListView):
     template_name = "centers_clients/maisons_list.html"
 
 
+class CreateMaison(SuccessMessageMixin, CreateView):
+    """CreateView de création des Maisons"""
+
+    model = Maison
+    fields = [
+        "cct",
+        "sign_board",
+        "intitule",
+        "intitule_court",
+        "client_familly",
+        "code_maison",
+        "code_cosium",
+        "code_bbgr",
+        "opening_date",
+        "closing_date",
+        "signature_franchise_date",
+        "agreement_franchise_end_date",
+        "agreement_renew_date",
+        "entry_fee_amount",
+        "renew_fee_amoount",
+        "sale_price_category",
+        "generic_coefficient",
+        "credit_account",
+        "debit_account",
+        "prov_account",
+        "extourne_account",
+        "sage_vat_by_default",
+        "sage_plan_code",
+        "rfa_frequence",
+        "rfa_remise",
+        "invoice_client_name",
+        "currency",
+        "country",
+        "language",
+    ]
+    template_name = "centers_clients/maisons_update.html"
+    success_message = "La Maison %(cct)s a été créé avec success"
+    error_message = "La Maison %(cct)s n'a pu être créé, une erreur c'est produite"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["create"] = True
+        context["chevron_retour"] = reverse("centers_clients:maisons_list")
+        return context
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
+
+
+class UpdateMaison(SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+
+    model = Maison
+    fields = [
+        "cct",
+        "sign_board",
+        "intitule",
+        "intitule_court",
+        "client_familly",
+        "code_maison",
+        "code_cosium",
+        "code_bbgr",
+        "opening_date",
+        "closing_date",
+        "signature_franchise_date",
+        "agreement_franchise_end_date",
+        "agreement_renew_date",
+        "entry_fee_amount",
+        "renew_fee_amoount",
+        "sale_price_category",
+        "generic_coefficient",
+        "credit_account",
+        "debit_account",
+        "prov_account",
+        "extourne_account",
+        "sage_vat_by_default",
+        "sage_plan_code",
+        "rfa_frequence",
+        "rfa_remise",
+        "invoice_client_name",
+        "currency",
+        "country",
+        "language",
+    ]
+    template_name = "centers_clients/maisons_update.html"
+    success_message = "La Maison %(cct)s a été modifiée avec success"
+    error_message = "La Maison %(cct)s n'a pu être modifiée, une erreur c'est produite"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["chevron_retour"] = reverse("centers_clients:maisons_list")
+        return context
+
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
+
+
 def export_list_maisons(request):
     """
     Export Excel de la liste des Sociétés
@@ -35,7 +145,6 @@ def export_list_maisons(request):
         try:
 
             today = pendulum.now()
-            maisons = Maison
 
             if "export_list_maisons" in request.POST:
                 file_name = (
@@ -45,7 +154,7 @@ def export_list_maisons(request):
             else:
                 return redirect(reverse("centers_clients:maisons_list"))
 
-            return response_file(excel_liste_maisons, file_name, CONTENT_TYPE_EXCEL, maisons)
+            return response_file(excel_liste_maisons, file_name, CONTENT_TYPE_EXCEL)
 
         except:
             ERROR_VIEWS_LOGGER.exception("view : export_list_maisons")
