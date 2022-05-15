@@ -115,6 +115,32 @@ class Country(models.Model):
         ordering = ["country_name"]
 
 
+class Language(models.Model):
+    """
+    Table des Langues
+    FR : Langues
+    EN : language
+    """
+    code = models.CharField(primary_key=True, max_length=3)
+    name = models.CharField(max_length=35)
+
+    def __str__(self):
+        return self.name
+
+
+class Currency(models.Model):
+    """
+    Table des Langues
+    FR : Langues
+    EN : language
+    """
+    code = models.CharField(primary_key=True, max_length=3)
+    name = models.CharField(max_length=35)
+
+    def __str__(self):
+        return self.name
+
+
 class ExchangeRate(models.Model):
     """
     Table des Taux de change

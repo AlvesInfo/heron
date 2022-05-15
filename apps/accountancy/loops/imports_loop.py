@@ -30,12 +30,12 @@ from apps.accountancy.imports.imports_sage import (
 from apps.accountancy.imports.ajout_cct import update_cct_sage
 
 processing_dict = {
+    "ZBIVAT_journalier.heron": vat_sage,
+    "ZBIRATVAT_journalier.heron": vat_rat_sage,
     "ZBIACCOUNT_journalier.heron": account_sage,
     "ZBIAXES_journalier.heron": axe_sage,
     "ZBICCE_journalier.heron": section_sage,
     "ZBIREG_journalier.heron": vat_regime_sage,
-    "ZBIVAT_journalier.heron": vat_sage,
-    "ZBIRATVAT_journalier.heron": vat_rat_sage,
     "ZBIPTE_journalier.heron": payement_condition,
     "ZBIDIV_journalier.heron": tab_div_sage,
     "ZBICATC_journalier.heron": category_sage,

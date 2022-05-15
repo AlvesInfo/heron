@@ -16,6 +16,7 @@ from apps.centers_clients.excel_outputs.centers_clients_excel_maisons_list impor
 from apps.centers_clients.models import Maison
 from apps.centers_clients.forms import MaisonForm
 
+
 # ECRANS DES MAISONS ===============================================================================
 class MaisonsList(ListView):
     """View de la liste des Maisons"""

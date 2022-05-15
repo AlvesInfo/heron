@@ -21,7 +21,15 @@ from apps.accountancy.models import CctSage, AccountSage
 from apps.book.models import Society, Address
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
 from apps.parameters.models import SalePriceCategory
-from apps.countries.models import Country
+from apps.countries.models import Country, Language, Currency
+
+CHOICES_LANGUE = (
+    ("FRA", "Français"),
+    ("ANG", "Anglais"),
+    ("ALL", "Allemand"),
+    ("ESP", "Espagnol"),
+    ("POR", "Portugais"),
+)
 
 
 class ClientFamilly(FlagsTable):
@@ -212,9 +220,24 @@ class Maison(FlagsTable):
     invoice_client_name = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Client"
     )
-
-    currency = models.CharField(null=True, default="EUR", max_length=3, verbose_name="monaie")
-    language = models.CharField(null=True, blank=True, max_length=80, verbose_name="langue")
+    currency = models.ForeignKey(
+        Currency,
+        on_delete=models.PROTECT,
+        to_field="code",
+        related_name="currency_maison",
+        verbose_name="Devise",
+        db_column="currency",
+        default="EUR"
+    )
+    language = models.ForeignKey(
+        Language,
+        on_delete=models.PROTECT,
+        to_field="code",
+        related_name="language_maison",
+        verbose_name="Langue",
+        db_column="language",
+        default="FRA"
+    )
 
     # Adresse Tiers
     immeuble_tiers = models.CharField(

@@ -62,6 +62,7 @@ def fixtures():
             code, sale_price_category, name, generic_coefficient, language = row
             sale_price_category = SalePriceCategory.objects.get(name=sale_price_category)
             language = Country.objects.get(country=language)
+
             try:
                 Signboard.objects.update_or_create(
                     code=code,

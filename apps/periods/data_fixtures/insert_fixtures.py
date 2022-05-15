@@ -25,7 +25,7 @@ def fixtures_periodes():
 
     with file.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
-        list_keys = ["annee", "type_periode", "libelle", "date_debut", "date_fin"]
+        list_keys = ["year", "period_type", "wording", "start_date", "end_date"]
 
         for row in csv_rows:
             try:
