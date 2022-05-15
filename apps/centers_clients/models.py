@@ -128,22 +128,27 @@ class Maison(FlagsTable):
     code_maison = models.CharField(null=True, blank=True, max_length=15, verbose_name="code maison")
     code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
     code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
-    opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
-    closing_date = models.DateField(null=True, verbose_name="date de fermeture")
+    opening_date = models.DateField(verbose_name="date d'ouveture")
+    closing_date = models.DateField(null=True, blank=True, verbose_name="date de fermeture")
     signature_franchise_date = models.DateField(null=True, verbose_name="date de signature contrat")
     agreement_franchise_end_date = models.DateField(
-        null=True, verbose_name="date de signature de fin de contrat"
+        null=True, blank=True, verbose_name="date de signature de fin de contrat"
     )
     agreement_renew_date = models.DateField(
-        null=True, verbose_name="date de renouvellement contrat"
+        null=True, blank=True, verbose_name="date de renouvellement contrat"
     )
     entry_fee_amount = models.DecimalField(
-        max_digits=20, decimal_places=5, null=True, verbose_name="montant de droit d'entrée"
+        max_digits=20,
+        decimal_places=5,
+        null=True,
+        blank=True,
+        verbose_name="montant de droit d'entrée",
     )
     renew_fee_amoount = models.DecimalField(
         max_digits=20,
         decimal_places=5,
         null=True,
+        blank=True,
         verbose_name="montant de droit de renouvellement",
     )
     sale_price_category = models.ForeignKey(
@@ -198,10 +203,10 @@ class Maison(FlagsTable):
         db_column="extourne_account",
     )
     sage_vat_by_default = models.CharField(
-        null=True, blank=True, max_length=5, verbose_name="tva X3 par défaut"
+        max_length=5, verbose_name="tva X3 par défaut"
     )
     sage_plan_code = models.CharField(
-        null=True, blank=True, max_length=10, verbose_name="code plan sage"
+        max_length=10, verbose_name="code plan sage"
     )
 
     # RFA
@@ -227,7 +232,7 @@ class Maison(FlagsTable):
         related_name="currency_maison",
         verbose_name="Devise",
         db_column="currency",
-        default="EUR"
+        default="EUR",
     )
     language = models.ForeignKey(
         Language,
@@ -236,7 +241,7 @@ class Maison(FlagsTable):
         related_name="language_maison",
         verbose_name="Langue",
         db_column="language",
-        default="FRA"
+        default="FRA",
     )
 
     # Adresse Tiers
@@ -244,18 +249,17 @@ class Maison(FlagsTable):
         blank=True, null=True, max_length=200, verbose_name="immeuble tiers"
     )
     adresse_tiers = models.CharField(
-        blank=True, null=True, max_length=200, verbose_name="adresse tiers"
+        max_length=200, verbose_name="adresse tiers"
     )
     code_postal_tiers = models.CharField(
-        blank=True, null=True, max_length=15, verbose_name="code postal tiers"
+        max_length=15, verbose_name="code postal tiers"
     )
-    ville_tiers = models.CharField(blank=True, null=True, max_length=50, verbose_name="ville tiers")
+    ville_tiers = models.CharField( max_length=50, verbose_name="ville tiers")
     pays_tiers = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country",
         related_name="country_tiers_country",
-        null=True,
         verbose_name="pays tiers",
         db_column="pays_tiers",
     )
@@ -271,15 +275,14 @@ class Maison(FlagsTable):
 
     # Adresse Maison
     immeuble = models.CharField(blank=True, null=True, max_length=200, verbose_name="immeuble")
-    adresse = models.CharField(blank=True, null=True, max_length=200, verbose_name="adresse")
-    code_postal = models.CharField(blank=True, null=True, max_length=15, verbose_name="code postal")
-    ville = models.CharField(blank=True, null=True, max_length=50, verbose_name="ville")
+    adresse = models.CharField(max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(max_length=15, verbose_name="code postal")
+    ville = models.CharField(max_length=50, verbose_name="ville")
     pays = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country",
         related_name="coutry_maison_country",
-        null=True,
         verbose_name="pays",
         db_column="pays",
     )

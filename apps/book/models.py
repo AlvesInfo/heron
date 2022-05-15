@@ -218,7 +218,7 @@ class Society(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["name"]
+        ordering = ["third_party_num"]
 
 
 class Address(FlagsTable):
