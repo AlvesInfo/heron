@@ -4,7 +4,7 @@ Views des Maisons
 """
 
 import pendulum
-from django.shortcuts import redirect, reverse
+from django.shortcuts import render, redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
@@ -15,6 +15,17 @@ from apps.centers_clients.excel_outputs.centers_clients_excel_maisons_list impor
 )
 from apps.centers_clients.models import Maison
 from apps.centers_clients.forms import MaisonForm
+
+
+# ECRANS DES CLIENTS ===============================================================================
+
+
+def clients(request):
+    """Vue en table d'une société"""
+
+    context = {}
+
+    return render(request, "centers_clients/clients_home.html", context=context)
 
 
 # ECRANS DES MAISONS ===============================================================================

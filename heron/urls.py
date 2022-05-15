@@ -16,36 +16,39 @@ from heron.views import home, reactivate, logout_email, modals_views, import_edi
 urlpatterns = [
     path("back-heron-plateforme/", admin.site.urls),
     path("", home, name="home"),
-    path("import_edi/", import_edi, name="import_edi"),
-    path("accounts/", include(("apps.users.urls", "apps.users"), namespace="accounts")),
     path("modale/", modals_views, name="modale"),
+
+    # Gestion du login et du reset des password ====================================================
+    path("accounts/", include(("apps.users.urls", "apps.users"), namespace="accounts")),
     path("logout_email/", logout_email, name="logout_email"),
-    # Gestion du reset des password
     path(
         "password-reset/",
         PasswordResetView.as_view(
-            template_name="password_reset.html",
-            email_template_name="password_reset_email.html",
-            subject_template_name="password_reset_subject.txt",
+            template_name="heron/password_reset.html",
+            email_template_name="heron/password_reset_email.html",
+            subject_template_name="heron/password_reset_subject.txt",
         ),
         name="password_reset",
     ),
     path(
         "password-reset-done/",
-        PasswordResetDoneView.as_view(template_name="password_reset_done.html"),
+        PasswordResetDoneView.as_view(template_name="heron/password_reset_done.html"),
         name="password_reset_done",
     ),
     path(
         "password-reset-confirm/<uidb64>/<token>/",
-        PasswordResetConfirmView.as_view(template_name="password_reset_confirm.html"),
+        PasswordResetConfirmView.as_view(template_name="heron/password_reset_confirm.html"),
         name="password_reset_confirm",
     ),
     path(
         "password-reset-complete/",
-        PasswordResetCompleteView.as_view(template_name="password_reset_complete.html"),
+        PasswordResetCompleteView.as_view(template_name="heron/password_reset_complete.html"),
         name="password_reset_complete",
     ),
     path("reactivate/<uidb64>/<token>/", reactivate, name="reactivate"),
+
+    # Applications =================================================================================
+    path("import_edi/", import_edi, name="import_edi"),
     path(
         "articles/",
         include(("apps.articles.urls", "apps.articles"), namespace="articles"),

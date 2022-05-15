@@ -121,12 +121,6 @@ class Society(FlagsTable):
         limit_choices_to={"initial": "S"},
         db_column="supplier_category",
     )  # BSGCOD
-    supplier_identifier = models.CharField(
-        null=True, blank=True, max_length=70, verbose_name="identifiant fournisseur"
-    )
-    client_identifier = models.CharField(
-        null=True, blank=True, max_length=70, verbose_name="identifiant client"
-    )
     naf_code = models.CharField(
         null=True, blank=True, max_length=10, verbose_name="code naf"
     )  # NAF
@@ -195,18 +189,6 @@ class Society(FlagsTable):
     account_client_code = models.CharField(
         null=True, blank=True, max_length=10, verbose_name="code comptable client"
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
-
-    # INFORMATIONS POUR L'EDI
-    invoice_supplier_name = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="nom Fournisseur pour l'edi"
-    )
-    invoice_supplier_identifiaction = models.CharField(
-        unique=True,
-        null=True,
-        blank=True,
-        max_length=20,
-        verbose_name="identifiant Fournisseur pour l'edi",
-    )
 
     def __str__(self):
         return f"{self.third_party_num} - {self.name}"

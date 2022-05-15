@@ -36,14 +36,12 @@ class GetRows:
         if society_type == "clients":
             self.clause = "where is_client = true"
             self.tiers = """
-                case when is_client = true then 'X' else '' end as is_client,
+                case when is_client = true then 'X' else '' end as is_client
             """
         elif society_type == "suppliers":
             self.clause = "where is_supplier = true"
             self.tiers = """
-                case when is_supplier = true then 'X' else '' end as is_supplier,
-                invoice_supplier_name,
-                invoice_supplier_identifiaction,
+                case when is_supplier = true then 'X' else '' end as is_supplier
             """
         else:
             self.clause = ""
@@ -56,33 +54,33 @@ class GetRows:
                 case when is_service_provider = true then 'X' else '' end as is_service_provider,
                 case when is_transporter = true then 'X' else '' end as is_transporter,
                 case when is_contractor = true then 'X' else '' end as is_contractor,
-                case when is_physical_person = true then 'X' else '' end as is_physical_person,
+                case when is_physical_person = true then 'X' else '' end as is_physical_person
             """
 
         self.query = f"""
-        select 
-            third_party_num,
-            name,
-            short_name,
-            corporate_name,
-            siret_number,
-            vat_cee_number,
-            vat_number,
-            naf_code,
-            currency,
-            "language",
-            "country",
-            reviser,
-            client_category,
-            supplier_category,
-            budget_code,
+        select
+            "third_party_num", 
+            "name", 
+            "short_name", 
+            "corporate_name", 
+            "siret_number", 
+            "vat_cee_number", 
+            "vat_number", 
+            "client_category", 
+            "supplier_category", 
+            "naf_code", 
+            "currency", 
+            "country", 
+            "language", 
+            "budget_code", 
+            "reviser", 
+            "payment_condition_supplier", 
+            "vat_sheme_supplier", 
+            "account_supplier_code", 
+            "payment_condition_client", 
+            "vat_sheme_client", 
+            "account_client_code", 
             {self.tiers}
-            payment_condition_supplier,
-            vat_sheme_supplier,
-            account_supplier_code,
-            payment_condition_client,
-            vat_sheme_client,
-            account_client_code
         from {self.societies._meta.db_table}
         {self.clause}
         """

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.centers_clients.views import (
+from apps.centers_clients.views import (clients,
     MaisonsList,
     CreateMaison,
     UpdateMaison,
@@ -10,6 +10,7 @@ from apps.centers_clients.views import (
 app_name = "apps.centers_clients"
 
 urlpatterns = [
+    path("clients_home/", clients, name="clients_home"),
     path("maisons_list/", MaisonsList.as_view(), name="maisons_list"),
     path("maisons_create/", CreateMaison.as_view(), name="maisons_create"),
     path("update_maison/<int:pk>/", UpdateMaison.as_view(), name="update_maison"),

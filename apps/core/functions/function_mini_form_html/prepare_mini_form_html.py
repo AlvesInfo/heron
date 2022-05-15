@@ -21,7 +21,7 @@ WIDTH_DICT = {
 }
 
 
-def get_html_field(width: str, read_only: str, if_create: str, champ: str, label: str) -> str:
+def get_html_field(width: str, read_only: str, if_create: str, champ: str, label: str, prefix:str) -> str:
     """Fonction qui renvoie le html pour le champ d'un mini form semantic ui"""
 
     field_html = f"""
@@ -33,7 +33,7 @@ def get_html_field(width: str, read_only: str, if_create: str, champ: str, label
             """
                 {% if create %}
                     {{"""
-            f"form.{champ}"
+            f"{prefix}.{champ}"
             """}}
                 {% else %}"""
         )
@@ -44,14 +44,14 @@ def get_html_field(width: str, read_only: str, if_create: str, champ: str, label
                     <input type="text" 
                            name="{champ}"
                            """
-            """value="{{ form."""
-            f"""{champ}"""
+            """value="{{ """
+            f"""{prefix}.{champ}"""
             """.value }}" """
             f"""
                            required=""
                            id="id_{champ}"
                            readonly
-                           style="background-color: cornsilk;font-weight: bold;">"""
+                           style="background-color: lavender;font-weight: bold;">"""
         )
 
         if if_create == "o":
@@ -62,7 +62,7 @@ def get_html_field(width: str, read_only: str, if_create: str, champ: str, label
         field_html += (
             """
                 {{"""
-            f" form.{champ} "
+            f" {prefix}.{champ} "
             "}}"
         )
 
@@ -83,22 +83,22 @@ def construct_html() -> str:
             lineterminator="",
             quoting=csv.QUOTE_NONNUMERIC,
         )
-        column, width_column, index, width, read_only, if_create, champ, label = next(csv_reader)
+        column, width_column, index, width, read_only, if_create, champ, label, prefix = next(csv_reader)
         test_column = column
         test_index = index
         html = f"""
     <div class="{WIDTH_DICT.get(width_column)} wide column" style="padding: 0;margin: 10px;">
-      <div class="ui segment">
-        <h4 class="ui floated header">{column}</h4>
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">{column}</h3>
         <div class="ui clearing divider"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
         
           <div class="fields">"""
 
-        html += get_html_field(width, read_only, if_create, champ, label)
+        html += get_html_field(width, read_only, if_create, champ, label, prefix)
 
         for row in csv_reader:
-            column, width_column, index, width, read_only, if_create, champ, label = row
+            column, width_column, index, width, read_only, if_create, champ, label, prefix = row
 
             if test_column != column:
                 test_column = column
@@ -110,8 +110,8 @@ def construct_html() -> str:
     </div>
 
     <div class="{WIDTH_DICT.get(width_column)} wide column" style="padding: 0;margin: 10px;">
-      <div class="ui segment">
-        <h4 class="ui floated header">{column}</h4>
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">{column}</h3>
         <div class="ui clearing divider"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
           
@@ -127,7 +127,7 @@ def construct_html() -> str:
                 """
                 test_index = index
 
-            html += get_html_field(width, read_only, if_create, champ, label)
+            html += get_html_field(width, read_only, if_create, champ, label, prefix)
 
         html += """
 

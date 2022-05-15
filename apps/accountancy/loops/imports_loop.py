@@ -27,7 +27,8 @@ from apps.accountancy.imports.imports_sage import (
     tab_div_sage,
     category_sage,
 )
-from apps.accountancy.imports.ajout_cct import update_cct_sage
+from apps.accountancy.imports.extractiion_cct import update_cct_sage
+from apps.accountancy.imports.extraction_code_plan import update_code_plan
 
 processing_dict = {
     "ZBIVAT_journalier.heron": vat_sage,
@@ -89,7 +90,15 @@ def process():
             if trace is not None:
                 trace.save()
 
-    update_cct_sage()
+    try:
+        update_cct_sage()
+    except Exception as except_error:
+        IMPORT_LOGGER.exception(f"Exception Générale: update_cct_sage()\n{except_error!r}")
+
+    try:
+        update_code_plan()
+    except Exception as except_error:
+        IMPORT_LOGGER.exception(f"Exception Générale: update_code_plan()\n{except_error!r}")
 
 
 if __name__ == "__main__":

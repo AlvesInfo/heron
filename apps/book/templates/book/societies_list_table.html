@@ -12,7 +12,7 @@
         <thead>
 
             <tr>
-                <th class="no-sort" style="text-align: center;">Modifier</th>
+                <th class="no-sort" style="text-align: center;">Visualiser</th>
                 <th>Tiers X3</th>
                 <th>Nom</th>
                 <th>Fournisseur</th>
@@ -25,11 +25,9 @@
 
                 <td data-value="{{ society.third_party_num }}"
                     style="text-align: center;">
-                    {% if society.is_supplier %}
-                        <a href="{% url 'book:update_supplier' pk=society.pk %}">
-                            <i class="edit icon modification"></i>
-                        </a>
-                    {% endif %}
+                    <a href="{% url 'book:society' pk=society.pk %}">
+                        <i class="eye icon"></i>
+                    </a>
                 </td>
                 <td>
                   {% if society.third_party_num %}

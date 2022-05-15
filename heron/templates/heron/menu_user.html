@@ -1,7 +1,7 @@
 <div class="ui dropdown item color-button"><i class="icon user"></i>{{ request.user.username }}<i class="dropdown icon"></i>
     <div class="menu">
         <a href="{% url 'accounts:user_profil' %}" class="ui item a-menu">Profil</a>
-        <a href="{% url 'accounts:change_email' %}" class="ui item a-menu">Change email</a>
+{#        <a href="{% url 'accounts:change_email' %}" class="ui item a-menu">Change email</a>#}
         <a href="{% url 'password_reset' %}" class="ui item a-menu">Reset Password</a>
         <a href="{% url 'accounts:logout' %}" class="ui item a-menu">Logout</a>
     </div>

@@ -2,7 +2,7 @@ from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST
 
 DEBUG = False
 
-DOMAINS_WHITELIST = ["localhost", "127.0.0.1", WHITELIST]
+DOMAINS_WHITELIST = ["10.185.51.9", "localhost", "127.0.0.1", WHITELIST]
 
 THIRD_PARTY_APPS = [
     "django_clamd",
@@ -10,10 +10,10 @@ THIRD_PARTY_APPS = [
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = [] + MIDDLEWARE + []
+MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
 
-# SESSION_COOKIE_AGE = 36000
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 36000
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 # SESSION_SAVE_EVERY_REQUEST = True
@@ -23,6 +23,21 @@ MIDDLEWARE = [] + MIDDLEWARE + []
 # X_FRAME_OPTIONS = "DENY"
 
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+AUTHENTICATION_BACKENDS = [
+    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
+    "axes.backends.AxesBackend",
+    # Django ModelBackend is the default authentication backend.
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# AXES lockout responses on failed user authentication attempts from login views
+# https://django-axes.readthedocs.io/en/latest/4_configuration.html
+AXES_ENABLED = True
+AXES_FAILURE_LIMIT = 5
+AXES_ONLY_USER_FAILURES = True
+AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
+AXES_USERNAME_FORM_FIELD = "email"
 
 # LOG DIRECTORY
 VAR_LOG_DIR = Path("/var/log/heron").resolve()

@@ -35,7 +35,7 @@ EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=True, cast=bool)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
 
 EMAIL_DEV = config("EMAIL_HOST_USER", default="admin@asipsante.fr")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="admin@asipsante.fr")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="admin.bi@acuitis.com")
 
 NAME_DATABASE = config("NAME_DATABASE")
 USER_DATABASE = config("USER_DATABASE")
@@ -85,6 +85,7 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "crispy_forms",
     "crispy_forms_semantic_ui",
+    "axes",
     "ckeditor",
     "chartjs",
     "dynamic_preferences",

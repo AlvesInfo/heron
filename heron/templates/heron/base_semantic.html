@@ -19,6 +19,8 @@
         <link rel="stylesheet" type="text/css" href="{% static 'calendar.min.css' %}">
 
         <link rel="stylesheet" type="text/css" href="{% static 'semantic/semantic.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'semantic/components/popup.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'semantic/components/transition.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'app.css' %}" />
 
@@ -36,6 +38,8 @@
         <script type="text/javascript" src="{% static 'semantic/components/sidebar.js' %}"></script>
         <script type="text/javascript" src="{% static 'semantic/components/sticky.js' %}"></script>
         <script type="text/javascript" src="{% static 'semantic/components/dropdown.js' %}"></script>
+        <script type="text/javascript" src="{% static 'semantic/components/popup.js' %}"></script>
+        <script type="text/javascript" src="{% static 'semantic/components/transition.js' %}"></script>
 
         <script type="text/javascript" src="{% static 'moment/moment.js' %}"></script>
         <script type="text/javascript" src="{% static 'datetime-moment.js' %}"></script>
@@ -96,6 +100,48 @@
 
                 // FONCTION SEMANTIC UI POUR INITIALISATION DES CHECKBOX
                 $('.checkbox').checkbox();
+
+                $('#amenu')
+                  .popup({
+                      popup: '#a',
+                      inline: true,
+                      on: 'click'
+                  });
+
+                $('#bmenu')
+                  .popup({
+                      popup: '#b',
+                      inline: true,
+                      on: 'click'
+                  });
+
+                $('#cmenu')
+                  .popup({
+                      popup: '#c',
+                      inline: true,
+                      on: 'click'
+                  });
+
+                $('#dmenu')
+                  .popup({
+                      popup: '#d',
+                      inline: true,
+                      on: 'click'
+                  });
+
+                $('#emenu')
+                  .popup({
+                      popup: '#e',
+                      inline: true,
+                      on: 'click'
+                  });
+
+                $('#fmenu')
+                  .popup({
+                      popup: '#f',
+                      inline: true,
+                      on: 'click'
+                  });
 
             });
         </script>

@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
 
-from apps.accountancy.models import CctSage, AccountSage
+from apps.accountancy.models import AccountSage, CctSage, CodePlanSage, VatSage
 from apps.book.models import Society, Address
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
 from apps.parameters.models import SalePriceCategory
@@ -202,11 +202,21 @@ class Maison(FlagsTable):
         verbose_name="compte X3 par défaut sur extourne",
         db_column="extourne_account",
     )
-    sage_vat_by_default = models.CharField(
-        max_length=5, verbose_name="tva X3 par défaut"
+    sage_vat_by_default = models.ForeignKey(
+        VatSage,
+        on_delete=models.PROTECT,
+        to_field="vat",
+        related_name="vat_sage_maison",
+        verbose_name="tva X3 par défaut",
+        db_column="sage_vat_by_default",
     )
-    sage_plan_code = models.CharField(
-        max_length=10, verbose_name="code plan sage"
+    sage_plan_code = models.ForeignKey(
+        CodePlanSage,
+        on_delete=models.PROTECT,
+        to_field="code_plan_sage",
+        related_name="code_plan_sage_maison",
+        verbose_name="Plan Sage par défaut",
+        db_column="sage_plan_code",
     )
 
     # RFA
@@ -242,35 +252,6 @@ class Maison(FlagsTable):
         verbose_name="Langue",
         db_column="language",
         default="FRA",
-    )
-
-    # Adresse Tiers
-    immeuble_tiers = models.CharField(
-        blank=True, null=True, max_length=200, verbose_name="immeuble tiers"
-    )
-    adresse_tiers = models.CharField(
-        max_length=200, verbose_name="adresse tiers"
-    )
-    code_postal_tiers = models.CharField(
-        max_length=15, verbose_name="code postal tiers"
-    )
-    ville_tiers = models.CharField( max_length=50, verbose_name="ville tiers")
-    pays_tiers = models.ForeignKey(
-        Country,
-        on_delete=models.PROTECT,
-        to_field="country",
-        related_name="country_tiers_country",
-        verbose_name="pays tiers",
-        db_column="pays_tiers",
-    )
-    telephone_tiers = models.CharField(
-        blank=True, null=True, max_length=25, verbose_name="téléphone tiers"
-    )
-    mobile_tiers = models.CharField(
-        blank=True, null=True, max_length=25, verbose_name="mobile tiers"
-    )
-    email_tiers = models.EmailField(
-        blank=True, null=True, max_length=85, verbose_name="email tiers"
     )
 
     # Adresse Maison

@@ -1,24 +1,78 @@
-{% load static %}
-
 <br>
 <div class="ui grid" style="margin: -10px 0 0;">
 
   <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
+
     <div class="ui stackable container pointing menu" style="width: auto;">
 
-        <a href="/" class="ui item color-button a-menu"><i class="home icon"></i></a>
-        {% if chevron_retour %}
-          <a href="{{ chevron_retour }}" class="item color-button a-menu">
-            <i class="home chevron left icon"></i>
-          </a>
+        {% if user.is_authenticated %}
+
+            <a href="/" class="ui item color-button a-menu"><i class="home icon"></i></a>
+
+            <a class="browse item bold" data-target="#a" id="amenu">
+                Paramétrage
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#b" id="bmenu">
+                Achats
+                <i class="dropdown icon"></i>
+            </a>
+
         {% endif %}
 
         <div class="right menu">
-            {% include "heron/menu_software.html" %}
-            {% include "heron/menu_parametrage.html" %}
             {% include "heron/menu_utilisateurs.html" %}
         </div>
+
+    </div>
+
+
+    <div class="ui flowing transition popup" id="a">
+        <div class="ui three column relaxed equal height divided grid" style="width: 36em;">
+
+            <div class="column">
+                <h4 class="ui header">Users</h4>
+                <div class="ui link list">
+                    <a class="item">Permissions</a>
+                </div>
+            </div>
+
+            <div class="column">
+                <h4 class="ui header">Fournisseurs</h4>
+                <div class="ui link list">
+                    <a href="{% url 'book:societies_list' %}" class="item">Liste des Tiers</a>
+                </div>
+            </div>
+            <div class="column">
+                <h4 class="ui header">Clients</h4>
+                <div class="ui link list">
+                    <a href="{% url 'centers_clients:maisons_list' %}" class="item">Liste des Maisons</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ui flowing transition popup" id="b">
+        <div class="ui two column relaxed divided grid" style="width: 24em;">
+
+            <div class="column">
+                <h4 class="ui header">Factures</h4>
+                <div class="ui link list">
+                    <a class="item">Par Tiers</a>
+                </div>
+            </div>
+            <div class="column">
+                <h4 class="ui header">Clients</h4>
+                <div class="ui link list">
+                    <a class="item">Par Maisons</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     </div>
   </div>
-
 </div>

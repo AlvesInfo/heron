@@ -46,12 +46,20 @@ class BprBookSageForm(forms.ModelForm):
             "siret_number",
             "vat_cee_number",
             "vat_number",
+            "client_category",
+            "supplier_category",
             "naf_code",
             "currency",
             "country",
             "language",
             "budget_code",
             "reviser",
+            "payment_condition_supplier",
+            "vat_sheme_supplier",
+            "account_supplier_code",
+            "payment_condition_client",
+            "vat_sheme_client",
+            "account_client_code",
             "is_client",
             "is_agent",
             "is_prospect",
@@ -60,6 +68,7 @@ class BprBookSageForm(forms.ModelForm):
             "is_service_provider",
             "is_transporter",
             "is_contractor",
+            "is_physical_person",
         ]
 
 

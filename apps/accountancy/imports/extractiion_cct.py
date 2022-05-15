@@ -1,7 +1,9 @@
 # pylint: disable=
 """
-FR : Module d'import des modèles de Sage X3
-EN : Import module for Sage X3 models
+FR : Mise à jour des cct sage par extraction depuis la table CctSage et après sa mise à jour depuis
+     fichier ZBI exporter depuis Sage X3
+EN : Update of sage ccts by extraction from the CctSage table and after its update from ZBI file
+     export from Sage X3
 
 Commentaire:
 

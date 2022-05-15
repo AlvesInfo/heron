@@ -516,7 +516,7 @@ class VatSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
-        return f"{self.vat} - {self.name}"
+        return f"{self.vat} - {self.short_name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -964,3 +964,15 @@ class CurrencySage(FlagsTable):
 
         ordering = ["currency_current", "currency_change", "exchange_date"]
         unique_together = (("currency_current", "currency_change", "exchange_date"),)
+
+
+class CodePlanSage(models.Model):
+    """
+    Table des plans de compte Sage
+    FR : Plan de compte au sens comptable de Sage X3
+    EN : Chart of accounts in the accounting sense of Sage X3
+    """
+    code_plan_sage = models.CharField(primary_key=True, max_length=10)
+
+    def __str__(self):
+        return self.code_plan_sage

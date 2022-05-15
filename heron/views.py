@@ -7,6 +7,7 @@ from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.translation import gettext_lazy as _
+from axes.utils import reset
 
 from apps.users.models import User
 from apps.core.functions.functions_utilitaires import get_client_ip
@@ -21,12 +22,7 @@ def home(request):
     global start_thread
     context = {
         "environnement": settings.ENVIRONNEMENT,
-        "traduc": _("field required"),
-        "start_thread": f"Import Thread en {start_thread:.2f} s"
-        if start_thread
-        else "Import Thread",
     }
-    # start_thread = 0
     return render(request, "heron/home.html", context=context)
 
 
@@ -41,7 +37,7 @@ def import_edi(request):
 
 
 def reactivate(request, uidb64, token):
-    """Fonction de réactivation du compte suuites à des tentatives de connexions sur ce compte
+    """Fonction de réactivation du compte suites à des tentatives de connexions sur ce compte
     :param request: request
     :param uidb64: uidb64 - pk de l'user
     :param token: token pour vérifier la connexion

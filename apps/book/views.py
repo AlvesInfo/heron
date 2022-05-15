@@ -1,12 +1,11 @@
-# pylint: disable=R0903
+# pylint: disable=R0903,E0401,C0103,W0702
 """
 Views des Tiers X3
 """
 
 import pendulum
-from django.shortcuts import redirect, reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, UpdateView
+from django.shortcuts import render, redirect, reverse
+from django.views.generic import ListView
 
 from heron.loggers import ERROR_VIEWS_LOGGER
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -24,40 +23,17 @@ class SocietiesList(ListView):
     extra_context = {"titre_table": "Tiers X3"}
 
 
-class UpdateSupplier(SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+def society_view(request, pk):
+    """Vue en table d'une société"""
 
-    model = Society
-    fields = [
-        "third_party_num",
-        "name",
-        "siret_number",
-        "vat_cee_number",
-        "invoice_supplier_name",
-        "invoice_supplier_identifiaction",
-    ]
-    template_name = "book/supplier_update.html"
-    success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
-    error_message = "La Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
+    society = Society.objects.get(pk=pk)
+    context = {
+        "society": society,
+        "chevron_retour": reverse("book:societies_list"),
+        "titre_table": f"{society.third_party_num} - {society.name}",
+    }
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("book:societies_list")
-        context["titre_table"] = (
-            f"Mise à jour Tiers X3: "
-            f"{context.get('object').third_party_num} - "
-            f"{context.get('object').name}"
-        )
-        return context
-
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
+    return render(request, "book/society_view.html", context=context)
 
 
 def export_list_societies(request):
@@ -66,6 +42,7 @@ def export_list_societies(request):
     :param request: Request Django
     :return: response_file
     """
+
     if request.method == "POST":
         try:
 

@@ -7,12 +7,9 @@
 {% block content %}
 
     {% if user.is_authenticated %}
+        {% include "centers_clients/menu_clients.html" %}
 
-        {% include "book/societies_list_menu.html" %}
-
-        {% include "heron/list_table_courant.html" %}
-
-        {% include "book/societies_list_table.html" %}
+        <div class="ui equal width grid center"></div>
 
     {% else %}
 
@@ -21,7 +18,8 @@
         <hr>
         <br>
         <br>
-        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce site</p>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
 
 {% endif %}
 
@@ -40,7 +38,7 @@
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"
                 },
-                "lengthMenu": [[17, 25, -1], [17, 25, "Tous"]]
+                "lengthMenu": [[20, 50, -1], [20, 50, "Tous"]]
             });
 
         });
