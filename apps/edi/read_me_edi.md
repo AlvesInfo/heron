@@ -9,7 +9,7 @@ Pour ajouter de nouvelles intégrations, il faut :
    - header_line : Première ligne du fichier à lire
    - delimiter : Délimiteur au sens csv ex.: ";"
    - encoding : Encoding du fichier fournisseur
-   - espachar : Caractère d'échapement de la base de donnée ex.: "
+   - escapechar : Caractère d'échapement de la base de donnée ex.: "
    - lineterminator : caractère de fin de ligne du fichier ex.: "\n"
    - quotechar : Quote au sens csv ex.: "
    - supplier_name : Nom du fournisseur pour affichage si il ne vient pas dans le fichier

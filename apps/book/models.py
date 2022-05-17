@@ -216,19 +216,36 @@ class Address(FlagsTable):
         to_field="third_party_num",
         related_name="society_society",
         db_column="society",
+        verbose_name="Tiers",
     )  # BPANUM
-    default_adress = models.BooleanField(null=True, default=False)  # BPAADDFLG
-    address_code = models.CharField(null=True, blank=True, max_length=20)  # BPAADD
-    address_type = models.CharField(null=True, blank=True, max_length=20)  # BPATYP
-    address_number = models.CharField(null=True, blank=True, max_length=20)
-    road_type = models.CharField(null=True, blank=True, max_length=35)
-    line_01 = models.CharField(null=True, max_length=80)  # BPAADDLIG(0)
-    line_02 = models.CharField(null=True, blank=True, max_length=80)  # BPAADDLIG(1)
-    line_03 = models.CharField(null=True, blank=True, max_length=80)  # BPAADDLIG(2)
-    state = models.CharField(null=True, blank=True, max_length=80)  # SAT
-    region = models.CharField(null=True, blank=True, max_length=80)
-    postal_code = models.CharField(null=True, blank=True, max_length=35)  # POSCOD
-    city = models.CharField(null=True, blank=True, max_length=80)  # CTY
+    default_adress = models.BooleanField(
+        null=True, default=False, verbose_name="Adresse Par Défaut"
+    )  # BPAADDFLG
+    address_code = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Code adresse"
+    )  # BPAADD
+    address_type = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Type Adresse"
+    )  # BPATYP
+    address_number = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="N° adresse"
+    )
+    road_type = models.CharField(null=True, blank=True, max_length=35, verbose_name="Type de voie")
+    line_01 = models.CharField(
+        null=True, max_length=80, verbose_name="Ligne adresse 01"
+    )  # BPAADDLIG(0)
+    line_02 = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Ligne adresse 02"
+    )  # BPAADDLIG(1)
+    line_03 = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Ligne adresse 03"
+    )  # BPAADDLIG(2)
+    state = models.CharField(null=True, blank=True, max_length=80, verbose_name="Etat")  # SAT
+    region = models.CharField(null=True, blank=True, max_length=80, verbose_name="Région")
+    postal_code = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="Code_postal"
+    )  # POSCOD
+    city = models.CharField(null=True, blank=True, max_length=80, verbose_name="Ville")  # CTY
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
@@ -236,21 +253,36 @@ class Address(FlagsTable):
         related_name="adresse_country",
         null=True,
         db_column="country",
+        verbose_name="Pays",
     )  # CRY
-    building = models.CharField(null=True, blank=True, max_length=80)
-    floor = models.CharField(null=True, blank=True, max_length=80)
-    phone_number_01 = models.CharField(null=True, blank=True, max_length=35)  # TEL(0)
-    phone_number_02 = models.CharField(null=True, blank=True, max_length=35)  # TEL(1)
-    phone_number_03 = models.CharField(null=True, blank=True, max_length=35)  # TEL(2)
-    phone_number_04 = models.CharField(null=True, blank=True, max_length=35)  # TEL(3)
-    phone_number_05 = models.CharField(null=True, blank=True, max_length=35)  # TEL(4)
-    email_01 = models.EmailField(null=True, blank=True)  # WEB(0)
-    email_02 = models.EmailField(null=True, blank=True)  # WEB(1)
-    email_03 = models.EmailField(null=True, blank=True)  # WEB(2)
-    email_04 = models.EmailField(null=True, blank=True)  # WEB(3)
-    email_05 = models.EmailField(null=True, blank=True)  # WEB(4)
-    web_site = models.CharField(null=True, blank=True, max_length=250)  # FCYWEB
-    mobile_number = models.CharField(null=True, blank=True, max_length=35)  # MOB
+    building = models.CharField(null=True, blank=True, max_length=80, verbose_name="Immeuble")
+    floor = models.CharField(null=True, blank=True, max_length=80, verbose_name="Etage")
+    phone_number_01 = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° téléphone 01"
+    )  # TEL(0)
+    phone_number_02 = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° téléphone 02"
+    )  # TEL(1)
+    phone_number_03 = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° téléphone 03"
+    )  # TEL(2)
+    phone_number_04 = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° téléphone 04"
+    )  # TEL(3)
+    phone_number_05 = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° téléphone 05"
+    )  # TEL(4)
+    email_01 = models.EmailField(null=True, blank=True, verbose_name="e-mail_01")  # WEB(0)
+    email_02 = models.EmailField(null=True, blank=True, verbose_name="e-mail_02")  # WEB(1)
+    email_03 = models.EmailField(null=True, blank=True, verbose_name="e-mail_03")  # WEB(2)
+    email_04 = models.EmailField(null=True, blank=True, verbose_name="e-mail_04")  # WEB(3)
+    email_05 = models.EmailField(null=True, blank=True, verbose_name="e-mail_05")  # WEB(4)
+    web_site = models.CharField(
+        null=True, blank=True, max_length=250, verbose_name="site web"
+    )  # FCYWEB
+    mobile_number = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° mobile"
+    )  # MOB
 
     def save(self, *args, **kwargs):
         """
@@ -310,10 +342,13 @@ class Contact(FlagsTable):
         to_field="third_party_num",
         related_name="contact_society",
         db_column="society",
+        verbose_name="Tiers",
     )  # BPANUM
-    code = models.CharField(max_length=15)  # CCNCRM
-    service = models.CharField(null=True, blank=True, max_length=30)  # CNTSRV
-    role = models.CharField(null=True, blank=True, max_length=15)  # CNTMSS
+    code = models.CharField(max_length=15, verbose_name="Code Adresse")  # CCNCRM
+    service = models.CharField(
+        null=True, blank=True, max_length=30, verbose_name="Service"
+    )  # CNTSRV
+    role = models.CharField(null=True, blank=True, max_length=15, verbose_name="Role")  # CNTMSS
     nature = models.ForeignKey(
         Nature,
         on_delete=models.PROTECT,
@@ -322,27 +357,50 @@ class Contact(FlagsTable):
         null=True,
         limit_choices_to={"for_contact": True},
         db_column="nature",
+        verbose_name="Nature",
     )
-    civility = models.CharField(null=True, blank=True, max_length=20)  # CNTTTL
-    first_name = models.CharField(null=True, blank=True, max_length=80)  # CNTFNA
-    last_name = models.CharField(null=True, blank=True, max_length=80)  # CNTLNA
-    language = models.CharField(null=True, blank=True, max_length=20)  # CNTLAN models Country
-    category = models.CharField(null=True, blank=True, max_length=20)  # CNTCSP
-    address_number = models.CharField(null=True, blank=True, max_length=20)
-    road_type = models.CharField(null=True, blank=True, max_length=35)
-    line_01 = models.CharField(null=True, max_length=80)  # ADD(0)
-    line_02 = models.CharField(null=True, blank=True, max_length=80)  # ADD(1)
-    line_03 = models.CharField(null=True, blank=True, max_length=80)  # ADD(2)
-    state = models.CharField(null=True, blank=True, max_length=80)  # SAT
-    region = models.CharField(null=True, blank=True, max_length=80)
-    postal_code = models.CharField(null=True, blank=True, max_length=35)  # ZIP
-    city = models.CharField(null=True, blank=True, max_length=80)  # CTY
-    country = models.CharField(null=True, blank=True, max_length=20)  # CRY models Country
-    building = models.CharField(null=True, blank=True, max_length=80)
-    floor = models.CharField(null=True, blank=True, max_length=80)
-    phone_number = models.CharField(null=True, blank=True, max_length=35)  # CNTETS
-    mobile_number = models.CharField(null=True, blank=True, max_length=35)  # CNTMOB
-    email = models.EmailField(null=True, blank=True)  # CNTEMA
+    civility = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Civilité"
+    )  # CNTTTL
+    first_name = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Prénom"
+    )  # CNTFNA
+    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="Nom")  # CNTLNA
+    language = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Langue"
+    )  # CNTLAN models Country
+    category = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Catégorie"
+    )  # CNTCSP
+    address_number = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="N° Adresse"
+    )
+    road_type = models.CharField(null=True, blank=True, max_length=35, verbose_name="Type de voie")
+    line_01 = models.CharField(null=True, max_length=80, verbose_name="Ligne Adresse 01")  # ADD(0)
+    line_02 = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Ligne Adresse 02"
+    )  # ADD(1)
+    line_03 = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="Ligne Adresse 03"
+    )  # ADD(2)
+    state = models.CharField(null=True, blank=True, max_length=80, verbose_name="Etat")  # SAT
+    region = models.CharField(null=True, blank=True, max_length=80, verbose_name="Région")
+    postal_code = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="Code_postal"
+    )  # ZIP
+    city = models.CharField(null=True, blank=True, max_length=80, verbose_name="Ville")  # CTY
+    country = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Pays"
+    )  # CRY models Country
+    building = models.CharField(null=True, blank=True, max_length=80, verbose_name="Immeuble")
+    floor = models.CharField(null=True, blank=True, max_length=80, verbose_name="Etage")
+    phone_number = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° Téléphone"
+    )  # CNTETS
+    mobile_number = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="N° Mobile"
+    )  # CNTMOB
+    email = models.EmailField(null=True, blank=True, verbose_name="e-mail")  # CNTEMA
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

@@ -1,5 +1,21 @@
 from pathlib import Path
 import csv
+import os
+import sys
+import platform
+
+import django
+from django.db import connection, connections
+from django.db.utils import IntegrityError
+
+BASE_DIR = r"C:\SitesWeb\heron"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.insert(0, BASE_DIR)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+django.setup()
 
 WIDTH_DICT = {
     "1": "one",
@@ -138,5 +154,14 @@ def construct_html() -> str:
         print(html)
 
 
+def extract_fields():
+    """Extraction du nom des champs et des verboses names"""
+    from apps.centers_clients.models import MaisonSupplier as objectName
+
+    for field in objectName._meta.fields:
+        print(field.name, field.verbose_name.capitalize(), sep="\t")
+
+
 if __name__ == "__main__":
-    construct_html()
+    # construct_html()
+    extract_fields()

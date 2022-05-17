@@ -128,7 +128,7 @@ class BookAdressesSageForm(forms.ModelForm):
             "phone_number_03",
             "phone_number_04",
             "phone_number_05",
-            "mobile",
+            "mobile_number",
             "email_01",
             "email_02",
             "email_03",

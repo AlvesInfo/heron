@@ -84,6 +84,7 @@ class UpdateMaison(SuccessMessageMixin, UpdateView):
             f"{context.get('object').cct} - "
             f"{context.get('object').intitule}"
         )
+        context["tabulation"] = ("Maison", "Indentifant Fournisseurs")
         return context
 
     def form_valid(self, form):

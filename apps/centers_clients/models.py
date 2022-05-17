@@ -349,3 +349,35 @@ class MaisonBi(models.Model):
     email = models.EmailField(blank=True, null=True, max_length=85, verbose_name="email")
     is_new = models.BooleanField(default=True)
     is_modify = models.BooleanField(default=False)
+
+
+class MaisonSupplier(FlagsTable):
+    """
+    Table des identifiants des Maisons par les Tiers X3 (pour les fournisseurs edi)
+    FR : Table Identifiants Maisons/Tiers
+    EN : Shop/Suppliers Identifiers Table
+    """
+    tiers = models.ForeignKey(
+        Society,
+        on_delete=models.CASCADE,
+        to_field="third_party_num",
+        related_name="supplier_edi_maison",
+        verbose_name="tiers X3",
+        db_column="tiers",
+    )
+    cct = models.ForeignKey(
+        CctSage,
+        on_delete=models.PROTECT,
+        to_field="cct",
+        related_name="supplier_edi_maison_cct",
+        verbose_name="cct x3",
+        db_column="cct",
+    )
+    identifiant = models.CharField(max_length=35, verbose_name="Identifiant Maison")
+
+    def __str__(self):
+        return f"{self.tiers} - {self.cct}"
+
+    class Meta:
+        """class Meta Django"""
+        unique_together = (("tiers", "cct"),)

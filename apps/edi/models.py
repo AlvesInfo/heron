@@ -15,7 +15,8 @@ import uuid
 
 from django.db import models
 
-from heron.models import DatesTable
+from heron.models import DatesTable, FlagsTable
+from apps.book.models import Society
 
 
 class EdiImport(models.Model):
@@ -226,3 +227,27 @@ class ColumnDefinition(models.Model):
 
         ordering = ["ranking"]
         unique_together = (("flow_name", "ranking"),)
+
+
+class SupplierTiers(FlagsTable):
+    """
+    Table de liaison entre fournisseurs edi et tiers sage X3
+    FR : Table Suppliers/Tiers
+    EN : Suppliers/Tiers table
+    """
+    tiers = models.ForeignKey(
+        Society,
+        on_delete=models.CASCADE,
+        to_field="third_party_num",
+        related_name="supplier_tiers_edi",
+        verbose_name="tiers X3",
+        db_column="tiers",
+    )
+    supplier_identifiant = models.CharField(unique=True, max_length=35)
+
+    def __str__(self):
+        return f"{self.tiers} - {self.supplier_identifiant}"
+
+    class Meta:
+        """class Meta Django"""
+        unique_together = (("tiers", "supplier_identifiant"),)
