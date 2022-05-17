@@ -1,208 +1,211 @@
 {% extends "heron/table_courant.html" %}
 
+{% block table %}
 
-<div class="ui bottom attached active tab segment" data-tab="first">
-  First
-</div>
-<div class="ui bottom attached tab segment" data-tab="second">
-  Second
-</div>
-<div class="ui bottom attached tab segment" data-tab="third">
-  Third
-</div>
-{% block ²multiple_table %}
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Maison</h3>
+        <div class="ui clearing divider"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
-    {% for _ in tabulation %}
-
-        <div class="sixteen wide column" style="padding: 0;margin: 10px;">
-          <div class="ui segment" style="padding-bottom: 0;">
-            <h3 class="ui floated header" style="margin-bottom: 5px;">Maison</h3>
-            <div class="ui clearing divider"></div>
-            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-
-              <div class="fields">
-                  <div class="two wide field">
-                    <label for="id_sign_board" style="text-align: left;">Enseigne&nbsp;:</label>
-                    {{ form.sign_board }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_intitule" style="text-align: left;">Intitulé&nbsp;:</label>
-                    {{ form.intitule }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_intitule_court" style="text-align: left;">Intitulé court&nbsp;:</label>
-                    {{ form.intitule_court }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_client_familly" style="text-align: left;">Catégorie Client&nbsp;:</label>
-                    {{ form.client_familly }}
-                  </div>
-
+          <div class="fields">
+              <div class="two wide field">
+                <label for="id_cct" style="text-align: left;">CCT X3&nbsp;:</label>
+                {% if create %}
+                    {{form.cct}}
+                {% else %}
+                    <input type="text"
+                           name="cct"
+                           value="{{ form.cct.value }}"
+                           required=""
+                           id="id_cct"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+                {% endif %}
+              </div>
+              <div class="four wide field">
+                <label for="id_intitule" style="text-align: left;">Intitulé&nbsp;:</label>
+                {{ form.intitule }}
+              </div>
+              <div class="two wide field">
+                <label for="id_intitule_court" style="text-align: left;">Intitulé court&nbsp;:</label>
+                {{ form.intitule_court }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="two wide field">
-                    <label for="id_code_maison" style="text-align: left;">Code maison&nbsp;:</label>
-                    {{ form.code_maison }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_code_cosium" style="text-align: left;">Code cosium&nbsp;:</label>
-                    {{ form.code_cosium }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_code_bbgr" style="text-align: left;">Code BBGR&nbsp;:</label>
-                    {{ form.code_bbgr }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_opening_date" style="text-align: left;">Date Ouverture&nbsp;:</label>
-                    {{ form.opening_date }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_closing_date" style="text-align: left;">Date Fermeture&nbsp;:</label>
-                    {{ form.closing_date }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_signature_franchise_date" style="text-align: left;">Date signature contrat&nbsp;:</label>
-                    {{ form.signature_franchise_date }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_agreement_franchise_end_date" style="text-align: left;">Date signature fin de contrat&nbsp;:</label>
-                    {{ form.agreement_franchise_end_date }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_agreement_renew_date" style="text-align: left;">Date renouvellement contrat&nbsp;:</label>
-                    {{ form.agreement_renew_date }}
-                  </div>
+          <div class="fields">
 
+              <div class="four wide field">
+                <label for="id_tiers" style="text-align: left;">Tiers Client X3&nbsp;:</label>
+                {{ form.tiers }}
+              </div>
+              <div class="two wide field">
+                <label for="id_center_purchase" style="text-align: left;">Centrale Fille&nbsp;:</label>
+                {{ form.center_purchase }}
+              </div>
+              <div class="two wide field">
+                <label for="id_sign_board" style="text-align: left;">Enseigne&nbsp;:</label>
+                {{ form.sign_board }}
+              </div>
+              <div class="two wide field">
+                <label for="id_client_familly" style="text-align: left;">Catégorie Client&nbsp;:</label>
+                {{ form.client_familly }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="two wide field">
-                    <label for="id_entry_fee_amount" style="text-align: left;">Montant droit d'entrée&nbsp;:</label>
-                    {{ form.entry_fee_amount }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_renew_fee_amoount" style="text-align: left;">Montant renouvellement&nbsp;:</label>
-                    {{ form.renew_fee_amoount }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_sale_price_category" style="text-align: left;">Catégorie de prix&nbsp;:</label>
-                    {{ form.sale_price_category }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_generic_coefficient" style="text-align: left;">Coéficient de vente générique&nbsp;:</label>
-                    {{ form.generic_coefficient }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_currency" style="text-align: left;">Devise&nbsp;:</label>
-                    {{ form.currency }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_language" style="text-align: left;">Langue&nbsp;:</label>
-                    {{ form.language }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_sage_vat_by_default" style="text-align: left;">TVA X3&nbsp;:</label>
-                    {{ form.sage_vat_by_default }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_sage_plan_code" style="text-align: left;">Plan Compte X3&nbsp;:</label>
-                    {{ form.sage_plan_code }}
-                  </div>
+          <div class="fields">
 
+              <div class="two wide field">
+                <label for="id_code_maison" style="text-align: left;">Code maison&nbsp;:</label>
+                {{ form.code_maison }}
+              </div>
+              <div class="two wide field">
+                <label for="id_code_cosium" style="text-align: left;">Code cosium&nbsp;:</label>
+                {{ form.code_cosium }}
+              </div>
+              <div class="two wide field">
+                <label for="id_code_bbgr" style="text-align: left;">Code BBGR&nbsp;:</label>
+                {{ form.code_bbgr }}
+              </div>
+              <div class="two wide field">
+                <label for="id_opening_date" style="text-align: left;">Date Ouverture&nbsp;:</label>
+                {{ form.opening_date }}
+              </div>
+              <div class="two wide field">
+                <label for="id_closing_date" style="text-align: left;">Date Fermeture&nbsp;:</label>
+                {{ form.closing_date }}
+              </div>
+              <div class="two wide field">
+                <label for="id_signature_franchise_date" style="text-align: left;">Date signature contrat&nbsp;:</label>
+                {{ form.signature_franchise_date }}
+              </div>
+              <div class="two wide field">
+                <label for="id_agreement_franchise_end_date" style="text-align: left;">Date signature fin de contrat&nbsp;:</label>
+                {{ form.agreement_franchise_end_date }}
+              </div>
+              <div class="two wide field">
+                <label for="id_agreement_renew_date" style="text-align: left;">Date renouvellement contrat&nbsp;:</label>
+                {{ form.agreement_renew_date }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="four wide field">
-                    <label for="id_credit_account" style="text-align: left;">Compte X3 au crédit&nbsp;:</label>
-                    {{ form.credit_account }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_debit_account" style="text-align: left;">Compte X3 au débit&nbsp;:</label>
-                    {{ form.debit_account }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_prov_account" style="text-align: left;">Compte X3 sur  provision&nbsp;:</label>
-                    {{ form.prov_account }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_extourne_account" style="text-align: left;">Compte X3 sur extourne&nbsp;:</label>
-                    {{ form.extourne_account }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_rfa_frequence" style="text-align: left;">Fréquence des rfa&nbsp;:</label>
-                    {{ form.rfa_frequence }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_rfa_remise" style="text-align: left;">Taux de remboursement rfa&nbsp;:</label>
-                    {{ form.rfa_remise }}
-                  </div>
+          <div class="fields">
 
+              <div class="two wide field">
+                <label for="id_entry_fee_amount" style="text-align: left;">Montant droit d'entrée&nbsp;:</label>
+                {{ form.entry_fee_amount }}
+              </div>
+              <div class="two wide field">
+                <label for="id_renew_fee_amoount" style="text-align: left;">Montant renouvellement&nbsp;:</label>
+                {{ form.renew_fee_amoount }}
+              </div>
+              <div class="two wide field">
+                <label for="id_sale_price_category" style="text-align: left;">Catégorie de prix&nbsp;:</label>
+                {{ form.sale_price_category }}
+              </div>
+              <div class="two wide field">
+                <label for="id_generic_coefficient" style="text-align: left;">Coéficient de vente générique&nbsp;:</label>
+                {{ form.generic_coefficient }}
+              </div>
+              <div class="two wide field">
+                <label for="id_currency" style="text-align: left;">Devise&nbsp;:</label>
+                {{ form.currency }}
+              </div>
+              <div class="two wide field">
+                <label for="id_language" style="text-align: left;">Langue&nbsp;:</label>
+                {{ form.language }}
+              </div>
+              <div class="two wide field">
+                <label for="id_sage_vat_by_default" style="text-align: left;">TVA X3&nbsp;:</label>
+                {{ form.sage_vat_by_default }}
+              </div>
+              <div class="two wide field">
+                <label for="id_sage_plan_code" style="text-align: left;">Plan Compte X3&nbsp;:</label>
+                {{ form.sage_plan_code }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="six wide field">
-                    <label for="id_immeuble" style="text-align: left;">Immeuble&nbsp;:</label>
-                    {{ form.immeuble }}
-                  </div>
+          <div class="fields">
 
+              <div class="four wide field">
+                <label for="id_credit_account" style="text-align: left;">Compte X3 au crédit&nbsp;:</label>
+                {{ form.credit_account }}
+              </div>
+              <div class="four wide field">
+                <label for="id_debit_account" style="text-align: left;">Compte X3 au débit&nbsp;:</label>
+                {{ form.debit_account }}
+              </div>
+              <div class="four wide field">
+                <label for="id_prov_account" style="text-align: left;">Compte X3 sur  provision&nbsp;:</label>
+                {{ form.prov_account }}
+              </div>
+              <div class="four wide field">
+                <label for="id_extourne_account" style="text-align: left;">Compte X3 sur extourne&nbsp;:</label>
+                {{ form.extourne_account }}
+              </div>
+              <div class="four wide field">
+                <label for="id_rfa_frequence" style="text-align: left;">Fréquence des rfa&nbsp;:</label>
+                {{ form.rfa_frequence }}
+              </div>
+              <div class="four wide field">
+                <label for="id_rfa_remise" style="text-align: left;">Taux de remboursement rfa&nbsp;:</label>
+                {{ form.rfa_remise }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="six wide field">
-                    <label for="id_adresse" style="text-align: left;">Adresse&nbsp;:</label>
-                    {{ form.adresse }}
-                  </div>
+          <div class="fields">
 
+              <div class="six wide field">
+                <label for="id_immeuble" style="text-align: left;">Immeuble&nbsp;:</label>
+                {{ form.immeuble }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="one wide field">
-                    <label for="id_code_postal" style="text-align: left;">Code Postal&nbsp;:</label>
-                    {{ form.code_postal }}
-                  </div>
-                  <div class="five wide field">
-                    <label for="id_ville" style="text-align: left;">Ville&nbsp;:</label>
-                    {{ form.ville }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_pays" style="text-align: left;">Pays&nbsp;:</label>
-                    {{ form.pays }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_telephone" style="text-align: left;">Téléphone&nbsp;:</label>
-                    {{ form.telephone }}
-                  </div>
-                  <div class="two wide field">
-                    <label for="id_mobile" style="text-align: left;">Mobile&nbsp;:</label>
-                    {{ form.mobile }}
-                  </div>
-                  <div class="four wide field">
-                    <label for="id_email" style="text-align: left;">e-mail&nbsp;:</label>
-                    {{ form.email }}
-                  </div>
+          <div class="fields">
 
+              <div class="six wide field">
+                <label for="id_adresse" style="text-align: left;">Adresse&nbsp;:</label>
+                {{ form.adresse }}
               </div>
 
-              <div class="fields">
+          </div>
 
-                  <div class="four wide field">
-                    <label for="id_tiers" style="text-align: left;">Tiers X3&nbsp;:</label>
-                    {{ form.tiers }}
-                  </div>
+          <div class="fields">
 
+              <div class="one wide field">
+                <label for="id_code_postal" style="text-align: left;">Code Postal&nbsp;:</label>
+                {{ form.code_postal }}
               </div>
-            </div>
+              <div class="five wide field">
+                <label for="id_ville" style="text-align: left;">Ville&nbsp;:</label>
+                {{ form.ville }}
+              </div>
+              <div class="two wide field">
+                <label for="id_pays" style="text-align: left;">Pays&nbsp;:</label>
+                {{ form.pays }}
+              </div>
+              <div class="two wide field">
+                <label for="id_telephone" style="text-align: left;">Téléphone&nbsp;:</label>
+                {{ form.telephone }}
+              </div>
+              <div class="two wide field">
+                <label for="id_mobile" style="text-align: left;">Mobile&nbsp;:</label>
+                {{ form.mobile }}
+              </div>
+              <div class="four wide field">
+                <label for="id_email" style="text-align: left;">e-mail&nbsp;:</label>
+                {{ form.email }}
+              </div>
+
           </div>
         </div>
+      </div>
+    </div>
 
-    {% endfor %}
-
-
-{% endblock multiple_table %}
+{% endblock table %}

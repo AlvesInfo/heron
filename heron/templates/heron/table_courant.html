@@ -1,13 +1,11 @@
 <div class="ui grid" style="margin: 10px 0 0;">
     <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
-        <div class="ui segment" style="margin: 0;padding: 10px;text-align: center">
-            <div class="ui equal width grid center">
 
             {% if tabulation %}
 
                 <div class="ui top attached tabular menu">
                     {% for titre in tabulation  %}
-                      <a class="{% if forloop.counter == 0 %}active {% endif %}item" data-tab="tab-{{ forloop.counter }}">{{ titre }}</a>
+                      <a class="{% if forloop.counter == 1 %}active {% endif %}item" data-tab="tab-{{ forloop.counter }}">{{ titre }}</a>
                     {% endfor %}
                 </div>
 
@@ -15,13 +13,15 @@
                 {% endblock multiple_table %}
 
             {% else %}
+                <div class="ui segment" style="margin: 0;padding: 10px;text-align: center">
+                    <div class="ui equal width grid center">
 
                 {% block table %}
                 {% endblock table %}
 
-            {% endif %}
+                    </div>
+                </div>
 
-            </div>
-        </div>
+            {% endif %}
     </div>
 </div>

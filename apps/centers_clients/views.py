@@ -53,6 +53,7 @@ class CreateMaison(SuccessMessageMixin, CreateView):
         context["create"] = True
         context["chevron_retour"] = reverse("centers_clients:maisons_list")
         context["titre_table"] = "Création d'une Maison"
+        print(context)
         return context
 
     def form_valid(self, form):
@@ -84,7 +85,6 @@ class UpdateMaison(SuccessMessageMixin, UpdateView):
             f"{context.get('object').cct} - "
             f"{context.get('object').intitule}"
         )
-        context["tabulation"] = ("Maison", "Indentifant Fournisseurs")
         return context
 
     def form_valid(self, form):

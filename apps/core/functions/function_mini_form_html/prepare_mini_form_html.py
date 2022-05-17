@@ -163,5 +163,5 @@ def extract_fields():
 
 
 if __name__ == "__main__":
-    # construct_html()
-    extract_fields()
+    construct_html()
+    # extract_fields()
