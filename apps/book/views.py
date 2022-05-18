@@ -26,7 +26,7 @@ class SocietiesList(ListView):
 def society_view(request, pk):
     """Vue en table d'une société"""
 
-    society = Society.objects.get(pk=pk)
+    society = Society.objects.get(third_party_num=pk)
     context = {
         "society": society,
         "chevron_retour": reverse("book:societies_list"),
