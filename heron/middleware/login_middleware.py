@@ -33,7 +33,7 @@ class LoginMiddleware:
         :return: Redirige vers la page de login si non connecté
         """
 
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated and request.path != '/accounts/login/':
             return redirect("accounts:login")
 
         response = self.get_response(request)
