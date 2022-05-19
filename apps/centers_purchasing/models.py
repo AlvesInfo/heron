@@ -48,6 +48,7 @@ class PrincipalCenterPurchase(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
     class Meta:
@@ -79,6 +80,7 @@ class ChildCenterPurchase(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
     class Meta:
@@ -116,6 +118,7 @@ class Signboard(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
     class Meta:
@@ -143,6 +146,7 @@ class SignboardModel(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sign_board} - {self.name}"
 
     class Meta:
@@ -188,6 +192,7 @@ class Translation(FlagsTable):
     maltese_text = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -222,6 +227,7 @@ class SignboardModelTranslate(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sign_board_model} - {self.translation}"
 
     class Meta:
@@ -249,6 +255,7 @@ class TranslationParamaters(FlagsTable):
     field = models.CharField(max_length=80)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.translation} - {self.model}"
 
     class Meta:

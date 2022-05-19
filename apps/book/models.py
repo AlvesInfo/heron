@@ -58,6 +58,7 @@ class Nature(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.to_display
 
     class Meta:
@@ -191,6 +192,7 @@ class Society(FlagsTable):
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.third_party_num} - {self.name}"
 
     @staticmethod
@@ -301,6 +303,7 @@ class Address(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.society} - {self.address_code}"
 
     class Meta:
@@ -321,6 +324,7 @@ class DocumentsSubscription(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -406,6 +410,7 @@ class Contact(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.first_name}{' - ' if self.first_name else ''}{self.last_name}"
 
     class Meta:
@@ -438,6 +443,7 @@ class ContactExchange(models.Model):
     )
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.contact} - {self.document}"
 
     class Meta:
@@ -490,6 +496,7 @@ class SocietyBank(FlagsTable):
     # code_swift = models.CharField(null=True, blank=True, max_length=27)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.society} - {self.account_number}"
 
     class Meta:

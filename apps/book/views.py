@@ -8,7 +8,7 @@ from django.shortcuts import render, reverse
 from django.views.generic import ListView
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
-from apps.core.functions.functions_http_response import x_accel_redirect_response
+from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.models import Society
 
 
@@ -48,6 +48,6 @@ def export_list_societies(request, file_name: str):
         "export_list_suppliers": "LISTING_DES_FOURNISSEURS.xlsx",
     }
     file = Path(MEDIA_EXCEL_FILES_DIR) / file_dict.get(file_name)
-    response = x_accel_redirect_response(file)
+    response = x_accel_exists_file_response(file)
 
     return response

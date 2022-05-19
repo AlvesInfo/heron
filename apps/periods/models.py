@@ -30,6 +30,7 @@ class Periode(models.Model):
     end_date = models.DateField()
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.year} - {self.period_type} - {self.wording}"
 
     class Meta:

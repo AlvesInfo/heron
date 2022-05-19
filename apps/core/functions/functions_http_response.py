@@ -49,7 +49,7 @@ def response_file(function_file, file_name, content_type, *args, **kwargs):
     return response
 
 
-def x_accel_redirect_response(
+def x_accel_exists_file_response(
     file_path: Path,
     mime_type: str = CONTENT_TYPE_EXCEL,
 ):

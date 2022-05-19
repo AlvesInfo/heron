@@ -57,6 +57,7 @@ class Country(models.Model):
     )
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.country_name}"
 
     @staticmethod
@@ -125,6 +126,7 @@ class Language(models.Model):
     name = models.CharField(max_length=35)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
 
@@ -138,6 +140,7 @@ class Currency(models.Model):
     name = models.CharField(max_length=35)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
 
@@ -157,6 +160,7 @@ class ExchangeRate(models.Model):
     cee = models.BooleanField(default=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.currency_iso_current} - {self.currency_iso_change}"
 
     class Meta:
@@ -184,6 +188,7 @@ class ValidationPostalCode(models.Model):
     exemple = models.CharField(blank=True, null=True, max_length=35)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.country} - {self.number_char} - {self.exemple}"
 
     class Meta:
@@ -211,6 +216,7 @@ class ValidationIntraVies(models.Model):
     lng_max = models.IntegerField(default=0, verbose_name="longeur maxi")
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.country} - {self.func_verif}"
 
     class Meta:

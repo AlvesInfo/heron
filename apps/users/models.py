@@ -76,8 +76,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         first_name = "" if not self.first_name else (self.first_name + " ")
         last_name = "" if not self.last_name else (self.last_name + " ")
+
         return f"{first_name} {last_name}"
 
     @property
@@ -163,6 +165,7 @@ class AuthGroupName(models.Model):
     group_name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.group_name
 
 
@@ -175,6 +178,7 @@ class AuthGroupAccessStaff(models.Model):
     group = models.OneToOneField(Group, on_delete=models.PROTECT)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.group
 
 

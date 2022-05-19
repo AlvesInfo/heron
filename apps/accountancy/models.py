@@ -138,6 +138,7 @@ class AccountSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code_plan_sage} - {self.account}"
 
     class Meta:
@@ -207,6 +208,7 @@ class AxeSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.axe
 
     class Meta:
@@ -345,6 +347,7 @@ class SectionSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.axe} - {self.section}"
 
     class Meta:
@@ -377,6 +380,7 @@ class CctSage(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.cct}"
 
     class Meta:
@@ -451,6 +455,7 @@ class VatRegimeSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.vat_regime} - {self.name}"
 
     class Meta:
@@ -516,6 +521,7 @@ class VatSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.vat} - {self.short_name}"
 
     class Meta:
@@ -587,6 +593,7 @@ class VatRatSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.vat} - {self.vat_start_date} - {self.rate}"
 
     class Meta:
@@ -653,6 +660,7 @@ class PaymentCondition(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
     class Meta:
@@ -801,6 +809,7 @@ class TabDivSage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
     class Meta:
@@ -874,6 +883,7 @@ class CategorySage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
     class Meta:
@@ -957,6 +967,7 @@ class CurrencySage(FlagsTable):
         return "methode d'import à retourner"
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.currency_change} - {self.currency_change}"
 
     class Meta:

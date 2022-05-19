@@ -55,6 +55,7 @@ class Parameters(FlagsTable):
     num_05 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -91,6 +92,7 @@ class Counter(FlagsTable):
     suffix = models.CharField(max_length=35, verbose_name="suffix")
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -112,6 +114,7 @@ class SendFiles(FlagsTable):
     periodicity = models.CharField(null=True, blank=True, max_length=20)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -145,6 +148,7 @@ class SendFilesMail(FlagsTable):
     email = models.EmailField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.file} - {self.user} - {self.email}"
 
     class Meta:
@@ -170,6 +174,7 @@ class SubFamilly(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -189,6 +194,7 @@ class Category(FlagsTable):
     ranking = models.IntegerField(unique=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.ranking} - {self.name}"
 
     class Meta:
@@ -207,6 +213,7 @@ class Periodicity(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -228,6 +235,7 @@ class SalePriceCategory(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:

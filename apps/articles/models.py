@@ -153,6 +153,7 @@ class Article(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.supplier} - {self.reference} - {self.libelle_heron}"
 
     class Meta:
@@ -192,6 +193,7 @@ class SellingPrice(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sale_price_category} - {self.article}"
 
     class Meta:
@@ -228,6 +230,7 @@ class SalePriceHistory(DatesTable):
     end_date = models.DecimalField(max_digits=20, decimal_places=5)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sale_price_category} - {self.article}"
 
     class Meta:
@@ -248,6 +251,7 @@ class Subscription(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
 
     class Meta:
@@ -280,6 +284,7 @@ class SubscriptionArtcile(FlagsTable):
     qty = models.DecimalField(decimal_places=5, default=1, max_digits=20, verbose_name="quantité")
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.subscription} - {self.selling_price}"
 
     class Meta:
@@ -329,6 +334,7 @@ class FamilleAxePro(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.name} - {self.supplier_familly} - {self.axe_pro}"
 
     class Meta:

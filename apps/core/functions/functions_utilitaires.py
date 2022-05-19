@@ -336,6 +336,7 @@ class Timer:
         return False
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         duree = time.time() - self.start
         return f"intermédiaire : {duree}s"
 

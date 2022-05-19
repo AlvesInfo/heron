@@ -55,6 +55,7 @@ class Invoice(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.supplier} - {self.invoice_number} - {self.invoice_date}"
 
     @property

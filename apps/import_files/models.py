@@ -34,6 +34,7 @@ class ShaImportInvoicesFiles(DatesTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.file_name
 
     class Meta:
@@ -66,6 +67,7 @@ class ErrorsShaImportFIles(DatesTable):
     html_color = models.CharField(null=True, blank=True, choices=HTML_COLORS, max_length=7)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.sha_file
 
     class Meta:

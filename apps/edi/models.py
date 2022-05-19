@@ -246,6 +246,7 @@ class SupplierTiers(FlagsTable):
     supplier_identifiant = models.CharField(unique=True, max_length=35)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.tiers} - {self.supplier_identifiant}"
 
     class Meta:

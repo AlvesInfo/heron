@@ -586,7 +586,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Immeuble Maison",
+        "entete": "Immeuble Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -602,7 +602,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Adresse Maison",
+        "entete": "Adresse Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -618,7 +618,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Code Postal Maison",
+        "entete": "Code Postal Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -634,7 +634,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Ville Maison",
+        "entete": "Ville Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -650,7 +650,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Pays Maison",
+        "entete": "Pays Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -666,7 +666,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Téléphone Maison",
+        "entete": "Téléphone Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -682,7 +682,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Mobile Maison",
+        "entete": "Mobile Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -698,7 +698,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "e-mail Maison",
+        "entete": "e-mail Client",
         "f_entete": {
             **f_entetes,
             **{
