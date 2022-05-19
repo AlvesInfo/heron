@@ -62,13 +62,13 @@ def x_accel_redirect_response(
     :return: HttpResponse
     """
     response = HttpResponse()
+    attachment = f'attachment; filename="{file_path.name}"'
+    response["Content-Disposition"] = attachment
 
     if DEBUG:
         with open(file_path, "rb") as file:
-            attachment = f'attachment; filename="{file_path.name}"'
             application = mime_type
             response = HttpResponse(file, content_type=application)
-            response["Content-Disposition"] = attachment
             ERROR_VIEWS_LOGGER.exception("FILE BY DEBUG")
             return response
 
