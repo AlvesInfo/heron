@@ -61,17 +61,16 @@ def x_accel_redirect_response(
     :return: HttpResponse
     """
     response = HttpResponse()
-    attachment = f'attachment; filename="{file_path.name}"'
-    response["Content-Disposition"] = attachment
 
     if DEBUG:
         with open(file_path, "rb") as file:
             application = mime_type
             response = HttpResponse(file, content_type=application)
-
-            return response
     else:
         response["content-type"] = ""
         response["X-Accel-Redirect"] = "/excel_media/" + file_path.name
 
-        return response
+    attachment = f'attachment; filename="{file_path.name}"'
+    response["Content-Disposition"] = attachment
+
+    return response
