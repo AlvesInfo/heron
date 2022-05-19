@@ -72,10 +72,10 @@ def x_accel_redirect_response(
             ERROR_VIEWS_LOGGER.exception("FILE BY DEBUG")
             return response
 
-    del response["content-type"]
+    response["content-type"] = ""
 
     ERROR_VIEWS_LOGGER.exception(f"FILE BY NGINX {str(file_path.resolve())!r}")
-    response["X-Accel-Redirect"] = str(file_path.resolve())
+    response["X-Accel-Redirect"] = "/excel_media/" + file_path.name
     ERROR_VIEWS_LOGGER.exception(f"FILE BY NGINX {response!r}")
 
     return response
