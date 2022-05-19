@@ -17,7 +17,6 @@ from pathlib import Path
 from django.shortcuts import HttpResponse
 
 from heron.settings import DEBUG
-from heron.loggers import ERROR_VIEWS_LOGGER
 
 CONTENT_TYPE_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
@@ -69,13 +68,10 @@ def x_accel_redirect_response(
         with open(file_path, "rb") as file:
             application = mime_type
             response = HttpResponse(file, content_type=application)
-            ERROR_VIEWS_LOGGER.exception("FILE BY DEBUG")
+
             return response
+    else:
+        response["content-type"] = ""
+        response["X-Accel-Redirect"] = "/excel_media/" + file_path.name
 
-    response["content-type"] = ""
-
-    ERROR_VIEWS_LOGGER.exception(f"FILE BY NGINX {str(file_path.resolve())!r}")
-    response["X-Accel-Redirect"] = "/excel_media/" + file_path.name
-    ERROR_VIEWS_LOGGER.exception(f"FILE BY NGINX {response!r}")
-
-    return response
+        return response
