@@ -73,6 +73,8 @@ def x_accel_redirect_response(
             return response
 
     del response["content-type"]
+
+    ERROR_VIEWS_LOGGER.exception(f"FILE BY NGINX {str(file_path.resolve())!r}")
     response["X-Accel-Redirect"] = str(file_path.resolve())
     ERROR_VIEWS_LOGGER.exception(f"FILE BY NGINX {response!r}")
 
