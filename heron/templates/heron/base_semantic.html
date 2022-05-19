@@ -101,6 +101,10 @@
                 // FONCTION SEMANTIC UI POUR INITIALISATION DES CHECKBOX
                 $('.checkbox').checkbox();
 
+                // FONCTION SEMANTIC UI POUR ETEINDRE LES LOADERS DE CHARGEMENT DE LA PAGES
+                $(`.ui.chargement.active`).hide()
+
+                // FONCTION POUR INITIALISER LES MENUS EN POPUP
                 $('#amenu')
                   .popup({
                       popup: '#a',
@@ -144,6 +148,7 @@
                   });
 
             });
+
         </script>
 
         {% block script %}

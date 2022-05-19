@@ -24,6 +24,7 @@ from apps.book.imports.imports_sage import (
     code_contact_sage,
     bank_sage,
 )
+from apps.book.imports.excel_generations import writre_book_files
 
 processing_dict = {
     "ZBIBPR_journalier.heron": bpr_sage,
@@ -80,6 +81,11 @@ def process():
 
             if trace is not None:
                 trace.save()
+
+    try:
+        writre_book_files()
+    except Exception as except_error:
+        IMPORT_LOGGER.exception(f"Exception Générale: writre_book_files()\n{except_error!r}")
 
 
 if __name__ == "__main__":

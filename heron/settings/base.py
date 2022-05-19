@@ -260,6 +260,10 @@ Path.mkdir(BACKUP_SAGE_DIR, exist_ok=True)
 MEDIA_DIR = (Path(BASE_DIR) / "files/media").resolve()
 Path.mkdir(MEDIA_DIR, exist_ok=True)
 
+# REPERTOIRES DE MEDIA
+MEDIA_EXCEL_FILES_DIR = (Path(BASE_DIR) / "files/media/excel_files").resolve()
+Path.mkdir(MEDIA_EXCEL_FILES_DIR, exist_ok=True)
+
 # REPERTOIRES DE STATIC
 STATIC_DIR = (Path(BASE_DIR) / "files/static").resolve()
 Path.mkdir(STATIC_DIR, exist_ok=True)

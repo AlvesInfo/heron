@@ -27,7 +27,7 @@ from apps.accountancy.imports.imports_sage import (
     tab_div_sage,
     category_sage,
 )
-from apps.accountancy.imports.extractiion_cct import update_cct_sage
+from apps.accountancy.imports.extraction_cct import update_cct_sage
 from apps.accountancy.imports.extraction_code_plan import update_code_plan
 
 processing_dict = {

@@ -38,6 +38,13 @@ class MaisonsList(ListView):
     extra_context = {"titre_table": "Maisons"}
 
 
+def filter_list_maisons_api(request):
+    """View de filtrage pour les menus des maisons"""
+
+    context = {}
+    return render(request, "centers_clients/maisons_list_to_pick.html", context=context)
+
+
 class CreateMaison(SuccessMessageMixin, CreateView):
     """CreateView de création des Maisons"""
 
