@@ -44,6 +44,42 @@
                            readonly
                            style="background-color: lavender;font-weight: bold;">
               </div>
+              <div class="one wide field">
+                <label for="is_client">Client&nbsp;:</label>
+                    <input type="checkbox"
+                           name="is_client"
+                           {% if form.is_client.value %}checked{% endif %}
+                           id="is_client"
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
+              </div>
+              <div class="one wide field">
+                <label for="id_is_supplier">Fournisseur&nbsp;:</label>
+                    <input type="checkbox"
+                           name="is_supplier"
+                           {% if form.is_supplier.value %}checked{% endif %}
+                           id="id_is_supplier"
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
+              </div>
+              <div class="one wide field">
+                <label for="id_is_various">Tiers divers&nbsp;:</label>
+                    <input type="checkbox"
+                           name="is_various"
+                           {% if form.is_various.value %}checked{% endif %}
+                           id="id_is_various"
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
+              </div>
+              <div class="one wide field">
+                <label for="id_is_physical_person">Personne&nbsp;:</label>
+                    <input type="checkbox"
+                           name="is_physical_person"
+                           {% if form.is_physical_person.value %}checked{% endif %}
+                           id="id_is_physical_person"
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
+              </div>
 
           </div>
 
@@ -215,109 +251,124 @@
 
           </div>
 
-          <div class="fields">
+        </div>
 
-              <div class="two wide field">
-                <label for="is_client">Client&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_client"
-                           {% if form.is_client.value %}checked{% endif %}
-                           id="is_client"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
+        <div class="ui clearing divider"></div>
+
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Adresse Sage X3 (Adresse par défaut, dans Sage)</h3>
+        <div class="ui clearing divider"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="six wide field">
+                <label for="id_line_01" style="text-align: left;">Immeuble&nbsp;:</label>
+                    <input type="text"
+                           name="line_01"
+                           value="{{ adresse_principale_sage.line_01.value }}"
+                           required=""
+                           id="id_line_01"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
               </div>
-              <div class="two wide field">
-                <label for="id_is_agent">Représentant&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_agent"
-                           {% if form.is_agent.value %}checked{% endif %}
-                           id="id_is_agent"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_prospect">Prospect&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_prospect"
-                           {% if form.is_prospect.value %}checked{% endif %}
-                           id="id_is_prospect"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_supplier">Fournisseur&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_supplier"
-                           {% if form.is_supplier.value %}checked{% endif %}
-                           id="id_is_supplier"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_various">Tiers divers&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_various"
-                           {% if form.is_various.value %}checked{% endif %}
-                           id="id_is_various"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_service_provider">Prestataire&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_service_provider"
-                           {% if form.is_service_provider.value %}checked{% endif %}
-                           id="id_is_service_provider"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_transporter">Transporteur&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_transporter"
-                           {% if form.is_transporter.value %}checked{% endif %}
-                           id="id_is_transporter"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_contractor">Donneur d'ordre&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_contractor"
-                           {% if form.is_contractor.value %}checked{% endif %}
-                           id="id_is_contractor"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
-              </div>
-              <div class="two wide field">
-                <label for="id_is_physical_person">Personne physique&nbsp;:</label>
-                    <input type="checkbox"
-                           name="is_physical_person"
-                           {% if form.is_physical_person.value %}checked{% endif %}
-                           id="id_is_physical_person"
-                           onclick="return false;"
-                           style="font-weight: bold;width: 15px;height: 15px;">
+              <div class="six wide field">
+                <label for="id_line_02" style="text-align: left;">Adresse&nbsp;:</label>
+                    <input type="text"
+                           name="line_02"
+                           value="{{ adresse_principale_sage.line_02.value }}"
+                           required=""
+                           id="id_line_02"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
               </div>
 
           </div>
 
+          <div class="fields">
+
+              <div class="one wide field">
+                <label for="id_postal_code" style="text-align: left;">Code Postal&nbsp;:</label>
+                    <input type="text"
+                           name="postal_code"
+                           value="{{ adresse_principale_sage.postal_code.value }}"
+                           required=""
+                           id="id_postal_code"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+              </div>
+              <div class="five wide field">
+                <label for="id_city" style="text-align: left;">Ville&nbsp;:</label>
+                    <input type="text"
+                           name="city"
+                           value="{{ adresse_principale_sage.city.value }}"
+                           required=""
+                           id="id_city"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+              </div>
+              <div class="two wide field">
+                <label for="id_country" style="text-align: left;">Pays&nbsp;:</label>
+                    <input type="text"
+                           name="country"
+                           value="{{ adresse_principale_sage.country.value }}"
+                           required=""
+                           id="id_country"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+              </div>
+              <div class="two wide field">
+                <label for="id_phone_number_01" style="text-align: left;">Téléphone&nbsp;:</label>
+                    <input type="text"
+                           name="phone_number_01"
+                           value="{{ adresse_principale_sage.phone_number_01.value }}"
+                           required=""
+                           id="id_phone_number_01"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+              </div>
+              <div class="two wide field">
+                <label for="id_email_01" style="text-align: left;">Mobile&nbsp;:</label>
+                    <input type="text"
+                           name="email_01"
+                           value="{{ adresse_principale_sage.email_01.value }}"
+                           required=""
+                           id="id_email_01"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+              </div>
+              <div class="four wide field">
+                <label for="id_mobile_number" style="text-align: left;">e-mail&nbsp;:</label>
+                    <input type="text"
+                           name="mobile_number"
+                           value="{{ adresse_principale_sage.mobile_number.value }}"
+                           required=""
+                           id="id_mobile_number"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+              </div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Mise à jour des renseignements pour la centrale</h3>
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Identifiant pour la centrale</h3>
         <div class="ui clearing divider"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
           <div class="fields">
-              <div class="four wide field">
+
+              <div class="six wide field">
                 <label for="id_centers_suppliers_indentifier" style="text-align: left;">Identifiant Centrale&nbsp;:</label>
                 {{ form.centers_suppliers_indentifier }}
               </div>
-
           </div>
+        </div>
+          <div class="ui clearing divider"></div>
+
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Adresse pour la centrale</h3>
+        <div class="ui clearing divider"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
           <div class="fields">
 
@@ -325,11 +376,6 @@
                 <label for="id_immeuble" style="text-align: left;">Immeuble&nbsp;:</label>
                 {{ form.immeuble }}
               </div>
-
-          </div>
-
-          <div class="fields">
-
               <div class="six wide field">
                 <label for="id_adresse" style="text-align: left;">Adresse&nbsp;:</label>
                 {{ form.adresse }}
