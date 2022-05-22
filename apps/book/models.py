@@ -85,6 +85,7 @@ class Society(FlagsTable):
         to_field="name",
         related_name="society_nature",
         null=True,
+        blank=True,
         db_column="nature",
     )
     name = models.CharField(null=True, blank=True, max_length=80)  # BPRNAM_0
@@ -108,6 +109,7 @@ class Society(FlagsTable):
         CategorySage,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="client_category",
         verbose_name="catégorie client",
         limit_choices_to={"initial": "C"},
@@ -117,6 +119,7 @@ class Society(FlagsTable):
         CategorySage,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="supplier_category",
         verbose_name="catégorie fournisseur",
         limit_choices_to={"initial": "S"},
@@ -134,6 +137,7 @@ class Society(FlagsTable):
         to_field="country",
         related_name="society_country_country",
         null=True,
+        blank=True,
         verbose_name="pays",
         db_column="country",
     )  # CRY models Country
@@ -191,14 +195,20 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=10, verbose_name="code comptable client"
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
 
+    # Identifian Fournisseur pour la centrale d'achat
+    centers_suppliers_indentifier = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="identifiant fournisseur"
+    )
+
     # Adresse pour la centrale d'achat
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
-    adresse = models.CharField(null=True, blank=True,max_length=200, verbose_name="adresse")
-    code_postal = models.CharField(null=True, blank=True,max_length=15, verbose_name="code postal")
-    ville = models.CharField(null=True, blank=True,max_length=50, verbose_name="ville")
+    adresse = models.CharField(null=True, blank=True, max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(null=True, blank=True, max_length=15, verbose_name="code postal")
+    ville = models.CharField(null=True, blank=True, max_length=50, verbose_name="ville")
     pays = models.ForeignKey(
         Country,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="country",
         related_name="supplier_address_country",

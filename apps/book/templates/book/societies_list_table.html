@@ -12,11 +12,11 @@
         <thead>
 
             <tr>
-                <th class="no-sort" style="text-align: center;">Visualiser</th>
-                <th>Tiers X3</th>
-                <th>Nom</th>
-                <th>Fournisseur</th>
-                <th>Client</th>
+                <th class="no-sort" style="width: 6.62%">Visualiser</th>
+                <th style="width: 18.38%">Tiers X3</th>
+                <th style="width: 60.30%">Nom</th>
+                <th style="width: 7.35%">Fournisseur</th>
+                <th style="width: 7.35%">Client</th>
             </tr>
         </thead>
         <tbody>
@@ -25,7 +25,7 @@
 
                 <td data-value="{{ society.third_party_num }}"
                     style="text-align: center;">
-                    <a href="{% url 'book:society' pk=society.third_party_num %}">
+                    <a href="{% url 'book:society_update' pk=society.pk %}">
                         <i class="eye icon"></i>
                     </a>
                 </td>

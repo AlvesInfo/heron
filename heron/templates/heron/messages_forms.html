@@ -4,7 +4,7 @@
             <div class="ui negative message">
               <i class="close icon"></i>
               <div class="header">
-                Erreurs de validation
+                Erreurs de validation :
               </div>
                 <div class="ui list" style="text-align: left;">
                     {% if general_error %}
@@ -31,6 +31,7 @@
                             </div>
                         {% endfor %}
                     {% endfor %}
+                    {{ form.non_field_errors|linebreaks }}
                 </div>
             </div>
         </div>

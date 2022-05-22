@@ -41,7 +41,7 @@ class UpdateBanque(UpdateView):
         "invoice_supplier_name",
         "invoice_supplier_identifiaction",
     ]
-    template_name = "book/society_view.html"
+    template_name = "book/society_update.html"
     success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
     error_message = "La Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
 

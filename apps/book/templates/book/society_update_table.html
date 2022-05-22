@@ -4,7 +4,7 @@
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Tiers</h3>
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Tiers X3 <span style="font-size: 11px;">(Données issues de Sage)</span></h3>
         <div class="ui clearing divider"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
@@ -13,8 +13,7 @@
                 <label for="id_third_party_num" style="text-align: left;">N° de tiers x3&nbsp;:</label>
                     <input type="text"
                            name="third_party_num"
-                           value="{{ society.third_party_num }}"
-                           required=""
+                           value="{{ form.third_party_num.value }}"
                            id="id_third_party_num"
                            style="background-color: lavender;font-weight: bold;">
               </div>
@@ -22,8 +21,7 @@
                 <label for="id_name" style="text-align: left;">Name&nbsp;:</label>
                     <input type="text"
                            name="name"
-                           value="{{ society.name }}"
-                           required=""
+                           value="{{ form.name.value }}"
                            id="id_name"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -32,8 +30,7 @@
                 <label for="id_short_name" style="text-align: left;">Intitulé court&nbsp;:</label>
                     <input type="text"
                            name="short_name"
-                           value="{{ society.short_name }}"
-                           required=""
+                           value="{{ form.short_name.value }}"
                            id="id_short_name"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -42,8 +39,7 @@
                 <label for="id_corporate_name" style="text-align: left;">Raison sociale&nbsp;:</label>
                     <input type="text"
                            name="corporate_name"
-                           value="{{ society.corporate_name }}"
-                           required=""
+                           value="{{ form.corporate_name.value }}"
                            id="id_corporate_name"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -57,8 +53,7 @@
                 <label for="id_siret_number" style="text-align: left;">N° siret&nbsp;:</label>
                     <input type="text"
                            name="siret_number"
-                           value="{{ society.siret_number }}"
-                           required=""
+                           value="{{ form.siret_number.value|default_if_none:'' }}"
                            id="id_siret_number"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -67,8 +62,7 @@
                 <label for="id_vat_cee_number" style="text-align: left;">N° tva intracommunataire&nbsp;:</label>
                     <input type="text"
                            name="vat_cee_number"
-                           value="{{ society.vat_cee_number }}"
-                           required=""
+                           value="{{ form.vat_cee_number.value|default_if_none:'' }}"
                            id="id_vat_cee_number"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -77,8 +71,7 @@
                 <label for="id_vat_number" style="text-align: left;">Vat number&nbsp;:</label>
                     <input type="text"
                            name="vat_number"
-                           value="{{ society.vat_number }}"
-                           required=""
+                           value="{{ form.vat_number.value|default_if_none:'' }}"
                            id="id_vat_number"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -87,8 +80,7 @@
                 <label for="id_client_category" style="text-align: left;">Catégorie client&nbsp;:</label>
                     <input type="text"
                            name="client_category"
-                           value="{{ society.client_category }}"
-                           required=""
+                           value="{{ form.client_category.value|default_if_none:'' }}"
                            id="id_client_category"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -97,8 +89,7 @@
                 <label for="id_supplier_category" style="text-align: left;">Catégorie fournisseur&nbsp;:</label>
                     <input type="text"
                            name="supplier_category"
-                           value="{{ society.supplier_category }}"
-                           required=""
+                           value="{{ form.supplier_category.value|default_if_none:'' }}"
                            id="id_supplier_category"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -107,8 +98,7 @@
                 <label for="id_naf_code" style="text-align: left;">Code naf&nbsp;:</label>
                     <input type="text"
                            name="naf_code"
-                           value="{{ society.naf_code }}"
-                           required=""
+                           value="{{ form.naf_code.value|default_if_none:'' }}"
                            id="id_naf_code"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -122,8 +112,7 @@
                 <label for="id_currency" style="text-align: left;">Monaie&nbsp;:</label>
                     <input type="text"
                            name="currency"
-                           value="{{ society.currency }}"
-                           required=""
+                           value="{{ form.currency.value|default_if_none:'' }}"
                            id="id_currency"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -132,8 +121,7 @@
                 <label for="id_country" style="text-align: left;">Pays&nbsp;:</label>
                     <input type="text"
                            name="country"
-                           value="{{ society.country }}"
-                           required=""
+                           value="{{ form.country.value|default_if_none:'' }}"
                            id="id_country"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -142,8 +130,7 @@
                 <label for="id_language" style="text-align: left;">Langue&nbsp;:</label>
                     <input type="text"
                            name="language"
-                           value="{{ society.language }}"
-                           required=""
+                           value="{{ form.language.value|default_if_none:'' }}"
                            id="id_language"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -152,8 +139,7 @@
                 <label for="id_budget_code" style="text-align: left;">Code budget&nbsp;:</label>
                     <input type="text"
                            name="budget_code"
-                           value="{{ society.budget_code }}"
-                           required=""
+                           value="{{ form.budget_code.value|default_if_none:'' }}"
                            id="id_budget_code"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -162,8 +148,7 @@
                 <label for="id_reviser" style="text-align: left;">Réviseur&nbsp;:</label>
                     <input type="text"
                            name="reviser"
-                           value="{{ society.reviser }}"
-                           required=""
+                           value="{{ form.reviser.value|default_if_none:'' }}"
                            id="id_reviser"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -177,8 +162,7 @@
                 <label for="id_payment_condition_supplier" style="text-align: left;">Conditions de paiement&nbsp;:</label>
                     <input type="text"
                            name="payment_condition_supplier"
-                           value="{{ society.payment_condition_supplier }}"
-                           required=""
+                           value="{{ form.payment_condition_supplier.value|default_if_none:'' }}"
                            id="id_payment_condition_supplier"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -187,8 +171,7 @@
                 <label for="id_vat_sheme_supplier" style="text-align: left;">Régime de taxe&nbsp;:</label>
                     <input type="text"
                            name="vat_sheme_supplier"
-                           value="{{ society.vat_sheme_supplier }}"
-                           required=""
+                           value="{{ form.vat_sheme_supplier.value|default_if_none:'' }}"
                            id="id_vat_sheme_supplier"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -197,8 +180,7 @@
                 <label for="id_account_supplier_code" style="text-align: left;">Code comptable fournisseur&nbsp;:</label>
                     <input type="text"
                            name="account_supplier_code"
-                           value="{{ society.account_supplier_code }}"
-                           required=""
+                           value="{{ form.account_supplier_code.value|default_if_none:'' }}"
                            id="id_account_supplier_code"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -207,8 +189,7 @@
                 <label for="id_payment_condition_client" style="text-align: left;">Condition de paiement&nbsp;:</label>
                     <input type="text"
                            name="payment_condition_client"
-                           value="{{ society.payment_condition_client }}"
-                           required=""
+                           value="{{ form.payment_condition_client.value|default_if_none:'' }}"
                            id="id_payment_condition_client"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -217,8 +198,7 @@
                 <label for="id_vat_sheme_client" style="text-align: left;">Régime de taxe&nbsp;:</label>
                     <input type="text"
                            name="vat_sheme_client"
-                           value="{{ society.vat_sheme_client }}"
-                           required=""
+                           value="{{ form.vat_sheme_client.value|default_if_none:'' }}"
                            id="id_vat_sheme_client"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -227,8 +207,7 @@
                 <label for="id_account_client_code" style="text-align: left;">Code comptable client&nbsp;:</label>
                     <input type="text"
                            name="account_client_code"
-                           value="{{ society.account_client_code }}"
-                           required=""
+                           value="{{ form.account_client_code.value|default_if_none:'' }}"
                            id="id_account_client_code"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -239,94 +218,150 @@
           <div class="fields">
 
               <div class="two wide field">
-                <label for="id_is_client" style="text-align: left;">Client&nbsp;:</label>
-                    <input type="text"
+                <label for="is_client">Client&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_client"
-                           value="{{ society.is_client }}"
-                           required=""
-                           id="id_is_client"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           {% if form.is_client.value %}checked{% endif %}
+                           id="is_client"
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_agent" style="text-align: left;">Représentant&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_agent">Représentant&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_agent"
-                           value="{{ society.is_agent }}"
-                           required=""
+                           {% if form.is_agent.value %}checked{% endif %}
                            id="id_is_agent"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_prospect" style="text-align: left;">Prospect&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_prospect">Prospect&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_prospect"
-                           value="{{ society.is_prospect }}"
-                           required=""
+                           {% if form.is_prospect.value %}checked{% endif %}
                            id="id_is_prospect"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_supplier" style="text-align: left;">Fournisseur&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_supplier">Fournisseur&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_supplier"
-                           value="{{ society.is_supplier }}"
-                           required=""
+                           {% if form.is_supplier.value %}checked{% endif %}
                            id="id_is_supplier"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_various" style="text-align: left;">Tiers divers&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_various">Tiers divers&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_various"
-                           value="{{ society.is_various }}"
-                           required=""
+                           {% if form.is_various.value %}checked{% endif %}
                            id="id_is_various"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_service_provider" style="text-align: left;">Prestataire&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_service_provider">Prestataire&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_service_provider"
-                           value="{{ society.is_service_provider }}"
-                           required=""
+                           {% if form.is_service_provider.value %}checked{% endif %}
                            id="id_is_service_provider"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_transporter" style="text-align: left;">Transporteur&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_transporter">Transporteur&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_transporter"
-                           value="{{ society.is_transporter }}"
-                           required=""
+                           {% if form.is_transporter.value %}checked{% endif %}
                            id="id_is_transporter"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_contractor" style="text-align: left;">Donneur d'ordre&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_contractor">Donneur d'ordre&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_contractor"
-                           value="{{ society.is_contractor }}"
-                           required=""
+                           {% if form.is_contractor.value %}checked{% endif %}
                            id="id_is_contractor"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="two wide field">
-                <label for="id_is_physical_person" style="text-align: left;">Personne physique&nbsp;:</label>
-                    <input type="text"
+                <label for="id_is_physical_person">Personne physique&nbsp;:</label>
+                    <input type="checkbox"
                            name="is_physical_person"
-                           value="{{ society.is_physical_person }}"
-                           required=""
+                           {% if form.is_physical_person.value %}checked{% endif %}
                            id="id_is_physical_person"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
+                           onclick="return false;"
+                           style="font-weight: bold;width: 15px;height: 15px;">
+              </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Mise à jour des renseignements pour la centrale</h3>
+        <div class="ui clearing divider"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="four wide field">
+                <label for="id_centers_suppliers_indentifier" style="text-align: left;">Identifiant Centrale&nbsp;:</label>
+                {{ form.centers_suppliers_indentifier }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="six wide field">
+                <label for="id_immeuble" style="text-align: left;">Immeuble&nbsp;:</label>
+                {{ form.immeuble }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="six wide field">
+                <label for="id_adresse" style="text-align: left;">Adresse&nbsp;:</label>
+                {{ form.adresse }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="one wide field">
+                <label for="id_code_postal" style="text-align: left;">Code Postal&nbsp;:</label>
+                {{ form.code_postal }}
+              </div>
+              <div class="five wide field">
+                <label for="id_ville" style="text-align: left;">Ville&nbsp;:</label>
+                {{ form.ville }}
+              </div>
+              <div class="two wide field">
+                <label for="id_pays" style="text-align: left;">Pays&nbsp;:</label>
+                {{ form.pays }}
+              </div>
+              <div class="two wide field">
+                <label for="id_telephone" style="text-align: left;">Téléphone&nbsp;:</label>
+                {{ form.telephone }}
+              </div>
+              <div class="two wide field">
+                <label for="id_mobile" style="text-align: left;">Mobile&nbsp;:</label>
+                {{ form.mobile }}
+              </div>
+              <div class="four wide field">
+                <label for="id_email" style="text-align: left;">e-mail&nbsp;:</label>
+                {{ form.email }}
               </div>
 
           </div>

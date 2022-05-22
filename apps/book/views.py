@@ -4,12 +4,15 @@ Views des Tiers X3
 """
 from pathlib import Path
 
-from django.shortcuts import render, reverse
-from django.views.generic import ListView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import reverse
+from django.views.generic import ListView, UpdateView
+from django.db.models import Q
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.models import Society
+from apps.book.forms import SocietyForm
 
 
 # ECRANS DES FOURNISSEURS ==========================================================================
@@ -21,18 +24,40 @@ class SocietiesList(ListView):
     template_name = "book/societies_list.html"
     extra_context = {"titre_table": "Tiers X3"}
 
+    def get_queryset(self):
+        """On restreint les tiers X3 aux fournisseurs et aux clients"""
+        queryset = self.model.objects.filter(Q(is_client=True) | Q(is_supplier=True))
+        return queryset
 
-def society_view(request, pk):
-    """Vue en table d'une société"""
 
-    society = Society.objects.get(third_party_num=pk)
-    context = {
-        "society": society,
-        "chevron_retour": reverse("book:societies_list"),
-        "titre_table": f"{society.third_party_num} - {society.name}",
-    }
+class SocietyUpdate(SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des Centrales Filles"""
 
-    return render(request, "book/society_view.html", context=context)
+    model = Society
+    form_class = SocietyForm
+    form_class.use_required_attribute = False
+    template_name = "book/society_update.html"
+    success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
+    error_message = "Le Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["chevron_retour"] = reverse("book:societies_list")
+        context["titre_table"] = (
+            f"Mise à jour du Tiers : "
+            f"{context.get('object').third_party_num} - "
+            f"{context.get('object').name}"
+        )
+        return context
+
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 def export_list_societies(request, file_name: str):
