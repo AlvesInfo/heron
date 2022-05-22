@@ -38,19 +38,19 @@ class Country(models.Model):
         null=True, blank=True, max_length=3, verbose_name="code pays iso 3"
     )  # ISOA3
     country_iso_num = models.IntegerField(null=True, verbose_name="code pays iso num")  # ISONUM
-    lang_iso = models.CharField(blank=True, null=True, max_length=3)  # LAN
+    lang_iso = models.CharField(null=True, blank=True, max_length=3)  # LAN
     cee = models.BooleanField(default=False)  # EECFLG
     cee_date = models.DateField(null=True)  # EECDAT
     cee_date_quit = models.DateField(null=True)  # EECDATOUT
     script_control = models.CharField(null=True, blank=True, max_length=255)  # CTLPRG
-    currency_iso = models.CharField(blank=True, null=True, max_length=3)  # CUR
+    currency_iso = models.CharField(null=True, blank=True, max_length=3)  # CUR
     format_naf = models.CharField(null=True, blank=True, max_length=255)  # NAFFMT
     format_tel = models.CharField(null=True, blank=True, max_length=255)  # TELFMT
     format_imp = models.CharField(null=True, blank=True, max_length=255)  # POSCODCRY
     format_ville = models.CharField(null=True, blank=True, max_length=255)  # CTYCODFMT
-    currency_sigle = models.CharField(blank=True, null=True, max_length=3)
-    currency_name = models.CharField(blank=True, null=True, max_length=35)
-    phone_indicatif = models.CharField(blank=True, null=True, max_length=15)
+    currency_sigle = models.CharField(null=True, blank=True, max_length=3)
+    currency_name = models.CharField(null=True, blank=True, max_length=35)
+    phone_indicatif = models.CharField(null=True, blank=True, max_length=15)
     language = models.CharField(null=True, blank=True, max_length=35)
     country_vat_num = models.CharField(
         null=True, blank=True, max_length=3, verbose_name="code pays tva"
@@ -151,8 +151,8 @@ class ExchangeRate(models.Model):
     EN : Change rate
     """
 
-    currency_iso_current = models.CharField(blank=True, null=True, max_length=3)
-    currency_iso_change = models.CharField(blank=True, null=True, max_length=3)
+    currency_iso_current = models.CharField(null=True, blank=True, max_length=3)
+    currency_iso_change = models.CharField(null=True, blank=True, max_length=3)
     exchange_date = models.DateField(auto_now_add=True, verbose_name="créé le")
     average_exchange_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     purchase_exchange_rate = models.DecimalField(null=True, max_digits=20, decimal_places=5)
@@ -185,7 +185,7 @@ class ValidationPostalCode(models.Model):
     )
     number_char = models.IntegerField(default=0, verbose_name="nombre de caractères")
     rule_number = models.IntegerField(default=0, verbose_name="n° de règle")
-    exemple = models.CharField(blank=True, null=True, max_length=35)
+    exemple = models.CharField(null=True, blank=True, max_length=35)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -210,8 +210,8 @@ class ValidationIntraVies(models.Model):
         to_field="country",
         related_name="vies_country",
     )
-    prefix = models.CharField(blank=True, null=True, max_length=2)
-    func_verif = models.CharField(blank=True, null=True, max_length=35)
+    prefix = models.CharField(null=True, blank=True, max_length=2)
+    func_verif = models.CharField(null=True, blank=True, max_length=35)
     lng_min = models.IntegerField(default=0, verbose_name="longeur minimun")
     lng_max = models.IntegerField(default=0, verbose_name="longeur maxi")
 

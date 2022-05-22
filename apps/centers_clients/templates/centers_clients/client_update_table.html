@@ -1,10 +1,10 @@
-{% extends "heron/table_courant.html" %}
+{% extends "heron/update_create_courant.html" %}
 
 {% block table %}
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Maison</h3>
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Client</h3>
         <div class="ui clearing divider"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
@@ -125,35 +125,6 @@
               <div class="two wide field">
                 <label for="id_sage_plan_code" style="text-align: left;">Plan Compte X3&nbsp;:</label>
                 {{ form.sage_plan_code }}
-              </div>
-
-          </div>
-
-          <div class="fields">
-
-              <div class="four wide field">
-                <label for="id_credit_account" style="text-align: left;">Compte X3 au crédit&nbsp;:</label>
-                {{ form.credit_account }}
-              </div>
-              <div class="four wide field">
-                <label for="id_debit_account" style="text-align: left;">Compte X3 au débit&nbsp;:</label>
-                {{ form.debit_account }}
-              </div>
-              <div class="four wide field">
-                <label for="id_prov_account" style="text-align: left;">Compte X3 sur  provision&nbsp;:</label>
-                {{ form.prov_account }}
-              </div>
-              <div class="four wide field">
-                <label for="id_extourne_account" style="text-align: left;">Compte X3 sur extourne&nbsp;:</label>
-                {{ form.extourne_account }}
-              </div>
-              <div class="four wide field">
-                <label for="id_rfa_frequence" style="text-align: left;">Fréquence des rfa&nbsp;:</label>
-                {{ form.rfa_frequence }}
-              </div>
-              <div class="four wide field">
-                <label for="id_rfa_remise" style="text-align: left;">Taux de remboursement rfa&nbsp;:</label>
-                {{ form.rfa_remise }}
               </div>
 
           </div>

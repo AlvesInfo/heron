@@ -15,11 +15,12 @@
             {% else %}
                 <div class="ui segment" style="margin: 0;padding: 10px;text-align: center">
                     <div class="ui equal width grid center">
-                      <div class="ui chargement active inverted dimmer">
-                        <div class="ui text loader" style="vertical-align: top;">Chargement de la page</div>
-                      </div>
-                {% block table %}
-                {% endblock table %}
+                        <div class="ui datatable-chargement active inverted dimmer">
+                            <div class="ui medium text loader">Chargement</div>
+                        </div>
+
+                        {% block table %}
+                        {% endblock table %}
 
                     </div>
                 </div>

@@ -15,8 +15,6 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = (Path(BASE_DIR) / "apps").resolve()
 CORE_DIR = (Path(APPS_DIR) / "core").resolve()
 
-# print(BASE_DIR, PROJECT_DIR, APPS_DIR, CORE_DIR, sep=" | ")
-
 sys.path.append(str(BASE_DIR))
 sys.path.append(str(PROJECT_DIR))
 sys.path.append(str(APPS_DIR))
@@ -264,6 +262,10 @@ Path.mkdir(MEDIA_DIR, exist_ok=True)
 MEDIA_EXCEL_FILES_DIR = (Path(BASE_DIR) / "files/media/excel_files").resolve()
 Path.mkdir(MEDIA_EXCEL_FILES_DIR, exist_ok=True)
 
+# REPERTOIRES DES PICKLERS
+PICKLERS_DIR = (Path(BASE_DIR) / "files/media/pickler").resolve()
+Path.mkdir(PICKLERS_DIR, exist_ok=True)
+
 # REPERTOIRES DE STATIC
 STATIC_DIR = (Path(BASE_DIR) / "files/static").resolve()
 Path.mkdir(STATIC_DIR, exist_ok=True)
@@ -328,7 +330,7 @@ STATICFILES_DIRS = [
     (Path(BASE_DIR) / "files/static/vendor").resolve(),
 ]
 
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = (Path(BASE_DIR) / "files/media").resolve()
 
 CRISPY_TEMPLATE_PACK = "semantic-ui"

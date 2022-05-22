@@ -191,6 +191,24 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=10, verbose_name="code comptable client"
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
 
+    # Adresse pour la centrale d'achat
+    immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
+    adresse = models.CharField(null=True, blank=True,max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(null=True, blank=True,max_length=15, verbose_name="code postal")
+    ville = models.CharField(null=True, blank=True,max_length=50, verbose_name="ville")
+    pays = models.ForeignKey(
+        Country,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="country",
+        related_name="supplier_address_country",
+        verbose_name="pays",
+        db_column="pays",
+    )
+    telephone = models.CharField(null=True, blank=True, max_length=25, verbose_name="téléphone")
+    mobile = models.CharField(null=True, blank=True, max_length=25, verbose_name="mobile")
+    email = models.EmailField(null=True, blank=True, max_length=85, verbose_name="email")
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.third_party_num} - {self.name}"
@@ -485,7 +503,7 @@ class SocietyBank(FlagsTable):
         null=True,
         db_column="country",
     )  # CRY
-    currency = models.CharField(blank=True, null=True, max_length=3)  # CUR
+    currency = models.CharField(null=True, blank=True, max_length=3)  # CUR
     is_default = models.BooleanField(null=True, default=False)  # BIDNUMFLG
 
     # bank_name = models.CharField(max_length=35)

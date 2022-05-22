@@ -37,7 +37,9 @@ WIDTH_DICT = {
 }
 
 
-def get_html_field(width: str, read_only: str, if_create: str, champ: str, label: str, prefix:str) -> str:
+def get_html_field(
+    width: str, read_only: str, if_create: str, champ: str, label: str, prefix: str
+) -> str:
     """Fonction qui renvoie le html pour le champ d'un mini form semantic ui"""
 
     field_html = f"""
@@ -99,7 +101,9 @@ def construct_html() -> str:
             lineterminator="",
             quoting=csv.QUOTE_NONNUMERIC,
         )
-        column, width_column, index, width, read_only, if_create, champ, label, prefix = next(csv_reader)
+        column, width_column, index, width, read_only, if_create, champ, label, prefix = next(
+            csv_reader
+        )
         test_column = column
         test_index = index
         html = f"""
@@ -156,10 +160,33 @@ def construct_html() -> str:
 
 def extract_fields():
     """Extraction du nom des champs et des verboses names"""
-    from apps.centers_clients.models import MaisonSupplier as objectName
+    from apps.centers_purchasing.models import (
+        PrincipalCenterPurchase,
+        ChildCenterPurchase,
+        Signboard,
+        SignboardModel,
+        Translation,
+        SignboardModelTranslate,
+        TranslationParamaters,
+    )
 
-    for field in objectName._meta.fields:
-        print(field.name, field.verbose_name.capitalize(), sep="\t")
+    object_list = [
+        PrincipalCenterPurchase,
+        ChildCenterPurchase,
+        Signboard,
+        SignboardModel,
+        Translation,
+        SignboardModelTranslate,
+        TranslationParamaters,
+    ]
+
+    for objectName in object_list:
+        print(f"{objectName} =====================================================================")
+
+        for field in objectName._meta.fields:
+            print(field.name, field.verbose_name.capitalize(), sep="\t")
+
+        print("===================================================================================")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,24 @@
-<div class="ui grid" style="margin: 10px 0 0;">
-    <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
-        <div class="ui segment" style="margin: 0;padding: 10px;text-align: center">
-            <h3 class="">{{ titre_table }}</h3>
+<div class="ui segment" style="padding: 0;margin: 10px 50px 0;">
+    <div class="ui datatable-chargement active inverted dimmer">
+        <div class="ui text loader" style="margin-top: 6px;"></div>
+    </div>
+    <div class="ui three column grid">
+        <div class="column" style="text-align: left;padding-right: 5px;">
+            {% block left_side %}
+            {% endblock left_side %}
+        </div>
+
+        <div class="column" style="text-align: center;padding-left: 5px;padding-right: 5px;">
+            <h3 style="padding: 10px 0;">{{ titre_table }}</h3>
+        </div>
+
+        <div class="column" style="text-align: right;padding-left: 5px;">
+            {% block right_side %}
+            {% endblock right_side %}
         </div>
     </div>
 </div>
+
 <!-- Messages ---------------------------------------------------------- -->
 {% include 'heron/messages_delete.html' %}
 {% include 'heron/messages_forms.html' %}

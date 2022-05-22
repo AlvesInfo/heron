@@ -1,0 +1,15 @@
+    <div class="active item dropdown_pa">
+        SELECTION&nbsp;&nbsp;MAISON&nbsp;&nbsp;B.I
+    </div>
+    <div id="id_item_maison"  class="dropdown_pa">
+        <label for="id_code_maison"
+               style="color: #FFFFFF;text-align: left;"></label>
+        <select class="ui fluid search dropdown"
+                name="maisons"
+                required
+                id="id_code_maison">
+            {% for maison in form_bi.maison_bi %}
+                {{ maison }}
+            {% endfor %}
+        </select>
+    </div>

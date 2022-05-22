@@ -21,11 +21,11 @@ from apps.parameters.models import SalePriceCategory
 
 def fixtures():
     """Fonction d'ajout de fixtures pour la table Nature"""
-    file_principal = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/centrale_mere.csv"
+    file_mere = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/centrale_mere.csv"
     file_childs = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/centrales_filles.csv"
     file_enseigne = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/enseignes.csv"
 
-    with file_principal.open(encoding="utf8") as csv_file:
+    with file_mere.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
         list_keys = [
             "code",

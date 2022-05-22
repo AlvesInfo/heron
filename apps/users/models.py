@@ -184,7 +184,7 @@ class AuthGroupAccessStaff(models.Model):
 
 class UploadUserFile(models.Model):
     file = models.FileField(upload_to="users/")
-    base_name_file = models.CharField(blank=True, null=True, max_length=255)
+    base_name_file = models.CharField(null=True, blank=True, max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

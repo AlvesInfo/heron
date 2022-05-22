@@ -1,0 +1,54 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="one wide column"></div>
+
+<div class="fourteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;">Modifier</th>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Commentaire</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for centrale in meres %}
+            <tr id="id_{{ centrale.pk }}" class="hide_plans">
+
+                <td data-value="{{ centrale.pk }}"
+                    style="text-align: center;">
+                    <a href="{% url 'centers_purchasing:mere_update' pk=centrale.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                  {% if centrale.code %}
+                    {{ centrale.code }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if centrale.name %}
+                    {{ centrale.name }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if centrale.comment %}
+                    {{ centrale.comment }}
+                  {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="one wide column"></div>
+
+{% endblock table %}

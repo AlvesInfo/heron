@@ -20,6 +20,33 @@ def left_trunc(value, num):
     return value[int(num) :]
 
 
+@register.filter(name="right_align")
+def right_align(value, num):
+    to_split = value.split("-")
+
+    if len(to_split) == 1:
+        return value.rjust(num)
+
+    return (
+        to_split[0].rjust(num)
+        + " - "
+        + " - ".join(row for row in to_split[1:])
+    )
+
+
+def right_align_(value, num):
+    to_split = value.split("-")
+
+    if len(to_split) == 1:
+        return value.rjust(num)
+
+    return (
+        to_split[0].rjust(num).replace(" ", "&nbsp;")
+        + " - "
+        + " - ".join(row for row in to_split[1:])
+    )
+
+
 @register.filter(name="right_trunc")
 @stringfilter
 def right_trunc(value, num):

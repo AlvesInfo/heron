@@ -1,0 +1,16 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'centers_purchasing:fille_create' %}">
+        <button class="ui blue button" name="create_centre_cout" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            CREATION
+        </button>
+    </a>
+
+    <a class="item" href="{% url 'centers_purchasing:filles_export_list' %}">
+        <button class="ui green button" name="create_centre_cout" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            LISTING CENTRALES FILLES
+        </button>
+    </a>
+
+{% endblock right_side %}

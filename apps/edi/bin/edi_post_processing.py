@@ -134,7 +134,6 @@ def bulk_post_insert(flow_name: AnyStr):
 
         for key, value in packaging_dict.items():
             if key in charges_dict and value:
-                print(edi.get("invoice_number"), edi.get("montant_facture_TTC"))
                 libelle = charges_dict.get(key)
                 bulk_list.append(
                     EdiImport(
@@ -158,7 +157,7 @@ def bulk_post_insert(flow_name: AnyStr):
                         flow_name=edi.get("flow_name"),
                     )
                 )
-                print(edi.get("montant_facture_TTC"))
+
     EdiImport.objects.bulk_create(bulk_list)
 
     # Mise à jour des autres champs ================================================================

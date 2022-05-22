@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 # Create your models here.
@@ -35,3 +37,9 @@ class EssaisCopyPostgresql(models.Model):
     l_28 = models.CharField(null=True, blank=True, max_length=20)
     l_29 = models.CharField(null=True, blank=True, max_length=20)
     l_30 = models.CharField(null=True, blank=True, max_length=20)
+
+
+class PicklerFiles(models.Model):
+    """Modèle servant à stocker les fichier ou objets pickler"""
+    uuid_identification = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    pickle_file = models.FileField()

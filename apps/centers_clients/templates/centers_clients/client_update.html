@@ -1,8 +1,11 @@
 {% extends "heron/base_semantic.html" %}
 
 {% load static %}
-
 {% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
 
 {% block content %}
 
@@ -10,10 +13,8 @@
 
         <form action="" method="post">
             {% csrf_token %}
-            {% include "centers_clients/client_update_menu.html" %}
 
-            {% include "heron/list_table_courant.html" %}
-
+            {% include "centers_clients/client_update_entete.html" %}
             {% include "centers_clients/client_update_table.html" %}
 
         </form>

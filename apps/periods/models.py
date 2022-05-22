@@ -23,9 +23,9 @@ class Periode(models.Model):
 
     year = models.IntegerField(default=0, verbose_name="année")
     period_type = models.CharField(
-        blank=True, null=True, max_length=35, verbose_name="type de période"
+        null=True, blank=True, max_length=35, verbose_name="type de période"
     )
-    wording = models.CharField(blank=True, null=True, max_length=35, verbose_name="libellé")
+    wording = models.CharField(null=True, blank=True, max_length=35, verbose_name="libellé")
     start_date = models.DateField()
     end_date = models.DateField()
 

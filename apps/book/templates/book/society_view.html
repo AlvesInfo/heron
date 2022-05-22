@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
 {% block content %}
 
 {% if user.is_authenticated %}
@@ -10,8 +14,6 @@
             {% csrf_token %}
 
             {% include "book/society_view_menu.html" %}
-
-            {% include "heron/list_table_courant.html" %}
 
             {% include "book/society_view_table.html" %}
 
@@ -38,11 +40,8 @@
 
         $(document).ready(function () {
 
-            $('table').tablesort();
-
-            $('.tabular.menu .item').tab();
-
         });
+
     </script>
 
 {% endblock script %}

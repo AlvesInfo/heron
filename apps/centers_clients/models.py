@@ -255,7 +255,7 @@ class Maison(FlagsTable):
     )
 
     # Adresse Maison
-    immeuble = models.CharField(blank=True, null=True, max_length=200, verbose_name="immeuble")
+    immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
     adresse = models.CharField(max_length=200, verbose_name="adresse")
     code_postal = models.CharField(max_length=15, verbose_name="code postal")
     ville = models.CharField(max_length=50, verbose_name="ville")
@@ -263,13 +263,13 @@ class Maison(FlagsTable):
         Country,
         on_delete=models.PROTECT,
         to_field="country",
-        related_name="coutry_maison_country",
+        related_name="country_maison_country",
         verbose_name="pays",
         db_column="pays",
     )
-    telephone = models.CharField(blank=True, null=True, max_length=25, verbose_name="téléphone")
-    mobile = models.CharField(blank=True, null=True, max_length=25, verbose_name="mobile")
-    email = models.EmailField(blank=True, null=True, max_length=85, verbose_name="email")
+    telephone = models.CharField(null=True, blank=True, max_length=25, verbose_name="téléphone")
+    mobile = models.CharField(null=True, blank=True, max_length=25, verbose_name="mobile")
+    email = models.EmailField(null=True, blank=True, max_length=85, verbose_name="email")
 
     def save(self, *args, **kwargs):
         """
@@ -332,10 +332,10 @@ class MaisonBi(models.Model):
     code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
     opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
     closing_date = models.DateField(null=True, verbose_name="date de fermeture")
-    immeuble = models.CharField(blank=True, null=True, max_length=200, verbose_name="immeuble")
-    adresse = models.CharField(blank=True, null=True, max_length=200, verbose_name="adresse")
-    code_postal = models.CharField(blank=True, null=True, max_length=15, verbose_name="code postal")
-    ville = models.CharField(blank=True, null=True, max_length=50, verbose_name="ville")
+    immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
+    adresse = models.CharField(null=True, blank=True, max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(null=True, blank=True, max_length=15, verbose_name="code postal")
+    ville = models.CharField(null=True, blank=True, max_length=50, verbose_name="ville")
     pays = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
@@ -345,8 +345,8 @@ class MaisonBi(models.Model):
         verbose_name="pays",
         db_column="pays",
     )
-    telephone = models.CharField(blank=True, null=True, max_length=25, verbose_name="téléphone")
-    email = models.EmailField(blank=True, null=True, max_length=85, verbose_name="email")
+    telephone = models.CharField(null=True, blank=True, max_length=25, verbose_name="téléphone")
+    email = models.EmailField(null=True, blank=True, max_length=85, verbose_name="email")
     is_new = models.BooleanField(default=True)
     is_modify = models.BooleanField(default=False)
 

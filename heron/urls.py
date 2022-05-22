@@ -17,7 +17,6 @@ urlpatterns = [
     path("back-heron-plateforme/", admin.site.urls),
     path("", home, name="home"),
     path("modale/", modals_views, name="modale"),
-
     # Gestion du login et du reset des password ====================================================
     path("accounts/", include(("apps.users.urls", "apps.users"), namespace="accounts")),
     path("logout_email/", logout_email, name="logout_email"),
@@ -46,7 +45,6 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     path("reactivate/<uidb64>/<token>/", reactivate, name="reactivate"),
-
     # Applications =================================================================================
     path("import_edi/", import_edi, name="import_edi"),
     path(

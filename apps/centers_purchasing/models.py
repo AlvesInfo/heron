@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import uuid
 
 from django.db import models
+from django.shortcuts import reverse
 
 from heron.models import FlagsTable
 from apps.countries.models import Country
@@ -23,7 +24,7 @@ from apps.parameters.models import SalePriceCategory
 class Action(FlagsTable):
     """
     Table des Actions. Elle permettra d'avoir une liste centralisée,
-    des actions à réaliser en fonction de la centrale d'achat, ou pour des validation
+    des actions à réaliser en fonction de la centrale d'achat, ou pour des validations
     ou modifications de valeurs à la volée.
     FR : Actions
     EN : Actions
@@ -40,16 +41,20 @@ class PrincipalCenterPurchase(FlagsTable):
     EN : Principal Center Purchase
     """
 
-    code = models.CharField(unique=True, max_length=15)
-    name = models.CharField(max_length=80)
+    code = models.CharField(unique=True, max_length=15, verbose_name="code")
+    name = models.CharField(max_length=80, verbose_name="Nom")
     generic_coefficient = models.DecimalField(
-        max_digits=20, decimal_places=5, default=1, verbose_name="Coefficient niveau Centrale Mère"
+        max_digits=20, decimal_places=5, default=1, verbose_name="Coef. Centrale Mère"
     )
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:meres_list")
 
     class Meta:
         """class Meta du modèle django"""
@@ -65,7 +70,7 @@ class ChildCenterPurchase(FlagsTable):
     EN : Child Center Purchase
     """
 
-    code = models.CharField(unique=True, max_length=15)
+    code = models.CharField(unique=True, max_length=15, verbose_name="code")
     base_center = models.ForeignKey(
         PrincipalCenterPurchase,
         on_delete=models.PROTECT,
@@ -73,20 +78,25 @@ class ChildCenterPurchase(FlagsTable):
         verbose_name="centrale mère",
         db_column="base_center",
     )
-    name = models.CharField(max_length=80)
+    name = models.CharField(max_length=80, verbose_name="Nom")
     generic_coefficient = models.DecimalField(
-        max_digits=20, decimal_places=5, default=1, verbose_name="coefficient niveau Centrale Fille"
+        max_digits=20, decimal_places=5, default=1, verbose_name="Coef. Centrale Fille"
     )
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
 
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:filles_list")
+
     class Meta:
         """class Meta du modèle django"""
 
         ordering = ["base_center", "name"]
+        unique_together = (("code", "base_center"),)
 
 
 class Signboard(FlagsTable):
@@ -97,7 +107,7 @@ class Signboard(FlagsTable):
     EN : Signboard
     """
 
-    code = models.CharField(unique=True, max_length=15)
+    code = models.CharField(unique=True, max_length=15, verbose_name="code")
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
@@ -105,9 +115,11 @@ class Signboard(FlagsTable):
         verbose_name="Catégorie de prix générique",
         db_column="sale_price_category",
     )
-    name = models.CharField(unique=True, max_length=80)
-    logo = models.ImageField(null=True, upload_to="logos")
-    generic_coefficient = models.DecimalField(max_digits=20, decimal_places=5, default=1)
+    name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
+    logo = models.ImageField(null=True, upload_to="logos/", verbose_name="logo")
+    generic_coefficient = models.DecimalField(
+        max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
+    )
     language = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
@@ -115,11 +127,15 @@ class Signboard(FlagsTable):
         verbose_name="langue",
         db_column="language",
     )
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:enseignes_list")
 
     class Meta:
         """class Meta du modèle django"""
@@ -139,20 +155,26 @@ class SignboardModel(FlagsTable):
         on_delete=models.PROTECT,
         to_field="code",
         db_column="sign_board",
+        verbose_name="Enseigne",
     )
-    name = models.CharField(unique=True, max_length=80)
-    short_name = models.CharField(null=True, blank=True, max_length=20)
-    action = models.CharField(null=True, blank=True, max_length=80)
-    comment = models.TextField(null=True, blank=True)
+    name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
+    short_name = models.CharField(null=True, blank=True, max_length=20, verbose_name="Intitulé")
+    action = models.CharField(null=True, blank=True, max_length=80, verbose_name="action")
+    comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sign_board} - {self.name}"
 
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:models_enseigne_list")
+
     class Meta:
         """class Meta du modèle django"""
 
         ordering = ["sign_board", "name"]
+        unique_together = (("sign_board", "name"),)
 
 
 class Translation(FlagsTable):
@@ -162,38 +184,42 @@ class Translation(FlagsTable):
     EN : Translations
     """
 
-    name = models.CharField(unique=True, max_length=80)
-    short_name = models.CharField(null=True, blank=True, max_length=20)
-    french_text = models.TextField()
-    german_text = models.TextField(null=True, blank=True)
-    italian_text = models.TextField(null=True, blank=True)
-    spanih_text = models.TextField(null=True, blank=True)
-    polish_text = models.TextField(null=True, blank=True)
-    romanian_text = models.TextField(null=True, blank=True)
-    dutch_text = models.TextField(null=True, blank=True)
-    flemish_text = models.TextField(null=True, blank=True)
-    greek_text = models.TextField(null=True, blank=True)
-    hungarian_text = models.TextField(null=True, blank=True)
-    portuguese_text = models.TextField(null=True, blank=True)
-    czech_text = models.TextField(null=True, blank=True)
-    swedish_text = models.TextField(null=True, blank=True)
-    bulgarian_text = models.TextField(null=True, blank=True)
-    english_text = models.TextField(null=True, blank=True)
-    slovak_text = models.TextField(null=True, blank=True)
-    danish_text = models.TextField(null=True, blank=True)
-    norwegian_text = models.TextField(null=True, blank=True)
-    finnish_text = models.TextField(null=True, blank=True)
-    lithuanian_text = models.TextField(null=True, blank=True)
-    croatian_text = models.TextField(null=True, blank=True)
-    slovene_text = models.TextField(null=True, blank=True)
-    estonian_text = models.TextField(null=True, blank=True)
-    irish_text = models.TextField(null=True, blank=True)
-    latvian_text = models.TextField(null=True, blank=True)
-    maltese_text = models.TextField(null=True, blank=True)
+    name = models.CharField(unique=True, max_length=80, verbose_name="nom")
+    short_name = models.CharField(null=True, blank=True, max_length=20, verbose_name="intitulé")
+    french_text = models.TextField(verbose_name="français")
+    german_text = models.TextField(null=True, blank=True, verbose_name="allemand")
+    italian_text = models.TextField(null=True, blank=True, verbose_name="italien")
+    spanih_text = models.TextField(null=True, blank=True, verbose_name="espagnol")
+    polish_text = models.TextField(null=True, blank=True, verbose_name="polonais")
+    romanian_text = models.TextField(null=True, blank=True, verbose_name="rounmain")
+    dutch_text = models.TextField(null=True, blank=True, verbose_name="hollandais")
+    flemish_text = models.TextField(null=True, blank=True, verbose_name="flamand")
+    greek_text = models.TextField(null=True, blank=True, verbose_name="grèque")
+    hungarian_text = models.TextField(null=True, blank=True, verbose_name="hongrois")
+    portuguese_text = models.TextField(null=True, blank=True, verbose_name="portugais")
+    czech_text = models.TextField(null=True, blank=True, verbose_name="tchèque")
+    swedish_text = models.TextField(null=True, blank=True, verbose_name="suèdois")
+    bulgarian_text = models.TextField(null=True, blank=True, verbose_name="bulgare")
+    english_text = models.TextField(null=True, blank=True, verbose_name="anglais")
+    slovak_text = models.TextField(null=True, blank=True, verbose_name="slovaque")
+    danish_text = models.TextField(null=True, blank=True, verbose_name="danois")
+    norwegian_text = models.TextField(null=True, blank=True, verbose_name="norvégien")
+    finnish_text = models.TextField(null=True, blank=True, verbose_name="finlandais")
+    lithuanian_text = models.TextField(null=True, blank=True, verbose_name="lithuanien")
+    croatian_text = models.TextField(null=True, blank=True, verbose_name="croate")
+    slovene_text = models.TextField(null=True, blank=True, verbose_name="slovène")
+    estonian_text = models.TextField(null=True, blank=True, verbose_name="estonien")
+    irish_text = models.TextField(null=True, blank=True, verbose_name="irlandais")
+    latvian_text = models.TextField(null=True, blank=True, verbose_name="letton")
+    maltese_text = models.TextField(null=True, blank=True, verbose_name="malte")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:translate_list")
 
     class Meta:
         """class Meta du modèle django"""
@@ -214,6 +240,7 @@ class SignboardModelTranslate(FlagsTable):
         to_field="name",
         related_name="sign_board_translate",
         db_column="sign_board_model",
+        verbose_name="modèle",
     )
     translation = models.ForeignKey(
         Translation,
@@ -221,6 +248,7 @@ class SignboardModelTranslate(FlagsTable):
         to_field="name",
         related_name="translation_translate",
         db_column="translation",
+        verbose_name="traduction",
     )
 
     # Identification
@@ -230,10 +258,15 @@ class SignboardModelTranslate(FlagsTable):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sign_board_model} - {self.translation}"
 
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:translates_enseigne_list")
+
     class Meta:
         """class Meta du modèle django"""
 
         ordering = ["sign_board_model", "translation"]
+        unique_together = (("sign_board_model", "translation"),)
 
 
 class TranslationParamaters(FlagsTable):
@@ -243,22 +276,28 @@ class TranslationParamaters(FlagsTable):
     EN : Interpolations
     """
 
+    code = models.CharField(unique=True, max_length=80, verbose_name="code")
     translation = models.ForeignKey(
         SignboardModelTranslate,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="parameter_model_translate",
         db_column="translation",
+        verbose_name="traduction",
     )
-    prefix_suffix = models.CharField(max_length=1, default="$")
-    model = models.CharField(max_length=80)
-    field = models.CharField(max_length=80)
+    prefix_suffix = models.CharField(max_length=1, default="$", verbose_name="prefix")
+    field = models.CharField(max_length=80, verbose_name="champ")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.translation} - {self.model}"
+        return f"{self.code} - {self.translation}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("centers_purchasing:translate_parameters_list")
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["translation", "model"]
+        ordering = ["translation", "code"]
+        unique_together = (("code", "translation"),)

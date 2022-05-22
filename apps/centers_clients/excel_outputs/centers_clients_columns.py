@@ -15,7 +15,6 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_list_maisons = [
     {
         "entete": "CCT X3",
@@ -57,8 +56,13 @@ columns_list_maisons = [
                 "bg_color": "#dce7f5",
             },
         },
-        "f_ligne": {**f_ligne, **{}},
-        "width": 35,
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 9,
     },
     {
         "entete": "Intitulé",
@@ -90,7 +94,12 @@ columns_list_maisons = [
                 "bg_color": "#FFE699",
             },
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
         "width": 15,
     },
     {
@@ -156,7 +165,7 @@ columns_list_maisons = [
                 "num_format": "dd/mm/yy",
             },
         },
-        "width": 8,
+        "width": 11,
     },
     {
         "entete": "Date de fermeture",
@@ -173,7 +182,7 @@ columns_list_maisons = [
                 "num_format": "dd/mm/yy",
             },
         },
-        "width": 8,
+        "width": 11,
     },
     {
         "entete": "Date de signature contrat",
@@ -190,7 +199,7 @@ columns_list_maisons = [
                 "num_format": "dd/mm/yy",
             },
         },
-        "width": 8,
+        "width": 11,
     },
     {
         "entete": "Date de signature de fin de contrat",
@@ -207,7 +216,7 @@ columns_list_maisons = [
                 "num_format": "dd/mm/yy",
             },
         },
-        "width": 8,
+        "width": 11,
     },
     {
         "entete": "Date de renouvellement contrat",
@@ -224,7 +233,7 @@ columns_list_maisons = [
                 "num_format": "dd/mm/yy",
             },
         },
-        "width": 8,
+        "width": 11,
     },
     {
         "entete": "Montant de droit d'entrée",
@@ -240,7 +249,7 @@ columns_list_maisons = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 9,
+        "width": 15,
     },
     {
         "entete": "montant de droit de renouvellement",
@@ -256,7 +265,7 @@ columns_list_maisons = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 9,
+        "width": 15,
     },
     {
         "entete": "Catégorie de prix",
@@ -266,7 +275,12 @@ columns_list_maisons = [
                 "bg_color": "#C9C9C9",
             },
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
         "width": 12,
     },
     {
@@ -396,7 +410,7 @@ columns_list_maisons = [
             },
         },
         "f_ligne": {**f_ligne, **{}},
-        "width": 12,
+        "width": 15.3,
     },
     {
         "entete": "Nom pour l'identifiant Client",
@@ -467,11 +481,9 @@ columns_list_maisons = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 12,
+        "width": 30,
     },
     {
         "entete": "Adresse Tiers",
@@ -483,11 +495,9 @@ columns_list_maisons = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 12,
+        "width": 30,
     },
     {
         "entete": "Code Postal Tiers",
@@ -519,7 +529,7 @@ columns_list_maisons = [
                 "align": "center",
             },
         },
-        "width": 12,
+        "width": 20,
     },
     {
         "entete": "Pays Tiers",
@@ -579,11 +589,9 @@ columns_list_maisons = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 12,
+        "width": 20,
     },
     {
         "entete": "Immeuble Client",
@@ -595,11 +603,9 @@ columns_list_maisons = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 12,
+        "width": 30,
     },
     {
         "entete": "Adresse Client",
@@ -611,11 +617,9 @@ columns_list_maisons = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 12,
+        "width": 30,
     },
     {
         "entete": "Code Postal Client",
@@ -647,7 +651,7 @@ columns_list_maisons = [
                 "align": "center",
             },
         },
-        "width": 12,
+        "width": 20,
     },
     {
         "entete": "Pays Client",
@@ -707,10 +711,8 @@ columns_list_maisons = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 12,
+        "width": 20,
     },
 ]

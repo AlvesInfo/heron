@@ -1,6 +1,12 @@
+# pylint: disable=E0401,R0903
+"""
+Forms des Maisons
+"""
 from django import forms
 
-from apps.centers_clients.models import Maison
+from apps.book.models import Society
+from apps.accountancy.models import CctSage
+from apps.centers_clients.models import Maison, MaisonBi
 
 
 class MaisonForm(forms.ModelForm):
@@ -35,14 +41,45 @@ class MaisonForm(forms.ModelForm):
             "email",
             "tiers",
             "invoice_client_name",
-            "credit_account",
-            "debit_account",
-            "prov_account",
-            "extourne_account",
             "sage_vat_by_default",
             "sage_plan_code",
-            "rfa_frequence",
-            "rfa_remise",
             "currency",
             "language",
         ]
+
+
+class ImportMaisonBiForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.MAISONS_CHOICES = [("", "")] + [
+            (maison.code_maison, f"{maison.code_maison}-{maison.intitule}")
+            for maison in MaisonBi.objects.exclude(code_maison="0").order_by("code_maison")
+        ]
+        maison_bi = forms.ChoiceField(
+            choices=self.MAISONS_CHOICES,
+            label="Code Maison B.I",
+            required=True,
+        )
+        self.fields["maison_bi"] = maison_bi
+
+        self.CCT_CHOICES = [("", "")] + [
+            (cct.cct, f"{cct.cct}-{cct.name}") for cct in CctSage.objects.order_by("cct")
+        ]
+        cct = forms.ChoiceField(
+            choices=self.CCT_CHOICES,
+            label="CCT X3",
+            required=True,
+        )
+        self.fields["cct"] = cct
+
+        self.TIERS_CHOICES = [("", "")] + [
+            (tiers.third_party_num, f"{tiers.third_party_num}-{tiers.name}")
+            for tiers in Society.objects.filter(is_client=True).order_by("third_party_num")
+        ]
+        tiers = forms.ChoiceField(
+            choices=self.TIERS_CHOICES,
+            label="Tiers X3",
+            required=True,
+        )
+        self.fields["tiers"] = tiers

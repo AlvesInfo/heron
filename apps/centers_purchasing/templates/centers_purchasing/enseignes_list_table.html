@@ -1,0 +1,65 @@
+{% extends "heron/table_courant.html" %}
+{% load static %}
+
+{% block table %}
+
+<div class="one wide column"></div>
+
+<div class="fourteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 13px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 7%;">Modifier</th>
+                <th style="width: 7%;">Code</th>
+                <th style="width: 20%;">Nom</th>
+                <th style="width: 7%;">Langue</th>
+                <th style="width: 6%;">Logo</th>
+                <th style="width: 54%;">Commentaire</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for enseigne in enseignes %}
+            <tr id="id_{{ enseigne.pk }}" class="hide_plans">
+
+                <td data-value="{{ enseigne.pk }}"
+                    style="text-align: center;">
+                    <a href="{% url 'centers_purchasing:enseigne_update' pk=enseigne.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                  {% if enseigne.code %}
+                    {{ enseigne.code }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if enseigne.name %}
+                    {{ enseigne.name }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if enseigne.language %}
+                    {{ enseigne.language.lang_iso }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                    <img class="ui tiny centered image" src="{% if enseigne.logo %}{{ enseigne.logo.url }}{% else %}{% static 'banc.png' %}{% endif %}" alt="logo">
+                </td>
+                <td style="text-align: left;">
+                  {% if enseigne.comment %}
+                    {{ enseigne.comment }}
+                  {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="one wide column"></div>
+
+{% endblock table %}

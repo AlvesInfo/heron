@@ -1,0 +1,49 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Centrale Mère</h3>
+        <div class="ui clearing divider"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="two wide field">
+                <label for="id_code" style="text-align: left;">Code&nbsp;:</label>
+                {% if create %}
+                    {{form.code}}
+                {% else %}
+                    <input type="text"
+                           name="code"
+                           value="{{ form.code.value }}"
+                           required=""
+                           id="id_code"
+                           readonly
+                           style="background-color: lavender;font-weight: bold;">
+                {% endif %}
+              </div>
+              <div class="four wide field">
+                <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
+                {{ form.name }}
+              </div>
+              <div class="two wide field">
+                <label for="id_generic_coefficient" style="text-align: left;">Coef. Centrale Mère&nbsp;:</label>
+                {{ form.generic_coefficient }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="sixteen wide field">
+                <label for="id_comment" style="text-align: left;">Commentaire&nbsp;:</label>
+                {{ form.comment }}
+              </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock table %}
