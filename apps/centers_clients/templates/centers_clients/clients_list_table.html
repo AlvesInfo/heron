@@ -11,14 +11,14 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;">Modifier</th>
-                <th>CCT</th>
-                <th>Intitulé</th>
-                <th>Centrale</th>
-                <th>Enseigne</th>
-                <th>Devise</th>
-                <th>Langue</th>
-                <th>Pays</th>
+                <th class="no-sort" style="text-align: center;width: 6.87%">Modifier</th>
+                <th style="width: 8.40%">CCT</th>
+                <th style="width: 25.58%">Intitulé</th>
+                <th style="width: 15.27%">Centrale</th>
+                <th style="width: 15.27%">Enseigne</th>
+                <th style="width: 6.87%">Devise</th>
+                <th style="width: 6.87%">Langue</th>
+                <th style="width: 14.87%">Pays</th>
             </tr>
         </thead>
         <tbody>
@@ -62,8 +62,8 @@
                   {% endif %}
                 </td>
                 <td style="text-align: center;">
-                  {% if maison.country %}
-                    {{ maison.country }}
+                  {% if maison.pays %}
+                    {{ maison.pays }}
                   {% endif %}
                 </td>
             </tr>

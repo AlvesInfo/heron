@@ -116,7 +116,7 @@ class Signboard(FlagsTable):
         db_column="sale_price_category",
     )
     name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
-    logo = models.ImageField(null=True, upload_to="logos/", verbose_name="logo")
+    logo = models.ImageField(null=True, blank=True, upload_to="logos/", verbose_name="logo")
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
     )

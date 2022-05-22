@@ -72,7 +72,7 @@ class EnseigneUpdate(SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:enseignes_list")
         context["titre_table"] = (
-            f"Mise à jour de la Enseigne : "
+            f"Mise à jour de l'enseigne : "
             f"{context.get('object').code} - "
             f"{context.get('object').name}"
         )
