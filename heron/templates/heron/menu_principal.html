@@ -34,31 +34,31 @@
 
         {% if user.is_authenticated %}
             <div class="ui flowing transition popup" id="a">
-                <div class="ui four column relaxed equal divided grid" style="width: 48em;">
-
-                    <div class="column">
-                        <h4 class="ui header">PERMISSIONS</h4>
-                        <div class="ui link list">
-                            <a class="item">Users</a>
+                <div class="ui {% if user.is_superuser %}six{% else %}five{% endif %} column relaxed equal divided grid" style="width: 78em;">
+                    {% if user.is_superuser %}
+                        <div class="column">
+                            <h4 class="ui header"style="font-size: 1em;">PERMISSIONS</h4>
+                            <div class="ui link list">
+                                <a class="item">Users</a>
+                            </div>
                         </div>
-                    </div>
-
+                    {% endif %}
                     <div class="column">
-                        <h4 class="ui header">TIERS</h4>
+                        <h4 class="ui header"style="font-size: 1em;">TIERS</h4>
                         <div class="ui link list">
                             <a href="{% url 'book:societies_list' %}" class="item">Tiers X3</a>
                         </div>
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header">CLIENTS</h4>
+                        <h4 class="ui header"style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
                         </div>
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header">CENTRALES</h4>
+                        <h4 class="ui header"style="font-size: 1em;">CENTRALES</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:meres_list' %}" class="item">Centrales Mère</a>
                         </div>
@@ -67,6 +67,20 @@
                         </div>
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:enseignes_list' %}" class="item">Enseignes</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header"style="font-size: 1em;">SUPPLIERS INVOICES</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Fournisseurs</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header"style="font-size: 1em;">CLIENTS   INVOICES</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Clients</a>
                         </div>
                     </div>
 
