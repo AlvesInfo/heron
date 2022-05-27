@@ -20,6 +20,7 @@ from apps.book.models import Society
 
 
 class SocietyForm(forms.ModelForm):
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -72,6 +73,10 @@ class SocietyForm(forms.ModelForm):
                         )
 
                     raise ValidationError(f"{text_error}")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["copy_default_address"] = forms.BooleanField(required=False)
 
     class Meta:
         model = Society

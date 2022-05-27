@@ -44,15 +44,29 @@ class SocietyUpdate(SuccessMessageMixin, UpdateView):
             f"{context.get('object').third_party_num} - "
             f"{context.get('object').name}"
         )
-        context["adresse_principale_sage"] = context.get("object").society_society.get(
+        context["adresse_principale_sage"] = context.get("object").society_society.filter(
             default_adress=True
-        )
+        ).first()
         return context
 
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
+        copy_default_address = form.cleaned_data.get("copy_default_address")
+
+        if copy_default_address:
+            society = form.save()
+            adress = self.get_context_data().get("adresse_principale_sage")
+            society.immeuble = adress.line_01
+            society.adresse = adress.line_02
+            society.code_postal = adress.postal_code
+            society.ville = adress.city
+            society.pays = adress.country
+            society.telephone = adress.phone_number_01
+            society.mobile = adress.mobile_number
+            society.email = adress.email_01
+            society.save()
+
         self.request.session["level"] = 20
-        print(form.cleaned_data)
         return super().form_valid(form)
 
     def form_invalid(self, form):

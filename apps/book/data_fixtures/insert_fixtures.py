@@ -14,7 +14,7 @@ import csv
 from django.db.utils import IntegrityError
 
 from apps.core.functions.functions_setups import settings
-from apps.book.models import Nature
+from apps.book.models import Nature, Society
 
 
 def fixtures_nature():
@@ -36,5 +36,25 @@ def fixtures_nature():
                 pass
 
 
+def copy_client():
+    """Insertion des adresses par défault de sage X3, dans l'adresse client pour les centrales"""
+    clients = Society.objects.filter(is_client=True)
+
+    for client in clients:
+        adress = client.society_society.filter(default_adress=True).first()
+
+        if adress:
+            client.immeuble = adress.line_01
+            client.adresse = adress.line_02
+            client.code_postal = adress.postal_code
+            client.ville = adress.city
+            client.pays = adress.country
+            client.telephone = adress.phone_number_01
+            client.mobile = adress.mobile_number
+            client.email = adress.email_01
+            client.save()
+
+
 if __name__ == "__main__":
     fixtures_nature()
+    copy_client()

@@ -14,9 +14,10 @@
             <tr>
                 <th class="no-sort" style="width: 6.62%">Visualiser</th>
                 <th style="width: 18.38%">Tiers X3</th>
-                <th style="width: 60.30%">Nom</th>
+                <th style="width: 35.30%">Nom</th>
                 <th style="width: 7.35%">Fournisseur</th>
                 <th style="width: 7.35%">Client</th>
+                <th style="width: 25.00%">Identifiants Centrale</th>
             </tr>
         </thead>
         <tbody>
@@ -47,6 +48,11 @@
                 <td>
                   {% if society.is_client %}
                       X
+                  {% endif %}
+                </td>
+                <td>
+                  {% if society.centers_suppliers_indentifier %}
+                      {{ society.centers_suppliers_indentifier }}
                   {% endif %}
                 </td>
             </tr>

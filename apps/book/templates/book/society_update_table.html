@@ -264,7 +264,7 @@
                 <label for="id_line_01" style="text-align: left;">Immeuble&nbsp;:</label>
                     <input type="text"
                            name="line_01"
-                           value="{{ adresse_principale_sage.line_01.value }}"
+                           value="{{ adresse_principale_sage.line_01|default_if_none:'' }}"
                            required=""
                            id="id_line_01"
                            readonly
@@ -274,7 +274,7 @@
                 <label for="id_line_02" style="text-align: left;">Adresse&nbsp;:</label>
                     <input type="text"
                            name="line_02"
-                           value="{{ adresse_principale_sage.line_02.value }}"
+                           value="{{ adresse_principale_sage.line_02|default_if_none:'' }}"
                            required=""
                            id="id_line_02"
                            readonly
@@ -289,7 +289,7 @@
                 <label for="id_postal_code" style="text-align: left;">Code Postal&nbsp;:</label>
                     <input type="text"
                            name="postal_code"
-                           value="{{ adresse_principale_sage.postal_code.value }}"
+                           value="{{ adresse_principale_sage.postal_code|default_if_none:'' }}"
                            required=""
                            id="id_postal_code"
                            readonly
@@ -299,19 +299,18 @@
                 <label for="id_city" style="text-align: left;">Ville&nbsp;:</label>
                     <input type="text"
                            name="city"
-                           value="{{ adresse_principale_sage.city.value }}"
+                           value="{{ adresse_principale_sage.city|default_if_none:'' }}"
                            required=""
                            id="id_city"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
               </div>
               <div class="two wide field">
-                <label for="id_country" style="text-align: left;">Pays&nbsp;:</label>
+                <label for="countryprincipale" style="text-align: left;">Pays&nbsp;:</label>
                     <input type="text"
-                           name="country"
-                           value="{{ adresse_principale_sage.country.value }}"
-                           required=""
-                           id="id_country"
+                           name="countryprincipale"
+                           value="{{ adresse_principale_sage.country.country_name|default_if_none:'' }}"
+                           id="countryprincipale"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
               </div>
@@ -319,29 +318,29 @@
                 <label for="id_phone_number_01" style="text-align: left;">Téléphone&nbsp;:</label>
                     <input type="text"
                            name="phone_number_01"
-                           value="{{ adresse_principale_sage.phone_number_01.value }}"
+                           value="{{ adresse_principale_sage.phone_number_01|default_if_none:'' }}"
                            required=""
                            id="id_phone_number_01"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
               </div>
               <div class="two wide field">
-                <label for="id_email_01" style="text-align: left;">Mobile&nbsp;:</label>
+                <label for="id_mobile_number" style="text-align: left;">e-mail&nbsp;:</label>
                     <input type="text"
-                           name="email_01"
-                           value="{{ adresse_principale_sage.email_01.value }}"
+                           name="mobile_number"
+                           value="{{ adresse_principale_sage.mobile_number|default_if_none:'' }}"
                            required=""
-                           id="id_email_01"
+                           id="id_mobile_number"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
               </div>
               <div class="four wide field">
-                <label for="id_mobile_number" style="text-align: left;">e-mail&nbsp;:</label>
+                <label for="id_email_01" style="text-align: left;">Mobile&nbsp;:</label>
                     <input type="text"
-                           name="mobile_number"
-                           value="{{ adresse_principale_sage.mobile_number.value }}"
+                           name="email_01"
+                           value="{{ adresse_principale_sage.email_01|default_if_none:''}}"
                            required=""
-                           id="id_mobile_number"
+                           id="id_email_01"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
               </div>
@@ -371,6 +370,14 @@
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
           <div class="fields">
+
+              <div class="one wide field">
+                <label for="id_copy_default_address" style="text-align: left;">Copier adresse&nbsp;:</label>
+                    <input type="checkbox"
+                           name="copy_default_address"
+                           id="id_copy_default_address"
+                           style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              </div>
 
               <div class="six wide field">
                 <label for="id_immeuble" style="text-align: left;">Immeuble&nbsp;:</label>
