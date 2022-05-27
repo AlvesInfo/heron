@@ -40,15 +40,21 @@ def post_processing_all():
         """
     update "edi_ediimport" edi
     set
-        "montant_facture_HT" = edi_fac."montant_facture_HT",
-        "montant_facture_TVA" = edi_fac."montant_facture_TVA",
-        "montant_facture_TTC" = edi_fac."montant_facture_TTC",
-        "valid"=true,
-        "vat_rate_exists" = false,
-        "supplier_exists" = false,
-        "maison_exists" = false,
-        "article_exists" = false,
-        "axe_pro_supplier_exists" = false
+        "montant_facture_HT" = case 
+                                    when "edi"."montant_facture_HT" is not null
+                                    then "edi"."montant_facture_HT"
+                                    else edi_fac."montant_facture_HT"
+                                end,
+        "montant_facture_TVA" = case
+                                    when "edi"."montant_facture_TVA" is not null
+                                    then "edi"."montant_facture_TVA"
+                                    else edi_fac."montant_facture_TVA"
+                                end,
+        "montant_facture_TTC" = case
+                                    when "edi"."montant_facture_TTC" is not null
+                                    then "edi"."montant_facture_TTC"
+                                    else edi_fac."montant_facture_TTC"
+                                end
     from (
         select
             "uuid_identification",
@@ -91,8 +97,31 @@ def post_processing_all():
     and edi."invoice_number" = edi_fac."invoice_number"
     """
     )
+    sql_validate = sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set
+            "valid"=true,
+            "vat_rate_exists" = false,
+            "supplier_exists" = false,
+            "maison_exists" = false,
+            "article_exists" = false,
+            "axe_pro_supplier_exists" = false,
+            "acuitis_order_date" = case 
+                                    when "acuitis_order_date" = '1900-01-01' 
+                                    then null
+                                    else "acuitis_order_date"
+                                   end,
+            "delivery_date" = case 
+                                when "delivery_date" = '1900-01-01' 
+                                then null
+                                else "delivery_date"
+                               end
+    """
+    )
     with connection.cursor() as cursor:
         cursor.execute(sql_fac_update)
+        cursor.execute(sql_validate)
 
 
 def bulk_post_insert(uuid_identification: AnyStr):
@@ -123,9 +152,12 @@ def bulk_post_insert(uuid_identification: AnyStr):
             EdiImport.objects.filter(invoice_number=packaging_dict.get("invoice_number"))
             .values(
                 "uuid_identification",
+                "flow_name",
                 "supplier",
                 "supplier_ident",
                 "code_fournisseur",
+                "acuitis_order_number",
+                "delivery_number",
                 "invoice_number",
                 "invoice_date",
                 "invoice_type",
@@ -140,6 +172,7 @@ def bulk_post_insert(uuid_identification: AnyStr):
                 "insurance_amount",
                 "fob_amount",
                 "fees_amount",
+                "command_reference",
             )
             .first()
         )
@@ -151,9 +184,12 @@ def bulk_post_insert(uuid_identification: AnyStr):
                 bulk_list.append(
                     EdiImport(
                         uuid_identification=edi.get("uuid_identification"),
+                        flow_name=edi.get("flow_name"),
                         supplier=edi.get("supplier"),
                         supplier_ident=edi.get("supplier_ident"),
                         code_fournisseur=edi.get("code_fournisseur"),
+                        acuitis_order_number=edi.get("acuitis_order_number"),
+                        delivery_number=edi.get("delivery_number"),
                         invoice_number=edi.get("invoice_number"),
                         invoice_date=edi.get("invoice_date"),
                         invoice_type=edi.get("invoice_type"),
@@ -167,6 +203,7 @@ def bulk_post_insert(uuid_identification: AnyStr):
                         montant_facture_HT=edi.get("montant_facture_HT"),
                         montant_facture_TVA=edi.get("montant_facture_TVA"),
                         montant_facture_TTC=edi.get("montant_facture_TTC"),
+                        command_reference=edi.get("command_reference"),
                     )
                 )
 
@@ -199,7 +236,8 @@ def edi_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Opto33 EDI
     :param uuid_identification: uuid_identification
     """
-    sql_update_fac_tva = """
+    sql_update_fac_tva = sql.SQL(
+        """
     update "edi_ediimport"
     set 
         "montant_facture_TVA" = "montant_facture_TTC" - "montant_facture_HT",
@@ -207,30 +245,36 @@ def edi_post_insert(uuid_identification: AnyStr):
                                 when "reference_article" isnull or "reference_article" = '' 
                                 then "ean_code"
                                 else "reference_article"
-                              end,
-        "acuitis_order_date" = case 
-                                when "acuitis_order_date" = '1900-01-01' 
-                                then null
-                                else "acuitis_order_date"
-                               end,
-        "delivery_date" = case 
-                            when "delivery_date" = '1900-01-01' 
-                            then null
-                            else "delivery_date"
-                           end
+                              end
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
-    sql_valid = """
+    )
+
+    sql_col_essilor = sql.SQL(
+        """
+        update "edi_ediimport"
+    set 
+        "supplier_ident" = 'col_opticlibre'
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    and "siret_payeur" in ('9524514', '433193067', '43319306700033', 'FR82433193067')
+    """
+    )
+
+    sql_valid = sql.SQL(
+        """
     update "edi_ediimport"
     set 
         "valid"=true
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
+    )
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_fac_tva, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_col_essilor, {"uuid_identification": uuid_identification})
         cursor.execute(sql_valid, {"uuid_identification": uuid_identification})
 
 
@@ -253,7 +297,8 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-    sql_update_units = """
+    sql_update_units = sql.SQL(
+        """
     update "edi_ediimport"
     set 
         "qty" = case 
@@ -271,6 +316,7 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
+    )
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -332,15 +378,56 @@ def interson_post_insert(uuid_identification: AnyStr):
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
-        "net_amount" = round("net_unit_price"::numeric * "qty"::numeric, 2)::numeric
+        "net_amount" = round("net_unit_price"::numeric * "qty"::numeric, 2)::numeric,
+        "reference_article" = case 
+                                when "reference_article" = '' or "reference_article" is null 
+                                then left("libelle", 35)
+                                else "reference_article"
+                              end
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
     )
-
+    sql_bl_date = sql.SQL(
+        """
+        update "edi_ediimport" "edi" 
+        set
+            "delivery_number" = "sd"."single_delivery_number",
+            "delivery_date" = "sd"."single_date"::date
+        from (
+            select
+                "id",
+                case 
+                    when "delivery_number" ilike '%% du %%'  
+                        and is_date(split_part("delivery_number", ' du ', 2))
+                    then split_part(delivery_number, ' du ', 1) 
+                else "delivery_number"
+                end as "single_delivery_number",
+                case 
+                    when "delivery_number" ilike '%% du %%' 
+                        and is_date(split_part("delivery_number", ' du ', 2))
+                    then TO_DATE(split_part("delivery_number", ' du ', 2),'DD/MM/YYYY')::varchar
+                    else null 
+                end as "single_date"
+                
+            from "edi_ediimport" r
+            where 
+                case 
+                    when "delivery_number" ilike '%% du %%' 
+                        and is_date(split_part("delivery_number", ' du ', 2))
+                    then TO_DATE(split_part("delivery_number", ' du ', 2),'DD/MM/YYYY')::varchar
+                    else null 
+                end is not null
+            and "uuid_identification" = %(uuid_identification)s
+            and ("valid" = false or "valid" isnull)
+        ) "sd"
+        where "edi"."id" = "sd"."id"
+        """
+    )
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_bl_date, {"uuid_identification": uuid_identification})
 
 
 def johnson_post_insert(uuid_identification: AnyStr):
@@ -360,7 +447,9 @@ def johnson_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-    sql_update_vat_rate = """
+
+    sql_update_vat_rate = sql.SQL(
+        """
     update "edi_ediimport" "ed" 
     set "vat_rate" = "req"."taux_tva" 
     from (
@@ -382,7 +471,10 @@ def johnson_post_insert(uuid_identification: AnyStr):
     ) "req" 
     where "req"."id" = "ed"."id"
     """
-    sql_update_units = """
+    )
+
+    sql_update_units = sql.SQL(
+        """
     update "edi_ediimport"
     set 
         "qty" = case 
@@ -400,6 +492,7 @@ def johnson_post_insert(uuid_identification: AnyStr):
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
+    )
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -440,7 +533,8 @@ def newson_post_insert(uuid_identification: AnyStr):
     set 
         "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
         "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
+        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+        "famille" = left("reference_article", 2)
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
@@ -556,15 +650,43 @@ def signia_post_insert(uuid_identification: AnyStr):
                             when "net_amount" = 0 then 0
                             when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
                             when "net_amount" > 0 then abs("gross_amount")::numeric
-                        end
+                        end,
+        "famille" = case
+                        when "libelle" ilike 'DELIVERY%%' then 'PORT'
+                        when "libelle" ilike '%%FREIGHT%%' then 'PORT'
+                        when "libelle" ilike 'WARRANTY%%' then 'WARRANTY'
+                        when "libelle" ilike 'DISCOUNT INSTANT' then 'RFA'
+                        else "famille"
+                    end
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
+    """
+    sql_update_bl = """
+    update "edi_ediimport" "ei"
+    set "delivery_number" = "req"."delivery_number"
+    from (
+        select 
+            max("delivery_number") as "delivery_number", 
+            "invoice_number", 
+            "uuid_identification"
+        from "edi_ediimport"
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        group by "invoice_number", "uuid_identification"
+        HAVING 
+            max("delivery_number") != '' 
+        and max("delivery_number") is not null
+    ) "req" 
+    where 
+        "ei"."invoice_number" = "req"."invoice_number"
+    and	"ei"."uuid_identification"= "req"."uuid_identification"
     """
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_bl, {"uuid_identification": uuid_identification})
 
 
 def starkey_post_insert(uuid_identification: AnyStr):
@@ -651,7 +773,12 @@ def technidis_post_insert(uuid_identification: AnyStr):
                                 then (
                                     abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
                                 )
-                        end
+                        end,
+        "famille" =   case 
+                                    when "famille" is null or "famille" = ''
+                                    then split_part("reference_article", '-', 1)
+                                    else "famille"
+                                end
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
@@ -717,7 +844,9 @@ def widex_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-    sql_update_units = """
+
+    sql_update_units = sql.SQL(
+        """
     update "edi_ediimport"
     set 
         "qty" = case 
@@ -735,6 +864,7 @@ def widex_post_insert(uuid_identification: AnyStr):
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
+    )
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -775,7 +905,9 @@ def widexga_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-    sql_update_units = """
+
+    sql_update_units = sql.SQL(
+        """
     update "edi_ediimport"
     set 
         "qty" = case 
@@ -793,6 +925,7 @@ def widexga_post_insert(uuid_identification: AnyStr):
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """
+    )
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})

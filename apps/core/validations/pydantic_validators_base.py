@@ -56,7 +56,23 @@ class ValidateFieldsBase(BaseModel):
             return get_decimal(get_zero_decimal(value))
 
         return value
+    """
+    @validator('acuitis_order_date', pre=True)
+    def check_acuitis_order_date(cls, value):
 
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
+
+    @validator('delivery_date', pre=True)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
+    """
     @validator("*", pre=True, always=True)
     def input_format_date(cls, value, field):
 
@@ -368,6 +384,22 @@ class DdMmYyyyyDateFieldsBase(BaseModel):
                 value = datetime.datetime.strptime(value, "%d/%m/%Y")
             else:
                 value = None
+
+        return value
+
+
+class DdMmYyyyyTiretDefaultDateFieldsBase(BaseModel):
+    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
+
+    @validator("*", pre=True, always=True)
+    def yyyy_tiret_date(cls, value, field):
+
+        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+
+            if not value or value == "None":
+                return datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
+
+            value = datetime.datetime.strptime(value.strip(), "%d-%m-%Y")
 
         return value
 

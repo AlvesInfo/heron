@@ -168,6 +168,7 @@ class EdiImport(models.Model):
     client_name = models.CharField(null=True, blank=True, max_length=80)
     serial_number = models.TextField(null=True, blank=True, max_length=1000)
     comment = models.CharField(null=True, blank=True, max_length=120)
+    command_reference = models.CharField(null=True, blank=True, max_length=120)
     montant_facture_HT = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
     )
@@ -227,28 +228,3 @@ class ColumnDefinition(models.Model):
 
         ordering = ["ranking"]
         unique_together = (("flow_name", "ranking"),)
-
-
-class SupplierTiers(FlagsTable):
-    """
-    Table de liaison entre fournisseurs edi et tiers sage X3
-    FR : Table Suppliers/Tiers
-    EN : Suppliers/Tiers table
-    """
-    tiers = models.ForeignKey(
-        Society,
-        on_delete=models.CASCADE,
-        to_field="third_party_num",
-        related_name="supplier_tiers_edi",
-        verbose_name="tiers X3",
-        db_column="tiers",
-    )
-    supplier_identifiant = models.CharField(unique=True, max_length=35)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.tiers} - {self.supplier_identifiant}"
-
-    class Meta:
-        """class Meta Django"""
-        unique_together = (("tiers", "supplier_identifiant"),)

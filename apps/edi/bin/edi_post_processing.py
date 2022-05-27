@@ -127,6 +127,7 @@ def bulk_post_insert(flow_name: AnyStr):
                 "montant_facture_TVA",
                 "montant_facture_TTC",
                 "flow_name",
+                "command_reference"
             )
             .first()
         )
@@ -155,6 +156,7 @@ def bulk_post_insert(flow_name: AnyStr):
                         montant_facture_TVA=edi.get("montant_facture_TVA"),
                         montant_facture_TTC=edi.get("montant_facture_TTC"),
                         flow_name=edi.get("flow_name"),
+                        command_reference=edi.get("command_reference")
                     )
                 )
 

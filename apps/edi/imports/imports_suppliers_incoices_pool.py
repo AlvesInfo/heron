@@ -20,7 +20,7 @@ from psycopg2 import sql
 
 from apps.core.functions.functions_setups import settings, connection
 from apps.edi.loggers import EDI_LOGGER
-from apps.edi.bin.edi_pre_processing import bulk_translate_file
+from apps.edi.bin.edi_pre_processing_pool import bulk_translate_file
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
     edi_post_insert,
@@ -72,6 +72,7 @@ from apps.data_flux.loader import (
     Opto33Loader,
 )
 from apps.data_flux.exceptions import (
+    ValidationError,
     OptoDateError,
     OptoLinesError,
     OptoQualifierError,
@@ -111,7 +112,7 @@ def get_suppliers(flow_name: str):
         )
         cursor.execute(sql_supplier, {"flow_name": flow_name})
         results = cursor.fetchall()
-        EDI_LOGGER.warning(f"results : {str(results)}")
+
     return (results[0][0], results[0][1]) if results else ("", "")
 
 
@@ -221,6 +222,14 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             )
             error_lines = validation.validate()
 
+            if error_lines:
+                to_print += f"\nLignes en erreur : {error_lines}\n"
+
+                raise ValidationError("Le fichier comporte des erreurs")
+
+            else:
+                to_print += "\nPas d'erreurs\n"
+
             postgres_upsert = PostgresDjangoUpsert(
                 model=model,
                 fields_dict={key: False for key in validator.Config.include},
@@ -236,11 +245,6 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
                 delimiter=";",
                 quote_character='"',
             )
-
-            if error_lines:
-                to_print += f"\nLignes en erreur : {error_lines}\n"
-            else:
-                to_print += "\nPas d'erreurs\n"
 
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:

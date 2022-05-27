@@ -23,11 +23,7 @@ class SocietiesList(ListView):
     context_object_name = "societies"
     template_name = "book/societies_list.html"
     extra_context = {"titre_table": "Tiers X3"}
-
-    def get_queryset(self):
-        """On restreint les tiers X3 aux fournisseurs et aux clients"""
-        queryset = self.model.objects.filter(Q(is_client=True) | Q(is_supplier=True))
-        return queryset
+    queryset = Society.objects.filter(Q(is_client=True) | Q(is_supplier=True))
 
 
 class SocietyUpdate(SuccessMessageMixin, UpdateView):
@@ -56,6 +52,7 @@ class SocietyUpdate(SuccessMessageMixin, UpdateView):
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+        print(form.cleaned_data)
         return super().form_valid(form)
 
     def form_invalid(self, form):

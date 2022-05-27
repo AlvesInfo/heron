@@ -98,7 +98,10 @@ def edi_iso_date_format(qualifier_date: str, date_value: AnyStr) -> str:
         if date_format is None:
             raise ValueError
 
-        iso_date = datetime.strptime(date_value, date_format).date().isoformat()
+        if date_value == "00000000":
+            iso_date = "1900-01-01"
+        else:
+            iso_date = datetime.strptime(date_value, date_format).date().isoformat()
 
     except ValueError as except_error:
         raise OptoDateError(f"{date_value} is not in edi date format dictionnary") from except_error

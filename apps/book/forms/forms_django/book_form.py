@@ -36,18 +36,20 @@ class SocietyForm(forms.ModelForm):
             with connection.cursor() as cursor:
                 sql_verify = sql.SQL(
                     """
-select 
-    "third_party_num",
-    "identifier"
-from (
-select 
-    "third_party_num" ,
-    unnest(string_to_array("centers_suppliers_indentifier", '|')) as "identifier"
-    from {table} bs
-    where "third_party_num" != %(third_party_num)s
-) req
-where "identifier" = ANY(%(identifiers)s) 
-"""
+                    select 
+                        "third_party_num",
+                        "identifier"
+                    from (
+                    select 
+                        "third_party_num" ,
+                        unnest(
+                            string_to_array("centers_suppliers_indentifier", '|')
+                        ) as "identifier"
+                        from {table} bs
+                        where "third_party_num" != %(third_party_num)s
+                    ) req
+                    where "identifier" = ANY(%(identifiers)s) 
+                    """
                 ).format(
                     table=sql.Identifier(Society._meta.db_table),
                 )

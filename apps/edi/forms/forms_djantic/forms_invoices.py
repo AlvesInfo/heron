@@ -13,8 +13,10 @@ modified by: Paulo ALVES
 """
 from decimal import Decimal
 import uuid
+import datetime
 
 from djantic import ModelSchema
+from pydantic import validator
 
 from apps.core.validations.pydantic_validators_base import (
     ValidateFieldsBase,
@@ -23,7 +25,6 @@ from apps.core.validations.pydantic_validators_base import (
     TvaInterson,
     TvaWidex,
     TvaNewson,
-    IsoDefaultDateFieldsBase,
 )
 from apps.edi.models import EdiImport, ColumnDefinition
 from apps.edi.parameters.invoices_imports import get_columns
@@ -55,12 +56,29 @@ class BbgrBulkSchema(
 class EdiSchema(
     ModelSchema,
     ValidateFieldsBase,
-    IsoDefaultDateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle Edi"""
 
     uuid_identification: uuid.UUID
     qty: Decimal = 1
+    acuitis_order_date: datetime.datetime
+    delivery_date: datetime.datetime
+
+    @validator('acuitis_order_date', pre=True)
+    def check_acuitis_order_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
+
+    @validator('delivery_date', pre=True)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 
     class Config:
         """Config"""
@@ -103,6 +121,24 @@ class GeneriqueSchema(
     """Schema Djantic pour validation du modèle Generique"""
 
     uuid_identification: uuid.UUID
+    acuitis_order_date: datetime.datetime
+    delivery_date: datetime.datetime
+
+    @validator('acuitis_order_date', pre=True)
+    def check_acuitis_order_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
+
+    @validator('delivery_date', pre=True)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 
     class Config:
         """Config"""
@@ -169,6 +205,15 @@ class JohnsonSchema(
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
+    delivery_date: datetime.datetime
+
+    @validator('delivery_date', pre=True)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 
     class Config:
         """Config"""
@@ -283,6 +328,15 @@ class SigniaSchema(
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
+    delivery_date: datetime.datetime
+
+    @validator('delivery_date', pre=True)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 
     class Config:
         """Config"""
@@ -306,6 +360,15 @@ class StarkeySchema(
     uuid_identification: uuid.UUID
     supplier: str
     supplier_ident: str
+    delivery_date: datetime.datetime
+
+    @validator('delivery_date', pre=True)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 
     class Config:
         """Config"""
@@ -420,10 +483,7 @@ def main():
             include = ["uuid_identification", "invoice_date"]
 
     try:
-        data = {
-                "uuid_identification": uuid.uuid4(),
-                "invoice_date": "2060-12-22"
-        }
+        data = {"uuid_identification": uuid.uuid4(), "invoice_date": "2060-12-22"}
         # noinspection PyArgumentList
         essais = EdiEssais(**data)
         print(essais.dict())
