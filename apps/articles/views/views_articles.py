@@ -72,9 +72,9 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
-        context["chevron_retour"] = reverse("articles:articles_list")
-        context["titre_table"] = "Création d'une nouvelle Catégorie"
-        print("fin du context data")
+        # context["chevron_retour"] = reverse("articles:articles_list", {"third_party_num": })
+        context["titre_table"] = "Création d'un Nouvel Article"
+        print(context)
         return context
 
 
@@ -91,12 +91,12 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("articles:articles_list")
-        context["titre_table"] = (
-            f"Mise à jour de l'Article : "
-            f"{context.get('object').ranking} - "
-            f"{context.get('object').reference}"
+        objet = context.get("object")
+        context["chevron_retour"] = reverse(
+            "articles:articles_list", kwargs={"third_party_num": objet.supplier.third_party_num}
         )
+        context["titre_table"] = f"Mise à jour de l'Article : {str(objet)}"
+        print(context)
         return context
 
 

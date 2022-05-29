@@ -1,0 +1,47 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+            {% include "book/society_update_entete.html" %}
+
+            {% include "book/society_update_table.html" %}
+
+        </form>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+    </script>
+
+{% endblock script %}

@@ -164,7 +164,7 @@ class Article(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.supplier} - {self.reference} - {self.libelle_heron}"
+        return f"{self.supplier.third_party_num} - {self.reference}"
 
     class Meta:
         """class Meta du modèle django"""
