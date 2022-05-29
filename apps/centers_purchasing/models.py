@@ -120,13 +120,6 @@ class Signboard(FlagsTable):
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
     )
-    language = models.ForeignKey(
-        Country,
-        on_delete=models.PROTECT,
-        to_field="country",
-        verbose_name="langue",
-        db_column="language",
-    )
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
 
     def __str__(self):

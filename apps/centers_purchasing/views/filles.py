@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0903
+# pylint: disable=E0401,R0903,W0702
 """
 Views des Centrales Filles
 """
@@ -8,6 +8,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import ERROR_VIEWS_LOGGER
+from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.excel_outputs.output_excel_filles_list import (
     excel_filles_list,
@@ -26,7 +27,7 @@ class FillesList(ListView):
     extra_context = {"titre_table": "Centrales Filles"}
 
 
-class FilleCreate(SuccessMessageMixin, CreateView):
+class FilleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     """CreateView de création des Centrales Filles"""
 
     model = ChildCenterPurchase
@@ -37,24 +38,15 @@ class FilleCreate(SuccessMessageMixin, CreateView):
     error_message = "La Centrale Fille %(code)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_purchasing:filles_list")
         context["titre_table"] = "Création d'une nouvelle Centrale Fille"
         return context
 
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
 
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
-
-class FilleUpdate(SuccessMessageMixin, UpdateView):
+class FilleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Centrales Filles"""
 
     model = ChildCenterPurchase
@@ -65,6 +57,7 @@ class FilleUpdate(SuccessMessageMixin, UpdateView):
     error_message = "La Centrale Fille %(code)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:filles_list")
         context["titre_table"] = (
@@ -73,15 +66,6 @@ class FilleUpdate(SuccessMessageMixin, UpdateView):
             f"{context.get('object').name}"
         )
         return context
-
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 def filles_export_list(request):

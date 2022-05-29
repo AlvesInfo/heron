@@ -826,7 +826,7 @@ class CategorySage(FlagsTable):
     """
     Table des catégories Clients et Fournisseurs de Sage X3
     FR : Table Catégorie définie par Sage X3
-    EN : Categories table as defined by Sage X3
+    EN : Catégories table as defined by Sage X3
     =================================================================
     champ          | model attr.   | table SAGE    | Champ Sage
     =================================================================

@@ -10,6 +10,7 @@ from django.views.generic import ListView, UpdateView
 from django.db.models import Q
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
+from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.models import Society
 from apps.book.forms import SocietyForm
@@ -26,7 +27,7 @@ class SocietiesList(ListView):
     queryset = Society.objects.filter(Q(is_client=True) | Q(is_supplier=True))
 
 
-class SocietyUpdate(SuccessMessageMixin, UpdateView):
+class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Centrales Filles"""
 
     model = Society
@@ -37,6 +38,7 @@ class SocietyUpdate(SuccessMessageMixin, UpdateView):
     error_message = "Le Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("book:societies_list")
         context["titre_table"] = (
@@ -44,34 +46,33 @@ class SocietyUpdate(SuccessMessageMixin, UpdateView):
             f"{context.get('object').third_party_num} - "
             f"{context.get('object').name}"
         )
-        context["adresse_principale_sage"] = context.get("object").society_society.filter(
-            default_adress=True
-        ).first()
+        context["adresse_principale_sage"] = (
+            context.get("object").society_society.filter(default_adress=True).first()
+        )
         return context
 
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
+    def form_valid(self, form, **kwargs):
+        """
+        On surcharge la méthode form_valid, pour ajouter les données, à la vollée,
+        de l'adresse par défaut si la checkbox adresse_principale_sage est à true
+        et ajouter le niveau de message et sa couleur.
+        """
         copy_default_address = form.cleaned_data.get("copy_default_address")
 
         if copy_default_address:
-            society = form.save()
             adress = self.get_context_data().get("adresse_principale_sage")
-            society.immeuble = adress.line_01
-            society.adresse = adress.line_02
-            society.code_postal = adress.postal_code
-            society.ville = adress.city
-            society.pays = adress.country
-            society.telephone = adress.phone_number_01
-            society.mobile = adress.mobile_number
-            society.email = adress.email_01
-            society.save()
+            if adress:
+                self.object.immeuble = adress.line_01
+                self.object.adresse = adress.line_02
+                self.object.code_postal = adress.postal_code
+                self.object.ville = adress.city
+                self.object.pays = adress.country
+                self.object.telephone = adress.phone_number_01
+                self.object.mobile = adress.mobile_number
+                self.object.email = adress.email_01
+                self.object.save()
 
-        self.request.session["level"] = 20
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 def export_list_societies(request, file_name: str):

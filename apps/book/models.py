@@ -69,7 +69,7 @@ class Nature(FlagsTable):
 
 class Society(FlagsTable):
     """
-    Répertoire des sociétés Fournisseurs / CLients,
+    Répertoire des sociétés Fournisseurs / Clients,
     correspondant à la table BPARTNER, BPSUPPLIER et BPCUSTOMER des tiers Sage X3
     FR : Table des sociétés
     EN : Societies table

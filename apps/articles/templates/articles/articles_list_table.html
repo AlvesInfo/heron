@@ -1,0 +1,66 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+    <div class="one wide column"></div>
+
+    <div class="fourteen wide column">
+
+        <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+
+                <tr>
+                    <th class="no-sort" style="width: 5.89%">Modifier</th>
+                    <th style="width: 15.79%">Référence</th>
+                    <th style="width: 17.26%">Libelle Héron</th>
+                    <th style="width: 16.84%">Catégorie</th>
+                    <th style="width: 10.84%">Axe Pro</th>
+                    <th style="width: 33.38%">Commentaire</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for article in articles %}
+                <tr id="id_{{ article.third_party_num }}" class="hide_plans">
+
+                    <td data-value="{{ article.third_party_num }}"
+                        style="text-align: center;">
+                        <a href="{% url 'articles:article_update' pk=article.pk %}">
+                            <i class="edit icon modification"></i>
+                        </a>
+                    </td>
+                    <td>
+                      {% if article.reference %}
+                        {{ article.reference }}
+                      {% endif %}
+                    </td>
+                    <td style="text-align: left;">
+                      {% if article.libelle_heron %}
+                        {{ article.libelle_heron }}
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if article.big_category %}
+                        {{ article.big_category }}
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if article.axe_pro %}
+                        {{ article.axe_pro }}
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if article.comment %}
+                          {{ article.comment }}
+                      {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="one wide column"></div>
+
+{% endblock table %}

@@ -15,6 +15,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
@@ -54,6 +55,9 @@ class Parameters(FlagsTable):
     num_04 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     num_05 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
@@ -91,6 +95,9 @@ class Counter(FlagsTable):
     num = models.IntegerField(default=1)
     suffix = models.CharField(max_length=35, verbose_name="suffix")
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
@@ -112,6 +119,9 @@ class SendFiles(FlagsTable):
     file = models.CharField(max_length=35)
     description = models.CharField(null=True, blank=True, max_length=100)
     periodicity = models.CharField(null=True, blank=True, max_length=20)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -147,6 +157,9 @@ class SendFilesMail(FlagsTable):
     )
     email = models.EmailField(null=True, blank=True)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.file} - {self.user} - {self.email}"
@@ -173,6 +186,9 @@ class SubFamilly(FlagsTable):
 
     name = models.CharField(unique=True, max_length=80)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
@@ -186,16 +202,23 @@ class SubFamilly(FlagsTable):
 class Category(FlagsTable):
     """
     Grandes Catégories
-    FR : Grande Catégories
-    EN : Categories
+    FR : Grandes Catégories
+    EN : Catégories
     """
 
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.ranking} - {self.name}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("parameters:categories_list")
 
     class Meta:
         """class Meta du modèle django"""
@@ -211,6 +234,9 @@ class Periodicity(FlagsTable):
     """
 
     name = models.CharField(unique=True, max_length=80)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -234,6 +260,9 @@ class SalePriceCategory(FlagsTable):
     coefficient = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     comment = models.TextField(null=True, blank=True)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.name
@@ -252,6 +281,9 @@ class ActionPermission(FlagsTable):
     """
 
     name = models.CharField(unique=True, max_length=80)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     class Meta:
         """class Meta du modèle django"""

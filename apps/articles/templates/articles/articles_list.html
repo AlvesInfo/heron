@@ -11,10 +11,9 @@
 
     {% if user.is_authenticated %}
 
-            {% include "centers_clients/clients_list_entete.html" %}
-            {% include "centers_clients/clients_list_table.html" %}
+        {% include "articles/articles_list_entete.html" %}
 
-        <div class="ui equal width grid center"></div>
+        {% include "articles/articles_list_table.html" %}
 
     {% else %}
 
@@ -23,8 +22,7 @@
         <hr>
         <br>
         <br>
-        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
-            site</p>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce site</p>
 
 {% endif %}
 

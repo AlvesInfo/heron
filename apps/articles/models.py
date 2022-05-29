@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import uuid
 
 from django.db import models
+from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
@@ -55,9 +56,9 @@ class Article(FlagsTable):
         Category,
         on_delete=models.PROTECT,
         null=True,
-        to_field="name",
+        to_field="uuid_identification",
         related_name="big_category_category",
-        db_column="big_category",
+        db_column="uuid_big_category",
     )
     sub_familly = models.ForeignKey(
         SubFamilly,
@@ -76,7 +77,9 @@ class Article(FlagsTable):
         verbose_name="code budget",
         db_column="budget_code",
     )
+    famille_supplier = models.CharField(null=True, blank=True, max_length=35)
     axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
+    axe_pro_copie_de_acuitis = models.CharField(null=True, blank=True, max_length=10)
     axe_bu = models.ForeignKey(
         SectionSage,
         null=True,
@@ -85,15 +88,6 @@ class Article(FlagsTable):
         limit_choices_to={"axe": "BU"},
         related_name="bu_section",
         db_column="axe_bu",
-    )
-    axe_cct = models.ForeignKey(
-        SectionSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "CCT"},
-        related_name="cct_section",
-        db_column="axe_cct",
     )
     axe_prj = models.ForeignKey(
         SectionSage,
@@ -134,9 +128,9 @@ class Article(FlagsTable):
     made_in = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
+        null=True,
         to_field="country",
         related_name="made_in_country",
-        null=True,
         db_column="made_in",
     )
     item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
@@ -152,6 +146,22 @@ class Article(FlagsTable):
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
+    def save(self, *args, **kwargs):
+        """Surcharge de la méthode save pour les axes analytiques"""
+        if not self.axe_bu:
+            axe = SectionSage.objects.filter(axe="BU", section="CAHA").first()
+            self.axe_bu = None if not axe else axe
+
+        if not self.axe_prj:
+            axe = SectionSage.objects.filter(axe="PRJ", section="NAF").first()
+            self.axe_prj = None if not axe else axe
+
+        if not self.axe_pys:
+            axe = SectionSage.objects.filter(axe="PYS", section="FR").first()
+            self.axe_pys = None if not axe else axe
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.supplier} - {self.reference} - {self.libelle_heron}"
@@ -159,8 +169,8 @@ class Article(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["reference", "ean_code"]
-        unique_together = (("supplier", "reference", "ean_code"),)
+        ordering = ["supplier", "reference"]
+        unique_together = (("supplier", "reference"),)
 
 
 class SellingPrice(FlagsTable):
@@ -195,6 +205,10 @@ class SellingPrice(FlagsTable):
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sale_price_category} - {self.article}"
+
+    # @staticmethod
+    # def get_absolute_url():
+    #     return reverse("book:societies_list")
 
     class Meta:
         """class Meta du modèle django"""

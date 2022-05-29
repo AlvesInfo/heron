@@ -1,0 +1,26 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Catégories</h3>
+        <div class="ui clearing divider"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="two wide field">
+                <label for="id_ranking" style="text-align: left;">Classement&nbsp;:</label>
+                    {{form.ranking}}
+              </div>
+              <div class="eight wide field">
+                <label for="id_name" style="text-align: left;">Intitulé&nbsp;:</label>
+                {{ form.name }}
+              </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock table %}

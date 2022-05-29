@@ -1,0 +1,42 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="five wide column"></div>
+
+<div class="six wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 20%">Visualiser</th>
+                <th style="width: 80%">Fournisseur</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for supplier in suppliers %}
+            <tr id="id_{{ supplier.third_party_num }}" class="hide_plans">
+
+                <td data-value="{{ supplier.third_party_num }}"
+                    style="text-align: center;">
+                    <a href="{% url 'articles:articles_list' third_party_num=supplier.third_party_num %}">
+                        <i class="eye icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: left;">
+                  {% if supplier.third_party_num %}
+                    {{ supplier.third_party_num }} - {{ supplier.name }}
+                  {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="five wide column"></div>
+
+{% endblock table %}

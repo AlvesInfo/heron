@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0903
+# pylint: disable=E0401,R0903,W0201,W0702,W0613,W1203
 """
 Views des Maisons
 """
@@ -14,6 +14,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import ERROR_VIEWS_LOGGER
 from heron.settings import PICKLERS_DIR
+from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.models import PicklerFiles
 from apps.centers_clients.excel_outputs.centers_clients_excel_maisons_list import (
@@ -46,6 +47,95 @@ class MaisonsList(ListView):
     extra_context = {"titre_table": "Clients"}
 
 
+class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
+    """CreateView de création des Maisons"""
+
+    model = Maison
+    form_class = MaisonForm
+    form_class.use_required_attribute = False
+    template_name = "centers_clients/client_update.html"
+    success_message = "Le Client %(cct)s a été créé avec success"
+    error_message = "Le Client %(cct)s n'a pu être créé, une erreur c'est produite"
+
+    def get_initial(self):
+        """Return the initial data to use for forms on this view."""
+        initial = self.initial.copy()
+        uuid_identification = self.kwargs["initials"]
+
+        if uuid_identification == "*":
+            return initial
+
+        self.pickler_object = get_object_or_404(
+            PicklerFiles, uuid_identification=uuid_identification
+        )
+
+        with open(self.pickler_object.pickle_file.path, "rb") as file:
+            unpickler = pickle.Unpickler(file)
+            initial.update(unpickler.load())
+
+        return initial
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["create"] = True
+        context["chevron_retour"] = reverse("centers_clients:maisons_list")
+        context["titre_table"] = "Création d'un nouveau Client"
+        return context
+
+    def form_valid(self, form):
+        """
+        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form
+        et ajouter le niveau de message et sa couleur.
+        """
+        Path(self.pickler_object.pickle_file.path).unlink()
+        pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
+        pickle_file.unlink()
+        self.pickler_object.delete()
+        return super().form_valid(form)
+
+
+class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+
+    model = Maison
+    form_class = MaisonForm
+    form_class.use_required_attribute = False
+    template_name = "centers_clients/client_update.html"
+    success_message = "Le Client %(cct)s a été modifiée avec success"
+    error_message = "Le Client %(cct)s n'a pu être modifiée, une erreur c'est produite"
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["chevron_retour"] = reverse("centers_clients:maisons_list")
+        context["titre_table"] = (
+            f"Mise à jour du Client : "
+            f"{context.get('object').cct} - "
+            f"{context.get('object').intitule}"
+        )
+        return context
+
+
+def maisons_export_list(request):
+    """
+    Export Excel de la liste des Sociétés
+    :param request: Request Django
+    :return: response_file
+    """
+    try:
+
+        today = pendulum.now()
+        file_name = f"LISTING_DES_CLIENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+
+        return response_file(excel_liste_maisons, file_name, CONTENT_TYPE_EXCEL)
+
+    except:
+        ERROR_VIEWS_LOGGER.exception("view : maisons_export_list")
+
+    return redirect(reverse("centers_clients:maisons_list"))
+
+
 def import_bi(request):
     """
     View pour importer depuis la B.I et ainsi récupérer les principaux éléments,
@@ -60,11 +150,19 @@ def import_bi(request):
             society = Society.objects.get(third_party_num=form.cleaned_data.get("tiers"))
             maison_bi = MaisonBi.objects.get(code_maison=form.cleaned_data.get("maison_bi"))
             cct = CctSage.objects.get(cct=form.cleaned_data.get("cct"))
-            if Maison.objects.filter(cct=cct, tiers=society).exists():
+            maison = Maison.objects.filter(cct=cct)
+            if maison.exists():
+                messages.error(
+                    request,
+                    f'Ce "CCT : {cct.cct}, est déjà utilisé!',
+                )
+
+            elif maison.filter(tiers=society).exists():
                 messages.error(
                     request,
                     f'Le couple "CCT : {cct.cct} / Tiers : {society.third_party_num}" existe déjà!',
                 )
+
             else:
                 initials = {
                     "cct": cct,
@@ -115,104 +213,3 @@ def filter_list_maisons_api(request):
 
     context = {}
     return render(request, "centers_clients/maisons_list_to_pick.html", context=context)
-
-
-class MaisonCreate(SuccessMessageMixin, CreateView):
-    """CreateView de création des Maisons"""
-
-    model = Maison
-    form_class = MaisonForm
-    form_class.use_required_attribute = False
-    template_name = "centers_clients/client_update.html"
-    success_message = "Le CLient %(cct)s a été créé avec success"
-    error_message = "Le CLient %(cct)s n'a pu être créé, une erreur c'est produite"
-
-    def get_initial(self):
-        """Return the initial data to use for forms on this view."""
-        initial = self.initial.copy()
-        uuid_identification = self.kwargs["initials"]
-
-        if uuid_identification == "*":
-            return initial
-
-        self.pickler_object = get_object_or_404(
-            PicklerFiles, uuid_identification=uuid_identification
-        )
-
-        with open(self.pickler_object.pickle_file.path, "rb") as file:
-            unpickler = pickle.Unpickler(file)
-            initial.update(unpickler.load())
-
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["create"] = True
-        context["chevron_retour"] = reverse("centers_clients:maisons_list")
-        context["titre_table"] = "Création d'un nouveau Client"
-        return context
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        Path(self.pickler_object.pickle_file.path).unlink()
-        pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
-        pickle_file.unlink()
-        self.pickler_object.delete()
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
-
-class MaisonUpdate(SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
-
-    model = Maison
-    form_class = MaisonForm
-    form_class.use_required_attribute = False
-    template_name = "centers_clients/client_update.html"
-    success_message = "Le CLient %(cct)s a été modifiée avec success"
-    error_message = "Le CLient %(cct)s n'a pu être modifiée, une erreur c'est produite"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("centers_clients:maisons_list")
-        context["titre_table"] = (
-            f"Mise à jour du Client : "
-            f"{context.get('object').cct} - "
-            f"{context.get('object').intitule}"
-        )
-        return context
-
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
-
-def maisons_export_list(request):
-    """
-    Export Excel de la liste des Sociétés
-    :param request: Request Django
-    :return: response_file
-    """
-    try:
-
-        today = pendulum.now()
-        file_name = (
-            f"LISTING_DES_CLIENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-        )
-
-        return response_file(excel_liste_maisons, file_name, CONTENT_TYPE_EXCEL)
-
-    except:
-        ERROR_VIEWS_LOGGER.exception("view : maisons_export_list")
-
-    return redirect(reverse("centers_clients:maisons_list"))

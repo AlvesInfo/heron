@@ -14,8 +14,7 @@
             <tr>
                 <th class="no-sort" style="text-align: center;width: 7%;">Modifier</th>
                 <th style="width: 7%;">Code</th>
-                <th style="width: 20%;">Nom</th>
-                <th style="width: 7%;">Langue</th>
+                <th style="width: 27%;">Nom</th>
                 <th style="width: 6%;">Logo</th>
                 <th style="width: 54%;">Commentaire</th>
             </tr>
@@ -38,11 +37,6 @@
                 <td style="text-align: left;">
                   {% if enseigne.name %}
                     {{ enseigne.name }}
-                  {% endif %}
-                </td>
-                <td>
-                  {% if enseigne.language %}
-                    {{ enseigne.language.lang_iso }}
                   {% endif %}
                 </td>
                 <td style="text-align: center;">

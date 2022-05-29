@@ -98,7 +98,7 @@ class Maison(FlagsTable):
         verbose_name="tiers X3",
         db_column="tiers",
     )
-    center_purchase = models.OneToOneField(
+    center_purchase = models.ForeignKey(
         ChildCenterPurchase,
         on_delete=models.PROTECT,
         to_field="code",

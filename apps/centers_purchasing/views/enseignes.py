@@ -11,6 +11,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import ERROR_VIEWS_LOGGER
 from heron.settings import MEDIA_DIR
+from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.excel_outputs.output_excel_enseignes_list import (
     excel_enseignes_list,
@@ -26,10 +27,10 @@ class EnseignesList(ListView):
     model = Signboard
     context_object_name = "enseignes"
     template_name = "centers_purchasing/enseignes_list.html"
-    extra_context = {"titre_table": "Enseignes"}
+    extra_context = {"titre_table": "Enseignes", "nb_paging": 7}
 
 
-class EnseigneCreate(SuccessMessageMixin, CreateView):
+class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     """CreateView de création des Enseignes"""
 
     model = Signboard
@@ -46,18 +47,8 @@ class EnseigneCreate(SuccessMessageMixin, CreateView):
         context["titre_table"] = "Création d'une nouvelle Enseigne"
         return context
 
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
 
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
-
-class EnseigneUpdate(SuccessMessageMixin, UpdateView):
+class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Enseignes"""
 
     model = Signboard
@@ -69,6 +60,7 @@ class EnseigneUpdate(SuccessMessageMixin, UpdateView):
     error_message = "L'Enseigne %(code)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:enseignes_list")
         context["titre_table"] = (
@@ -79,8 +71,7 @@ class EnseigneUpdate(SuccessMessageMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
+        """On surcharge la méthode form_valid, pour supprimer les fichiers de logos orphelins."""
 
         if form.data.get("img_delete"):
             form.instance.logo = None
@@ -101,10 +92,6 @@ class EnseigneUpdate(SuccessMessageMixin, UpdateView):
             file_to_delete.unlink()
 
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 def enseignes_export_list(request):

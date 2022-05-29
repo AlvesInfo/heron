@@ -9,12 +9,15 @@
 
 {% block content %}
 
-    {% if user.is_authenticated %}
+{% if user.is_authenticated %}
 
-            {% include "centers_clients/clients_list_entete.html" %}
-            {% include "centers_clients/clients_list_table.html" %}
+        <form action="" method="post">
+            {% csrf_token %}
 
-        <div class="ui equal width grid center"></div>
+            {% include "parameters/category_update_entete.html" %}
+            {% include "parameters/category_update_table.html" %}
+
+        </form>
 
     {% else %}
 
@@ -33,14 +36,15 @@
 
 {% block script %}
 
-    <script>
+    <script type="text/javascript">
 
         $(document).ready(function () {
 
-            {% include "heron/base_data_table.html" %}
+            $('table').tablesort();
+
+            $('.menu .item').tab();
 
         });
-
     </script>
 
 {% endblock script %}

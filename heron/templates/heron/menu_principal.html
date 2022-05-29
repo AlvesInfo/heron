@@ -34,7 +34,7 @@
 
         {% if user.is_authenticated %}
             <div class="ui flowing transition popup" id="a">
-                <div class="ui {% if user.is_superuser %}six{% else %}five{% endif %} column relaxed equal divided grid" style="width: 78em;">
+                <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 70em;">
                     {% if user.is_superuser %}
                         <div class="column">
                             <h4 class="ui header"style="font-size: 1em;">PERMISSIONS</h4>
@@ -71,16 +71,12 @@
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header"style="font-size: 1em;">SUPPLIERS INVOICES</h4>
+                        <h4 class="ui header"style="font-size: 1em;">ARTICLES</h4>
                         <div class="ui link list">
-                            <a href="" class="item">Fournisseurs</a>
+                            <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
                         </div>
-                    </div>
-
-                    <div class="column">
-                        <h4 class="ui header"style="font-size: 1em;">CLIENTS   INVOICES</h4>
                         <div class="ui link list">
-                            <a href="" class="item">Clients</a>
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Fournisseur / Articles</a>
                         </div>
                     </div>
 
