@@ -151,16 +151,12 @@ def import_bi(request):
             maison_bi = MaisonBi.objects.get(code_maison=form.cleaned_data.get("maison_bi"))
             cct = CctSage.objects.get(cct=form.cleaned_data.get("cct"))
             maison = Maison.objects.filter(cct=cct)
+
             if maison.exists():
+                request.session["level"] = 50
                 messages.error(
                     request,
                     f'Ce "CCT : {cct.cct}, est déjà utilisé!',
-                )
-
-            elif maison.filter(tiers=society).exists():
-                messages.error(
-                    request,
-                    f'Le couple "CCT : {cct.cct} / Tiers : {society.third_party_num}" existe déjà!',
                 )
 
             else:
