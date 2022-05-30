@@ -8,7 +8,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from django.db.models import Count
 
-from heron.loggers import ERROR_VIEWS_LOGGER
+from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 
@@ -115,6 +115,6 @@ def articles_export_list(request, third_party_num):
         return response_file(excel_liste_articles, file_name, CONTENT_TYPE_EXCEL, third_party_num)
 
     except:
-        ERROR_VIEWS_LOGGER.exception("view : articles_export_list")
+        LOGGER_VIEWS.exception("view : articles_export_list")
 
     return redirect(reverse("articles:articles_list", {"third_party_num": third_party_num}))

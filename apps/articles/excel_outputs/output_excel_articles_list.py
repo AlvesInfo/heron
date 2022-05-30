@@ -14,7 +14,7 @@ import io
 
 from psycopg2 import sql
 
-from heron.loggers import EXPORT_EXCEL_LOGGER
+from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.functions.functions_setups import CNX_STRING
 from apps.core.functions.functions_postgresql import cnx_postgresql
@@ -104,7 +104,7 @@ def excel_liste_articles(file_io: io.BytesIO, file_name: str, third_party_num: s
         )
 
     except:
-        EXPORT_EXCEL_LOGGER.exception(f"{file_name!r}")
+        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
         return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
 
     finally:

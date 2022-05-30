@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 
 from heron import settings
-from heron.loggers import ERROR_VIEWS_LOGGER
+from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.book.excel_outputs.book_excel_societies_list import excel_liste_societies
 from apps.book.models import Society
@@ -97,6 +97,6 @@ def export_list_societies(request):
             )
 
         except:
-            ERROR_VIEWS_LOGGER.exception("view : export_list_societies")
+            LOGGER_VIEWS.exception("view : export_list_societies")
 
     return redirect(reverse("book:societies_list"))

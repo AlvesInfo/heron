@@ -21,7 +21,7 @@ import pandas as pd
 from apps.core.functions.functions_utilitaires import encoding_detect
 
 
-IMPORT_LOGGER = logging.getLogger("imports")
+LOGGER_IMPORT = logging.getLogger("imports")
 
 
 class ExcelToCsvError(Exception):

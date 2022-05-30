@@ -56,7 +56,7 @@ def essais_inserts():
     import csv
     import time
     from apps.core.functions.functions_setups import settings
-    from heron.loggers import IMPORT_LOGGER
+    from heron.loggers import LOGGER_IMPORT
     from apps.data_flux.postgres_save import (
         PostgresDjangoUpsert,
         PostgresDjangoError,
@@ -171,26 +171,26 @@ def essais_inserts():
 
     except PostgresInsertMethodError:
         print("PostgresInsertMethodError")
-        IMPORT_LOGGER.exception("La methode d'insertion choisie n'existe pas\n\n")
+        LOGGER_IMPORT.exception("La methode d'insertion choisie n'existe pas\n\n")
 
     except PostgresCardinalityViolationError:
         print("PostgresCardinalityViolationError")
-        IMPORT_LOGGER.exception(
+        LOGGER_IMPORT.exception(
             f"Plusieurs mise à jour pour le même élément reçu, "
             f"table : {EssaisZ._meta.db_table!r}\n\n"
         )
 
     except PostgresTypeError:
         print("PostgresTypeError")
-        IMPORT_LOGGER.exception("Erreur de type\n\n")
+        LOGGER_IMPORT.exception("Erreur de type\n\n")
 
     except PostgresUniqueError:
         print("PostgresUniqueError")
-        IMPORT_LOGGER.exception("Erreur sur clé dupliquée\n\n")
+        LOGGER_IMPORT.exception("Erreur sur clé dupliquée\n\n")
 
     except (PostgresDjangoError, Exception):
         print("PostgresDjangoError")
-        IMPORT_LOGGER.exception("Erreur inconnue\n\n")
+        LOGGER_IMPORT.exception("Erreur inconnue\n\n")
 
     file.close()
 

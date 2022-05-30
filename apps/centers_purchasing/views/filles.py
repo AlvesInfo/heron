@@ -7,7 +7,7 @@ from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
-from heron.loggers import ERROR_VIEWS_LOGGER
+from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.excel_outputs.output_excel_filles_list import (
@@ -87,6 +87,6 @@ def filles_export_list(request):
             )
 
     except:
-        ERROR_VIEWS_LOGGER.exception("view : filles_export_list")
+        LOGGER_VIEWS.exception("view : filles_export_list")
 
     return redirect(reverse("centers_purchasing:filles_list"))

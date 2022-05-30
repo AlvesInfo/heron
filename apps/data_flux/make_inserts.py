@@ -16,7 +16,7 @@ import io
 from django.db import connection
 from django.utils import timezone
 
-from heron.loggers import IMPORT_LOGGER
+from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
 from apps.data_flux.loader import (
     GetAddDictError,
@@ -120,33 +120,33 @@ def make_insert(
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"GetAddDictError : {except_error!r}")
+        LOGGER_IMPORT.exception(f"GetAddDictError : {except_error!r}")
 
     except IterFileToInsertError as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"IterFileToInsertError : {except_error!r}")
+        LOGGER_IMPORT.exception(f"IterFileToInsertError : {except_error!r}")
 
     except ExcelToCsvError as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"ExcelToCsvError : {except_error!r}")
+        LOGGER_IMPORT.exception(f"ExcelToCsvError : {except_error!r}")
 
     except FileToCsvError as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"FileToCsvError : {except_error!r}")
+        LOGGER_IMPORT.exception(f"FileToCsvError : {except_error!r}")
 
     # Exceptions PostgresDjangoUpsert ==============================================================
     except PostgresKeyError as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"PostgresKeyError : {except_error!r}")
+        LOGGER_IMPORT.exception(f"PostgresKeyError : {except_error!r}")
 
     except PostgresTypeError as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"PostgresTypeError : {except_error!r}")
+        LOGGER_IMPORT.exception(f"PostgresTypeError : {except_error!r}")
 
     # Exception Générale ===========================================================================
     except Exception as except_error:
         error = True
-        IMPORT_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_IMPORT.exception(f"Exception Générale : {except_error!r}")
 
     finally:
         if error:

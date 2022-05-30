@@ -12,7 +12,7 @@ modified by: Paulo ALVES
 
 import io
 
-from heron.loggers import EXPORT_EXCEL_LOGGER
+from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.functions.functions_setups import CNX_STRING
 from apps.core.functions.functions_postgresql import cnx_postgresql
@@ -110,7 +110,7 @@ def excel_liste_maisons(
         )
 
     except:
-        EXPORT_EXCEL_LOGGER.exception(f"{file_name!r}")
+        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
         return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
 
     finally:

@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.core.files import File
 from django.views.generic import ListView, CreateView, UpdateView
 
-from heron.loggers import ERROR_VIEWS_LOGGER
+from heron.loggers import LOGGER_VIEWS
 from heron.settings import PICKLERS_DIR
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -131,7 +131,7 @@ def maisons_export_list(request):
         return response_file(excel_liste_maisons, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        ERROR_VIEWS_LOGGER.exception("view : maisons_export_list")
+        LOGGER_VIEWS.exception("view : maisons_export_list")
 
     return redirect(reverse("centers_clients:maisons_list"))
 
@@ -194,7 +194,7 @@ def import_bi(request):
                 return redirect("centers_clients:maisons_create", initials=str(uuid_pickler))
 
         else:
-            ERROR_VIEWS_LOGGER.exception(f"erreur form : {str(form.data)!r}")
+            LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
 
     context = {
         "titre_table": "Création d'un Client avec import depuis la B.I",

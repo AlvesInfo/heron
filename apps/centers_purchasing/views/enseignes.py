@@ -9,7 +9,7 @@ from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
-from heron.loggers import ERROR_VIEWS_LOGGER
+from heron.loggers import LOGGER_VIEWS
 from heron.settings import MEDIA_DIR
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -111,6 +111,6 @@ def enseignes_export_list(request):
             return response_file(excel_enseignes_list, file_name, CONTENT_TYPE_EXCEL, Signboard)
 
     except:
-        ERROR_VIEWS_LOGGER.exception("view : enseignes_export_list")
+        LOGGER_VIEWS.exception("view : enseignes_export_list")
 
     return redirect(reverse("centers_purchasing:enseignes_list"))

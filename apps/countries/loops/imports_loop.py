@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 import shutil
 from pathlib import Path
 
-from heron.loggers import IMPORT_LOGGER
+from heron.loggers import LOGGER_IMPORT
 from apps.core.functions.functions_setups import settings
 from apps.countries.imports.imports_sage import pays_sage
 
@@ -53,11 +53,11 @@ def process():
 
         except TypeError as except_error:
             error = True
-            IMPORT_LOGGER.exception(f"TypeError : {except_error!r}")
+            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
 
         except Exception as except_error:
             error = True
-            IMPORT_LOGGER.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+            LOGGER_IMPORT.exception(f"Exception Générale: {file.name}\n{except_error!r}")
 
         finally:
             if error and trace:

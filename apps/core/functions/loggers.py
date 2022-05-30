@@ -81,5 +81,5 @@ dictConfig(
 
 EXCEL_LOGGER = logging.getLogger("excel_log")
 XML_LOGGER = logging.getLogger("xml_log")
-IMPORT_LOGGER = logging.getLogger("import_file")
+LOGGER_IMPORT = logging.getLogger("import_file")
 POSTGRES_LOGGER = logging.getLogger("import_file")

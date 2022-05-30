@@ -7,7 +7,7 @@ from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
-from heron.loggers import ERROR_VIEWS_LOGGER
+from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.parameters.excel_outputs.parameters_excel_categories_list import (
@@ -82,6 +82,6 @@ def categories_export_list(request):
         return response_file(excel_liste_categories, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        ERROR_VIEWS_LOGGER.exception("view : categories_export_list")
+        LOGGER_VIEWS.exception("view : categories_export_list")
 
     return redirect(reverse("parameters:categories_list"))

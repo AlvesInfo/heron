@@ -1,6 +1,5 @@
 import json
 from datetime import datetime as dt
-import logging
 from pathlib import Path
 
 from django.views.generic.edit import FormView
@@ -38,15 +37,13 @@ from apps.core.functions.functions_logs import LOG_FILE, write_log, envoi_mail_e
 from apps.core.functions.functions_sql import clean_id
 from apps.core.functions.functions_utilitaires import get_client_ip
 from apps.core.functions.functions_http import check_next_page
-
-
-logger = logging.getLogger("connexion")
+from heron.loggers import LOGGER_CONNEXION
 
 
 def clean_session(user_session):
     """Fonction de nettoyage des sessions précédentes pour l'utilisateur
-        :param user_session: Instance de UserSession(user, session)
-        :return: None
+    :param user_session: Instance de UserSession(user, session)
+    :return: None
     """
     sessions = [
         session.session.pk
@@ -82,7 +79,7 @@ def login_view(request):
                 # première connection
                 pass
 
-            logger.info(
+            LOGGER_CONNEXION.info(
                 f"Connexion réussie : mail : {user.email} - "
                 f"nom: {user.last_name} - "
                 f"prénom : {user.first_name} - "
@@ -92,10 +89,14 @@ def login_view(request):
             return redirect(next_page)
 
         messages.warning(request, "Email ou mot de passe, non trouvés")
-        logger.info(f"Connexion ratée : mail : {email} - " f"ip : {get_client_ip(request)}")
+        LOGGER_CONNEXION.info(
+            f"Connexion ratée : mail : {email} - " f"ip : {get_client_ip(request)}"
+        )
 
     else:
-        logger.info(f"Formulaire Invalide : {form.errors} - " f"ip : {get_client_ip(request)}")
+        LOGGER_CONNEXION.info(
+            f"Formulaire Invalide : {form.errors} - " f"ip : {get_client_ip(request)}"
+        )
 
     return render(request, "users/login_form.html", context)
 
@@ -143,7 +144,7 @@ def register_view(request):
             else f"rataché au groupe : {', '.join(groupes)}"
         )
 
-        logger.info(
+        LOGGER_CONNEXION.info(
             f"Le super User : {user_id.id}, "
             f"a créer l'utilisateur : "
             f"mail : {user.email} - "
@@ -171,7 +172,7 @@ def register_view(request):
 
 def logout_view(request):
     user = request.user
-    logger.info(
+    LOGGER_CONNEXION.info(
         f"Déconnexion : mail : {user.email} - "
         f"nom: {user.last_name} - "
         f"prénom : {user.first_name} - "
@@ -207,7 +208,7 @@ def profil_view(request):
 
             user = authenticate(request=request, email=email, password=password)
             login(request, user)
-            logger.info(
+            LOGGER_CONNEXION.info(
                 f"Changement de profil ou mot de passe : mail : {user_id.email} - "
                 f"nom: {user_id.last_name} - "
                 f"prénom : {user_id.first_name} - "
@@ -216,7 +217,7 @@ def profil_view(request):
             context["message"] = "Votre profil et votre mot passe ont bien été changés"
 
         elif password and password_verif:
-            logger.info(
+            LOGGER_CONNEXION.info(
                 f"Changement de profil ou mot de passe : mail : {user_id.email} - "
                 f"nom: {user_id.last_name} - "
                 f"prénom : {user_id.first_name} - "
@@ -225,7 +226,7 @@ def profil_view(request):
             )
             context["message"] = "les deux mots de passes doivent être identiques"
         else:
-            logger.info(
+            LOGGER_CONNEXION.info(
                 f"Changement de profil : mail : {user_id.email} - "
                 f"nom: {user_id.last_name} - "
                 f"prénom : {user_id.first_name} - "
@@ -234,7 +235,7 @@ def profil_view(request):
             context["message"] = "Votre profil à bien été changé"
 
     else:
-        logger.info(
+        LOGGER_CONNEXION.info(
             f"Changement de profil ou mot de passe : mail : {user_id.email} - "
             f"nom: {user_id.last_name} - "
             f"prénom : {user_id.first_name} - "
@@ -315,7 +316,7 @@ def modification_groupes(request):
                 )
                 user = get_object_or_404(User, pk=user_pk)
 
-                logger.info(
+                LOGGER_CONNEXION.info(
                     f"Le super User : {request.user.id}, "
                     f"a modifié les groupes , pour l'utilisateur :"
                     f"mail : {user.email} - "
@@ -391,7 +392,7 @@ def change_user_password(request):
                 user_change_password.set_password(password)
                 user_change_password.save()
                 context["message_success"] = "Le mot de passe à bien été réinitialisé"
-                logger.info(
+                LOGGER_CONNEXION.info(
                     f"Le super User : {user.id}, "
                     f"a modifié le mot de passe , pour l'utilisateur :"
                     f"mail : {user_change_password.email} - "
@@ -401,7 +402,7 @@ def change_user_password(request):
                 )
 
             except UsersError as err:
-                logger.info(
+                LOGGER_CONNEXION.info(
                     f"Le super User : {user.id}, "
                     f"a souhaité modifié le mot de passe , pour l'utilisateur :"
                     f"mail : {user_change_password.email} - "
@@ -411,7 +412,7 @@ def change_user_password(request):
                 context["message_error"] = "Erreur de traitement"
 
         else:
-            logger.info(
+            LOGGER_CONNEXION.info(
                 f"Le super User : {user.id}, "
                 f"a souhaité modifié le mot de passe , pour l'utilisateur :"
                 f"mail : {user_change_password.email} - "
@@ -674,7 +675,7 @@ def change_email_view(request):
                 "L'ancien email %s , est inconnu" % (last_email,),
                 extra_tags="Erreur",
             )
-            request.session['level'] = 50
+            request.session["level"] = 50
 
         elif email != email_verif:
             messages.error(
@@ -683,14 +684,14 @@ def change_email_view(request):
                 % (email, email_verif),
                 extra_tags="Erreur",
             )
-            request.session['level'] = 50
+            request.session["level"] = 50
         elif exist:
             messages.error(
                 request,
-                "L'email %s existe déjà" % (email, ),
+                "L'email %s existe déjà" % (email,),
                 extra_tags="Erreur",
             )
-            request.session['level'] = 50
+            request.session["level"] = 50
         else:
             User.objects.filter(email=last_email).update(email=email)
             logout(request)

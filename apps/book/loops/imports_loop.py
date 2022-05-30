@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 import shutil
 from pathlib import Path
 
-from heron.loggers import IMPORT_LOGGER
+from heron.loggers import LOGGER_IMPORT
 from apps.core.functions.functions_setups import settings
 from apps.book.imports.imports_sage import (
     bpr_sage,
@@ -66,11 +66,11 @@ def process():
 
         except TypeError as except_error:
             error = True
-            IMPORT_LOGGER.exception(f"TypeError : {except_error!r}")
+            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
 
         except Exception as except_error:
             error = True
-            IMPORT_LOGGER.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+            LOGGER_IMPORT.exception(f"Exception Générale: {file.name}\n{except_error!r}")
 
         finally:
             if error and trace:
@@ -85,7 +85,7 @@ def process():
     try:
         writre_book_files()
     except Exception as except_error:
-        IMPORT_LOGGER.exception(f"Exception Générale: writre_book_files()\n{except_error!r}")
+        LOGGER_IMPORT.exception(f"Exception Générale: writre_book_files()\n{except_error!r}")
 
 
 if __name__ == "__main__":
