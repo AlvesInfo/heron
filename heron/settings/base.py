@@ -155,6 +155,8 @@ TEMPLATES = [
                 "heron.processors.date_du_jour",
                 "heron.processors.annee_du_jour",
                 "heron.processors.debug",
+                "heron.processors.domain_site",
+                "heron.processors.domain_debug",
             ]
         },
     }

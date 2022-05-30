@@ -118,8 +118,15 @@ def annee_du_jour(request):
     return dic
 
 
-def domain_site_processor(request):
+def domain_site(request):
     """Retourne le domaine du site
         :return: context dict
     """
     return {"domain_site": Site.objects.get_current().domain}
+
+
+def domain_debug(request):
+    """Retourne le domaine du site
+        :return: context dict
+    """
+    return {"domain_site": "http://127.0.0.1:8000"}

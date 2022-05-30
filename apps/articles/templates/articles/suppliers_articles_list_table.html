@@ -22,7 +22,7 @@
 
                 <td data-value="{{ supplier.third_party_num }}"
                     style="text-align: center;">
-                    <a href="{% url 'articles:articles_list' third_party_num=supplier.third_party_num %}">
+                    <a href="#" onclick="gotToUrl(`{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num %}`)">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>
