@@ -15,7 +15,7 @@ class PicklerFiles(models.Model):
     """Modèle servant à stocker les fichier ou objets pickler"""
 
     uuid_identification = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    pickle_file = models.FileField()
+    pickle_file = models.FileField(upload_to="pickler/")
 
 
 class ChangesTrace(models.Model):

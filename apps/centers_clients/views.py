@@ -187,7 +187,7 @@ def import_bi(request):
 
                 with open(pickle_file, "rb") as file:
                     pickler_object = PicklerFiles.objects.create(
-                        pickle_file=File(file, name=pickle_file)
+                        pickle_file=File(file, name=pickle_file.name)
                     )
                     uuid_pickler = pickler_object.uuid_identification
 
