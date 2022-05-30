@@ -12,9 +12,9 @@ from heron.loggers import ERROR_VIEWS_LOGGER
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 
-# from apps.articles.excel_outputs.articles_excel_articles_list import (
-#     excel_liste_articles,
-# )
+from apps.articles.excel_outputs.output_excel_articles_list import (
+    excel_liste_articles,
+)
 from apps.book.models import Society
 from apps.articles.models import Article
 from apps.articles.forms import ArticleForm
@@ -55,6 +55,7 @@ class ArticlesList(ListView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("articles:suppliers_articles_list")
         context["titre_table"] = f"Articles du fournisseur : {self.supplier}"
+        context["third_party_num"] = self.supplier.third_party_num
         return context
 
 
@@ -100,20 +101,21 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-# def articles_export_list(request):
-#     """
-#     Export Excel de la liste des Sociétés
-#     :param request: Request Django
-#     :return: response_file
-#     """
-#     try:
-#
-#         today = pendulum.now()
-#         file_name = f"LISTING_DES_CATEGORIES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-#
-#         return response_file(excel_liste_articles, file_name, CONTENT_TYPE_EXCEL)
-#
-#     except:
-#         ERROR_VIEWS_LOGGER.exception("view : articles_export_list")
-#
-#     return redirect(reverse("articles:articles_list"))
+def articles_export_list(request, third_party_num):
+    """
+    Export Excel de la liste des Sociétés
+    :param request: Request Django
+    :param third_party_num: N° de tiers X3
+    :return: response_file
+    """
+    try:
+
+        today = pendulum.now()
+        file_name = f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+
+        return response_file(excel_liste_articles, file_name, CONTENT_TYPE_EXCEL, third_party_num)
+
+    except:
+        ERROR_VIEWS_LOGGER.exception("view : articles_export_list")
+
+    return redirect(reverse("articles:articles_list", {"third_party_num": third_party_num}))

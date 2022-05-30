@@ -103,8 +103,8 @@ LOGGING = {
         "connexion": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": f"{VAR_LOG_DIR}/connect.log",
-            "formatter": "simple",
+            "filename": f"{VAR_LOG_DIR}/connexion.log",
+            "formatter": "verbose",
         },
         # error_views
         "error_views": {
@@ -127,7 +127,7 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        "connect": {
+        "connexion": {
             "handlers": ["connexion"],
             "propagate": True,
         },

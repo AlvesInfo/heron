@@ -21,7 +21,7 @@ MIDDLEWARE = (
 LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
 LOG_EDI_FILE = (Path(LOG_DIR) / "edi_file.log").resolve()
 LOG_IMPORT_FILE = (Path(LOG_DIR) / "import_file.log").resolve()
-LOG_CONNEXION = (Path(LOG_DIR) / "connection.log").resolve()
+LOG_CONNEXION = (Path(LOG_DIR) / "connexion.log").resolve()
 LOG_ERROR_VIEWS = (Path(LOG_DIR) / "error_views.log").resolve()
 LOG_EXPORT_ECEL = (Path(LOG_DIR) / "export_excel.log").resolve()
 
