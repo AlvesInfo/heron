@@ -122,7 +122,7 @@ def domain_site(request):
     """Retourne le domaine du site
         :return: context dict
     """
-    return {"domain_site": rf"http:\\{Site.objects.get_current().domain}"}
+    return {"domain_site": f"http://{Site.objects.get_current().domain}"}
 
 
 def domain_debug(request):
