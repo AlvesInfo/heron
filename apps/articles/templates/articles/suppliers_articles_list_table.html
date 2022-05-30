@@ -2,17 +2,18 @@
 
 {% block table %}
 
-<div class="five wide column"></div>
+<div class="four wide column"></div>
 
-<div class="six wide column">
+<div class="eight wide column">
 
     <table id="table_document"
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 20%">Visualiser</th>
-                <th style="width: 80%">Fournisseur</th>
+                <th class="no-sort" style="text-align: center;width: 10%">Visualiser</th>
+                <th style="width: 70%">Fournisseur</th>
+                <th style="width: 20%">Nombre d'articles</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +31,11 @@
                     {{ supplier.third_party_num }} - {{ supplier.name }}
                   {% endif %}
                 </td>
+                <td style="text-align: center;">
+                  {% if supplier.third_party_num %}
+                    {{ supplier.supplier_society.count }}
+                  {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
@@ -37,6 +43,6 @@
 
 </div>
 
-<div class="five wide column"></div>
+<div class="four wide column"></div>
 
 {% endblock table %}
