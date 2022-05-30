@@ -75,7 +75,7 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": LOG_CONNEXION,
-            "formatter": "verbose",
+            "formatter": "simple",
         },
         # error_views
         "error_views": {
@@ -98,7 +98,7 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": True},
-        "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": True},
+        "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": False},
         "edi": {"handlers": ["edi_logfile"], "propagate": True},
         "error_views": {"handlers": ["error_views"], "propagate": True},
         "export_excel": {"handlers": ["export_excel"], "propagate": True},

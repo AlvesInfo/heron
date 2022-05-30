@@ -104,7 +104,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": f"{VAR_LOG_DIR}/connexion.log",
-            "formatter": "verbose",
+            "formatter": "simple",
         },
         # error_views
         "error_views": {
@@ -129,7 +129,7 @@ LOGGING = {
         "production": {"handlers": ["production_logfile"], "propagate": True},
         "connexion": {
             "handlers": ["connexion"],
-            "propagate": True,
+            "propagate": False,
         },
         "timer_heron": {"handlers": ["timer_heron"]},
         "imports": {"handlers": ["import_logfile"], "propagate": True},
