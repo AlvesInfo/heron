@@ -87,6 +87,6 @@ def excel_liste_articles(file_io: io.BytesIO, file_name: str, third_party_num: s
     finally:
         excel.excel_close()
 
-    print(f"temps d'exécution : {(time.time()-start):02}")
-
+    print(f"temps d'exécution : {(time.time()-start):02} s")
+    EXPORT_EXCEL_LOGGER.exception(f"{file_name!r} - temps d'exécution : {(time.time()-start):02} s")
     return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
