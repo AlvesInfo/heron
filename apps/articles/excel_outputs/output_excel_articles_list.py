@@ -1,4 +1,4 @@
-# pylint: disable=W0702,W1203
+# pylint: disable=W0702,W1203,E0401
 """Module d'export du fichier excel pour les centrales Mères
 
 Commentaire:
@@ -11,6 +11,8 @@ modified by: Paulo ALVES
 """
 
 import io
+
+from psycopg2 import sql
 
 from heron.loggers import EXPORT_EXCEL_LOGGER
 from apps.core.functions.functions_excel import GenericExcel
@@ -30,45 +32,47 @@ from apps.articles.excel_outputs.output_excel_articles_columns import columns_li
 def get_clean_rows(third_party_num) -> iter:
     """Retourne les lignes à écrire"""
 
-    sql_query = f"""
-    select 
-        "aa"."reference",
-        "aa"."libelle",
-        "aa"."libelle_heron",
-        "aa"."brand",
-        "aa"."manufacturer",
-        "pc"."ranking" || ' - ' || "pc"."name" as "big_category",
-        "ps"."name" as "sub_familly",
-        "aa"."budget_code",
-        "aa"."famille_supplier",
-        "as2"."section" as "axe_bu",
-        "as3"."section" as "axe_prj",
-        "as4"."section" as "axe_pro",
-        "as5"."section" as "axe_pys",
-        "as6"."section" as "axe_rfa",
-        "aa"."made_in",
-        "aa"."customs_code",
-        case when "aa"."new_article" = true then 'X' else '' end as "new_article",
-        "aa"."comment"
-    from "articles_article" "aa" 
-    join "book_society" "bs" 
-    on "aa"."supplier" = "bs".third_party_num 
-    left join "accountancy_sectionsage" "as2" 
-    on "aa"."axe_bu" = "as2"."uuid_identification"
-    left join "accountancy_sectionsage" "as3" 
-    on "aa"."axe_prj"  = "as3"."uuid_identification" 
-    left join "accountancy_sectionsage" "as4"
-    on "aa"."axe_pro"  = "as4"."uuid_identification" 
-    left join "accountancy_sectionsage" "as5" 
-    on "aa"."axe_pys" = "as5"."uuid_identification"
-    left join "accountancy_sectionsage" "as6"
-    on "aa"."axe_rfa" = "as6"."uuid_identification" 
-    left join "parameters_category" "pc" 
-    ON "aa"."uuid_big_category" = "pc"."uuid_identification" 
-    left join "parameters_subfamilly" "ps"
-    on "aa"."uuid_sub_familly" = "ps"."uuid_identification"
-    where "aa"."supplier" = %(third_party_num)s
-    """
+    sql_query = sql.SQL(
+        """
+        select
+            "aa"."reference",
+            "aa"."libelle",
+            "aa"."libelle_heron",
+            "aa"."brand",
+            "aa"."manufacturer",
+            "pc"."ranking" || ' - ' || "pc"."name" as "big_category",
+            "ps"."name" as "sub_familly",
+            "aa"."budget_code",
+            "aa"."famille_supplier",
+            "as2"."section" as "axe_bu",
+            "as3"."section" as "axe_prj",
+            "as4"."section" as "axe_pro",
+            "as5"."section" as "axe_pys",
+            "as6"."section" as "axe_rfa",
+            "aa"."made_in",
+            "aa"."customs_code",
+            case when "aa"."new_article" = true then 'X' else '' end as "new_article",
+            "aa"."comment"
+        from "articles_article" "aa"
+        join "book_society" "bs"
+        on "aa"."supplier" = "bs".third_party_num
+        left join "accountancy_sectionsage" "as2"
+        on "aa"."axe_bu" = "as2"."uuid_identification"
+        left join "accountancy_sectionsage" "as3"
+        on "aa"."axe_prj"  = "as3"."uuid_identification"
+        left join "accountancy_sectionsage" "as4"
+        on "aa"."axe_pro"  = "as4"."uuid_identification"
+        left join "accountancy_sectionsage" "as5"
+        on "aa"."axe_pys" = "as5"."uuid_identification"
+        left join "accountancy_sectionsage" "as6"
+        on "aa"."axe_rfa" = "as6"."uuid_identification"
+        left join "parameters_category" "pc"
+        ON "aa"."uuid_big_category" = "pc"."uuid_identification"
+        left join "parameters_subfamilly" "ps"
+        on "aa"."uuid_sub_familly" = "ps"."uuid_identification"
+        where "aa"."supplier" = %(third_party_num)s
+        """
+    )
 
     with cnx_postgresql(CNX_STRING).cursor() as cursor:
         cursor.execute(sql_query, {"third_party_num": third_party_num})
@@ -77,8 +81,6 @@ def get_clean_rows(third_party_num) -> iter:
 
 def excel_liste_articles(file_io: io.BytesIO, file_name: str, third_party_num: str) -> dict:
     """Fonction de génération du fichier de liste des Centrales Mère"""
-    import time
-    start = time.time()
     titre_list = file_name.split("_")
     titre = (
         " ".join(titre_list[:-4])
@@ -108,6 +110,4 @@ def excel_liste_articles(file_io: io.BytesIO, file_name: str, third_party_num: s
     finally:
         excel.excel_close()
 
-    print(f"temps d'exécution : {(time.time()-start):02} s")
-    EXPORT_EXCEL_LOGGER.exception(f"{file_name!r} - temps d'exécution : {(time.time()-start):02} s")
     return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
