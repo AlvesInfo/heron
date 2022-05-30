@@ -101,7 +101,7 @@ LOGGING = {
         },
         # Send in connexion-file
         "connexion-file": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": f"{VAR_LOG_DIR}/connexion.log",
             "formatter": "simple",
