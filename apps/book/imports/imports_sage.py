@@ -36,7 +36,11 @@ from apps.book.forms.forms_djantic.sage import (
     BookContactsSageSchema,
     BookBanksSageSchema,
 )
-from apps.book.bin.book_pre_processing import society_book_pre_processing, bank_book_pre_processing
+from apps.book.bin.book_pre_processing import (
+    bp_book_pre_processing,
+    society_book_pre_processing,
+    bank_book_pre_processing,
+)
 from apps.data_flux.trace import get_trace
 
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
@@ -93,6 +97,7 @@ def bps_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
+    bp_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
         model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
     )
@@ -122,6 +127,7 @@ def bpc_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
+    bp_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
         model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
     )

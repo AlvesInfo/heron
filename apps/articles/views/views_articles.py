@@ -100,10 +100,10 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-def articles_export_list(request, third_party_num):
+def articles_export_list(_, third_party_num):
     """
     Export Excel de la liste des Sociétés
-    :param request: Request Django
+    :param _: Request Django
     :param third_party_num: N° de tiers X3
     :return: response_file
     """

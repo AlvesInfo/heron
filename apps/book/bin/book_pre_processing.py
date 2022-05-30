@@ -17,6 +17,53 @@ from apps.data_flux.postgres_save import get_random_name
 from apps.book.models import Society
 
 
+def bp_book_pre_processing(path_dir: Path, file: Path):
+    """
+    Transformation du fichier en entrée des fournisseurs - BPS et client - BPC,
+    pour y ajouter les colonnes nécessaires du type de tiers (fournisseur, client, employé, ...)
+    :param path_dir: Répertoire du fichier à traité
+    :param file: Fichier à traiter
+    """
+    while True:
+        new_file = path_dir / f"{get_random_name()}.csv"
+        if not new_file.is_file():
+            break
+
+    with file.open("r", encoding="utf8") as file_to_parse, new_file.open(
+        "w", encoding="utf8", newline=""
+    ) as file_to_write:
+        csv_reader = csv.reader(
+            file_to_parse,
+            delimiter=";",
+            quotechar='"',
+            lineterminator="",
+            quoting=csv.QUOTE_MINIMAL,
+        )
+        csv_writer = csv.writer(file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        societies_exist = {
+            row_dict.get("third_party_num"): [
+                "2" if value else "1" for key, value in row_dict.items() if key != "third_party_num"
+            ]
+            for row_dict in Society.objects.all().values(
+                "third_party_num",
+                "is_client",
+                "is_agent",
+                "is_prospect",
+                "is_supplier",
+                "is_various",
+                "is_service_provider",
+                "is_transporter",
+                "is_contractor",
+                "is_physical_person",
+            )
+        }
+        for row in csv_reader:
+            csv_writer.writerow(row + societies_exist.get(row[0]))
+
+    file.unlink()
+    new_file.rename(file.resolve())
+
+
 def society_book_pre_processing(path_dir: Path, file: Path):
     """
     Transformation du fichier en entrée des adresses sociétés sage, en vérifiant quelles existent
@@ -38,9 +85,7 @@ def society_book_pre_processing(path_dir: Path, file: Path):
             lineterminator="",
             quoting=csv.QUOTE_MINIMAL,
         )
-        csv_writer = csv.writer(
-            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
-        )
+        csv_writer = csv.writer(file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
         societies_exist = {
             row_dict.get("third_party_num")
             for row_dict in Society.objects.all().values("third_party_num")
@@ -74,9 +119,7 @@ def bank_book_pre_processing(path_dir: Path, file: Path):
             lineterminator="",
             quoting=csv.QUOTE_MINIMAL,
         )
-        csv_writer = csv.writer(
-            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
-        )
+        csv_writer = csv.writer(file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
         society_bank_exist = set()
         societies_exist = {
             row_dict.get("third_party_num")

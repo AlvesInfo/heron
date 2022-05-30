@@ -19,15 +19,7 @@ from django.db import models
 from django.shortcuts import reverse
 
 from heron.models import FlagsTable
-from apps.accountancy.models import (
-    AccountSage,
-    PaymentCondition,
-    TabDivSage,
-    CategorySage,
-    # CurrencySage,
-)
-from apps.centers_purchasing.models import Signboard
-from apps.parameters.models import SalePriceCategory
+from apps.accountancy.models import CategorySage
 from apps.countries.models import Country
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
@@ -153,32 +145,16 @@ class Society(FlagsTable):
     comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
 
     # Supplier type
-    is_client = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Client"
-    )  # BPCFLG
-    is_agent = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Représentant"
-    )  # REPFLG
-    is_prospect = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Prospect"
-    )  # PPTFLG
-    is_supplier = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Fournisseur"
-    )  # BPSFLG
-    is_various = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Tiers Divers"
-    )  # BPRACC
-    is_service_provider = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Prestataire"
-    )  # PRVFLG
-    is_transporter = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Transporteur"
-    )  # BPTFLG
-    is_contractor = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Donneur d'ordre"
-    )  # DOOFLG
+    is_client = models.BooleanField(default=False, verbose_name="Client")  # BPCFLG
+    is_agent = models.BooleanField(default=False, verbose_name="Représentant")  # REPFLG
+    is_prospect = models.BooleanField(default=False, verbose_name="Prospect")  # PPTFLG
+    is_supplier = models.BooleanField(default=False, verbose_name="Fournisseur")  # BPSFLG
+    is_various = models.BooleanField(default=False, verbose_name="Tiers Divers")  # BPRACC
+    is_service_provider = models.BooleanField(default=False, verbose_name="Prestataire")  # PRVFLG
+    is_transporter = models.BooleanField(default=False, verbose_name="Transporteur")  # BPTFLG
+    is_contractor = models.BooleanField(default=False, verbose_name="Donneur d'ordre")  # DOOFLG
     is_physical_person = models.BooleanField(
-        null=True, blank=True, default=False, verbose_name="Personne physique"
+        default=False, verbose_name="Personne physique"
     )  # LEGETT
 
     # Paiements
@@ -231,6 +207,7 @@ class Society(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Retourne l'url en cas de success create, update ou delete"""
         return reverse("book:societies_list")
 
     class Meta:
@@ -637,6 +614,15 @@ class BpsBookSage:
             "payment_condition_supplier": 1,
             "vat_sheme_supplier": 2,
             "account_supplier_code": 3,
+            "is_client": 4,
+            "is_agent": 5,
+            "is_prospect": 6,
+            "is_supplier": 7,
+            "is_various": 8,
+            "is_service_provider": 9,
+            "is_transporter": 10,
+            "is_contractor": 11,
+            "is_physical_person": 12,
         }
 
     @staticmethod
@@ -686,6 +672,15 @@ class BpcBookSage:
             "payment_condition_client": 1,
             "vat_sheme_client": 2,
             "account_client_code": 3,
+            "is_client": 4,
+            "is_agent": 5,
+            "is_prospect": 6,
+            "is_supplier": 7,
+            "is_various": 8,
+            "is_service_provider": 9,
+            "is_transporter": 10,
+            "is_contractor": 11,
+            "is_physical_person": 12,
         }
 
     @staticmethod

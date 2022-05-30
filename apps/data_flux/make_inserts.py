@@ -152,7 +152,7 @@ def make_insert(
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\nUne erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()

@@ -68,10 +68,10 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-def categories_export_list(request):
+def categories_export_list(_):
     """
     Export Excel de la liste des Sociétés
-    :param request: Request Django
+    :param _: Request Django
     :return: response_file
     """
     try:

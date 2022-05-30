@@ -84,7 +84,7 @@ def process():
             if error and trace:
                 trace.errors = True
                 trace.comment = (
-                    trace.comment + "\nUne erreur c'est produite veuillez consulter les logs"
+                    trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
                 )
 
             if trace is not None:

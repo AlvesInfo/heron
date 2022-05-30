@@ -117,10 +117,10 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-def maisons_export_list(request):
+def maisons_export_list(_):
     """
     Export Excel de la liste des Sociétés
-    :param request: Request Django
+    :param _: Request Django
     :return: response_file
     """
     try:
