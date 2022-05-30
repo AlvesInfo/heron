@@ -34,22 +34,6 @@ columns_list_articles = [
         "width": 30,
     },
     {
-        "entete": "Code ean",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 23,
-    },
-    {
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,

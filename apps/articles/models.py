@@ -64,9 +64,9 @@ class Article(FlagsTable):
         SubFamilly,
         on_delete=models.PROTECT,
         null=True,
-        to_field="name",
+        to_field="uuid_identification",
         related_name="sub_fmaily_subfamilly",
-        db_column="sub_familly",
+        db_column="uuid_sub_familly",
     )
     budget_code = models.ForeignKey(
         TabDivSage,
