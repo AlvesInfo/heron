@@ -155,7 +155,7 @@ columns_list_articles = [
                 "align": "center",
             },
         },
-        "width": 12,
+        "width": 14,
     },
     {
         "entete": "Axe BU",

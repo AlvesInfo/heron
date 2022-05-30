@@ -42,7 +42,6 @@ class ArticlesList(ListView):
     model = Article
     context_object_name = "articles"
     template_name = "articles/articles_list.html"
-    extra_context = {"titre_table": "AR"}
 
     def get_queryset(self, **kwargs):
         third_party_num = self.kwargs.get("third_party_num", "")
