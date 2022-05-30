@@ -105,7 +105,7 @@ def enseignes_export_list(request):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                f"LISTING_DES_CENTRALES_FILLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                f"LISTING_DES_ENSEIGNES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
             )
 
             return response_file(excel_enseignes_list, file_name, CONTENT_TYPE_EXCEL, Signboard)

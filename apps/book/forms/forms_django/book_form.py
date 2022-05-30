@@ -96,10 +96,8 @@ class SocietyForm(forms.ModelForm):
             "language",
             "budget_code",
             "reviser",
-            "payment_condition_supplier",
             "vat_sheme_supplier",
             "account_supplier_code",
-            "payment_condition_client",
             "vat_sheme_client",
             "account_client_code",
             "is_client",
@@ -120,4 +118,6 @@ class SocietyForm(forms.ModelForm):
             "telephone",
             "mobile",
             "email",
+            "rfa_frequence",
+            "rfa_remise",
         ]

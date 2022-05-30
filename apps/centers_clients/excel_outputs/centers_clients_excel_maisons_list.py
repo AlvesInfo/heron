@@ -23,7 +23,7 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
-from apps.centers_clients.models import Maison
+from apps.centers_clients.models import Maison, SalePriceCategory
 from apps.book.models import Society
 from apps.centers_clients.excel_outputs.centers_clients_columns import columns_list_maisons
 
@@ -49,7 +49,7 @@ def get_clean_rows():
         "maison"."agreement_renew_date", 
         "maison"."entry_fee_amount", 
         "maison"."renew_fee_amoount", 
-        "maison"."sale_price_category", 
+        "sp"."name", 
         "maison"."generic_coefficient", 
         "maison"."credit_account", 
         "maison"."debit_account", 
@@ -79,9 +79,11 @@ def get_clean_rows():
         "maison"."telephone",
         "maison"."mobile",
         "maison"."email"
-    from {Maison._meta.db_table} "maison"
-    join {Society._meta.db_table} "society"
+    from "{Maison._meta.db_table}" "maison"
+    join "{Society._meta.db_table}" "society"
     on "maison"."tiers" = "society"."third_party_num"
+    left join "{SalePriceCategory._meta.db_table}" "sp"
+    on "maison"."uuid_sale_price_category" = "sp"."uuid_identification"
     """
     with cnx_postgresql(CNX_STRING).cursor() as cursor:
         cursor.execute(query)

@@ -13,6 +13,9 @@ modified by: Paulo ALVES
 """
 import csv
 from pathlib import Path
+
+from apps.core.functions.functions_setups import CNX_STRING
+from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.data_flux.postgres_save import get_random_name
 from apps.book.models import Society
 
@@ -40,7 +43,9 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
             quoting=csv.QUOTE_MINIMAL,
         )
         csv_writer = csv.writer(file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
-        societies_exist = {
+
+        # On cré le dictionnaire des types de tiers pour les ajoutés au fichier issu de sage
+        societies_dict_exist = {
             row_dict.get("third_party_num"): [
                 "2" if value else "1" for key, value in row_dict.items() if key != "third_party_num"
             ]
@@ -57,8 +62,31 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
                 "is_physical_person",
             )
         }
+
+        # On cré le dictionnaire des moyens de paiement pour les ajoutés au fichier issu de sage
+        with cnx_postgresql(CNX_STRING).cursor() as cursor:
+            cursor.execute(
+                """
+            select
+                "code",
+                max("auuid") as "auuid"
+            from "accountancy_paymentcondition" "ap"
+            group by "code"
+            """
+            )
+            code_dict_exists = dict(cursor.fetchall())
+
         for row in csv_reader:
-            csv_writer.writerow(row + societies_exist.get(row[0]))
+            (third_party_num, payment_condition_client, vat_sheme_client, account_client_code) = row
+            csv_writer.writerow(
+                [
+                    third_party_num,
+                    code_dict_exists.get(payment_condition_client),
+                    vat_sheme_client,
+                    account_client_code,
+                ]
+                + societies_dict_exist.get(row[0])
+            )
 
     file.unlink()
     new_file.rename(file.resolve())

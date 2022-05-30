@@ -63,6 +63,7 @@ class BpsBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
+    payment_condition_supplier: str
 
     class Config:
         """class Config du models au sens django"""
@@ -84,6 +85,7 @@ class BpcBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
+    payment_condition_client: str
 
     class Config:
         """class Config du models au sens django"""

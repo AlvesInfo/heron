@@ -38,6 +38,7 @@ class Article(FlagsTable):
         KG = "Kilo", _("Kilo")
         U = "Unité", _("Unité")
         BOITE = "Boite", _("Boite")
+        ML = "Mètre", _("Mètre")
 
     supplier = models.ForeignKey(
         Society,

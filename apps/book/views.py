@@ -49,6 +49,10 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["adresse_principale_sage"] = (
             context.get("object").society_society.filter(default_adress=True).first()
         )
+        context["compte_banque"] = (
+            context.get("object").bank_society.filter(is_default=True).first()
+        )
+        print(context)
         return context
 
     def form_valid(self, form, **kwargs):

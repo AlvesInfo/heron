@@ -17,9 +17,10 @@ import uuid
 
 from django.db import models
 from django.shortcuts import reverse
+from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
-from apps.accountancy.models import CategorySage
+from apps.accountancy.models import CategorySage, PaymentCondition
 from apps.countries.models import Country
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
@@ -66,6 +67,23 @@ class Society(FlagsTable):
     FR : Table des sociétés
     EN : Societies table
     """
+
+    class Frequence(models.IntegerChoices):
+        """Frequence choices"""
+
+        AUCUNE = 0, _("---------")
+        MENSUEL = 1, _("Mensuel")
+        TRIMESTRIEL = 2, _("Trimestriel")
+        SEMESTRIEL = 3, _("Semestriel")
+        ANNUEL = 4, _("Annuel")
+
+    class Remise(models.IntegerChoices):
+        """Remise choices"""
+
+        AUCUNE = 0, _("---------")
+        TOTAL = 1, _("Fournisseur Total")
+        FAMILLE = 2, _("Famille Article")
+        ARTICLE = 3, _("Article")
 
     third_party_num = models.CharField(
         unique=True, max_length=15, verbose_name="N° de tiers X3"
@@ -157,19 +175,35 @@ class Society(FlagsTable):
         default=False, verbose_name="Personne physique"
     )  # LEGETT
 
-    # Paiements
-    payment_condition_supplier = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="conditions de paiement"
+    payment_condition_supplier = models.ForeignKey(
+        PaymentCondition,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="auuid",
+        related_name="supplier_paiement_condition",
+        verbose_name="Condition de paiement",
+        db_column="payment_condition_supplier",
     )  # PTE - BPSUPPLIER (Table TABPAYTERM)
+
     vat_sheme_supplier = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
     )  # VACBPR - BPSUPPLIER (Table TABVACBPR)
     account_supplier_code = models.CharField(
         null=True, blank=True, max_length=10, verbose_name="code comptable fournisseur"
     )  # ACCCOD - BPSUPPLIER (Table GACCCODE)
-    payment_condition_client = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="condition de paiement"
+
+    payment_condition_client = models.ForeignKey(
+        PaymentCondition,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="auuid",
+        related_name="client_paiement_condition",
+        verbose_name="Condition de paiement",
+        db_column="payment_condition_client",
     )  # PTE - BPCUSTOMER (Table TABPAYTERM)
+
     vat_sheme_client = models.CharField(
         null=True, blank=True, max_length=5, verbose_name="régime de taxe"
     )  # VACBPR - BPCUSTOMER (Table TABVACBPR)
@@ -200,6 +234,22 @@ class Society(FlagsTable):
     telephone = models.CharField(null=True, blank=True, max_length=25, verbose_name="téléphone")
     mobile = models.CharField(null=True, blank=True, max_length=25, verbose_name="mobile")
     email = models.EmailField(null=True, blank=True, max_length=85, verbose_name="email")
+
+    # RFA
+    rfa_frequence = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=Frequence.choices,
+        default=Frequence.AUCUNE,
+        verbose_name="fréquence des rfa",
+    )
+    rfa_remise = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=Remise.choices,
+        default=Remise.AUCUNE,
+        verbose_name="taux de remboursement rfa",
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

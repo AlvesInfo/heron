@@ -73,6 +73,7 @@ class Maison(FlagsTable):
     class Frequence(models.IntegerChoices):
         """Frequence choices"""
 
+        AUCUNE = 0, _("---------")
         MENSUEL = 1, _("Mensuel")
         TRIMESTRIEL = 2, _("Trimestriel")
         SEMESTRIEL = 3, _("Semestriel")
@@ -81,6 +82,7 @@ class Maison(FlagsTable):
     class Remise(models.IntegerChoices):
         """Remise choices"""
 
+        AUCUNE = 0, _("---------")
         TOTAL = 1, _("Fournisseur Total")
         FAMILLE = 2, _("Famille Article")
         ARTICLE = 3, _("Article")
