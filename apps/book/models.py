@@ -153,16 +153,32 @@ class Society(FlagsTable):
     comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
 
     # Supplier type
-    is_client = models.BooleanField(default=False, verbose_name="Client")  # BPCFLG
-    is_agent = models.BooleanField(default=False, verbose_name="Représentant")  # REPFLG
-    is_prospect = models.BooleanField(default=False, verbose_name="Prospect")  # PPTFLG
-    is_supplier = models.BooleanField(default=False, verbose_name="Fournisseur")  # BPSFLG
-    is_various = models.BooleanField(default=False, verbose_name="Tiers Divers")  # BPRACC
-    is_service_provider = models.BooleanField(default=False, verbose_name="Prestataire")  # PRVFLG
-    is_transporter = models.BooleanField(default=False, verbose_name="Transporteur")  # BPTFLG
-    is_contractor = models.BooleanField(default=False, verbose_name="Donneur d'ordre")  # DOOFLG
+    is_client = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Client"
+    )  # BPCFLG
+    is_agent = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Représentant"
+    )  # REPFLG
+    is_prospect = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Prospect"
+    )  # PPTFLG
+    is_supplier = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Fournisseur"
+    )  # BPSFLG
+    is_various = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Tiers Divers"
+    )  # BPRACC
+    is_service_provider = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Prestataire"
+    )  # PRVFLG
+    is_transporter = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Transporteur"
+    )  # BPTFLG
+    is_contractor = models.BooleanField(
+        null=True, blank=True, default=False, verbose_name="Donneur d'ordre"
+    )  # DOOFLG
     is_physical_person = models.BooleanField(
-        default=False, verbose_name="Personne physique"
+        null=True, blank=True, default=False, verbose_name="Personne physique"
     )  # LEGETT
 
     # Paiements

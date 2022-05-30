@@ -89,12 +89,12 @@ def login_view(request):
             return redirect(next_page)
 
         messages.warning(request, "Email ou mot de passe, non trouvés")
-        LOGGER_CONNEXION.info(
+        LOGGER_CONNEXION.warning(
             f"Connexion ratée : mail : {email} - " f"ip : {get_client_ip(request)}"
         )
 
     else:
-        LOGGER_CONNEXION.info(
+        LOGGER_CONNEXION.exception(
             f"Formulaire Invalide : {form.errors} - " f"ip : {get_client_ip(request)}"
         )
 

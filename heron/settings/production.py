@@ -40,7 +40,7 @@ AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
 AXES_USERNAME_FORM_FIELD = "email"
 
 # LOG DIRECTORY
-VAR_LOG_DIR = Path("/var/log/heron").resolve()
+VAR_LOG_DIR = str(Path("/var/log/heron").resolve())
 Path.mkdir(VAR_LOG_DIR, exist_ok=True)
 
 LOGGING = {
@@ -60,7 +60,7 @@ LOGGING = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "simple": {
-            "format": "[heron] : [%(asctime)s] %(levelname)s : %(message)s",
+            "format": "[%(asctime)s] %(levelname)s : %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
@@ -99,8 +99,8 @@ LOGGING = {
             "filename": f"{VAR_LOG_DIR}/edi_logfile.log",
             "formatter": "verbose",
         },
-        # Send in connexion_file
-        "connexion": {
+        # Send in connexion-file
+        "connexion-file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": f"{VAR_LOG_DIR}/connexion.log",
@@ -127,10 +127,7 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        "connexion": {
-            "handlers": ["connexion"],
-            "propagate": False,
-        },
+        "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": False},
         "timer_heron": {"handlers": ["timer_heron"]},
         "imports": {"handlers": ["import_logfile"], "propagate": True},
         "edi": {"handlers": ["edi_logfile"], "propagate": True},
