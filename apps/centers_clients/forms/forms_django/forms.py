@@ -45,6 +45,13 @@ class MaisonForm(forms.ModelForm):
             "sage_plan_code",
             "currency",
             "language",
+            "rfa_frequence",
+            "rfa_remise",
+            "credit_account",
+            "debit_account",
+            "prov_account",
+            "extourne_account",
+            "budget_code",
         ]
 
 

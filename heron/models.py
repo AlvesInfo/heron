@@ -54,6 +54,7 @@ class FlagsTable(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="+",
         db_column="created_by",
     )
@@ -61,6 +62,7 @@ class FlagsTable(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="+",
         db_column="modified_by",
     )
@@ -68,6 +70,7 @@ class FlagsTable(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="+",
         db_column="delete_by",
     )
@@ -88,6 +91,7 @@ class DbTableAuthorisation(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="+",
     )
     model_to_consult = models.CharField(max_length=255, verbose_name="model django")

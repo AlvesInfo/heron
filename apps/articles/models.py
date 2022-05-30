@@ -56,6 +56,7 @@ class Article(FlagsTable):
         Category,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="big_category_category",
         db_column="uuid_big_category",
@@ -64,6 +65,7 @@ class Article(FlagsTable):
         SubFamilly,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="sub_fmaily_subfamilly",
         db_column="uuid_sub_familly",
@@ -71,6 +73,7 @@ class Article(FlagsTable):
     budget_code = models.ForeignKey(
         TabDivSage,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         limit_choices_to={"num_table": "6100"},
         related_name="budget_code_tab_div",
@@ -83,6 +86,7 @@ class Article(FlagsTable):
     axe_bu = models.ForeignKey(
         SectionSage,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "BU"},
@@ -129,6 +133,7 @@ class Article(FlagsTable):
         Country,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="country",
         related_name="made_in_country",
         db_column="made_in",
@@ -184,9 +189,12 @@ class SellingPrice(FlagsTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="name",
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        verbose_name="categorie de prix",
         related_name="sale_price_sale_price_category",
-        db_column="sale_price_category",
+        db_column="uuid_sale_price_category",
     )
     article = models.ForeignKey(
         Article,
@@ -227,9 +235,12 @@ class SalePriceHistory(DatesTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="name",
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        verbose_name="categorie de prix",
         related_name="history_sale_price_category",
-        db_column="sale_price_category",
+        db_column="uuid_sale_price_category",
     )
     article = models.ForeignKey(
         Article,

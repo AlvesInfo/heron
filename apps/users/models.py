@@ -189,6 +189,7 @@ class UploadUserFile(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         db_column="user",
     )
     type_insert = models.IntegerField(choices=((0, "users"), (1, "staff"), (2, "admin")), default=0)

@@ -40,6 +40,7 @@ class ChangesTrace(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         related_name="action_by",
         db_column="action_by",
     )

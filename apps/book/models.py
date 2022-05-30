@@ -324,26 +324,6 @@ class Address(FlagsTable):
         unique_together = (("society", "address_code"),)
 
 
-class DocumentsSubscription(FlagsTable):
-    """
-    Abonnements des envois de documents aux contacts
-    FR : Table des abonnements aux envois de documents
-    EN : Table of subscriptions to sending documents
-    """
-
-    name = models.CharField(unique=True, max_length=80)
-    comment = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["name"]
-
-
 class Contact(FlagsTable):
     """
     Contact des Sociétés, tables CONTACT et CONTACTCRM de Sage X3
@@ -429,38 +409,6 @@ class Contact(FlagsTable):
 
         ordering = ["last_name", "first_name"]
         unique_together = (("society", "code"),)
-
-
-class ContactExchange(models.Model):
-    """
-    Relation many to Many entre les contacts et les documents auxquels ils ont le droit
-    FR : Table des Contact / Documents
-    EN : Table of Contacts / Documents
-    """
-
-    contact = models.ForeignKey(
-        Contact,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="exchange_contact",
-        db_column="contact",
-    )
-    document = models.ForeignKey(
-        DocumentsSubscription,
-        on_delete=models.PROTECT,
-        to_field="name",
-        related_name="document_contact",
-        db_column="document",
-    )
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.contact} - {self.document}"
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["contact", "document"]
 
 
 class SocietyBank(FlagsTable):

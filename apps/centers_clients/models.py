@@ -1,4 +1,5 @@
-# pylint: disable=E0401,R0903
+# pylint: disable=
+# E0401,R0903
 """
 FR : Module du modèle des maisons
 EN : Houses model module
@@ -11,14 +12,16 @@ created by: Paulo ALVES
 modified at: 2022-04-07
 modified by: Paulo ALVES
 """
+import uuid
+
 from django.db import models
 from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
 
-from apps.accountancy.models import AccountSage, CctSage, CodePlanSage, VatSage
-from apps.book.models import Society, Address
+from apps.accountancy.models import AccountSage, CctSage, CodePlanSage, VatSage, TabDivSage
+from apps.book.models import Nature, Society
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
 from apps.parameters.models import SalePriceCategory
 from apps.countries.models import Country, Language, Currency
@@ -67,7 +70,7 @@ class Maison(FlagsTable):
     EN : Shop table
     """
 
-    class Frequence(models.TextChoices):
+    class Frequence(models.IntegerChoices):
         """Frequence choices"""
 
         MENSUEL = 1, _("Mensuel")
@@ -75,7 +78,7 @@ class Maison(FlagsTable):
         SEMESTRIEL = 3, _("Semestriel")
         ANNUEL = 4, _("Annuel")
 
-    class Remise(models.TextChoices):
+    class Remise(models.IntegerChoices):
         """Remise choices"""
 
         TOTAL = 1, _("Fournisseur Total")
@@ -155,9 +158,10 @@ class Maison(FlagsTable):
         SalePriceCategory,
         on_delete=models.PROTECT,
         null=True,
-        to_field="name",
+        to_field="uuid_identification",
+        related_name="maison_sale_price_category",
         verbose_name="categorie de prix",
-        db_column="sale_price_category",
+        db_column="uuid_sale_price_category",
     )
     generic_coefficient = models.DecimalField(
         null=True,
@@ -170,6 +174,7 @@ class Maison(FlagsTable):
         AccountSage,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="credit_account",
         verbose_name="compte X3 par défaut au crédit",
@@ -179,6 +184,7 @@ class Maison(FlagsTable):
         AccountSage,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="debit_account",
         verbose_name="compte X3 par défaut au débit",
@@ -188,6 +194,7 @@ class Maison(FlagsTable):
         AccountSage,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="prov_account",
         verbose_name="compte X3 par défaut sur provision",
@@ -197,10 +204,21 @@ class Maison(FlagsTable):
         AccountSage,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="extourne_account",
         verbose_name="compte X3 par défaut sur extourne",
         db_column="extourne_account",
+    )
+    budget_code = models.ForeignKey(
+        TabDivSage,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        limit_choices_to={"num_table": "6100"},
+        related_name="budget_code_client_tab_div",
+        verbose_name="code budget",
+        db_column="budget_code",
     )
     sage_vat_by_default = models.ForeignKey(
         VatSage,
@@ -221,17 +239,16 @@ class Maison(FlagsTable):
 
     # RFA
     rfa_frequence = models.IntegerField(
-        null=True,
         choices=Frequence.choices,
         default=Frequence.MENSUEL,
         verbose_name="fréquence des rfa",
     )
     rfa_remise = models.IntegerField(
-        null=True,
         choices=Remise.choices,
         default=Remise.TOTAL,
         verbose_name="taux de remboursement rfa",
     )
+
     invoice_client_name = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="Nom pour l'identifiant Client"
     )
@@ -292,30 +309,111 @@ class Maison(FlagsTable):
         ordering = ["code_maison"]
 
 
-class NotExportMaisonSupllier(FlagsTable):
-    cct = models.ForeignKey(
+class DocumentsSubscription(FlagsTable):
+    """
+    Abonnements des envois de documents aux contacts
+    FR : Table des abonnements aux envois de documents
+    EN : Table of subscriptions to sending documents
+    """
+
+    name = models.CharField(unique=True, max_length=80)
+    comment = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return self.name
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["name"]
+
+
+class Contact(FlagsTable):
+    """
+    Contact des Maisons
+    FR : Table des Maisons
+    EN : Table of Shops
+    """
+
+    maison = models.ForeignKey(
         Maison,
-        on_delete=models.PROTECT,
-        to_field="cct",
-        related_name="maison_supplier",
-        verbose_name="code maison",
-        db_column="cct",
-    )
-    society = models.ForeignKey(
-        Society,
         on_delete=models.CASCADE,
-        to_field="third_party_num",
-        related_name="supplier_maison",
-        verbose_name="Fournisseur",
-        db_column="society",
+        to_field="cct",
+        related_name="contact_cct",
+        db_column="cct",
+        verbose_name="maison",
+    )
+    nature = models.ForeignKey(
+        Nature,
+        on_delete=models.PROTECT,
+        to_field="name",
+        related_name="contact_nature_cct",
+        null=True,
+        limit_choices_to={"for_contact": True},
+        db_column="nature",
+        verbose_name="Nature",
+    )
+    first_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="Prénom")
+    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="Nom")
+    language = models.ForeignKey(
+        Language,
+        on_delete=models.PROTECT,
+        to_field="code",
+        related_name="language_contact_cct",
+        verbose_name="Langue",
+        db_column="language",
+        default="FRA",
+    )
+
+    phone_number = models.CharField(null=True, blank=True, max_length=35, verbose_name="N° Tél.")
+    mobile_number = models.CharField(null=True, blank=True, max_length=35, verbose_name="N° Mobile")
+    email = models.EmailField(null=True, blank=True, verbose_name="e-mail")
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.first_name}{' - ' if self.first_name else ''}{self.last_name}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["last_name", "first_name"]
+
+
+class ContactExchange(models.Model):
+    """
+    Relation many to Many entre les contacts et les documents auxquels ils ont le droit
+    FR : Table des Contact / Documents
+    EN : Table of Contacts / Documents
+    """
+
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="exchange_contact",
+        db_column="contact",
+    )
+    document = models.ForeignKey(
+        DocumentsSubscription,
+        on_delete=models.PROTECT,
+        to_field="name",
+        related_name="document_contact",
+        db_column="document",
     )
 
     def __str__(self):
-        return f"{self.cct} - {self.society}"
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.contact} - {self.document}"
 
     class Meta:
-        ordering = ["cct", "society__name"]
-        unique_together = (("cct", "society"),)
+        """class Meta du modèle django"""
+
+        ordering = ["contact", "document"]
 
 
 class MaisonBi(models.Model):
@@ -351,13 +449,45 @@ class MaisonBi(models.Model):
     is_modify = models.BooleanField(default=False)
 
 
-class MaisonSupplier(FlagsTable):
+class NotExportMaisonSupllier(FlagsTable):
     """
-    Table des identifiants des Maisons par les Tiers X3 (pour les fournisseurs edi)
+    Table des identifiants des Maisons/Tiers X3 ne devant pas donner lieu à facturation
     FR : Table Identifiants Maisons/Tiers
     EN : Shop/Suppliers Identifiers Table
     """
-    tiers = models.ForeignKey(
+    cct = models.ForeignKey(
+        Maison,
+        on_delete=models.PROTECT,
+        to_field="cct",
+        related_name="maison_supplier",
+        verbose_name="code maison",
+        db_column="cct",
+    )
+    supplier = models.ForeignKey(
+        Society,
+        on_delete=models.CASCADE,
+        to_field="third_party_num",
+        related_name="supplier_maison",
+        verbose_name="Fournisseur",
+        db_column="society",
+    )
+
+    def __str__(self):
+        return f"{self.cct} - {self.supplier}"
+
+    class Meta:
+        ordering = ["cct", "supplier__name"]
+        unique_together = (("cct", "supplier"),)
+
+
+class MaisonSupplier(FlagsTable):
+    """
+    Table des identifiants des Tiers X3 pour les Maisons (pour les fournisseurs edi)
+    FR : Table Identifiants Maisons/Tiers
+    EN : Shop/Suppliers Identifiers Table
+    """
+
+    supplier = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
         to_field="third_party_num",
@@ -376,8 +506,9 @@ class MaisonSupplier(FlagsTable):
     identifiant = models.CharField(max_length=35, verbose_name="Identifiant Maison")
 
     def __str__(self):
-        return f"{self.tiers} - {self.cct}"
+        return f"{self.supplier} - {self.cct}"
 
     class Meta:
         """class Meta Django"""
-        unique_together = (("tiers", "cct"),)
+
+        unique_together = (("supplier", "cct", "identifiant"),)

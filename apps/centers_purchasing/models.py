@@ -111,9 +111,12 @@ class Signboard(FlagsTable):
     sale_price_category = models.ForeignKey(
         SalePriceCategory,
         on_delete=models.PROTECT,
-        to_field="name",
-        verbose_name="Catégorie de prix générique",
-        db_column="sale_price_category",
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        verbose_name="categorie de prix",
+        related_name="enseigne_sale_price_category",
+        db_column="uuid_sale_price_category",
     )
     name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
     logo = models.ImageField(null=True, blank=True, upload_to="logos/", verbose_name="logo")
