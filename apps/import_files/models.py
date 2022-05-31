@@ -54,6 +54,7 @@ class ErrorsShaImportFIles(DatesTable):
         ShaImportInvoicesFiles,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="sha_file_sha",
         db_column="sha_file",

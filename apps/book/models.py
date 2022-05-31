@@ -295,7 +295,7 @@ class Address(FlagsTable):
     )
     road_type = models.CharField(null=True, blank=True, max_length=35, verbose_name="Type de voie")
     line_01 = models.CharField(
-        null=True, max_length=80, verbose_name="Ligne adresse 01"
+        null=True, blank=True, max_length=80, verbose_name="Ligne adresse 01"
     )  # BPAADDLIG(0)
     line_02 = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="Ligne adresse 02"

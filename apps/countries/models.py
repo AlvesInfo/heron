@@ -29,7 +29,7 @@ class Country(models.Model):
         null=True, blank=True, max_length=3, verbose_name="code pays deb"
     )  # EECCOD
     country_insee = models.CharField(
-        null=True, max_length=80, verbose_name="code pays insee"
+        null=True, blank=True, max_length=80, verbose_name="code pays insee"
     )  # CINSEE
     country_iso = models.CharField(
         null=True, blank=True, max_length=3, verbose_name="code pays iso 2"

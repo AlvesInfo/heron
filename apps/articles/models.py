@@ -97,6 +97,7 @@ class Article(FlagsTable):
     axe_prj = models.ForeignKey(
         SectionSage,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRJ"},
@@ -106,6 +107,7 @@ class Article(FlagsTable):
     axe_pro = models.ForeignKey(
         SectionSage,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
@@ -115,6 +117,7 @@ class Article(FlagsTable):
     axe_pys = models.ForeignKey(
         SectionSage,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "PYS"},
@@ -124,6 +127,7 @@ class Article(FlagsTable):
     axe_rfa = models.ForeignKey(
         SectionSage,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "RFA"},

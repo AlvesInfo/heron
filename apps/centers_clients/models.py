@@ -160,6 +160,7 @@ class Maison(FlagsTable):
         SalePriceCategory,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
         to_field="uuid_identification",
         related_name="maison_sale_price_category",
         verbose_name="categorie de prix",

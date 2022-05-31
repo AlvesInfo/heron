@@ -143,6 +143,7 @@ class EssaisZ(models.Model):
     trace = models.ForeignKey(
         Trace,
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
     )

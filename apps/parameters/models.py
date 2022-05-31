@@ -153,6 +153,7 @@ class SendFilesMail(FlagsTable):
         to_field="uuid_identification",
         related_name="user_send_file",
         null=True,
+        blank=True,
         db_column="user",
     )
     email = models.EmailField(null=True, blank=True)
