@@ -139,7 +139,7 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=10, verbose_name="code naf"
     )  # NAF
     currency = models.CharField(
-        null=True, default="EUR", max_length=3, verbose_name="monaie"
+        null=True, blank=True, default="EUR", max_length=3, verbose_name="monaie"
     )  # CUR
     country = models.ForeignKey(
         Country,

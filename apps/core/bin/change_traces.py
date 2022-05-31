@@ -49,6 +49,7 @@ class ChangeTraceMixin:
         return super().post(request, *args, **kwargs)
 
     def action(self):
+        """Renvoie le type d'action réalisée"""
 
         if self.action_type is None:
 
@@ -61,6 +62,55 @@ class ChangeTraceMixin:
             else:
                 self.action_type = "UNDIFINED"
 
+    def has_change(self, before: dict, after: dict):
+        """
+        Fonction qui vérifie si le formulaire a changé un élément de l'objet
+        :param before: instance du formulaire d'avant
+        :param after: instance du formulaire au post
+        :return: boolean
+        """
+        before_to_test = {
+            key: str(value) if isinstance(value, (ImageFieldFile,)) else value
+            for key, value in before.items()
+            if key not in {"created_at", "modified_at"}
+        }
+        after_to_test = {
+            key: str(value) if isinstance(value, (ImageFieldFile,)) else value
+            for key, value in after.items()
+            if key not in {"created_at", "modified_at"}
+        }
+
+        # Si les dictionnaires avant et après on des longueurs différentes alors on renvoie True
+        if len(before_to_test) != len(after_to_test):
+            return True
+
+        # On boucle sur le dictionnaire avant changement pour repérer si il y a eu changement
+        for key, value in before_to_test.items():
+            test_after_value = after_to_test.get(key, "$,:!cnjEfegvfkgqe")
+
+            # Si la valeur correspondant à la clé est réellement différente on break
+            if test_after_value == "$,:!cnjEfegvfkgqe":
+                break
+
+            if test_after_value != value:
+                # Si les valeurs sont différentes on va tester si dans la définition du champ
+                # il y a l'attribut blank= True, si c'est le cas et que la différence est
+                # entre '' et None c'est qu'il n'y a pas de différences
+                # sinon on break la boucle
+                if not (
+                    test_after_value in {"", None}
+                    and value in {"", None}
+                    and self.object._meta.get_field(key).blank
+                ):
+                    break
+
+        # S'il n'y a pas eu de break dans la boucle alors cela n'a pas changé
+        else:
+            return False
+
+        # S'il n'y eu un break dans la boucle alors cela a changé
+        return True
+
     def form_valid(self, form):
         """
         Surcharge de la méthode form_valid, pour enregistrer les données Avant/Après
@@ -68,22 +118,10 @@ class ChangeTraceMixin:
         """
         self.request.session["level"] = 20
         self.object = form.save()
-
         before = {key: value for key, value in self.object_before.items() if key != "_state"}
-        before_to_test = {
-            key: str(value) if isinstance(value, (ImageFieldFile,)) else value
-            for key, value in before.items()
-            if key not in {"created_at", "modified_at"}
-        }
-
         after = {key: value for key, value in self.object.__dict__.items() if key != "_state"}
-        after_to_test = {
-            key: str(value) if isinstance(value, (ImageFieldFile,)) else value
-            for key, value in after.items()
-            if key not in {"created_at", "modified_at"}
-        }
 
-        if before_to_test == after_to_test:
+        if not self.has_change(before, after):
             self.success_message = "Vous n'avez rien modifié!"
             return super().form_valid(form)
 

@@ -13,7 +13,7 @@
                 <label for="id_third_party_num" style="text-align: left;">N° de tiers x3&nbsp;:</label>
                     <input type="text"
                            name="third_party_num"
-                           value="{{ form.third_party_num.value }}"
+                           value="{{ form.third_party_num.value|default_if_none:'' }}"
                            id="id_third_party_num"
                            style="background-color: lavender;font-weight: bold;">
               </div>
@@ -21,7 +21,7 @@
                 <label for="id_name" style="text-align: left;">Name&nbsp;:</label>
                     <input type="text"
                            name="name"
-                           value="{{ form.name.value }}"
+                           value="{{ form.name.value|default_if_none:'' }}"
                            id="id_name"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -30,7 +30,7 @@
                 <label for="id_short_name" style="text-align: left;">Intitulé court&nbsp;:</label>
                     <input type="text"
                            name="short_name"
-                           value="{{ form.short_name.value }}"
+                           value="{{ form.short_name.value|default_if_none:'' }}"
                            id="id_short_name"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
@@ -39,7 +39,7 @@
                 <label for="id_corporate_name" style="text-align: left;">Raison sociale&nbsp;:</label>
                     <input type="text"
                            name="corporate_name"
-                           value="{{ form.corporate_name.value }}"
+                           value="{{ form.corporate_name.value|default_if_none:'' }}"
                            id="id_corporate_name"
                            readonly
                            style="background-color: lavender;font-weight: bold;">
