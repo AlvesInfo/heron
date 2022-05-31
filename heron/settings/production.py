@@ -104,7 +104,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": f"{str(VAR_LOG_DIR)}/connexion.log",
-            "formatter": "simple",
+            "formatter": "verbose",
         },
         # error_views
         "error_views": {
