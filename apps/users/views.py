@@ -93,7 +93,7 @@ def login_view(request):
             f"Connexion ratée : mail : {email} - " f"ip : {get_client_ip(request)}"
         )
 
-    else:
+    if form.errors:
         LOGGER_CONNEXION.exception(
             f"Formulaire Invalide : {form.errors} - " f"ip : {get_client_ip(request)}"
         )
