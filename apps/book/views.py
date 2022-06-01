@@ -57,8 +57,7 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def form_valid(self, form, **kwargs):
         """
         On surcharge la méthode form_valid, pour ajouter les données, à la vollée,
-        de l'adresse par défaut si la checkbox adresse_principale_sage est à true
-        et ajouter le niveau de message et sa couleur.
+        de l'adresse par défaut si la checkbox adresse_principale_sage est à true.
         """
         copy_default_address = form.cleaned_data.get("copy_default_address")
 

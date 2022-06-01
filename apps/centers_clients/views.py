@@ -1,6 +1,6 @@
 # pylint: disable=E0401,R0903,W0201,W0702,W0613,W1203
 """
-Views des Maisons
+Views des Clients/Maisons
 """
 from pathlib import Path
 import pickle
@@ -24,17 +24,6 @@ from apps.accountancy.models import CctSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison, MaisonBi
 from apps.centers_clients.forms import MaisonForm, ImportMaisonBiForm
-
-
-# ECRANS DES CLIENTS ===============================================================================
-
-
-def clients(request):
-    """Vue en table d'une société"""
-
-    context = {}
-
-    return render(request, "centers_clients/clients_home.html", context=context)
 
 
 # ECRANS DES MAISONS ===============================================================================
@@ -65,6 +54,8 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         if uuid_identification == "*":
             return initial
 
+        # Si un uuid est passé en paramètre de l'uuid, alors on récupère le fichier pickle,
+        # pour initialiser le formulaire avec les données venues de la B.I
         self.pickler_object = get_object_or_404(
             PicklerFiles, uuid_identification=uuid_identification
         )
@@ -85,8 +76,7 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         """
-        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form
-        et ajouter le niveau de message et sa couleur.
+        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
         """
         Path(self.pickler_object.pickle_file.path).unlink()
         pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
@@ -139,7 +129,9 @@ def maisons_export_list(_):
 def import_bi(request):
     """
     View pour importer depuis la B.I et ainsi récupérer les principaux éléments,
-    en vue de la création d'un Client
+    en vue de la création d'un Client. Après avoir récupéré et validé le formulaire saisi, on crée
+    un dictionnaire et on le pickle de façon à pouvoir le récupérer dans la CreateView de la Maison
+    en  lui passant un uuid dans l'url
     """
 
     form = ImportMaisonBiForm(request.POST or None)

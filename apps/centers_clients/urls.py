@@ -1,7 +1,6 @@
 from django.urls import path
 
 from apps.centers_clients.views import (
-    clients,
     MaisonsList,
     import_bi,
     filter_list_maisons_api,
@@ -13,7 +12,6 @@ from apps.centers_clients.views import (
 app_name = "apps.centers_clients"
 
 urlpatterns = [
-    path("clients_home/", clients, name="clients_home"),
     path("maisons_list/", MaisonsList.as_view(), name="maisons_list"),
     path("import_bi/", import_bi, name="import_bi"),
     path("filter_list_maisons_api/", filter_list_maisons_api, name="filter_list_maisons_api"),
