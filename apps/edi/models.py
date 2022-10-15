@@ -30,6 +30,7 @@ class EdiImport(models.Model):
     third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
     flow_name = models.CharField(max_length=80)
     supplier = models.CharField(null=True, blank=True, max_length=35)
+    supplier_name = models.CharField(null=True, blank=True, max_length=80)
     supplier_ident = models.CharField(null=True, blank=True, max_length=20)
     siret_payeur = models.CharField(null=True, blank=True, max_length=20)
     code_fournisseur = models.CharField(null=True, blank=True, max_length=30)
@@ -187,6 +188,7 @@ class EdiImport(models.Model):
     maison_exists = models.BooleanField(null=True, default=False)
     article_exists = models.BooleanField(null=True, default=False)
     axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
+    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
     # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
 
 

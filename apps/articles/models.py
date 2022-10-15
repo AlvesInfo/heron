@@ -14,7 +14,6 @@ modified by: Paulo ALVES
 import uuid
 
 from django.db import models
-from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
@@ -328,6 +327,7 @@ class SupplierArticleAxePro(FlagsTable):
     """
     Nommage des familles à appliquer pour les fournisseurs
     """
+
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
@@ -371,3 +371,19 @@ class FamilleAxePro(FlagsTable):
         """class Meta du modèle django"""
 
         unique_together = (("name", "supplier_familly"),)
+
+
+class ArticleUpdate(models.Model):
+    """Table des Articles, importés pour update de la table Article"""
+
+    date_facture = models.DateField(null=True, blank=True)
+    supplier = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="supplier_society_article_update",
+        db_column="supplier",
+    )
+    reference = models.CharField(max_length=35)
+    ean_code = models.CharField(null=True, blank=True, max_length=35)
+    libelle = models.CharField(null=True, blank=True, max_length=150)

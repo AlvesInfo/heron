@@ -112,6 +112,9 @@ def edi_iso_date_format(qualifier_date: str, date_value: AnyStr) -> str:
 class EDIQualifierParser:
     """Qualifier pour l'EDI opto 33"""
 
+    def __init__(self, edi_file: Path):
+        self.edi_file = edi_file.name
+
     def parse_qualifier(self, qualifier: str, data: list) -> dict:
         """Parsing des function à appliquer en fonction des qualifiers"""
         try:
@@ -122,8 +125,7 @@ class EDIQualifierParser:
 
         return {}
 
-    @staticmethod
-    def cmd_unh(data: list) -> dict:
+    def cmd_unh(self, data: list) -> dict:
         """
         Parsing du qualifier UNH, contenant l'en-tête financial_document
             Example:
@@ -146,6 +148,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données UNH de l'en-tête financial_document: {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         return {
@@ -154,8 +157,7 @@ class EDIQualifierParser:
             "format": financial_document_format,
         }
 
-    @staticmethod
-    def cmd_bgm(data: list) -> dict:
+    def cmd_bgm(self, data: list) -> dict:
         """
         PARSE BGM : num and invoice type
         :param data: list of values
@@ -166,6 +168,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier BGM : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         return {
@@ -173,8 +176,7 @@ class EDIQualifierParser:
             "invoice_number": invoice_number.replace("'", ""),
         }
 
-    @staticmethod
-    def cmd_dtm(data: list) -> dict:
+    def cmd_dtm(self, data: list) -> dict:
         """
         PARSE DTM : balise EDI pour les Dates
         :param data: list of values
@@ -190,6 +192,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier DTM : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         test_dtm = dtm_dict.get(dtm)
@@ -198,13 +201,12 @@ class EDIQualifierParser:
             {test_dtm: edi_iso_date_format(dtm_qualifier, dte.replace("'", ""))} if test_dtm else {}
         )
 
-    @staticmethod
-    def cmd_nad(data: list) -> dict:
+    def cmd_nad(self, data: list) -> dict:
         """
         PASE NAD : balise EDI pour l'indication des acteurs de la facture
         :param data: list of values
         """
-
+        data = data
         try:
             if data[0] not in ["BY", "SU", "PR", "II"]:
                 return ""
@@ -215,11 +217,18 @@ class EDIQualifierParser:
             raise OptoParserError(
                 f"Impossible d'extraire les données du qualifier NAD "
                 f"(data[0] not in ['BY', 'SU', 'PR', 'II']): {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         except ValueError as except_error:
+            # NAD+BY, peut être placé dans les lignes de facturation, cela indique le magasin livré
+            # Mais nous ne prenons que l'indicateur NAD dans la partie entête de la facture
+            if data[0] == "BY" and len(data) < 5:
+                return ""
+
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier NAD : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         partner_dict = {}
@@ -243,8 +252,7 @@ class EDIQualifierParser:
 
         return partner_dict
 
-    @staticmethod
-    def cmd_moa(data: list) -> dict:
+    def cmd_moa(self, data: list) -> dict:
         """
         PARSE MOA : balise EDI pour les Montants du resume
         :param data: list of values
@@ -259,14 +267,14 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier MOA : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         test_moa = moa_dict.get(moa_qualifier)
 
         return {test_moa: amount.replace("'", "")} if test_moa else {}
 
-    @staticmethod
-    def cmd_moal(data: list) -> dict:
+    def cmd_moal(self, data: list) -> dict:
         """
         PARSE MOA : balise EDI pour les Montants des lignes
         :param data: list of values
@@ -282,6 +290,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier MOA(L) : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         amount = amount.replace("'", "")
@@ -299,8 +308,7 @@ class EDIQualifierParser:
 
         return {test_moa: amount} if test_moa else {}
 
-    @staticmethod
-    def cmd_lin(data: list) -> dict:
+    def cmd_lin(self, data: list) -> dict:
         """
         PARSE LIN : balise EDI pour les lignes
         :param data: list of values
@@ -311,6 +319,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier LIN : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         if line_type != "20":
@@ -322,8 +331,7 @@ class EDIQualifierParser:
 
         return {}
 
-    @staticmethod
-    def cmd_rff(data: list) -> dict:
+    def cmd_rff(self, data: list) -> dict:
         """
         PARSE RFF : balise EDI pour les références de livraison ou commande
         :param data: list of values
@@ -335,19 +343,23 @@ class EDIQualifierParser:
                 "AEG": "client_name",
                 "ACD": "comment",
             }
+            if len(data) == 1:
+                return ""
+
             rff_qualifier, reference, *_ = data
 
         except ValueError as except_error:
+            print(data)
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier RFF : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         test_rff = rff_dict.get(rff_qualifier)
 
         return {test_rff: reference} if test_rff else {}
 
-    @staticmethod
-    def cmd_imd(data: list) -> dict:
+    def cmd_imd(self, data: list) -> dict:
         """
         PARSE IMD : balise EDI pour les statistiques et libellés des articles
         :param data: list of values
@@ -358,6 +370,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier IMD : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         if imd_qualifier != "F":
@@ -368,8 +381,7 @@ class EDIQualifierParser:
             "famille": f"{stat.replace('O', '0').replace(' ', '0')}".ljust(17, "0"),
         }
 
-    @staticmethod
-    def cmd_qty(data: list) -> dict:
+    def cmd_qty(self, data: list) -> dict:
         """
         PARSE QTY : balise EDI pour quantités
         :param data: list of values
@@ -380,6 +392,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier QTY : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         if qty_qualifier != "47":
@@ -389,8 +402,7 @@ class EDIQualifierParser:
             "qty": qty.replace("'", ""),
         }
 
-    @staticmethod
-    def cmd_pri(data: list) -> dict:
+    def cmd_pri(self, data: list) -> dict:
         """
         PARSE PRI : balise EDI pour les prix de référence de l'article
         :param data: list of values
@@ -405,6 +417,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier PRI : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         test_pri = pri_dict.get(pri_qualifier)
@@ -416,8 +429,7 @@ class EDIQualifierParser:
 
         return {}
 
-    @staticmethod
-    def cmd_tax(data: list) -> dict:
+    def cmd_tax(self, data: list) -> dict:
         """
         PARSE TAX : balise EDI pour le taux de tva
         :param data: list of values
@@ -428,6 +440,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier TAX : {data!r}"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         if tax_qualifier != "7":
@@ -437,8 +450,7 @@ class EDIQualifierParser:
             "vat_rate": tax.replace("'", ""),
         }
 
-    @staticmethod
-    def cmd_footer(data: list) -> dict:
+    def cmd_footer(self, data: list) -> dict:
         """Parse the DOCUMENT footer
 
         Args:
@@ -464,6 +476,7 @@ class EDIQualifierParser:
         except ValueError as except_error:
             raise OptoParserError(
                 f"Unable to extract data from the footer: '{data!r}'"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         try:
@@ -471,6 +484,7 @@ class EDIQualifierParser:
         except (TypeError, ValueError) as except_error:
             raise OptoParserError(
                 f"financial_document count should an int: '{count!r}'"
+                f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
         return {"document_id": doc_id, "financial_documents_count": count}
@@ -502,7 +516,7 @@ class EdiOpoto33Parser:
             )
 
         self.edi_file = edi_file
-        self.cmd_parser = EDIQualifierParser()
+        self.cmd_parser = EDIQualifierParser(self.edi_file)
         self.cleaner = cleaner
         self.document = {}
 
@@ -666,9 +680,11 @@ class EdiOpoto33Parser:
             text = file.read().strip()
             try:
                 _, header, *invoices, footer = re.split(
-                    r"[\n|'](?=UNB)|[\n|'](?=UNH)|[\n|'](?=UNZ)", text
+                    r"[\n|'](?=UNB)|[\n|'](?=UNH)|[\n|'](?=UNZ)" if text[:3] == "UNA"
+                    # Certains fichiers EDI n'ont pas l'entête UNA
+                    else r"(?=UNB)|[\n|'](?=UNH)|[\n|'](?=UNZ)",
+                    text,
                 )
-
             except ValueError as except_error:
                 raise OptoParserError(
                     "Impossible d'extraire les données du pied de page du fichier :"
@@ -679,34 +695,43 @@ class EdiOpoto33Parser:
             footer_parse = self.cmd_parser.cmd_footer(footer[1])
             footer_count_invoices = footer_parse.get("financial_documents_count")
 
+            # ANNULATION DE LA VALIDATION CAR JULBO NE RESPECTE PAS ID INTERCHANGE
             # On vérifie l'ID d'interchage
-            if header[1][4] != footer_parse.get("document_id").replace("'", ""):
+            if str(header[1][4]).replace("'", "") != footer_parse.get("document_id").replace(
+                "'", ""
+            ):
+                print(self.edi_file.name)
+                print(header, footer_parse.get("document_id"))
                 raise OptoIdError(
-                    r"l'ID du fichier Edi en entête (UNB) et en pied de page (UNZ) sont différents"
+                    r"l'ID du fichier Edi '{0}' en entête (UNB) "
+                    r"et en pied de page (UNZ) sont différents".format(self.edi_file.name)
                 )
 
             # On vérifie que le nombre de factures est celui annoncé
-            if len(re.findall(r"UNH(?=\+)", text)) != footer_count_invoices:
-                raise OptoNumberError(
-                    r"Il n'y a pas dans le fichier le nombre de factures "
-                    r"annoncé dans le pied de page (UNZ)"
-                )
+            # if len(re.findall(r"UNH(?=\+)", text)) != footer_count_invoices:
+            #     raise OptoNumberError(
+            #         r"Il n'y a pas dans le fichier le nombre de factures "
+            #         r"annoncé dans le pied de page (UNZ), "
+            #         f"dans le fichier {self.edi_file.name!r}"
+            #     )
 
-            errors_list = []
-
-            # On vérifie que toutes les lignes de factures sont présentes
-            for line in self.invoices(invoices):
-                entete, *_, resume = line
-
-                if len([_ for lis in line for _ in lis]) != int(resume[0][1]):
-                    errors_list.append(entete[1][2])
-
-            if errors_list:
-                raise OptoNumberError(
-                    f"Le nombre de lignes des factures/avoirs : {', '.join(errors_list)!r} "
-                    "ne correpond pas au "
-                    "nombre de lignes indiquées dans leur résumé (UNT)"
-                )
+            # ANNULATION DE LA VALIDATION CAR CooperVision NE RESPECTE PAS LE NOMBRE DE LIGNES
+            # errors_list = []
+            #
+            # # On vérifie que toutes les lignes de factures sont présentes
+            # for line in self.invoices(invoices):
+            #     entete, *_, resume = line
+            #
+            #     if len([_ for lis in line for _ in lis]) != int(resume[0][1]):
+            #         errors_list.append(entete[1][2])
+            #
+            # if errors_list:
+            #     raise OptoNumberError(
+            #         f"Le nombre de lignes des factures/avoirs : {', '.join(errors_list)!r} "
+            #         "ne correpond pas au "
+            #         "nombre de lignes indiquées dans leur résumé (UNT), "
+            #         f"dans le fichier {self.edi_file.name!r}"
+            #     )
 
             return {
                 "header": header,

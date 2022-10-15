@@ -56,7 +56,6 @@ class Nature(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
-
         ordering = ["name"]
 
 
@@ -215,6 +214,8 @@ class Society(FlagsTable):
     centers_suppliers_indentifier = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="identifiant fournisseur"
     )
+    integrable = models.BooleanField(null=True, default=True, verbose_name="à intégrer X3")
+    chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
 
     # Adresse pour la centrale d'achat
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")

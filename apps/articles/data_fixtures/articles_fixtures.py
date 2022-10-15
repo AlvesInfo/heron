@@ -31,7 +31,7 @@ django.setup()
 
 from apps.accountancy.models import SectionSage
 from apps.book.models import Society
-from apps.articles.models import Article
+from apps.articles.models import Article, ArticleUpdate
 
 
 @lru_cache(maxsize=512)
@@ -85,5 +85,20 @@ def import_articles():
             print(objet, created)
 
 
+def article_from_article_update():
+    for article in ArticleUpdate.objects.all():
+        try:
+            objet, created = Article.objects.update_or_create(
+                supplier=get_society('TECH001'),
+                reference=article.reference,
+                libelle=article.libelle,
+                libelle_heron=article.libelle,
+            )
+            print(objet, created)
+        except django.db.utils.IntegrityError:
+            pass
+
+
 if __name__ == "__main__":
-    import_articles()
+    # import_articles()
+    article_from_article_update()

@@ -21,6 +21,7 @@ sys.path.append(str(APPS_DIR))
 sys.path.append(str(CORE_DIR))
 
 path_env = (Path(PROJECT_DIR) / "env/.env").resolve()
+
 config = AutoConfig(search_path=path_env)
 
 SECRET_KEY = config("SECRET_KEY")
@@ -100,6 +101,7 @@ LOCAL_APPS = [
     "apps.centers_purchasing",
     "apps.clients_invoices",
     "apps.clients_validations",
+    "apps.compta",
     "apps.core",
     "apps.data_flux",
     "apps.countries",

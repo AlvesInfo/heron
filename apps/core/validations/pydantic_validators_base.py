@@ -580,7 +580,7 @@ class TvaNewson(BaseModel):
     @validator("vat_rate", pre=True, check_fields=False)
     def tva_newson(cls, value):
 
-        if value in {"C0", "C1", "C2}"}:
+        if value in {"C0", "C1", "C2", "E7"}:
             value = Decimal("0")
 
         elif value == "C3":

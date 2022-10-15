@@ -31,7 +31,7 @@ class Invoice(FlagsTable):
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="detail_society",
-        db_column="supplier",
+        db_column="supplier_third_party_num",
     )
     invoice_number = models.CharField(max_length=35)
     invoice_date = models.DateField()
@@ -95,7 +95,7 @@ class InvoiceDetail(FlagsTable):
         on_delete=models.CASCADE,
         to_field="uuid_identification",
         related_name="detail_invoice",
-        db_column="invoice",
+        db_column="uuid_invoice",
     )
 
     # Article
@@ -104,7 +104,7 @@ class InvoiceDetail(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="detail_article",
-        db_column="article",
+        db_column="uuid_article",
     )
 
     # Sage
@@ -121,7 +121,7 @@ class InvoiceDetail(FlagsTable):
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="maison_society",
-        db_column="maison",
+        db_column="uuid_society",
     )
 
     # Commande / BL
@@ -178,6 +178,6 @@ class InvoiceSerials(models.Model):
         on_delete=models.CASCADE,
         to_field="uuid_identification",
         related_name="serial_invoice",
-        db_column="invoice",
+        db_column="uuid_invoice",
     )
     serial = models.CharField(max_length=255)

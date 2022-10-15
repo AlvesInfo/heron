@@ -97,6 +97,28 @@ def post_processing_all():
     and edi."invoice_number" = edi_fac."invoice_number"
     """
     )
+    sql_supplier_update = sql.SQL(
+        """
+        update "edi_ediimport" "edi"
+        set 
+            "supplier_name" = "tiers"."name",
+            "third_party_num" = "tiers"."third_party_num",
+            "supplier" = case 
+                            when "supplier" = '' or "supplier" isnull 
+                            then "tiers"."name" 
+                            else "supplier" 
+                         end
+        from (
+            select 
+                left("name", 35) as "name",
+                "third_party_num",
+                unnest(string_to_array("centers_suppliers_indentifier", '|')) as "identifier"
+                from "book_society" bs
+        ) "tiers"
+        where ("edi"."third_party_num" is null or "edi"."third_party_num" = '')
+        and "edi"."supplier_ident" = "tiers"."identifier"
+        """
+    )
     sql_validate = sql.SQL(
         """
         update "edi_ediimport" edi
@@ -116,11 +138,15 @@ def post_processing_all():
                                 when "delivery_date" = '1900-01-01' 
                                 then null
                                 else "delivery_date"
-                               end
+                               end,
+            "montant_facture_HT" = abs("montant_facture_HT")::numeric ,
+            "montant_facture_TVA" = abs("montant_facture_TVA")::numeric ,
+            "montant_facture_TTC" = abs("montant_facture_TTC")::numeric 
     """
     )
     with connection.cursor() as cursor:
         cursor.execute(sql_fac_update)
+        cursor.execute(sql_supplier_update)
         cursor.execute(sql_validate)
 
 
@@ -743,12 +769,21 @@ def technidis_post_insert(uuid_identification: AnyStr):
     """
     sql_update = sql.SQL(
         """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'F' then '380' else '381' end,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
+    with "group_technidis" as (
+        select 
+            case when sum(net_amount) < 0 then '381' else '380' end as "invoice_type", 
+            "invoice_number", 
+            "uuid_identification"
+          from "edi_ediimport" 
+         where "uuid_identification" = %(uuid_identification)s
+           and ("valid" = false or "valid" isnull)
+         group by "invoice_number", "uuid_identification"
+    )
+    update "edi_ediimport" "ei"
+       set "invoice_type" = "gt"."invoice_type"
+      from "group_technidis" "gt"
+     where "ei"."uuid_identification" = "gt"."uuid_identification"
+       and "ei"."invoice_number" = "gt"."invoice_number"
     """
     )
     sql_update_units = """
