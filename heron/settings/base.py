@@ -106,15 +106,18 @@ LOCAL_APPS = [
     "apps.data_flux",
     "apps.countries",
     "apps.edi",
+    "apps.formations",
     "apps.groups",
     "apps.import_files",
     "apps.parameters",
     "apps.periods",
     "apps.permissions",
+    "apps.rfa",
     "apps.suppliers_invoices",
     "apps.suppliers_validations",
     "apps.traces",
     "apps.users",
+    "apps.validations",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
