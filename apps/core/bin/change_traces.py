@@ -93,10 +93,10 @@ class ChangeTraceMixin:
                 break
 
             if test_after_value != value:
-                # Si les valeurs sont différentes on va tester si dans la définition du champ
+                # Si les valeurs sont différentes on va tester si dans la définition du champ,
                 # il y a l'attribut blank= True, si c'est le cas et que la différence est
                 # entre '' et None c'est qu'il n'y a pas de différences
-                # sinon on break la boucle
+                # sinon on break la boucle.
                 if not (
                     test_after_value in {"", None}
                     and value in {"", None}

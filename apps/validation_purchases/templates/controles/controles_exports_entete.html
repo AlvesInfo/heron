@@ -1,0 +1,11 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+
+    <a class="item" href="{% url 'validation_purchases:controles_exports_list' %}">
+       <button class="ui green button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          LISTING CLIENTS
+       </button>
+    </a>
+
+{% endblock right_side %}

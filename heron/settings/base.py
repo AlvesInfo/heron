@@ -100,8 +100,8 @@ LOCAL_APPS = [
     "apps.centers_clients",
     "apps.centers_purchasing",
     "apps.clients_invoices",
-    "apps.clients_validations",
     "apps.compta",
+    "apps.validation_purchases",
     "apps.core",
     "apps.data_flux",
     "apps.countries",
@@ -117,7 +117,6 @@ LOCAL_APPS = [
     "apps.suppliers_validations",
     "apps.traces",
     "apps.users",
-    "apps.validations",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
