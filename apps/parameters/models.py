@@ -204,7 +204,7 @@ class Category(FlagsTable):
     """
     Grandes Catégories
     FR : Grandes Catégories
-    EN : Catégories
+    EN : Categories
     """
 
     name = models.CharField(unique=True, max_length=80)
@@ -220,6 +220,42 @@ class Category(FlagsTable):
     @staticmethod
     def get_absolute_url():
         return reverse("parameters:categories_list")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["ranking"]
+
+
+class SubCategory(FlagsTable):
+    """
+    Sous Grandes Catégories
+    FR : Sous Grandes Catégories
+    EN : Sub-Categories
+    """
+
+    name = models.CharField(unique=True, max_length=80)
+    ranking = models.IntegerField(unique=True)
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="big_sub_category",
+        db_column="uuid_big_category",
+    )
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.ranking} - {self.name}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("parameters:sub_categories_list")
 
     class Meta:
         """class Meta du modèle django"""

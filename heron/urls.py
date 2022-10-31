@@ -129,6 +129,20 @@ urlpatterns = [
         "",
         include(("apps.users.urls", "apps.users"), namespace="users"),
     ),
+    path(
+        "validation_purchases/",
+        include(
+            ("apps.validation_purchases.urls", "apps.validation_purchases"),
+            namespace="validation_purchases",
+        ),
+    ),
+    path(
+        "validation_sales/",
+        include(
+            ("apps.validation_sales.urls", "apps.validation_sales"),
+            namespace="validation_sales",
+        ),
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
