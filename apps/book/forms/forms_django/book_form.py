@@ -120,4 +120,5 @@ class SocietyForm(forms.ModelForm):
             "email",
             "rfa_frequence",
             "rfa_remise",
+            "export_x3"
         ]

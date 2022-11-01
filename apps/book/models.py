@@ -174,6 +174,9 @@ class Society(FlagsTable):
         default=False, verbose_name="Personne physique"
     )  # LEGETT
 
+    # Si le Tiers ne doit pas avoir d'export Sage, mais juste une OD analytique
+    export_x3 = models.BooleanField(default=True, verbose_name="Export X3")
+
     payment_condition_supplier = models.ForeignKey(
         PaymentCondition,
         null=True,
@@ -353,9 +356,9 @@ class Address(FlagsTable):
         FR : Avant la sauvegarde on clean les données
         EN : Before the backup we clean the data
         """
-        # Avant la sauvegarde on vérifie si dans l'instance à sauvegarder le champ default_adress
+        # Avant la sauvegarde, on vérifie si dans l'instance à sauvegarder le champ default_adress
         # est à True et si c'est le cas alors on update d'abord les autres à False pour la même
-        # société
+        # société.
 
         if self.default_adress:
             Address.objects.filter(society=self.society, default_adress=True).update(

@@ -1,0 +1,46 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="sixteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th>Modifier</th>
+                <th>Fournisseur</th>
+                <th>N° Facture</th>
+                <th>Ligne</th>
+                <th>Montant TTC</th>
+                <th>Montant TVA</th>
+                <th>Montant HT</th>
+                <th>Date de la facture</th>
+                <th>Supprimer</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for export in controles_exports %}
+            <tr id="id_{{ export.pk }}" class="hide_plans">
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

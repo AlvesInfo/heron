@@ -216,6 +216,14 @@
                 <label for="id_rfa_remise" style="text-align: left;">Remise RFA&nbsp;:</label>
                 {{ form.rfa_remise }}
               </div>
+              <div class="one wide field">
+                <label for="id_export_x3" style="text-align: left;">EXPORT X3&nbsp;:</label>
+                <input type="checkbox"
+                       name="export_x3"
+                       id="id_export_x3"
+                       {% if form.export_x3.value %}checked{% endif %}
+                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              </div>
           </div>
         </div>
       </div>

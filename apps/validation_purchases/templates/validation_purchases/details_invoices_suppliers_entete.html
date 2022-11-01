@@ -1,0 +1,14 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+    {% if not details %}
+        <a class="item" href="{% url 'validation_purchases:details_purchases_export' %}">
+    {% else %}
+        <a class="item" href="{% url 'validation_purchases:details_purchases_export' %}">
+    {% endif %}
+       <button class="ui green button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+
+{% endblock right_side %}

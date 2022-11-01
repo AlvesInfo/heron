@@ -1,0 +1,46 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+
+            {% include "validation_purchases/articles_families_invoices_suppliers_entete.html" %}
+            {% include "validation_purchases/articles_families_invoices_suppliers_table.html" %}
+
+        <div class="ui equal width grid center"></div>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+
+            {% include "heron/base_data_table.html" %}
+
+        });
+
+    </script>
+
+{% endblock script %}

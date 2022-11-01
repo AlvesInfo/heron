@@ -52,6 +52,7 @@ class MaisonForm(forms.ModelForm):
             "prov_account",
             "extourne_account",
             "budget_code",
+            "export_x3",
         ]
 
 

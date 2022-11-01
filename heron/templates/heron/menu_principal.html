@@ -47,28 +47,28 @@
                 <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 70em;">
                     {% if user.is_superuser %}
                         <div class="column">
-                            <h4 class="ui header"style="font-size: 1em;">PERMISSIONS</h4>
+                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>
                             <div class="ui link list">
                                 <a class="item">Users</a>
                             </div>
                         </div>
                     {% endif %}
                     <div class="column">
-                        <h4 class="ui header"style="font-size: 1em;">TIERS</h4>
+                        <h4 class="ui header" style="font-size: 1em;">TIERS</h4>
                         <div class="ui link list">
                             <a href="{% url 'book:societies_list' %}" class="item">Tiers X3</a>
                         </div>
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header"style="font-size: 1em;">CLIENTS</h4>
+                        <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
                         </div>
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header"style="font-size: 1em;">CENTRALES</h4>
+                        <h4 class="ui header" style="font-size: 1em;">CENTRALES</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:meres_list' %}" class="item">Centrales Mère</a>
                         </div>
@@ -81,7 +81,7 @@
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header"style="font-size: 1em;">ARTICLES</h4>
+                        <h4 class="ui header" style="font-size: 1em;">ARTICLES</h4>
                         <div class="ui link list">
                             <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
                         </div>
@@ -125,8 +125,21 @@
                     <div class="column">
                         <h4 class="ui header">Achats</h4>
                         <div class="ui link list">
-                            <a href="{% url 'validation_purchases:balance_suppliers_purchases' %}" class="item">Soldes Fournisseurs</a>
-                            <a href="{% url 'validation_purchases:invoices_suppliers_purchases' %}" class="item">Factures Fournisseurs</a>
+                            <a href="{% url 'validation_purchases:integrations_purchases' %}" class="item">Intégrations</a>
+                            <a href="{% url 'validation_purchases:listing_purchases' %}" class="item">Listing Factures</a>
+                            <a href="{% url 'validation_purchases:without_cct_purchases' %}" class="item">Contrôle CCT</a>
+                            <a href="{% url 'validation_purchases:families_invoices_purchases' %}" class="item">Contrôle Familles</a>
+                            <a href="{% url 'validation_purchases:articles_families_invoices_purchases' %}" class="item">Contrôle Articles</a>
+                            <a href="{% url 'validation_purchases:balance_suppliers_purchases' %}" class="item">Soldes</a>
+                            <a href="{% url 'validation_purchases:invoices_suppliers_purchases' %}" class="item">Factures</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header">RFA</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'validation_purchases:rfa_cct_invoices_purchases' %}" class="item">RFA par CCT</a>
+                            <a href="{% url 'validation_purchases:rfa_prj_invoices_purchases' %}" class="item">RFA par PRJ</a>
                         </div>
                     </div>
 
