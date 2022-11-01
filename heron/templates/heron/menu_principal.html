@@ -25,6 +25,16 @@
                 <i class="dropdown icon"></i>
             </a>
 
+            <a class="browse item bold" data-target="#c" id="cmenu">
+                Ventes
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#d" id="dmenu">
+                Contôles
+                <i class="dropdown icon"></i>
+            </a>
+
         {% endif %}
 
         <div class="right menu">
@@ -89,13 +99,54 @@
                     <div class="column">
                         <h4 class="ui header">Factures</h4>
                         <div class="ui link list">
-                            <a class="item">Par Tiers</a>
+                            <a href="" class="item">Par Tiers</a>
                         </div>
                     </div>
+
+                </div>
+            </div>
+
+            <div class="ui flowing transition popup" id="c">
+                <div class="ui two column relaxed divided grid" style="width: 24em;">
+
                     <div class="column">
-                        <h4 class="ui header">Clients</h4>
+                        <h4 class="ui header">Validations</h4>
                         <div class="ui link list">
-                            <a class="item">Par Maisons</a>
+                            <a href="" class="item"></a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ui flowing transition popup" id="d">
+                <div class="ui two column relaxed divided grid" style="width: 24em;">
+
+                    <div class="column">
+                        <h4 class="ui header">Achats</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'validation_purchases:balance_suppliers_purchases' %}" class="item">Soldes Fournisseurs</a>
+                            <a href="{% url 'validation_purchases:invoices_suppliers_purchases' %}" class="item">Factures Fournisseurs</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header">Ventes</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'validation_sales:compare_turnover_sales' %}" class="item">Ventes vs CA</a>
+                            <a href="{% url 'validation_sales:controls_cct_sales' %}" class="item">Ventes par CCT</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header">Sage</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'validation_purchases:sage_controls_globals_purchases' %}" class="item">Achats Sage</a>
+                            <a href="{% url 'validation_purchases:sage_controls_details_purchases' %}" class="item">Achats Détails</a>
+                            <a href="{% url 'validation_purchases:sage_controls_familles_purchases' %}" class="item">Achats Famille</a>
+                            <a href="{% url 'validation_sales:sage_controls_globals_sales' %}" class="item">Ventes Sage</a>
+                            <a href="{% url 'validation_sales:sage_controls_details_sales' %}" class="item">Ventes Détails</a>
+                            <a href="{% url 'validation_sales:sage_controls_familles_sales' %}" class="item">Ventes Famille</a>
                         </div>
                     </div>
 

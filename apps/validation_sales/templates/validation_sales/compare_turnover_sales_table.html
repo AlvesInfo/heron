@@ -1,0 +1,82 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="sixteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+
+                {% if not details %}
+                    <th class="no-sort" style="text-align: center"></th>
+                {% endif %}
+
+                <th>Pays</th>
+                <th>Enseigne</th>
+                <th>Maison/CCT</th>
+
+                {% if details %}
+                    <th>Famille Produit</th>
+                {% endif %}
+
+                <th>CA Cosium HT</th>
+                <th>Ventes Héron</br>Achats HT</th>
+                <th>Tx d'achat</th>
+                <th>CA Cosium HT</th>
+                <th>Ventes Héron</br>Achats HT</th>
+                <th>Tx d'achat</th>
+                <th>CA Cosium HT</th>
+                <th>Ventes Héron</br>Achats HT</th>
+                <th>Tx d'achat</th>
+                <th>CA Cosium HT</th>
+                <th>Ventes Héron</br>Achats HT</th>
+                <th>Tx d'achat</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for export in controles_exports %}
+            <tr id="id_{{ export.pk }}" class="hide_plans">
+                {% if not details %}
+                    <td data-value="{{ export.third_party_num }}"
+                        style="text-align: center;">
+                        <a href="">
+                            <i class="eye icon"></i>
+                        </a>
+                    </td>
+                {% endif %}
+
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+
+                {% if details %}
+                    <td>{{ export.pays }}</td>
+                {% endif %}
+
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+                <td>{{ export.pays }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

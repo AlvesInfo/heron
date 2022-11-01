@@ -2,9 +2,15 @@
 
 {% block right_side %}
 
-    <a class="item" href="{% url 'validation_sales:validation_sales_export_list' %}">
+    {% if details_familles  %}
+        <a class="item" href="{% url 'validation_sales:validation_sales_export_globals' %}">
+    {% elif details %}
+        <a class="item" href="{% url 'validation_sales:validation_sales_export_details' %}">
+    {% else %}
+        <a class="item" href="{% url 'validation_sales:validation_sales_export_familles' %}">
+    {% endif %}
        <button class="ui green button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-          LISTING CLIENTS
+          EXPORT VENTES SAGE
        </button>
     </a>
 

@@ -73,13 +73,6 @@ urlpatterns = [
         ),
     ),
     path(
-        "clients_validations/",
-        include(
-            ("apps.clients_validations.urls", "apps.clients_validations"),
-            namespace="clients_validations",
-        ),
-    ),
-    path(
         "core/",
         include(("apps.core.urls", "apps.core"), namespace="core"),
     ),

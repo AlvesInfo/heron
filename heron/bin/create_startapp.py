@@ -12,7 +12,6 @@ apps = [
     "centers_clients",
     # "centers_purchasing",
     # "clients_invoices",
-    # "clients_validations",
     # "core",
     # "countries",
     # "edi",
