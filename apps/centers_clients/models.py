@@ -89,6 +89,7 @@ class Maison(FlagsTable):
 
     cct = models.OneToOneField(
         CctSage,
+        unique=True,
         on_delete=models.PROTECT,
         to_field="cct",
         related_name="maison_cct",
@@ -291,8 +292,10 @@ class Maison(FlagsTable):
     mobile = models.CharField(null=True, blank=True, max_length=25, verbose_name="mobile")
     email = models.EmailField(null=True, blank=True, max_length=85, verbose_name="email")
 
-    # Si la maison ne doit pas avoir d'export Sage, mais juste une OD analytique
-    export_x3 = models.BooleanField(default=True, verbose_name="Export X3")
+    # Système pour les fichiers d'export vers Sage X3
+    integrable = models.BooleanField(null=True, default=True, verbose_name="à intégrer X3")
+    chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
+    od_ana = models.BooleanField(null=False, default=False, verbose_name="OD Analytique")
 
     def save(self, *args, **kwargs):
         """
@@ -454,7 +457,7 @@ class MaisonBi(models.Model):
     is_modify = models.BooleanField(default=False)
 
 
-class NotExportMaisonSupllier(FlagsTable):
+class MaisonSupllierExclusion(FlagsTable):
     """
     Table des identifiants des Maisons/Tiers X3 ne devant pas donner lieu à facturation
     FR : Table Identifiants Maisons/Tiers
@@ -485,7 +488,7 @@ class NotExportMaisonSupllier(FlagsTable):
         unique_together = (("cct", "supplier"),)
 
 
-class MaisonSupplier(FlagsTable):
+class MaisonSupplierIdentifier(FlagsTable):
     """
     Table des identifiants des Tiers X3 pour les Maisons (pour les fournisseurs edi)
     FR : Table Identifiants Maisons/Tiers

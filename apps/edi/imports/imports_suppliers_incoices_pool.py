@@ -186,7 +186,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
 
         if not columns_dict:
             # Si le mapping entre les colonnes de la table EdiImport et les colonnes du fichier,
-            # ne sont pas dans la table ColumnDefinition, alors l'import ne peut se faire
+            # ne sont pas dans la table ColumnDefinition, alors l'import ne peut se faire.
             raise TypeError("Vous n'avez pas de colonnes à récupérer")
 
         flow_dict = get_loader_params_dict(SupplierDefinition, flow_name)

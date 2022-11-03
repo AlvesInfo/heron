@@ -20,7 +20,7 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
-from apps.accountancy.models import CategorySage, PaymentCondition
+from apps.accountancy.models import CategorySage, PaymentCondition, SupplierArticleAxePro
 from apps.countries.models import Country
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
@@ -56,6 +56,7 @@ class Nature(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
+
         ordering = ["name"]
 
 
@@ -174,9 +175,6 @@ class Society(FlagsTable):
         default=False, verbose_name="Personne physique"
     )  # LEGETT
 
-    # Si le Tiers ne doit pas avoir d'export Sage, mais juste une OD analytique
-    export_x3 = models.BooleanField(default=True, verbose_name="Export X3")
-
     payment_condition_supplier = models.ForeignKey(
         PaymentCondition,
         null=True,
@@ -213,12 +211,27 @@ class Society(FlagsTable):
         null=True, blank=True, max_length=10, verbose_name="code comptable client"
     )  # ACCCOD - BPCUSTOMER (Table GACCCODE)
 
-    # Identifian Fournisseur pour la centrale d'achat
+    # Identifiants Fournisseur pour la centrale d'achat
     centers_suppliers_indentifier = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="identifiant fournisseur"
+        null=True, blank=True, max_length=1080, verbose_name="identifiant fournisseur"
     )
-    integrable = models.BooleanField(null=True, default=True, verbose_name="à intégrer X3")
-    chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
+
+    # Système pour les fichiers d'export vers Sage X3
+    integrable = models.BooleanField(default=True, verbose_name="à intégrer X3")
+    chargeable = models.BooleanField(default=True, verbose_name="à refacturer")
+    od_ana = models.BooleanField(default=False, verbose_name="à refacturer")
+
+    # Modèle Statistique pour l'axe Pro
+    stat_axe_pro = models.ForeignKey(
+        SupplierArticleAxePro,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="famille_axe_pro_supplier",
+        verbose_name="Famille axe PRO",
+        db_column="stat_axe_pro_uuid",
+    )
 
     # Adresse pour la centrale d'achat
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")

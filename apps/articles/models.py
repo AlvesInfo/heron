@@ -25,7 +25,7 @@ from apps.book.models import Society
 
 class Article(FlagsTable):
     """
-    Table des Articles, catalogue des tous les fournisseurs
+    Table des Articles, catalogue de tous les fournisseurs
     FR : Articles
     EN : Items
     """
@@ -46,7 +46,7 @@ class Article(FlagsTable):
         related_name="supplier_society",
         db_column="supplier",
     )
-    reference = models.CharField(max_length=35)
+    reference = models.CharField(max_length=150)
     ean_code = models.CharField(null=True, blank=True, max_length=35)
     libelle = models.CharField(null=True, blank=True, max_length=150)
     libelle_heron = models.CharField(null=True, blank=True, max_length=150)
@@ -271,7 +271,7 @@ class SalePriceHistory(DatesTable):
 
 class Subscription(FlagsTable):
     """
-    Table des abbonements. Les abonnements vont servir à refacturer sur la période
+    Table des abonnements. Les abonnements vont servir à refacturer sur la période
     tous les articles abbonés
     FR : Abonnement
     EN : Subscription
@@ -289,7 +289,7 @@ class Subscription(FlagsTable):
         ordering = ["name"]
 
 
-class SubscriptionArtcile(FlagsTable):
+class SubscriptionArticle(FlagsTable):
     """
     Table des articles pour un abbonement donné, avec une relation Many to Many
     FR : Article / Abonnement
@@ -321,56 +321,6 @@ class SubscriptionArtcile(FlagsTable):
 
         ordering = ["subscription", "selling_price"]
         unique_together = (("subscription", "selling_price"),)
-
-
-class SupplierArticleAxePro(FlagsTable):
-    """
-    Nommage des familles à appliquer pour les fournisseurs
-    """
-
-    name = models.CharField(unique=True, max_length=80)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-
-class FamilleAxePro(FlagsTable):
-    """
-    Table des statistiques liées à l'axe pro
-    """
-
-    name = models.ForeignKey(
-        SupplierArticleAxePro,
-        on_delete=models.PROTECT,
-        to_field="name",
-        related_name="famille_axe_pro_section",
-        db_column="name",
-    )
-    familly_type = models.CharField(null=True, blank=True, max_length=80)
-    supplier_axe = models.CharField(null=True, blank=True, max_length=80)
-    supplier_familly = models.CharField(max_length=80)
-    axe_pro = models.ForeignKey(
-        SectionSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRO"},
-        related_name="famille_axe_pro_section",
-        db_column="axe_pro",
-    )
-    comment = models.CharField(null=True, blank=True, max_length=150)
-    regex = models.CharField(null=True, blank=True, max_length=150)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.name} - {self.supplier_familly} - {self.axe_pro}"
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        unique_together = (("name", "supplier_familly"),)
 
 
 class ArticleUpdate(models.Model):

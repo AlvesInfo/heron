@@ -19,6 +19,7 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
+from apps.countries.models import Country
 
 
 class Parameters(FlagsTable):
@@ -227,6 +228,41 @@ class Category(FlagsTable):
         ordering = ["ranking"]
 
 
+class CategoryModelInvoice(FlagsTable):
+    """
+    Modèle de refacturation des Grandes Catégories
+    FR : Grandes Catégories
+    EN : Categories
+    """
+
+    function = models.CharField(unique=True, max_length=255)
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="model_function_big_category",
+        db_column="uuid_big_category",
+    )
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.function}"
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("parameters:categories_list")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["big_category"]
+
+
 class SubCategory(FlagsTable):
     """
     Sous Grandes Catégories
@@ -326,3 +362,168 @@ class ActionPermission(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["name"]
+
+
+class BaseInvoiceTable(models.Model):
+    """
+    Table Abstraite de base pour les Factures
+    FR : Table Abstraite de Base Flags
+    EN : Flags Abstract Table Flags
+    """
+    uuid_file = models.UUIDField(null=True)
+
+    invoice_number = models.CharField(max_length=35)
+    invoice_date = models.DateField(verbose_name="DTM avec 3")
+    invoice_type = models.CharField(
+        null=True, blank=True, max_length=3, verbose_name="BGM FA:380, AV:381"
+    )
+    devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
+
+    invoice_amount_without_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
+    )
+    invoice_amount_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
+    )
+    invoice_amount_with_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        abstract = True
+
+
+class BaseInvoiceDetailsTable(models.Model):
+    """
+    Table Abstraite de base pour les Détails de Factures
+    FR : Table Abstraite de Base pour les Détails de Factures
+    EN : Flags Abstract Table for Invoices details
+    """
+
+    # Livraison
+    acuitis_order_number = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
+    )
+    acuitis_order_date = models.DateField(null=True, verbose_name="DTM avec 4 quand RFF avec ON")
+    delivery_number = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
+    )
+    delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
+
+    # Article
+    reference_article = models.CharField(
+        null=True, blank=True, max_length=150, verbose_name="LIN avec 21 et autre chose que EN"
+    )
+    ean_code = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="LIN avec 21 et EN"
+    )
+    libelle = models.CharField(
+        null=True, blank=True, max_length=150, verbose_name="IMD avec F dernière position"
+    )
+    client_name = models.CharField(null=True, blank=True, max_length=80)
+    serial_number = models.TextField(null=True, blank=True, max_length=1000)
+    comment = models.CharField(null=True, blank=True, max_length=120)
+    command_reference = models.CharField(null=True, blank=True, max_length=120)
+
+    # Qty / Montants
+    qty = models.DecimalField(
+        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
+    )
+    gross_unit_price = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="Prix unitaire brut PRI avec AAB et GRP",
+    )
+    net_unit_price = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix unitaire net PRI avec AAA et NTP",
+    )
+    gross_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="montant brut MOA avec 8 quand ALC avec H",
+    )
+    discount_price_01 = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="remise 1 MOA avec 8 quand ALC avec H",
+    )
+    discount_price_02 = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="remise 2 MOA avec 8 quand ALC avec H",
+    )
+    discount_price_03 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="remise 3 MOA avec 98"
+    )
+    net_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="montant net MOA avec 125",
+    )
+    vat_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="montant de tva montant tva calculé",
+    )
+    amount_with_vat = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
+    )
+
+    # Sage
+    axe_bu = models.CharField(null=True, blank=True, max_length=10)
+    axe_cct = models.CharField(null=True, blank=True, max_length=10)
+    axe_prj = models.CharField(null=True, blank=True, max_length=10)
+    axe_pro = models.CharField(null=True, blank=True, max_length=10)
+    axe_pys = models.CharField(null=True, blank=True, max_length=10)
+    axe_rfa = models.CharField(null=True, blank=True, max_length=10)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        abstract = True
+
+
+class BaseAdressesTable(models.Model):
+    """
+    Table Abstraite de base pour les Adresses
+    FR : Table Abstraite de Base pour les Adresses
+    EN : Flags Abstract Table for Adresses
+    """
+
+    immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
+    adresse = models.CharField(max_length=200, verbose_name="adresse")
+    code_postal = models.CharField(max_length=15, verbose_name="code postal")
+    ville = models.CharField(max_length=50, verbose_name="ville")
+    pays = models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="country",
+        related_name="+",
+        verbose_name="pays",
+        db_column="pays",
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        abstract = True

@@ -17,15 +17,15 @@ from django.db import models
 
 from heron.models import DatesTable, FlagsTable
 from apps.book.models import Society
+from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable
 
 
-class EdiImport(models.Model):
+class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
     """
     Table de préparation à l'import des factures fournisseurs edi et spécifique
     FR : Table Import EDI
     EN : Edi Import table
     """
-
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
     third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
     flow_name = models.CharField(max_length=80)
@@ -36,52 +36,21 @@ class EdiImport(models.Model):
     code_fournisseur = models.CharField(null=True, blank=True, max_length=30)
     code_maison = models.CharField(null=True, blank=True, max_length=30)
     maison = models.CharField(null=True, blank=True, max_length=80, verbose_name="libellé maison")
-    acuitis_order_number = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
-    )
-    acuitis_order_date = models.DateField(null=True, verbose_name="DTM avec 4 quand RFF avec ON")
-    delivery_number = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
-    )
-    delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
-    invoice_number = models.CharField(max_length=35)
-    invoice_date = models.DateField(verbose_name="DTM avec 3")
-    invoice_type = models.CharField(
-        null=True, blank=True, max_length=3, verbose_name="BGM Facture=380 Avoir=381"
-    )
-    devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
-    reference_article = models.CharField(
-        null=True, blank=True, max_length=35, verbose_name="LIN avec 21 et autre chose que EN"
-    )
-    ean_code = models.CharField(
-        null=True, blank=True, max_length=35, verbose_name="LIN avec 21 et EN"
-    )
-    libelle = models.CharField(
-        null=True, blank=True, max_length=150, verbose_name="IMD avec F dernière position"
-    )
+
     famille = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="IMD avec F 1ère position"
-    )
-    qty = models.DecimalField(
-        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
     unit_weight = models.CharField(null=True, blank=True, max_length=20)
     packaging_qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 52"
     )
-    gross_unit_price = models.DecimalField(
+
+    vat_rate = models.DecimalField(
         null=True,
         max_digits=20,
         decimal_places=5,
         default=0,
-        verbose_name="Prix unitaire brut PRI avec AAB et GRP",
-    )
-    net_unit_price = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="prix unitaire net PRI avec AAA et NTP",
+        verbose_name="taux de tva TAX avec 7 quand ALC avec Y",
     )
     packaging_amount = models.DecimalField(
         null=True,
@@ -117,67 +86,6 @@ class EdiImport(models.Model):
         decimal_places=5,
         default=0,
         verbose_name="prix assurance",
-    )
-    gross_amount = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="montant brut MOA avec 8 quand ALC avec H",
-    )
-    discount_price_01 = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="remise 1 MOA avec 8 quand ALC avec H",
-    )
-    discount_price_02 = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="remise 2 MOA avec 8 quand ALC avec H",
-    )
-    discount_price_03 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="remise 3 MOA avec 98"
-    )
-    net_amount = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="montant net MOA avec 125",
-    )
-    vat_rate = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="taux de tva TAX avec 7 quand ALC avec Y",
-    )
-    vat_amount = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="montant de tva montant tva calculé",
-    )
-    amount_with_vat = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
-    )
-    client_name = models.CharField(null=True, blank=True, max_length=80)
-    serial_number = models.TextField(null=True, blank=True, max_length=1000)
-    comment = models.CharField(null=True, blank=True, max_length=120)
-    command_reference = models.CharField(null=True, blank=True, max_length=120)
-    montant_facture_HT = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
-    )
-    montant_facture_TVA = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
-    )
-    montant_facture_TTC = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
     active = models.BooleanField(null=True, default=False)
     to_delete = models.BooleanField(null=True, default=False)

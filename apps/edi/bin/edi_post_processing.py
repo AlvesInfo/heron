@@ -35,17 +35,17 @@ SQL_FAC_UPDATE = sql.SQL(
     """
 update "edi_ediimport" edi
 set
-    "montant_facture_HT" = edi_fac."montant_facture_HT",
-    "montant_facture_TVA" = edi_fac."montant_facture_TVA",
-    "montant_facture_TTC" = edi_fac."montant_facture_TTC",
+    "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
+    "invoice_amount_tax" = edi_fac."invoice_amount_tax",
+    "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
     "valid"=true
 from (
     select
         "uuid_identification",
         "invoice_number",
-        sum("mont_HT") as "montant_facture_HT",
-        sum("mont_TVA") as "montant_facture_TVA",
-        sum("mont_TTC") as "montant_facture_TTC"
+        sum("mont_HT") as "invoice_amount_without_tax",
+        sum("mont_TVA") as "invoice_amount_tax",
+        sum("mont_TTC") as "invoice_amount_with_tax"
     from (
         select
             "uuid_identification",
@@ -123,9 +123,9 @@ def bulk_post_insert(flow_name: AnyStr):
                 "invoice_type",
                 "devise",
                 "vat_rate",
-                "montant_facture_HT",
-                "montant_facture_TVA",
-                "montant_facture_TTC",
+                "invoice_amount_without_tax",
+                "invoice_amount_tax",
+                "invoice_amount_with_tax",
                 "flow_name",
                 "command_reference"
             )
@@ -152,9 +152,9 @@ def bulk_post_insert(flow_name: AnyStr):
                         net_unit_price=value,
                         net_amount=value,
                         vat_rate=vat_rate,
-                        montant_facture_HT=edi.get("montant_facture_HT"),
-                        montant_facture_TVA=edi.get("montant_facture_TVA"),
-                        montant_facture_TTC=edi.get("montant_facture_TTC"),
+                        invoice_amount_without_tax=edi.get("invoice_amount_without_tax"),
+                        invoice_amount_tax=edi.get("invoice_amount_tax"),
+                        invoice_amount_with_tax=edi.get("invoice_amount_with_tax"),
                         flow_name=edi.get("flow_name"),
                         command_reference=edi.get("command_reference")
                     )

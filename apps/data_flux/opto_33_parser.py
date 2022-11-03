@@ -63,9 +63,9 @@ INVOICE_DICT = {
     "client_name": "",
     "serial_number": "",
     "comment": "",
-    "montant_facture_HT": "0",
-    "montant_facture_TVA": "0",
-    "montant_facture_TTC": "0",
+    "invoice_amount_without_tax": "0",
+    "invoice_amount_tax": "0",
+    "invoice_amount_with_tax": "0",
 }
 
 
@@ -259,8 +259,8 @@ class EDIQualifierParser:
         """
         try:
             moa_dict = {
-                "125": "montant_facture_HT",
-                "128": "montant_facture_TTC",
+                "125": "invoice_amount_without_tax",
+                "128": "invoice_amount_with_tax",
             }
             moa_qualifier, amount = data
 

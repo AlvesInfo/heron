@@ -143,3 +143,6 @@ files/log/*
 /files/secure_media
 /files/static
 /files/processing/
+/apps/articles/data_fixtures/r_articles_axe_pro.txt
+/apps/articles/data_fixtures/stats_edi_access.csv
+/apps/articles/data_fixtures/supplier_stat_edi.csv

@@ -40,28 +40,28 @@ def post_processing_all():
         """
     update "edi_ediimport" edi
     set
-        "montant_facture_HT" = case 
-                                    when "edi"."montant_facture_HT" is not null
-                                    then "edi"."montant_facture_HT"
-                                    else edi_fac."montant_facture_HT"
+        "invoice_amount_without_tax" = case 
+                                    when "edi"."invoice_amount_without_tax" is not null
+                                    then "edi"."invoice_amount_without_tax"
+                                    else edi_fac."invoice_amount_without_tax"
                                 end,
-        "montant_facture_TVA" = case
-                                    when "edi"."montant_facture_TVA" is not null
-                                    then "edi"."montant_facture_TVA"
-                                    else edi_fac."montant_facture_TVA"
+        "invoice_amount_tax" = case
+                                    when "edi"."invoice_amount_tax" is not null
+                                    then "edi"."invoice_amount_tax"
+                                    else edi_fac."invoice_amount_tax"
                                 end,
-        "montant_facture_TTC" = case
-                                    when "edi"."montant_facture_TTC" is not null
-                                    then "edi"."montant_facture_TTC"
-                                    else edi_fac."montant_facture_TTC"
+        "invoice_amount_with_tax" = case
+                                    when "edi"."invoice_amount_with_tax" is not null
+                                    then "edi"."invoice_amount_with_tax"
+                                    else edi_fac."invoice_amount_with_tax"
                                 end
     from (
         select
             "uuid_identification",
             "invoice_number",
-            sum("mont_HT") as "montant_facture_HT",
-            sum("mont_TVA") as "montant_facture_TVA",
-            sum("mont_TTC") as "montant_facture_TTC"
+            sum("mont_HT") as "invoice_amount_without_tax",
+            sum("mont_TVA") as "invoice_amount_tax",
+            sum("mont_TTC") as "invoice_amount_with_tax"
         from (
             select
                 "uuid_identification",
@@ -83,9 +83,9 @@ def post_processing_all():
                 from "edi_ediimport"
                 where ("valid" = false or "valid" isnull)
                 and (
-                    ("montant_facture_TTC" isnull or "montant_facture_TTC" = 0)
+                    ("invoice_amount_with_tax" isnull or "invoice_amount_with_tax" = 0)
                     or 
-                    ("montant_facture_HT" isnull or "montant_facture_HT" = 0)
+                    ("invoice_amount_without_tax" isnull or "invoice_amount_without_tax" = 0)
                 )
                 group by "uuid_identification", "invoice_number", "vat_rate"
             ) as vat_tot
@@ -139,14 +139,31 @@ def post_processing_all():
                                 then null
                                 else "delivery_date"
                                end,
-            "montant_facture_HT" = abs("montant_facture_HT")::numeric ,
-            "montant_facture_TVA" = abs("montant_facture_TVA")::numeric ,
-            "montant_facture_TTC" = abs("montant_facture_TTC")::numeric 
+            "invoice_amount_without_tax" = abs("invoice_amount_without_tax")::numeric ,
+            "invoice_amount_tax" = abs("invoice_amount_tax")::numeric ,
+            "invoice_amount_with_tax" = abs("invoice_amount_with_tax")::numeric 
     """
     )
+    sql_reference = """
+    update edi_ediimport 
+    set
+        reference_article = libelle 
+    where (reference_article isnull or reference_article = '')
+    """
+    sql_tva = """
+        update edi_ediimport 
+    set
+        vat_rate =  case 
+                        when vat_rate = 0.055 then 5.5
+                        when vat_rate = 0.200 then 20
+                        else vat_rate
+                    end
+    """
     with connection.cursor() as cursor:
         cursor.execute(sql_fac_update)
         cursor.execute(sql_supplier_update)
+        cursor.execute(sql_reference)
+        cursor.execute(sql_tva)
         cursor.execute(sql_validate)
 
 
@@ -189,9 +206,9 @@ def bulk_post_insert(uuid_identification: AnyStr):
                 "invoice_type",
                 "devise",
                 "vat_rate",
-                "montant_facture_HT",
-                "montant_facture_TVA",
-                "montant_facture_TTC",
+                "invoice_amount_without_tax",
+                "invoice_amount_tax",
+                "invoice_amount_with_tax",
                 "uuid_identification",
                 "packaging_amount",
                 "transport_amount",
@@ -226,9 +243,9 @@ def bulk_post_insert(uuid_identification: AnyStr):
                         net_unit_price=value,
                         net_amount=value,
                         vat_rate=edi.get("vat_rate"),
-                        montant_facture_HT=edi.get("montant_facture_HT"),
-                        montant_facture_TVA=edi.get("montant_facture_TVA"),
-                        montant_facture_TTC=edi.get("montant_facture_TTC"),
+                        invoice_amount_without_tax=edi.get("invoice_amount_without_tax"),
+                        invoice_amount_tax=edi.get("invoice_amount_tax"),
+                        invoice_amount_with_tax=edi.get("invoice_amount_with_tax"),
                         command_reference=edi.get("command_reference"),
                     )
                 )
@@ -266,7 +283,7 @@ def edi_post_insert(uuid_identification: AnyStr):
         """
     update "edi_ediimport"
     set 
-        "montant_facture_TVA" = "montant_facture_TTC" - "montant_facture_HT",
+        "invoice_amount_tax" = "invoice_amount_with_tax" - "invoice_amount_without_tax",
         "reference_article" = case 
                                 when "reference_article" isnull or "reference_article" = '' 
                                 then "ean_code"

@@ -51,9 +51,9 @@ class EdiForm(forms.ModelForm):
     taux_tva = NullZeroDecimalField()
     montant_tva = NullZeroDecimalField()
     montant_ttc = NullZeroDecimalField()
-    montant_facture_HT = NullZeroDecimalField()
-    montant_facture_TVA = NullZeroDecimalField()
-    montant_facture_TTC = NullZeroDecimalField()
+    invoice_amount_without_tax = NullZeroDecimalField()
+    invoice_amount_tax = NullZeroDecimalField()
+    invoice_amount_with_tax = NullZeroDecimalField()
 
     class Meta:
         """class Meta du modèle django"""

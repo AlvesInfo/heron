@@ -16,15 +16,25 @@ import uuid
 from django.db import models
 
 from heron.models import FlagsTable
-from apps.articles.models import Article
+from apps.parameters.models import BaseAdressesTable, BaseInvoiceTable, BaseInvoiceDetailsTable
+from apps.accountancy.models import VatSage
+from apps.articles.models import (
+    Article,
+    Category,
+    SubFamilly,
+    TabDivSage,
+)
 from apps.book.models import Society
+from apps.centers_clients.models import Maison
 
 
-class Invoice(FlagsTable):
+class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     """
     FR : Factures fournisseurs
     EN : Suppliers Invoices
     """
+
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     supplier = models.ForeignKey(
         Society,
@@ -33,17 +43,28 @@ class Invoice(FlagsTable):
         related_name="detail_society",
         db_column="supplier_third_party_num",
     )
-    invoice_number = models.CharField(max_length=35)
-    invoice_date = models.DateField()
-    invoice_year = models.IntegerField()
-    devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
-    invoice_type = models.CharField(max_length=3)
-    flag_sage = models.BooleanField(null=True, default=False)
-    comment = models.CharField(null=True, blank=True, max_length=255)
+    # Fournisseur
+    supplier_name = models.CharField(null=True, blank=True, max_length=80)
 
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    uuid_file = models.UUIDField(editable=False)
+    # Magasin Facturé
+    cct = models.ForeignKey(
+        Maison,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="cct",
+        related_name="invoice_supplier_cct",
+        db_column="cct",
+    )
+    invoice_year = models.IntegerField()
+    periode = models.IntegerField()
+    flag_sage = models.BooleanField(null=True, default=False)
+    big_category = models.CharField(unique=True, max_length=80)
+    big_category_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
+    sub_category = models.CharField(unique=True, max_length=80)
+    sub_category_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
+    function = models.CharField(unique=True, max_length=255)
+    function_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
+    function_created_at = models.DateTimeField()
 
     def save(self, *args, **kwargs):
         """
@@ -84,12 +105,11 @@ class Invoice(FlagsTable):
         ]
 
 
-class InvoiceDetail(FlagsTable):
+class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
     """
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
     """
-
     invoice = models.ForeignKey(
         Invoice,
         on_delete=models.CASCADE,
@@ -103,68 +123,40 @@ class InvoiceDetail(FlagsTable):
         Article,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="detail_article",
+        related_name="invoices_detail_article",
         db_column="uuid_article",
     )
 
-    # Sage
-    axe_bu = models.CharField(null=True, blank=True, max_length=10)
-    axe_cct = models.CharField(null=True, blank=True, max_length=10)
-    axe_prj = models.CharField(null=True, blank=True, max_length=10)
-    axe_pro = models.CharField(null=True, blank=True, max_length=10)
-    axe_pys = models.CharField(null=True, blank=True, max_length=10)
-    axe_rfa = models.CharField(null=True, blank=True, max_length=10)
-
     # Maison
-    maison = models.ForeignKey(
-        Society,
+    cct = models.ForeignKey(
+        Maison,
+        null=True,
         on_delete=models.PROTECT,
-        to_field="third_party_num",
-        related_name="maison_society",
-        db_column="uuid_society",
+        to_field="cct",
+        related_name="invoices_details_cct",
+        db_column="cct",
     )
 
-    # Commande / BL
-    acuitis_order_number = models.CharField(null=True, blank=True, max_length=80)
-    acuitis_order_date = models.DateField(null=True)
-    delivery_number = models.CharField(null=True, blank=True, max_length=80)
-    delivery_date = models.DateField(null=True)
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.CASCADE,
+        to_field="vat",
+        db_column="vat",
+    )
+    vat_start_date = models.DateField()
 
-    # Prices
-    qty = models.DecimalField(decimal_places=5, default=1, max_digits=20, verbose_name="quantité")
-    gross_unit_price = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="prix unitaire brut"
-    )
-    net_unit_price = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="prix unitaire net"
-    )
-    gross_amount = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="montant brut"
-    )
-    discount_price_01 = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="remise 1"
-    )
-    discount_price_02 = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="remise 2"
-    )
-    discount_price_03 = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="remise 3"
-    )
-    net_amount = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="montant net"
-    )
-    vat = models.CharField(max_length=5, verbose_name="taux de tva sage")
-    vat_amount = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="montant tva calculé"
-    )
-    amount_with_vat = models.DecimalField(
-        max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
-    )
+    brand = models.CharField(null=True, blank=True, max_length=80)
+    manufacturer = models.CharField(null=True, blank=True, max_length=80)
 
-    # Other descriptions
-    client_name = models.CharField(null=True, blank=True, max_length=80)
-    serial_number = models.TextField(null=True, blank=True, max_length=1000)
-    comment = models.CharField(null=True, blank=True, max_length=255)
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+        indexes = [
+            models.Index(fields=['invoice'], name='invoice_idx'),
+            models.Index(fields=['invoice', 'article'], name='invoice_article_idx'),
+        ]
 
 
 class InvoiceSerials(models.Model):

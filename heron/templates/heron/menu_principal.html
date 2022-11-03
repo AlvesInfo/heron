@@ -21,7 +21,7 @@
             </a>
 
             <a class="browse item bold" data-target="#b" id="bmenu">
-                Achats
+                Articles
                 <i class="dropdown icon"></i>
             </a>
 
@@ -45,27 +45,6 @@
         {% if user.is_authenticated %}
             <div class="ui flowing transition popup" id="a">
                 <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 70em;">
-                    {% if user.is_superuser %}
-                        <div class="column">
-                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>
-                            <div class="ui link list">
-                                <a class="item">Users</a>
-                            </div>
-                        </div>
-                    {% endif %}
-                    <div class="column">
-                        <h4 class="ui header" style="font-size: 1em;">TIERS</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'book:societies_list' %}" class="item">Tiers X3</a>
-                        </div>
-                    </div>
-
-                    <div class="column">
-                        <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
-                        </div>
-                    </div>
 
                     <div class="column">
                         <h4 class="ui header" style="font-size: 1em;">CENTRALES</h4>
@@ -81,14 +60,27 @@
                     </div>
 
                     <div class="column">
-                        <h4 class="ui header" style="font-size: 1em;">ARTICLES</h4>
+                        <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
-                            <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Fournisseur / Articles</a>
+                            <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
                         </div>
                     </div>
+
+                    <div class="column">
+                        <h4 class="ui header" style="font-size: 1em;">TIERS</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'book:societies_list' %}" class="item">Tiers X3</a>
+                        </div>
+                    </div>
+
+                    {% if user.is_superuser %}
+                        <div class="column">
+                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>
+                            <div class="ui link list">
+                                <a class="item">Users</a>
+                            </div>
+                        </div>
+                    {% endif %}
 
                 </div>
             </div>
@@ -97,9 +89,14 @@
                 <div class="ui two column relaxed divided grid" style="width: 24em;">
 
                     <div class="column">
-                        <h4 class="ui header">Factures</h4>
                         <div class="ui link list">
-                            <a href="" class="item">Par Tiers</a>
+                            <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Fournisseur/Articles</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Recherche Article</a>
                         </div>
                     </div>
 
