@@ -60,7 +60,7 @@ def process():
         trace = None
 
         try:
-            trace, to_print = processing_dict.get(file.name)(file)
+            trace, _ = processing_dict.get(file.name)(file)
             destination = Path(settings.BACKUP_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
 

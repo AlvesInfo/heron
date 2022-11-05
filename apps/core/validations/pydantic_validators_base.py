@@ -109,6 +109,12 @@ class ValidateFieldsBase(BaseModel):
             except ValueError:
                 pass
 
+            try:
+                value = datetime.datetime.strptime(value, "%d/%m/%y")
+                return value
+            except ValueError:
+                pass
+
         return value
 
 

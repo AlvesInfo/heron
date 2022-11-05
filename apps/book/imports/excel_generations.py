@@ -22,10 +22,11 @@ from apps.book.excel_outputs.book_excel_societies_list import excel_liste_societ
 
 
 def writre_book_files():
+    """Fonction d'écriture des fichiers excel volumineux à l'insertion ou update de données"""
     files_to_write = [
-        ("tiers", f"LISTING_DES_TIERS.xlsx"),
-        ("clients", f"LISTING_DES_CLIENTS.xlsx"),
-        ("suppliers", f"LISTING_DES_FOURNISSEURS.xlsx"),
+        ("tiers", "LISTING_DES_TIERS.xlsx"),
+        ("clients", "LISTING_DES_CLIENTS.xlsx"),
+        ("suppliers", "LISTING_DES_FOURNISSEURS.xlsx"),
     ]
 
     for society_type, file_name in files_to_write:
