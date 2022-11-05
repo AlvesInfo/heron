@@ -18,18 +18,30 @@ from apps.accountancy.models import SectionSage, CctSage
 
 def update_cct_sage():
     """Update de la table CctSage, pour le foreign key dans les clients des centrales"""
-    cct_section = SectionSage.objects.filter(axe="CCT")
+    section = SectionSage.objects.filter(axe="CCT")
 
-    for cct in cct_section:
-        CctSage.objects.update_or_create(
-            cct=cct.section,
-            name=cct.name,
-            short_name=cct.short_name,
-            chargeable=cct.chargeable,
-            regroup_01=cct.regroup_01,
-            regroup_02=cct.regroup_02,
-            uuid_identification=cct.uuid_identification,
-        )
+    for cct_section in section:
+        try:
+            cct = CctSage.objects.get(cct=cct_section.section)
+            cct.name = cct_section.name
+            cct.short_name = cct_section.short_name
+            cct.chargeable = cct_section.chargeable
+            cct.regroup_01 = cct_section.regroup_01
+            cct.regroup_02 = cct_section.regroup_02
+            cct.uuid_identification = cct_section.uuid_identification
+            cct.save()
+
+        except CctSage.DoesNotExist:
+            cct = CctSage(
+                cct=cct_section.section,
+                name=cct_section.name,
+                short_name=cct_section.short_name,
+                chargeable=cct_section.chargeable,
+                regroup_01=cct_section.regroup_01,
+                regroup_02=cct_section.regroup_02,
+                uuid_identification=cct_section.uuid_identification,
+            )
+            cct.save()
 
 
 if __name__ == '__main__':

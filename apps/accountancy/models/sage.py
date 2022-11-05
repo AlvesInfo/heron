@@ -168,7 +168,7 @@ class CctSage(FlagsTable):
     regroup_02 = models.CharField(null=True, blank=True, max_length=15)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
