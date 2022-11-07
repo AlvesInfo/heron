@@ -295,7 +295,7 @@ class Maison(FlagsTable):
     # Système pour les fichiers d'export vers Sage X3
     integrable = models.BooleanField(null=True, default=True, verbose_name="à intégrer X3")
     chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
-    od_ana = models.BooleanField(null=False, default=False, verbose_name="OD Analytique")
+    od_ana = models.BooleanField(null=True, default=False, verbose_name="OD Analytique")
 
     def save(self, *args, **kwargs):
         """

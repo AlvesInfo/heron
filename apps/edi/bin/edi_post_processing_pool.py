@@ -36,6 +36,20 @@ and uuid_identification = %(uuid_identification)s
 
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+    sql_tva = """
+        update edi_ediimport 
+    set
+        vat_rate =  case 
+                        when vat_rate = 5.5 then 0.055
+                        when vat_rate = 20 then 0.20
+                        else vat_rate
+                    end
+    """
+    sql_round_amount = """
+        update "edi_ediimport" edi
+    set "net_amount" = round("net_amount"::numeric, 2)
+    where ("valid" = false or "valid" isnull)
+    """
     sql_fac_update = sql.SQL(
         """
     update "edi_ediimport" edi
@@ -150,20 +164,12 @@ def post_processing_all():
         reference_article = libelle 
     where (reference_article isnull or reference_article = '')
     """
-    sql_tva = """
-        update edi_ediimport 
-    set
-        vat_rate =  case 
-                        when vat_rate = 0.055 then 5.5
-                        when vat_rate = 0.200 then 20
-                        else vat_rate
-                    end
-    """
     with connection.cursor() as cursor:
+        cursor.execute(sql_tva)
+        cursor.execute(sql_round_amount)
         cursor.execute(sql_fac_update)
         cursor.execute(sql_supplier_update)
         cursor.execute(sql_reference)
-        cursor.execute(sql_tva)
         cursor.execute(sql_validate)
 
 

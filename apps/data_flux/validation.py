@@ -52,7 +52,7 @@ class TraceTemplate:
         :param params_dict: Dictionnaire des paramètres :
                             params_dict = {
 
-                                # Instance de trace au cas où l'on veuille suivre de bout en bout
+                                # Instance de trace au cas où l'on veut suivre de bout en bout
                                 "trace": Trace.instance
 
                                 # Numéro de suivi de trace de bout en bout
@@ -166,7 +166,7 @@ class TraceTemplate:
         self.errors = True
         formatted_errors = self.get_formatted_error(error)
         line = self.add_line(insertion_type="Errors", num_line=num_line)
-        print("\nErreur : ", formatted_errors)
+
         for attr_name, errors_list in formatted_errors.items():
 
             Error.objects.bulk_create(

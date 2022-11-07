@@ -217,9 +217,9 @@ class Society(FlagsTable):
     )
 
     # Système pour les fichiers d'export vers Sage X3
-    integrable = models.BooleanField(default=True, verbose_name="à intégrer X3")
-    chargeable = models.BooleanField(default=True, verbose_name="à refacturer")
-    od_ana = models.BooleanField(default=False, verbose_name="à refacturer")
+    integrable = models.BooleanField(null=True, default=True, verbose_name="à intégrer X3")
+    chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
+    od_ana = models.BooleanField(null=True, default=False, verbose_name="à refacturer")
 
     # Modèle Statistique pour l'axe Pro
     stat_axe_pro = models.ForeignKey(

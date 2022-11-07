@@ -34,6 +34,7 @@ processing_dict = {
     "ZBICONTACT_journalier.heron": code_contact_sage,
     "ZBIBANK_journalier.heron": bank_sage,
 }
+traceback = ""
 
 
 def get_processing_files():
@@ -53,11 +54,13 @@ def process():
     """
     Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage
     """
+    global traceback
     processing_files = get_processing_files()
 
     for file in processing_files:
         error = False
         trace = None
+        traceback = ""
 
         try:
             trace, _ = processing_dict.get(file.name)(file)
@@ -66,19 +69,22 @@ def process():
 
         except TypeError as except_error:
             error = True
-            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+            traceback = f"TypeError : {except_error!r}"
+            LOGGER_IMPORT.exception(traceback)
 
         except Exception as except_error:
             error = True
-            LOGGER_IMPORT.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+            traceback = f"Exception Générale: {file.name}\n{except_error!r}"
+            LOGGER_IMPORT.exception(traceback)
 
         finally:
             if error and trace:
                 trace.errors = True
                 trace.comment = (
-                    trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                    trace.comment
+                    + "\n. Une erreur c'est produite veuillez consulter les logs :\n"
+                    + traceback
                 )
-
             if trace is not None:
                 trace.save()
 

@@ -17,7 +17,7 @@ Flux à Implémenter :
 Pour l'implémentation FileLoader et dans le cas d'un fichier Excel comme source il sera transformé
 en fichier csv, sinon le fichier source devra avoir une structure de csv.
 
-Il faut utiliser le context manager afin de bien fermer les sources ou appeler la méthode close()
+Il faut utiliser le context manager afin de bien fermer les sources ou appeler la méthode close().
 
 Commentaire:
 
@@ -28,6 +28,7 @@ modified at: 2021-10-30
 modified by: Paulo ALVES
 """
 import io
+import uuid
 from typing import Dict, Any
 import csv
 from operator import itemgetter
@@ -41,6 +42,7 @@ from .exceptions import (
     ExcelToCsvFileError,
     CsvFileToStringIoError,
 )
+from .models import Line, Error
 from .opto_33_parser import EdiOpoto33Parser
 
 
@@ -110,6 +112,36 @@ class TemplateDataLoader:
             return
 
         self.close()
+
+    def trace_add_line_error(
+        self, insertion_type: str = "Unknown", num_line: int = None, designation: str = None,
+            error_dict=None
+    ):
+        """Ajoute d'une ligne sur la trace"""
+        if error_dict is None:
+            error_dict = {}
+
+        insertion_dict = {
+            "Create": "cette ligne à bien été créée",
+            "Update": "cette ligne à bien été modifiée",
+            "Errors": "Cette ligne à généré une erreur",
+            "Passed": "Cette ligne n'a pas été traitée",
+            "Unknown": "Cette ligne n'a pas été traitée",
+        }
+        uuid_line_identification = uuid.uuid4()
+        line = Line.objects.create(
+            **{
+                "uuid_identification": uuid_line_identification,
+                "trace": self.trace,
+                "insertion_type": insertion_type,
+                "num_line": num_line,
+                "designation": designation or insertion_dict.get(insertion_type),
+            }
+        )
+        line.save()
+
+        error = Error.objects.create(**{**{"line": line}, **error_dict})
+        error.save()
 
     def __exit__(self, tipe, value, traceback):
         """Post context manager, pour fermer la source de données
@@ -233,8 +265,8 @@ class FileLoader(TemplateDataLoader):
 
     def _get_csv_reader(self):
         """
-        Le csv.reader étant un générateur on initialise self.csv_reader à chaque fois,
-        afin de pouvoir faire des opérations comme next() dessus
+        Le csv.reader étant un générateur, on initialise self.csv_reader à chaque fois,
+        afin de pouvoir faire des opérations comme next() dessus.
         """
         self.csv_io.seek(self.first_line)
         self.csv_reader = csv.reader(
@@ -388,25 +420,40 @@ class FileLoader(TemplateDataLoader):
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier les données au format csv
-        for line in self.csv_reader:
+        for i, line in enumerate(self.csv_reader, 1):
             if (not any(line) and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
                 for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
                 continue
 
-            if self.params_dict.get("add_fields_dict", {}):
+            try:
+                if self.params_dict.get("add_fields_dict", {}):
 
-                yield f'{self.params_dict.get("delimiter", ";")}'.join(
-                    [
-                        f'"{str(value)}"'
-                        for value in list(itemgetter(*postion_list)(line)) + self.get_add_values
-                    ]
-                )
-            else:
-                yield f'{self.params_dict.get("delimiter", ";")}'.join(
-                    [f'"{str(value)}"' for value in itemgetter(*postion_list)(line)]
-                )
+                    yield f'{self.params_dict.get("delimiter", ";")}'.join(
+                        [
+                            f'"{str(value)}"'
+                            for value in list(itemgetter(*postion_list)(line)) + self.get_add_values
+                        ]
+                    )
+                else:
+                    yield f'{self.params_dict.get("delimiter", ";")}'.join(
+                        [f'"{str(value)}"' for value in itemgetter(*postion_list)(line)]
+                    )
+
+            except IndexError:
+                if self.trace:
+                    error_dict = {
+                        "attr_name": "",
+                        "message": (
+                            "La ligne ne contient pas le même nombre de colonne que les autres"
+                        ),
+                        "data_expected": "",
+                        "data_received": ";".join(line)
+                    }
+                    self.trace_add_line_error("Errors", i, error_dict=error_dict)
+
+                raise IterFileToInsertError("Le fichier contient une ligne non comforme")
 
     def make_io(self, csv_io: io.StringIO, all_lines=False):
         """
@@ -431,17 +478,33 @@ class FileLoader(TemplateDataLoader):
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier les données dans un tableau, une liste
-        for line in self.csv_reader:
+        for i, line in enumerate(self.csv_reader, 1):
             if (not any(line) and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
                 for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
                 continue
 
-            if self.params_dict.get("add_fields_dict", {}):
-                yield list(itemgetter(*postion_list)(line)) + self.get_add_values
-            else:
-                yield list(itemgetter(*postion_list)(line))
+            try:
+
+                if self.params_dict.get("add_fields_dict", {}):
+                    yield list(itemgetter(*postion_list)(line)) + self.get_add_values
+                else:
+                    yield list(itemgetter(*postion_list)(line))
+
+            except IndexError:
+                if self.trace:
+                    error_dict = {
+                        "attr_name": "",
+                        "message": (
+                            "La ligne ne contient pas le même nombre de colonne que les autres"
+                        ),
+                        "data_expected": "",
+                        "data_received": ";".join(line)
+                    }
+                    self.trace_add_line_error("Errors", i, error_dict=error_dict)
+
+                raise IterFileToInsertError("Le fichier contient une ligne non comforme")
 
     def read_dict(self, all_lines=False):
         """
@@ -454,20 +517,36 @@ class FileLoader(TemplateDataLoader):
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
-        for line in self.csv_reader:
+        for i, line in enumerate(self.csv_reader, 1):
             if (not any(line) and not all_lines) or any(
                 str(value).strip().upper() in str(line[index - 1]).strip().upper()
                 for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
             ):
                 continue
 
-            if self.params_dict.get("add_fields_dict", {}):
-                yield {
-                    **dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line))),
-                    **self.get_add_dict,
-                }
-            else:
-                yield dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line)))
+            try:
+
+                if self.params_dict.get("add_fields_dict", {}):
+                    yield {
+                        **dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line))),
+                        **self.get_add_dict,
+                    }
+                else:
+                    yield dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line)))
+
+            except IndexError:
+                if self.trace:
+                    error_dict = {
+                        "attr_name": "",
+                        "message": (
+                            "La ligne ne contient pas le même nombre de colonne que les autres"
+                        ),
+                        "data_expected": "",
+                        "data_received": ";".join(line)
+                    }
+                    self.trace_add_line_error("Errors", i, error_dict=error_dict)
+
+                raise IterFileToInsertError("Le fichier contient une ligne non comforme")
 
     def close(self):
         """Fermeture du buffer io.StringIO"""

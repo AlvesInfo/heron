@@ -41,6 +41,7 @@ from apps.book.bin.book_pre_processing import (
     society_book_pre_processing,
     bank_book_pre_processing,
 )
+from apps.book.bin.book_post_processing import bpr_book_post_processing
 from apps.data_flux.trace import get_trace
 
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
@@ -71,7 +72,7 @@ def bpr_sage(file_path: Path):
     to_print = make_insert(
         model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
     )
-
+    bpr_book_post_processing()
     return trace, to_print
 
 
