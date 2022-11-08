@@ -220,6 +220,7 @@ class Category(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """get absolute url in succes case"""
         return reverse("parameters:categories_list")
 
     class Meta:
@@ -255,6 +256,7 @@ class CategoryModelInvoice(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """get absolute url in succes case"""
         return reverse("parameters:categories_list")
 
     class Meta:
@@ -291,6 +293,7 @@ class SubCategory(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """get absolute url in succes case"""
         return reverse("parameters:sub_categories_list")
 
     class Meta:
@@ -370,6 +373,7 @@ class BaseInvoiceTable(models.Model):
     FR : Table Abstraite de Base Flags
     EN : Flags Abstract Table Flags
     """
+
     uuid_file = models.UUIDField(null=True)
 
     invoice_number = models.CharField(max_length=35)
@@ -527,3 +531,23 @@ class BaseAdressesTable(models.Model):
         """class Meta du modèle django"""
 
         abstract = True
+
+
+class ActionInProgress(FlagsTable):
+    """
+    Table des Actions en cours
+    FR : Table des Actions en cours
+    EN : Current Actions Table
+    """
+
+    action = models.CharField(unique=True, max_length=80)
+    in_progress = models.BooleanField(default=False)
+    comment = models.CharField(blank=True, null=True, max_length=255)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["action"]

@@ -53,25 +53,27 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex_ga,
 )
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
+from apps.parameters.models import ActionInProgress
+
 
 processing_dict = {
-    # "BBRG_BULK": bbgr_bulk,
-    # "EDI": edi,
-    # "EYE_CONFORT": eye_confort,
-    # "GENERIQUE": generique,
-    # "HEARING": hearing,
-    # "INTERSON": interson,
-    # "JOHNSON": johnson,
-    # "LMC": lmc,
+    "BBRG_BULK": bbgr_bulk,
+    "EDI": edi,
+    "EYE_CONFORT": eye_confort,
+    "GENERIQUE": generique,
+    "HEARING": hearing,
+    "INTERSON": interson,
+    "JOHNSON": johnson,
+    "LMC": lmc,
     "NEWSON": newson,
-    # "PHONAK": phonak,
-    # "PRODITION": prodition,
-    # "SIGNIA": signia,
-    # "STARKEY": starkey,
-    # "TECHNIDIS": technidis,
-    # "UNITRON": unitron,
-    # "WIDEX": widex,
-    # "WIDEX_GA": widex_ga,
+    "PHONAK": phonak,
+    "PRODITION": prodition,
+    "SIGNIA": signia,
+    "STARKEY": starkey,
+    "TECHNIDIS": technidis,
+    "UNITRON": unitron,
+    "WIDEX": widex,
+    "WIDEX_GA": widex_ga,
 }
 
 
@@ -128,7 +130,7 @@ def get_files():
 
 def proc_files(process_object):
     """
-    Intégration des factures fournisseurs présents
+    Intégration des factures fournisseurs présentes
     dans le répertoire de processing/suppliers_invoices_files
     """
     import time
@@ -164,6 +166,8 @@ def proc_files(process_object):
         if trace is not None:
             trace.save()
 
+        # TODO : faire une fonction d'envoie de mails
+
     EDI_LOGGER.warning(
         to_print
         + f"Validation {file.name} in : {time.time() - start_initial} s"
@@ -193,21 +197,73 @@ def loop_pool_proc(proc_files_list):
 def main():
     import time
 
-    start_all = time.time()
-    proc_files_l = get_files()
-    loop_proc(proc_files_l)
-    print(f"All validations : {time.time() - start_all} s")
-    EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+    # Si l'action n'existe pas on la créée
+    try:
+        action = ActionInProgress.objects.get(action="import_edi_invoices")
+        print("GET ACTION")
+    except ActionInProgress.DoesNotExist:
+        action = ActionInProgress(
+            action="import_edi_invoices",
+            comment="Executable pour l'import des fichiers edi des factures founisseurs",
+        )
+        action.save()
+        print("EXCEPT")
+
+    try:
+
+        # Si l'action est déjà en cours, on ne fait rien
+        if not action.in_progress:
+            print("ACTION")
+            # On initialise l'action comme en cours
+            action.in_progress = True
+            action.save()
+
+            start_all = time.time()
+            proc_files_l = get_files()
+            loop_proc(proc_files_l)
+            print(f"All validations : {time.time() - start_all} s")
+            EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+
+    except:
+        EDI_LOGGER.exception(f"Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
+
+    finally:
+        # On remet l'action en cours à False, après l'execution
+        action.in_progress = False
+        action.save()
 
 
 def main_pool():
     import time
 
-    start_all = time.time()
-    proc_files_l = get_files()
-    loop_pool_proc(proc_files_l)
-    print(f"All validations : {time.time() - start_all} s")
-    EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+    # Si l'action n'existe pas on la créée
+    try:
+        action = ActionInProgress.objects.get(action="import_edi_invoices")
+        print("GET ACTION")
+    except ActionInProgress.DoesNotExist:
+        action = ActionInProgress(
+            action="import_edi_invoices",
+            comment="Executable pour l'import des fichiers edi des factures founisseurs",
+        )
+        action.save()
+        print("EXCEPT")
+
+    # Si l'action est déjà en cours, on ne fait rien
+    if not action.in_progress:
+        print("ACTION")
+        # On initialise l'action comme en cours
+        action.in_progress = True
+        action.save()
+
+        start_all = time.time()
+        proc_files_l = get_files()
+        loop_pool_proc(proc_files_l)
+        print(f"All validations : {time.time() - start_all} s")
+        EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+
+        # On remet l'action en cours à False, après l'execution
+        action.in_progress = False
+        action.save()
 
 
 if __name__ == "__main__":

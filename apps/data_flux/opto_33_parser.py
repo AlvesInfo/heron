@@ -25,7 +25,7 @@ from apps.data_flux.exceptions import (
     OptoLinesError,
     OptoQualifierError,
     OptoIdError,
-    OptoNumberError,
+    # OptoNumberError,
     OptoParserError,
     PathTypeError,
     PathFileError,
@@ -206,7 +206,7 @@ class EDIQualifierParser:
         PASE NAD : balise EDI pour l'indication des acteurs de la facture
         :param data: list of values
         """
-        data = data
+
         try:
             if data[0] not in ["BY", "SU", "PR", "II"]:
                 return ""
@@ -349,7 +349,7 @@ class EDIQualifierParser:
             rff_qualifier, reference, *_ = data
 
         except ValueError as except_error:
-            print(data)
+            # print(data)
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier RFF : {data!r}"
                 f", pour le fichier {self.edi_file!r}"
@@ -542,6 +542,7 @@ class EdiOpoto33Parser:
                 element_dict = self.cmd_parser.parse_qualifier(qualifier, data)
 
                 if element_dict:
+                    # print(element_dict)
                     invoice_dict.update(element_dict)
 
         except ValueError as except_error:
@@ -583,9 +584,10 @@ class EdiOpoto33Parser:
                         f"{str(article_element)!r}"
                     ) from except_error
 
+                element_cal = elements[0]
                 qualifier = "MOAL" if qualifier == "MOA" else qualifier
 
-                if qualifier in {"RFF", "DTM"} and elements[0] in {"AAK", "35"}:
+                if qualifier in {"RFF", "DTM"} and element_cal in {"AAK", "35"}:
                     bl_dict.update(self.cmd_parser.parse_qualifier(qualifier, elements))
 
                 if qualifier == "ALC":
@@ -600,15 +602,19 @@ class EdiOpoto33Parser:
                     else:
                         qualifier_port_emb = ""
 
-                elif qualifier == "MOAL" and elements[0] == "8" and qualifier_port_emb:
+                elif qualifier == "MOAL" and element_cal == "8" and qualifier_port_emb:
                     price_dict = self.cmd_parser.parse_qualifier(qualifier, elements)
-                    invoice_detail_dict[qualifier_port_emb] = price_dict.get("emb_port_price")
-                    del price_dict["emb_port_price"]
-                    invoice_detail_dict.update(price_dict)
+
+                    if price_dict.get("net_amount") != "0":
+                        invoice_detail_dict[qualifier_port_emb] = price_dict.get("emb_port_price")
+
+                        del price_dict["emb_port_price"]
+                        # print(price_dict)
+                        invoice_detail_dict.update(price_dict)
 
                     qualifier_port_emb = ""
 
-                else:
+                elif element_cal != "8":
                     invoice_detail_dict.update(self.cmd_parser.parse_qualifier(qualifier, elements))
 
             if article_dict:
@@ -700,11 +706,11 @@ class EdiOpoto33Parser:
             if str(header[1][4]).replace("'", "") != footer_parse.get("document_id").replace(
                 "'", ""
             ):
-                print(self.edi_file.name)
-                print(header, footer_parse.get("document_id"))
+                # print(self.edi_file.name)
+                # print(header, footer_parse.get("document_id"))
                 raise OptoIdError(
-                    r"l'ID du fichier Edi '{0}' en entête (UNB) "
-                    r"et en pied de page (UNZ) sont différents".format(self.edi_file.name)
+                    rf"l'ID du fichier Edi '{self.edi_file.name}' en entête (UNB) "
+                    r"et en pied de page (UNZ) sont différents"
                 )
 
             # On vérifie que le nombre de factures est celui annoncé
@@ -718,7 +724,7 @@ class EdiOpoto33Parser:
             # ANNULATION DE LA VALIDATION CAR CooperVision NE RESPECTE PAS LE NOMBRE DE LIGNES
             # errors_list = []
             #
-            # # On vérifie que toutes les lignes de factures sont présentes
+            # # On vérifie que toutes les lignes de factures sont présentes.
             # for line in self.invoices(invoices):
             #     entete, *_, resume = line
             #
@@ -738,4 +744,5 @@ class EdiOpoto33Parser:
                 "footer": self.cmd_parser.cmd_footer(footer[1]),
                 "invoices": self.extract_invoices(invoices),
                 "get_columns": INVOICE_DICT,
+                "count_invoices": footer_count_invoices,
             }

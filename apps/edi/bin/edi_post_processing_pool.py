@@ -23,7 +23,11 @@ SQL_QTY = sql.SQL(
     """
 update "edi_ediimport"
 set 
-    "qty" = case when "qty" = 0 or qty isnull then 1::numeric else "qty" end,
+    "qty" = case 
+                when "qty" = 0 or qty isnull 
+                then 1::numeric 
+                else "qty" 
+            end,
     "devise" = case when "devise" is null then 'EUR' else "devise" end,
     "active" = false,
     "to_delete" = false,
@@ -36,81 +40,6 @@ and uuid_identification = %(uuid_identification)s
 
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
-    sql_tva = """
-        update edi_ediimport 
-    set
-        vat_rate =  case 
-                        when vat_rate = 5.5 then 0.055
-                        when vat_rate = 20 then 0.20
-                        else vat_rate
-                    end
-    """
-    sql_round_amount = """
-        update "edi_ediimport" edi
-    set "net_amount" = round("net_amount"::numeric, 2)
-    where ("valid" = false or "valid" isnull)
-    """
-    sql_fac_update = sql.SQL(
-        """
-    update "edi_ediimport" edi
-    set
-        "invoice_amount_without_tax" = case 
-                                    when "edi"."invoice_amount_without_tax" is not null
-                                    then "edi"."invoice_amount_without_tax"
-                                    else edi_fac."invoice_amount_without_tax"
-                                end,
-        "invoice_amount_tax" = case
-                                    when "edi"."invoice_amount_tax" is not null
-                                    then "edi"."invoice_amount_tax"
-                                    else edi_fac."invoice_amount_tax"
-                                end,
-        "invoice_amount_with_tax" = case
-                                    when "edi"."invoice_amount_with_tax" is not null
-                                    then "edi"."invoice_amount_with_tax"
-                                    else edi_fac."invoice_amount_with_tax"
-                                end
-    from (
-        select
-            "uuid_identification",
-            "invoice_number",
-            sum("mont_HT") as "invoice_amount_without_tax",
-            sum("mont_TVA") as "invoice_amount_tax",
-            sum("mont_TTC") as "invoice_amount_with_tax"
-        from (
-            select
-                "uuid_identification",
-                "invoice_number",
-                sum("montant_HT")::numeric as "mont_HT",
-                round((sum("montant_HT")::numeric * "vat_rate"::numeric), 2) as "mont_TVA",
-                (
-                    sum("montant_HT")::numeric +
-                    round((sum("montant_HT")::numeric * "vat_rate"::numeric), 2)
-    
-                ) as "mont_TTC",
-                "vat_rate"
-            from (
-                select
-                    "uuid_identification",
-                    "invoice_number",
-                    round(sum("net_amount")::numeric, 2) as "montant_HT",
-                    "vat_rate"
-                from "edi_ediimport"
-                where ("valid" = false or "valid" isnull)
-                and (
-                    ("invoice_amount_with_tax" isnull or "invoice_amount_with_tax" = 0)
-                    or 
-                    ("invoice_amount_without_tax" isnull or "invoice_amount_without_tax" = 0)
-                )
-                group by "uuid_identification", "invoice_number", "vat_rate"
-            ) as vat_tot
-            group by "uuid_identification", "invoice_number", "vat_rate"
-        ) as "tot_amount"
-        group by "uuid_identification", "invoice_number"
-    ) edi_fac
-    where edi."uuid_identification" = edi_fac."uuid_identification"
-    and edi."invoice_number" = edi_fac."invoice_number"
-    """
-    )
     sql_supplier_update = sql.SQL(
         """
         update "edi_ediimport" "edi"
@@ -131,8 +60,68 @@ def post_processing_all():
         ) "tiers"
         where ("edi"."third_party_num" is null or "edi"."third_party_num" = '')
         and "edi"."supplier_ident" = "tiers"."identifier"
+        and ("edi"."valid" = false or "edi"."valid" isnull)
         """
     )
+    sql_fac_update_except_edi = sql.SQL(
+        """
+    update "edi_ediimport" edi
+    set
+        "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
+        "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
+        "invoice_amount_tax" = (
+                                    edi_fac."invoice_amount_with_tax" 
+                                    - 
+                                    edi_fac."invoice_amount_without_tax"
+                                ),
+        "reference_article" = case 
+                                when "reference_article" isnull or "reference_article" = '' 
+                                then "ean_code"
+                                else "reference_article"
+                              end
+    from (
+        select
+            "uuid_identification",
+            "invoice_number",
+            case 
+                when invoice_type = '381' 
+                then -abs(sum("mont_HT"))::numeric
+                else abs(sum("mont_HT"))::numeric
+            end as "invoice_amount_without_tax",
+            case 
+                when invoice_type = '381'
+                then -abs(sum("mont_TTC"))::numeric 
+                else abs(sum("mont_TTC"))::numeric    
+            end as "invoice_amount_with_tax"
+        from (
+            select
+                "uuid_identification",
+                "invoice_number",
+                "invoice_type",
+                round(sum("net_amount")::numeric, 2) as "mont_HT",
+                (
+                    round(sum("net_amount")::numeric, 2) +
+                    round(round(sum("net_amount")::numeric, 2) * "vat_rate"::numeric, 2)
+                ) as "mont_TTC",
+                "vat_rate"
+            from "edi_ediimport"                
+            where (flow_name != 'Edi')
+            and ("valid" = false or "valid" isnull)
+            group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
+        ) as "tot_amount"
+        group by "uuid_identification", "invoice_number", "invoice_type"
+    ) edi_fac
+    where edi."uuid_identification" = edi_fac."uuid_identification"
+    and edi."invoice_number" = edi_fac."invoice_number"
+    """
+    )
+    sql_reference = """
+    update edi_ediimport 
+    set
+        reference_article = libelle 
+    where (reference_article isnull or reference_article = '')
+      and ("valid" = false or "valid" isnull)
+    """
     sql_validate = sql.SQL(
         """
         update "edi_ediimport" edi
@@ -152,23 +141,12 @@ def post_processing_all():
                                 when "delivery_date" = '1900-01-01' 
                                 then null
                                 else "delivery_date"
-                               end,
-            "invoice_amount_without_tax" = abs("invoice_amount_without_tax")::numeric ,
-            "invoice_amount_tax" = abs("invoice_amount_tax")::numeric ,
-            "invoice_amount_with_tax" = abs("invoice_amount_with_tax")::numeric 
+                               end
     """
     )
-    sql_reference = """
-    update edi_ediimport 
-    set
-        reference_article = libelle 
-    where (reference_article isnull or reference_article = '')
-    """
     with connection.cursor() as cursor:
-        cursor.execute(sql_tva)
-        cursor.execute(sql_round_amount)
-        cursor.execute(sql_fac_update)
         cursor.execute(sql_supplier_update)
+        cursor.execute(sql_fac_update_except_edi)
         cursor.execute(sql_reference)
         cursor.execute(sql_validate)
 
@@ -285,11 +263,67 @@ def edi_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Opto33 EDI
     :param uuid_identification: uuid_identification
     """
-    sql_update_fac_tva = sql.SQL(
+
+    sql_col_essilor = sql.SQL(
         """
     update "edi_ediimport"
     set 
-        "invoice_amount_tax" = "invoice_amount_with_tax" - "invoice_amount_without_tax",
+        "supplier_ident" = 'col_opticlibre'
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    and "siret_payeur" in ('9524514', '433193067', '43319306700033', 'FR82433193067')
+    """
+    )
+    sql_tva = sql.SQL(
+        """
+    update edi_ediimport
+    set
+        vat_rate =  case
+                        when vat_rate = 5.5 then 0.055
+                        when vat_rate = 20 then 0.20
+                        else vat_rate
+                    end,
+        acuitis_order_number = case 
+                                    when acuitis_order_number = 'UNKNOWN' 
+                                    then '' 
+                                    else acuitis_order_number
+                                end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
+    )
+    sql_fac_update_edi = sql.SQL(
+        """
+    update "edi_ediimport"
+    set 
+        "net_amount" = case
+                            when ("invoice_type" = '381' and "qty" < 0) 
+                              or ("invoice_type" = '380' and "qty" > 0) 
+                            then abs("net_amount")::numeric
+                            when ("invoice_type" = '381' and "qty" > 0) 
+                              or ("invoice_type" = '380' and "qty" < 0) 
+                            then -abs("net_amount")::numeric
+                        end,
+        "invoice_amount_without_tax" = case 
+                                when invoice_type = '381' 
+                                then -abs("invoice_amount_without_tax")::numeric
+                                else abs("invoice_amount_without_tax")::numeric
+                              end,
+        "invoice_amount_with_tax" = case 
+                                        when invoice_type = '381'
+                                        then -abs("invoice_amount_with_tax")::numeric
+                                        else abs("invoice_amount_with_tax")::numeric  
+                                      end,
+        "invoice_amount_tax" = case 
+                                when invoice_type = '381'
+                                then -abs("invoice_amount_with_tax")::numeric
+                                else abs("invoice_amount_with_tax")::numeric
+                              end -
+                              case 
+                                when invoice_type = '381' 
+                                then -abs("invoice_amount_without_tax")::numeric
+                                else abs("invoice_amount_without_tax")::numeric
+                              end,
         "reference_article" = case 
                                 when "reference_article" isnull or "reference_article" = '' 
                                 then "ean_code"
@@ -299,32 +333,11 @@ def edi_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-
-    sql_col_essilor = sql.SQL(
-        """
-        update "edi_ediimport"
-    set 
-        "supplier_ident" = 'col_opticlibre'
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    and "siret_payeur" in ('9524514', '433193067', '43319306700033', 'FR82433193067')
-    """
-    )
-
-    sql_valid = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "valid"=true
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_update_fac_tva, {"uuid_identification": uuid_identification})
         cursor.execute(sql_col_essilor, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_valid, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_tva, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_fac_update_edi, {"uuid_identification": uuid_identification})
 
 
 def eye_confort_post_insert(uuid_identification: AnyStr):
@@ -387,10 +400,27 @@ def generique_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_net_amount_mgdev = sql.SQL(
+        """
+    update "edi_ediimport" edi
+    set
+        "net_amount" = case
+                            when ("invoice_type" = '381' and "qty" < 0) 
+                              or ("invoice_type" = '380' and "qty" > 0) 
+                            then abs("net_amount")::numeric
+                            when ("invoice_type" = '381' and "qty" > 0) 
+                              or ("invoice_type" = '380' and "qty" < 0) 
+                            then -abs("net_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
+    )
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
 
 
 def hearing_post_insert(uuid_identification: AnyStr):
@@ -588,10 +618,37 @@ def newson_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
-
+    sql_round_net_amount = sql.SQL(
+        """
+    update "edi_ediimport"
+    set 
+        "net_amount" = round("net_amount", 2)::numeric,
+        "amount_with_vat" = round(round("amount_with_vat", 2) * (1 + "vat_rate"), 2)::numeric
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
+    )
+    sql_net_amount = sql.SQL(
+        """
+    update "edi_ediimport" edi
+    set
+        "net_amount" = case
+                            when ("invoice_type" = '381' and "qty" < 0) 
+                              or ("invoice_type" = '380' and "qty" > 0) 
+                            then abs("net_amount")::numeric
+                            when ("invoice_type" = '381' and "qty" > 0) 
+                              or ("invoice_type" = '380' and "qty" < 0) 
+                            then -abs("net_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
+    )
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_round_net_amount, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
 
 
 def phonak_post_insert(uuid_identification: AnyStr):
@@ -610,10 +667,27 @@ def phonak_post_insert(uuid_identification: AnyStr):
     and ("valid" = false or "valid" isnull)
     """
     )
+    sql_net_amount = sql.SQL(
+        """
+    update "edi_ediimport" edi
+    set
+        "net_amount" = case
+                            when ("invoice_type" = '381' and "qty" < 0) 
+                              or ("invoice_type" = '380' and "qty" < 0) 
+                            then -abs("net_amount")::numeric
+                            when ("invoice_type" = '381' and "qty" > 0) 
+                              or ("invoice_type" = '380' and "qty" > 0) 
+                            then abs("net_amount")::numeric
+                        end
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
+    """
+    )
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
 
 
 def prodition_post_insert(uuid_identification: AnyStr):
@@ -679,7 +753,9 @@ def signia_post_insert(uuid_identification: AnyStr):
                             when "invoice_type" = '307' then '380' 
                             when "invoice_type" = '302' then '381' 
                             when "invoice_type" = '304' then '381' 
-                            else '400' 
+                            when "invoice_type" = '400' then '381' 
+                            -- 400 = RFA
+                            else '380' 
                         end
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)

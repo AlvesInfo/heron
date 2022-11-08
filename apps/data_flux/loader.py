@@ -716,7 +716,7 @@ class Opto33Loader(TemplateDataLoader):
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
         for line in self.opto_parse.get("invoices"):
-
+            # print(line)
             if self.params_dict.get("add_fields_dict", {}):
                 yield {
                     **{key: str(line.get(key)) for key in postion_list},
