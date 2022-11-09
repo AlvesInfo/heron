@@ -48,7 +48,11 @@ def integrations_purchases(requests):
     """
     with connection.cursor() as cursor:
         cursor.execute(sql_context)
-        elements = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+        elements = [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
         context = {
             "titre_table": "Contrôle des Intégrations - Achats",
             "controles_exports": elements,

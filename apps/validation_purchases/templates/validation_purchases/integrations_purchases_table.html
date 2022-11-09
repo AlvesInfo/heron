@@ -30,19 +30,19 @@
         </thead>
         <tbody>
         {% for export in controles_exports %}
-            <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td data-supplier="{{ export.6 }}" data-month="{{ export.5|date:"Y-m-d" }}"
+            <tr class="hide_plans">
+                <td data-supplier="{{ export.third_party_num }}" data-month="{{ export.date_month|date:"Y-m-d" }}"
                     style="text-align: center;">
                     <a href="">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>
-                <td>{{ export.0 }}</td>
-                <td style="text-align: left;">{{ export.1 }}</td>
-                <td style="text-align: right;">{{ export.2|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ export.3|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ export.4|int_formats }}</td>
-                <td>{{ export.5|date:"F Y" }}</td>
+                <td>{{ export.big_category }}</td>
+                <td style="text-align: left;">{{ export.supplier }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_with_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.qty_invoices|int_formats }}</td>
+                <td>{{ export.date_month|date:"F Y" }}</td>
                 <td></td>
                 <td>{{ export.pays }}</td>
                 <td>{{ export.pays }}</td>
