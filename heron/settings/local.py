@@ -1,6 +1,11 @@
 # coding: utf-8
 from pathlib import Path
+import gc
+
 from .base import INSTALLED_APPS, MIDDLEWARE, BASE_DIR, LOG_DIR
+
+allocs, g1, g2 = gc.get_threshold()
+gc.set_threshold(100_000, g1*5, g2*10)
 
 DEBUG = True
 

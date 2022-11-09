@@ -13,10 +13,10 @@ import io
 from typing import Dict
 from pathlib import Path
 
+from django.db import connection
+from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
-from apps.core.functions.functions_setups import CNX_STRING
-from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
@@ -261,7 +261,7 @@ def get_sql(file_path: Path, parmas_dict: Dict = None):
     """
     parmas_dict = parmas_dict or {}
 
-    with file_path.open("r") as sql_file, cnx_postgresql(CNX_STRING).cursor() as cursor:
+    with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
         # print(cursor.mogrify(query).decode())
         # print(query)
@@ -269,14 +269,14 @@ def get_sql(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_integration_invoices(file_io: io.BytesIO, file_name: str) -> dict:
+def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:3])
     list_excel = [file_io, [titre]]
     excel = GenericExcel(list_excel)
     file_path = Path(
-        r"c:/sitesweb/heron/apps/validation_purchases/sql_files/sql_integrations_purchases.sql"
+        rf"{str(APPS_DIR)}\validation_purchases\sql_files\sql_integration_purchases.sql"
     )
     get_clean_rows = [line[:-1] for line in get_sql(file_path)]
 

@@ -1,1 +1,1 @@
-from .excel_integration_invoices_list import excel_integration_invoices
+from .excel_integration_invoices_list import excel_integration_purchases

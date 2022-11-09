@@ -1,10 +1,10 @@
 from django.urls import path
 
 from apps.validation_purchases.views import (
-    integrations_purchases,
-    integrations_purchases_export,
-    listing_purchases,
-    listing_purchases_export,
+    integration_purchases,
+    integration_purchases_export,
+    integration_supplier_purchases,
+    integration_supplier_purchases_export,
     details_purchases,
     details_purchases_export,
     without_cct_purchases,
@@ -38,25 +38,25 @@ urlpatterns = [
     *[
         # Intégration
         path(
-            "integrations_purchases/",
-            integrations_purchases,
-            name="integrations_purchases",
+            "integration_purchases/",
+            integration_purchases,
+            name="integration_purchases",
         ),
         path(
-            "integrations_purchases_export/",
-            integrations_purchases_export,
-            name="integrations_purchases_export",
+            "integration_purchases_export/",
+            integration_purchases_export,
+            name="integration_purchases_export",
         ),
         # Listing
         path(
-            "listing_purchases/<third_party_num>/<big_category>/<month>/",
-            listing_purchases,
-            name="listing_purchases",
+            "integration_supplier_purchases/<third_party_num>/<big_category>/<month>/",
+            integration_supplier_purchases,
+            name="integration_supplier_purchases",
         ),
         path(
-            "listing_purchases_export/",
-            listing_purchases_export,
-            name="listing_purchases_export",
+            "integration_supplier_purchases_export/",
+            integration_supplier_purchases_export,
+            name="integration_supplier_purchases_export",
         ),
         # Détails facture
         path(

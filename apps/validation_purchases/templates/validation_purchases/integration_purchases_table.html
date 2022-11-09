@@ -32,7 +32,7 @@
         {% for export in controles_exports %}
             <tr class="hide_plans">
                 <td style="text-align: center;">
-                    <a href="{% url 'validation_purchases:listing_purchases' export.third_party_num export.big_category export.date_month%}">
+                    <a href="{% url 'validation_purchases:integration_supplier_purchases' export.third_party_num export.big_category export.date_month%}">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>

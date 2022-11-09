@@ -3,10 +3,12 @@
 Module apportant des fonctionnalités pratique à psycopg2
 """
 import sys
+import os
 import io
 import random
 import string
-from typing import AnyStr
+from typing import AnyStr, Dict
+from pathlib import Path
 
 import psycopg2
 from psycopg2 import pool
@@ -15,6 +17,7 @@ from django.db import models, connection
 
 from apps.core.functions.functions_sql import clean_sql_in
 from apps.core.functions.loggers import POSTGRES_LOGGER
+from heron.settings.base import BASE_DIR
 
 
 class PostgresUpsertError(Exception):
@@ -409,7 +412,7 @@ def execute_prepared_upsert(kwargs_upsert):
                      rows: Liste des valeurs à inserer dans la table
             champs_unique: liste des champs d'unicité dans la table,
                            si on veut un Upsert ON CONFLICT UPDATE
-                   upsert: None explicit, si on ne veut pas d'upsert
+                   upsert: None explicit, si on ne souhaite pas d'upsert
                 page_size: rien ou nbre par iteration
                 }
         :return: True, (1000, 1000) en cas de succès
@@ -674,8 +677,48 @@ class PostresDjangoUpsert:
                 cursor.execute(self.get_drop_temp)
 
     def set_insertion_copy_expert(self):
+        """Fais l'insertion en base par copy_expert psycopg2"""
         with self.cnx.cursor() as cursor:
             cursor.copy_expert()
+
+
+def query_file_dict_cursor(
+    cursor,
+    query_str: str = "",
+    file_path: [AnyStr, Path] = None,
+    base_dir: os.path = BASE_DIR,
+    parmas_dict: Dict = None,
+):
+    """Renvoie les résultats de la requête, dont le sql vient d'un fichier et renvoi le résultat de
+    la requête sous la forme d'un dictionnaire
+    :param cursor: connexion à la base postgresql psycopg2
+    :param query_str: sql_context est utilisé si c'est une requête en str
+    :param file_path: file pathlib.PATH
+    :param base_dir: repertoire de base du fichier
+    :param parmas_dict: paramètre de la requête
+    :return: resultats de la requête sous forme d'un dictionnaire
+    """
+
+    parmas_dict = parmas_dict or {}
+
+    if query_str:
+        query = query_str
+
+    else:
+        file = Path(base_dir) / file_path
+
+        if file.is_file():
+            with file.open("r") as sql_file:
+                query = sql_file.read()
+
+        else:
+            raise Exception(f"Le fichier {file.name!r} n'existe pas")
+
+    # print(cursor.mogrify(query, parmas.decode())
+    cursor.execute(query, parmas_dict)
+    columns = [col[0] for col in cursor.description]
+
+    return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
 if __name__ == "__main__":

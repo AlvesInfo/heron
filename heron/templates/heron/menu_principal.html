@@ -117,16 +117,16 @@
             </div>
 
             <div class="ui flowing transition popup" id="d">
-                <div class="ui two column relaxed divided grid" style="width: 24em;">
+                <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
                         <h4 class="ui header">Achats</h4>
                         <div class="ui link list">
-                            <a href="{% url 'validation_purchases:integrations_purchases' %}" class="item">Intégrations</a>
-{#                            <a href="{% url 'validation_purchases:listing_purchases' %}" class="item">Listing Factures</a>#}
-                            <a href="{% url 'validation_purchases:without_cct_purchases' %}" class="item">Contrôle CCT</a>
-                            <a href="{% url 'validation_purchases:families_invoices_purchases' %}" class="item">Contrôle Familles</a>
-                            <a href="{% url 'validation_purchases:articles_families_invoices_purchases' %}" class="item">Contrôle Articles</a>
+                            <a href="{% url 'validation_purchases:integration_purchases' %}" class="item">2.1 &nbsp;&nbsp;&nbsp;&nbsp;Intégrations</a>
+{#                            <a href="{% url 'validation_purchases:integration_supplier_purchases' %}" class="item">Listing Factures</a>#}
+                            <a href="{% url 'validation_purchases:without_cct_purchases' %}" class="item">2.2 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle CCT</a>
+                            <a href="{% url 'validation_purchases:families_invoices_purchases' %}" class="item">3.1 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Familles</a>
+                            <a href="{% url 'validation_purchases:articles_families_invoices_purchases' %}" class="item">3.1.A Contrôle Articles</a>
                             <a href="{% url 'validation_purchases:balance_suppliers_purchases' %}" class="item">Soldes</a>
                             <a href="{% url 'validation_purchases:invoices_suppliers_purchases' %}" class="item">Factures</a>
                         </div>
@@ -151,12 +151,10 @@
                     <div class="column">
                         <h4 class="ui header">Sage</h4>
                         <div class="ui link list">
-                            <a href="{% url 'validation_purchases:sage_controls_globals_purchases' %}" class="item">Achats Sage</a>
-                            <a href="{% url 'validation_purchases:sage_controls_details_purchases' %}" class="item">Achats Détails</a>
-                            <a href="{% url 'validation_purchases:sage_controls_familles_purchases' %}" class="item">Achats Famille</a>
-                            <a href="{% url 'validation_sales:sage_controls_globals_sales' %}" class="item">Ventes Sage</a>
-                            <a href="{% url 'validation_sales:sage_controls_details_sales' %}" class="item">Ventes Détails</a>
-                            <a href="{% url 'validation_sales:sage_controls_familles_sales' %}" class="item">Ventes Famille</a>
+                            <a href="{% url 'validation_purchases:sage_controls_globals_purchases' %}" class="item">5.5.A Achats Sage</a>
+                            <a href="{% url 'validation_purchases:sage_controls_familles_purchases' %}" class="item">5.5.B BAchats Famille</a>
+                            <a href="{% url 'validation_sales:sage_controls_globals_sales' %}" class="item">5.5.C Ventes Sage</a>
+                            <a href="{% url 'validation_sales:sage_controls_familles_sales' %}" class="item">5.5.D Ventes Famille</a>
                         </div>
                     </div>
 
