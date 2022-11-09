@@ -50,7 +50,8 @@ def post_processing_all():
                             when "supplier" = '' or "supplier" isnull 
                             then "tiers"."name" 
                             else "supplier" 
-                         end
+                         end,
+            "uuid_big_category" = 'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
         from (
             select 
                 left("name", 35) as "name",
@@ -255,7 +256,6 @@ def bulk_post_insert(uuid_identification: AnyStr):
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
-        EdiImport.objects.filter(uuid_identification=uuid_identification).update(valid=True)
 
 
 def edi_post_insert(uuid_identification: AnyStr):

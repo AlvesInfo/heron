@@ -17,7 +17,7 @@ from django.db import models
 
 from heron.models import DatesTable, FlagsTable
 from apps.book.models import Society
-from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable
+from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
 
 
 class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
@@ -98,6 +98,16 @@ class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
     axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
     axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
     # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
+
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="big_category_edi_import",
+        db_column="uuid_big_category",
+    )
 
 
 class SupplierDefinition(DatesTable):

@@ -1,5 +1,5 @@
 {% extends "heron/table_courant.html" %}
-
+{% load filters_tags %}
 {% block table %}
 
 <div class="two wide column"></div>
@@ -11,11 +11,12 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
+                <th class="no-sort"><i class="eye icon modification"></i></th>
                 <th>Catégorie</th>
                 <th>Fournisseur</th>
                 <th>Montant TTC</th>
                 <th>Montant HT</th>
-                <th>Nbre de Facture</th>
+                <th>Nbre</th>
                 <th>Mois des factures</th>
                 <th></th>
                 <th>Fournisseur</th>
@@ -30,12 +31,18 @@
         <tbody>
         {% for export in controles_exports %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
+                <td data-supplier="{{ export.6 }}" data-month="{{ export.5|date:"Y-m-d" }}"
+                    style="text-align: center;">
+                    <a href="">
+                        <i class="eye icon modification"></i>
+                    </a>
+                </td>
+                <td>{{ export.0 }}</td>
+                <td style="text-align: left;">{{ export.1 }}</td>
+                <td style="text-align: right;">{{ export.2|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.3|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.4|int_formats }}</td>
+                <td>{{ export.5|date:"F Y" }}</td>
                 <td></td>
                 <td>{{ export.pays }}</td>
                 <td>{{ export.pays }}</td>

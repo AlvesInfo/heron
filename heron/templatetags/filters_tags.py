@@ -135,3 +135,36 @@ def date_from_str_4(value):
             pass
 
     return ""
+
+
+@register.filter(name="numbers_format")
+def numbers_format(value, num):
+    nombre, centimes, *_ = str(value).split(".")
+    centimes += "0" * 99
+    return_value = ""
+
+    for i, value in enumerate(nombre[::-1], 1):
+        return_value += value
+        if i % 3 == 0:
+            return_value += " "
+
+    return return_value[::-1] + "," + centimes[:num]
+
+
+@register.filter(name="int_formats")
+def int_formats(value):
+    str_value = str(value).split(".")[0]
+    return_value = ""
+
+    for i, value in enumerate(str_value[::-1], 1):
+        return_value += value
+        if i % 3 == 0:
+            return_value += " "
+
+    return return_value[::-1]
+
+
+@register.filter(name="format")
+def int_formats(value, fmt):
+    return fmt.format(value)
+
