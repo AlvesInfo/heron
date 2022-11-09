@@ -92,9 +92,58 @@ def integrations_purchases_export(request):
 # CONTROLES ETAPE 2.A - LISTING FACTURES
 
 
-def listing_purchases(requests):
+def listing_purchases(requests, third_party_num, big_category, month):
     """View de l'étape 2.A des écrans de contrôles"""
-    context = {"titre_table": "Listing des Factures Intégrées - Achats"}
+    sql_context = """
+    select 
+        pc."name" as big_category,
+        supplier,
+        invoice_number,
+        invoice_amount_without_tax,
+        invoice_amount_with_tax,
+        date_trunc('month', invoice_date)::date as date_month,
+        1 as qty_invoices,
+        third_party_num,
+        invoice_amount_tax,
+        invoice_date
+    from edi_ediimport ee
+    left join parameters_category pc 
+    on ee.uuid_big_category = pc.uuid_identification 
+    where third_party_num = %(third_party_num)s
+      and pc."name" = %(big_category)s
+      and date_trunc('month', invoice_date)::date = %(month)s
+    group by supplier,
+             pc."name",
+             invoice_number,
+             invoice_date,
+             invoice_amount_without_tax,
+             invoice_amount_tax,
+             invoice_amount_with_tax,
+             date_trunc('month', invoice_date)::date,
+             uuid_big_category,
+             third_party_num
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            sql_context,
+            {
+                "third_party_num": third_party_num,
+                "big_category": big_category,
+                "month": month,
+            },
+        )
+        columns = [col[0] for col in cursor.description]
+        elements = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        titre_table = elements[0]
+        mois = (
+            pendulum.parse(titre_table.get("date_month").isoformat())
+            .format("MMMM YYYY", locale="fr")
+            .capitalize()
+        )
+        context = {
+            "titre_table": f"Contrôle : {titre_table.get('supplier')}  - {mois}",
+            "controles_exports": elements,
+        }
     return render(requests, "validation_purchases/listing_invoices_suppliers.html", context=context)
 
 
@@ -107,9 +156,52 @@ def listing_purchases_export(requests):
 # CONTROLES ETAPE 2.B - DETAILS FACTURES
 
 
-def details_purchases(requests):
+def details_purchases(requests, third_party_num, invoice_number):
     """View de l'étape 2.B des écrans de contrôles"""
-    context = {"titre_table": f"Détails Facture {'Fournisseur'} - {'N° Facture'} - Achats"}
+    sql_context = """
+    select 
+        supplier,
+        invoice_number,
+        invoice_amount_without_tax,
+        invoice_amount_with_tax,
+        date_trunc('month', invoice_date)::date as date_month,
+        1 as qty_invoices,
+        third_party_num,
+        invoice_amount_tax,
+        invoice_date,
+        vat_rate
+    from edi_ediimport ee
+    where third_party_num = %(third_party_num)s
+      and invoice_number = %(invoice_number)s
+    group by supplier,
+             invoice_number,
+             invoice_date,
+             invoice_amount_without_tax,
+             invoice_amount_tax,
+             invoice_amount_with_tax,
+             date_trunc('month', invoice_date)::date,
+             uuid_big_category,
+             third_party_num,
+             vat_rate
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            sql_context,
+            {
+                "third_party_num": third_party_num,
+                "invoice_number": invoice_number,
+            },
+        )
+        columns = [col[0] for col in cursor.description]
+        elements = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        titre_table = elements[0]
+        context = {
+            "titre_table": (
+                f"Contrôle : {titre_table.get('supplier')} - "
+                f"Facture N°: {titre_table.get('invoice_number')}"
+            ),
+            "controles_exports": elements,
+        }
     return render(requests, "validation_purchases/details_invoices_suppliers.html", context=context)
 
 

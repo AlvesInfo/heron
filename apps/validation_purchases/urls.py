@@ -49,7 +49,7 @@ urlpatterns = [
         ),
         # Listing
         path(
-            "listing_purchases/",
+            "listing_purchases/<third_party_num>/<big_category>/<month>/",
             listing_purchases,
             name="listing_purchases",
         ),
@@ -60,7 +60,7 @@ urlpatterns = [
         ),
         # Détails facture
         path(
-            "details_purchases/",
+            "details_purchases/<third_party_num>/<invoice_number>/",
             details_purchases,
             name="details_purchases",
         ),

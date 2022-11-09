@@ -1,5 +1,5 @@
 {% extends "heron/table_courant.html" %}
-
+{% load filters_tags %}
 {% block table %}
 
 <div class="two wide column"></div>
@@ -15,9 +15,10 @@
                 <th>Fournisseur</th>
                 <th>N° Facture</th>
                 <th>Ligne</th>
-                <th>Montant TTC</th>
-                <th>Montant TVA</th>
                 <th>Montant HT</th>
+                <th>Taux TVA</th>
+                <th>Montant TVA</th>
+                <th>Montant TTC</th>
                 <th>Date de la facture</th>
                 <th>Supprimer</th>
             </tr>
@@ -25,15 +26,20 @@
         <tbody>
         {% for export in controles_exports %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
+                <td>
+                    <a href="">
+                        <i class="eye icon modification"></i>
+                    </a>
+                </td>
+                <td>{{ export.supplier }}</td>
+                <td>{{ export.invoice_number }}</td>
+                <td></td>
+                <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.vat_rate|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_with_tax|numbers_format:2 }}</td>
+                <td>{{ export.invoice_date|date:"d/m/Y" }}</td>
+                <td><i class="red trash icon"></i></td>
             </tr>
         {% endfor %}
         </tbody>

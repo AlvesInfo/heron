@@ -1,10 +1,10 @@
 {% extends "heron/table_courant.html" %}
-
+{% load filters_tags %}
 {% block table %}
 
 <div class="two wide column"></div>
 
-<div class="sixteen wide column">
+<div class="twelve wide column">
 
     <table id="table_document"
        class="ui celled table"
@@ -14,9 +14,9 @@
                 <th>Modifier</th>
                 <th>Fournisseur</th>
                 <th>N° Facture</th>
-                <th>Montant TTC</th>
+                <th>Montant HTC</th>
                 <th>Montant TVA</th>
-                <th>Montant HT</th>
+                <th>Montant TT</th>
                 <th>Date de la facture</th>
                 <th>Supprimer</th>
             </tr>
@@ -24,14 +24,18 @@
         <tbody>
         {% for export in controles_exports %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
+                <td>
+                    <a href="{% url 'validation_purchases:details_purchases' export.third_party_num export.invoice_number %}">
+                        <i class="eye icon modification"></i>
+                    </a>
+                </td>
+                <td>{{ export.supplier }}</td>
+                <td>{{ export.invoice_number }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ export.invoice_amount_with_tax|numbers_format:2 }}</td>
+                <td>{{ export.invoice_date|date:"d/m/Y" }}</td>
+                <td><i class="red trash icon"></i></td>
             </tr>
         {% endfor %}
         </tbody>

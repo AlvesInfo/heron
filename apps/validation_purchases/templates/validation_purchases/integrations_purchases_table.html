@@ -31,9 +31,8 @@
         <tbody>
         {% for export in controles_exports %}
             <tr class="hide_plans">
-                <td data-supplier="{{ export.third_party_num }}" data-month="{{ export.date_month|date:"Y-m-d" }}"
-                    style="text-align: center;">
-                    <a href="">
+                <td style="text-align: center;">
+                    <a href="{% url 'validation_purchases:listing_purchases' export.third_party_num export.big_category export.date_month%}">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>
