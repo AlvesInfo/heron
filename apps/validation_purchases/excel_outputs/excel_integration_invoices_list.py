@@ -276,7 +276,7 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
     list_excel = [file_io, [titre]]
     excel = GenericExcel(list_excel)
     file_path = Path(
-        rf"{str(APPS_DIR)}\validation_purchases\sql_files\sql_integration_purchases.sql"
+        f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_integration_purchases.sql"
     )
     get_clean_rows = [line[:-1] for line in get_sql(file_path)]
 
