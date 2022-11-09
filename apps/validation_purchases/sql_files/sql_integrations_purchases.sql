@@ -5,6 +5,14 @@
         sum(invoice_amount_with_tax) as invoice_amount_with_tax,
         sum(qty_invoices) as qty_invoices,
         date_month,
+        '' as sep,
+        '' as fournisseur,
+        '' as amount_invoice_ttc,
+        '' as amount_invoice_ht,
+        '' as sep_delta,
+        '' as delta_ttc,
+        '' as delta_ht,
+        '' as comment,
         third_party_num
     from (
         select

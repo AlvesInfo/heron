@@ -1,6 +1,12 @@
+import pendulum
 from django.db import connection
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 
+from heron.loggers import LOGGER_VIEWS
+from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.validation_purchases.excel_outputs import (
+    excel_integration_invoices,
+)
 
 # CONTROLES ETAPE 2 - CONTROLE INTEGRATION
 
@@ -49,10 +55,7 @@ def integrations_purchases(requests):
     with connection.cursor() as cursor:
         cursor.execute(sql_context)
         columns = [col[0] for col in cursor.description]
-        elements = [
-            dict(zip(columns, row))
-            for row in cursor.fetchall()
-        ]
+        elements = [dict(zip(columns, row)) for row in cursor.fetchall()]
         context = {
             "titre_table": "Contrôle des Intégrations - Achats",
             "controles_exports": elements,
@@ -60,10 +63,30 @@ def integrations_purchases(requests):
     return render(requests, "validation_purchases/integrations_purchases.html", context=context)
 
 
-def integrations_purchases_export(requests):
-    """View de l'étape 2 des écrans de contrôles"""
-    context = {"titre_table": "Export Excel"}
-    return render(requests, "validation_purchases/integrations_purchases.html", context=context)
+def integrations_purchases_export(request):
+    """
+    Export Excel de la liste des Centrales Mères
+    :param request: Request Django
+    :return: response_file
+    """
+
+    try:
+        if request.method == "GET":
+            today = pendulum.now()
+            file_name = (
+                f"LISTIONG_DES_FACTURES_INTEGREES_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            )
+
+            return response_file(
+                excel_integration_invoices,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+            )
+
+    except:
+        LOGGER_VIEWS.exception("view : integrations_purchases_export")
+
+    return redirect(reverse("validation_purchases:integrations_purchases"))
 
 
 # CONTROLES ETAPE 2.A - LISTING FACTURES
@@ -101,7 +124,7 @@ def details_purchases_export(requests):
 
 def without_cct_purchases(requests):
     """View de l'étape 2.2 des écrans de contrôles"""
-    context = {"titre_table": f"Listing Factures sans CCT - Achats"}
+    context = {"titre_table": "Listing Factures sans CCT - Achats"}
     return render(
         requests, "validation_purchases/without_cct_invoices_suppliers.html", context=context
     )
