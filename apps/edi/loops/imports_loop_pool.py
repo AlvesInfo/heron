@@ -58,7 +58,7 @@ from apps.parameters.models import ActionInProgress
 
 processing_dict = {
     "BBRG_BULK": bbgr_bulk,
-    # "EDI": edi,
+    "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,
     "HEARING": hearing,

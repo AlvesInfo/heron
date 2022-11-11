@@ -2,6 +2,8 @@ select
     pc."name" as big_category,
     supplier,
     invoice_number,
+    case when sum(net_amount) != invoice_amount_without_tax then true else false end as error,
+    sum(net_amount) as net_amount,
     invoice_amount_without_tax,
     invoice_amount_with_tax,
     date_trunc('month', invoice_date)::date as date_month,

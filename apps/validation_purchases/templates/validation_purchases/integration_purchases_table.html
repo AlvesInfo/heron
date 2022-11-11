@@ -55,12 +55,12 @@
                     </a>
                 </td>
                 <td>{{ supplier_purchase.big_category }}</td>
-                <td>{{ supplier_purchase.third_party_num }}</td>
-                <td style="text-align: left;">{{ supplier_purchase.supplier }}</td>
-                <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>
-                <td id="SupplierTtc{{ forloop.counter0 }}" class="SupplierTtc" style="text-align: right;">{{ supplier_purchase.invoice_amount_with_tax|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ supplier_purchase.qty_invoices|int_formats }}</td>
-                <td>{{ supplier_purchase.date_month|date:"F Y" }}</td>
+                <td style="{% if supplier_purchase.error %}background-color: red;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
+                <td style="text-align: left;{% if supplier_purchase.error %}background-color: red;{% endif %}">{{ supplier_purchase.supplier }}</td>
+                <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;{% if supplier_purchase.error %}background-color: red;{% endif %}">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>
+                <td id="SupplierTtc{{ forloop.counter0 }}" class="SupplierTtc" style="text-align: right;{% if supplier_purchase.error %}background-color: red;{% endif %}">{{ supplier_purchase.invoice_amount_with_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;{% if supplier_purchase.error %}background-color: red;{% endif %}">{{ supplier_purchase.qty_invoices|int_formats }}</td>
+                <td style="{% if supplier_purchase.error %}background-color: red;{% endif %}">{{ supplier_purchase.date_month|date:"F Y" }}</td>
                 <td style="text-align: center;border-left: 1px solid teal;">
                     <a href="{% url 'validation_purchases:integration_supplier_purchases' supplier_purchase.third_party_num supplier_purchase.big_category supplier_purchase.date_month%}">
                         <i class="edit icon modification"></i>
