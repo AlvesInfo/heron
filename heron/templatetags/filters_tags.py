@@ -139,6 +139,10 @@ def date_from_str_4(value):
 
 @register.filter(name="numbers_format")
 def numbers_format(value, num):
+    # print("numbers_format : ", value)
+    if not value:
+        return "0"
+
     nombre, centimes, *_ = str(value).split(".")
     centimes += "0" * 99
     return_value = ""
