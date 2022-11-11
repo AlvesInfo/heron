@@ -39,6 +39,14 @@
 
             {% include "heron/base_data_table.html" %}
 
+            setDelta("deltaHt", "supplierHt", "statementHt")
+            setDelta("deltaTtc", "SupplierTtc", "statementTtc")
+            setSum("supplierHt")
+            setSum("SupplierTtc")
+            setSum("statementHt")
+            setSum("statementTtc")
+            setDeltaSum("deltaHt", "supplierHt", "statementHt")
+            setDeltaSum("deltaTtc", "SupplierTtc", "statementTtc")
         });
 
     </script>

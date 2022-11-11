@@ -211,7 +211,7 @@ class EDIQualifierParser:
             if data[0] not in ["BY", "SU", "PR", "II"]:
                 return ""
 
-            nad_qualifier, ident, qualifier_ident, _, name, *elements = data
+            nad_qualifier, ident, qualifier_ident, first_name, name, *elements = data
 
         except IndexError as except_error:
             raise OptoParserError(
@@ -237,7 +237,12 @@ class EDIQualifierParser:
             partner_dict["siret_payeur"] = ident.replace("'", "")
 
         if nad_qualifier in {"SU", "II"}:
-            partner_dict["supplier"] = name[:35].replace("'", " ")
+            # condition rajoutée, car Luxotica n'envoi pas le qualifier
+            partner_dict["supplier"] = (
+                name[:35].replace("'", " ")
+                if qualifier_ident
+                else first_name[:35].replace("'", " ")
+            )
             partner_dict["supplier_ident"] = ident.replace("'", "")
 
         if nad_qualifier == "BY":

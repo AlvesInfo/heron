@@ -18,6 +18,7 @@ from django.db import models
 from heron.models import DatesTable, FlagsTable
 from apps.book.models import Society
 from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
+from apps.validation_purchases.models import EdiImportControl
 
 
 class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
@@ -107,6 +108,16 @@ class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
         to_field="uuid_identification",
         related_name="big_category_edi_import",
         db_column="uuid_big_category",
+    )
+
+    uuid_validation = models.ForeignKey(
+        EdiImportControl,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="edi_import_validation",
+        db_column="uuid_validation",
     )
 
 

@@ -11,45 +11,66 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort"><i class="eye icon modification"></i></th>
-                <th>Catégorie</th>
-                <th>Fournisseur</th>
-                <th>Montant TTC</th>
-                <th>Montant HT</th>
-                <th>Nbre</th>
-                <th>Mois des factures</th>
-                <th></th>
-                <th>Fournisseur</th>
-                <th>Montant TTC</th>
-                <th>Montant HT</th>
-                <th></th>
-                <th>Ecart TTC</th>
-                <th>Ecart HT</th>
+                <th colspan="8" style="background-color: #c4e1ea;font-weight: bold;">INTEGRATIONS</th>
+                <th colspan="3" style="background-color: #c4e1ea;border-left: 1px solid teal;border-right: 1px solid teal;">RELEVES</th>
+                <th colspan="3" style="background-color: #c4e1ea;font-weight: bold;">CONTROLES</th>
+            </tr>
+            <tr>
+                <th class="no-sort" style="width: 3px;"></th>
+                <th style="width: 15px;">Catégorie</th>
+                <th style="width: 20px;">Tiers X3</th>
+                <th style="width: 230px;">Fournisseur</th>
+                <th style="width: 70px;">Total HT</th>
+                <th style="width: 70px;">Total TTC</th>
+                <th style="width: 30px;">Nbre</th>
+                <th style="width: 80px;">Mois Fact.</th>
+                <th style="width: 3px;border-left: 1px solid teal;"></th>
+                <th style="width: 70px;">Total HT</th>
+                <th style="width: 70px;border-right: 1px solid teal;">Total TTC</th>
+                <th style="width: 70px;">Ecart HT</th>
+                <th style="width: 70px;">Ecart TTC</th>
                 <th>Commentaire</th>
             </tr>
         </thead>
+        <thead>
+            <tr>
+                <th colspan="4" style="text-align: right;background-color: #c4e1ea;font-weight: bold">TOTAL GENERAL</th>
+                <th id="supplierHt" style="text-align: right;background-color: #c4e1ea;font-weight: bold;">0</th>
+                <th id="SupplierTtc" style="text-align: right;background-color: #c4e1ea;font-weight: bold;">0</th>
+                <th colspan="2" style="text-align: right;background-color: #c4e1ea;font-weight: bold;"></th>
+                <th style="text-align: right;background-color: #c4e1ea;font-weight: bold;border-left: 1px solid teal;"></th>
+                <th id="statementHt" style="text-align: right;background-color: #c4e1ea;font-weight: bold;">0</th>
+                <th id="statementTtc" style="text-align: right;background-color: #c4e1ea;font-weight: bold;border-right: 1px solid teal;">0</th>
+                <th id="deltaHt" style="text-align: right;background-color: #c4e1ea;font-weight: bold;color: teal;"></th>
+                <th id="deltaTtc" style="text-align: right;background-color: #c4e1ea;font-weight: bold;color: teal;"></th>
+                <th style="text-align: right;background-color: #c4e1ea;font-weight: bold;"></th>
+            </tr>
+        </thead>
         <tbody>
-        {% for export in controles_exports %}
+        {% for supplier_purchase in integration_purchases %}
             <tr class="hide_plans">
                 <td style="text-align: center;">
-                    <a href="{% url 'validation_purchases:integration_supplier_purchases' export.third_party_num export.big_category export.date_month%}">
+                    <a href="{% url 'validation_purchases:integration_supplier_purchases' supplier_purchase.third_party_num supplier_purchase.big_category supplier_purchase.date_month%}">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>
-                <td>{{ export.big_category }}</td>
-                <td style="text-align: left;">{{ export.supplier }}</td>
-                <td style="text-align: right;">{{ export.invoice_amount_with_tax|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ export.qty_invoices|int_formats }}</td>
-                <td>{{ export.date_month|date:"F Y" }}</td>
-                <td></td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td></td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
+                <td>{{ supplier_purchase.big_category }}</td>
+                <td>{{ supplier_purchase.third_party_num }}</td>
+                <td style="text-align: left;">{{ supplier_purchase.supplier }}</td>
+                <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>
+                <td id="SupplierTtc{{ forloop.counter0 }}" class="SupplierTtc" style="text-align: right;">{{ supplier_purchase.invoice_amount_with_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ supplier_purchase.qty_invoices|int_formats }}</td>
+                <td>{{ supplier_purchase.date_month|date:"F Y" }}</td>
+                <td style="text-align: center;border-left: 1px solid teal;">
+                    <a href="{% url 'validation_purchases:integration_supplier_purchases' supplier_purchase.third_party_num supplier_purchase.big_category supplier_purchase.date_month%}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;">0{{ supplier_purchase.statement_without_tax|default_if_none:"0" }}</td>
+                <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid teal;">0{{ supplier_purchase.statement_amount_with_tax|default_if_none:"0" }}</td>
+                <td id="deltaHt{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: teal;"></td>
+                <td id="deltaTtc{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: teal;"></td>
+                <td>{{ supplier_purchase.comment }}</td>
             </tr>
         {% endfor %}
         </tbody>

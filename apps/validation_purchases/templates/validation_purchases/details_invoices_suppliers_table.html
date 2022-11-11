@@ -33,7 +33,7 @@
                 </td>
                 <td>{{ export.supplier }}</td>
                 <td>{{ export.invoice_number }}</td>
-                <td></td>
+                <td>{{ forloop.counter }}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>
                 <td style="text-align: right;">{{ export.vat_rate|numbers_format:2 }}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_tax|numbers_format:2 }}</td>
