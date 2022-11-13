@@ -50,6 +50,8 @@ class BbgrBulkSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -87,6 +89,8 @@ class EdiSchema(
         include = list(get_columns(ColumnDefinition, "Edi")) + [
             "uuid_identification",
             "flow_name",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -110,6 +114,8 @@ class EyeConfortSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -147,6 +153,8 @@ class GeneriqueSchema(
         include = list(get_columns(ColumnDefinition, "Generique")) + [
             "uuid_identification",
             "flow_name",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -170,6 +178,8 @@ class HearingSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -193,6 +203,8 @@ class IntersonSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -224,6 +236,8 @@ class JohnsonSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -246,6 +260,8 @@ class LmcSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -269,6 +285,8 @@ class NewsonSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -292,6 +310,8 @@ class PhonakSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -315,6 +335,8 @@ class ProditionSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -347,6 +369,8 @@ class SigniaSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -379,6 +403,8 @@ class StarkeySchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -402,6 +428,8 @@ class TechnidisSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -425,6 +453,8 @@ class UnitronSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -448,6 +478,8 @@ class WidexSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 
@@ -471,6 +503,8 @@ class WidexGaSchema(
             "flow_name",
             "supplier",
             "supplier_ident",
+            "created_at",
+            "modified_at",
         ]
 
 

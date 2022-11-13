@@ -350,6 +350,8 @@ def bbgr_bulk(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     new_file_path = bulk_translate_file(file_path)
@@ -378,6 +380,8 @@ def edi(file_path: Path):
         "add_fields_dict": {
             "flow_name": flow_name,
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -406,6 +410,8 @@ def eye_confort(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -432,6 +438,8 @@ def generique(file_path: Path):
         "add_fields_dict": {
             "flow_name": flow_name,
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -460,6 +468,8 @@ def hearing(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -488,6 +498,8 @@ def interson(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -516,6 +528,8 @@ def johnson(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
         "exclude_rows_dict": {1: "Total"},
     }
@@ -545,6 +559,8 @@ def lmc(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -573,6 +589,8 @@ def newson(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -601,6 +619,8 @@ def phonak(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -629,6 +649,8 @@ def prodition(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -657,6 +679,8 @@ def signia(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -685,6 +709,8 @@ def starkey(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -713,6 +739,8 @@ def technidis(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -741,6 +769,8 @@ def unitron(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -769,6 +799,8 @@ def widex(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
@@ -797,6 +829,8 @@ def widex_ga(file_path: Path):
             "supplier": get_supplier(flow_name),
             "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)

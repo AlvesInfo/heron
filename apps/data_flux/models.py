@@ -11,50 +11,13 @@ modified by:
 """
 import uuid
 
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 
-
-class BaseFlux(models.Model):
-    """
-    Table Abstraite de base pour les tables
-    FR : Table Abstraite de Base
-    EN : Flags Abstract Table
-    """
-
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
-    final_at = models.DateTimeField(auto_now=True, verbose_name=_("final at"))
-    to_active = models.BooleanField(null=True, default=False)
-    to_delete = models.BooleanField(null=True, default=False)
-    delete = models.BooleanField(null=True)
-    active = models.BooleanField(null=True)
-    acquitted = models.BooleanField(null=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="+",
-        db_column="created_by",
-    )
-    acquitted_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="+",
-        db_column="acquitted_by",
-    )
-    level_group = models.CharField(null=True, blank=True, max_length=80)
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        abstract = True
+from heron.models import FlagsTable
 
 
-class Trace(BaseFlux):
+class Trace(FlagsTable):
     """
     Table pour les traces apllicatives ou des actions utilisateurs
     FR : Table Traces Apllicatives

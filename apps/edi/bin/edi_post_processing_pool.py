@@ -18,6 +18,7 @@ from django.db import connection
 from django.db.models import Q, Count
 
 from apps.edi.models import EdiImport
+from apps.users.models import User
 
 SQL_QTY = sql.SQL(
     """
@@ -36,6 +37,21 @@ where ("valid" = false or "valid" isnull)
 and uuid_identification = %(uuid_identification)s
 """
 )
+
+
+def get_user_automate():
+    """Recuperation de l'uuid de l'automate"""
+    email = "automate@acuitis.com"
+    user, _ = User.objects.get_or_create(
+        username="automate",
+        email=email,
+        password=email,
+        first_name="automate",
+        last_name="automate",
+        function="automate",
+    )
+
+    return user.uuid_identification
 
 
 def post_processing_all():
@@ -81,9 +97,7 @@ def post_processing_all():
                                 else "reference_article"
                               end
     from (
-        select
-            "uuid_identification",
-            "invoice_number",
+        select "uuid_identification", "invoice_number",
             case 
                 when invoice_type = '381' 
                 then -abs(sum("mont_HT"))::numeric
@@ -95,10 +109,7 @@ def post_processing_all():
                 else abs(sum("mont_TTC"))::numeric    
             end as "invoice_amount_with_tax"
         from (
-            select
-                "uuid_identification",
-                "invoice_number",
-                "invoice_type",
+            select "uuid_identification", "invoice_number", "invoice_type",
                 round(sum("net_amount")::numeric, 2) as "mont_HT",
                 (
                     round(sum("net_amount")::numeric, 2) +
@@ -106,7 +117,7 @@ def post_processing_all():
                 ) as "mont_TTC",
                 "vat_rate"
             from "edi_ediimport"                
-            where (flow_name != 'Edi')
+            where (flow_name not in ('Edi', 'Widex', 'WidexGa'))
             and ("valid" = false or "valid" isnull)
             group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
         ) as "tot_amount"
@@ -118,21 +129,15 @@ def post_processing_all():
     )
     sql_reference = """
     update edi_ediimport 
-    set
-        reference_article = libelle 
+    set reference_article = libelle 
     where (reference_article isnull or reference_article = '')
       and ("valid" = false or "valid" isnull)
     """
     sql_validate = sql.SQL(
         """
         update "edi_ediimport" edi
-        set
-            "valid"=true,
-            "vat_rate_exists" = false,
-            "supplier_exists" = false,
-            "maison_exists" = false,
-            "article_exists" = false,
-            "axe_pro_supplier_exists" = false,
+        set "valid"=true, "vat_rate_exists" = false, "supplier_exists" = false,
+            "maison_exists" = false, "article_exists" = false, "axe_pro_supplier_exists" = false,
             "acuitis_order_date" = case 
                                     when "acuitis_order_date" = '1900-01-01' 
                                     then null
@@ -149,6 +154,9 @@ def post_processing_all():
         cursor.execute(sql_supplier_update)
         cursor.execute(sql_fac_update_except_edi)
         cursor.execute(sql_reference)
+        EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
+            created_by=get_user_automate()
+        )
         cursor.execute(sql_validate)
 
 
@@ -1000,10 +1008,35 @@ def widex_post_insert(uuid_identification: AnyStr):
     """
     )
 
+    sql_invoices_amounts = sql.SQL(
+        """
+    update edi_ediimport edi
+    set 
+        "invoice_amount_without_tax" = r_som."invoice_amount_without_tax",
+        "invoice_amount_tax" = r_som."invoice_amount_tax",
+        "invoice_amount_with_tax" = r_som."invoice_amount_with_tax"
+    from (
+        select 
+            "uuid_identification",
+            "invoice_number",
+            sum("net_amount") as "invoice_amount_without_tax",
+            (sum("amount_with_vat")- sum("net_amount")) as "invoice_amount_tax",
+            sum("amount_with_vat") as "invoice_amount_with_tax"
+        from "edi_ediimport" ee 
+        where "uuid_identification" = %(uuid_identification)s
+          and ("valid" = false or "valid" isnull)
+        group by "uuid_identification", "invoice_number"
+    ) r_som
+    where edi."uuid_identification" = r_som."uuid_identification"
+    and edi."invoice_number" = r_som."invoice_number"
+    """
+    )
+
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_invoices_amounts, {"uuid_identification": uuid_identification})
 
 
 def widexga_post_insert(uuid_identification: AnyStr):
@@ -1011,57 +1044,4 @@ def widexga_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier NEWSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "famille" = case 
-                        when "famille" = '' or "famille" is null 
-                        then "reference_article" 
-                        else "famille" 
-                    end,
-        "gross_amount" = case 
-                            when "gross_amount" is null or "gross_amount" = 0 
-                            then "net_amount"::numeric 
-                            else "gross_amount"::numeric 
-                        end,
-        "gross_unit_price" = (
-            case 
-                when "gross_amount" is null or "gross_amount" = 0 
-                then "net_amount"::numeric 
-                else "gross_amount"::numeric 
-            end 
-            / "qty"::numeric
-        )::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-
-    sql_update_units = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
-                            when "net_amount" > 0 then abs("gross_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-
-    with connection.cursor() as cursor:
-        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+    widex_post_insert(uuid_identification)

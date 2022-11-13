@@ -32,23 +32,24 @@ class DatesTable(models.Model):
         abstract = True
 
 
-class FlagsTable(models.Model):
+class FlagsTable(DatesTable):
     """
     Table Abstraite de base pour les tables
     FR : Table Abstraite de Base Flags
     EN : Flags Abstract Table Flags
     """
-
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
-    modified_at = models.DateTimeField(auto_now=True, verbose_name=_("modified at"))
     active = models.BooleanField(null=True, default=False)
     delete = models.BooleanField(null=True, default=False)
     export = models.BooleanField(null=True, default=False)
     valid = models.BooleanField(null=True, default=False)
+    final_at = models.DateTimeField(blank=True, null=True, verbose_name=_("final at"))
+    acquitted = models.BooleanField(null=True)
+    level_group = models.CharField(null=True, blank=True, max_length=80)
     flag_to_active = models.BooleanField(null=True, default=False)
     flag_to_delete = models.BooleanField(null=True, default=False)
     flag_to_export = models.BooleanField(null=True, default=False)
     flag_to_valid = models.BooleanField(null=True, default=False)
+    flag_to_acquitted = models.BooleanField(null=True, default=False)
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -56,6 +57,7 @@ class FlagsTable(models.Model):
         null=True,
         blank=True,
         related_name="+",
+        to_field="uuid_identification",
         db_column="created_by",
     )
     modified_by = models.ForeignKey(
@@ -64,7 +66,17 @@ class FlagsTable(models.Model):
         null=True,
         blank=True,
         related_name="+",
+        to_field="uuid_identification",
         db_column="modified_by",
+    )
+    acquitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        to_field="uuid_identification",
+        db_column="acquitted_by",
     )
     delete_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -72,6 +84,7 @@ class FlagsTable(models.Model):
         null=True,
         blank=True,
         related_name="+",
+        to_field="uuid_identification",
         db_column="delete_by",
     )
 

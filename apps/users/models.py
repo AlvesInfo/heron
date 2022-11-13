@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    fonction = models.CharField(max_length=80, null=True, blank=True)
+    function = models.CharField(max_length=80, null=True, blank=True)
     subordonates = models.ManyToManyField("self", through="UserChief", symmetrical=False)
     secure_session_key = models.CharField(null=True, blank=True, max_length=50)
 

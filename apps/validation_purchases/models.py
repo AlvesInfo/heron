@@ -18,17 +18,14 @@ from heron.models import FlagsTable
 
 
 class EdiImportControl(FlagsTable):
-    """Table des saisies de relevé des fournisseurs, pour contrôle des intégrations"""
+    """Table de saisie de relevé des fournisseurs, pour contrôle des intégrations"""
 
     statement_without_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
     )
-    statement_amount_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
-    )
     statement_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
-
+    comment = models.TextField(blank=True, null=True)
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

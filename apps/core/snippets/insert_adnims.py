@@ -52,7 +52,7 @@ def set_insert_admins(file):
                         first_name = user.validated_data.get("first_name")
                         last_name = user.validated_data.get("last_name")
                         username = user.validated_data.get("username")
-                        fonction = user.validated_data.get("fonction")
+                        function = user.validated_data.get("function")
                         password = user.validated_data.get("password")
 
                         user = User.objects.create_user(
@@ -61,7 +61,7 @@ def set_insert_admins(file):
                             password,
                             first_name=first_name,
                             last_name=last_name,
-                            fonction=fonction,
+                            function=function,
                         )
                         user.is_staff = True
                         user.is_superuser = True

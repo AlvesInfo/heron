@@ -21,7 +21,7 @@ from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Ca
 from apps.validation_purchases.models import EdiImportControl
 
 
-class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
+class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
     """
     Table de préparation à l'import des factures fournisseurs edi et spécifique
     FR : Table Import EDI
@@ -110,13 +110,13 @@ class EdiImport(BaseInvoiceTable, BaseInvoiceDetailsTable):
         db_column="uuid_big_category",
     )
 
-    uuid_validation = models.ForeignKey(
+    uuid_control = models.ForeignKey(
         EdiImportControl,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
         to_field="uuid_identification",
-        related_name="edi_import_validation",
+        related_name="edi_import_control",
         db_column="uuid_validation",
     )
 
