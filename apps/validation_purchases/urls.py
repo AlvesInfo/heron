@@ -4,8 +4,10 @@ from apps.validation_purchases.views import (
     integration_purchases,
     integration_purchases_export,
     integration_supplier_purchases,
+    delete_invoice_purchase,
     integration_supplier_purchases_export,
-    details_purchases,
+    details_purchase,
+    delete_line_details_purchase,
     details_purchases_export,
     without_cct_purchases,
     without_cct_purchases_export,
@@ -17,12 +19,10 @@ from apps.validation_purchases.views import (
     balance_suppliers_purchases_export,
     invoices_suppliers_purchases,
     invoices_suppliers_purchases_export,
-
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
     rfa_prj_invoices_purchases,
     rfa_prj_invoices_purchases_export,
-
     sage_controls_globals_purchases,
     validation_purchases_export_globals,
     sage_controls_details_purchases,
@@ -49,9 +49,14 @@ urlpatterns = [
         ),
         # Listing
         path(
-            "integration_supplier_purchases/<third_party_num>/<big_category>/<month>/",
+            "integration_supplier_purchases/<third_party_num>/<big_category>/<date_month>/",
             integration_supplier_purchases,
             name="integration_supplier_purchases",
+        ),
+        path(
+            "delete_invoice_purchase/",
+            delete_invoice_purchase,
+            name="delete_invoice_purchase",
         ),
         path(
             "integration_supplier_purchases_export/",
@@ -60,9 +65,14 @@ urlpatterns = [
         ),
         # Détails facture
         path(
-            "details_purchases/<third_party_num>/<invoice_number>/",
-            details_purchases,
-            name="details_purchases",
+            "details_purchase/<third_party_num>/<invoice_number>/",
+            details_purchase,
+            name="details_purchase",
+        ),
+        path(
+            "delete_line_details_purchase/",
+            delete_line_details_purchase,
+            name="delete_line_details_purchase",
         ),
         path(
             "details_purchases_export/",

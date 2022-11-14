@@ -147,7 +147,10 @@ def post_processing_all():
                                 when "delivery_date" = '1900-01-01' 
                                 then null
                                 else "delivery_date"
-                               end
+                               end,
+            "date_month" = date_trunc('month', invoice_date)::date,
+            "delete" = false
+    where ("valid" = false or "valid" isnull)
     """
     )
     with connection.cursor() as cursor:

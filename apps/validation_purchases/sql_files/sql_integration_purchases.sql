@@ -24,18 +24,19 @@ from (
         sum(net_amount) as net_amount,
         invoice_amount_without_tax,
         invoice_amount_with_tax,
-        date_trunc('month', invoice_date)::date as date_month,
+        date_month,
         1 as qty_invoices,
         third_party_num
     from edi_ediimport ee
     left join parameters_category pc
     on ee.uuid_big_category = pc.uuid_identification
+    where ee."delete" = False
     group by supplier,
              pc."name",
              invoice_number,
              invoice_amount_without_tax,
              invoice_amount_with_tax,
-             date_trunc('month', invoice_date)::date,
+             date_month,
              uuid_big_category,
              third_party_num
     ) edi

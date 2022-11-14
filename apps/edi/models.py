@@ -119,6 +119,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         related_name="edi_import_control",
         db_column="uuid_validation",
     )
+    date_month = models.DateField(null=True, blank=True)
 
 
 class SupplierDefinition(DatesTable):
