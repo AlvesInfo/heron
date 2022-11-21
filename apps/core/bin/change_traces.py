@@ -9,13 +9,33 @@ created by: Paulo ALVES
 modified at:
 modified by:
 """
+import inspect
 from copy import deepcopy
 
 from django.utils import timezone
 from django.views.generic import CreateView, UpdateView, DeleteView
-from django.db.models.fields.files import ImageFieldFile
+from django.db import models
 
+from heron.loggers import LOGGER_VIEWS
 from apps.core.models import ChangesTrace
+
+ACTION_DICT = {
+    "DELETE": 0,
+    "CREATE": 1,
+    "UPDATE": 2,
+    "UNDIFINED": 9,
+}
+
+
+def get_difference_dict(before, after):
+    """Retourne seulement des differences"""
+    before_set = set(before.items())
+    after_set = set(after.items())
+
+    return {
+        "avant": dict(sorted(before_set - after_set)),
+        "après": dict(sorted(after_set - before_set)),
+    }
 
 
 class ChangeTraceMixin:
@@ -29,13 +49,16 @@ class ChangeTraceMixin:
     request = None
     object_before = {}
     object = None
+    mark_delete = None
     action_type = None
-    ACTION_DICT = {
-        "DELETE": 0,
-        "CREATE": 1,
-        "UPDATE": 2,
-        "UNDIFINED": 9,
-    }
+
+    def initialisation(self, object_model, mark_delete: bool = None):
+        """Surcharge pour l'instanciation quand cette class mixin, est utilisée directement.
+        :param object_model: surcharge de l'attribut, lors d'une instanciation
+        :param mark_delete: surcharge de l'attribut, lors d'une instanciation
+        """
+        self.object = object_model
+        self.mark_delete = mark_delete
 
     def post(self, request, *args, **kwargs):
         """Surcharge de la méthode post, pour avoir les données avant changement"""
@@ -70,12 +93,12 @@ class ChangeTraceMixin:
         :return: boolean
         """
         before_to_test = {
-            key: str(value) if isinstance(value, (ImageFieldFile,)) else value
+            key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
             for key, value in before.items()
             if key not in {"created_at", "modified_at"}
         }
         after_to_test = {
-            key: str(value) if isinstance(value, (ImageFieldFile,)) else value
+            key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
             for key, value in after.items()
             if key not in {"created_at", "modified_at"}
         }
@@ -118,6 +141,13 @@ class ChangeTraceMixin:
         """
         self.request.session["level"] = 20
         self.object = form.save()
+        user = self.request.user
+
+        if self.mark_delete is not None:
+            self.object.delete = True
+            self.object.delete_by_id = user
+            self.object.save()
+
         before = {key: value for key, value in self.object_before.items() if key != "_state"}
         after = {key: value for key, value in self.object.__dict__.items() if key != "_state"}
 
@@ -126,7 +156,6 @@ class ChangeTraceMixin:
             return super().form_valid(form)
 
         self.action()
-        user = self.request.user
 
         if self.object_before:
             self.object.modified_by = user
@@ -137,11 +166,12 @@ class ChangeTraceMixin:
 
         ChangesTrace.objects.create(
             action_datetime=timezone.now(),
-            action_type=self.ACTION_DICT.get(self.action_type, 9),
+            action_type=ACTION_DICT.get(self.action_type, 9),
             function_name=self.__class__,
             action_by=user,
             before=before,
             after=after,
+            difference=get_difference_dict(before, after),
             model_name=self.object._meta.model_name,
             model=self.object._meta.model,
             db_table=self.object._meta.db_table,
@@ -151,4 +181,43 @@ class ChangeTraceMixin:
     def form_invalid(self, form):
         """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
         self.request.session["level"] = 50
+        LOGGER_VIEWS.exception(f"ChangeTraceMixin error : {form.errors!r}")
         return super().form_invalid(form)
+
+
+def trace_mark_delete(request, django_model: models.Model, data_dict: dict):
+    """Fonction trace des changements de données, pour views functions flag delete à True
+    :param request: request au sens Django
+    :param django_model: Model au sens Django
+    :param data_dict: données validées, pour le filtre
+    """
+    function_call = str(inspect.currentframe().f_back)[:255]
+    model_object = django_model.objects.filter(**data_dict)
+
+    if not model_object:
+        LOGGER_VIEWS.exception(
+            f"{function_call} error : les données ne retournent aucuns résultats :\n"
+            f"{str(data_dict)}"
+        )
+        request.session["level"] = 50
+
+    for row in model_object:
+        request.session["level"] = 20
+        user = request.user
+        before = {key: value for key, value in row.__dict__.items() if key != "_state"}
+        row.delete = True
+        row.modified_by = user
+        row.save()
+        after = {key: value for key, value in row.__dict__.items() if key != "_state"}
+        ChangesTrace.objects.create(
+            action_datetime=timezone.now(),
+            action_type=0,
+            function_name=function_call,
+            action_by=user,
+            before=before,
+            after=after,
+            difference=get_difference_dict(before, after),
+            model_name=django_model._meta.model_name,
+            model=django_model._meta.model,
+            db_table=django_model._meta.db_table,
+        )

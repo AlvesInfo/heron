@@ -42,7 +42,23 @@ COLUMNS = [
                 "align": "center",
             },
         },
-        "width": 14,
+        "width": 12,
+    },
+    {
+        "entete": "Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 8,
     },
     {
         "entete": "Fournisseur",
@@ -58,10 +74,10 @@ COLUMNS = [
                 "align": "left",
             },
         },
-        "width": 35,
+        "width": 31,
     },
     {
-        "entete": "Montant TTC",
+        "entete": "Montant\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -72,12 +88,13 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "right",
+                "num_format": "#,##0.00",
             },
         },
-        "width": 15,
+        "width": 10.6,
     },
     {
-        "entete": "Montant HT",
+        "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
             **{
@@ -88,9 +105,10 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "right",
+                "num_format": "#,##0.00",
             },
         },
-        "width": 15,
+        "width": 10.6,
     },
     {
         "entete": "Nbre de\nFactures",
@@ -104,9 +122,10 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "center",
+                "num_format": "#,##0",
             },
         },
-        "width": 14,
+        "width": 8,
     },
     {
         "entete": "Mois des\nFactues",
@@ -120,42 +139,27 @@ COLUMNS = [
             **f_ligne,
             **{"align": "center", "num_format": "mmmm yyyy"},
         },
-        "width": 18,
+        "width": 13,
     },
     {
         "entete": "",
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFC000",
             },
         },
         "f_ligne": {
             **f_ligne,
             **{
                 "align": "center",
+                "bg_color": "#FFC000",
             },
         },
-        "width": 3,
+        "width": 1,
     },
     {
-        "entete": "Fournisseur",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "left",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Montant TTC",
+        "entete": "Relevé\nMontant\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -166,12 +170,13 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "right",
+                "num_format": "#,##0.00",
             },
         },
-        "width": 11,
+        "width": 10.6,
     },
     {
-        "entete": "Montant HT",
+        "entete": "Relevé\nMontant\nTTC",
         "f_entete": {
             **f_entetes,
             **{
@@ -182,28 +187,30 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "right",
+                "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 10.6,
     },
     {
         "entete": "",
         "f_entete": {
             **f_entetes,
             **{
-                "bg_color": "#dce7f5",
+                "bg_color": "#FFC000",
             },
         },
         "f_ligne": {
             **f_ligne,
             **{
                 "align": "right",
+                "bg_color": "#FFC000",
             },
         },
-        "width": 3,
+        "width": 1,
     },
     {
-        "entete": "Ecart TTC",
+        "entete": "Ecart\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -214,12 +221,14 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "right",
+                "bold": True,
+                "num_format": "#,##0.00",
             },
         },
-        "width": 8,
+        "width": 9,
     },
     {
-        "entete": "Ecart HT",
+        "entete": "Ecart\nTTC",
         "f_entete": {
             **f_entetes,
             **{
@@ -230,9 +239,11 @@ COLUMNS = [
             **f_ligne,
             **{
                 "align": "right",
+                "bold": True,
+                "num_format": "#,##0.00",
             },
         },
-        "width": 12,
+        "width": 9,
     },
     {
         "entete": "Commentaire",
@@ -248,12 +259,12 @@ COLUMNS = [
                 "align": "left",
             },
         },
-        "width": 8,
+        "width": 80,
     },
 ]
 
 
-def get_sql(file_path: Path, parmas_dict: Dict = None):
+def get_rows(file_path: Path, parmas_dict: Dict = None):
     """Renvoie les résultats de la requête nécessaire à l'export excel
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
@@ -278,7 +289,7 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
     file_path = Path(
         f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_integration_purchases.sql"
     )
-    get_clean_rows = [line[:-1] for line in get_sql(file_path)]
+    get_clean_rows = [line[:-2] for line in get_rows(file_path)]
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
@@ -286,7 +297,10 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
         columns_headers_writer(excel, 1, 3, 0, COLUMNS)
         f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
         f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#EBF1DE"}} for dict_row in COLUMNS
+            dict_row.get("f_ligne")
+            if i in {7, 10}
+            else {**dict_row.get("f_ligne"), **{"bg_color": "#EBF1DE"}}
+            for i, dict_row in enumerate(COLUMNS)
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
         sheet_formatting(

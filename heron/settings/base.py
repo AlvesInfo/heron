@@ -40,6 +40,7 @@ NAME_DATABASE = config("NAME_DATABASE")
 USER_DATABASE = config("USER_DATABASE")
 PASSWORD_DATABASE = config("PASSWORD_DATABASE")
 HOST_DATABASE = config("HOST_DATABASE")
+HOST_DATABASE_HERON = config("HOST_DATABASE_HERON")
 PORT_DATABASE = config("PORT_DATABASE")
 
 # CNX_STRING pour le pool de connexion
@@ -176,6 +177,15 @@ DATABASES = {
         "USER": USER_DATABASE,
         "PASSWORD": PASSWORD_DATABASE,
         "HOST": HOST_DATABASE,
+        "PORT": PORT_DATABASE,
+        "client_encoding": "UTF8",
+    },
+    "heron": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": NAME_DATABASE,
+        "USER": USER_DATABASE,
+        "PASSWORD": PASSWORD_DATABASE,
+        "HOST": HOST_DATABASE_HERON,
         "PORT": PORT_DATABASE,
         "client_encoding": "UTF8",
     },

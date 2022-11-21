@@ -18,7 +18,20 @@ from django.db import models
 from heron.models import DatesTable, FlagsTable
 from apps.book.models import Society
 from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
-from apps.validation_purchases.models import EdiImportControl
+
+
+class EdiImportControl(FlagsTable):
+    """Table de saisie de relevé des fournisseurs, pour contrôle des intégrations"""
+
+    statement_without_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant TTC"
+    )
+    statement_with_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant HT"
+    )
+    comment = models.TextField(blank=True, null=True)
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
 
 class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
@@ -117,7 +130,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         blank=True,
         to_field="uuid_identification",
         related_name="edi_import_control",
-        db_column="uuid_validation",
+        db_column="uuid_control",
     )
     date_month = models.DateField(null=True, blank=True)
 

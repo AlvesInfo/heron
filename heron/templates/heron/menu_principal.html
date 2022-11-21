@@ -26,12 +26,22 @@
             </a>
 
             <a class="browse item bold" data-target="#c" id="cmenu">
-                Ventes
+                Saisies
                 <i class="dropdown icon"></i>
             </a>
 
             <a class="browse item bold" data-target="#d" id="dmenu">
-                Contôles
+                Contôles Achats
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#e" id="emenu">
+                Contôles Ventes
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#f" id="fmenu">
+                Contôles Sage
                 <i class="dropdown icon"></i>
             </a>
 
@@ -43,7 +53,7 @@
 
 
         {% if user.is_authenticated %}
-            <div class="ui flowing transition popup" id="a">
+            <div class="ui popup" id="a">
                 <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 70em;">
 
                     <div class="column">
@@ -85,7 +95,7 @@
                 </div>
             </div>
 
-            <div class="ui flowing transition popup" id="b">
+            <div class="ui popup" id="b">
                 <div class="ui two column relaxed divided grid" style="width: 24em;">
 
                     <div class="column">
@@ -103,20 +113,106 @@
                 </div>
             </div>
 
-            <div class="ui flowing transition popup" id="c">
-                <div class="ui two column relaxed divided grid" style="width: 24em;">
+            <div class="ui popup" id="c">
+                <div class="ui five column relaxed equal divided grid" style="width: 70em;">
 
+{#             RFA #}
                     <div class="column">
-                        <h4 class="ui header">Validations</h4>
+                        <h4 class="ui header">3. RFA</h4>
                         <div class="ui link list">
-                            <a href="" class="item"></a>
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
                         </div>
                     </div>
+
+{#             Redevance #}
+
+                    <div class="column">
+                        <h4 class="ui header">4. Redevances</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Génération</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header">5. Publicité</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Génération</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+{#             Prestations #}
+
+                    <div class="column">
+                        <h4 class="ui header">6. Prestations</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+
+{#             Abonnements#}
+                    <div class="column">
+                        <h4 class="ui header">7. Abonnements</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+{#             Formations#}
+                    <div class="column">
+                        <h4 class="ui header">8. Formations</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+
+{#             Personnel#}
+                    <div class="column">
+                        <h4 class="ui header">9. Personnel</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+{#             Matériel#}
+                    <div class="column">
+                        <h4 class="ui header">10. Matériel</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+{#             Divers#}
+
+                    <div class="column">
+                        <h4 class="ui header">11. Divers</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
 
                 </div>
             </div>
 
-            <div class="ui flowing transition popup" id="d">
+            <div class="ui popup" id="d">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
@@ -132,13 +228,11 @@
                         </div>
                     </div>
 
-                    <div class="column">
-                        <h4 class="ui header">RFA</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'validation_purchases:rfa_cct_invoices_purchases' %}" class="item">RFA par CCT</a>
-                            <a href="{% url 'validation_purchases:rfa_prj_invoices_purchases' %}" class="item">RFA par PRJ</a>
-                        </div>
-                    </div>
+                </div>
+            </div>
+
+            <div class="ui popup" id="e">
+                <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
                         <h4 class="ui header">Ventes</h4>
@@ -148,11 +242,16 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+
+            <div class="ui popup" id="f">
+                <div class="ui two column relaxed divided grid" style="width: 30em;">
                     <div class="column">
                         <h4 class="ui header">Sage</h4>
                         <div class="ui link list">
                             <a href="{% url 'validation_purchases:sage_controls_globals_purchases' %}" class="item">5.5.A Achats Sage</a>
-                            <a href="{% url 'validation_purchases:sage_controls_familles_purchases' %}" class="item">5.5.B BAchats Famille</a>
+                            <a href="{% url 'validation_purchases:sage_controls_familles_purchases' %}" class="item">5.5.B Achats Famille</a>
                             <a href="{% url 'validation_sales:sage_controls_globals_sales' %}" class="item">5.5.C Ventes Sage</a>
                             <a href="{% url 'validation_sales:sage_controls_familles_sales' %}" class="item">5.5.D Ventes Famille</a>
                         </div>

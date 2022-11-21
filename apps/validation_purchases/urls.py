@@ -3,6 +3,8 @@ from django.urls import path
 from apps.validation_purchases.views import (
     integration_purchases,
     integration_purchases_export,
+    CreateIntegrationControl,
+    UpdateIntegrationControl,
     integration_supplier_purchases,
     delete_invoice_purchase,
     integration_supplier_purchases_export,
@@ -41,6 +43,16 @@ urlpatterns = [
             "integration_purchases/",
             integration_purchases,
             name="integration_purchases",
+        ),
+        path(
+            "create_control/<third_party_num>/<big_category>/<date_month>/",
+            CreateIntegrationControl.as_view(),
+            name="create_control",
+        ),
+        path(
+            "update_control/<uuid_identification>/",
+            UpdateIntegrationControl.as_view(),
+            name="update_control",
         ),
         path(
             "integration_purchases_export/",

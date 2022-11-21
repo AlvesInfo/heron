@@ -1,6 +1,6 @@
 {% if messages %}
-    <div id="messages_messages" class="ui grid" style="padding: 0;margin: 5px 0 -5px;">
-        <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
+    <div id="messages_messages" class="ui grid" style="padding: 0;margin: 10px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px -20px;">
+        <div class="sixteen wide column" style="padding: 5px 0;">
             <div class="ui {% if request.session.level < 30 %}success{% elif request.session.level == 30 %}violet{% else %}negative{% endif %} message">
               <i class="close icon"></i>
                 {# TRAITEMENT SPECIFIQUE A L'IMPORT DE FICHIER POUR INSERTION #}

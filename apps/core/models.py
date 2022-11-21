@@ -56,6 +56,12 @@ class ChangesTrace(models.Model):
         decoder=json.JSONDecoder,
         verbose_name="après création/modification/suppression",
     )
+    difference = models.JSONField(
+        null=True,
+        encoder=PersonalizedDjangoJSONEncoder,
+        decoder=json.JSONDecoder,
+        verbose_name="différence",
+    )
     model_name = models.CharField(null=True, blank=True, max_length=255)
     model = models.CharField(null=True, blank=True, max_length=255)
     db_table = models.CharField(null=True, blank=True, max_length=255)

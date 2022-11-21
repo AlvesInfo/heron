@@ -1,4 +1,4 @@
-<div class="ui segment" style="padding: 0;margin: 10px 50px 0;">
+<div class="ui segment" style="padding: 0;margin: 10px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 0;">
     <div class="ui three column grid">
         <div class="column" style="text-align: left;padding-right: 5px;">
             {% block left_side %}

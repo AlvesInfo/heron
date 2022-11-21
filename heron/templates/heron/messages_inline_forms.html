@@ -1,5 +1,5 @@
 {% if inline_form.errors %}
-    <div class="ui grid" style="padding: 0 0 10px">
+    <div class="ui grid" style="padding: 0 0 10px;margin: 10px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px -20px;">
         <div class="one wide column" style="padding: 0;"></div>
         <div class="fourteen wide column" style="padding: 10px 14px 0;">
             <div class="ui negative message">

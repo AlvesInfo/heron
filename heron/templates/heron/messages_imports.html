@@ -1,5 +1,5 @@
 {% load filters_tags %}
-<div id="messages_imports" class="ui grid" style="padding: 0;margin: 5px 0  -5px;display: none;">
+<div id="messages_imports" class="ui grid" style="padding: 0;margin: 10px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px -20px;;display: none;">
     <div class="sixteen wide column" style="padding: 0;margin-left: 50px;margin-right: 50px;">
         <div class="ui message">
           <i class="close icon"></i>

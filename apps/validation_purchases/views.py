@@ -1,22 +1,25 @@
 import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import connection
+from django.db import connection, transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
 from apps.edi.models import EdiImport
-from apps.edi.forms import EdiImportValidationForm, EdiImportDeleteForm
-from apps.validation_purchases.models import EdiImportControl
-from apps.validation_purchases.forms import EdiImportControlForm
+from apps.edi.forms import (
+    EdiImportValidationForm,
+    DeleteInvoiceForm,
+    DeletePkForm,
+)
+from apps.edi.models import EdiImportControl
+from apps.edi.forms import EdiImportControlForm
 
 # CONTROLES ETAPE 2 - CONTROLE INTEGRATION
 
@@ -41,6 +44,75 @@ def integration_purchases(request):
     return render(request, "validation_purchases/integration_purchases.html", context=context)
 
 
+class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView):
+    """View de création de la ligne de contrôle, saisie du relevé founisseur"""
+
+    model = EdiImportControl
+    form_class = EdiImportControlForm
+    form_class.use_required_attribute = False
+    template_name = "validation_purchases/statment_controls.html"
+    success_message = (
+        "La saisie de contrôle pour le tiers %(third_party_num)s "
+        "du mois : %(date_month)s, a été modifiée avec success"
+    )
+    error_message = (
+        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
+        "n'a pu être modifiée, une erreur c'est produite"
+    )
+
+    def get(self, request, *args, **kwargs):
+        """Onrécupère les attributs venant par la méthode get"""
+        self.third_party_num = kwargs.get("third_party_num")
+        self.big_category = kwargs.get("big_category")
+        self.date_month = pendulum.parse(kwargs.get("date_month"))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
+        context["titre_table"] = (
+            f"Mise à jour du relevé : "
+            f"{self.big_category} - "
+            f"{self.third_party_num} - "
+            f"{self.date_month.format('MMMM YYYY', locale='fr')}"
+        )
+        context["third_party_num"] = self.third_party_num
+        context["date_month"] = self.date_month.format('MMMM YYYY', locale='fr')
+        return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("validation_purchases:integration_purchases")
+
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        print(form.is_valid(), form.cleaned_data)
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
+
+
+class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des factures founisseurs"""
+
+    model = EdiImportControl
+    form_class = EdiImportControlForm
+    form_class.use_required_attribute = False
+    template_name = "book/society_update.html"
+    success_message = (
+        "La saisie de contrôle pour le tiers %(third_party_num)s "
+        "du mois : %(date_month)s, a été modifiée avec success"
+    )
+    error_message = (
+        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
+        "n'a pu être modifiée, une erreur c'est produite"
+    )
+
+
 def integration_purchases_export(request):
     """Export Excel de la liste de la validation des montants par fournisseurs par mois,
     intégrés ou saisis.
@@ -52,7 +124,7 @@ def integration_purchases_export(request):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                f"LISTING_DES_FACTURES_INTEGREES_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"RELEVES_VS_FACTURES_INTEGREES_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
 
             return response_file(
@@ -65,22 +137,6 @@ def integration_purchases_export(request):
         LOGGER_VIEWS.exception("view : integration_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))
-
-
-class UpdateEdiControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des factures founisseurs"""
-
-    model = EdiImportControl
-    form_class = EdiImportControlForm
-    form_class.use_required_attribute = False
-    template_name = "book/society_update.html"
-    success_message = (
-        "La saisie de contrôle pour le tiers %(third_party_num)s " "a été modifiée avec success"
-    )
-    error_message = (
-        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
-        "n'a pu être modifiée, une erreur c'est produite"
-    )
 
 
 # CONTROLES ETAPE 2.A - LISTING FACTURES
@@ -118,7 +174,6 @@ def integration_supplier_purchases(request, third_party_num, big_category, date_
             "controles_exports": elements,
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
-            "pk": titre_table.get("pk"),
         }
 
     return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)
@@ -127,53 +182,8 @@ def integration_supplier_purchases(request, third_party_num, big_category, date_
 class DeleteInvoicePurchase(ChangeTraceMixin, SuccessMessageMixin, DeleteView):
     """Suppression des factures non souhaitées"""
 
-    model = EdiImport
-    form_class = EdiImportDeleteForm
-    success_message = "La facture N° %(invoice_number)s a été supprimée avec success"
-    error_message = (
-        "La facture N° %(invoice_number)s n'a pu être supprimée, une erreur c'est produite"
-    )
-    template_name = "validation_purchases/listing_invoices_suppliers.html"
 
-    def __init__(self, *args, **kwargs):
-        """Méthode init"""
-        super().__init__(*args, **kwargs)
-        self.third_party_num = None
-        self.big_category = None
-        self.date_month = None
-
-    def get_success_url(self):
-        """Retourne l'url en cas de success"""
-        invoices = self.model.objects.filter(
-            third_party_num=self.third_party_num,
-            big_category=self.big_category,
-            date_month=self.date_month,
-            delete=False,
-        )
-
-        if not invoices:
-            return reverse("validation_purchases:integration_purchases")
-
-        return reverse(
-                "validation_purchases:integration_supplier_purchases",
-                kwargs={
-                    "third_party_num": self.third_party_num,
-                    "big_category": self.big_category,
-                    "date_month": self.date_month,
-                },
-            )
-
-    def form_valid(self, form):
-        """Action en cas du formualire validé"""
-        success_url = self.get_success_url()
-        print("form.cleaned_data :", form.cleaned_data)
-        return redirect(success_url)
-
-    def form_invalid(self, form):
-        print(form.errors)
-        return self.render_to_response(self.get_context_data(form=form))
-
-
+@transaction.atomic
 def delete_invoice_purchase(request):
     """Suppression des factures non souhaitées
     :param request: Request Django
@@ -184,26 +194,18 @@ def delete_invoice_purchase(request):
         return redirect("home")
 
     data = {"success": "ko"}
+    form = DeleteInvoiceForm(request.POST)
 
-    try:
-        form = EdiImportDeleteForm(request.POST)
-        if form.is_valid():
-            edi = EdiImport.objects.get(pk=form.cleaned_data.get("pk"))
-            edi_to_update = EdiImport.objects.filter(
-                big_category=edi.big_category,
-                third_party_num=edi.third_party_num,
-                invoice_number=edi.invoice_number,
-                date_month=edi.date_month,
-            )
-            if not edi_to_update:
-                raise EdiImport.DoesNotExist
+    if form.is_valid() and form.cleaned_data:
+        trace_mark_delete(
+            request=request,
+            django_model=EdiImport,
+            data_dict=form.cleaned_data,
+        )
+        data = {"success": "success"}
 
-            edi_to_update.update(delete=True)
-            data = {"success": "success"}
-
-    except EdiImport.DoesNotExist:
-        print("passer par EdiImport.DoesNotExist")
-        pass
+    else:
+        LOGGER_VIEWS.exception(f"delete_invoice_purchase error : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -268,18 +270,18 @@ def delete_line_details_purchase(request):
         return redirect("home")
 
     data = {"success": "ko"}
+    form = DeletePkForm(request.POST)
 
-    try:
-        form = EdiImportDeleteForm(request.POST)
-        if form.is_valid():
-            edi = EdiImport.objects.get(pk=form.cleaned_data.get("pk"))
-            print(edi.__dict__)
-            edi.delete = True
-            edi.save()
-            data = {"success": "success"}
+    if form.is_valid() and form.cleaned_data:
+        trace_mark_delete(
+            request=request,
+            django_model=EdiImport,
+            data_dict=form.cleaned_data,
+        )
+        data = {"success": "success"}
 
-    except EdiImport.DoesNotExist:
-        pass
+    else:
+        LOGGER_VIEWS.exception(f"delete_line_details_purchase error : {form.errors!r}")
 
     return JsonResponse(data)
 

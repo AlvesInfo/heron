@@ -12,7 +12,18 @@ select
     third_party_num,
     invoice_amount_tax,
     invoice_date,
-    max(ee."id") as pk
+    max(ee."id") as pk,
+    (
+        '{"third_party_num": "'
+        || third_party_num ||
+        '", "invoice_number": "'
+        || invoice_number ||
+        '", "date_month": "'
+        || date_month ||
+        '", "delete": "'
+        || 'false' ||
+        '"}'
+    ) as str_json
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification

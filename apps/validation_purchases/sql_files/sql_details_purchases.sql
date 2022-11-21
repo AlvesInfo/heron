@@ -25,7 +25,8 @@ select
     axe_prj,
     axe_pro,
     axe_pys,
-    axe_rfa
+    axe_rfa,
+    '{"pk": "' || ee."id" || '"}' as str_json
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification

@@ -1,0 +1,62 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Relevé founisseur</h3>
+        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="two wide field">
+                <label for="id_statement_without_tax" style="text-align: left;">Montant HT&nbsp;:</label>
+                    <input type="number"
+                           name="statement_without_tax"
+                           value="{{ form.statement_without_tax.value|default_if_none:0 }}"
+                           step="0.01"
+                           id="id_statement_without_tax"
+                           style="text-align: right;">
+              </div>
+              <div class="two wide field">
+                <label for="id_statement_with_tax" style="text-align: left;">Montant TTC&nbsp;:</label>
+                    <input type="number"
+                           name="statement_with_tax"
+                           value="{{ form.statement_with_tax.value|default_if_none:0 }}"
+                           step="0.01"
+                           id="id_statement_with_tax"
+                           style="text-align: right;">
+              </div>
+              <div class="twelve wide field">
+                <label for="id_comment" style="text-align: left;">Commentaire&nbsp;:</label>
+                    <textarea name="comment"
+                              cols="80"
+                              rows="10"
+                              id="id_comment">{{ form.comment.value|default_if_none:'' }}</textarea>
+              </div>
+
+          </div>
+
+          <div class="fields" style="display: none;">
+              <div class="two wide field">
+                <label for="id_third_party_num">third_party_num&nbsp;:</label>
+                    <input type="text"
+                           name="third_party_num"
+                           value="{{ third_party_num }}"
+                           id="id_third_party_num">
+              </div>
+              <div class="two wide field">
+                <label for="id_date_month">date_month&nbsp;:</label>
+                    <input type="text"
+                           name="date_month"
+                           value="{{ date_month }}"
+                           id="id_date_month">
+              </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+{% endblock table %}
+
