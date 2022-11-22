@@ -109,7 +109,7 @@ def excel_liste_societies(
         columns_headers_writer(excel, 1, 3, 0, columns)
         f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
         f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#EBF1DE"}} for dict_row in columns
+            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows(), f_lignes, f_lignes_odd)
         sheet_formatting(

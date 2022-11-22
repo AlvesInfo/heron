@@ -1,5 +1,5 @@
 # pylint: disable=W0702,W1203
-"""Module d'export du fichier excel pour les cumuls de factures intégrées pas tiers, mois, cétégorie
+"""Module d'export du fichier excel pour les factures du tiers pas mois
 
 Commentaire:
 
@@ -13,6 +13,7 @@ import io
 from typing import Dict
 from pathlib import Path
 
+import pendulum
 from django.db import connection
 from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -77,7 +78,120 @@ COLUMNS = [
         "width": 31,
     },
     {
+        "entete": "CCT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 9,
+    },
+    {
+        "entete": "Maison",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 31,
+    },
+    {
+        "entete": "N° Facture",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 15,
+    },
+    {
+        "entete": "Date\nfactue",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "num_format": "dd/mm/yyyy"},
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Net\nHT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "right",
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10.6,
+    },
+    {
+        "entete": "Delta\nHT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "right",
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10.6,
+    },
+    {
         "entete": "Montant\nHT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "right",
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10.6,
+    },
+    {
+        "entete": "TVA",
         "f_entete": {
             **f_entetes,
             **{
@@ -111,23 +225,6 @@ COLUMNS = [
         "width": 10.6,
     },
     {
-        "entete": "Nbre de\nFactures",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "#,##0",
-            },
-        },
-        "width": 8,
-    },
-    {
         "entete": "Mois des\nFactues",
         "f_entete": {
             **f_entetes,
@@ -140,126 +237,6 @@ COLUMNS = [
             **{"align": "center", "num_format": "mmmm yyyy"},
         },
         "width": 13,
-    },
-    {
-        "entete": "",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#FFC000",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-                "bg_color": "#FFC000",
-            },
-        },
-        "width": 1,
-    },
-    {
-        "entete": "Relevé\nMontant\nHT",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10.6,
-    },
-    {
-        "entete": "Relevé\nMontant\nTTC",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10.6,
-    },
-    {
-        "entete": "",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#FFC000",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "bg_color": "#FFC000",
-            },
-        },
-        "width": 1,
-    },
-    {
-        "entete": "Ecart\nHT",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "bold": True,
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 9,
-    },
-    {
-        "entete": "Ecart\nTTC",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "bold": True,
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 9,
-    },
-    {
-        "entete": "Commentaire",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "left",
-            },
-        },
-        "width": 80,
     },
 ]
 
@@ -280,16 +257,21 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
+def excel_supplier_purchases(file_io: io.BytesIO, file_name: str, attr_dict: dict) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    titre_list = file_name.split("_")
-    titre = " ".join(titre_list[:3])
-    list_excel = [file_io, [titre]]
+    big_category = attr_dict.get("big_category")
+    third_party_num = attr_dict.get("third_party_num")
+    supplier = attr_dict.get("supplier")
+    date_month = attr_dict.get("date_month")
+    month = pendulum.parse(date_month).format("MMMM YYYY", locale="fr")
+    titre = f"Factures : {big_category} - {third_party_num} - {supplier} - pour {month}"
+
+    list_excel = [file_io, [f"{third_party_num}_{month}"]]
     excel = GenericExcel(list_excel)
     file_path = Path(
-        f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_integration_purchases.sql"
+        f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
     )
-    get_clean_rows = [line[:-5] for line in get_rows(file_path)]
+    get_clean_rows = [line[:-4] for line in get_rows(file_path, attr_dict)]
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
@@ -297,10 +279,7 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
         columns_headers_writer(excel, 1, 3, 0, COLUMNS)
         f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
         f_lignes_odd = [
-            dict_row.get("f_ligne")
-            if i in {7, 10}
-            else {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
-            for i, dict_row in enumerate(COLUMNS)
+            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
         sheet_formatting(

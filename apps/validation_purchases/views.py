@@ -3,15 +3,19 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.encoders import get_base_64, set_base_64_list
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
+    excel_supplier_purchases,
 )
+
+from apps.parameters.models import Category
 from apps.edi.models import EdiImport
 from apps.edi.forms import (
     EdiImportValidationForm,
@@ -62,9 +66,9 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
     def get(self, request, *args, **kwargs):
         """Onrécupère les attributs venant par la méthode get"""
-        self.third_party_num = kwargs.get("third_party_num")
-        self.big_category = kwargs.get("big_category")
-        self.date_month = pendulum.parse(kwargs.get("date_month"))
+        enc_param = get_base_64(kwargs.get("enc_param"))
+        self.big_category, self.third_party_num, self.supplier, date_month = enc_param
+        self.date_month = pendulum.parse(date_month)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -72,22 +76,37 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"Mise à jour du relevé : "
-            f"{self.big_category} - "
-            f"{self.third_party_num} - "
+            f"{self.big_category} - {self.third_party_num} - "
             f"{self.date_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
-        context["date_month"] = self.date_month.format('MMMM YYYY', locale='fr')
+        context["big_category"] = self.big_category
+        context["supplier"] = self.supplier
+        context["date_month"] = self.date_month.format("MMMM YYYY", locale="fr")
         return context
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("validation_purchases:integration_purchases")
 
+    def post(self, request, *args, **kwargs):
+        """Methode post"""
+        enc_param = get_base_64(kwargs.get("enc_param"))
+        self.big_category, self.third_party_num, self.supplier, self.date_month = enc_param
+        return super().post(request, *args, **kwargs)
+
+    @transaction.atomic
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
-        print(form.is_valid(), form.cleaned_data)
+        instance = form.save()
+        print(instance, instance.uuid_identification)
+        print(self.big_category, instance.uuid_identification)
+        EdiImport.objects.filter(
+            big_category=Category.objects.get(name=self.big_category),
+            third_party_num=self.third_party_num,
+            supplier=self.supplier,
+            date_month=self.date_month,
+        ).update(uuid_control=instance.uuid_identification)
         self.request.session["level"] = 20
         return super().form_valid(form)
 
@@ -102,7 +121,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     model = EdiImportControl
     form_class = EdiImportControlForm
     form_class.use_required_attribute = False
-    template_name = "book/society_update.html"
+    template_name = "validation_purchases/statment_controls.html"
     success_message = (
         "La saisie de contrôle pour le tiers %(third_party_num)s "
         "du mois : %(date_month)s, a été modifiée avec success"
@@ -111,6 +130,41 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         "La saisie de contrôle pour le tiers N° %(third_party_num)s "
         "n'a pu être modifiée, une erreur c'est produite"
     )
+
+    def get(self, request, *args, **kwargs):
+        """Onrécupère les attributs venant par la méthode get"""
+        enc_param = get_base_64(kwargs.get("enc_param"))
+        self.big_category, self.third_party_num, self.supplier, date_month = enc_param
+        self.date_month = pendulum.parse(date_month)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
+        context["titre_table"] = (
+            f"{self.big_category} - {self.third_party_num} - "
+            f"{self.date_month.format('MMMM YYYY', locale='fr')}"
+        )
+        context["third_party_num"] = self.third_party_num
+        context["big_category"] = self.big_category
+        context["supplier"] = self.supplier
+        context["date_month"] = self.date_month.format("MMMM YYYY", locale="fr")
+        return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("validation_purchases:integration_purchases")
+
+    @transaction.atomic
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 def integration_purchases_export(request):
@@ -142,16 +196,15 @@ def integration_purchases_export(request):
 # CONTROLES ETAPE 2.A - LISTING FACTURES
 
 
-def integration_supplier_purchases(request, third_party_num, big_category, date_month):
+def integration_supplier_purchases(request, enc_param):
     """View de l'étape 2.A des écrans de contrôles
     Visualisation des montants par Factures pour le fournisseur demandé
     :param request: Request Django
-    :param third_party_num: id X3 du fournisseur
-    :param big_category: Grande Catégory
-    :param date_month: Mois de facturation
+    :param enc_param: paramètres encodés en base 64
     :return: view
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
+    big_category, third_party_num, supplier, date_month = get_base_64(enc_param)
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
@@ -159,6 +212,7 @@ def integration_supplier_purchases(request, third_party_num, big_category, date_
             file_path=sql_context_file,
             parmas_dict={
                 "third_party_num": third_party_num,
+                "supplier": supplier,
                 "big_category": big_category,
                 "date_month": date_month,
             },
@@ -170,17 +224,31 @@ def integration_supplier_purchases(request, third_party_num, big_category, date_
             .capitalize()
         )
         context = {
-            "titre_table": f"Contrôle : {titre_table.get('supplier')}  - {mois}",
+            "titre_table": f"Contrôle : {supplier}  - {mois}",
             "controles_exports": elements,
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
+            "nb_paging": 100,
         }
 
     return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)
 
 
-class DeleteInvoicePurchase(ChangeTraceMixin, SuccessMessageMixin, DeleteView):
-    """Suppression des factures non souhaitées"""
+class UpdateSupplierPurchases(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des factures founisseurs"""
+
+    model = EdiImportControl
+    form_class = EdiImportControlForm
+    form_class.use_required_attribute = False
+    template_name = "book/society_update.html"
+    success_message = (
+        "La saisie de contrôle pour le tiers %(third_party_num)s "
+        "du mois : %(date_month)s, a été modifiée avec success"
+    )
+    error_message = (
+        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
+        "n'a pu être modifiée, une erreur c'est produite"
+    )
 
 
 @transaction.atomic
@@ -210,52 +278,77 @@ def delete_invoice_purchase(request):
     return JsonResponse(data)
 
 
-def integration_supplier_purchases_export(request):
+def integration_supplier_purchases_export(request, enc_param):
     """Export Excel de la liste des montants par Factures pour le fournisseur demandé
     :param request: Request Django
+    :param enc_param: paramètres au format base64
     :return: response_file
     """
-    context = {"titre_table": "Export Excel"}
-    return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)
+    try:
+        if request.method == "GET":
+            big_category, third_party_num, supplier, date_month, _ = get_base_64(enc_param)
+            today = pendulum.now()
+            file_name = (
+                f"{big_category}_{third_party_num}_{date_month}_"
+                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            )
+            attr_dict = {
+                "big_category": big_category,
+                "third_party_num": third_party_num,
+                "supplier": supplier,
+                "date_month": date_month,
+            }
+            return response_file(
+                excel_supplier_purchases,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                attr_dict,
+            )
+
+    except:
+        LOGGER_VIEWS.exception("view : integration_purchases_export")
+
+    return redirect(reverse("validation_purchases:integration_purchases"))
 
 
 # CONTROLES ETAPE 2.B - DETAILS FACTURES
 
 
-def details_purchase(request, third_party_num, invoice_number):
+def details_purchase(request, enc_param):
     """View de l'étape 2.B des écrans de contrôles
     Visualisation des détails des lignes d'une facture pour un fournisseur
     :param request: Request Django
-    :param third_party_num: id X3 du fournisseur
-    :param invoice_number: N° de facture
+    :param enc_param: paramètres encodés en base 64
     :return: view
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_details_purchases.sql"
+    big_category, third_party_num, supplier, date_month, invoice_number = get_base_64(enc_param)
+
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
             cursor,
             file_path=sql_context_file,
             parmas_dict={
+                "big_category": big_category,
                 "third_party_num": third_party_num,
+                "supplier": supplier,
+                "date_month": date_month,
                 "invoice_number": invoice_number,
             },
         )
-        titre_table = elements[0]
         context = {
-            "titre_table": (
-                f"Contrôle : {titre_table.get('supplier')} - "
-                f"Facture N°: {titre_table.get('invoice_number')}"
-            ),
+            "titre_table": f"Contrôle : {supplier} - " f"Facture N°: {invoice_number}",
             "controles_exports": elements,
             "chevron_retour": reverse(
                 "validation_purchases:integration_supplier_purchases",
                 kwargs={
-                    "third_party_num": third_party_num,
-                    "big_category": titre_table.get("big_category"),
-                    "date_month": titre_table.get("date_month"),
+                    "enc_param": set_base_64_list(
+                        [big_category, third_party_num, supplier, date_month]
+                    ),
                 },
             ),
             "nature": "La ligne n° ",
+            "nb_paging": 50,
         }
     return render(request, "validation_purchases/details_invoices_suppliers.html", context=context)
 
@@ -338,7 +431,7 @@ def without_cct_purchases_export(request):
 
 def families_invoices_purchases(request):
     """View de l'étape 3.1 des écrans de contrôles"""
-    context = {"titre_table": f"Controle des familles - Achats"}
+    context = {"titre_table": "Controle des familles - Achats"}
     return render(request, "validation_purchases/families_invoices_suppliers.html", context=context)
 
 
@@ -353,7 +446,7 @@ def families_invoices_purchases_export(request):
 
 def articles_families_invoices_purchases(request):
     """View de l'étape 3.1 A des écrans de contrôles"""
-    context = {"titre_table": f"Controle des familles par articles - Achats"}
+    context = {"titre_table": "Controle des familles par articles - Achats"}
     return render(
         request, "validation_purchases/articles_families_invoices_suppliers.html", context=context
     )
@@ -372,7 +465,7 @@ def articles_families_invoices_purchases_export(request):
 
 def rfa_cct_invoices_purchases(request):
     """View de l'étape RFA PAR CCT des écrans de contrôles"""
-    context = {"titre_table": f"Controle des RFA par CCT- Achats"}
+    context = {"titre_table": "Controle des RFA par CCT- Achats"}
     return render(request, "validation_purchases/rfa_cct_invoices_suppliers.html", context=context)
 
 
@@ -387,7 +480,7 @@ def rfa_cct_invoices_purchases_export(request):
 
 def rfa_prj_invoices_purchases(request):
     """View de l'étape RFA PAR PRJ des écrans de contrôles"""
-    context = {"titre_table": f"Controle des RFA par PRJ - Achats"}
+    context = {"titre_table": "Controle des RFA par PRJ - Achats"}
     return render(request, "validation_purchases/rfa_prj_invoices_suppliers.html", context=context)
 
 

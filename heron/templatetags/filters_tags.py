@@ -5,6 +5,8 @@ from lxml.etree import ParserError
 from django import template
 from django.template.defaultfilters import stringfilter
 
+from apps.core.bin.encoders import set_base_64_list, set_base_64_str
+
 register = template.Library()
 
 
@@ -17,7 +19,7 @@ def point(value):
 @register.filter(name="left_trunc")
 @stringfilter
 def left_trunc(value, num):
-    return value[int(num) :]
+    return value[int(num):]
 
 
 @register.filter(name="right_align")
@@ -27,11 +29,7 @@ def right_align(value, num):
     if len(to_split) == 1:
         return value.rjust(num)
 
-    return (
-        to_split[0].rjust(num)
-        + " - "
-        + " - ".join(row for row in to_split[1:])
-    )
+    return to_split[0].rjust(num) + " - " + " - ".join(row for row in to_split[1:])
 
 
 def right_align_(value, num):
@@ -152,7 +150,25 @@ def numbers_format(value, num):
         if i % 3 == 0:
             return_value += " "
 
-    return return_value[::-1] + "," + centimes[:num]
+    return (return_value[::-1] + "," + centimes[:num]).strip()
+
+
+@register.filter(name="numbers_point")
+def numbers_point(value, num):
+
+    print(value)
+    if not value:
+        return "0"
+    nombre, centimes, *_ = str(value).split(".")
+    centimes += "0" * 99
+    return_value = ""
+
+    for i, value in enumerate(nombre[::-1], 1):
+        return_value += value
+        if i % 3 == 0:
+            return_value += " "
+
+    return (return_value[::-1] + "." + centimes[:num]).strip()
 
 
 @register.filter(name="int_formats")
@@ -176,3 +192,14 @@ def int_formats(value):
 def int_formats(value, fmt):
     return fmt.format(value)
 
+
+@register.filter(name="encode_b64_str")
+def encode_b64_str(value):
+    """Renvoi un string en base 64 decodée"""
+    return set_base_64_str(value)
+
+
+@register.filter(name="encode_b64_list")
+def encode_b64_list(values_list):
+    """Renvoi une liste en base 64 decodée"""
+    return set_base_64_list(values_list)

@@ -50,7 +50,7 @@
         {% for supplier_purchase in integration_purchases %}
             <tr class="hide_plans">
                 <td style="text-align: center;">
-                    <a href="{% url 'validation_purchases:integration_supplier_purchases' supplier_purchase.third_party_num supplier_purchase.big_category supplier_purchase.date_month %}">
+                    <a href="{% url 'validation_purchases:integration_supplier_purchases' supplier_purchase.enc_param|encode_b64_str %}">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>
@@ -63,17 +63,17 @@
                 <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.date_month|date:"F Y" }}</td>
                 <td style="text-align: center;border-left: 1px solid teal;">
                     {% if supplier_purchase.uuid_identification is None %}
-                        <a href="{% url 'validation_purchases:create_control' supplier_purchase.third_party_num supplier_purchase.big_category supplier_purchase.date_month %}">
+                        <a href="{% url 'validation_purchases:create_control' supplier_purchase.enc_param|encode_b64_str %}">
                     {% else %}
-                        <a href="{% url 'validation_purchases:update_control' supplier_purchase.uuid_identification %}">
+                        <a href="{% url 'validation_purchases:update_control' supplier_purchase.enc_param|encode_b64_str supplier_purchase.pk %}">
                     {% endif %}
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
-                <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;">0{{ supplier_purchase.statement_without_tax|default_if_none:"0" }}</td>
-                <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid teal;">0{{ supplier_purchase.statement_amount_with_tax|default_if_none:"0" }}</td>
-                <td id="deltaHt{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: teal;"></td>
-                <td id="deltaTtc{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: teal;"></td>
+                <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;">{% if supplier_purchase.amount_invoice_ht != 0 %}{{ supplier_purchase.amount_invoice_ht|numbers_format:2 }}{% endif %}</td>
+                <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid teal;{% if supplier_purchase.delta_ht == 0%}background-color: lightpink;{% endif %}">{% if supplier_purchase.amount_invoice_ttc != 0 %}{{ supplier_purchase.amount_invoice_ttc|numbers_format:2 }}{% endif %}</td>
+                <td id="deltaHt{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ht != 0 %}{{ supplier_purchase.delta_ht|numbers_format:2 }}{% endif %}</td>
+                <td id="deltaTtc{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ttc != 0 %}{{ supplier_purchase.delta_ttc|numbers_format:2 }}{% endif %}</td>
                 <td style="text-align: left;">{{ supplier_purchase.comment|default_if_none:'' }}</td>
             </tr>
         {% endfor %}

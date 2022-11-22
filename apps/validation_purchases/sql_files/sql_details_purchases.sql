@@ -26,11 +26,15 @@ select
     axe_pro,
     axe_pys,
     axe_rfa,
-    '{"pk": "' || ee."id" || '"}' as str_json
+    '{"pk": "' || ee."id" || '"}' as str_json,
+    pc."name" || '||' || third_party_num || '||' || supplier || '||' || date_month as enc_param
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification
-where third_party_num = %(third_party_num)s
+where pc."name" = %(big_category)s
+  and third_party_num = %(third_party_num)s
+  and supplier = %(supplier)s
+  and date_month = %(date_month)s
   and invoice_number = %(invoice_number)s
   and ee."delete" = False
 order by ee."id"

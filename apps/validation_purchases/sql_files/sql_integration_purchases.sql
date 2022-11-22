@@ -15,7 +15,9 @@ select
     "comment",
     sum(net_amount) as net_amount,
     case when sum(net_amount) != sum(invoice_amount_without_tax) then true else false end as error,
-    uuid_identification
+    uuid_identification,
+    big_category || '||' || third_party_num || '||' || supplier || '||' || date_month as enc_param,
+    pk
 from (
     select
         pc."name" as big_category,
@@ -30,7 +32,8 @@ from (
         ec.statement_without_tax,
         ec.statement_with_tax,
         ec."comment",
-        ec.uuid_identification
+        ec.uuid_identification,
+        ec."id" as pk
     from edi_ediimport ee
     left join parameters_category pc
     on ee.uuid_big_category = pc.uuid_identification
@@ -48,7 +51,8 @@ from (
 	         ec.statement_without_tax,
 	         ec.statement_with_tax,
         	 ec."comment",
-            ec.uuid_identification
+             ec.uuid_identification,
+             ec."id"
     ) edi
 group by big_category,
          supplier,
@@ -57,7 +61,8 @@ group by big_category,
          statement_without_tax,
          statement_with_tax,
          "comment",
-        uuid_identification
+         uuid_identification,
+         pk
 order by big_category,
          supplier,
          date_month

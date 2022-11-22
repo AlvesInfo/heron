@@ -45,12 +45,12 @@ urlpatterns = [
             name="integration_purchases",
         ),
         path(
-            "create_control/<third_party_num>/<big_category>/<date_month>/",
+            "create_control/<str:enc_param>/",
             CreateIntegrationControl.as_view(),
             name="create_control",
         ),
         path(
-            "update_control/<uuid_identification>/",
+            "update_control/<str:enc_param>/<int:pk>/",
             UpdateIntegrationControl.as_view(),
             name="update_control",
         ),
@@ -61,7 +61,7 @@ urlpatterns = [
         ),
         # Listing
         path(
-            "integration_supplier_purchases/<third_party_num>/<big_category>/<date_month>/",
+            "integration_supplier_purchases/<str:enc_param>/",
             integration_supplier_purchases,
             name="integration_supplier_purchases",
         ),
@@ -71,13 +71,13 @@ urlpatterns = [
             name="delete_invoice_purchase",
         ),
         path(
-            "integration_supplier_purchases_export/",
+            "integration_supplier_purchases_export/<str:enc_param>/",
             integration_supplier_purchases_export,
             name="integration_supplier_purchases_export",
         ),
         # Détails facture
         path(
-            "details_purchase/<third_party_num>/<invoice_number>/",
+            "details_purchase/<str:enc_param>/",
             details_purchase,
             name="details_purchase",
         ),
