@@ -75,7 +75,7 @@ COLUMNS = [
                 "align": "left",
             },
         },
-        "width": 31,
+        "width": 40,
     },
     {
         "entete": "CCT",
@@ -91,7 +91,7 @@ COLUMNS = [
                 "align": "center",
             },
         },
-        "width": 9,
+        "width": 8,
     },
     {
         "entete": "Maison",
@@ -283,7 +283,7 @@ def excel_supplier_purchases(file_io: io.BytesIO, file_name: str, attr_dict: dic
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
         sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
+            excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 5), "fit_page": (1, 0)}
         )
 
     except:
