@@ -57,23 +57,23 @@ from apps.parameters.models import ActionInProgress
 
 
 processing_dict = {
-    # "BBRG_BULK": bbgr_bulk,
-    # "EDI": edi,
-    # "EYE_CONFORT": eye_confort,
-    # "GENERIQUE": generique,
-    # "HEARING": hearing,
-    # "INTERSON": interson,
-    # "JOHNSON": johnson,
-    # "LMC": lmc,
-    # "NEWSON": newson,
-    # "PHONAK": phonak,
-    # "PRODITION": prodition,
-    # "SIGNIA": signia,
-    # "STARKEY": starkey,
-    # "TECHNIDIS": technidis,
-    # "UNITRON": unitron,
-    # "WIDEX": widex,
-    # "WIDEX_GA": widex_ga,
+    "BBRG_BULK": bbgr_bulk,
+    "EDI": edi,
+    "EYE_CONFORT": eye_confort,
+    "GENERIQUE": generique,
+    "HEARING": hearing,
+    "INTERSON": interson,
+    "JOHNSON": johnson,
+    "LMC": lmc,
+    "NEWSON": newson,
+    "PHONAK": phonak,
+    "PRODITION": prodition,
+    "SIGNIA": signia,
+    "STARKEY": starkey,
+    "TECHNIDIS": technidis,
+    "UNITRON": unitron,
+    "WIDEX": widex,
+    "WIDEX_GA": widex_ga,
 }
 
 
@@ -177,7 +177,7 @@ def proc_files(process_object):
 
 
 def loop_proc(proc_files_list):
-    """Lancement des process en pool"""
+    """Lancement des process en Thread pool"""
     from concurrent.futures import ThreadPoolExecutor
 
     with ThreadPoolExecutor() as executor:
@@ -187,7 +187,7 @@ def loop_proc(proc_files_list):
 
 
 def loop_pool_proc(proc_files_list):
-    """Lancement des process en pool"""
+    """Lancement des process en Multiprocessing pool"""
     from multiprocessing import Pool
 
     with Pool(8) as pool:

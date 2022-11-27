@@ -3,6 +3,15 @@
 {% load static %}
 {% load filters_tags %}
 
+{% block head_js %}
+    <script type="text/javascript">
+    $( "#validation" ).click(function() {
+        console.log("TODO : FAIRE LOADER")
+        // TODO : A faire loader d'envoi du formulaire dans les cas ou il y ai beaucoup de factures
+    });
+    </script>
+{% endblock head_js %}
+
 {% block menu_principal %}
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
@@ -39,8 +48,6 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-
-            $('table').tablesort();
 
             $('.menu .item').tab();
 

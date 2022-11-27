@@ -13,30 +13,28 @@ modified by: Paulo ALVES
 """
 from typing import AnyStr
 
-from psycopg2 import sql
 from django.db import connection
 from django.db.models import Q, Count
 
 from apps.edi.models import EdiImport
+from apps.edi.sql_dir.sql_all import post_all_dict, SQL_QTY
+from apps.edi.sql_dir.sql_bulk import post_bulk_dict
+from apps.edi.sql_dir.sql_edi import post_edi_dict
+from apps.edi.sql_dir.sql_eye_confort import post_eye_dict
+from apps.edi.sql_dir.sql_generic import post_generic_dict
+from apps.edi.sql_dir.sql_hearing import post_hearing_dict
+from apps.edi.sql_dir.sql_interson import post_interson_dict
+from apps.edi.sql_dir.sql_johnson import post_johnson_dict
+from apps.edi.sql_dir.sql_lmc import post_lmc_dict
+from apps.edi.sql_dir.sql_newson import post_newson_dict
+from apps.edi.sql_dir.sql_phonak import post_phonak_dict
+from apps.edi.sql_dir.sql_prodition import post_prodition_dict
+from apps.edi.sql_dir.sql_signia import post_signia_dict
+from apps.edi.sql_dir.sql_starkey import post_starkey_dict
+from apps.edi.sql_dir.sql_technidis import post_technidis_dict
+from apps.edi.sql_dir.sql_unitron import post_unitron_dict
+from apps.edi.sql_dir.sql_widex import post_widex_dict
 from apps.users.models import User
-
-SQL_QTY = sql.SQL(
-    """
-update "edi_ediimport"
-set 
-    "qty" = case 
-                when "qty" = 0 or qty isnull 
-                then 1::numeric 
-                else "qty" 
-            end,
-    "devise" = case when "devise" is null then 'EUR' else "devise" end,
-    "active" = false,
-    "to_delete" = false,
-    "to_export" = false
-where ("valid" = false or "valid" isnull)
-and uuid_identification = %(uuid_identification)s
-"""
-)
 
 
 def get_user_automate():
@@ -56,107 +54,18 @@ def get_user_automate():
 
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
-    sql_supplier_update = sql.SQL(
-        """
-        update "edi_ediimport" "edi"
-        set 
-            "supplier_name" = "tiers"."name",
-            "third_party_num" = "tiers"."third_party_num",
-            "supplier" = case 
-                            when "supplier" = '' or "supplier" isnull 
-                            then "tiers"."name" 
-                            else "supplier" 
-                         end,
-            "uuid_big_category" = 'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
-        from (
-            select 
-                left("name", 35) as "name",
-                "third_party_num",
-                unnest(string_to_array("centers_suppliers_indentifier", '|')) as "identifier"
-                from "book_society" bs
-        ) "tiers"
-        where ("edi"."third_party_num" is null or "edi"."third_party_num" = '')
-        and "edi"."supplier_ident" = "tiers"."identifier"
-        and ("edi"."valid" = false or "edi"."valid" isnull)
-        """
-    )
-    sql_fac_update_except_edi = sql.SQL(
-        """
-    update "edi_ediimport" edi
-    set
-        "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
-        "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
-        "invoice_amount_tax" = (
-                                    edi_fac."invoice_amount_with_tax" 
-                                    - 
-                                    edi_fac."invoice_amount_without_tax"
-                                ),
-        "reference_article" = case 
-                                when "reference_article" isnull or "reference_article" = '' 
-                                then "ean_code"
-                                else "reference_article"
-                              end
-    from (
-        select "uuid_identification", "invoice_number",
-            case 
-                when invoice_type = '381' 
-                then -abs(sum("mont_HT"))::numeric
-                else abs(sum("mont_HT"))::numeric
-            end as "invoice_amount_without_tax",
-            case 
-                when invoice_type = '381'
-                then -abs(sum("mont_TTC"))::numeric 
-                else abs(sum("mont_TTC"))::numeric    
-            end as "invoice_amount_with_tax"
-        from (
-            select "uuid_identification", "invoice_number", "invoice_type",
-                round(sum("net_amount")::numeric, 2) as "mont_HT",
-                (
-                    round(sum("net_amount")::numeric, 2) +
-                    round(round(sum("net_amount")::numeric, 2) * "vat_rate"::numeric, 2)
-                ) as "mont_TTC",
-                "vat_rate"
-            from "edi_ediimport"                
-            where (flow_name not in ('Edi', 'Widex', 'WidexGa'))
-            and ("valid" = false or "valid" isnull)
-            group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
-        ) as "tot_amount"
-        group by "uuid_identification", "invoice_number", "invoice_type"
-    ) edi_fac
-    where edi."uuid_identification" = edi_fac."uuid_identification"
-    and edi."invoice_number" = edi_fac."invoice_number"
-    """
-    )
-    sql_reference = """
-    update edi_ediimport 
-    set reference_article = libelle 
-    where (reference_article isnull or reference_article = '')
-      and ("valid" = false or "valid" isnull)
-    """
-    sql_validate = sql.SQL(
-        """
-        update "edi_ediimport" edi
-        set "valid"=true, "vat_rate_exists" = false, "supplier_exists" = false,
-            "maison_exists" = false, "article_exists" = false, "axe_pro_supplier_exists" = false,
-            "acuitis_order_date" = case 
-                                    when "acuitis_order_date" = '1900-01-01' 
-                                    then null
-                                    else "acuitis_order_date"
-                                   end,
-            "delivery_date" = case 
-                                when "delivery_date" = '1900-01-01' 
-                                then null
-                                else "delivery_date"
-                               end,
-            "date_month" = date_trunc('month', invoice_date)::date,
-            "delete" = false
-    where ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_round_amount = post_all_dict.get("sql_round_amount")
+    sql_supplier_update = post_all_dict.get("sql_supplier_update")
+    sql_fac_update_except_edi = post_all_dict.get("sql_fac_update_except_edi")
+    sql_reference = post_all_dict.get("sql_reference")
+    sql_vat_rate = post_all_dict.get("sql_vat_rate")
+    sql_validate = post_all_dict.get("sql_validate")
     with connection.cursor() as cursor:
+        cursor.execute(sql_round_amount)
         cursor.execute(sql_supplier_update)
         cursor.execute(sql_fac_update_except_edi)
         cursor.execute(sql_reference)
+        cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()
         )
@@ -250,17 +159,7 @@ def bulk_post_insert(uuid_identification: AnyStr):
         EdiImport.objects.bulk_create(bulk_list)
 
     # Mise à jour des autres champs ================================================================
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "famille" = case when "famille" is null then 'VERRE' else "famille" end,
-        "gross_unit_price" = "net_unit_price",
-        "gross_amount" = "net_amount"
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_bulk_dict.get("sql_update")
 
     with connection.cursor() as cursor:
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
@@ -275,75 +174,10 @@ def edi_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
 
-    sql_col_essilor = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "supplier_ident" = 'col_opticlibre'
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    and "siret_payeur" in ('9524514', '433193067', '43319306700033', 'FR82433193067')
-    """
-    )
-    sql_tva = sql.SQL(
-        """
-    update edi_ediimport
-    set
-        vat_rate =  case
-                        when vat_rate = 5.5 then 0.055
-                        when vat_rate = 20 then 0.20
-                        else vat_rate
-                    end,
-        acuitis_order_number = case 
-                                    when acuitis_order_number = 'UNKNOWN' 
-                                    then '' 
-                                    else acuitis_order_number
-                                end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_fac_update_edi = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "net_amount" = case
-                            when ("invoice_type" = '381' and "qty" < 0) 
-                              or ("invoice_type" = '380' and "qty" > 0) 
-                            then abs("net_amount")::numeric
-                            when ("invoice_type" = '381' and "qty" > 0) 
-                              or ("invoice_type" = '380' and "qty" < 0) 
-                            then -abs("net_amount")::numeric
-                        end,
-        "invoice_amount_without_tax" = case 
-                                when invoice_type = '381' 
-                                then -abs("invoice_amount_without_tax")::numeric
-                                else abs("invoice_amount_without_tax")::numeric
-                              end,
-        "invoice_amount_with_tax" = case 
-                                        when invoice_type = '381'
-                                        then -abs("invoice_amount_with_tax")::numeric
-                                        else abs("invoice_amount_with_tax")::numeric  
-                                      end,
-        "invoice_amount_tax" = case 
-                                when invoice_type = '381'
-                                then -abs("invoice_amount_with_tax")::numeric
-                                else abs("invoice_amount_with_tax")::numeric
-                              end -
-                              case 
-                                when invoice_type = '381' 
-                                then -abs("invoice_amount_without_tax")::numeric
-                                else abs("invoice_amount_without_tax")::numeric
-                              end,
-        "reference_article" = case 
-                                when "reference_article" isnull or "reference_article" = '' 
-                                then "ean_code"
-                                else "reference_article"
-                              end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_col_essilor = post_edi_dict.get("sql_col_essilor")
+    sql_tva = post_edi_dict.get("sql_tva")
+    sql_fac_update_edi = post_edi_dict.get("sql_fac_update_edi")
+
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_col_essilor, {"uuid_identification": uuid_identification})
@@ -356,40 +190,8 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier EyeConfort
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "vat_rate" = 0,
-        "vat_amount" = 0,
-        "amount_with_vat" = "net_amount"::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_update_units = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
-                            when "net_amount" > 0 then abs("gross_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_eye_dict.get("post_eye_dict")
+    sql_update_units = post_eye_dict.get("post_eye_dict")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -402,31 +204,8 @@ def generique_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier EyeConfort
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_net_amount_mgdev = sql.SQL(
-        """
-    update "edi_ediimport" edi
-    set
-        "net_amount" = case
-                            when ("invoice_type" = '381' and "qty" < 0) 
-                              or ("invoice_type" = '380' and "qty" > 0) 
-                            then abs("net_amount")::numeric
-                            when ("invoice_type" = '381' and "qty" > 0) 
-                              or ("invoice_type" = '380' and "qty" < 0) 
-                            then -abs("net_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_generic_dict.get("sql_update")
+    sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -439,18 +218,7 @@ def hearing_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Hearing
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "net_amount" = round("net_amount"::numeric, 2)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_hearing_dict.get("sql_update")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -462,58 +230,9 @@ def interson_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Interson
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric,
-        "net_amount" = round("net_unit_price"::numeric * "qty"::numeric, 2)::numeric,
-        "reference_article" = case 
-                                when "reference_article" = '' or "reference_article" is null 
-                                then left("libelle", 35)
-                                else "reference_article"
-                              end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_bl_date = sql.SQL(
-        """
-        update "edi_ediimport" "edi" 
-        set
-            "delivery_number" = "sd"."single_delivery_number",
-            "delivery_date" = "sd"."single_date"::date
-        from (
-            select
-                "id",
-                case 
-                    when "delivery_number" ilike '%% du %%'  
-                        and is_date(split_part("delivery_number", ' du ', 2))
-                    then split_part(delivery_number, ' du ', 1) 
-                else "delivery_number"
-                end as "single_delivery_number",
-                case 
-                    when "delivery_number" ilike '%% du %%' 
-                        and is_date(split_part("delivery_number", ' du ', 2))
-                    then TO_DATE(split_part("delivery_number", ' du ', 2),'DD/MM/YYYY')::varchar
-                    else null 
-                end as "single_date"
-                
-            from "edi_ediimport" r
-            where 
-                case 
-                    when "delivery_number" ilike '%% du %%' 
-                        and is_date(split_part("delivery_number", ' du ', 2))
-                    then TO_DATE(split_part("delivery_number", ' du ', 2),'DD/MM/YYYY')::varchar
-                    else null 
-                end is not null
-            and "uuid_identification" = %(uuid_identification)s
-            and ("valid" = false or "valid" isnull)
-        ) "sd"
-        where "edi"."id" = "sd"."id"
-        """
-    )
+    sql_update = post_interson_dict.get("sql_update")
+    sql_bl_date = post_interson_dict.get("sql_bl_date")
+
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
@@ -525,64 +244,9 @@ def johnson_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier JOHNSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "qty" >= 0 then '380' else '381' end,
-        "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "gross_amount" = "net_amount"::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-
-    sql_update_vat_rate = sql.SQL(
-        """
-    update "edi_ediimport" "ed" 
-    set "vat_rate" = "req"."taux_tva" 
-    from (
-        select
-            case 
-                when "net_amount" isnull or "net_amount" = 0 then 0
-                when round("amount_with_vat"::numeric/"net_amount"::numeric, 2) 
-                        between 1.19 and 1.21 
-                        then .2 
-                when round("amount_with_vat"::numeric/"net_amount"::numeric, 2) 
-                        between 1.045 and 1.065 
-                        then .055
-            end as "taux_tva",
-            "uuid_identification", 
-            "edi"."id"
-        from "edi_ediimport" "edi"
-        where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull)
-    ) "req" 
-    where "req"."id" = "ed"."id"
-    """
-    )
-
-    sql_update_units = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
-                            when "net_amount" > 0 then abs("gross_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_johnson_dict.get("sql_update")
+    sql_update_vat_rate = post_johnson_dict.get("sql_update_vat_rate")
+    sql_update_units = post_johnson_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -596,16 +260,7 @@ def lmc_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier LMC
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_amount" = ("gross_unit_price"::numeric * "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_lmc_dict.get("sql_update")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -617,44 +272,10 @@ def newson_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier NEWSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-        "famille" = left("reference_article", 2)
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_round_net_amount = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "net_amount" = round("net_amount", 2)::numeric,
-        "amount_with_vat" = round(round("amount_with_vat", 2) * (1 + "vat_rate"), 2)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_net_amount = sql.SQL(
-        """
-    update "edi_ediimport" edi
-    set
-        "net_amount" = case
-                            when ("invoice_type" = '381' and "qty" < 0) 
-                              or ("invoice_type" = '380' and "qty" > 0) 
-                            then abs("net_amount")::numeric
-                            when ("invoice_type" = '381' and "qty" > 0) 
-                              or ("invoice_type" = '380' and "qty" < 0) 
-                            then -abs("net_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_newson_dict.get("sql_update")
+    sql_round_net_amount = post_newson_dict.get("sql_round_net_amount")
+    sql_net_amount = post_newson_dict.get("sql_net_amount")
+
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
@@ -664,36 +285,11 @@ def newson_post_insert(uuid_identification: AnyStr):
 
 def phonak_post_insert(uuid_identification: AnyStr):
     """
-    Mise à jour des champs vides à l'import du fichier NEWSON
+    Mise à jour des champs vides à l'import du fichier Phonak
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_net_amount = sql.SQL(
-        """
-    update "edi_ediimport" edi
-    set
-        "net_amount" = case
-                            when ("invoice_type" = '381' and "qty" < 0) 
-                              or ("invoice_type" = '380' and "qty" < 0) 
-                            then -abs("net_amount")::numeric
-                            when ("invoice_type" = '381' and "qty" > 0) 
-                              or ("invoice_type" = '380' and "qty" > 0) 
-                            then abs("net_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_phonak_dict.get("sql_update")
+    sql_net_amount = post_phonak_dict.get("sql_net_amount")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -703,45 +299,11 @@ def phonak_post_insert(uuid_identification: AnyStr):
 
 def prodition_post_insert(uuid_identification: AnyStr):
     """
-    Mise à jour des champs vides à l'import du fichier NEWSON
+    Mise à jour des champs vides à l'import du fichier Prodition
     :param uuid_identification: uuid_identification
     """
-    sql_libele = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "qty" = case when "qty" = 0 then 1::numeric else "qty" end,
-        "libelle"= case 
-                        when "libelle" is null or "libelle" = ''
-                        then "famille" 
-                        else "libelle" 
-                    end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "reference_article"= case 
-                                when "reference_article" is null or "reference_article" = ''
-                                then "famille" 
-                                else "reference_article" 
-                            end,
-        "libelle"= case 
-                        when "libelle" is null or "libelle" = ''
-                        then "reference_article" 
-                        else "libelle" 
-                    end,
-        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s 
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_libele = post_prodition_dict.get("sql_libele")
+    sql_update = post_prodition_dict.get("sql_update")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -754,69 +316,9 @@ def signia_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier SIGNA
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "qty" = case when "qty" = 0 then 1::numeric else "qty" end,
-        "invoice_type" = case 
-                            when "invoice_type" = '301' then '380' 
-                            when "invoice_type" = '307' then '380' 
-                            when "invoice_type" = '302' then '381' 
-                            when "invoice_type" = '304' then '381' 
-                            when "invoice_type" = '400' then '381' 
-                            -- 400 = RFA
-                            else '380' 
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_update_units = """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
-                            when "net_amount" > 0 then abs("gross_amount")::numeric
-                        end,
-        "famille" = case
-                        when "libelle" ilike 'DELIVERY%%' then 'PORT'
-                        when "libelle" ilike '%%FREIGHT%%' then 'PORT'
-                        when "libelle" ilike 'WARRANTY%%' then 'WARRANTY'
-                        when "libelle" ilike 'DISCOUNT INSTANT' then 'RFA'
-                        else "famille"
-                    end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    sql_update_bl = """
-    update "edi_ediimport" "ei"
-    set "delivery_number" = "req"."delivery_number"
-    from (
-        select 
-            max("delivery_number") as "delivery_number", 
-            "invoice_number", 
-            "uuid_identification"
-        from "edi_ediimport"
-        where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull)
-        group by "invoice_number", "uuid_identification"
-        HAVING 
-            max("delivery_number") != '' 
-        and max("delivery_number") is not null
-    ) "req" 
-    where 
-        "ei"."invoice_number" = "req"."invoice_number"
-    and	"ei"."uuid_identification"= "req"."uuid_identification"
-    """
+    sql_update = post_signia_dict.get("sql_update")
+    sql_update_units = post_signia_dict.get("sql_update_units")
+    sql_update_bl = post_signia_dict.get("sql_update_bl")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -830,42 +332,9 @@ def starkey_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier NEWSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-    sql_update_units = """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 
-                                then (
-                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
-                                    * 
-                                    -1::numeric
-                                )
-                            when "net_amount" > 0 
-                                then (
-                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
-                                )
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
+    sql_update = post_starkey_dict.get("sql_update")
+    sql_update_units = post_starkey_dict.get("sql_update_units")
+
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
@@ -877,56 +346,8 @@ def technidis_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier NEWSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    with "group_technidis" as (
-        select 
-            case when sum(net_amount) < 0 then '381' else '380' end as "invoice_type", 
-            "invoice_number", 
-            "uuid_identification"
-          from "edi_ediimport" 
-         where "uuid_identification" = %(uuid_identification)s
-           and ("valid" = false or "valid" isnull)
-         group by "invoice_number", "uuid_identification"
-    )
-    update "edi_ediimport" "ei"
-       set "invoice_type" = "gt"."invoice_type"
-      from "group_technidis" "gt"
-     where "ei"."uuid_identification" = "gt"."uuid_identification"
-       and "ei"."invoice_number" = "gt"."invoice_number"
-    """
-    )
-    sql_update_units = """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 
-                                then (
-                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
-                                    * 
-                                    -1::numeric
-                                )
-                            when "net_amount" > 0 
-                                then (
-                                    abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
-                                )
-                        end,
-        "famille" =   case 
-                                    when "famille" is null or "famille" = ''
-                                    then split_part("reference_article", '-', 1)
-                                    else "famille"
-                                end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
+    sql_update = post_technidis_dict.get("sql_update")
+    sql_update_units = post_technidis_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -939,17 +360,7 @@ def unitron_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier NEWSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
+    sql_update = post_unitron_dict.get("sql_update")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -961,79 +372,9 @@ def widex_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier NEWSON
     :param uuid_identification: uuid_identification
     """
-    sql_update = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-        "famille" = case 
-                        when "famille" = '' or "famille" is null 
-                        then "reference_article" 
-                        else "famille" 
-                    end,
-        "gross_amount" = case 
-                            when "gross_amount" is null or "gross_amount" = 0 
-                            then "net_amount"::numeric 
-                            else "gross_amount"::numeric 
-                        end,
-        "gross_unit_price" = (
-            case 
-                when "gross_amount" is null or "gross_amount" = 0 
-                then "net_amount"::numeric 
-                else "gross_amount"::numeric 
-            end 
-            / "qty"::numeric
-        )::numeric,
-        "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-
-    sql_update_units = sql.SQL(
-        """
-    update "edi_ediimport"
-    set 
-        "qty" = case 
-                    when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                    when "net_amount" > 0 then abs("qty")::numeric
-                    else "qty" 
-                end,
-        "gross_unit_price" = abs("gross_unit_price"),
-        "net_unit_price" = abs("net_unit_price"),
-        "gross_amount" = case 
-                            when "net_amount" = 0 then 0
-                            when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
-                            when "net_amount" > 0 then abs("gross_amount")::numeric
-                        end
-    where "uuid_identification" = %(uuid_identification)s
-    and ("valid" = false or "valid" isnull)
-    """
-    )
-
-    sql_invoices_amounts = sql.SQL(
-        """
-    update edi_ediimport edi
-    set 
-        "invoice_amount_without_tax" = r_som."invoice_amount_without_tax",
-        "invoice_amount_tax" = r_som."invoice_amount_tax",
-        "invoice_amount_with_tax" = r_som."invoice_amount_with_tax"
-    from (
-        select 
-            "uuid_identification",
-            "invoice_number",
-            sum("net_amount") as "invoice_amount_without_tax",
-            (sum("amount_with_vat")- sum("net_amount")) as "invoice_amount_tax",
-            sum("amount_with_vat") as "invoice_amount_with_tax"
-        from "edi_ediimport" ee 
-        where "uuid_identification" = %(uuid_identification)s
-          and ("valid" = false or "valid" isnull)
-        group by "uuid_identification", "invoice_number"
-    ) r_som
-    where edi."uuid_identification" = r_som."uuid_identification"
-    and edi."invoice_number" = r_som."invoice_number"
-    """
-    )
+    sql_update = post_widex_dict.get("sql_update")
+    sql_update_units = post_widex_dict.get("sql_update_units")
+    sql_invoices_amounts = post_widex_dict.get("sql_invoices_amounts")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})

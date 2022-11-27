@@ -13,7 +13,7 @@ Pour ajouter de nouvelles intégrations, il faut :
    - lineterminator : caractère de fin de ligne du fichier ex.: "\n"
    - quotechar : Quote au sens csv ex.: "
    - supplier_name : Nom du fournisseur pour affichage si il ne vient pas dans le fichier
-   - supplier_siret : Siret du fournisseur au cas où il ne vienne pas dans le fichier, pour des besoins d'idantification du founisseur du fichier
+   - supplier_siret : Siret du fournisseur au cas où il ne vienne pas dans le fichier, pour des besoins d'identification du founisseur du fichier
    - directory : Répertoire de dépôt des fichiers de facture (après la base : file/processing/suppliers_invoices_files)
 ---
 3. Création des associations entre les colonnes de la table EdiImport et les colonnes du fichier (model: ColumnDefinition). Pour les colonnes du fichier il faut les sanitaze avec l = ["Code Adhérent", "Nature", "DocNum", "DOcdate", "ItemCode", "Dscription", "Quantity", "Code TVA sur CA", "prix Brut", "prix Net", "prix TTC", "U_NUMSER"]

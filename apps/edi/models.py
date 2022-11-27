@@ -16,6 +16,7 @@ import uuid
 from django.db import models
 
 from heron.models import DatesTable, FlagsTable
+from apps.accountancy.models import VatSage
 from apps.book.models import Society
 from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
 
@@ -40,6 +41,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
     FR : Table Import EDI
     EN : Edi Import table
     """
+
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
     third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
     flow_name = models.CharField(max_length=80)
@@ -133,6 +135,34 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         db_column="uuid_control",
     )
     date_month = models.DateField(null=True, blank=True)
+    vat = models.ForeignKey(
+        VatSage,
+        null=True,
+        on_delete=models.CASCADE,
+        to_field="vat",
+        db_column="vat",
+    )
+
+
+class EdiImportTax(FlagsTable):
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    uuid_edi_import = models.UUIDField()
+    third_party_num = models.CharField(max_length=15)
+    invoice_number = models.CharField(max_length=35)
+    total_without_tax = models.DecimalField(max_digits=20, decimal_places=5)
+    vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
+    total_tax = models.DecimalField(max_digits=20, decimal_places=5)
+    total_with_tax = models.DecimalField(max_digits=20, decimal_places=5)
+    vat_rank = models.IntegerField()
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.CASCADE,
+        to_field="vat",
+        db_column="vat",
+    )
 
 
 class SupplierDefinition(DatesTable):

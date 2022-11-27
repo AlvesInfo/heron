@@ -105,6 +105,27 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
         ]
 
 
+class InvoiceTax(FlagsTable):
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    uuid_edi_import = models.UUIDField()
+    third_party_num = models.CharField(max_length=15)
+    invoice_number = models.CharField(max_length=35)
+    total_without_tax = models.DecimalField(max_digits=20, decimal_places=5)
+    vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
+    total_tax = models.DecimalField(max_digits=20, decimal_places=5)
+    total_with_tax = models.DecimalField(max_digits=20, decimal_places=5)
+    vat_rank = models.IntegerField()
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.CASCADE,
+        to_field="vat",
+        db_column="vat",
+    )
+
+
 class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
     """
     FR : Detail des factures fournisseurs
