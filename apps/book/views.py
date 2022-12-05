@@ -89,16 +89,39 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 def supplier_cct_identifier(request, third_party_num):
     """UpdateView pour modification des couples Tiers/Code Maisons"""
+    sql_insert = sql.SQL(
+        """
+        insert into "book_suppliercct" as bb
+        (
+            "created_at",
+            "modified_at",
+            "third_party_num",
+            "axe_cct",
+            "cct_indentifier"
+        )
+        select
+            now() as "created_at",
+            now() as "modified_at",
+            'BAUS001' as "third_party_num",
+            ac."uuid_identification" as "axe_cct",
+            ac."cct" || '|' as "cct_indentifier"
+        from "accountancy_cctsage" ac
+        on conflict do nothing
+    """
+    )
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_insert)
 
     SupplierCctFormset = modelformset_factory(
         SupplierCct,
         fields=("third_party_num", "axe_cct", "cct_indentifier"),
-        # form=SupplierCctForm,
-        # extra=0,
+        form=SupplierCctForm,
+        extra=0,
     )
     queryset = SupplierCct.objects.filter(third_party_num=third_party_num).order_by("axe_cct")
     print(queryset)
-    formset = SupplierCctFormset(request.POST or None)
+    formset = SupplierCctFormset(request.POST or None, queryset=queryset)
 
     if request.method == "POST" and formset.is_valid():
 
