@@ -554,7 +554,7 @@ class SupplierCct(FlagsTable):
         verbose_name="CCT x3",
     )
     cct_identifier = models.CharField(
-        null=True, blank=True, max_length=1080, verbose_name="identifiant cct"
+        null=True, blank=True, max_length=150, verbose_name="identifiant cct"
     )
 
     def __str__(self):

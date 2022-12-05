@@ -10,12 +10,12 @@
 
 {% if user.is_authenticated %}
 
-        <form action="" method="post">
+        <form id="formForm" action="" method="post">
             {% csrf_token %}
 
-            {% include "book/society_update_entete.html" %}
+            {% include "book/supplier_cct_entete.html" %}
 
-            {% include "book/society_update_table.html" %}
+            {% include "book/supplier_cct_table.html" %}
 
         </form>
 
@@ -35,13 +35,5 @@
 {% endblock content %}
 
 {% block script %}
-
-    <script type="text/javascript">
-
-        $(document).ready(function () {
-            $(`.datatable-chargement`).hide();
-        });
-
-    </script>
 
 {% endblock script %}

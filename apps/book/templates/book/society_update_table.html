@@ -191,7 +191,7 @@
               </div>
 
               <div class="two wide field">
-                <label for="id_payment_condition_supplier" style="text-align: left;">Conditions de paiement Fournisseur&nbsp;:</label>
+                <label for="id_payment_condition_supplier" style="text-align: left;">Conditions Fournisseur&nbsp;:</label>
                     <input type="text"
                            name="payment_condition_supplier"
                            value="{{ society.payment_condition_supplier.code|default_if_none:'' }} - {{ society.payment_condition_supplier.name|default_if_none:'' }}"
@@ -218,7 +218,7 @@
                            style="background-color: lavender;font-weight: bold;">
               </div>
               <div class="two wide field">
-                <label for="id_payment_condition_client" style="text-align: left;">Condition de paiement CLient&nbsp;:</label>
+                <label for="id_payment_condition_client" style="text-align: left;">Conditions CLient&nbsp;:</label>
                     <input type="text"
                            name="payment_condition_client"
                            value="{{ society.payment_condition_client.code|default_if_none:'' }} - {{ society.payment_condition_client.name|default_if_none:'' }}"

@@ -132,7 +132,6 @@ class SupplierCctForm(forms.ModelForm):
     class Meta:
         model = SupplierCct
         fields = [
-            "third_party_num",
-            "axe_cct",
+            "id",
             "cct_identifier",
         ]

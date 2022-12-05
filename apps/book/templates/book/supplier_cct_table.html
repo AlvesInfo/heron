@@ -1,0 +1,63 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="three wide column" style="padding: 0;margin: 10px;"></div>
+
+    <div class="ten wide column" style="padding: 0;margin: 10px;">
+        <input type="hidden" name="form-TOTAL_FORMS" value="{{ count }}" id="id_form-TOTAL_FORMS">
+        <input type="hidden" name="form-INITIAL_FORMS" value="{{ count }}" id="id_form-INITIAL_FORMS">
+        <input type="hidden" name="form-MIN_NUM_FORMS" value="{{ count }}" id="id_form-MIN_NUM_FORMS">
+        <input type="hidden" name="form-MAX_NUM_FORMS" value="{{ count }}" id="id_form-MAX_NUM_FORMS">
+
+        <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+
+                <tr>
+                    <th class="no-sort" style="display: none;">pk</th>
+                    <th style="width: 15%">CCT</th>
+                    <th style="width: 85%">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
+
+                </tr>
+            </thead>
+            <tbody>
+            {% for identifier in queryset %}
+                <tr class="hide_plans">
+
+                    <td style="display: none;">
+                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                            <div class="field">
+                                <input type="text"
+                                       name="form-{{ forloop.counter0 }}-id"
+                                       value="{{ identifier.id }}"
+                                       id="id_form-{{ forloop.counter0 }}-id"
+                                       readonly=""
+                                       style="background-color: lavender;font-weight: bold;">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {{ identifier.axe_cct__cct }}
+                    </td>
+                    <td>
+                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                            <div class="field">
+                                <input type="text"
+                                       name="form-{{ forloop.counter0 }}-cct_identifier"
+                                       value="{{ identifier.cct_identifier|default_if_none:'' }}"
+                                       id="id_form-{{ forloop.counter0 }}-cct_identifier"
+                                       maxlength="150"
+                                       style="font-weight: bold;">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock table %}

@@ -4,19 +4,24 @@ Views des Tiers X3
 """
 from pathlib import Path
 
+import pendulum
 from psycopg2 import sql
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import render, reverse
+from django.shortcuts import render, reverse, redirect
 from django.views.generic import ListView, UpdateView
-from django.db import connection
+from django.db import connection, transaction
 from django.db.models import Q
-from django.forms import modelformset_factory, formsets
+from django.forms import modelformset_factory
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
-from apps.core.bin.change_traces import ChangeTraceMixin
+from heron.loggers import LOGGER_VIEWS
+from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.models import Society, SupplierCct
 from apps.book.forms import SocietyForm, SupplierCctForm
+from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier_cct
 
 
 # ECRANS DES FOURNISSEURS ==========================================================================
@@ -55,6 +60,7 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["compte_banque"] = (
             context.get("object").bank_society.filter(is_default=True).first()
         )
+        context["third_party_num"] = context.get("object").third_party_num
         context["pk"] = context.get("object").pk
         return context
 
@@ -87,192 +93,65 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().form_invalid(form)
 
 
+@transaction.atomic
 def supplier_cct_identifier(request, third_party_num):
     """UpdateView pour modification des couples Tiers/Code Maisons"""
-    sql_insert = sql.SQL(
-        """
-        insert into "book_suppliercct" as bb
-        (
-            "created_at",
-            "modified_at",
-            "third_party_num",
-            "axe_cct",
-            "cct_identifier"
+    context = {}
+
+    try:
+
+        SupplierCctFormset = modelformset_factory(
+            SupplierCct,
+            fields=("id", "cct_identifier"),
+            form=SupplierCctForm,
+            extra=0,
         )
-        select
-            now() as "created_at",
-            now() as "modified_at",
-            %(third_party_num)s as "third_party_num",
-            ac."uuid_identification" as "axe_cct",
-            ac."cct" || '|' as "cct_identifier"
-        from "accountancy_cctsage" ac
-        left join book_suppliercct bs 
-        on %(third_party_num)s = bs.third_party_num 
-        and ac.uuid_identification = bs.axe_cct  
-        where bs.axe_cct isnull
-        on conflict do nothing
-    """
-    )
+        queryset = (
+            SupplierCct.objects.filter(third_party_num=third_party_num)
+            .order_by("axe_cct")
+            .values("id", "axe_cct__cct", "cct_identifier")
+        )
+        context = {
+            "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
+            "queryset": queryset,
+            "count": queryset.count(),
+            "chevron_retour": reverse("book:societies_list"),
+            "third_party_num": third_party_num,
+        }
+        request.session["level"] = 50
 
-    with connection.cursor() as cursor:
-        cursor.execute(sql_insert, {"third_party_num": third_party_num})
+        if request.method == "POST":
+            formset = SupplierCctFormset(request.POST, initial=queryset)
+            changed = False
 
-    SupplierCctFormset = modelformset_factory(
-        SupplierCct,
-        fields=("third_party_num", "axe_cct", "cct_identifier"),
-        form=SupplierCctForm,
-        extra=0,
-    )
-    queryset = SupplierCct.objects.filter(third_party_num=third_party_num).order_by("axe_cct")
-    print(queryset)
-    formset = SupplierCctFormset(request.POST or None)
-    print("formset instancié")
+            if formset.is_valid():
+                for form in formset:
 
-    if request.method == "POST" and formset.is_valid():
+                    if form.changed_data:
+                        changed = True
+                        trace_form_change(request, form)
 
-        for form in formset:
-            print(form.cleaned_data, form.changed_data)
-        # if form.is_valid():
-        #     return redirect("centers_clients:maisons_create", initials=str(uuid_pickler))
-        #
-        # else:
-        #     LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+                if changed:
+                    message = (
+                        "Les identifiants des CCT, pour le tiers : "
+                        f"{third_party_num}, on bien été changés"
+                    )
+                else:
+                    message = "Vous n'avez rien modifié !"
 
-    context = {
-        "titre_table": "Création d'un Client avec import depuis la B.I",
-        "formset": formset,
-        "chevron_retour": reverse("centers_clients:maisons_list"),
-    }
-    return render(request, "book/test_formset.html", context=context)
+                messages.info(request, message)
 
+            elif formset.errors:
+                messages.add_message(
+                    request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
+                )
+                LOGGER_VIEWS.exception(f"erreur form : {str(formset.data)!r}")
 
-# class SupplierCctIdentifier(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-#     """UpdateView pour modification des couples Tiers/Code Maisons"""
-#
-#     model = SupplierCct
-#     form_class = SupplierCctForm
-#     formset_class = modelformset_factory(
-#         SupplierCct,
-#         fields=("third_party_num", "axe_cct", "cct_indentifier"),
-#         formset=SupplierCctForm,
-#     )
-#     # formset = formsets(queryset=model.objects.filter(third_party_num=self.get('object').third_party_num))
-#     form_class.use_required_attribute = False
-#     template_name = "book/test_formset.html"
-#     success_message = "Les CCT, pour le Tiers %(third_party_num)s ont été modifiés avec success"
-#     error_message = (
-#         "Les CCT, pour le Tiers %(third_party_num)s n'ont pu être modifiés, "
-#         "une erreur c'est produite"
-#     )
-#     pk_url_kwarg = "third_party_num"
-#
-#     def get_context_data(self, **kwargs):
-#         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
-#         print("get_context_data : ", kwargs)
-#
-#         sql_insert = sql.SQL(
-#             """
-#             insert into "book_suppliercct" as bb
-#             (
-#                 "created_at",
-#                 "modified_at",
-#                 "third_party_num",
-#                 "axe_cct",
-#                 "cct_indentifier"
-#             )
-#             select
-#                 now() as "created_at",
-#                 now() as "modified_at",
-#                 'BAUS001' as "third_party_num",
-#                 ac."uuid_identification" as "axe_cct",
-#                 ac."cct" || '|' as "cct_indentifier"
-#             from "accountancy_cctsage" ac
-#             on conflict do nothing
-#         """
-#         )
-#
-#         with connection.cursor() as cursor:
-#             cursor.execute(sql_insert)
-#
-#         context = super().get_context_data(**kwargs)
-#         print(context)
-#         context["chevron_retour"] = reverse("book:society_update", args=[963])
-#         context["titre_table"] = (
-#             f"Identifiants des CCT - " f"{context.get('object').third_party_num}"
-#         )
-#         return context
-#
-#     # def get_object(self, queryset=None):
-#     #     """Renvoie l'objet que la vue affiche.
-#     #     Requiert `self.queryset` et l'argument`third_party_num` dans l'URL.
-#     #     """
-#     #     print("get_object")
-#     #     if queryset is None:
-#     #         queryset = self.get_queryset()
-#     #
-#     #     pk = self.kwargs.get(self.pk_url_kwarg)
-#     #
-#     #     if pk is not None:
-#     #         queryset = queryset.filter(third_party_num=pk)
-#     #     else:
-#     #         raise AttributeError(
-#     #             "Generic detail view %s must be called with either an object "
-#     #             "pk or a slug in the URLconf." % self.__class__.__name__
-#     #         )
-#     #
-#     #     return queryset
-#     #
-#     # def get_queryset(self):
-#     #     """
-#     #     Retourne le queryset, en insérant les maison existantes par défaut,
-#     #     si elle n'existent pas dans la table
-#     #     """
-#     #     print("get_queryset")
-#     #     third_party_num = self.kwargs.get(self.pk_url_kwarg)
-#     #     print("third_party_num : ", third_party_num)
-#     #
-#     #     sql_insert = sql.SQL(
-#     #         """
-#     #         insert into "book_suppliercct" as bb
-#     #         (
-#     #             "created_at",
-#     #             "modified_at",
-#     #             "third_party_num",
-#     #             "axe_cct",
-#     #             "cct_indentifier"
-#     #         )
-#     #         select
-#     #             now() as "created_at",
-#     #             now() as "modified_at",
-#     #             'BAUS001' as "third_party_num",
-#     #             ac."uuid_identification" as "axe_cct",
-#     #             ac."cct" || '|' as "cct_indentifier"
-#     #         from "accountancy_cctsage" ac
-#     #         on conflict do nothing
-#     #     """
-#     #     )
-#     #
-#     #     with connection.cursor() as cursor:
-#     #         cursor.execute(sql_insert)
-#     #
-#     #     self.queryset = self.model.objects.filter(third_party_num=third_party_num)
-#     #
-#     #     return self.queryset
-#
-#     def form_valid(self, form, **kwargs):
-#         """
-#         On surcharge la méthode form_valid
-#         """
-#         for unique_form in form:
-#             unique_form.instance.modified_by = self.request.user
-#             unique_form.save()
-#
-#         self.request.session["level"] = 20
-#         return super().form_valid(form)
-#
-#     def form_invalid(self, form):
-#         self.request.session["level"] = 50
-#         return super().form_invalid(form)
+    except Exception as error:
+        messages.add_message(request, 50, f"Une erreur c'est produite, veuillez consulter les logs")
+        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
+
+    return render(request, "book/supplier_cct.html", context=context)
 
 
 def export_list_societies(request, file_name: str):
@@ -291,3 +170,35 @@ def export_list_societies(request, file_name: str):
     response = x_accel_exists_file_response(file)
 
     return response
+
+
+def export_list_supplier_cct(request, third_party_num):
+    """
+    Export Excel de la liste des Sociétés
+    :param request: Request Django
+    :param third_party_num: identification du tiers
+    :return: response_file
+    """
+    try:
+        if request.method == "GET":
+            today = pendulum.now()
+            file_name = (
+                f"Identifiants_cct_{third_party_num}_"
+                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            )
+            attr_dict = {
+                "third_party_num": third_party_num,
+            }
+            return response_file(
+                excel_liste_supplier_cct,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                attr_dict,
+            )
+
+    except:
+        LOGGER_VIEWS.exception("view : integration_purchases_export")
+
+    return redirect(
+        reverse("book:supplier_cct_identifier", kwargs={"third_party_num": third_party_num})
+    )

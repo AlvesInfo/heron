@@ -134,6 +134,11 @@
 
             $(document).ready(function(){
 
+                // BOUTON DE SOUMISSION DES FORMULAIRE POUR DECLANCHER LE LOADER
+                $(`#submitBtn`).click(function () {
+                    $(`.datatable-chargement`).show();
+                });
+
                 // FONCTION SEMANTIC UI POUR INITIALISATION DES DROPDOWNS
                 $('.dropdown').dropdown({fullTextSearch: true});
 
@@ -159,6 +164,9 @@
                 $('#jmenu').popup({popup: '#j', inline: true, on: 'click'});
                 $('#kmenu').popup({popup: '#k', inline: true, on: 'click'});
                 $('#lmenu').popup({popup: '#l', inline: true, on: 'click'});
+
+                $(`.datatable-chargement`).hide();
+
             });
 
         </script>

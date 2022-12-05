@@ -12,6 +12,8 @@ modified by:
 import inspect
 from copy import deepcopy
 
+from django import forms
+from django.forms import model_to_dict
 from django.utils import timezone
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.db import models
@@ -271,6 +273,38 @@ def trace_mark_bulk_delete(
         model_name=django_model._meta.model_name,
         model=django_model._meta.model,
         db_table=django_model._meta.db_table,
+    )
+
+    request.session["level"] = 20
+
+
+def trace_form_change(request, form: forms.ModelForm):
+    """Fonction trace des changements de données, pour views functions flag delete à True
+    :param request: request au sens Django
+    :param form: données validées, pour le filtre
+    """
+    function_call = str(inspect.currentframe().f_back)[:255]
+
+    user = request.user
+    action_datetime = timezone.now()
+    before = model_to_dict(form.cleaned_data.get("id"))
+    instance = form.save()
+    instance.modified_by = user
+    instance.save()
+    after = model_to_dict(instance)
+    model = form.Meta.model
+
+    ChangesTrace.objects.create(
+        action_datetime=action_datetime,
+        action_type=0,
+        function_name=function_call,
+        action_by=user,
+        before=before,
+        after=after,
+        difference=get_difference_dict(before, after),
+        model_name=model._meta.model_name,
+        model=model,
+        db_table=model._meta.db_table,
     )
 
     request.session["level"] = 20
