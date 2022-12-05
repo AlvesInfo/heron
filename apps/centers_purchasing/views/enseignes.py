@@ -72,6 +72,8 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def form_valid(self, form):
         """On surcharge la méthode form_valid, pour supprimer les fichiers de logos orphelins."""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
 
         if form.data.get("img_delete"):
             form.instance.logo = None
@@ -92,6 +94,10 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             file_to_delete.unlink()
 
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 def enseignes_export_list(request):

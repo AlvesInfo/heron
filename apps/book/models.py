@@ -20,7 +20,7 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
-from apps.accountancy.models import CategorySage, PaymentCondition, SupplierArticleAxePro
+from apps.accountancy.models import CategorySage, PaymentCondition, SupplierArticleAxePro, CctSage
 from apps.countries.models import Country
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
@@ -530,6 +530,46 @@ class SocietyBank(FlagsTable):
 
         ordering = ["society", "-is_default", "account_number"]
         unique_together = (("society", "account_number"),)
+
+
+class SupplierCct(FlagsTable):
+    """Identificant des CCT pour chaque Fournisseur
+    FR: Table de couples Fournisseur/Identifiant CCT
+    EN: Table of Supplier/CCT Identifier pairs
+    """
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.CASCADE,
+        to_field="third_party_num",
+        related_name="book_supplier",
+        db_column="third_party_num",
+        verbose_name="Tiers",
+    )
+    axe_cct = models.ForeignKey(
+        CctSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="book_cct",
+        db_column="axe_cct",
+        verbose_name="CCT x3",
+    )
+    cct_indentifier = models.CharField(
+        null=True, blank=True, max_length=1080, verbose_name="identifiant cct"
+    )
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.third_party_num} - {self.axe_cct.name} - {self.cct_indentifier}"
+
+    def get_absolute_url(self):
+        """Retourne l'url en cas de success create, update ou delete"""
+        return reverse("book:society_update", args=[self.third_party_num.pk])
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["third_party_num", "axe_cct"]
+        unique_together = (("third_party_num", "axe_cct"),)
 
 
 class BprBookSage:

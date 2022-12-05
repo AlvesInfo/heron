@@ -6,8 +6,9 @@ from django.shortcuts import render, redirect, reverse
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete, trace_mark_bulk_delete
 from apps.core.bin.encoders import get_base_64, set_base_64_list
+from apps.core.functions.functions_dates import get_date_apostrophe
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs import (
@@ -19,6 +20,7 @@ from apps.parameters.models import Category
 from apps.edi.models import EdiImport
 from apps.edi.forms import (
     EdiImportValidationForm,
+    DeleteEdiForm,
     DeleteInvoiceForm,
     DeletePkForm,
 )
@@ -43,6 +45,8 @@ def integration_purchases(request):
             "integration_purchases": elements,
             "margin_table": 10,
             "nb_paging": 100,
+            "nature": "les factures du fournisseur",
+            "addition": True
         }
 
     return render(request, "validation_purchases/integration_purchases.html", context=context)
@@ -56,19 +60,29 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
     form_class.use_required_attribute = False
     template_name = "validation_purchases/statment_controls.html"
     success_message = (
-        "La saisie de contrôle pour le tiers %(third_party_num)s "
-        "du mois : %(date_month)s, a été modifiée avec success"
+        "La saisie du relevé pour le tiers %(third_party_num)s "
+        f"pour le mois %(date_month)s, a été modifiée avec success"
     )
     error_message = (
-        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
+        "La saisie du relevé pour le tiers N° %(third_party_num)s "
         "n'a pu être modifiée, une erreur c'est produite"
     )
 
-    def get(self, request, *args, **kwargs):
-        """Onrécupère les attributs venant par la méthode get"""
+    def get_attributes(self, kwargs):
+        """Décode-les parammètres de la variable enc_param passés en base64"""
         enc_param = get_base_64(kwargs.get("enc_param"))
         self.big_category, self.third_party_num, self.supplier, date_month = enc_param
         self.date_month = pendulum.parse(date_month)
+        self.month = self.date_month.format("MMMM YYYY", locale="fr")
+        self.success_message = (
+            "La saisie du relevé pour le tiers %(third_party_num)s "
+            f"du mois {get_date_apostrophe(self.date_month)}"
+            f"{self.month}, a été modifiée avec success"
+        )
+
+    def get(self, request, *args, **kwargs):
+        """Onrécupère les attributs venant par la méthode get"""
+        self.get_attributes(kwargs)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -91,23 +105,20 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
     def post(self, request, *args, **kwargs):
         """Methode post"""
-        enc_param = get_base_64(kwargs.get("enc_param"))
-        self.big_category, self.third_party_num, self.supplier, self.date_month = enc_param
+        self.get_attributes(kwargs)
         return super().post(request, *args, **kwargs)
 
     @transaction.atomic
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
         instance = form.save()
-        print(instance, instance.uuid_identification)
-        print(self.big_category, instance.uuid_identification)
         EdiImport.objects.filter(
             big_category=Category.objects.get(name=self.big_category),
             third_party_num=self.third_party_num,
             supplier=self.supplier,
             date_month=self.date_month,
         ).update(uuid_control=instance.uuid_identification)
-        self.request.session["level"] = 20
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -122,21 +133,37 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     form_class = EdiImportControlForm
     form_class.use_required_attribute = False
     template_name = "validation_purchases/statment_controls.html"
+    date_month = ""
     success_message = (
-        "La saisie de contrôle pour le tiers %(third_party_num)s "
-        "du mois : %(date_month)s, a été modifiée avec success"
+        "La saisie du relevé pour le tiers %(third_party_num)s "
+        f"pour le mois %(date_month)s, a été modifiée avec success"
     )
     error_message = (
-        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
+        "La saisie du relevé pour le tiers N° %(third_party_num)s "
         "n'a pu être modifiée, une erreur c'est produite"
     )
 
-    def get(self, request, *args, **kwargs):
-        """Onrécupère les attributs venant par la méthode get"""
+    def get_attributes(self, kwargs):
+        """Décode-les parammètres de la variable enc_param passés en base64"""
         enc_param = get_base_64(kwargs.get("enc_param"))
         self.big_category, self.third_party_num, self.supplier, date_month = enc_param
         self.date_month = pendulum.parse(date_month)
+        self.month = self.date_month.format("MMMM YYYY", locale="fr")
+        self.success_message = (
+            "La saisie du relevé pour le tiers %(third_party_num)s "
+            f"pour le mois {get_date_apostrophe(self.date_month)}"
+            f"{self.month}, a été modifiée avec success"
+        )
+
+    def get(self, request, *args, **kwargs):
+        """On récupère les attributs venant par la méthode GET"""
+        self.get_attributes(kwargs)
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """On récupère les attributs venant par la méthode POST"""
+        self.get_attributes(kwargs)
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
@@ -150,6 +177,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         context["big_category"] = self.big_category
         context["supplier"] = self.supplier
         context["date_month"] = self.date_month.format("MMMM YYYY", locale="fr")
+
         return context
 
     def get_success_url(self):
@@ -158,13 +186,56 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 
     @transaction.atomic
     def form_valid(self, form):
+        """Si le formulaire est valide"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        """Si le formulaire est invalide"""
         self.request.session["level"] = 50
         return super().form_invalid(form)
+
+
+@transaction.atomic
+def delete_supplier_edi_import(request):
+    """Suppression de toutes les factures en definitif selon uuid d'import
+    :param request: Request Django
+    :return: view
+    """
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {"success": "ko"}
+    third_party_num, supplier, big_category, date_month, delete = request.POST.values()
+    instance_big_categorie = Category.objects.get(name=big_category)
+
+    if instance_big_categorie:
+        data_dict = {
+            "third_party_num": third_party_num,
+            "supplier": supplier,
+            "big_category": instance_big_categorie.uuid_identification,
+            "date_month": date_month,
+            "delete": delete,
+        }
+        form = DeleteEdiForm(data_dict)
+
+        if form.is_valid() and form.cleaned_data:
+            trace_mark_bulk_delete(
+                request=request,
+                django_model=EdiImport,
+                data_dict=form.cleaned_data,
+                replacements=(("big_category", instance_big_categorie.name),),
+            )
+            data = {"success": "success"}
+
+        else:
+            LOGGER_VIEWS.exception(
+                f"delete_supplier_edi_import error, form invalid : {form.errors!r}"
+            )
+
+    return JsonResponse(data)
 
 
 def integration_purchases_export(request):
@@ -262,7 +333,13 @@ def delete_invoice_purchase(request):
         return redirect("home")
 
     data = {"success": "ko"}
-    form = DeleteInvoiceForm(request.POST)
+    third_party_num, invoice_number, date_month, _ = request.POST.values()
+    data_dict = {
+        "third_party_num": third_party_num,
+        "invoice_number": invoice_number,
+        "date_month": date_month,
+    }
+    form = DeleteInvoiceForm(data_dict)
 
     if form.is_valid() and form.cleaned_data:
         trace_mark_delete(
@@ -273,7 +350,7 @@ def delete_invoice_purchase(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_invoice_purchase error : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"delete_invoice_purchase, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -363,7 +440,10 @@ def delete_line_details_purchase(request):
         return redirect("home")
 
     data = {"success": "ko"}
-    form = DeletePkForm(request.POST)
+    data_dict = {
+        "pk": request.POST.get("pk[pk]"),
+    }
+    form = DeletePkForm(data_dict)
 
     if form.is_valid() and form.cleaned_data:
         trace_mark_delete(
@@ -374,7 +454,7 @@ def delete_line_details_purchase(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_line_details_purchase error : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"delete_line_details_purchase, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 

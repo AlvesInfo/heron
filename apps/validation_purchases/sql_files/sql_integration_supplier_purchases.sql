@@ -2,8 +2,9 @@ select
     pc."name" as big_category,
     third_party_num,
     supplier,
+    case when max(ac.cct) isnull then '' else max(cct) end as axe_cct,
     case when max(code_maison) isnull then '' else max(code_maison) end as code_maison,
-    left(max(maison), 40) as maison,
+    left(max(maison), 100) as maison,
     invoice_number,
     invoice_date,
     sum(net_amount) as net_amount,
@@ -35,6 +36,8 @@ select
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification
+left join accountancy_cctsage ac
+on ee.axe_cct = ac.uuid_identification
 where third_party_num = %(third_party_num)s
   and supplier = %(supplier)s
   and pc."name" = %(big_category)s

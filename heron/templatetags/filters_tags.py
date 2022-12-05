@@ -156,10 +156,15 @@ def numbers_format(value, num):
 @register.filter(name="numbers_point")
 def numbers_point(value, num):
 
-    print(value)
-    if not value:
+    if not value or value == "0":
         return "0"
-    nombre, centimes, *_ = str(value).split(".")
+
+    if "." in str(value):
+        nombre, centimes, *_ = str(value).split(".")
+    else:
+        nombre = str(value)
+        centimes = ""
+
     centimes += "0" * 99
     return_value = ""
 

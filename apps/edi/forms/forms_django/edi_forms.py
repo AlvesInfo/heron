@@ -50,6 +50,22 @@ class EdiImportValidationForm(forms.ModelForm):
         ]
 
 
+class DeleteEdiForm(forms.ModelForm):
+    """Formulaire pour delete un fournisseur de facture EdiImport"""
+
+    class Meta:
+        """class Meta"""
+
+        model = EdiImport
+        fields = [
+            "third_party_num",
+            "supplier",
+            "big_category",
+            "date_month",
+            "delete",
+        ]
+
+
 class DeleteInvoiceForm(forms.ModelForm):
     """Formulaire pour flagué en delete une ligne de facture EdiImport"""
 

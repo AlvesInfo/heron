@@ -20,7 +20,7 @@
                 <th class="no-sort" style="width: 2px;"></th>
                 <th style="width: 15px;">Catégorie</th>
                 <th style="width: 20px;">Tiers X3</th>
-                <th style="width: 230px;">Fournisseur</th>
+                <th style="width: 234px;">Fournisseur</th>
                 <th style="width: 60px;">Total HT</th>
                 <th style="width: 60px;">Total TTC</th>
                 <th style="width: 30px;">Nbre</th>
@@ -51,7 +51,7 @@
         </thead>
         <tbody>
         {% for supplier_purchase in integration_purchases %}
-            <tr class="hide_plans">
+            <tr class="hide_plans even" id="id_{{ forloop.counter0 }}">
                 <td style="text-align: center;">
                     <a href="{% url 'validation_purchases:integration_supplier_purchases' supplier_purchase.enc_param|encode_b64_str %}">
                         <i class="eye icon modification"></i>
@@ -66,7 +66,7 @@
                 <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.date_month|date:"F Y" }}</td>
                 <td class="tdDelete" style="text-align: center;border-left: 1px solid teal;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, '{{ export.str_json }}', `{{ export.invoice_number }}`, `{% url 'validation_purchases:delete_invoice_purchase' %}`, `{{ nature }}`)"></i>
+                      <i class="red trash icon" onclick='deletePk({{ forloop.counter0 }}, {{ supplier_purchase.str_json|safe }}, `{{ supplier_purchase.supplier }} - {{ supplier_purchase.date_month|date:"F Y" }}`, `{% url 'validation_purchases:delete_supplier_edi_import' %}`, `{{ nature }}`)'></i>
                     </div>
                 </td>
                 <td style="text-align: center;border-left: 1px solid teal;">

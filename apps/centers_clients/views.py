@@ -78,11 +78,16 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """
         On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
         """
+        self.request.session["level"] = 20
         Path(self.pickler_object.pickle_file.path).unlink()
         pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
         pickle_file.unlink()
         self.pickler_object.delete()
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

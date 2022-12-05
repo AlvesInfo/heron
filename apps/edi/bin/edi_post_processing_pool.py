@@ -58,6 +58,7 @@ def post_processing_all():
     sql_supplier_update = post_all_dict.get("sql_supplier_update")
     sql_fac_update_except_edi = post_all_dict.get("sql_fac_update_except_edi")
     sql_reference = post_all_dict.get("sql_reference")
+    sql_vat = post_all_dict.get("sql_vat")
     sql_vat_rate = post_all_dict.get("sql_vat_rate")
     sql_validate = post_all_dict.get("sql_validate")
     with connection.cursor() as cursor:
@@ -65,6 +66,7 @@ def post_processing_all():
         cursor.execute(sql_supplier_update)
         cursor.execute(sql_fac_update_except_edi)
         cursor.execute(sql_reference)
+        cursor.execute(sql_vat)
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()

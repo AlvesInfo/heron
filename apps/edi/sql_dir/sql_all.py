@@ -123,6 +123,69 @@ and edi."invoice_number" = edi_fac."invoice_number"
       and ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_vat": sql.SQL(
+        """
+        with req_vat as (
+            select 
+                r_vat.vat, r_vat.vat_regime, (r_rate.rate/100)::numeric as vat_rate
+            from (
+                select 
+                    avr.vat, avr.rate
+                from accountancy_vatratsage avr
+                join (
+                    select 
+                        av.vat, max(av.vat_start_date) as vat_start_date 
+                    from accountancy_vatratsage av 
+                    group by
+                        av.vat
+                ) rg
+                on avr.vat = rg.vat
+                and avr.vat_start_date = rg.vat_start_date
+            ) r_rate		
+            join (
+                select 
+                    avm.vat, avm.vat_regime
+                from accountancy_vatsage avm
+                where (vat_regime is not null and vat_regime != '')
+            ) r_vat
+            on r_rate.vat = r_vat.vat
+        ),
+        req_scheme as (
+            select 
+                ei.third_party_num , 
+                vat_sheme_supplier, 
+                vat_rate
+            from edi_ediimport ei
+            join book_society bs
+            on ei.third_party_num = bs.third_party_num
+            where (ei."valid" = false or ei."valid" isnull)
+              and vat_sheme_supplier is not null
+            group by ei.third_party_num , vat_sheme_supplier, vat_rate
+        ),
+        req_sup_vat as (
+            select 
+                rs.third_party_num , 
+                rs.vat_sheme_supplier, 
+                rs.vat_rate,
+                min(rv.vat) as vat
+            from req_scheme rs
+            join req_vat rv 
+            on rs.vat_sheme_supplier = rv.vat_regime
+            and rs.vat_rate = rv.vat_rate
+            group by 
+                rs.third_party_num , 
+                rs.vat_sheme_supplier, 
+                rs.vat_rate
+        )
+        update edi_ediimport edi
+           set vat = rvat.vat,
+            vat_regime = rvat.vat_sheme_supplier
+         from req_sup_vat rvat
+        where (edi."valid" = false or edi."valid" isnull)
+          and edi.third_party_num = rvat.third_party_num
+          and edi.vat_rate = rvat.vat_rate
+    """
+    ),
     "sql_vat_rate": sql.SQL(
         """
     with ranks as (

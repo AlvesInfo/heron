@@ -58,7 +58,8 @@ def set_base_64_str(value: str) -> base64:
     :param value: string déjà formaté avec || en séparateur
     :return: base64
     """
-    return base64.b64encode(value.encode(encoding="utf8")).decode(encoding="utf8")
+    b_value = b"" if value is None else value.encode(encoding="utf8")
+    return base64.b64encode(b_value).decode(encoding="utf8")
 
 
 def get_base_64(value_base64: base64) -> list:
@@ -67,6 +68,6 @@ def get_base_64(value_base64: base64) -> list:
     :param value_base64: valeur en base64 à spliter
     :return: list des éléments décodés
     """
-    b_value = value_base64.encode(encoding="utf8")
-    value = base64.b64decode(b_value + b'=' * (-len(b_value) % 4)).decode(encoding="utf8")
+    b_value = b"" if value_base64 is None else value_base64.encode(encoding="utf8")
+    value = base64.b64decode(b_value + b"=" * (-len(b_value) % 4)).decode(encoding="utf8")
     return value.split("||")

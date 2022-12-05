@@ -19,6 +19,7 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
+from apps.accountancy.models import VatSage, VatRegimeSage, CctSage, SectionSage
 from apps.countries.models import Country
 
 
@@ -392,6 +393,15 @@ class BaseInvoiceTable(models.Model):
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
+    axe_cct = models.ForeignKey(
+        CctSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        verbose_name="CCT x3",
+        db_column="axe_cct",
+    )
 
     class Meta:
         """class Meta du modèle django"""
@@ -492,12 +502,51 @@ class BaseInvoiceDetailsTable(models.Model):
     )
 
     # Sage
-    axe_bu = models.CharField(null=True, blank=True, max_length=10)
-    axe_cct = models.CharField(null=True, blank=True, max_length=10)
-    axe_prj = models.CharField(null=True, blank=True, max_length=10)
-    axe_pro = models.CharField(null=True, blank=True, max_length=10)
-    axe_pys = models.CharField(null=True, blank=True, max_length=10)
-    axe_rfa = models.CharField(null=True, blank=True, max_length=10)
+    axe_bu = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "BU"},
+        related_name="+",
+        db_column="axe_bu_uuid",
+    )
+    axe_prj = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRJ"},
+        related_name="+",
+        db_column="axe_prj_uuid",
+    )
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="+",
+        db_column="axe_pro_uuid",
+    )
+    axe_pys = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PYS"},
+        related_name="+",
+        db_column="axe_pys_uuid",
+    )
+    axe_rfa = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "RFA"},
+        related_name="+",
+        db_column="axe_rfa_uuid",
+    )
 
     class Meta:
         """class Meta du modèle django"""

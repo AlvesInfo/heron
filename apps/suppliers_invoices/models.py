@@ -17,7 +17,7 @@ from django.db import models
 
 from heron.models import FlagsTable
 from apps.parameters.models import BaseAdressesTable, BaseInvoiceTable, BaseInvoiceDetailsTable
-from apps.accountancy.models import VatSage
+from apps.accountancy.models import VatSage, VatRegimeSage
 from apps.articles.models import (
     Article,
     Category,
@@ -65,6 +65,12 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     function = models.CharField(unique=True, max_length=255)
     function_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     function_created_at = models.DateTimeField()
+    vat_regime = models.ForeignKey(
+        VatRegimeSage,
+        on_delete=models.CASCADE,
+        to_field="vat_regime",
+        db_column="vat_regime",
+    )
 
     def save(self, *args, **kwargs):
         """

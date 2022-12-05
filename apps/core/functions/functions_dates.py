@@ -43,43 +43,54 @@ WEEK_DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "di
 WEEK_DAYS_SHORT_FR = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
 
 
+def get_date_apostrophe(dte: [pendulum, datetime, str]):
+    """Renvoi "de" où "d'" en fonction du mois reçu"""
+    if isinstance(dte, (str,)):
+        if not dte:
+            return "de "
+
+        return "d'" if str(dte).lower()[0] in {"a", "o"} else "de "
+
+    return "d'" if dte.month in {4, 8, 10} else "de "
+
+
 def lower_mois_string_sans_accents(dte):
     """Fonction qui renvoie le nom du mois sans accents
-        :param dte: 17/01/2017
-        :return: Janvier
+    :param dte: 17/01/2017
+    :return: Janvier
     """
     return f"{MONTHS[dte.month]}"
 
 
 def first_day_month(dte):
     """Fonction qui retourne le premier jour du mois
-        :param dte: 17/01/2017
-        :return: '2017-01-01' au format datetime.date(2017, 1, 1)
+    :param dte: 17/01/2017
+    :return: '2017-01-01' au format datetime.date(2017, 1, 1)
     """
     return datetime.date(dte.year, dte.month, 1)
 
 
 def last_day_month(dte):
     """Fonction qui retourne le dernier jour du mois
-        :param dte: 17/01/2017
-        :return: '2017-01-01' au format datetime.date(2017, 1, 31)
+    :param dte: 17/01/2017
+    :return: '2017-01-01' au format datetime.date(2017, 1, 31)
     """
     return datetime.date(dte.year, dte.month, days_of_month(dte))
 
 
 def year_month(dte):
     """Fonction qui retourne l'année et le mois
-        :param dte: date
-        :return: 2018_10
+    :param dte: date
+    :return: 2018_10
     """
     return f"{dte.year}_{dte.month}"
 
 
 def date_moins_x_mois(dte: datetime.date, mois: int) -> datetime.date:
     """Fonction qui retourne la date avec x mois en moins
-        :param dte: date
-        :param mois: nombre de mois antérieurs
-        :return: la date moins x mois
+    :param dte: date
+    :param mois: nombre de mois antérieurs
+    :return: la date moins x mois
     """
     d_mois = mois - 1
     annee = dte.year - d_mois // 12
@@ -102,8 +113,8 @@ def date_moins_x_mois(dte: datetime.date, mois: int) -> datetime.date:
 
 def date_string_series(dte=None):
     """Fonction qui renvoie une date sous forme de string :
-        :param dte: de type date
-        :return: de type string ex.: 2017_02_01
+    :param dte: de type date
+    :return: de type string ex.: 2017_02_01
     """
     if dte is None:
         dte = datetime.datetime.now()
@@ -125,8 +136,8 @@ def date_string_series(dte=None):
 
 def time_string_series():
     """Fonction qui renvoie le nombre de secondes entre maintenant et le 01/01/2000 - 00:00 :
-            exemple résultat -> 1497797172
-        :return: de type string
+        exemple résultat -> 1497797172
+    :return: de type string
     """
     past = datetime.datetime(2000, 1, 1, 0, 0)
     now = datetime.datetime.now()
@@ -138,8 +149,8 @@ def time_string_series():
 
 def date_string_4(dte):
     """Fonction qui renvoie la date au format 30/01/2017
-        :param dte: date
-        :return: 30/01/2017
+    :param dte: date
+    :return: 30/01/2017
     """
     jd = str(dte.day)
     if len(jd) == 1:
@@ -158,8 +169,8 @@ def date_string_4(dte):
 
 def date_string_2(dte):
     """Fonction qui renvoie la date au format 30/01/17
-        :param dte: date
-        :return: 30/01/17
+    :param dte: date
+    :return: 30/01/17
     """
     jd = str(dte.day)
     if len(jd) == 1:
@@ -177,40 +188,40 @@ def date_string_2(dte):
 
 def lower_mois_string_avec_accents(dte):
     """Fonction qui renvoie le nom du mois avec accents
-        :param dte: 17/01/2017
-        :return: Janvier
+    :param dte: 17/01/2017
+    :return: Janvier
     """
     return f"{MONTHS[dte.month].capitalize()}"
 
 
 def long_date_string(dte):
     """Fonction qui renvoie le nom du mois (avec accents), avec l'année
-        :param dte: 17/01/2017
-        :return: Janvier 2017
+    :param dte: 17/01/2017
+    :return: Janvier 2017
     """
     return f"{MONTHS[dte.month].capitalize()} {dte.year}"
 
 
 def long_date_string_s(dte):
     """Fonction qui renvoie le nom du mois en minuscule séparer par _, avec l'année
-        :param dte: 17/02/2017
-        :return: février_2017
+    :param dte: 17/02/2017
+    :return: février_2017
     """
     return f"{MONTHS[dte.month]}_{dte.year}"
 
 
 def long_date_string_upper_s(dte):
     """Fonction qui renvoie le nom du mois en majuscule séparer par _, avec l'année
-        :param dte: 17/02/2017
-        :return: FÉVRIER_2017
+    :param dte: 17/02/2017
+    :return: FÉVRIER_2017
     """
     return f"{MONTHS[dte.month].upper()}_{dte.year}"
 
 
 def long_date_string_d_upper(dte):
     """Fonction qui renvoie DE suivi du nom du mois (en majuscule), avec l'année
-        :param dte: 17/02/2017
-        :return: DE FÉVRIER 2017
+    :param dte: 17/02/2017
+    :return: DE FÉVRIER 2017
     """
     m = dte.month
     prefix = "D'" if m in {4, 10} else "DE"
@@ -220,40 +231,40 @@ def long_date_string_d_upper(dte):
 
 def short_date_string(dte):
     """Fonction qui renvoie le nom du mois en abrégé, avec l'année
-        :param dte: 17/01/2017
-        :return: Janv. 2017
+    :param dte: 17/01/2017
+    :return: Janv. 2017
     """
     return f"{TRUNC_MONTHS[dte.month].capitalize()} {dte.year}"
 
 
 def days_of_month(dte):
     """Fonction qui retourne le nombre de jours dans le mois
-        :param dte: 17/01/2017
-        :return: 31
+    :param dte: 17/01/2017
+    :return: 31
     """
     return calendar.monthrange(dte.year, dte.month)[1]
 
 
 def next_month(dte):
     """Fonction qui retourne une date le mois d'après
-        :param dte: 17/01/2017
-        :return: 17/02/2017
+    :param dte: 17/01/2017
+    :return: 17/02/2017
     """
     return dte + relativedelta(months=+1)
 
 
 def previous_month(dte):
     """Fonction qui retourne une date le mois d'avant
-        :param dte: 17/01/2017
-        :return: 17/02/2017
+    :param dte: 17/01/2017
+    :return: 17/02/2017
     """
     return dte + relativedelta(months=-1)
 
 
 def between_month(dte):
     """Fonction qui retourne le betwwen du mois entier
-        :param dte: 17/01/2017
-        :return: between '2017-01-01' and '2017-01-31'
+    :param dte: 17/01/2017
+    :return: between '2017-01-01' and '2017-01-31'
     """
     return (
         f"between '{datetime.date(dte.year, dte.month, 1)}' "
@@ -263,9 +274,9 @@ def between_month(dte):
 
 def between_periode(dte_d, dte_f):
     """Fonction qui retourne le betwwen de la période entière
-        :param dte_d: 17/01/2017
-        :param dte_f: 15/02/2017
-        :return: between '2017-01-01' and '2017-02-28'
+    :param dte_d: 17/01/2017
+    :param dte_f: 15/02/2017
+    :return: between '2017-01-01' and '2017-02-28'
     """
     dte_01, dte_02 = controle_between(dte_d, dte_f)
     first_day = datetime.date(dte_01.year, dte_01.month, 1)
@@ -276,9 +287,9 @@ def between_periode(dte_d, dte_f):
 
 def between_dates(dte_d, dte_f):
     """Fonction qui retourne le betwwen entre 2 dates
-        :param dte_d: 17/01/2017
-        :param dte_f: 15/02/2017
-        :return: between '2017-01-17' and '2017-02-15'
+    :param dte_d: 17/01/2017
+    :param dte_f: 15/02/2017
+    :return: between '2017-01-17' and '2017-02-15'
     """
     dte_01, dte_02 = controle_between(dte_d, dte_f)
     first_day = datetime.date(dte_01.year, dte_01.month, dte_01.day)
@@ -289,9 +300,9 @@ def between_dates(dte_d, dte_f):
 
 def controle_between(dte_d, dte_f):
     """Fonction qui renvoie l'ordre des dates reçues
-        :param dte_d: date
-        :param dte_f: date
-        :return: date_plus_petite, date_plus_grande
+    :param dte_d: date
+    :param dte_f: date
+    :return: date_plus_petite, date_plus_grande
     """
     if dte_d > dte_f:
         dte_d, dte_f = dte_f, dte_d
@@ -323,29 +334,29 @@ def dic_date(dte):
 
 def separate_month(dte_debut, dte_fin):
     """Retourne une liste des mois entre deux dates
-        :param dte_debut: Date de début
-        :param dte_fin: Date de fin
-        :return: [
-                {'periode': 'du 01/02/17 au 31/07/17',
-                'between_periode': "between '2017-02-01' and '2017-07-31'",
-                'nb_mois': 6
-                },
-                {
-                'dte': datetime.date(2017, 1, 1),
-                'dte_str_2': '01/01/17',
-                'dte_str_4': '01/01/2017',
-                'short_dte_str': 'Janv.2017'
-                'long_dte_str': 'Janvier 2017',
-                'days_month': 31,
-                'between': "BETWEEN '2017-01-01' and '2017-01-31'",
-                'annee': 2017,
-                'mois': 1,
-                'jour_f': 31,
-                'sql_dte_first': "'2017-01-01'",
-                'sql_dte_last': "'2017-01-31'",
-                'periode': 'du 01/01/17 au 31/01/17'
-                }, ....
-            ]
+    :param dte_debut: Date de début
+    :param dte_fin: Date de fin
+    :return: [
+            {'periode': 'du 01/02/17 au 31/07/17',
+            'between_periode': "between '2017-02-01' and '2017-07-31'",
+            'nb_mois': 6
+            },
+            {
+            'dte': datetime.date(2017, 1, 1),
+            'dte_str_2': '01/01/17',
+            'dte_str_4': '01/01/2017',
+            'short_dte_str': 'Janv.2017'
+            'long_dte_str': 'Janvier 2017',
+            'days_month': 31,
+            'between': "BETWEEN '2017-01-01' and '2017-01-31'",
+            'annee': 2017,
+            'mois': 1,
+            'jour_f': 31,
+            'sql_dte_first': "'2017-01-01'",
+            'sql_dte_last': "'2017-01-31'",
+            'periode': 'du 01/01/17 au 31/01/17'
+            }, ....
+        ]
     """
     dte_d, dte_f = controle_between(
         datetime.date(dte_debut.year, dte_debut.month, 1),
@@ -389,10 +400,10 @@ def separate_month(dte_debut, dte_fin):
 
 def separate_month_a_date(dte_d, dte_f):
     """
-        {'periode': 'du 01/02/17 au 31/07/17',
-        'between_periode': "between '2017-02-01' and '2017-07-31'",
-        'nb_mois': 6
-        },
+    {'periode': 'du 01/02/17 au 31/07/17',
+    'between_periode': "between '2017-02-01' and '2017-07-31'",
+    'nb_mois': 6
+    },
     """
     periode = separate_month(dte_d, dte_f)
 
@@ -471,8 +482,8 @@ def date_mois_x_semaines_lundi(dte, nb_semaines):
 
 def first_day_week_of_month(dte_m):
     """Retourne la date du debut de la semaine du même mois
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     w = dte_m.weekday()
     month = dte_m.month
@@ -485,16 +496,16 @@ def first_day_week_of_month(dte_m):
 
 def first_day_string_week_of_month(dte_m):
     """Retourne la date au format string du debut de la semaine du même mois
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     return first_day_week_of_month(dte_m).isoformat()[:10]
 
 
 def last_day_week_of_month(dte_m):
     """Retourne la date de fin de la semaine du même mois
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     w = dte_m.weekday()
     month = dte_m.month
@@ -510,16 +521,16 @@ def last_day_week_of_month(dte_m):
 
 def last_day_string_week_of_month(dte_m):
     """Retourne la date au format string de fin de la semaine du même mois
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     return last_day_week_of_month(dte_m).isoformat()[:10]
 
 
 def complete_week_of_month(dte_m):
     """Retourne les jours de la semaine du même mois sinon le jour est None
-        :param dte_m: date
-        :return: [j1, j2, j3, j4, j5, j5, j7]
+    :param dte_m: date
+    :return: [j1, j2, j3, j4, j5, j5, j7]
     """
     first_day = first_day_week_of_month(dte_m)
     last_day = last_day_week_of_month(dte_m)
@@ -540,16 +551,16 @@ def complete_week_of_month(dte_m):
 
 def complete_string_week_of_month(dte_m):
     """Retourne une list de date au foramt string du même mois sinon None de la semaine
-        :param dte_m: date
-        :return: list de tous les jours
+    :param dte_m: date
+    :return: list de tous les jours
     """
     return [d.isoformat()[:10] if d else None for d in complete_week_of_month(dte_m)]
 
 
 def week_of_month(dte_m):
     """Retourne les jours de la semaine du même mois sinon le jour est None
-        :param dte_m: date
-        :return: [j1, j2, j3, j4, j5, j5, j7]
+    :param dte_m: date
+    :return: [j1, j2, j3, j4, j5, j5, j7]
     """
     first_day = first_day_week_of_month(dte_m)
     last_day = last_day_week_of_month(dte_m)
@@ -568,48 +579,48 @@ def week_of_month(dte_m):
 
 def string_week_of_month(dte_m):
     """Retourne une list de date au foramt string du même mois sinon None de la semaine
-        :param dte_m: date
-        :return: list de tous les jours
+    :param dte_m: date
+    :return: list de tous les jours
     """
     return [d.isoformat()[:10] if d else None for d in week_of_month(dte_m)]
 
 
 def first_day_week(dte_m):
     """Retourne la date du debut de la semaine
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     return dte_m - datetime.timedelta(days=dte_m.weekday())
 
 
 def first_day_string_week(dte_m):
     """Retourne la date au format string du debut de la semaine
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     return first_day_week(dte_m).isoformat()[:10]
 
 
 def last_day_week(dte_m):
     """Retourne la date de fin de la semaine
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     return dte_m + datetime.timedelta(days=6 - dte_m.weekday())
 
 
 def last_day_string_week(dte_m):
     """Retourne la date au format string de fin de la semaine
-        :param dte_m: date
-        :return: debut semaine
+    :param dte_m: date
+    :return: debut semaine
     """
     return last_day_week(dte_m).isoformat()[:10]
 
 
 def complete_week(dte_m):
     """Retourne les jours de la semaine
-        :param dte_m: date
-        :return: [j1, j2, j3, j4, j5, j5, j7]
+    :param dte_m: date
+    :return: [j1, j2, j3, j4, j5, j5, j7]
     """
     first_day = first_day_week(dte_m)
     return [first_day + datetime.timedelta(days=i) for i in range(7)]
@@ -617,8 +628,8 @@ def complete_week(dte_m):
 
 def complete_string_week(dte_m):
     """Retourne une list de date au foramt string du même mois sinon None de la semaine
-        :param dte_m: date
-        :return: list de tous les jours
+    :param dte_m: date
+    :return: list de tous les jours
     """
     return [d.isoformat()[:10] for d in complete_week(dte_m)]
 
@@ -727,8 +738,8 @@ def easter_date(year):
 @lru_cache(maxsize=256)
 def is_holiday(the_date):
     """Vérifie si la date donnée est un jour férié
-        :param the_date: datetime
-        :return: bool
+    :param the_date: datetime
+    :return: bool
     """
     year = the_date.year
     easter = easter_date(year)
@@ -750,27 +761,27 @@ def is_holiday(the_date):
 
 def is_business_day(dte: datetime.datetime):
     """Vérifie si le jour est ouvré
-        :param dte: date du jour à vérifier
-        :return: True if business day
+    :param dte: date du jour à vérifier
+    :return: True if business day
     """
     return dte.weekday() not in {5, 6}
 
 
 def is_business_day_and_not_holiday(dte: datetime.datetime, days_off=(6, 7)):
     """Vérifie si le jour est ouvré
-        :param dte: date du jour à vérifier
-        :param days_off: jours non ouvrés de la semaine
-        :return: True if business day
+    :param dte: date du jour à vérifier
+    :param days_off: jours non ouvrés de la semaine
+    :return: True if business day
     """
     return not any([is_holiday(dte), dte.isoweekday() in days_off])
 
 
 def business_days(date_from, date_to, days_off=(6, 7)):
     """Générateur retournant les jours ouvrés dans la période [date_from:date_to]
-        :param date_from: Date de début de la période
-        :param date_to: Date de fin de la période
-        :param days_off: jours non ouvrés de la semaine
-        :return: Générateur
+    :param date_from: Date de début de la période
+    :param date_to: Date de fin de la période
+    :param days_off: jours non ouvrés de la semaine
+    :return: Générateur
     """
     while date_from <= date_to:
         # Un jour est ouvré s'il n'est ni férié, ni samedi, ni dimanche
@@ -782,8 +793,8 @@ def business_days(date_from, date_to, days_off=(6, 7)):
 # Fin du générateur des jours fériés en français
 def get_hours(hours: str):
     """Retourne une heure ou None
-        :param hours: heure à vérifier
-        :return: heure au format "03:00" ou None
+    :param hours: heure à vérifier
+    :return: heure au format "03:00" ou None
     """
     hours_to_parse = str(hours).lower().replace("h", ":")
 
@@ -810,8 +821,8 @@ def get_hours(hours: str):
 
 def yes_no_to_bool(value: str):
     """Retourne la valeur booleenne de type 0 ou 1
-        :param value: valeur à parser
-        :return: valeur booleene pour la table 0 ou 1
+    :param value: valeur à parser
+    :return: valeur booleene pour la table 0 ou 1
     """
     if value.lower() in {"oui", "yes", "y", "true"}:
         return 1
@@ -824,7 +835,7 @@ def yes_no_to_bool(value: str):
 
 def get_opening_day():
     """Retourne le type de jour de la date du jour
-        :return: le texte adapté à la date du jour
+    :return: le texte adapté à la date du jour
     """
     dte = datetime.datetime.now()
 

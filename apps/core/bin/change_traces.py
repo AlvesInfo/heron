@@ -201,16 +201,18 @@ def trace_mark_delete(request, django_model: models.Model, data_dict: dict):
         )
         request.session["level"] = 50
 
+    user = request.user
+    action_datetime = timezone.now()
+
     for row in model_object:
         request.session["level"] = 20
-        user = request.user
         before = {key: value for key, value in row.__dict__.items() if key != "_state"}
         row.delete = True
         row.modified_by = user
         row.save()
         after = {key: value for key, value in row.__dict__.items() if key != "_state"}
         ChangesTrace.objects.create(
-            action_datetime=timezone.now(),
+            action_datetime=action_datetime,
             action_type=0,
             function_name=function_call,
             action_by=user,
@@ -221,3 +223,54 @@ def trace_mark_delete(request, django_model: models.Model, data_dict: dict):
             model=django_model._meta.model,
             db_table=django_model._meta.db_table,
         )
+
+
+def trace_mark_bulk_delete(
+    request, django_model: models.Model, data_dict: dict, replacements: tuple = ()
+):
+    """Fonction trace des changements de données, pour views functions flag delete à True
+    :param request: request au sens Django
+    :param django_model: Model au sens Django
+    :param data_dict: données validées, pour le filtre
+    :param replacements: Tuple des varaibles à remplacer
+    """
+    function_call = str(inspect.currentframe().f_back)[:255]
+    model_object = django_model.objects.filter(**data_dict)
+
+    if not model_object:
+        LOGGER_VIEWS.exception(
+            f"{function_call} error : les données ne retournent aucuns résultats :\n"
+            f"{str(data_dict)}"
+        )
+        request.session["level"] = 50
+
+    user = request.user
+    action_datetime = timezone.now()
+
+    before = {key: value for key, value in data_dict.items()}
+    after = {
+        **{key: value for key, value in deepcopy(before).items()},
+        **{"modified_by": user.pk, "delete": True},
+    }
+
+    for replacement in replacements:
+        key, value = replacement
+        before[key] = value
+        after[key] = value
+
+    model_object.update(modified_by=user, delete=True)
+
+    ChangesTrace.objects.create(
+        action_datetime=action_datetime,
+        action_type=0,
+        function_name=function_call,
+        action_by=user,
+        before=before,
+        after=after,
+        difference=get_difference_dict(before, after),
+        model_name=django_model._meta.model_name,
+        model=django_model._meta.model,
+        db_table=django_model._meta.db_table,
+    )
+
+    request.session["level"] = 20

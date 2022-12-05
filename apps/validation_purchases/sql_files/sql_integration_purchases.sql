@@ -17,7 +17,20 @@ select
     case when sum(net_amount) != sum(invoice_amount_without_tax) then true else false end as error,
     uuid_identification,
     big_category || '||' || third_party_num || '||' || supplier || '||' || date_month as enc_param,
-    pk
+    pk,
+    (
+        '{"third_party_num": "'
+        || third_party_num ||
+        '", "supplier": "'
+        || supplier ||
+        '", "big_category": "'
+        || big_category ||
+        '", "date_month": "'
+        || date_month ||
+        '", "delete": "'
+        || 'false' ||
+        '"}'
+    ) as str_json
 from (
     select
         pc."name" as big_category,

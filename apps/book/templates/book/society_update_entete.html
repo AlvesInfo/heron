@@ -1,5 +1,15 @@
 {% extends "heron/list_courant.html" %}
 
+{% block left_side %}
+
+    <a class="item" href="{% url 'book:supplier_cct_identifier' third_party_num='BAUS001'%}">
+        <button class="ui blue button" name="update_tiers" type="button" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            Identification CCT
+        </button>
+    </a>
+
+{% endblock left_side %}
+
 {% block right_side %}
 
     <a class="item" href="">

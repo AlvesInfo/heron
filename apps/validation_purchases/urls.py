@@ -2,6 +2,7 @@ from django.urls import path
 
 from apps.validation_purchases.views import (
     integration_purchases,
+    delete_supplier_edi_import,
     integration_purchases_export,
     CreateIntegrationControl,
     UpdateIntegrationControl,
@@ -43,6 +44,11 @@ urlpatterns = [
             "integration_purchases/",
             integration_purchases,
             name="integration_purchases",
+        ),
+        path(
+            "delete_supplier_edi_import/",
+            delete_supplier_edi_import,
+            name="delete_supplier_edi_import",
         ),
         path(
             "create_control/<str:enc_param>/",

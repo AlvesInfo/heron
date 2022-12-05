@@ -44,6 +44,19 @@
         <script type="text/javascript" src="{% static 'moment/moment.js' %}"></script>
         <script type="text/javascript" src="{% static 'datetime-moment.js' %}"></script>
         <script type="text/javascript">
+            let addition = `{{ addition }}`;
+
+            function makeAddition () {
+                setSum("supplierHt")
+                setSum("SupplierTtc")
+                setSum("statementHt")
+                setSum("statementTtc")
+                setDeltaSum("deltaHt", "supplierHt", "statementHt")
+                setDeltaSum("deltaTtc", "SupplierTtc", "statementTtc")
+                {#setDelta("deltaHt", "supplierHt", "statementHt")#}
+                {#setDelta("deltaTtc", "SupplierTtc", "statementTtc")#}
+            }
+
             $(document).ready(function () {
               // INITIALISATION DE MOMENT SUR LES DATATABLES POUR TRI
               $.fn.dataTable.moment( 'DD/MM/YYY' );

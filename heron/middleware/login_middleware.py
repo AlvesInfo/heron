@@ -30,7 +30,7 @@ class LoginMiddleware:
         """
         Si l'on n'est pas authentifié, on est renvoyé sur la page de login
         :param request: request django
-        :return: Redirige vers la page de login si non connecté
+        :return: Redirige vers la page de login si non connecté.
         """
 
         if not request.user.is_authenticated and request.path != '/accounts/login/':

@@ -78,7 +78,23 @@ COLUMNS = [
         "width": 40,
     },
     {
-        "entete": "CCT",
+        "entete": "CCT\nSage X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 8,
+    },
+    {
+        "entete": "CCT\nForun.",
         "f_entete": {
             **f_entetes,
             **{

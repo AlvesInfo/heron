@@ -36,17 +36,9 @@
     <script>
 
         $(document).ready(function () {
-
             {% include "heron/base_data_table.html" %}
-            setSum("supplierHt")
-            setSum("SupplierTtc")
-            setSum("statementHt")
-            setSum("statementTtc")
-            setDeltaSum("deltaHt", "supplierHt", "statementHt")
-            setDeltaSum("deltaTtc", "SupplierTtc", "statementTtc")
 
-            {#setDelta("deltaHt", "supplierHt", "statementHt")#}
-            {#setDelta("deltaTtc", "SupplierTtc", "statementTtc")#}
+            makeAddition()
 
         });
 

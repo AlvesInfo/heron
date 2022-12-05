@@ -16,7 +16,7 @@ import uuid
 from django.db import models
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import VatSage
+from apps.accountancy.models import VatSage, VatRegimeSage, CctSage
 from apps.book.models import Society
 from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
 
@@ -25,10 +25,10 @@ class EdiImportControl(FlagsTable):
     """Table de saisie de relevé des fournisseurs, pour contrôle des intégrations"""
 
     statement_without_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant TTC"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant HT"
     )
     statement_with_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant HT"
+        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant TTC"
     )
     comment = models.TextField(blank=True, null=True)
     # Identification
@@ -141,6 +141,13 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         on_delete=models.CASCADE,
         to_field="vat",
         db_column="vat",
+    )
+    vat_regime = models.ForeignKey(
+        VatRegimeSage,
+        null=True,
+        on_delete=models.CASCADE,
+        to_field="vat_regime",
+        db_column="vat_regime",
     )
 
 

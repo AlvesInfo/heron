@@ -174,6 +174,54 @@ class SectionSage(FlagsTable):
     axes = models.Manager()
     objects = SectionSageQuerySet.as_manager()
 
+    @classmethod
+    def axe_bu(cls):
+        """
+        FR : Retourne les sections pour l'axe BU de Sage X3
+        EN : Returns the sections for the BU axis of Sage X3
+        """
+        return [(row.section, row.section) for row in cls.objects.bu_section()]
+
+    @classmethod
+    def axe_cct(cls):
+        """
+        FR : Retourne les sections pour l'axe CCT de Sage X3
+        EN : Returns the sections for the CCT axis of Sage X3
+        """
+        return [(row.section, row.section) for row in cls.objects.cct_section()]
+
+    @classmethod
+    def axe_prj(cls):
+        """
+        FR : Retourne les sections pour l'axe PRJ de Sage X3
+        EN : Returns the sections for the PRJ axis of Sage X3
+        """
+        return [(row.section, row.section) for row in cls.objects.prj_section()]
+
+    @classmethod
+    def axe_pro(cls):
+        """
+        FR : Retourne les sections pour l'axe PRO de Sage X3
+        EN : Returns the sections for the PRO axis of Sage X3
+        """
+        return [(row.section, row.section) for row in cls.objects.pro_section()]
+
+    @classmethod
+    def axe_pys(cls):
+        """
+        FR : Retourne les sections pour l'axe PYS de Sage X3
+        EN : Returns the sections for the PYS axis of Sage X3
+        """
+        return [(row.section, row.section) for row in cls.objects.pys_section()]
+
+    @classmethod
+    def axe_rfa(cls):
+        """
+        FR : Retourne les sections pour l'axe RFA de Sage X3
+        EN : Returns the sections for the RFA axis of Sage X3
+        """
+        return [(row.section, row.section) for row in cls.objects.rfa_section()]
+
     @staticmethod
     def file_import_sage():
         """

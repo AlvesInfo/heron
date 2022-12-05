@@ -16,7 +16,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import connection
 
-from apps.book.models import Society
+from apps.book.models import Society, SupplierCct
 
 
 class SocietyForm(forms.ModelForm):
@@ -124,4 +124,15 @@ class SocietyForm(forms.ModelForm):
             "chargeable",
             "od_ana",
             "stat_axe_pro",
+        ]
+
+
+class SupplierCctForm(forms.ModelForm):
+
+    class Meta:
+        model = SupplierCct
+        fields = [
+            "third_party_num",
+            "axe_cct",
+            "cct_indentifier",
         ]
