@@ -134,5 +134,5 @@ class SupplierCctForm(forms.ModelForm):
         fields = [
             "third_party_num",
             "axe_cct",
-            "cct_indentifier",
+            "cct_identifier",
         ]

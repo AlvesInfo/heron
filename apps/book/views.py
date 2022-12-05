@@ -97,31 +97,36 @@ def supplier_cct_identifier(request, third_party_num):
             "modified_at",
             "third_party_num",
             "axe_cct",
-            "cct_indentifier"
+            "cct_identifier"
         )
         select
             now() as "created_at",
             now() as "modified_at",
-            'BAUS001' as "third_party_num",
+            %(third_party_num)s as "third_party_num",
             ac."uuid_identification" as "axe_cct",
-            ac."cct" || '|' as "cct_indentifier"
+            ac."cct" || '|' as "cct_identifier"
         from "accountancy_cctsage" ac
+        left join book_suppliercct bs 
+        on %(third_party_num)s = bs.third_party_num 
+        and ac.uuid_identification = bs.axe_cct  
+        where bs.axe_cct isnull
         on conflict do nothing
     """
     )
 
     with connection.cursor() as cursor:
-        cursor.execute(sql_insert)
+        cursor.execute(sql_insert, {"third_party_num": third_party_num})
 
     SupplierCctFormset = modelformset_factory(
         SupplierCct,
-        fields=("third_party_num", "axe_cct", "cct_indentifier"),
+        fields=("third_party_num", "axe_cct", "cct_identifier"),
         form=SupplierCctForm,
         extra=0,
     )
     queryset = SupplierCct.objects.filter(third_party_num=third_party_num).order_by("axe_cct")
     print(queryset)
-    formset = SupplierCctFormset(request.POST or None, queryset=queryset)
+    formset = SupplierCctFormset(request.POST or None)
+    print("formset instancié")
 
     if request.method == "POST" and formset.is_valid():
 

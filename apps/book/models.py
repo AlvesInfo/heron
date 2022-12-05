@@ -553,13 +553,13 @@ class SupplierCct(FlagsTable):
         db_column="axe_cct",
         verbose_name="CCT x3",
     )
-    cct_indentifier = models.CharField(
+    cct_identifier = models.CharField(
         null=True, blank=True, max_length=1080, verbose_name="identifiant cct"
     )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.third_party_num} - {self.axe_cct.name} - {self.cct_indentifier}"
+        return f"{self.third_party_num} - {self.axe_cct.name} - {self.cct_identifier}"
 
     def get_absolute_url(self):
         """Retourne l'url en cas de success create, update ou delete"""
