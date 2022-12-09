@@ -545,12 +545,12 @@ class SupplierCct(FlagsTable):
         db_column="third_party_num",
         verbose_name="Tiers",
     )
-    axe_cct = models.ForeignKey(
+    cct = models.ForeignKey(
         CctSage,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="book_cct",
-        db_column="axe_cct",
+        db_column="cct",
         verbose_name="CCT x3",
     )
     cct_identifier = models.CharField(
@@ -559,7 +559,7 @@ class SupplierCct(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.third_party_num} - {self.axe_cct.name} - {self.cct_identifier}"
+        return f"{self.third_party_num} - {self.cct.name} - {self.cct_identifier}"
 
     def get_absolute_url(self):
         """Retourne l'url en cas de success create, update ou delete"""
@@ -568,8 +568,8 @@ class SupplierCct(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["third_party_num", "axe_cct"]
-        unique_together = (("third_party_num", "axe_cct"),)
+        ordering = ["third_party_num", "cct"]
+        unique_together = (("third_party_num", "cct"),)
 
 
 class BprBookSage:

@@ -464,28 +464,28 @@ class MaisonSupllierExclusion(FlagsTable):
     EN : Shop/Suppliers Identifiers Table
     """
     cct = models.ForeignKey(
-        Maison,
+        CctSage,
         on_delete=models.PROTECT,
-        to_field="cct",
+        to_field="uuid_identification",
         related_name="maison_supplier",
         verbose_name="code maison",
         db_column="cct",
     )
-    supplier = models.ForeignKey(
+    third_party_num = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
         to_field="third_party_num",
         related_name="supplier_maison",
         verbose_name="Fournisseur",
-        db_column="society",
+        db_column="third_party_num",
     )
 
     def __str__(self):
-        return f"{self.cct} - {self.supplier}"
+        return f"{self.cct} - {self.third_party_num}"
 
     class Meta:
-        ordering = ["cct", "supplier__name"]
-        unique_together = (("cct", "supplier"),)
+        ordering = ["cct", "third_party_num__name"]
+        unique_together = (("cct", "third_party_num"),)
 
 
 class MaisonSupplierIdentifier(FlagsTable):
