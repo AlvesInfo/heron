@@ -108,14 +108,16 @@ def supplier_cct_identifier(request, third_party_num):
         )
         queryset = (
             SupplierCct.objects.filter(third_party_num=third_party_num)
-            .order_by("axe_cct")
-            .values("id", "axe_cct__cct", "cct_identifier")
+            .order_by("cct")
+            .values("id", "cct__cct", "cct_identifier")
         )
+        third_party_num_pk = Society.objects.get(third_party_num=third_party_num)
+
         context = {
             "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
             "queryset": queryset,
             "count": queryset.count(),
-            "chevron_retour": reverse("book:societies_list"),
+            "chevron_retour": reverse("book:society_update", args=[third_party_num_pk.pk]),
             "third_party_num": third_party_num,
         }
         request.session["level"] = 50
