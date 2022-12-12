@@ -1,4 +1,4 @@
-from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST
+from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG_DIR
 
 DEBUG = False
 
@@ -39,10 +39,6 @@ AXES_ONLY_USER_FAILURES = True
 AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
 AXES_USERNAME_FORM_FIELD = "email"
 
-# LOG DIRECTORY
-VAR_LOG_DIR = Path("/var/log/heron").resolve()
-Path.mkdir(VAR_LOG_DIR, exist_ok=True)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -75,49 +71,49 @@ LOGGING = {
         "production_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/django.log",
+            "filename": f"{str(LOG_DIR)}/django.log",
             "formatter": "verbose",
         },
         # Send in timer_heron
         "timer_heron": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/timer_heron.log",
+            "filename": f"{str(LOG_DIR)}/timer_heron.log",
             "formatter": "verbose",
         },
         # Send in import_logfile
         "import_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/import_logfile.log",
+            "filename": f"{str(LOG_DIR)}/import_logfile.log",
             "formatter": "verbose",
         },
         # Send in import_logfile
         "edi_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/edi_logfile.log",
+            "filename": f"{str(LOG_DIR)}/edi_logfile.log",
             "formatter": "verbose",
         },
         # Send in connexion-file
         "connexion-file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/connexion.log",
+            "filename": f"{str(LOG_DIR)}/connexion.log",
             "formatter": "verbose",
         },
         # error_views
         "error_views": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/error_views.log",
+            "filename": f"{str(LOG_DIR)}/error_views.log",
             "formatter": "verbose",
         },
         # export_excel
         "export_excel": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": f"{str(VAR_LOG_DIR)}/export_excel.log",
+            "filename": f"{str(LOG_DIR)}/export_excel.log",
             "formatter": "verbose",
         },
     },

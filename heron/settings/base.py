@@ -66,6 +66,12 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 WHITELIST = config("ALLOWED_HOSTS", cast=Csv())
 
+LOG_BASE_PATH = (
+    (Path(BASE_DIR) / config("LOG_BASE_PATH", default=None)).resolve()
+    if config("LOG_BASE_PATH", default=None) is not None
+    else Path("/var/log/heron").resolve()
+)
+
 # Application definition
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -312,7 +318,7 @@ PRINTING_DIR = (Path(BASE_DIR) / "files/printing").resolve()
 Path.mkdir(PRINTING_DIR, exist_ok=True)
 
 # REPERTOIRE DES LOGS
-LOG_DIR = (Path(BASE_DIR) / "files/log").resolve()
+LOG_DIR = LOG_BASE_PATH
 Path.mkdir(LOG_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS EN ERREUR
