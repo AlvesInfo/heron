@@ -17,23 +17,23 @@ from django.db import connection
 from django.db.models import Q, Count
 
 from apps.edi.models import EdiImport
-from apps.edi.sql_dir.sql_all import post_all_dict, SQL_QTY
-from apps.edi.sql_dir.sql_bulk import post_bulk_dict
-from apps.edi.sql_dir.sql_edi import post_edi_dict
-from apps.edi.sql_dir.sql_eye_confort import post_eye_dict
-from apps.edi.sql_dir.sql_generic import post_generic_dict
-from apps.edi.sql_dir.sql_hearing import post_hearing_dict
-from apps.edi.sql_dir.sql_interson import post_interson_dict
-from apps.edi.sql_dir.sql_johnson import post_johnson_dict
-from apps.edi.sql_dir.sql_lmc import post_lmc_dict
-from apps.edi.sql_dir.sql_newson import post_newson_dict
-from apps.edi.sql_dir.sql_phonak import post_phonak_dict
-from apps.edi.sql_dir.sql_prodition import post_prodition_dict
-from apps.edi.sql_dir.sql_signia import post_signia_dict
-from apps.edi.sql_dir.sql_starkey import post_starkey_dict
-from apps.edi.sql_dir.sql_technidis import post_technidis_dict
-from apps.edi.sql_dir.sql_unitron import post_unitron_dict
-from apps.edi.sql_dir.sql_widex import post_widex_dict
+from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
+from apps.edi.sql_files.sql_bulk import post_bulk_dict
+from apps.edi.sql_files.sql_edi import post_edi_dict
+from apps.edi.sql_files.sql_eye_confort import post_eye_dict
+from apps.edi.sql_files.sql_generic import post_generic_dict
+from apps.edi.sql_files.sql_hearing import post_hearing_dict
+from apps.edi.sql_files.sql_interson import post_interson_dict
+from apps.edi.sql_files.sql_johnson import post_johnson_dict
+from apps.edi.sql_files.sql_lmc import post_lmc_dict
+from apps.edi.sql_files.sql_newson import post_newson_dict
+from apps.edi.sql_files.sql_phonak import post_phonak_dict
+from apps.edi.sql_files.sql_prodition import post_prodition_dict
+from apps.edi.sql_files.sql_signia import post_signia_dict
+from apps.edi.sql_files.sql_starkey import post_starkey_dict
+from apps.edi.sql_files.sql_technidis import post_technidis_dict
+from apps.edi.sql_files.sql_unitron import post_unitron_dict
+from apps.edi.sql_files.sql_widex import post_widex_dict
 from apps.users.models import User
 
 

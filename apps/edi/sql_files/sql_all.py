@@ -35,7 +35,17 @@ post_all_dict = {
     "sql_round_amount": sql.SQL(
         """
     update "edi_ediimport" "edi"
-    set "net_amount" = round("net_amount"::numeric, 2):: numeric
+    set "net_amount" = round("net_amount"::numeric, 2):: numeric,
+        "code_maison" = case 
+                            when "code_maison" isnull or "code_maison" = '' 
+                            then 
+                                case 
+                                    when "code_fournisseur" isnull or "code_fournisseur" = ''
+                                    then ''
+                                    else "code_fournisseur"
+                                end
+                            else "code_maison"    
+                        end
     where ("valid" = false or "valid" isnull)
     """
     ),
