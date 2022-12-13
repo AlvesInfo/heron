@@ -537,6 +537,7 @@ class SupplierCct(FlagsTable):
     FR: Table de couples Fournisseur/Identifiant CCT
     EN: Table of Supplier/CCT Identifier pairs
     """
+
     third_party_num = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
@@ -545,12 +546,12 @@ class SupplierCct(FlagsTable):
         db_column="third_party_num",
         verbose_name="Tiers",
     )
-    cct = models.ForeignKey(
+    cct_uuid_identification = models.ForeignKey(
         CctSage,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="book_cct",
-        db_column="cct",
+        db_column="cct_uuid_identification",
         verbose_name="CCT x3",
     )
     cct_identifier = models.CharField(
@@ -559,7 +560,9 @@ class SupplierCct(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.third_party_num} - {self.cct.name} - {self.cct_identifier}"
+        return (
+            f"{self.third_party_num} - {self.cct_uuid_identification.name} - {self.cct_identifier}"
+        )
 
     def get_absolute_url(self):
         """Retourne l'url en cas de success create, update ou delete"""
@@ -568,8 +571,8 @@ class SupplierCct(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["third_party_num", "cct"]
-        unique_together = (("third_party_num", "cct"),)
+        ordering = ["third_party_num", "cct_uuid_identification"]
+        unique_together = (("third_party_num", "cct_uuid_identification"),)
 
 
 class BprBookSage:
