@@ -70,6 +70,13 @@
                     </div>
 
                     <div class="column">
+                        <h4 class="ui header" style="font-size: 1em;">FACTURATION</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
                         <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
@@ -100,13 +107,34 @@
 
                     <div class="column">
                         <div class="ui link list">
-                            <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Marchandises</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Fournisseur/Articles</a>
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">RFA</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Recherche Article</a>
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Redevances</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Publicité</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Formations</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Personnel</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Matériel</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Matériel</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Divers</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'articles:suppliers_articles_list' %}" class="item">Prestations</a>
                         </div>
                     </div>
 
@@ -116,7 +144,17 @@
             <div class="ui popup" id="c">
                 <div class="ui five column relaxed equal divided grid" style="width: 70em;">
 
-{#             RFA #}
+{#              3.RFA #}
+                    <div class="column">
+                        <h4 class="ui header">2. Marchandises</h4>
+                        <div class="ui link list">
+                            <a href="" class="item">Import</a>
+                            <a href="" class="item">Saisie</a>
+                            <a href="" class="item">Visualisation</a>
+                        </div>
+                    </div>
+
+{#              3.RFA #}
                     <div class="column">
                         <h4 class="ui header">3. RFA</h4>
                         <div class="ui link list">
@@ -126,11 +164,12 @@
                         </div>
                     </div>
 
-{#             Redevance #}
+{#              4.Redevance #}
 
                     <div class="column">
                         <h4 class="ui header">4. Redevances</h4>
                         <div class="ui link list">
+                            <a href="" class="item">Import</a>
                             <a href="" class="item">Génération</a>
                             <a href="" class="item">Visualisation</a>
                         </div>
@@ -139,12 +178,13 @@
                     <div class="column">
                         <h4 class="ui header">5. Publicité</h4>
                         <div class="ui link list">
+                            <a href="" class="item">Import</a>
                             <a href="" class="item">Génération</a>
                             <a href="" class="item">Visualisation</a>
                         </div>
                     </div>
 
-{#             Prestations #}
+{#              5.Prestations #}
 
                     <div class="column">
                         <h4 class="ui header">6. Prestations</h4>
@@ -156,7 +196,7 @@
                     </div>
 
 
-{#             Abonnements#}
+{#              6.Abonnements#}
                     <div class="column">
                         <h4 class="ui header">7. Abonnements</h4>
                         <div class="ui link list">
@@ -166,7 +206,7 @@
                         </div>
                     </div>
 
-{#             Formations#}
+{#              7.Formations#}
                     <div class="column">
                         <h4 class="ui header">8. Formations</h4>
                         <div class="ui link list">
@@ -177,7 +217,7 @@
                     </div>
 
 
-{#             Personnel#}
+{#              8.Personnel#}
                     <div class="column">
                         <h4 class="ui header">9. Personnel</h4>
                         <div class="ui link list">
@@ -187,7 +227,7 @@
                         </div>
                     </div>
 
-{#             Matériel#}
+{#              9.Matériel#}
                     <div class="column">
                         <h4 class="ui header">10. Matériel</h4>
                         <div class="ui link list">
@@ -197,7 +237,7 @@
                         </div>
                     </div>
 
-{#             Divers#}
+{#              10.Divers#}
 
                     <div class="column">
                         <h4 class="ui header">11. Divers</h4>

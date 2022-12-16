@@ -38,25 +38,22 @@ class SuppliersArticlesList(ListView):
 
 class ArticlesList(ListView):
     """View de la liste des Catégories"""
-
+    third_party_num = ""
     model = Article
     context_object_name = "articles"
     template_name = "articles/articles_list.html"
 
     def get_queryset(self, **kwargs):
-        third_party_num = self.kwargs.get("third_party_num", "")
-        print(third_party_num)
-        queryset = Article.objects.filter(third_party_num=third_party_num)
-        self.supplier = queryset.first().third_party_num
+        self.third_party_num = self.kwargs.get("third_party_num", "")
+        queryset = Article.objects.filter(third_party_num=self.third_party_num)
         return queryset
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("articles:suppliers_articles_list")
-        context["titre_table"] = f"Articles du fournisseur : {self.supplier}"
-        context["third_party_num"] = self.supplier
-        print(context)
+        context["titre_table"] = f"Articles du fournisseur : {self.third_party_num}"
+        context["third_party_num"] = self.third_party_num
         return context
 
 
