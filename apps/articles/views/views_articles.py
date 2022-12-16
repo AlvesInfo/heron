@@ -27,10 +27,10 @@ class SuppliersArticlesList(ListView):
     model = Society
     context_object_name = "suppliers"
     queryset = Society.objects.filter(
-        third_party_num__in=Article.objects.values("supplier")
-        .annotate(nb_plan=Count("supplier"))
-        .order_by("supplier")
-        .values_list("supplier", flat=True)
+        third_party_num__in=Article.objects.values("third_party_num")
+        .annotate(nb_plan=Count("third_party_num"))
+        .order_by("third_party_num")
+        .values_list("third_party_num", flat=True)
     )
     template_name = "articles/suppliers_articles_list.html"
     extra_context = {"titre_table": "Fournisseurs - Articles"}
@@ -45,8 +45,9 @@ class ArticlesList(ListView):
 
     def get_queryset(self, **kwargs):
         third_party_num = self.kwargs.get("third_party_num", "")
-        queryset = Article.objects.filter(supplier=third_party_num)
-        self.supplier = queryset.first().supplier
+        print(third_party_num)
+        queryset = Article.objects.filter(third_party_num=third_party_num)
+        self.supplier = queryset.first().third_party_num
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -54,7 +55,8 @@ class ArticlesList(ListView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("articles:suppliers_articles_list")
         context["titre_table"] = f"Articles du fournisseur : {self.supplier}"
-        context["third_party_num"] = self.supplier.third_party_num
+        context["third_party_num"] = self.supplier
+        print(context)
         return context
 
 
@@ -72,10 +74,16 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
-        # context["chevron_retour"] = reverse("articles:articles_list", {"third_party_num": })
+        context["chevron_retour"] = reverse(
+            "articles:suppliers_articles_list", {"third_party_num": self.object[0].third_party_num}
+        )
         context["titre_table"] = "Création d'un Nouvel Article"
         print(context)
         return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("", args=[])
 
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -91,13 +99,19 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
+        print(context)
         objet = context.get("object")
         context["chevron_retour"] = reverse(
-            "articles:articles_list", kwargs={"third_party_num": objet.supplier.third_party_num}
+            "articles:suppliers_articles_list", args=[objet.third_party_num.third_party_num]
         )
-        context["titre_table"] = f"Mise à jour de l'Article : {str(objet)}"
-        print(context)
+        context["titre_table"] = f"Mise à jour Article {str(objet)}"
         return context
+
+    # def get_success_url(self):
+    #     """Return the URL to redirect to after processing a valid form."""
+    #     return reverse(
+    #         "articles:suppliers_articles_list", {"third_party_num": self.object.third_party_num}
+    #     )
 
 
 def articles_export_list(_, third_party_num):

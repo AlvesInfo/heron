@@ -19,6 +19,7 @@ from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
+from apps.book.bin.checks import check_cct_identifier
 from apps.book.models import Society, SupplierCct
 from apps.book.forms import SocietyForm, SupplierCctForm
 from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier_cct
@@ -108,8 +109,13 @@ def supplier_cct_identifier(request, third_party_num):
         )
         queryset = (
             SupplierCct.objects.filter(third_party_num=third_party_num)
-            .order_by("cct")
-            .values("id", "cct__cct", "cct_identifier")
+            .order_by("cct_uuid_identification__cct")
+            .values(
+                "id",
+                "cct_uuid_identification__cct",
+                "cct_uuid_identification__name",
+                "cct_identifier",
+            )
         )
         third_party_num_pk = Society.objects.get(third_party_num=third_party_num)
 
@@ -120,36 +126,45 @@ def supplier_cct_identifier(request, third_party_num):
             "chevron_retour": reverse("book:society_update", args=[third_party_num_pk.pk]),
             "third_party_num": third_party_num,
         }
-        request.session["level"] = 50
+        request.session["level"] = 20
 
         if request.method == "POST":
             formset = SupplierCctFormset(request.POST, initial=queryset)
-            changed = False
+            message = ""
 
             if formset.is_valid():
                 for form in formset:
-
                     if form.changed_data:
-                        changed = True
-                        trace_form_change(request, form)
+                        changed, message = check_cct_identifier(form.cleaned_data)
 
-                if changed:
-                    message = (
-                        "Les identifiants des CCT, pour le tiers : "
-                        f"{third_party_num}, on bien été changés"
-                    )
-                else:
-                    message = "Vous n'avez rien modifié !"
+                        if changed is None:
+                            request.session["level"] = 50
+                            messages.add_message(request, 50, message)
+                        elif not changed:
+                            request.session["level"] = 50
+                            messages.add_message(request, 50, message)
+                        elif changed:
+                            trace_form_change(request, form)
+                            message = (
+                                "Les identifiants du cct "
+                                f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
+                                "on bien été changés."
+                            )
+                            messages.add_message(request, 20, message)
 
-                messages.info(request, message)
+                if not message:
+                    request.session["level"] = 50
+                    messages.add_message(request, 50, "Vous n'avez rien modifié !")
 
             elif formset.errors:
+                request.session["level"] = 50
                 messages.add_message(
                     request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
                 )
                 LOGGER_VIEWS.exception(f"erreur form : {str(formset.data)!r}")
 
     except Exception as error:
+        request.session["level"] = 50
         messages.add_message(request, 50, f"Une erreur c'est produite, veuillez consulter les logs")
         LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
 

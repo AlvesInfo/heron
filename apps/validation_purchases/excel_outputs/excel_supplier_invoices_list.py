@@ -278,8 +278,8 @@ def excel_supplier_purchases(file_io: io.BytesIO, file_name: str, attr_dict: dic
     big_category = attr_dict.get("big_category")
     third_party_num = attr_dict.get("third_party_num")
     supplier = attr_dict.get("supplier")
-    date_month = attr_dict.get("date_month")
-    month = pendulum.parse(date_month).format("MMMM YYYY", locale="fr")
+    invoice_month = attr_dict.get("invoice_month")
+    month = pendulum.parse(invoice_month).format("MMMM YYYY", locale="fr")
     titre = f"Factures : {big_category} - {third_party_num} - {supplier} - pour {month}"
 
     list_excel = [file_io, [f"{third_party_num}_{month}"]]

@@ -27,22 +27,6 @@ from apps.book.models import Society, SupplierCct
 
 COLUMNS = [
     {
-        "entete": "CCT X3",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 10,
-    },
-    {
         "entete": "Maison",
         "f_entete": {
             **f_entetes,
@@ -59,6 +43,22 @@ COLUMNS = [
         "width": 34,
     },
     {
+        "entete": "CCT X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
+    {
         "entete": "Identifiants",
         "f_entete": {
             **f_entetes,
@@ -73,7 +73,7 @@ COLUMNS = [
             },
         },
         "width": 101,
-    }
+    },
 ]
 
 
@@ -84,19 +84,17 @@ def get_rows(parmas_dict: Dict):
     """
 
     return [
-        (
-            row.axe_cct.cct,
-            row.axe_cct.name,
-            row.cct_identifier
+        (row.cct_uuid_identification.name, row.cct_uuid_identification.cct, row.cct_identifier)
+        for row in SupplierCct.objects.filter(**parmas_dict).order_by(
+            "cct_uuid_identification__name"
         )
-        for row in SupplierCct.objects.filter(**parmas_dict).order_by("axe_cct")
     ]
 
 
 def excel_liste_supplier_cct(file_io: io.BytesIO, file_name: str, parmas_dict: dict) -> dict:
     """Fonction de génération du fichier de liste des identificant pour les cct, pour un tiers X3"""
     supplier = Society.objects.get(**parmas_dict)
-    titre = f"Identificants pour les CCT : {str(supplier)}"
+    titre = f"Identifiants founisseur pour les CCT : {str(supplier)}"
     list_excel = [file_io, [parmas_dict.get("third_party_num")]]
     excel = GenericExcel(list_excel)
     get_clean_rows = get_rows(parmas_dict)

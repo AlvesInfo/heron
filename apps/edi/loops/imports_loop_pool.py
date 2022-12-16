@@ -57,23 +57,23 @@ from apps.parameters.models import ActionInProgress
 
 
 processing_dict = {
-    "BBRG_BULK": bbgr_bulk,
-    "EDI": edi,
-    "EYE_CONFORT": eye_confort,
-    "GENERIQUE": generique,
-    "HEARING": hearing,
+    # "BBRG_BULK": bbgr_bulk,
+    # "EDI": edi,
+    # "EYE_CONFORT": eye_confort,
+    # "GENERIQUE": generique,
+    # "HEARING": hearing,
     "INTERSON": interson,
-    "JOHNSON": johnson,
-    "LMC": lmc,
-    "NEWSON": newson,
-    "PHONAK": phonak,
-    "PRODITION": prodition,
-    "SIGNIA": signia,
-    "STARKEY": starkey,
-    "TECHNIDIS": technidis,
-    "UNITRON": unitron,
-    "WIDEX": widex,
-    "WIDEX_GA": widex_ga,
+    # "JOHNSON": johnson,
+    # "LMC": lmc,
+    # "NEWSON": newson,
+    # "PHONAK": phonak,
+    # "PRODITION": prodition,
+    # "SIGNIA": signia,
+    # "STARKEY": starkey,
+    # "TECHNIDIS": technidis,
+    # "UNITRON": unitron,
+    # "WIDEX": widex,
+    # "WIDEX_GA": widex_ga,
 }
 
 
@@ -115,7 +115,7 @@ def separate_edi():
 
 
 def get_files():
-    """Retourne la liste des tuples(fichier, process) à traiter"""
+    """Retourne la liste des tuples (fichier, process) à traiter"""
     separate_edi()
     files_list = []
 

@@ -39,4 +39,21 @@ post_generic_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_maison": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set
+            "maison" = inv."maison"
+        from (
+            select 
+                "invoice_number", 
+                max("maison") as maison            
+                from edi_ediimport ee 
+            group by "invoice_number" 
+        ) inv
+        where edi."invoice_number" = inv."invoice_number"
+        and edi."uuid_identification" = %(uuid_identification)s
+        and (edi."valid" = false or edi."valid" isnull)
+        """
+    ),
 }

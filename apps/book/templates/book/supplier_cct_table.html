@@ -2,9 +2,9 @@
 
 {% block table %}
 
-    <div class="three wide column" style="padding: 0;margin: 10px;"></div>
+    <div class="two wide column" style="padding: 0;margin: 10px;"></div>
 
-    <div class="ten wide column" style="padding: 0;margin: 10px;">
+    <div class="twelve wide column" style="padding: 0;margin: 10px;">
         <input type="hidden" name="form-TOTAL_FORMS" value="{{ count }}" id="id_form-TOTAL_FORMS">
         <input type="hidden" name="form-INITIAL_FORMS" value="{{ count }}" id="id_form-INITIAL_FORMS">
         <input type="hidden" name="form-MIN_NUM_FORMS" value="{{ count }}" id="id_form-MIN_NUM_FORMS">
@@ -17,8 +17,9 @@
 
                 <tr>
                     <th class="no-sort" style="display: none;">pk</th>
-                    <th style="width: 15%">CCT</th>
-                    <th style="width: 85%">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
+                    <th style="width: 25%;text-align: left;">Maison</th>
+                    <th style="width: 10%;">CCT</th>
+                    <th style="width: 65%;text-align: left;">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
 
                 </tr>
             </thead>
@@ -38,8 +39,11 @@
                             </div>
                         </div>
                     </td>
+                    <td style="text-align: left;">
+                        {{ identifier.cct_uuid_identification__name }}
+                    </td>
                     <td>
-                        {{ identifier.cct__cct }}
+                        {{ identifier.cct_uuid_identification__cct }}
                     </td>
                     <td>
                         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">

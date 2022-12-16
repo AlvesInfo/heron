@@ -46,7 +46,7 @@ class EdiImportValidationForm(forms.ModelForm):
         fields = [
             "third_party_num",
             "big_category",
-            "date_month",
+            "invoice_month",
         ]
 
 
@@ -61,7 +61,7 @@ class DeleteEdiForm(forms.ModelForm):
             "third_party_num",
             "supplier",
             "big_category",
-            "date_month",
+            "invoice_month",
             "delete",
         ]
 
@@ -76,7 +76,7 @@ class DeleteInvoiceForm(forms.ModelForm):
         fields = [
             "third_party_num",
             "invoice_number",
-            "date_month",
+            "invoice_month",
         ]
 
 
@@ -91,7 +91,7 @@ class DeleteFieldForm(forms.ModelForm):
             "id",
             "third_party_num",
             "invoice_number",
-            "date_month",
+            "invoice_month",
             "delete",
         ]
 
@@ -105,7 +105,7 @@ class DeletePkForm(forms.Form):
 class EdiImportControlForm(forms.ModelForm):
     """Formulaire pour l'update des factures founisseurs importées"""
     third_party_num = forms.CharField(max_length=15, required=False)
-    date_month = forms.CharField(max_length=15, required=False)
+    invoice_month = forms.CharField(max_length=15, required=False)
 
     class Meta:
         model = EdiImportControl

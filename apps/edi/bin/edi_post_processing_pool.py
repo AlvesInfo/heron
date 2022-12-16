@@ -60,6 +60,7 @@ def post_processing_all():
     sql_reference = post_all_dict.get("sql_reference")
     sql_vat = post_all_dict.get("sql_vat")
     sql_vat_rate = post_all_dict.get("sql_vat_rate")
+    sql_cct = post_all_dict.get("sql_cct")
     sql_validate = post_all_dict.get("sql_validate")
     with connection.cursor() as cursor:
         cursor.execute(sql_round_amount)
@@ -68,6 +69,7 @@ def post_processing_all():
         cursor.execute(sql_reference)
         cursor.execute(sql_vat)
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
+        cursor.execute(sql_cct)
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()
         )
@@ -208,11 +210,13 @@ def generique_post_insert(uuid_identification: AnyStr):
     """
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
+    sql_maison = post_generic_dict.get("sql_maison")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
 
 
 def hearing_post_insert(uuid_identification: AnyStr):
@@ -292,11 +296,13 @@ def phonak_post_insert(uuid_identification: AnyStr):
     """
     sql_update = post_phonak_dict.get("sql_update")
     sql_net_amount = post_phonak_dict.get("sql_net_amount")
+    sql_mulitiple_dates = post_phonak_dict.get("sql_mulitiple_dates")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_mulitiple_dates, {"uuid_identification": uuid_identification})
 
 
 def prodition_post_insert(uuid_identification: AnyStr):
@@ -363,10 +369,12 @@ def unitron_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_unitron_dict.get("sql_update")
+    sql_mulitiple_dates = post_unitron_dict.get("sql_mulitiple_dates")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_mulitiple_dates, {"uuid_identification": uuid_identification})
 
 
 def widex_post_insert(uuid_identification: AnyStr):

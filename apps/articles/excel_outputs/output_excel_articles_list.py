@@ -55,7 +55,7 @@ def get_clean_rows(third_party_num) -> iter:
             "aa"."comment"
         from "articles_article" "aa"
         join "book_society" "bs"
-        on "aa"."supplier" = "bs".third_party_num
+        on "aa"."third_party_num" = "bs".third_party_num
         left join "accountancy_sectionsage" "as2"
         on "aa"."axe_bu" = "as2"."uuid_identification"
         left join "accountancy_sectionsage" "as3"
@@ -70,7 +70,7 @@ def get_clean_rows(third_party_num) -> iter:
         ON "aa"."uuid_big_category" = "pc"."uuid_identification"
         left join "parameters_subfamilly" "ps"
         on "aa"."uuid_sub_familly" = "ps"."uuid_identification"
-        where "aa"."supplier" = %(third_party_num)s
+        where "aa"."third_party_num" = %(third_party_num)s
         """
     )
 

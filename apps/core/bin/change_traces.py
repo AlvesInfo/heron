@@ -30,7 +30,11 @@ ACTION_DICT = {
 
 
 def get_difference_dict(before, after):
-    """Retourne seulement des differences"""
+    """Retourne seulement des differences
+    :param before: avant changement
+    :param after: après changement
+    :return:
+    """
     before_set = set(before.items())
     after_set = set(after.items())
 
@@ -113,7 +117,7 @@ class ChangeTraceMixin:
         for key, value in before_to_test.items():
             test_after_value = after_to_test.get(key, "$,:!cnjEfegvfkgqe")
 
-            # Si la valeur correspondant à la clé est réellement différente on break
+            # Si la valeur correspondant à la clé est réellement différente ont break
             if test_after_value == "$,:!cnjEfegvfkgqe":
                 break
 
@@ -121,7 +125,7 @@ class ChangeTraceMixin:
                 # Si les valeurs sont différentes on va tester si dans la définition du champ,
                 # il y a l'attribut blank= True, si c'est le cas et que la différence est
                 # entre '' et None c'est qu'il n'y a pas de différences
-                # sinon on break la boucle.
+                # sinon ont break la boucle.
                 if not (
                     test_after_value in {"", None}
                     and value in {"", None}
@@ -306,5 +310,4 @@ def trace_form_change(request, form: forms.ModelForm):
         model=model,
         db_table=model._meta.db_table,
     )
-
     request.session["level"] = 20

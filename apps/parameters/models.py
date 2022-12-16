@@ -379,6 +379,8 @@ class BaseInvoiceTable(models.Model):
 
     invoice_number = models.CharField(max_length=35)
     invoice_date = models.DateField(verbose_name="DTM avec 3")
+    invoice_month = models.DateField(null=True, blank=True)
+    invoice_year = models.IntegerField(null=True, blank=True)
     invoice_type = models.CharField(
         null=True, blank=True, max_length=3, verbose_name="BGM FA:380, AV:381"
     )
@@ -393,14 +395,14 @@ class BaseInvoiceTable(models.Model):
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
-    axe_cct = models.ForeignKey(
+    cct_uuid_identification = models.ForeignKey(
         CctSage,
         null=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="+",
         verbose_name="CCT x3",
-        db_column="axe_cct",
+        db_column="cct_uuid_identification",
     )
 
     class Meta:

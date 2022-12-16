@@ -36,7 +36,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
-    supplier = models.ForeignKey(
+    supplier_third_party_num = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
         to_field="third_party_num",
@@ -55,7 +55,6 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
         related_name="invoice_supplier_cct",
         db_column="cct",
     )
-    invoice_year = models.IntegerField()
     periode = models.IntegerField()
     flag_sage = models.BooleanField(null=True, default=False)
     big_category = models.CharField(unique=True, max_length=80)
@@ -83,15 +82,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.supplier} - {self.invoice_number} - {self.invoice_date}"
-
-    @property
-    def set_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
-        """
-        return "methode d'import à retourner"
+        return f"{self.supplier_third_party_num} - {self.invoice_number} - {self.invoice_date}"
 
     @staticmethod
     def set_export():
@@ -106,7 +97,8 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["supplier", "invoice_number", "invoice_year"], name="unique_invoice"
+                fields=["supplier_third_party_num", "invoice_number", "invoice_year"],
+                name="unique_invoice",
             )
         ]
 
@@ -137,6 +129,7 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
     """
+
     invoice = models.ForeignKey(
         Invoice,
         on_delete=models.CASCADE,
@@ -180,9 +173,10 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
 
     class Meta:
         """class Meta du modèle django"""
+
         indexes = [
-            models.Index(fields=['invoice'], name='invoice_idx'),
-            models.Index(fields=['invoice', 'article'], name='invoice_article_idx'),
+            models.Index(fields=["invoice"], name="invoice_idx"),
+            models.Index(fields=["invoice", "article"], name="invoice_article_idx"),
         ]
 
 

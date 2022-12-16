@@ -5,7 +5,7 @@ select
     sum(invoice_amount_without_tax) as invoice_amount_without_tax,
     sum(invoice_amount_with_tax) as invoice_amount_with_tax,
     sum(qty_invoices) as qty_invoices,
-    date_month,
+    invoice_month,
     '' as sep,
     coalesce(statement_without_tax, 0) as amount_invoice_ht,
     coalesce(statement_with_tax, 0) as amount_invoice_ttc,
@@ -16,7 +16,7 @@ select
     sum(net_amount) as net_amount,
     case when sum(net_amount) != sum(invoice_amount_without_tax) then true else false end as error,
     uuid_identification,
-    big_category || '||' || third_party_num || '||' || supplier || '||' || date_month as enc_param,
+    big_category || '||' || third_party_num || '||' || supplier || '||' || invoice_month as enc_param,
     pk,
     (
         '{"third_party_num": "'
@@ -25,8 +25,8 @@ select
         || supplier ||
         '", "big_category": "'
         || big_category ||
-        '", "date_month": "'
-        || date_month ||
+        '", "invoice_month": "'
+        || invoice_month ||
         '", "delete": "'
         || 'false' ||
         '"}'
@@ -39,7 +39,7 @@ from (
         sum(net_amount) as net_amount,
         invoice_amount_without_tax,
         invoice_amount_with_tax,
-        date_month,
+        invoice_month,
         1 as qty_invoices,
         third_party_num,
         ec.statement_without_tax,
@@ -58,7 +58,7 @@ from (
              invoice_number,
              invoice_amount_without_tax,
              invoice_amount_with_tax,
-             date_month,
+             invoice_month,
              uuid_big_category,
              third_party_num,
 	         ec.statement_without_tax,
@@ -69,7 +69,7 @@ from (
     ) edi
 group by big_category,
          supplier,
-         date_month,
+         invoice_month,
          third_party_num,
          statement_without_tax,
          statement_with_tax,
@@ -78,4 +78,4 @@ group by big_category,
          pk
 order by big_category,
          supplier,
-         date_month
+         invoice_month

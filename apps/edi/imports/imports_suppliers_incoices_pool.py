@@ -225,7 +225,9 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             if error_lines:
                 to_print += f"\nLignes en erreur : {error_lines}\n"
 
-                raise ValidationError("Le fichier comporte des erreurs")
+                raise ValidationError(
+                    f"Le fichier comporte des erreurs: {flow_name} - {str(source)!r}"
+                )
 
             else:
                 to_print += "\nPas d'erreurs\n"

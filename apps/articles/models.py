@@ -39,12 +39,12 @@ class Article(FlagsTable):
         BOITE = "Boite", _("Boite")
         ML = "Mètre", _("Mètre")
 
-    supplier = models.ForeignKey(
+    third_party_num = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="supplier_society",
-        db_column="supplier",
+        db_column="third_party_num",
     )
     reference = models.CharField(max_length=150)
     ean_code = models.CharField(null=True, blank=True, max_length=35)
@@ -173,13 +173,13 @@ class Article(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.supplier.third_party_num} - {self.reference}"
+        return f"{self.third_party_num} - {self.reference}"
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["supplier", "reference"]
-        unique_together = (("supplier", "reference"),)
+        ordering = ["third_party_num", "reference"]
+        unique_together = (("third_party_num", "reference"),)
 
 
 class SellingPrice(FlagsTable):

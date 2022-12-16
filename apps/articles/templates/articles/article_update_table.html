@@ -2,6 +2,59 @@
 
 {% block table %}
 
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Identifiants et RFA</h3>
+        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
+          <div class="fields">
+
+              <div class="six wide field">
+                <label for="id_centers_suppliers_indentifier" style="text-align: left;">Identifiant Centrale&nbsp;:</label>
+                {{ form }}
+              </div>
+              <div class="two wide field">
+                <label for="id_rfa_frequence" style="text-align: left;">Fréquence RFA&nbsp;:</label>
+                {{ form.rfa_frequence }}
+              </div>
+              <div class="two wide field">
+                <label for="id_rfa_remise" style="text-align: left;">Remise RFA&nbsp;:</label>
+                {{ form.rfa_remise }}
+              </div>
+              <div class="one wide field">
+                <label for="id_integrable" style="text-align: left;">Intégrable X3&nbsp;:</label>
+                <input type="checkbox"
+                       name="integrable"
+                       id="id_integrable"
+                       {% if form.integrable.value %}checked{% endif %}
+                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              </div>
+              <div class="one wide field">
+                <label for="id_chargeable" style="text-align: left;">Refacturable&nbsp;:</label>
+                <input type="checkbox"
+                       name="chargeable"
+                       id="id_chargeable"
+                       {% if form.chargeable.value %}checked{% endif %}
+                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              </div>
+              <div class="one wide field">
+                <label for="id_od_ana" style="text-align: left;">OD Analytique&nbsp;:</label>
+                <input type="checkbox"
+                       name="od_ana"
+                       id="id_od_ana"
+                       {% if form.od_ana.value %}checked{% endif %}
+                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              </div>
+              <div class="three wide field">
+                <label for="id_stat_axe_pro" style="text-align: left;">Familles Fournisseur / Axe PRO&nbsp;:</label>
+                {{ form.stat_axe_pro }}
+              </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
 
 {% endblock table %}

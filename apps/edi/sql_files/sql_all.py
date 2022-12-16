@@ -37,7 +37,13 @@ post_all_dict = {
     update "edi_ediimport" "edi"
     set "net_amount" = round("net_amount"::numeric, 2):: numeric,
         "code_maison" = case 
-                            when "code_maison" isnull or "code_maison" = '' 
+                            when (
+                                "code_maison" isnull 
+                                or 
+                                "code_maison" = '' 
+                                or 
+                                left("code_maison", 3) = 'TEL'
+                            )
                             then 
                                 case 
                                     when "code_fournisseur" isnull or "code_fournisseur" = ''
@@ -345,6 +351,43 @@ and edi."invoice_number" = edi_fac."invoice_number"
         vat_rate
     """
     ),
+    "sql_cct": sql.SQL(
+        """
+         update edi_ediimport edi
+         set cct_uuid_identification = cc.cct_uuid_identification
+         from (
+           select
+                 ei."id", re.cct_uuid_identification
+           from edi_ediimport ei
+           left join (
+                 select
+                        ee."id", 
+                        ee.third_party_num, 
+                        ee.supplier, 
+                        ee.code_fournisseur, 
+                        ee.maison, 
+                        ee.code_maison, 
+                        bs.cct_identifier, 
+                        bs.cct_uuid_identification
+             from edi_ediimport ee
+             left join (
+                    select
+                           third_party_num, 
+                           cct_uuid_identification, 
+                           unnest(string_to_array("cct_identifier", '|')) as cct_identifier
+                        from book_suppliercct
+                 ) bs
+                 on ee.third_party_num = bs.third_party_num
+                 where ee.third_party_num = bs.third_party_num
+                 and ee.code_maison = bs.cct_identifier
+           ) re
+           on ei.id = re.id
+           where cct_identifier is not null
+        ) cc
+        where edi."id" = cc."id"
+        and ("valid" = false or "valid" isnull)
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
@@ -360,7 +403,7 @@ and edi."invoice_number" = edi_fac."invoice_number"
                                 then null
                                 else "delivery_date"
                                end,
-            "date_month" = date_trunc('month', invoice_date)::date,
+            "invoice_month" = date_trunc('month', invoice_date)::date,
             "delete" = false
     where ("valid" = false or "valid" isnull)
     """

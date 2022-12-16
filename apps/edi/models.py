@@ -134,7 +134,6 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         related_name="edi_import_control",
         db_column="uuid_control",
     )
-    date_month = models.DateField(null=True, blank=True)
     vat = models.ForeignKey(
         VatSage,
         null=True,

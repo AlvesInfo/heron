@@ -1,8 +1,9 @@
 {% extends "heron/table_courant.html" %}
 
-{% block table %}
+{% load static %}
+{% load filters_tags %}
 
-<div class="two wide column"></div>
+{% block table %}
 
 <div class="sixteen wide column">
 
@@ -11,34 +12,38 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
+                <th>Edit</th>
                 <th>Nom du fournisseur</th>
-                <th>N° Facture</th>
-                <th>Code CCT</th>
-                <th>Nom CCT</th>
-                <th>Montant TTC</th>
-                <th>Montant HT</th>
-                <th>Date de la facture</th>
                 <th>Mois des factures</th>
+                <th>Code Founisseur</th>
+                <th style="text-align: left;">Maison</th>
+                <th>N° Facture</th>
+                <th>Date de la facture</th>
+                <th>Montant HT</th>
+                <th>Montant TTC</th>
             </tr>
         </thead>
         <tbody>
-        {% for export in controles_exports %}
+        {% for invoice in invoices_without_cct %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
+                <td style="text-align: center;">
+                    <a href="">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td>{{ invoice.supplier }}</td>
+                <td>{{ invoice.invoice_month|date:"F Y" }}</td>
+                <td>{{ invoice.code_maison }}</td>
+                <td style="text-align: left;">{{ invoice.maison|default_if_none:'' }}</td>
+                <td>{{ invoice.invoice_number }}</td>
+                <td>{{ invoice.invoice_date|date:"d/m/Y" }}</td>
+                <td style="text-align: right;">{{ invoice.invoice_amount_without_tax|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ invoice.invoice_amount_with_tax|numbers_format:2 }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
 </div>
-
-<div class="two wide column"></div>
 
 {% endblock table %}

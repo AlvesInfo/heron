@@ -5,7 +5,7 @@
 {% block table %}
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Relevé&nbsp;:&nbsp;{{ supplier }} - {{ date_month }}</h3>
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Relevé&nbsp;:&nbsp;{{ supplier }} - {{ invoice_month }}</h3>
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
@@ -47,11 +47,11 @@
                            id="id_third_party_num">
               </div>
               <div class="two wide field">
-                <label for="id_date_month">date_month&nbsp;:</label>
+                <label for="id_invoice_month">invoice_month&nbsp;:</label>
                     <input type="text"
-                           name="date_month"
-                           value="{{ date_month }}"
-                           id="id_date_month">
+                           name="invoice_month"
+                           value="{{ invoice_month }}"
+                           id="id_invoice_month">
               </div>
 
           </div>
