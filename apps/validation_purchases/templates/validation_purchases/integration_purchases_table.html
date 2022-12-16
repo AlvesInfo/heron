@@ -13,40 +13,40 @@
             <thead>
                 <tr>
                     <th colspan="8" style="background-color: lavender;font-weight: bold;">INTEGRATIONS</th>
-                    <th style="background-color: lavender;font-weight: bold;border-left: 1px solid teal;border-top: 1px solid teal;"></th>
-                    <th colspan="3" style="background-color: lavender;border-left: 1px solid teal;border-right: 1px solid teal;border-top: 1px solid teal;">RELEVES</th>
-                    <th colspan="3" style="background-color: lavender;font-weight: bold;">CONTROLES</th>
+                    <th colspan="3" style="background-color: lavender;border: 1px solid darkgray;">RELEVES</th>
+                    <th colspan="4" style="background-color: lavender;font-weight: bold;">CONTROLES</th>
                 </tr>
                 <tr>
                     <th class="no-sort" style="width: 2px;"></th>
                     <th style="width: 15px;">Catégorie</th>
                     <th style="width: 20px;">Tiers X3</th>
                     <th style="width: 234px;">Fournisseur</th>
-                    <th style="width: 60px;">Total HT</th>
-                    <th style="width: 60px;">Total TTC</th>
-                    <th style="width: 30px;">Nbre</th>
+                    <th style="width: 50px;">Total HT</th>
+                    <th style="width: 50px;">Total TTC</th>
+                    <th style="width: 20px;">Nbre</th>
                     <th style="width: 80px;">Mois Fact.</th>
-                    <th class="no-sort" style="width: 2px;border-left: 1px solid teal;"></th>
-                    <th style="width: 2px;border-left: 1px solid teal;"></th>
-                    <th style="width: 60px;">Total HT</th>
-                    <th style="width: 60px;border-right: 1px solid teal;">Total TTC</th>
-                    <th style="width: 60px;">Ecart HT</th>
-                    <th style="width: 60px;">Ecart TTC</th>
+                    <th style="width: 2px;border-left: 1px solid darkgray;border-bottom: 1px solid darkgray;"></th>
+                    <th style="width: 50px;border-bottom: 1px solid darkgray;">Total HT</th>
+                    <th style="width: 50px;border-right: 1px solid darkgray;border-bottom: 1px solid darkgray;">Total TTC</th>
+                    <th style="width: 50px;">Ecart HT</th>
+                    <th style="width: 50px;">Ecart TTC</th>
                     <th>Commentaire</th>
+                    <th style="width: 2px;"></th>
                 </tr>
             </thead>
             <thead>
                 <tr>
-                    <th colspan="5" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
+                    <th colspan="4" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
                     <th id="supplierHt" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
                     <th id="SupplierTtc" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
+                    <th id="nbreFac" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
                     <th style="background-color: lavender;"></th>
-                    <th style="background-color: lavender;border-left: 1px solid teal;"></th>
-                    <th style="background-color: lavender;border-left: 1px solid teal;"></th>
-                    <th id="statementHt" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
-                    <th id="statementTtc" style="text-align: right;background-color: lavender;font-weight: 900;border-right: 1px solid teal;">0</th>
-                    <th id="deltaHt" style="text-align: right;background-color: lavender;font-weight: 900;color: teal;"></th>
-                    <th id="deltaTtc" style="text-align: right;background-color: lavender;font-weight: 900;color: teal;"></th>
+                    <th style="background-color: lavender;border-left: 1px solid darkgray;border-bottom: 1px solid darkgray;"></th>
+                    <th id="statementHt" style="text-align: right;background-color: lavender;font-weight: 900;border-bottom: 1px solid darkgray;">0</th>
+                    <th id="statementTtc" style="text-align: right;background-color: lavender;font-weight: 900;border-right: 1px solid darkgray;border-bottom: 1px solid darkgray;">0</th>
+                    <th id="deltaHt" style="text-align: right;background-color: lavender;font-weight: 900;color: darkgray;"></th>
+                    <th id="deltaTtc" style="text-align: right;background-color: lavender;font-weight: 900;color: darkgray;"></th>
+                    <th style="background-color: lavender;"></th>
                     <th style="background-color: lavender;"></th>
                 </tr>
             </thead>
@@ -63,14 +63,9 @@
                     <td style="text-align: left;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.supplier }}</td>
                     <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>
                     <td id="SupplierTtc{{ forloop.counter0 }}" class="SupplierTtc" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_amount_with_tax|numbers_format:2 }}</td>
-                    <td style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.qty_invoices|int_formats }}</td>
+                    <td id="nbreFac{{ forloop.counter0 }}" class="nbreFac" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.qty_invoices|int_formats }}</td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_month|date:"F Y" }}</td>
-                    <td class="tdDelete" style="text-align: center;border-left: 1px solid teal;">
-                        <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick='deletePk({{ forloop.counter0 }}, {{ supplier_purchase.str_json|safe }}, `{{ supplier_purchase.supplier }} - {{ supplier_purchase.invoice_month|date:"F Y" }}`, `{% url 'validation_purchases:delete_supplier_edi_import' %}`, `{{ nature }}`)'></i>
-                        </div>
-                    </td>
-                    <td style="text-align: center;border-left: 1px solid teal;">
+                    <td style="text-align: center;border-left: 1px solid darkgray;{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}">
                         {% if supplier_purchase.uuid_identification is None %}
                             <a href="{% url 'validation_purchases:create_control' supplier_purchase.enc_param|encode_b64_str %}">
                         {% else %}
@@ -79,11 +74,16 @@
                             <i class="edit icon modification"></i>
                         </a>
                     </td>
-                    <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;">{% if supplier_purchase.amount_invoice_ht != 0 %}{{ supplier_purchase.amount_invoice_ht|numbers_format:2 }}{% endif %}</td>
-                    <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid teal;{% if supplier_purchase.amount_invoice_ttc == 0 %}background-color: lightpink;{% endif %}">{% if supplier_purchase.amount_invoice_ttc != 0 %}{{ supplier_purchase.amount_invoice_ttc|numbers_format:2 }}{% endif %}</td>
+                    <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}">{% if supplier_purchase.amount_invoice_ht != 0 %}{{ supplier_purchase.amount_invoice_ht|numbers_format:2 }}{% endif %}</td>
+                    <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid darkgray;{% if supplier_purchase.amount_invoice_ttc == 0 %}background-color: lightpink;{% endif %}{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}">{% if supplier_purchase.amount_invoice_ttc != 0 %}{{ supplier_purchase.amount_invoice_ttc|numbers_format:2 }}{% endif %}</td>
                     <td id="deltaHt{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ht != 0 %}{{ supplier_purchase.delta_ht|numbers_format:2 }}{% endif %}</td>
                     <td id="deltaTtc{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ttc != 0 %}{{ supplier_purchase.delta_ttc|numbers_format:2 }}{% endif %}</td>
                     <td style="text-align: left;">{{ supplier_purchase.comment|default_if_none:'' }}</td>
+                    <td class="tdDelete" style="text-align: center;">
+                        <div style="cursor: pointer;">
+                          <i class="red trash icon" onclick='deletePk({{ forloop.counter0 }}, {{ supplier_purchase.str_json|safe }}, `{{ supplier_purchase.supplier }} - {{ supplier_purchase.invoice_month|date:"F Y" }}`, `{% url 'validation_purchases:delete_supplier_edi_import' %}`, `{{ nature }}`)'></i>
+                        </div>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -49,9 +49,21 @@
 
         $(document).ready(function () {
             {% include "heron/base_data_table.html" %}
+
             $('.menu .item').tab();
+
             makeAddition()
 
+            $('.ui.error.checkbox')
+              .checkbox()
+              .first().checkbox({
+                onChecked: function() {
+                  $('.ui.segment.success').hide();
+                },
+                onUnchecked: function() {
+                  $('.ui.segment.success').show();
+                },
+            });
         });
 
     </script>

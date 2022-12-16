@@ -33,12 +33,18 @@ def edi_import_duplicate_check():
             trace = Trace.objects.get(uuid_identification=uuid_identification)
             trace.errors = True
             trace.comment = (
-                trace.comment + f"Le trouple(\n"
-                f"\ttiers X3   : '{third_party_num}', \n"
-                f"\tn° fac.    : '{invoice_number}', \n"
-                f"\tannée fac. : '{invoice_year}'\n"
-                f") a dèjà été importé,\n"
-                "Cette facture à été supprimée de l'intégration."
+                trace.comment
+                +
+                f'Le trouple<br>(<div style="padding-left: 20px;">'
+                f'<span style="display: inline-block;width: 55px;">'
+                f'Tiers X3 </span>: {third_party_num},<br>'
+                f'<span style="display: inline-block;width: 55px;">'
+                f'N° Fact. </span>: {invoice_number},<br>'
+                f'<span style="display: inline-block;width: 55px;">'
+                f'Année </span>: {invoice_year}<br>'
+                f'</div>)<br>'
+                f'a dèjà été importé.<br>'
+                f"Cette facture à été supprimée de l'intégration.<br>"
             )
             trace.save()
 
@@ -65,12 +71,18 @@ def suppliers_invoices_duplicate_check():
             trace = Trace.objects.get(uuid_identification=uuid_identification)
             trace.errors = True
             trace.comment = (
-                trace.comment + f"Le trouple(\n"
-                f"\ttiers X3   : '{third_party_num}', \n"
-                f"\tn° fac.    : '{invoice_number}', \n"
-                f" \tannée fac. : '{invoice_year}'\n"
-                f") a dèjà été traité et validé,\n"
-                "Cette facture à été supprimée de l'intégration."
+                trace.comment
+                +
+                f'Le trouple<br>(<div style="padding-left: 20px;">'
+                f'<span style="display: inline-block;width: 55px;">'
+                f'Tiers X3 </span>: {third_party_num},<br>'
+                f'<span style="display: inline-block;width: 55px;">'
+                f'N° Fact. </span>: {invoice_number},<br>'
+                f'<span style="display: inline-block;width: 55px;">'
+                f'Année </span>: {invoice_year}<br>'
+                f'</div>)<br>'
+                f"a dèjà été traité et validé.<br>"
+                "Cette facture à été supprimée de l'intégration.<br>"
             )
             trace.save()
 

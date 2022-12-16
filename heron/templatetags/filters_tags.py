@@ -190,7 +190,7 @@ def int_formats(value):
         if i % 3 == 0:
             return_value += " "
 
-    return return_value[::-1]
+    return str(return_value[::-1]).strip()
 
 
 @register.filter(name="format")
