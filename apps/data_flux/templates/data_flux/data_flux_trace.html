@@ -1,0 +1,29 @@
+{% load filters_tags %}
+
+{% if integration_purchases %}
+<div class="ui segments">
+    {% for trace in traces %}
+
+      <div class="ui segment">
+
+        <div class="content">
+            <div class="header" style="color: {% if trace.errors %}red{% else %}green{% endif %};"><i class="terminal {% if trace.errors %}red{% else %}green{% endif %} small icon"></i>Trace N° {{ trace.uuid_identification }} :</div>
+            <div class="description" style="padding-left: 20px;">Fichier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ trace.file_name }}</div>
+            <div class="description" style="padding-left: 20px;">Traitement&nbsp;: {{ trace.trace_name }}</div>
+            {% if trace.errors %}
+                <div style="padding-left: 20px;color: red;">
+                <div class="description">Erreurs&nbsp;:</div>
+
+                    <div class="description" style="padding-left: 20px;">{{ trace.comment|safe|linebreaks }}</div>
+                    {% for line in trace.line_trace.all %}
+                        <div class="description" style="padding-left: 20px;">Ligne&nbsp;: {{ line.num_line }} - {{ line.designnation }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+      </div>
+
+    {% endfor %}
+</div>
+
+{% endif %}

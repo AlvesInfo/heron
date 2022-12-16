@@ -36,12 +36,12 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
-    supplier_third_party_num = models.ForeignKey(
+    third_party_num = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
         to_field="third_party_num",
         related_name="detail_society",
-        db_column="supplier_third_party_num",
+        db_column="third_party_num",
     )
     # Fournisseur
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
@@ -82,7 +82,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.supplier_third_party_num} - {self.invoice_number} - {self.invoice_date}"
+        return f"{self.third_party_num} - {self.invoice_number} - {self.invoice_date}"
 
     @staticmethod
     def set_export():
@@ -97,7 +97,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["supplier_third_party_num", "invoice_number", "invoice_year"],
+                fields=["third_party_num", "invoice_number", "invoice_year"],
                 name="unique_invoice",
             )
         ]

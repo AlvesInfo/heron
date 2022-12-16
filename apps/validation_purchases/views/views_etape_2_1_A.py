@@ -22,7 +22,7 @@ from apps.edi.models import EdiImportControl
 from apps.edi.forms import EdiImportControlForm
 
 
-# CONTROLES ETAPE 2.A - LISTING FACTURES
+# CONTROLES ETAPE 2.1.A - LISTING FACTURES
 
 
 def integration_supplier_purchases(request, enc_param):

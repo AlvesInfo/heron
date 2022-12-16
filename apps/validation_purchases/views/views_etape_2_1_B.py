@@ -15,7 +15,7 @@ from apps.edi.forms import (
 )
 
 
-# CONTROLES ETAPE 2.B - DETAILS FACTURES
+# CONTROLES ETAPE 2.1.B - DETAILS FACTURES
 
 
 def details_purchase(request, enc_param):

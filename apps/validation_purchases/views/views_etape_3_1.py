@@ -18,7 +18,7 @@ def families_invoices_purchases(request):
     context = {
         "titre_table": "Contrôle des familles - Achats",
         "invoices_without_cct": EdiImport.objects.all()
-        .exclude(delete=False)
+        .exclude(delete=True)
         .values("third_party_num", "supplier", "axe_pro")
         .annotate(total_without_tax=Sum("net_amount"))
         .order_by("supplier"),

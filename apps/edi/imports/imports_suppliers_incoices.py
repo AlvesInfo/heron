@@ -272,7 +272,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs. "
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
@@ -295,10 +295,10 @@ def bbgr_bulk(file_path: Path):
     model = EdiImport
     validator = BbgrBulkSchema
     file_name = file_path.name
-    trace_name = "Import BBGR Bulk"
+    trace_name = "Import BBGR Bulk. "
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "BbgrBulk"
-    comment = "import des factures BBGR Bulk"
+    comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -328,7 +328,7 @@ def edi(file_path: Path):
     trace_name = "Import Edi"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Edi"
-    comment = "import des factures Edi opto 33"
+    comment = "import des factures Edi opto 33. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -353,7 +353,7 @@ def eye_confort(file_path: Path):
     trace_name = "Import EyeConfort"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "EyeConfort"
-    comment = "import des factures EyeConfort"
+    comment = "import des factures EyeConfort. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -381,7 +381,7 @@ def generique(file_path: Path):
     trace_name = "Import Génerique"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Generique"
-    comment = "import des factures au format du cahier des charges Génerique"
+    comment = "import des factures au format du cahier des charges Génerique - tiers : "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -407,7 +407,7 @@ def hearing(file_path: Path):
     trace_name = "Import Hearing"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Hearing"
-    comment = "import des factures Hearing"
+    comment = "import des factures Hearing. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -435,7 +435,7 @@ def interson(file_path: Path):
     trace_name = "Import Interson"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Interson"
-    comment = "import des factures Interson"
+    comment = "import des factures Interson. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -463,7 +463,7 @@ def johnson(file_path: Path):
     trace_name = "Import Johnson"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Johnson"
-    comment = "import des factures Johnson"
+    comment = "import des factures Johnson. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -492,7 +492,7 @@ def lmc(file_path: Path):
     trace_name = "Import Lmc"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Lmc"
-    comment = "import des factures Lmc"
+    comment = "import des factures Lmc. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -520,7 +520,7 @@ def newson(file_path: Path):
     trace_name = "Import Newson"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Newson"
-    comment = "import des factures Newson"
+    comment = "import des factures Newson. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -548,7 +548,7 @@ def phonak(file_path: Path):
     trace_name = "Import Phonak"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Phonak"
-    comment = "import des factures Phonak"
+    comment = "import des factures Phonak. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -576,7 +576,7 @@ def prodition(file_path: Path):
     trace_name = "Import Prodition"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Prodition"
-    comment = "import des factures Prodition"
+    comment = "import des factures Prodition. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -604,7 +604,7 @@ def signia(file_path: Path):
     trace_name = "Import Signia"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Signia"
-    comment = "import des factures Signia"
+    comment = "import des factures Signia. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -632,7 +632,7 @@ def starkey(file_path: Path):
     trace_name = "Import Starkey"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Starkey"
-    comment = "import des factures Starkey"
+    comment = "import des factures Starkey. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -660,7 +660,7 @@ def technidis(file_path: Path):
     trace_name = "Import Technidis"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Technidis"
-    comment = "import des factures Technidis"
+    comment = "import des factures Technidis. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -688,7 +688,7 @@ def unitron(file_path: Path):
     trace_name = "Import Unitron"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Unitron"
-    comment = "import des factures Unitron"
+    comment = "import des factures Unitron. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -716,7 +716,7 @@ def widex(file_path: Path):
     trace_name = "Import Widex"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Widex"
-    comment = "import des factures Widex"
+    comment = "import des factures Widex. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -744,7 +744,7 @@ def widex_ga(file_path: Path):
     trace_name = "Import WidexGa"
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "WidexGa"
-    comment = "import des factures Widex Grand Audition"
+    comment = "import des factures Widex Grand Audition. "
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,

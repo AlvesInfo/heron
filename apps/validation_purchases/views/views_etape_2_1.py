@@ -11,6 +11,8 @@ from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_dates import get_date_apostrophe
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.data_flux.models import Trace
+from apps.parameters.models import ActionInProgress
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
@@ -23,7 +25,7 @@ from apps.edi.forms import (
 from apps.edi.models import EdiImportControl
 from apps.edi.forms import EdiImportControlForm
 
-# CONTROLES ETAPE 2 - CONTROLE INTEGRATION
+# CONTROLES ETAPE 2.1 - CONTROLE INTEGRATION
 
 
 def integration_purchases(request):
@@ -43,7 +45,14 @@ def integration_purchases(request):
             "nb_paging": 100,
             "nature": "les factures du fournisseur",
             "addition": True,
+            "traces": Trace.objects.filter(
+                uuid_identification__in=EdiImport.objects.all().values("uuid_identification")
+            ).order_by("trace_name", "file_name"),
         }
+
+    if ActionInProgress.objects.filter(in_progress=True):
+        context["en_cours"] = True
+        context["titre_table"] = "PATIENTEZ INTEGRATION EN COURS .... (Rafraîchissez la page)"
 
     return render(request, "validation_purchases/integration_purchases.html", context=context)
 

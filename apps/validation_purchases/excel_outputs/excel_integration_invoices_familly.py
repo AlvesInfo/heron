@@ -176,7 +176,7 @@ def get_rows():
     # TODO Changer la requête
     rows_without_cct = (
         EdiImport.objects.filter(cct_uuid_identification__isnull=True)
-        .exclude(delete=False)
+        .exclude(delete=True)
         .values(
             "third_party_num",
             "supplier",

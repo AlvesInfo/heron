@@ -388,6 +388,23 @@ and edi."invoice_number" = edi_fac."invoice_number"
         and ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_edi_generique": sql.SQL(
+        """
+        update "data_flux_trace" dt 
+        set "trace_name" = "trace_name" || sup."supplier"
+          from (
+            select 
+                "uuid_identification", 
+                "supplier"
+              from "edi_ediimport" ee 
+             where "flow_name" in ('Generique', 'Edi')
+             group by "uuid_identification", 
+                "supplier"
+          ) sup 
+        where dt."uuid_identification" = sup."uuid_identification"
+          and ("valid" = false or "valid" isnull)
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
@@ -404,6 +421,7 @@ and edi."invoice_number" = edi_fac."invoice_number"
                                 else "delivery_date"
                                end,
             "invoice_month" = date_trunc('month', invoice_date)::date,
+            "invoice_year" = date_part('year', invoice_date),
             "delete" = false
     where ("valid" = false or "valid" isnull)
     """

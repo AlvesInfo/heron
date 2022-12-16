@@ -17,6 +17,10 @@ from django.db import connection
 from django.db.models import Q, Count
 
 from apps.edi.models import EdiImport
+from apps.edi.bin.duplicates_check import (
+    edi_import_duplicate_check,
+    suppliers_invoices_duplicate_check,
+)
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
 from apps.edi.sql_files.sql_bulk import post_bulk_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
@@ -61,7 +65,9 @@ def post_processing_all():
     sql_vat = post_all_dict.get("sql_vat")
     sql_vat_rate = post_all_dict.get("sql_vat_rate")
     sql_cct = post_all_dict.get("sql_cct")
+    sql_edi_generique = post_all_dict.get("sql_edi_generique")
     sql_validate = post_all_dict.get("sql_validate")
+
     with connection.cursor() as cursor:
         cursor.execute(sql_round_amount)
         cursor.execute(sql_supplier_update)
@@ -70,10 +76,14 @@ def post_processing_all():
         cursor.execute(sql_vat)
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
         cursor.execute(sql_cct)
+        cursor.execute(sql_edi_generique)
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()
         )
         cursor.execute(sql_validate)
+
+    edi_import_duplicate_check()
+    suppliers_invoices_duplicate_check()
 
 
 def bulk_post_insert(uuid_identification: AnyStr):
