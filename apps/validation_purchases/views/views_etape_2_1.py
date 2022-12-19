@@ -163,6 +163,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     def get(self, request, *args, **kwargs):
         """On récupère les attributs venant par la méthode GET"""
         self.get_attributes(kwargs)
+        self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

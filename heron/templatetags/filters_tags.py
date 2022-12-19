@@ -135,6 +135,27 @@ def date_from_str_4(value):
     return ""
 
 
+@register.filter(name="numbers")
+def numbers(value, num):
+
+    if not value:
+        return "0"
+
+    nombre, centimes, *_ = str(value).split(".")
+    centimes += "0" * 99
+    return_value = ""
+
+    for i, value in enumerate(nombre[::-1], 1):
+        return_value += value
+
+    if num:
+        centimes_part = "." + centimes[:num]
+    else:
+        centimes_part = ""
+
+    return (return_value[::-1] + centimes_part).strip()
+
+
 @register.filter(name="numbers_format")
 def numbers_format(value, num):
 

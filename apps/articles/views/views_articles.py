@@ -38,7 +38,6 @@ class SuppliersArticlesList(ListView):
 
 class ArticlesList(ListView):
     """View de la liste des Catégories"""
-    third_party_num = ""
     model = Article
     context_object_name = "articles"
     template_name = "articles/articles_list.html"
@@ -52,7 +51,7 @@ class ArticlesList(ListView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("articles:suppliers_articles_list")
-        context["titre_table"] = f"Articles du fournisseur : {self.third_party_num}"
+        context["titre_table"] = f"Articles Marchandises du Tiers {self.third_party_num}"
         context["third_party_num"] = self.third_party_num
         return context
 
@@ -67,14 +66,21 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     success_message = "L'Article %(reference)s a été créé avec success"
     error_message = "L'Article %(reference)s n'a pu être créé, une erreur c'est produite"
 
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form."""
+        self.third_party_num = self.kwargs.get("third_party_num", "")
+        return self.render_to_response(self.get_context_data())
+
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
+        self.third_party_num = self.kwargs.get("third_party_num", "")
         context["create"] = True
         context["chevron_retour"] = reverse(
-            "articles:suppliers_articles_list", {"third_party_num": self.object[0].third_party_num}
+            "articles:articles_list", {"third_party_num": self.third_party_num}
         )
-        context["titre_table"] = "Création d'un Nouvel Article"
+        context["titre_table"] = f"Création d'un Nouvel Article du Tiers : {self.third_party_num}"
+        context["third_party_num"] = self.third_party_num
         print(context)
         return context
 
@@ -89,26 +95,34 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = Article
     form_class = ArticleForm
     form_class.use_required_attribute = False
+    pk_url_kwarg = 'pk'
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été modifié avec success"
     error_message = "L'Article %(reference)s n'a pu être modifié, une erreur c'est produite"
 
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form."""
+        self.third_party_num = self.kwargs.get("third_party_num", "")
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        print(context)
-        objet = context.get("object")
         context["chevron_retour"] = reverse(
-            "articles:suppliers_articles_list", args=[objet.third_party_num.third_party_num]
+            "articles:articles_list", args=[self.third_party_num]
         )
+        objet = context.get('object')
         context["titre_table"] = f"Mise à jour Article {str(objet)}"
+        context["article"] = f"Article Référence : {objet.reference}"
+        context["third_party_num"] = self.third_party_num
         return context
 
-    # def get_success_url(self):
-    #     """Return the URL to redirect to after processing a valid form."""
-    #     return reverse(
-    #         "articles:suppliers_articles_list", {"third_party_num": self.object.third_party_num}
-    #     )
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse(
+            "articles:articles_list", {"third_party_num": self.third_party_num}
+        )
 
 
 def articles_export_list(_, third_party_num):

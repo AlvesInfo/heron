@@ -1,54 +1,142 @@
 {% extends "heron/update_create_courant.html" %}
+{% load filters_tags %}
 
 {% block table %}
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Identifiants et RFA</h3>
+        <h3 class="ui floated header" style="margin-bottom: 5px;">{{ article }}</h3>
+        <label for="id_third_party_num" style="display: none;">Tiers X3&nbsp;:</label>
+          <input type="text"
+                 name="third_party_num"
+                 maxlength="15"
+                 id="id_third_party_num"
+                 style="display: none;"
+                 value="{{ form.third_party_num.value }}">
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+          <div class="fields">
+              <div class="two wide field">
+                <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
+                  {{ form.big_category }}
+              </div>
+              <div class="four wide field">
+                <label for="id_reference" style="text-align: left;">reference&nbsp;:</label>
+                  <input type="text"
+                         name="reference"
+                         maxlength="15"
+                         id="id_reference"
+                         style="background-color: lavender;font-weight: bold;"
+                         readonly
+                         value="{{ form.reference.value }}">
+              </div>
+              <div class="two wide field">
+                <label for="id_ean_code" style="text-align: left;">Code EAN&nbsp;:</label>
+                  {{ form.ean_code }}
+              </div>
+              <div class="four wide field">
+                <label for="id_brand" style="text-align: left;">Marque&nbsp;:</label>
+                  {{ form.brand }}
+              </div>
+              <div class="four wide field">
+                <label for="id_manufacturer" style="text-align: left;">Fabricant&nbsp;:</label>
+                  {{ form.manufacturer }}
+              </div>
+          </div>
+
+          <div class="fields">
+              <div class="six wide field">
+                  <label for="id_libelle" style="text-align: left;">Libéllé&nbsp;:</label>
+                  {{ form.libelle }}
+              </div>
+              <div class="six wide field">
+                  <label for="id_libelle_heron" style="text-align: left;">Libéllé Héron&nbsp;:</label>
+                  {{ form.libelle_heron }}
+              </div>
+              <div class="four wide field">
+                  <label for="id_sub_familly" style="text-align: left;">Sous famille&nbsp;:</label>
+                  {{ form.sub_familly }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+              <div class="four wide field">
+                  <label for="id_budget_code" style="text-align: left;">Code budget&nbsp;:</label>
+                  {{ form.budget_code }}
+              </div>
+              <div class="two wide field">
+                  <label for="id_famille_supplier" style="text-align: left;">Famille Fournounisseur&nbsp;:</label>
+                  {{ form.famille_supplier }}
+              </div>
+              <div class="two wide field">
+                  <label for="id_axe_pro_supplier" style="text-align: left;">Axe Pro Fournisseur&nbsp;:</label>
+                  {{ form.axe_pro_supplier }}
+              </div>
+              <div class="two wide field">
+                  <label for="id_made_in" style="text-align: left;">Made In&nbsp;:</label>
+                  {{ form.made_in }}
+              </div>
+              <div class="two wide field">
+                  <label for="id_item_weight" style="text-align: left;">Poids&nbsp;:</label>
+                    <input type="number"
+                           name="item_weight"
+                           value="{{ form.statement_with_tax.value|numbers:0 }}"
+                           step="1"
+                           id="id_item_weight"
+                           style="text-align: right;">
+              </div>
+              <div class="two wide field">
+                  <label for="id_unit_weight" style="text-align: left;">Unités&nbsp;:</label>
+                  {{ form.unit_weight }}
+              </div>
+              <div class="two wide field">
+                  <label for="id_packaging_qty" style="text-align: left;">Unité de Packaging&nbsp;:</label>
+                    <input type="number"
+                           name="packaging_qty"
+                           value="{{ form.packaging_qty.value|numbers:0 }}"
+                           step="1"
+                           id="id_packaging_qty"
+                           style="text-align: right;">
+              </div>
+
+          </div>
 
           <div class="fields">
 
-              <div class="six wide field">
-                <label for="id_centers_suppliers_indentifier" style="text-align: left;">Identifiant Centrale&nbsp;:</label>
-                {{ form }}
+              <div class="two wide field">
+                  <label for="id_catalog_price" style="text-align: left;">Prix Catalogue&nbsp;:</label>
+                    <input type="number"
+                           name="catalog_price"
+                           value="{{ form.catalog_price.value|numbers:2 }}"
+                           step="0.1"
+                           id="id_catalog_price"
+                           style="text-align: right;">
               </div>
               <div class="two wide field">
-                <label for="id_rfa_frequence" style="text-align: left;">Fréquence RFA&nbsp;:</label>
-                {{ form.rfa_frequence }}
+                  <label for="id_axe_bu" style="text-align: left;">BU&nbsp;:</label>
+                  {{ form.axe_bu }}
               </div>
               <div class="two wide field">
-                <label for="id_rfa_remise" style="text-align: left;">Remise RFA&nbsp;:</label>
-                {{ form.rfa_remise }}
+                  <label for="id_axe_prj" style="text-align: left;">PRJ&nbsp;:</label>
+                  {{ form.axe_prj }}
               </div>
-              <div class="one wide field">
-                <label for="id_integrable" style="text-align: left;">Intégrable X3&nbsp;:</label>
-                <input type="checkbox"
-                       name="integrable"
-                       id="id_integrable"
-                       {% if form.integrable.value %}checked{% endif %}
-                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              <div class="two wide field">
+                  <label for="id_axe_pro" style="text-align: left;">PRO&nbsp;:</label>
+                  {{ form.axe_pro }}
               </div>
-              <div class="one wide field">
-                <label for="id_chargeable" style="text-align: left;">Refacturable&nbsp;:</label>
-                <input type="checkbox"
-                       name="chargeable"
-                       id="id_chargeable"
-                       {% if form.chargeable.value %}checked{% endif %}
-                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              <div class="two wide field">
+                  <label for="id_axe_pys" style="text-align: left;">PYS&nbsp;:</label>
+                  {{ form.axe_pys }}
               </div>
-              <div class="one wide field">
-                <label for="id_od_ana" style="text-align: left;">OD Analytique&nbsp;:</label>
-                <input type="checkbox"
-                       name="od_ana"
-                       id="id_od_ana"
-                       {% if form.od_ana.value %}checked{% endif %}
-                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
+              <div class="two wide field">
+                  <label for="id_axe_rfa" style="text-align: left;">RFA&nbsp;:</label>
+                  {{ form.axe_rfa }}
               </div>
-              <div class="three wide field">
-                <label for="id_stat_axe_pro" style="text-align: left;">Familles Fournisseur / Axe PRO&nbsp;:</label>
-                {{ form.stat_axe_pro }}
+              <div class="two wide field">
+                  <label for="id_customs_code" style="text-align: left;">Code douanier&nbsp;:</label>
+                  {{ form.customs_code }}
               </div>
 
           </div>

@@ -14,7 +14,7 @@
                 <label for="id_statement_without_tax" style="text-align: left;">Montant HT&nbsp;:</label>
                     <input type="number"
                            name="statement_without_tax"
-                           value="{{ form.statement_without_tax.value|numbers_point:2 }}"
+                           value="{{ form.statement_without_tax.value|numbers:2 }}"
                            step="0.01"
                            id="id_statement_without_tax"
                            style="text-align: right;">
@@ -23,7 +23,7 @@
                 <label for="id_statement_with_tax" style="text-align: left;">Montant TTC&nbsp;:</label>
                     <input type="number"
                            name="statement_with_tax"
-                           value="{{ form.statement_with_tax.value|numbers_point:2 }}"
+                           value="{{ form.statement_with_tax.value|numbers:2 }}"
                            step="0.01"
                            id="id_statement_with_tax"
                            style="text-align: right;">
