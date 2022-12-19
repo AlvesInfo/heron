@@ -6,30 +6,29 @@
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
         <h3 class="ui floated header" style="margin-bottom: 5px;">{{ article }}</h3>
-        <label for="id_third_party_num" style="display: none;">Tiers X3&nbsp;:</label>
-          <input type="text"
-                 name="third_party_num"
-                 maxlength="15"
-                 id="id_third_party_num"
-                 style="display: none;"
-                 value="{{ form.third_party_num.value }}">
+
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
 
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-          <div class="fields">
+            <div class="fields" style="{% if not base_create %}display: none;{% endif %}">
+              <div class="two wide field">
+                  <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
+                  <input type="text"
+                         name="third_party_num"
+                         maxlength="15"
+                         id="id_third_party_num"
+                         value="{{ third_party_num }}">
+              </div>
+            </div>
+
+            <div class="fields">
               <div class="two wide field">
                 <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
                   {{ form.big_category }}
               </div>
               <div class="four wide field">
-                <label for="id_reference" style="text-align: left;">reference&nbsp;:</label>
-                  <input type="text"
-                         name="reference"
-                         maxlength="15"
-                         id="id_reference"
-                         style="background-color: lavender;font-weight: bold;"
-                         readonly
-                         value="{{ form.reference.value }}">
+                <label for="id_reference" style="text-align: left;">Référence&nbsp;:</label>
+                  {{ form.reference }}
               </div>
               <div class="two wide field">
                 <label for="id_ean_code" style="text-align: left;">Code EAN&nbsp;:</label>
@@ -67,7 +66,7 @@
                   {{ form.budget_code }}
               </div>
               <div class="two wide field">
-                  <label for="id_famille_supplier" style="text-align: left;">Famille Fournounisseur&nbsp;:</label>
+                  <label for="id_famille_supplier" style="text-align: left;">Famille Fournisseur&nbsp;:</label>
                   {{ form.famille_supplier }}
               </div>
               <div class="two wide field">

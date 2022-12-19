@@ -140,8 +140,19 @@ def numbers(value, num):
 
     if not value:
         return "0"
+    list_values = str(value).split(".")
 
-    nombre, centimes, *_ = str(value).split(".")
+    if len(list_values) == 0:
+        nombre = "0"
+        centimes = ""
+
+    elif len(list_values) == 1:
+        nombre = str(value)
+        centimes = ""
+
+    else:
+        nombre, centimes, *_ = list_values
+
     centimes += "0" * 99
     return_value = ""
 

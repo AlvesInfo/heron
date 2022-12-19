@@ -13,7 +13,6 @@ class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
         fields = [
-            # "id",
             "third_party_num",
             "big_category",
             "reference",

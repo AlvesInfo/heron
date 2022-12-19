@@ -6,6 +6,7 @@ import pendulum
 from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
+from django.db import transaction
 from django.db.models import Count
 
 from heron.loggers import LOGGER_VIEWS
@@ -38,6 +39,7 @@ class SuppliersArticlesList(ListView):
 
 class ArticlesList(ListView):
     """View de la liste des Catégories"""
+
     model = Article
     context_object_name = "articles"
     template_name = "articles/articles_list.html"
@@ -68,25 +70,70 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
-        self.third_party_num = self.kwargs.get("third_party_num", "")
+        third_party_num = self.kwargs.get("third_party_num", "")
+        if third_party_num == "create":
+            self.third_party_num = None
+            self.base_create = True
+        else:
+            self.base_create = False
+            self.third_party_num = Society.objects.get(third_party_num=third_party_num)
+        self.object = None
         return self.render_to_response(self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        """Rajout de third_party_num dans le post"""
+        third_party_num = self.kwargs.get("third_party_num", "")
+        if third_party_num == "create":
+            self.third_party_num = None
+            self.base_create = True
+        else:
+            self.base_create = False
+            self.third_party_num = Society.objects.get(third_party_num=third_party_num)
+        self.object = None
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        self.third_party_num = self.kwargs.get("third_party_num", "")
-        context["create"] = True
-        context["chevron_retour"] = reverse(
-            "articles:articles_list", {"third_party_num": self.third_party_num}
-        )
-        context["titre_table"] = f"Création d'un Nouvel Article du Tiers : {self.third_party_num}"
-        context["third_party_num"] = self.third_party_num
-        print(context)
+        context["article"] = "Article :"
+        context["base_create"] = self.base_create
+
+        if not self.base_create:
+            context[
+                "titre_table"
+            ] = f"Création d'un Nouvel Article pour le Tiers : {self.third_party_num.third_party_num}"
+            context["chevron_retour"] = reverse(
+                "articles:articles_list",
+                args=[
+                    self.third_party_num.third_party_num,
+                ],
+            )
+            context["third_party_num"] = self.third_party_num.third_party_num
+        else:
+            context["chevron_retour"] = reverse("articles:suppliers_articles_list")
+
         return context
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse("", args=[])
+        return reverse(
+            "articles:articles_list",
+            args=[
+                self.object.third_party_num.third_party_num,
+            ],
+        )
+
+    @transaction.atomic
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        if not form.instance.libelle_heron:
+            form.instance.libelle_heron = form.instance.libelle
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -95,7 +142,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = Article
     form_class = ArticleForm
     form_class.use_required_attribute = False
-    pk_url_kwarg = 'pk'
+    pk_url_kwarg = "pk"
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été modifié avec success"
     error_message = "L'Article %(reference)s n'a pu être modifié, une erreur c'est produite"
@@ -110,19 +157,33 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse(
-            "articles:articles_list", args=[self.third_party_num]
+            "articles:articles_list", args=[self.object.third_party_num.third_party_num]
         )
-        objet = context.get('object')
-        context["titre_table"] = f"Mise à jour Article {str(objet)}"
-        context["article"] = f"Article Référence : {objet.reference}"
-        context["third_party_num"] = self.third_party_num
+        context["titre_table"] = f"Mise à jour Article {str(self.object)}"
+        context["article"] = f"Article Référence : {self.object.reference}"
+        context["third_party_num"] = self.object.third_party_num.third_party_num
         return context
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse(
-            "articles:articles_list", {"third_party_num": self.third_party_num}
+            "articles:articles_list",
+            args=[
+                self.object.third_party_num.third_party_num,
+            ],
         )
+
+    @transaction.atomic
+    def form_valid(self, form):
+        """Si le formulaire est valide"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        """Si le formulaire est invalide"""
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 def articles_export_list(_, third_party_num):
