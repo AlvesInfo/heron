@@ -264,7 +264,7 @@ class SectionSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.axe} - {self.section}"
+        return self.section
 
     class Meta:
         """class Meta du modèle django"""
