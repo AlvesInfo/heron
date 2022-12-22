@@ -35,15 +35,14 @@ def edi_import_duplicate_check():
             trace.comment = (
                 trace.comment
                 +
-                f'Le trouple<br>(<div style="padding-left: 20px;">'
+                f"L'ensemble (<div style='padding-left: 20px;'>"
                 f'<span style="display: inline-block;width: 55px;">'
                 f'Tiers X3 </span>: {third_party_num},<br>'
                 f'<span style="display: inline-block;width: 55px;">'
                 f'N° Fact. </span>: {invoice_number},<br>'
                 f'<span style="display: inline-block;width: 55px;">'
                 f'Année </span>: {invoice_year}<br>'
-                f'</div>)<br>'
-                f'a dèjà été importé.<br>'
+                f'</div>) a dèjà été importé.<br>'
                 f"Cette facture à été supprimée de l'intégration.<br>"
             )
             trace.save()
@@ -73,15 +72,14 @@ def suppliers_invoices_duplicate_check():
             trace.comment = (
                 trace.comment
                 +
-                f'Le trouple<br>(<div style="padding-left: 20px;">'
+                f"L'ensemble (<div style='padding-left: 20px;'>"
                 f'<span style="display: inline-block;width: 55px;">'
                 f'Tiers X3 </span>: {third_party_num},<br>'
                 f'<span style="display: inline-block;width: 55px;">'
                 f'N° Fact. </span>: {invoice_number},<br>'
                 f'<span style="display: inline-block;width: 55px;">'
                 f'Année </span>: {invoice_year}<br>'
-                f'</div>)<br>'
-                f"a dèjà été traité et validé.<br>"
+                f'</div>) a dèjà été traité et validé.<br>'
                 "Cette facture à été supprimée de l'intégration.<br>"
             )
             trace.save()

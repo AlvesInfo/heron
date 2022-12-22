@@ -21,7 +21,7 @@ def without_cct_purchases(request):
     """
 
     context = {
-        "titre_table": "Listing Factures sans CCT - Achats",
+        "titre_table": "2.2 - Listing Factures sans CCT - Achats",
         "invoices_without_cct": EdiImport.objects.filter(cct_uuid_identification__isnull=True)
         .exclude(delete=True)
         .values(
@@ -64,6 +64,6 @@ def without_cct_purchases_export(request):
             )
 
     except:
-        LOGGER_VIEWS.exception("view : integration_purchases_export")
+        LOGGER_VIEWS.exception("view : without_cct_purchases_export")
 
     return redirect(reverse("validation_purchases:without_cct_purchases"))

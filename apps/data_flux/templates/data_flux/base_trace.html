@@ -1,0 +1,72 @@
+{% block head_js %}
+    <script type="text/javascript">
+        let url = `{% url 'traces:edi_traces' %}`;
+    </script>
+{% endblock %}
+
+    <div class="ui segments">
+
+        <div class="ui segment">
+            <div class="ui grid">
+                <div class="four wide column">
+                    <div class="ui error checkbox">
+                        <label for="checkbox_for_error">Afficher uniquement les erreurs</label>
+                        <input id="checkbox_for_error" type="checkbox">
+                    </div>
+                </div>
+                <div class="twelve wide column" style="text-align: right;">
+                        {% if traces.has_other_pages %}
+                          <div id="pagination" class="ui small lavender buttons">
+                            {{ pagination|safe }}
+                          </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+
+    {% for trace in traces %}
+
+      <div class="ui segment {% if trace.errors %}error{% else %}success{% endif %}" style="padding: 5px 20px;">
+
+        <div class="content">
+            <div class="header" style="color: {% if trace.errors %}red{% else %}green{% endif %};">>- Trace N° {{ trace.uuid_identification }} - <span>Date import&nbsp;: {{ trace.created_at|date:"d/m/Y - H:m:s" }}</span></div>
+            <div class="description" style="padding-left: 20px;font-size: .8em;margin: -2px 0;">Fichier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ trace.file_name }}</div>
+            <div class="description" style="padding-left: 20px;font-size: .8em;margin: -2px 0;">Traitement&nbsp;&nbsp;&nbsp;&nbsp;: {{ trace.trace_name }}</div>
+            {% if trace.errors %}
+                <div style="padding-left: 20px;color: red;font-size: .8em;">
+                <div class="description">Erreurs&nbsp;:</div>
+                        <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
+                    {% if trace.line_trace.all %}
+                        <br>
+                        <div class="description" style="padding-left: 20px;">Le Fichier a été rejeté, suite aux erreurs suivantes :</div>
+                    {% endif %}
+                    {% for line in trace.line_trace.all %}
+                        <br>
+                        <div class="description" style="padding-left: 40px;">- ligne n°
+                            <span style="font-weight: bold;">{{ line.num_line }}</span>
+                            - {{ line.designation }} :
+                            {% for error in line.error_line.all %}
+                                <br>
+                                <span style="padding-left: 20px;">- Champ en erreur : {{ error.attr_name }}</span>
+                                <br>
+                                <span style="padding-left: 20px;">- Colonne du fichier : {{ error.file_column }}</span>
+                                <br>
+                                <span style="padding-left: 20px;">- Erreur : {{ error.message }}</span>
+                                {% if error.data_expected %}
+                                    <br>
+                                    <span style="padding-left: 20px;">- Attendu : {{ error.data_expected }}</span>
+                                {% endif %}
+                                {% if error.data_received %}
+                                    <br>
+                                    <span style="padding-left: 20px;">- Reçu : {{ error.data_received }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+      </div>
+
+    {% endfor %}
+</div>

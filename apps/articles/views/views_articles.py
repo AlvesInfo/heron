@@ -181,7 +181,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        """Si le formulaire est invalide"""
+        """On élève le niveau d'alerte en cas de formulaire invalide"""
         self.request.session["level"] = 50
         return super().form_invalid(form)
 

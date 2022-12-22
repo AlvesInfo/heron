@@ -14,8 +14,6 @@ import io
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
-from apps.core.functions.functions_setups import CNX_STRING
-from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.core.excel_outputs.excel_writer import (
     titre_page_writer,
     output_day_writer,
@@ -23,76 +21,67 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
-from apps.centers_clients.models import Maison, SalePriceCategory
-from apps.book.models import Society
+from apps.centers_clients.models import Maison
 from apps.centers_clients.excel_outputs.centers_clients_columns import columns_list_maisons
 
 
 def get_clean_rows():
     """Retourne les lignes à écrire"""
 
-    query = f"""
-    select 
-        "maison"."cct", 
-        "maison"."center_purchase",
-        "maison"."sign_board", 
-        "maison"."intitule", 
-        "maison"."intitule_court", 
-        "maison"."client_familly", 
-        "maison"."code_maison", 
-        "maison"."code_cosium", 
-        "maison"."code_bbgr", 
-        "maison"."opening_date", 
-        "maison"."closing_date", 
-        "maison"."signature_franchise_date", 
-        "maison"."agreement_franchise_end_date", 
-        "maison"."agreement_renew_date", 
-        "maison"."entry_fee_amount", 
-        "maison"."renew_fee_amoount", 
-        "sp"."name", 
-        "maison"."generic_coefficient", 
-        "maison"."credit_account", 
-        "maison"."debit_account", 
-        "maison"."prov_account", 
-        "maison"."extourne_account", 
-        "maison"."sage_vat_by_default", 
-        "maison"."sage_plan_code", 
-        "maison"."rfa_frequence", 
-        "maison"."rfa_remise", 
-        "maison"."invoice_client_name", 
-        "maison"."currency", 
-        "maison"."language", 
-        "maison"."tiers",
-        "society"."immeuble",
-        "society"."adresse",
-        "society"."code_postal",
-        "society"."ville",
-        "society"."pays",
-        "society"."telephone",
-        "society"."mobile",
-        "society"."email",
-        "maison"."immeuble",
-        "maison"."adresse",
-        "maison"."code_postal",
-        "maison"."ville",
-        "maison"."pays",
-        "maison"."telephone",
-        "maison"."mobile",
-        "maison"."email"
-    from "{Maison._meta.db_table}" "maison"
-    join "{Society._meta.db_table}" "society"
-    on "maison"."tiers" = "society"."third_party_num"
-    left join "{SalePriceCategory._meta.db_table}" "sp"
-    on "maison"."uuid_sale_price_category" = "sp"."uuid_identification"
-    """
-    with cnx_postgresql(CNX_STRING).cursor() as cursor:
-        cursor.execute(query)
-        return cursor.fetchall()
+    return [
+        (
+            str(row.cct),
+            str(row.center_purchase),
+            str(row.sign_board),
+            row.intitule,
+            row.intitule_court,
+            str(row.client_familly),
+            row.code_maison,
+            row.code_cosium,
+            row.code_bbgr,
+            row.opening_date,
+            row.closing_date,
+            row.signature_franchise_date,
+            row.agreement_franchise_end_date,
+            row.agreement_renew_date,
+            row.entry_fee_amount,
+            row.renew_fee_amoount,
+            str(row.sale_price_category),
+            row.generic_coefficient,
+            str(row.credit_account),
+            str(row.debit_account),
+            str(row.prov_account),
+            str(row.extourne_account),
+            str(row.sage_vat_by_default),
+            str(row.sage_plan_code),
+            row.rfa_frequence,
+            row.rfa_remise,
+            row.invoice_client_name,
+            str(row.currency),
+            str(row.language),
+            row.tiers.third_party_num,
+            row.tiers.immeuble,
+            row.tiers.adresse,
+            row.tiers.code_postal,
+            row.tiers.ville,
+            str(row.tiers.pays),
+            row.tiers.telephone,
+            row.tiers.mobile,
+            row.tiers.email,
+            row.immeuble,
+            row.adresse,
+            row.code_postal,
+            row.ville,
+            str(row.pays),
+            row.telephone,
+            row.mobile,
+            row.email,
+        )
+        for row in Maison.objects.all()
+    ]
 
 
-def excel_liste_maisons(
-    file_io: io.BytesIO, file_name: str
-) -> dict:
+def excel_liste_maisons(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier de liste des maisons"""
     list_excel = [file_io, ["LISTE DES MAISONS"]]
     excel = GenericExcel(list_excel)

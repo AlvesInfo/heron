@@ -39,15 +39,13 @@ def integration_purchases(request):
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(cursor, file_path=sql_context_file)
         context = {
-            "titre_table": "Contrôle des Intégrations - Achats",
+            "titre_table": "2.1 - Contrôle des Intégrations - Achats",
             "integration_purchases": elements,
             "margin_table": 10,
             "nb_paging": 100,
             "nature": "les factures du fournisseur",
             "addition": True,
-            "traces": Trace.objects.filter(
-                uuid_identification__in=EdiImport.objects.all().values("uuid_identification")
-            ).order_by("trace_name", "file_name"),
+            "traces": Trace.objects.filter(modified_at__gte=pendulum.now().start_of("month")),
         }
 
     if ActionInProgress.objects.filter(in_progress=True):
@@ -86,7 +84,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         )
 
     def get(self, request, *args, **kwargs):
-        """Onrécupère les attributs venant par la méthode get"""
+        """On récupère les attributs venant par la méthode get"""
         self.get_attributes(kwargs)
         return super().get(request, *args, **kwargs)
 
@@ -115,6 +113,9 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
     @transaction.atomic
     def form_valid(self, form):
+        """Pour la validation, ajout du user qui modifie et mise à jour du champ uuid_control, 
+        pour faire la relation avec les imports
+        """
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         instance = form.save()
@@ -127,6 +128,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        """On élève le niveau d'alerte en cas de formulaire invalide"""
         self.request.session["level"] = 50
         return super().form_invalid(form)
 
@@ -198,7 +200,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        """Si le formulaire est invalide"""
+        """On élève le niveau d'alerte en cas de formulaire invalide"""
         self.request.session["level"] = 50
         return super().form_invalid(form)
 

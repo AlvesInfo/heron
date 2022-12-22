@@ -1,0 +1,58 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+
+        {% include "traces/edi_traces_entete.html" %}
+
+        <div class="sixteen wide column" style="padding: 0;margin: 10px 40px 0;">
+            <div class="ui segment" style="padding: 5px;margin: 20px 10px;">
+                {% include "data_flux/base_trace.html" %}
+            </div>
+        </div>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+
+            $('.ui.error.checkbox')
+              .checkbox()
+              .first().checkbox({
+                onChecked: function() {
+                  $('.ui.segment.success').hide();
+                },
+                onUnchecked: function() {
+                  $('.ui.segment.success').show();
+                },
+            });
+
+        });
+
+    </script>
+
+{% endblock script %}

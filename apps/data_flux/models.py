@@ -39,6 +39,11 @@ class Trace(FlagsTable):
         null=True, max_digits=20, decimal_places=2, verbose_name="temps de traitement", default=0
     )
 
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["-created_at", "trace_name", "file_name"]
+
 
 class Line(models.Model):
     """

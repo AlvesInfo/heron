@@ -214,7 +214,7 @@ def export_list_supplier_cct(request, third_party_num):
             )
 
     except:
-        LOGGER_VIEWS.exception("view : integration_purchases_export")
+        LOGGER_VIEWS.exception("view : export_list_supplier_cct")
 
     return redirect(
         reverse("book:supplier_cct_identifier", kwargs={"third_party_num": third_party_num})

@@ -47,6 +47,6 @@ def families_invoices_purchases_export(request):
             )
 
     except:
-        LOGGER_VIEWS.exception("view : integration_purchases_export")
+        LOGGER_VIEWS.exception("view : families_invoices_purchases_export")
 
     return redirect(reverse("validation_purchases:families_invoices_purchases"))

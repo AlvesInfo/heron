@@ -141,6 +141,6 @@ def integration_supplier_purchases_export(request, enc_param):
             )
 
     except:
-        LOGGER_VIEWS.exception("view : integration_purchases_export")
+        LOGGER_VIEWS.exception("view : integration_supplier_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))

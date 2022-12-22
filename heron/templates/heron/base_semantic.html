@@ -58,13 +58,15 @@
                 {#setDelta("deltaHt", "supplierHt", "statementHt")#}
                 {#setDelta("deltaTtc", "SupplierTtc", "statementTtc")#}
             }
+            let attrsFilter = {% if attrs_filter %}{{ attrs_filter|safe }}{% else %}{}{% endif %};
 
             $(document).ready(function () {
               // INITIALISATION DE MOMENT SUR LES DATATABLES POUR TRI
-              $.fn.dataTable.moment( 'DD/MM/YYY' );
+                $.fn.dataTable.moment( 'DD/MM/YYY' );
             });
         </script>
 
+        <script type="text/javascript" src="{% static 'populate_paginator.js' %}"></script>
         <script type="text/javascript" src="{% static 'tablesort.js' %}"></script>
         <script type="text/javascript" src="{% static 'base_html_header.js' %}"></script>
         <script type="text/javascript" src="{% static 'deletionPostManagement.js' %}"></script>

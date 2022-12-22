@@ -119,6 +119,13 @@ urlpatterns = [
         ),
     ),
     path(
+        "traces/",
+        include(
+            ("apps.traces.urls", "apps.traces"),
+            namespace="traces",
+        ),
+    ),
+    path(
         "",
         include(("apps.users.urls", "apps.users"), namespace="users"),
     ),
