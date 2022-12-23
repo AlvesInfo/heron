@@ -195,15 +195,17 @@ class VatRegimeSage(FlagsTable):
     Code taxe      | vat_code                 | TABVACBPR     | VAT
     Classe vente   | sale_class               | TABVACBPR     | SALCLA
     Type de régime | regime_type              | TABVACBPR     | REGVAC
+    Legislation    | legislation              | TABVACBPR     | LEG
     ======================================================================
     """
 
-    vat_regime = models.CharField(unique=True, max_length=5)
+    vat_regime = models.CharField(max_length=5, verbose_name="régime de taxe")
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     vat_code = models.CharField(null=True, max_length=5, verbose_name="code taxe")
     sale_class = models.CharField(null=True, max_length=10, verbose_name="classe vente")
     regime_type = models.CharField(null=True, max_length=20, verbose_name="type de régime")
+    legislation = models.CharField(null=True, blank=True, max_length=20, verbose_name="législation")
 
     @staticmethod
     def file_import_sage():
@@ -227,6 +229,7 @@ class VatRegimeSage(FlagsTable):
             "vat_code": 4,
             "sale_class": 5,
             "regime_type": 6,
+            "legislation": 7,
         }
 
     @staticmethod
@@ -251,7 +254,7 @@ class VatRegimeSage(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
-
+        unique_together = (("vat_regime", "legislation"),)
         ordering = ["vat_regime", "name"]
 
 

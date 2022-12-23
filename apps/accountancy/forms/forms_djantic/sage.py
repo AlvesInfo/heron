@@ -21,6 +21,7 @@ from apps.core.validations.pydantic_validators_base import (
     NullZeroDecimalFieldBase,
     SageTruncateStrFieldsBase,
     SageDateFieldsBase,
+    SageDefaultDateFieldsBase,
     SageNullFalseBooleanFieldsBase,
     SageNullBooleanFieldsBase,
 )
@@ -105,7 +106,7 @@ class VatSageSchema(ModelSchema, SageTruncateStrFieldsBase):
 class VatRatSageSchema(
     ModelSchema,
     SageTruncateStrFieldsBase,
-    SageDateFieldsBase,
+    SageDefaultDateFieldsBase,
     SageNullFalseBooleanFieldsBase,
     NullZeroDecimalFieldBase,
 ):
