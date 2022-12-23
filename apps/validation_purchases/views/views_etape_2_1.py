@@ -45,7 +45,9 @@ def integration_purchases(request):
             "nb_paging": 100,
             "nature": "les factures du fournisseur",
             "addition": True,
-            "traces": Trace.objects.filter(modified_at__gte=pendulum.now().start_of("month")),
+            "traces": Trace.objects.filter(
+                modified_at__gte=pendulum.now().start_of("month"),
+            ).exclude(file_name__istartswith="ZBI"),
         }
 
     if ActionInProgress.objects.filter(in_progress=True):
@@ -113,7 +115,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
     @transaction.atomic
     def form_valid(self, form):
-        """Pour la validation, ajout du user qui modifie et mise à jour du champ uuid_control, 
+        """Pour la validation, ajout de l'user qui modifie et mise à jour du champ uuid_control,
         pour faire la relation avec les imports
         """
         form.instance.modified_by = self.request.user
