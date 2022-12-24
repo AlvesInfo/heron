@@ -86,9 +86,9 @@ from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, Po
 
 try:
     cache = redis.StrictRedis(
-        # host=settings.REDIS_HOST,
-        # port=settings.REDIS_PORT,
-        # password=settings.REDIS_PASSWORD,
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        password=settings.REDIS_PASSWORD,
     )
 except redis.exceptions.ConnectionError:
     cache = {}
