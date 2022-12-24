@@ -97,6 +97,7 @@ THIRD_PARTY_APPS = [
     "dynamic_preferences",
     # comment the following line if you don't want to use user preferences
     "dynamic_preferences.users.apps.UserPreferencesConfig",
+    "django_q",
 ]
 
 LOCAL_APPS = [
@@ -151,7 +152,8 @@ TEMPLATES = [
             # Path(CORE_DIR) / "templates",
             # Path(APPS_DIR) / "templates",
             # Path(BASE_DIR) / "heron/templates/heron",
-            Path(BASE_DIR) / "apps/data_flux/templates",
+            Path(BASE_DIR)
+            / "apps/data_flux/templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -400,3 +402,15 @@ Trace = meta_data_heron.tables["data_flux_trace"]
 EdiImport = meta_data_heron.tables["edi_ediimport"]
 EdiSupplier = meta_data_heron.tables["edi_supplierdefinition"]
 EdiColumns = meta_data_heron.tables["edi_columndefinition"]
+
+Q_CLUSTER = {
+    'retry': 3700,
+    'name': 'heron',
+    'workers': 8,
+    'label': 'Django Q',
+    'redis': {
+        'host': REDIS_HOST,
+        'port': REDIS_PORT,
+        "password": REDIS_PASSWORD,
+        'db': 0, }
+}
