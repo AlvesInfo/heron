@@ -87,10 +87,15 @@ class VatRegimeSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseB
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
+    uuid_identification: uuid.UUID = uuid.uuid4()
 
     class Config:
         model = VatRegimeSage
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = list(model.get_columns_import()) + [
+            "created_at",
+            "modified_at",
+            "uuid_identification",
+        ]
 
 
 class VatSageSchema(ModelSchema, SageTruncateStrFieldsBase):

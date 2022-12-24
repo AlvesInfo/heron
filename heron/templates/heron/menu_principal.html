@@ -263,6 +263,8 @@
                     <div class="column">
                         <h4 class="ui header">Achats</h4>
                         <div class="ui link list">
+
+                            <a href="{% url 'edi:import_edi_invoices' %}" class="item">1.1 &nbsp;&nbsp;&nbsp;&nbsp;Import Factures EDI</a>
                             <a href="{% url 'validation_purchases:integration_purchases' %}" class="item">2.1 &nbsp;&nbsp;&nbsp;&nbsp;Intégrations</a>
 {#                            <a href="{% url 'validation_purchases:integration_supplier_purchases' %}" class="item">Listing Factures</a>#}
                             <a href="{% url 'validation_purchases:without_cct_purchases' %}" class="item">2.2 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle CCT</a>

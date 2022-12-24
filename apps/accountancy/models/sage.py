@@ -207,6 +207,9 @@ class VatRegimeSage(FlagsTable):
     regime_type = models.CharField(null=True, max_length=20, verbose_name="type de régime")
     legislation = models.CharField(null=True, blank=True, max_length=20, verbose_name="législation")
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     @staticmethod
     def file_import_sage():
         """
@@ -238,7 +241,7 @@ class VatRegimeSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return {"vat_regime"}
+        return {"vat_regime", "legislation"}
 
     @property
     def get_import(self):

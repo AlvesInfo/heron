@@ -101,7 +101,7 @@ def make_insert(
             for i, line in enumerate(valide_file_io, 1):
                 if i == nbre:
                     break
-                print(line, end="")
+                # print(line, end="")
 
             valide_file_io.seek(0)
 

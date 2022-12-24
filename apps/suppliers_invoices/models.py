@@ -64,12 +64,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     function = models.CharField(unique=True, max_length=255)
     function_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     function_created_at = models.DateTimeField()
-    vat_regime = models.ForeignKey(
-        VatRegimeSage,
-        on_delete=models.CASCADE,
-        to_field="vat_regime",
-        db_column="vat_regime",
-    )
+    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
 
     def save(self, *args, **kwargs):
         """
@@ -122,6 +117,7 @@ class InvoiceTax(FlagsTable):
         to_field="vat",
         db_column="vat",
     )
+    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
 
 
 class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
@@ -163,6 +159,7 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
         to_field="vat",
         db_column="vat",
     )
+    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
     vat_start_date = models.DateField()
 
     brand = models.CharField(null=True, blank=True, max_length=80)

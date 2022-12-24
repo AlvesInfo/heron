@@ -133,6 +133,7 @@ class VatRegimeSageForm(forms.ModelForm):
             "vat_code",
             "sale_class",
             "regime_type",
+            "legislation",
         ]
 
 

@@ -140,6 +140,7 @@ def vat_regime_sage(file_path: Path):
         "add_fields_dict": {
             "created_at": timezone.now(),
             "modified_at": timezone.now(),
+            "uuid_identification": (uuid4, {}),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)

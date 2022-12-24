@@ -511,6 +511,8 @@ class PostgresDjangoUpsert:
                         quote_character=quote_character,
                     )
                     # print(cursor.mogrify(sql_copy).decode())
+                    # print(*file)
+                    # file.seek(0)
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert

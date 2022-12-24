@@ -1,0 +1,27 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="sixteen wide column">
+
+{% if not en_cours %}
+
+        <form id="import_edi_invoices_form" action="" method="post">
+            {% csrf_token %}
+            <button class="ui large teal button"
+                    type="submit"
+                    name="import_edi_invoices_button"
+                    id="import_edi_invoices_button">
+                Importer
+            </button>
+        </form>
+
+{% endif %}
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

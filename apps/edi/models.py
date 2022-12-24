@@ -141,13 +141,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         to_field="vat",
         db_column="vat",
     )
-    vat_regime = models.ForeignKey(
-        VatRegimeSage,
-        null=True,
-        on_delete=models.CASCADE,
-        to_field="vat_regime",
-        db_column="vat_regime",
-    )
+    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
 
 
 class EdiImportTax(FlagsTable):

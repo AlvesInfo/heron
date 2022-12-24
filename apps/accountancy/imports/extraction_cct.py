@@ -28,7 +28,6 @@ def update_cct_sage():
             cct.chargeable = cct_section.chargeable
             cct.regroup_01 = cct_section.regroup_01
             cct.regroup_02 = cct_section.regroup_02
-            cct.uuid_identification = cct_section.uuid_identification
             cct.save()
 
         except CctSage.DoesNotExist:
