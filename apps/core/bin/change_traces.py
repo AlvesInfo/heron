@@ -1,4 +1,4 @@
-# pylint: disable=C0411,E0401,W0105,W0212
+# pylint: disable=C0411,E0401,W0105,W0212,E1101,W1203
 """Module d'enregistrement de tous les changement en opération CRUD de l'application
 
 Commentaire:
@@ -191,11 +191,17 @@ class ChangeTraceMixin:
         return super().form_invalid(form)
 
 
-def trace_mark_delete(request, django_model: models.Model, data_dict: dict):
+def trace_mark_delete(
+    request,
+    django_model: models.Model,
+    data_dict: dict,
+    force_delete=False,
+):
     """Fonction trace des changements de données, pour views functions flag delete à True
     :param request: request au sens Django
     :param django_model: Model au sens Django
     :param data_dict: données validées, pour le filtre
+    :param force_delete: True si l'on souhaite éffacé definitivement
     """
     function_call = str(inspect.currentframe().f_back)[:255]
     model_object = django_model.objects.filter(**data_dict)
@@ -230,6 +236,9 @@ def trace_mark_delete(request, django_model: models.Model, data_dict: dict):
             db_table=django_model._meta.db_table,
         )
 
+    if force_delete:
+        model_object.delete()
+
 
 def trace_mark_bulk_delete(
     request,
@@ -258,9 +267,9 @@ def trace_mark_bulk_delete(
     user = request.user
     action_datetime = timezone.now()
 
-    before = {key: value for key, value in data_dict.items()}
+    before = dict(data_dict.items())
     after = {
-        **{key: value for key, value in deepcopy(before).items()},
+        **dict(deepcopy(before).items()),
         **{"modified_by": user.pk, "delete": True},
     }
 

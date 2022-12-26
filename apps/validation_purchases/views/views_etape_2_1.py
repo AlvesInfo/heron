@@ -237,6 +237,7 @@ def delete_supplier_edi_import(request):
                 django_model=EdiImport,
                 data_dict=form.cleaned_data,
                 replacements=(("big_category", instance_big_categorie.name),),
+                force_delete=True,
             )
             data = {"success": "success"}
 
