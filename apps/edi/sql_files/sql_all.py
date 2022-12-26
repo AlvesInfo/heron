@@ -391,7 +391,7 @@ and edi."invoice_number" = edi_fac."invoice_number"
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 
-        set "trace_name" = "trace_name" || sup."supplier"
+        set "trace_name" = left("trace_name" || sup."supplier", 160)
           from (
             select 
                 "uuid_identification", 

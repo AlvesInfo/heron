@@ -25,7 +25,7 @@ class Trace(FlagsTable):
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    trace_name = models.CharField(max_length=80)
+    trace_name = models.CharField(max_length=160)
     file_name = models.CharField(null=True, blank=True, max_length=255)
     application_name = models.CharField(null=True, blank=True, max_length=80)
     flow_name = models.CharField(null=True, blank=True, max_length=80)

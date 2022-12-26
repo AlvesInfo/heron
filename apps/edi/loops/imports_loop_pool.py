@@ -147,6 +147,7 @@ def proc_files(process_object):
 
     try:
         trace, to_print = function(file)
+        print(file.resolve(), backup_file.resolve())
         shutil.move(file.resolve(), backup_file.resolve())
 
     except TypeError as except_error:
