@@ -209,6 +209,7 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        print({"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
