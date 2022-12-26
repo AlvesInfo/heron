@@ -16,6 +16,7 @@ import platform
 import re
 import sys
 from pathlib import Path
+import shutil
 
 import django
 
@@ -121,9 +122,11 @@ def get_files():
 
     for directory, function in processing_dict.items():
         files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / directory
+        backup_dir = Path(settings.BACKUP_SUPPLIERS_DIR) / directory
 
         for file in files_directory.glob("*"):
-            files_list.append((file, function))
+            backup_file = backup_dir / file.name
+            files_list.append((file, backup_file, function))
 
     return files_list
 
@@ -140,12 +143,11 @@ def proc_files(process_object):
     error = False
     trace = None
     to_print = ""
-    file, function = process_object
+    file, backup_file, function = process_object
 
     try:
         trace, to_print = function(file)
-        # destination = Path(settings.BACKUP_SAGE_DIR) / file.name
-        # shutil.move(file.resolve(), destination.resolve())
+        shutil.move(file.resolve(), backup_file.resolve())
 
     except TypeError as except_error:
         error = True
