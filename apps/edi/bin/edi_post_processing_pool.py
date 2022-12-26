@@ -204,8 +204,8 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier EyeConfort
     :param uuid_identification: uuid_identification
     """
-    sql_update = post_eye_dict.get("post_eye_dict")
-    sql_update_units = post_eye_dict.get("post_eye_dict")
+    sql_update = post_eye_dict.get("sql_update")
+    sql_update_units = post_eye_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
