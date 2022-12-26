@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from django_q.tasks import async_task
 
 from apps.parameters.models import ActionInProgress
-from apps.edi.loops.imports_loop_pool import main as edi_main
+from apps.edi.tasks import start_edi_import
 
 
 def import_edi_invoices(request):
@@ -13,11 +12,11 @@ def import_edi_invoices(request):
         in_action = in_action_object.in_progress
     except ActionInProgress.DoesNotExist:
         in_action = False
-
+    print(in_action)
     if request.method == "POST":
         """Si l'on envoie un POST alors on lance l'import"""
         if not in_action:
-            async_task(edi_main)
+            start_edi_import.delay()
             in_action = True
 
     context = {
@@ -28,5 +27,5 @@ def import_edi_invoices(request):
             "Import des factures founisseurs EDI"
         )
     }
-
+    print(context)
     return render(request, "edi/edi_import.html", context=context)

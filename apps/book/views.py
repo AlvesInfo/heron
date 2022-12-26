@@ -5,12 +5,11 @@ Views des Tiers X3
 from pathlib import Path
 
 import pendulum
-from psycopg2 import sql
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render, reverse, redirect
 from django.views.generic import ListView, UpdateView
-from django.db import connection, transaction
+from django.db import transaction
 from django.db.models import Q
 from django.forms import modelformset_factory
 

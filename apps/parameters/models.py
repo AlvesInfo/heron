@@ -549,6 +549,7 @@ class BaseInvoiceDetailsTable(models.Model):
         related_name="+",
         db_column="axe_rfa_uuid",
     )
+    bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
 
     class Meta:
         """class Meta du modèle django"""

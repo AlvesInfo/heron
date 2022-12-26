@@ -97,7 +97,8 @@ THIRD_PARTY_APPS = [
     "dynamic_preferences",
     # comment the following line if you don't want to use user preferences
     "dynamic_preferences.users.apps.UserPreferencesConfig",
-    "django_q",
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 LOCAL_APPS = [
@@ -403,14 +404,8 @@ EdiImport = meta_data_heron.tables["edi_ediimport"]
 EdiSupplier = meta_data_heron.tables["edi_supplierdefinition"]
 EdiColumns = meta_data_heron.tables["edi_columndefinition"]
 
-Q_CLUSTER = {
-    'retry': 3700,
-    'name': 'heron',
-    'workers': 8,
-    'label': 'Django Q',
-    'redis': {
-        'host': REDIS_HOST,
-        'port': REDIS_PORT,
-        "password": REDIS_PASSWORD,
-        'db': 0, }
-}
+
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
