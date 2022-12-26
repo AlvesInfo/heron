@@ -41,7 +41,8 @@ post_eye_dict = {
             "net_unit_price" = abs("net_unit_price"),
             "gross_amount" = case 
                                 when "net_amount" = 0 then 0
-                                when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                                when "net_amount" < 0 
+                                    then (abs("gross_amount")::numeric * -1::numeric)
                                 when "net_amount" > 0 then abs("gross_amount")::numeric
                             end
         where "uuid_identification" = %(uuid_identification)s
