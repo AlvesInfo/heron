@@ -12,9 +12,9 @@ def import_edi_invoices(request):
         in_action = in_action_object.in_progress
     except ActionInProgress.DoesNotExist:
         in_action = False
-    print(in_action)
+
     if request.method == "POST":
-        """Si l'on envoie un POST alors on lance l'import"""
+        """Si l'on envoie un POST alors on lance l'import en tâche de fond celery"""
         if not in_action:
             start_edi_import.delay()
             in_action = True
@@ -27,5 +27,5 @@ def import_edi_invoices(request):
             "Import des factures founisseurs EDI"
         )
     }
-    print(context)
+
     return render(request, "edi/edi_import.html", context=context)

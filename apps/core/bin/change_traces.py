@@ -232,13 +232,18 @@ def trace_mark_delete(request, django_model: models.Model, data_dict: dict):
 
 
 def trace_mark_bulk_delete(
-    request, django_model: models.Model, data_dict: dict, replacements: tuple = ()
+    request,
+    django_model: models.Model,
+    data_dict: dict,
+    replacements: tuple = (),
+    force_delete=False,
 ):
     """Fonction trace des changements de données, pour views functions flag delete à True
     :param request: request au sens Django
     :param django_model: Model au sens Django
     :param data_dict: données validées, pour le filtre
     :param replacements: Tuple des varaibles à remplacer
+    :param force_delete: True si l'on souhaite éffacé definitivement
     """
     function_call = str(inspect.currentframe().f_back)[:255]
     model_object = django_model.objects.filter(**data_dict)
@@ -278,6 +283,9 @@ def trace_mark_bulk_delete(
         model=django_model._meta.model,
         db_table=django_model._meta.db_table,
     )
+
+    if force_delete:
+        model_object.delete()
 
     request.session["level"] = 20
 
