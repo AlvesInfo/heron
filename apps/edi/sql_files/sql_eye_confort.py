@@ -25,7 +25,7 @@ post_eye_dict = {
             "vat_amount" = 0,
             "amount_with_vat" = "net_amount"::numeric
         where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull
+        and ("valid" = false or "valid" isnull)
         """
     ),
     "sql_update_units": sql.SQL(
