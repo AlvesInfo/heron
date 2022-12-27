@@ -12,10 +12,16 @@ modified at: 2022-12-26
 modified by: Paulo ALVES
 """
 from celery import shared_task
+from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+
 from apps.edi.loops.imports_loop_pool import main as edi_main
 
 
 @shared_task()
 def start_edi_import():
     """Lancement de la tâche edi import"""
-    edi_main()
+    try:
+        edi_main()
+
+    except (SoftTimeLimitExceeded, TimeLimitExceeded) as error:
+        raise Exception from error

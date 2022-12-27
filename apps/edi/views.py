@@ -22,7 +22,7 @@ def import_edi_invoices(request):
     context = {
         "en_cours": in_action,
         "titre_table": (
-            "INTEGRATION EN COURS DES FACTURES EN COURS, PATIENTEZ .... (Rafraîchissez la page)"
+            "INTEGRATION EN COURS, PATIENTEZ... (Revenez plus tard)"
             if in_action else
             "Import des factures founisseurs EDI"
         )

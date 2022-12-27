@@ -52,7 +52,7 @@ def integration_purchases(request):
 
     if ActionInProgress.objects.filter(in_progress=True):
         context["en_cours"] = True
-        context["titre_table"] = "PATIENTEZ INTEGRATION EN COURS .... (Rafraîchissez la page)"
+        context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ... (Revenez plus tard)"
 
     return render(request, "validation_purchases/integration_purchases.html", context=context)
 
