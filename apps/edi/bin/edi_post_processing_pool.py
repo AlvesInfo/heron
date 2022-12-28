@@ -23,6 +23,9 @@ from apps.edi.bin.duplicates_check import (
 )
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
 from apps.edi.sql_files.sql_bulk import post_bulk_dict
+from apps.edi.sql_files.sql_bbgr_002_statment import bbgr_002_statment_dict
+from apps.edi.sql_files.sql_bbgr_003_monthly import bbgr_003_monthly_dict
+from apps.edi.sql_files.sql_bbgr_004_retours import bbgr_004_retours_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
 from apps.edi.sql_files.sql_eye_confort import post_eye_dict
 from apps.edi.sql_files.sql_generic import post_generic_dict
@@ -111,7 +114,11 @@ def bulk_post_insert(uuid_identification: AnyStr):
 
     for packaging_dict in packaging_amount_dict:
         edi = (
-            EdiImport.objects.filter(invoice_number=packaging_dict.get("invoice_number"))
+            EdiImport.objects.filter(
+                invoice_number=packaging_dict.get("invoice_number"),
+                uuid_identification=packaging_dict.get("uuid_identification"),
+            )
+            .filter(Q(valid=False) | Q(valid__isnull=True))
             .values(
                 "uuid_identification",
                 "flow_name",
@@ -176,10 +183,8 @@ def bulk_post_insert(uuid_identification: AnyStr):
     sql_update = post_bulk_dict.get("sql_update")
 
     with connection.cursor() as cursor:
-        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
-
-    with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
 def edi_post_insert(uuid_identification: AnyStr):
@@ -204,6 +209,35 @@ def bbgr_statment_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier BBGR Statment
     :param uuid_identification: uuid_identification
     """
+    sql_vat = bbgr_002_statment_dict.get("sql_vat")
+
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+
+
+def bbgr_monthly_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier BBGR Statment
+    :param uuid_identification: uuid_identification
+    """
+    sql_vat = bbgr_003_monthly_dict.get("sql_vat")
+
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+
+
+def bbgr_retours_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier BBGR Statment
+    :param uuid_identification: uuid_identification
+    """
+    sql_vat = bbgr_004_retours_dict.get("sql_vat")
+
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
 
 
 def eye_confort_post_insert(uuid_identification: AnyStr):

@@ -18,6 +18,8 @@ import sys
 from pathlib import Path
 import shutil
 
+from psycopg2 import sql
+from django.db import connection
 import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -34,12 +36,11 @@ from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
-from apps.edi.bin.bbgr_002_statment import generate_bbgr_stament_file
-from apps.edi.bin.bbgr_003_monthly import generate_bbgr_monthly_file
-from apps.edi.bin.bbgr_004_retours import generate_bbgr_retours_file
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     bbgr_statment,
+    bbgr_monthly,
+    bbgr_retours,
     edi,
     eye_confort,
     generique,
@@ -63,7 +64,6 @@ from apps.parameters.models import ActionInProgress
 
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
-    "BBGR_STATMENT": bbgr_statment,
     "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,
@@ -142,9 +142,121 @@ def have_files():
     Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
     la page ne s'affiche jamais.
     """
-    generate_bbgr_stament_file()
-    generate_bbgr_monthly_file()
-    generate_bbgr_retours_file()
+
+    with connection.cursor() as cursor:
+        sql_id_statment = sql.SQL(
+            """
+            select 
+                "max_id"
+            from (
+                select 
+                    max("id") as max_id
+                from "heron_bi_factures_billstatement"
+            )he
+            where exists (
+                select 1 from (
+                    select 
+                        max(max_id) as max_id
+                    from (
+                        select  
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from edi_ediimport ee 
+                        where flow_name = 'BbgrStatment'
+                        union all 
+                        select 
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from suppliers_invoices_invoice sii 
+                        join suppliers_invoices_invoicedetail sii2 
+                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        where sii.flow_name = 'BbgrStatment'
+                    ) req
+                ) mx 
+                where mx.max_id < he.max_id
+            )
+            """
+        )
+        cursor.execute(sql_id_statment, {"historic_id": 1947055})
+        test_have_lines_statment = cursor.fetchone()
+
+        if test_have_lines_statment:
+            return True
+
+        sql_id_monthly = sql.SQL(
+            """
+            select 
+                "max_id"
+            from (
+                select 
+                    max("id") as max_id
+                from "heron_bi_factures_monthlydelivery"
+                where "type_article" not in ('FRAIS_RETOUR', 'DECOTE')
+            )he
+            where exists (
+                select 1 from (
+                    select 
+                        max(max_id) as max_id
+                    from (
+                        select  
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from edi_ediimport ee 
+                        where flow_name = 'BbgrMonthly'
+                        union all 
+                        select 
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from suppliers_invoices_invoice sii 
+                        join suppliers_invoices_invoicedetail sii2 
+                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        where sii.flow_name = 'BbgrMonthly'
+                    ) req
+                ) mx 
+                where mx.max_id < he.max_id
+            )
+            """
+        )
+        cursor.execute(sql_id_monthly, {"historic_id": 2012339})
+        test_have_lines_montly = cursor.fetchone()
+
+        if test_have_lines_montly:
+            return True
+
+        sql_id_retours = sql.SQL(
+            """
+            select 
+                "max_id"
+            from (
+                select 
+                    max("id") as max_id
+                from "heron_bi_factures_monthlydelivery"
+                where "type_article" in ('FRAIS_RETOUR', 'DECOTE')
+            )he
+            where exists (
+                select 1 from (
+                    select 
+                        max(max_id) as max_id
+                    from (
+                        select  
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from edi_ediimport ee 
+                        where flow_name = 'BbgrRetours'
+                        union all 
+                        select 
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from suppliers_invoices_invoice sii 
+                        join suppliers_invoices_invoicedetail sii2 
+                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        where sii.flow_name = 'BbgrRetours'
+                    ) req
+                ) mx 
+                where mx.max_id < he.max_id
+            )
+            """
+        )
+        cursor.execute(sql_id_retours, {"historic_id": 2042093})
+        test_have_lines_retours = cursor.fetchone()
+
+        if test_have_lines_retours:
+            return True
+
     return True if get_files() else False
 
 
@@ -238,6 +350,15 @@ def main():
             action.in_progress = True
             action.save()
             start_all = time.time()
+
+            # On insert BBGR STATMENT
+            bbgr_statment()
+            # On insert BBGR MONTHLY
+            bbgr_monthly()
+            # On insert BBGR RETOURS
+            bbgr_retours()
+
+            # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
             loop_proc(proc_files_l)
             print(f"All validations : {time.time() - start_all} s")
@@ -275,6 +396,7 @@ def main_pool():
         action.save()
 
         start_all = time.time()
+
         proc_files_l = get_files()
         loop_pool_proc(proc_files_l)
         print(f"All validations : {time.time() - start_all} s")

@@ -278,8 +278,6 @@ def trace_mark_bulk_delete(
         before[key] = value
         after[key] = value
 
-    model_object.update(modified_by=user, delete=True)
-
     ChangesTrace.objects.create(
         action_datetime=action_datetime,
         action_type=0,
@@ -295,6 +293,8 @@ def trace_mark_bulk_delete(
 
     if force_delete:
         model_object.delete()
+    else:
+        model_object.update(modified_by=user, delete=True)
 
     request.session["level"] = 20
 

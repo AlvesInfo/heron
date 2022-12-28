@@ -77,5 +77,6 @@ group by big_category,
          uuid_identification,
          pk
 order by big_category,
+         third_party_num,
          supplier,
          invoice_month

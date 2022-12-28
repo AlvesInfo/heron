@@ -77,6 +77,7 @@ def delete_line_details_purchase(request):
             request=request,
             django_model=EdiImport,
             data_dict=form.cleaned_data,
+            force_delete=True,
         )
         data = {"success": "success"}
 
