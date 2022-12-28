@@ -13,6 +13,7 @@
         <thead>
             <tr>
                 <th>Edit</th>
+                <th>Tiers X3</th>
                 <th>Nom du fournisseur</th>
                 <th>Mois des factures</th>
                 <th>Code Founisseur</th>
@@ -31,6 +32,7 @@
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
+                <td>{{ invoice.third_party_num }}</td>
                 <td>{{ invoice.supplier }}</td>
                 <td>{{ invoice.invoice_month|date:"F Y" }}</td>
                 <td>{{ invoice.code_maison|default_if_none:'' }}</td>

@@ -120,7 +120,7 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                    "date_livraison" as "delivery_date",
                    coalesce(
                         case when no_facture_acuitis = '' then null else no_facture_acuitis end, 
-                        case when customer_po_number = '' then null else customer_po_number end,
+                        case when "livraison" = '' then null else "livraison" end,
                         "id"::varchar
                     ) as "invoice_number",
                    "date_mouvement" as "invoice_date",

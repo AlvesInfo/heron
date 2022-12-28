@@ -12,7 +12,7 @@ from apps.core.functions.functions_dates import get_date_apostrophe
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.data_flux.models import Trace
-from apps.parameters.models import ActionInProgress, Category
+from apps.parameters.models import Category
 from apps.parameters.bin.core import get_in_progress
 
 from apps.validation_purchases.excel_outputs import (

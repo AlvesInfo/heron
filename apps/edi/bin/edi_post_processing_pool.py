@@ -21,6 +21,7 @@ from apps.edi.bin.duplicates_check import (
     edi_import_duplicate_check,
     suppliers_invoices_duplicate_check,
 )
+from apps.edi.bin.set_suppliers_cct import add_news_cct_sage
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
 from apps.edi.sql_files.sql_bulk import post_bulk_dict
 from apps.edi.sql_files.sql_bbgr_002_statment import bbgr_002_statment_dict
@@ -41,6 +42,7 @@ from apps.edi.sql_files.sql_starkey import post_starkey_dict
 from apps.edi.sql_files.sql_technidis import post_technidis_dict
 from apps.edi.sql_files.sql_unitron import post_unitron_dict
 from apps.edi.sql_files.sql_widex import post_widex_dict
+
 from apps.users.models import User
 
 
@@ -87,6 +89,7 @@ def post_processing_all():
 
     edi_import_duplicate_check()
     suppliers_invoices_duplicate_check()
+    add_news_cct_sage()
 
 
 def bulk_post_insert(uuid_identification: AnyStr):
