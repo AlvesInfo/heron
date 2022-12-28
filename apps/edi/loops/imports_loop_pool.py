@@ -34,8 +34,12 @@ from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
+from apps.edi.bin.bbgr_002_statment import generate_bbgr_stament_file
+from apps.edi.bin.bbgr_003_monthly import generate_bbgr_monthly_file
+from apps.edi.bin.bbgr_004_retours import generate_bbgr_retours_file
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
+    bbgr_statment,
     edi,
     eye_confort,
     generique,
@@ -58,7 +62,8 @@ from apps.parameters.models import ActionInProgress
 
 
 processing_dict = {
-    "BBRG_BULK": bbgr_bulk,
+    "BBGR_BULK": bbgr_bulk,
+    "BBGR_STATMENT": bbgr_statment,
     "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,
@@ -137,6 +142,9 @@ def have_files():
     Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
     la page ne s'affiche jamais.
     """
+    generate_bbgr_stament_file()
+    generate_bbgr_monthly_file()
+    generate_bbgr_retours_file()
     return True if get_files() else False
 
 
@@ -229,7 +237,6 @@ def main():
             # On initialise l'action comme en cours
             action.in_progress = True
             action.save()
-
             start_all = time.time()
             proc_files_l = get_files()
             loop_proc(proc_files_l)

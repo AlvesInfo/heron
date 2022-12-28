@@ -55,6 +55,31 @@ class BbgrBulkSchema(
         ]
 
 
+class BbgrStatmentSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+    TvaWidex,
+):
+    """Schema Djantic pour validation du modèle BbgrStatment Bill statment venant de la BI"""
+
+    uuid_identification: uuid.UUID
+    supplier: str
+    supplier_ident: str
+
+    class Config:
+        """Config"""
+
+        model = EdiImport
+        include = list(get_columns(ColumnDefinition, "BbgrStatment")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+            "created_at",
+            "modified_at",
+        ]
+
+
 class EdiSchema(
     ModelSchema,
     ValidateFieldsBase,

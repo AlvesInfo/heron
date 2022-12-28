@@ -44,6 +44,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
         db_column="third_party_num",
     )
     # Fournisseur
+    flow_name = models.CharField(max_length=80)
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
 
     # Magasin Facturé

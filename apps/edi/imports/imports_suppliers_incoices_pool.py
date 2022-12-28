@@ -23,6 +23,7 @@ from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing_pool import bulk_translate_file
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
+    bbgr_statment_post_insert,
     edi_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
@@ -44,6 +45,7 @@ from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport
 from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
 from apps.edi.forms.forms_djantic.forms_invoices import (
     BbgrBulkSchema,
+    BbgrStatmentSchema,
     EdiSchema,
     EyeConfortSchema,
     GeneriqueSchema,
@@ -360,6 +362,36 @@ def bbgr_bulk(file_path: Path):
     to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     new_file_path.unlink()
     bulk_post_insert(trace.uuid_identification)
+
+    return trace, to_print
+
+
+def bbgr_statment(file_path: Path):
+    """
+    Import du fichier des factures BBGR bulk
+    :param file_path: Path du fichier à traiter
+    """
+    model = EdiImport
+    validator = BbgrStatmentSchema
+    file_name = file_path.name
+    trace_name = "Import BBGR Statment"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "BbgrStatment"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
+            "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    bbgr_statment_post_insert(trace.uuid_identification)
 
     return trace, to_print
 

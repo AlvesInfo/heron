@@ -199,6 +199,13 @@ def edi_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_fac_update_edi, {"uuid_identification": uuid_identification})
 
 
+def bbgr_statment_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier BBGR Statment
+    :param uuid_identification: uuid_identification
+    """
+
+
 def eye_confort_post_insert(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier EyeConfort
