@@ -1,31 +1,41 @@
 from django.shortcuts import render
+from django.contrib import messages
 
-from apps.parameters.models import ActionInProgress
+from apps.parameters.bin.core import get_in_progress
 from apps.edi.tasks import start_edi_import
+from apps.edi.loops.imports_loop_pool import have_files
 
 
 def import_edi_invoices(request):
-    """Bouton d'import des factrues edi"""
+    """Bouton d'import des factures edi"""
 
-    try:
-        in_action_object = ActionInProgress.objects.get(action="import_edi_invoices")
-        in_action = in_action_object.in_progress
-    except ActionInProgress.DoesNotExist:
-        in_action = False
+    request.session["level"] = 20
+    in_action = get_in_progress()
 
+    # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if request.method == "POST":
-        """Si l'on envoie un POST alors on lance l'import en tâche de fond celery"""
+
+        # On vérifie qu'il n'y as pas un import en cours
         if not in_action:
-            start_edi_import.delay()
-            in_action = True
+            bool_files = have_files()
+
+            # On vérifie qu'il y ai des fichiers
+            if bool_files:
+                start_edi_import.delay()
+                in_action = True
+
+            else:
+                request.session["level"] = 50
+                messages.add_message(request, 50, "Il n'y a aucuns fichiers EDI à traiter !")
 
     context = {
         "en_cours": in_action,
+        "margin_table": 50,
         "titre_table": (
-            "INTEGRATION EN COURS, PATIENTEZ... (Revenez plus tard)"
-            if in_action else
-            "Import des factures founisseurs EDI"
-        )
+            "INTEGRATION EN COURS, PATIENTEZ..."
+            if in_action
+            else "Import des factures founisseurs EDI"
+        ),
     }
 
     return render(request, "edi/edi_import.html", context=context)

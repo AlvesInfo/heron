@@ -66,6 +66,15 @@
                   $('.ui.segment.success').show();
                 },
             });
+
+            {% if en_cours %}
+                setTimeout(function() {
+                        window.location.reload()
+                    },
+                    30000
+                )
+            {% endif %}
+
         });
 
     </script>

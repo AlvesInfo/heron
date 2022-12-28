@@ -46,12 +46,18 @@ def integration_supplier_purchases(request, enc_param):
                 "invoice_month": invoice_month,
             },
         )
-        titre_table = elements[0]
-        mois = (
-            pendulum.parse(titre_table.get("invoice_month").isoformat())
-            .format("MMMM YYYY", locale="fr")
-            .capitalize()
-        )
+
+        if elements:
+            titre_table = elements[0]
+            mois = (
+                pendulum.parse(titre_table.get("invoice_month").isoformat())
+                .format("MMMM YYYY", locale="fr")
+                .capitalize()
+            )
+
+        else:
+            mois = ""
+
         context = {
             "titre_table": f"Contrôle : {supplier}  - {mois}",
             "controles_exports": elements,

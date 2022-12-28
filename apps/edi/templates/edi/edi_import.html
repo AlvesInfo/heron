@@ -43,7 +43,13 @@
                 $(this).hide();
                 $(`#id_titre_table`).text("INTEGRATION EN COURS DES FACTURES EN COURS, PATIENTEZ .... (Rafraîchissez la page)").css("color", "teal")
             })
-
+            {% if en_cours %}
+                setTimeout(function() {
+                        window.location.reload()
+                    },
+                    30000
+                )
+            {% endif %}
         });
 
     </script>

@@ -131,6 +131,15 @@ def get_files():
     return files_list
 
 
+def have_files():
+    """Retourne True si il y a des fichiers sinon False.
+    Fonction faite pour l'affichage de la page d'import en cas de rafraichissement seulement.
+    Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
+    la page ne s'affiche jamais.
+    """
+    return True if get_files() else False
+
+
 def proc_files(process_object):
     """
     Intégration des factures fournisseurs présentes
@@ -166,6 +175,7 @@ def proc_files(process_object):
             )
 
         if trace is not None:
+            print(trace.uuid_identification)
             trace.save()
 
         # TODO : faire une fonction d'envoie de mails

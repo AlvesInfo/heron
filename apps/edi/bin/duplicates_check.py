@@ -18,9 +18,9 @@ from apps.core.functions.functions_setups import settings
 
 from apps.edi.sql_files.sql_checks import (
     sql_edi_import_duplicates,
-    sql_edi_import_duplicates_to_delete,
+    sql_edi_import_duplicates_delete,
     sql_invoices_duplicates,
-    sql_invoices_duplicates_to_delete,
+    sql_invoices_duplicates_delete,
 )
 from apps.data_flux.models import Trace
 from apps.edi.models import EdiImport
@@ -59,7 +59,7 @@ def edi_import_duplicate_check():
             trace.save()
 
         # on marque à delete dans la table EdiImport (edi_edi_import)
-        cursor.execute(sql_edi_import_duplicates_to_delete)
+        cursor.execute(sql_edi_import_duplicates_delete)
 
 
 @transaction.atomic
@@ -96,7 +96,7 @@ def suppliers_invoices_duplicate_check():
             trace.save()
 
         # on marque à delete dans la table EdiImport (edi_edi_import)
-        cursor.execute(sql_invoices_duplicates_to_delete)
+        cursor.execute(sql_invoices_duplicates_delete)
 
 
 if __name__ == "__main__":
