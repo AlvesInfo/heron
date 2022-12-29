@@ -4,18 +4,17 @@
 {% load filters_tags %}
 
 {% block table %}
-
-<div class="sixteen wide column">
+    <div class="one wide column"></div>
+<div class="fourteen wide column">
 
     <table id="table_document"
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th>Edit</th>
+                <th>Ajout Codes</th>
                 <th>Tiers X3</th>
                 <th>Nom du fournisseur</th>
-                <th>Mois des factures</th>
                 <th>Code Founisseur</th>
                 <th style="text-align: left;">Maison</th>
                 <th>N° Facture</th>
@@ -28,13 +27,12 @@
         {% for invoice in invoices_without_cct %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
                 <td style="text-align: center;">
-                    <a href="">
+                    <a href="{% url 'book:supplier_cct_identifier' third_party_num=invoice.third_party_num %}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
                 <td>{{ invoice.third_party_num }}</td>
                 <td>{{ invoice.supplier }}</td>
-                <td>{{ invoice.invoice_month|date:"F Y" }}</td>
                 <td>{{ invoice.code_maison|default_if_none:'' }}</td>
                 <td style="text-align: left;">{{ invoice.maison|default_if_none:'' }}</td>
                 <td>{{ invoice.invoice_number }}</td>

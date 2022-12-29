@@ -30,7 +30,6 @@ def without_cct_purchases(request):
         .values(
             "third_party_num",
             "supplier",
-            "invoice_month",
             "code_maison",
             "maison",
             "invoice_number",

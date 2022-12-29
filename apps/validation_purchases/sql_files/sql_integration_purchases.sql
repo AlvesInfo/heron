@@ -52,7 +52,7 @@ from (
     on ee.uuid_big_category = pc.uuid_identification
     left join edi_ediimportcontrol ec
     on ee.uuid_control = ec.uuid_identification
-    where ee."delete" = False
+    where (ee."delete" = false or ee."delete" isnull)
     group by supplier,
              pc."name",
              invoice_number,
