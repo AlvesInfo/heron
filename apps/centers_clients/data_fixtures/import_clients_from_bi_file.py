@@ -1,8 +1,23 @@
+import os
+import platform
+import sys
 import csv
 from pathlib import Path
 
 from django.db import transaction
-from apps.core.functions.functions_setups import settings
+
+
+import django
+
+BASE_DIR = r"C:\SitesWeb\heron"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.append(BASE_DIR)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+django.setup()
+
 from apps.accountancy.models import AccountSage, CodePlanSage, CctSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison, MaisonBi
