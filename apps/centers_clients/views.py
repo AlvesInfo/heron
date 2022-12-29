@@ -31,6 +31,17 @@ class MaisonsList(ListView):
     """View de la liste des Maisons"""
 
     model = Maison
+    queryset = Maison.objects.all().values(
+        "third_party_num",
+        "pk",
+        "cct",
+        "intitule",
+        "center_purchase",
+        "sign_board",
+        "currency",
+        "language",
+        "pays",
+    )
     context_object_name = "maisons"
     template_name = "centers_clients/clients_list.html"
     extra_context = {"titre_table": "Clients"}

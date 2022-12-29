@@ -32,7 +32,15 @@ class SocietiesList(ListView):
     context_object_name = "societies"
     template_name = "book/societies_list.html"
     extra_context = {"titre_table": "Tiers X3"}
-    queryset = Society.objects.filter(Q(is_client=True) | Q(is_supplier=True))
+    queryset = Society.objects.filter(Q(is_client=True) | Q(is_supplier=True)).values(
+        "third_party_num",
+        "pk",
+        "third_party_num",
+        "name",
+        "is_supplier",
+        "is_client",
+        "centers_suppliers_indentifier",
+    )
 
 
 class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

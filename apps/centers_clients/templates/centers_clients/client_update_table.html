@@ -159,17 +159,7 @@
               </div>
               <div class="two wide field">
                 <label for="id_opening_date" style="text-align: left;">Date Ouverture&nbsp;:</label>
-                {% if create %}
                     {{form.opening_date}}
-                {% else %}
-                    <input type="date"
-                           name="opening_date"
-                           value="{{ form.opening_date.value|date:"Y-m-d" }}"
-                           required=""
-                           id="id_opening_date"
-                           readonly
-                           style="background-color: lavender;font-weight: bold;">
-                {% endif %}
               </div>
               <div class="two wide field">
                 <label for="id_closing_date" style="text-align: left;">Date Fermeture&nbsp;:</label>
