@@ -65,8 +65,8 @@ def add_news_cct_sage():
                     "cct" || '|'as "cct_identifier",
                     au."uuid_identification" as "created_by",
                     "third_party_num",
-                    "cct_uuid_identification"
-                    
+                    "cct_uuid_identification",
+                    "cct"
                 from "alls" aa, "auth_user" au
                 where not exists (
                     select 1 
@@ -92,7 +92,8 @@ def add_news_cct_sage():
                 "created_by",
                 "third_party_num",
                 "cct_uuid_identification"
-            from "to_create"
+            from "to_create" tc
+            where exists (select 1 from "centers_clients_maison" cc where cc."cct" = tc."cct")
             """
         )
         cursor.execute(sql_to_create)

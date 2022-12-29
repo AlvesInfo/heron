@@ -299,7 +299,10 @@ def trace_mark_bulk_delete(
     request.session["level"] = 20
 
 
-def trace_form_change(request, form: forms.ModelForm):
+def trace_form_change(
+    request,
+    form: forms.ModelForm,
+):
     """Fonction trace des changements de données, pour views functions flag delete à True
     :param request: request au sens Django
     :param form: données validées, pour le filtre
@@ -328,3 +331,52 @@ def trace_form_change(request, form: forms.ModelForm):
         db_table=model._meta.db_table,
     )
     request.session["level"] = 20
+
+
+def trace_change(request, model: models.Model, before_kwargs: dict, update_kwargs: dict):
+    """Fonction trace des changements de données, pour views functions flag delete à True
+    :param request: request au sens Django
+    :param model: Model au sens django
+    :param before_kwargs: dictionaire avant
+    :param update_kwargs: dictionnaire du changement pour update
+    """
+    function_call = str(inspect.currentframe().f_back)[:255]
+
+    user = request.user
+    action_datetime = timezone.now()
+    before_dict = {
+        key: value
+        for key, value in model.objects.filter(**before_kwargs).first().__dict__.items()
+        if key != "_state"
+    }
+
+    equals = True
+
+    for key, value in update_kwargs.items():
+        if before_dict[key] != value:
+            equals = False
+            break
+
+    if equals:
+        message = "Vous n'avez rien modifié !"
+        return False, message
+
+    after = model.objects.filter(**before_kwargs)
+    after.update(**{**update_kwargs, **{"modified_by": user, "modified_at": timezone.now()}})
+    after_dict = {key: value for key, value in after.first().__dict__.items() if key != "_state"}
+
+    ChangesTrace.objects.create(
+        action_datetime=action_datetime,
+        action_type=0,
+        function_name=function_call,
+        action_by=user,
+        before=before_dict,
+        after=after_dict,
+        difference=get_difference_dict(before_dict, after_dict),
+        model_name=model._meta.model_name,
+        model=model,
+        db_table=model._meta.db_table,
+    )
+    request.session["level"] = 20
+
+    return True, "L'update à bien été réalisé"

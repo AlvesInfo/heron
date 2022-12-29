@@ -151,7 +151,7 @@ def import_bi(request):
     """
 
     form = ImportMaisonBiForm(request.POST or None)
-    print(request.POST)
+
     if request.method == "POST":
 
         if form.is_valid():

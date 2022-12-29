@@ -26,11 +26,12 @@
                   <div class="ui form">
                     <h4 id="headerTiers" class="ui dividing header"></h4>
                       <div class="fields">
-                            <div class="one wide field" style="">
-                              {{ form.uuid_identification }}
-                              {{ form.third_party_num }}
-                              {{ form.invoice_number }}
-                              {{ form.invoice_year }}
+                            <div class="one wide field" style="display: none;">
+                                {{ form.id }}
+                                {{ form.uuid_identification }}
+                                {{ form.third_party_num }}
+                                {{ form.invoice_number }}
+                                {{ form.invoice_year }}
                             </div>
                             <div class="fourteen wide field">
                                 <label for="id_cct"
@@ -87,24 +88,20 @@
             $(".cct_sage").dblclick(function () {
                 let cct = $(this).data("cct");
                 let [uuid_identification, third_party_num, invoice_number, invoice_year, code_maison, maison] = $(this).data("value").split("|");
-                console.log(uuid_identification, third_party_num, invoice_number, invoice_year, cct)
-                $(`div.item`).each(function () {
-                    if ($(this).data().value === cct ) {
-                        $(this).addClass("active").addClass("selected")
-                    }
-                })
-                $(`#headerTiers`).html(`Tiers : ${third_party_num} - N° Facture : ${invoice_number} - CCT venant du fournisseur : ${code_maison} - ${maison}`)
-                $(`#id_uuid_identification`).val(uuid_identification)
-                $(`#id_third_party_num`).val(third_party_num)
-                $(`#id_invoice_number`).val(invoice_number)
-                $(`#id_invoice_year`).val(invoice_year)
-                let modale = $('#modalCct')
+                $(`#id_cct`).dropdown('set selected', cct);
+                $(`#headerTiers`).html(`Tiers : ${third_party_num} - N° Facture : ${invoice_number} - CCT venant du fournisseur : ${code_maison} - ${maison}`);
+                $(`#id_uuid_identification`).val(uuid_identification);
+                $(`#id_third_party_num`).val(third_party_num);
+                $(`#id_invoice_number`).val(invoice_number);
+                $(`#id_invoice_year`).val(invoice_year);
+                let modale = $('#modalCct');
 
                 modale
                     .modal({
                         closable: false,
                         onApprove: function() {
                             $(`#cctFormChange`).submit();
+                            $(`.datatable-chargement`).show();
                         }
                     })
                     .modal(`show`)
@@ -123,10 +120,12 @@
 
                 $.ajax({
                   type: "POST",
-                  url: "{% url 'validation_purchases:integration_supplier_purchases' enc_param=enc_param %}",
+                  url: "{% url 'validation_purchases:cct_change' %}",
                   data: formData,
                   encode: true,
-                }).done(function (data) {});
+                }).done(function (data) {
+                    window.location.reload()
+                });
 
                 event.preventDefault();
           });

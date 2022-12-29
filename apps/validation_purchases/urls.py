@@ -7,6 +7,7 @@ from apps.validation_purchases.views import (
     CreateIntegrationControl,
     UpdateIntegrationControl,
     integration_supplier_purchases,
+    cct_change,
     delete_invoice_purchase,
     integration_supplier_purchases_export,
     details_purchase,
@@ -70,6 +71,11 @@ urlpatterns = [
             "integration_supplier_purchases/<str:enc_param>/",
             integration_supplier_purchases,
             name="integration_supplier_purchases",
+        ),
+        path(
+            "cct_change/",
+            cct_change,
+            name="cct_change",
         ),
         path(
             "delete_invoice_purchase/",

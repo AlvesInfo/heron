@@ -1,20 +1,21 @@
 import pendulum
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import UpdateView
+from django.utils import timezone
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete, trace_change
 from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.accountancy.models import CctSage
 from apps.validation_purchases.excel_outputs import (
     excel_supplier_purchases,
 )
-
+from apps.centers_clients.models import Maison
 from apps.edi.models import EdiImport
 from apps.edi.forms import (
     DeleteInvoiceForm,
@@ -36,18 +37,6 @@ def integration_supplier_purchases(request, enc_param):
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
     big_category, third_party_num, supplier, invoice_month = get_base_64(enc_param)
-
-    form = ChangeCttForm(request.POST or None)
-
-    print(request.POST)
-
-    if request.method == "POST":
-        if form.is_valid():
-            print(form.cleaned_data)
-            data_dict = form.cleaned_data
-            cct_uuid_identification = data_dict.pop("cct")
-        else:
-            print(form.errors)
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
@@ -78,11 +67,53 @@ def integration_supplier_purchases(request, enc_param):
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
             "nb_paging": 100,
-            "form": form,
+            "form": ChangeCttForm(),
             "enc_param": enc_param,
         }
 
     return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)
+
+
+def cct_change(request):
+    """Fonction de changement du cct d'une facture"""
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {"success": "ko"}
+    form = ChangeCttForm(request.POST)
+    request.session["level"] = 50
+
+    if form.is_valid() and form.cleaned_data:
+        data_dict = form.cleaned_data
+        cct = Maison.objects.get(cct=data_dict.pop("cct"))
+
+        if form.changed_data:
+            # changed, message = check_cct_identifier(form.cleaned_data)
+            changed, message = trace_change(
+                request,
+                EdiImport,
+                data_dict,
+                {"cct_uuid_identification_id": cct.uuid_identification},
+            )
+
+            if not changed:
+                messages.add_message(request, 50, message)
+
+            else:
+                message = (
+                    f"La Facture n° {data_dict.get('invoice_number')}, a bien comme nouveau CCT :"
+                    f"{cct}."
+                )
+                messages.add_message(request, 20, message)
+
+        data = {"success": "success"}
+
+    else:
+        messages.add_message(request, 50, f"Une erreur c'est produite : {form.errors}")
+        LOGGER_VIEWS.exception(f"cct_change, form invalid : {form.errors!r}")
+
+    return JsonResponse(data)
 
 
 class UpdateSupplierPurchases(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

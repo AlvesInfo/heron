@@ -1,9 +1,9 @@
 select
     pc."name" as big_category,
-    third_party_num,
+    ee.third_party_num,
     supplier,
     case when max(ac.cct) isnull then '' else max(cct) end as axe_cct,
-    case when max(code_maison) isnull then '' else replace(max(code_maison), '|', '') end as code_maison,
+    case when max(ee.code_maison) isnull then '' else replace(max(ee.code_maison), '|', '') end as code_maison,
     replace(left(max(maison), 100), '|', '') as maison,
     invoice_number,
     invoice_date,
@@ -17,7 +17,7 @@ select
     max(ee."id") as pk,
     (
         '{"third_party_num": "'
-        || third_party_num ||
+        || ee.third_party_num ||
         '", "invoice_number": "'
         || invoice_number ||
         '", "invoice_month": "'
@@ -28,7 +28,7 @@ select
     ) as str_json,
     (
         pc."name" || '||' ||
-        third_party_num || '||' ||
+        ee.third_party_num || '||' ||
         supplier || '||' ||
         invoice_month || '||' ||
         invoice_number
@@ -38,9 +38,9 @@ select
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification
-left join accountancy_cctsage ac
+left join centers_clients_maison ac
 on ee.cct_uuid_identification = ac.uuid_identification
-where third_party_num = %(third_party_num)s
+where ee.third_party_num = %(third_party_num)s
   and supplier = %(supplier)s
   and pc."name" = %(big_category)s
   and date_trunc('month', invoice_date)::date = %(invoice_month)s
@@ -54,7 +54,7 @@ group by supplier,
          invoice_amount_with_tax,
          invoice_month,
          uuid_big_category,
-         third_party_num,
+         ee.third_party_num,
          ee.uuid_identification,
          ee.invoice_year
 order by invoice_number

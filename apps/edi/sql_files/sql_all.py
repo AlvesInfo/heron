@@ -372,10 +372,14 @@ and edi."invoice_number" = edi_fac."invoice_number"
              from edi_ediimport ee
              left join (
                     select
-                           third_party_num, 
-                           cct_uuid_identification, 
-                           unnest(string_to_array("cct_identifier", '|')) as cct_identifier
-                        from book_suppliercct
+                       bsp.third_party_num, 
+                       ccm.uuid_identification as cct_uuid_identification, 
+                       unnest(string_to_array("cct_identifier", '|')) as cct_identifier
+                    from book_suppliercct bsp
+                    join accountancy_cctsage ac 
+                    on bsp.cct_uuid_identification = ac.uuid_identification 
+                    join centers_clients_maison ccm 
+                    on ac.cct = ccm.cct
                  ) bs
                  on ee.third_party_num = bs.third_party_num
                  where ee.third_party_num = bs.third_party_num
