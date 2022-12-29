@@ -12,9 +12,12 @@ modified at: 2022-04-07
 modified by: Paulo ALVES
 """
 from copy import deepcopy
+from datetime import datetime
+import time
 
 from django.db import connections
 
+from apps.core.functions.functions_setups import settings
 from apps.countries.models import Country
 from apps.centers_clients.models import MaisonBi
 
@@ -63,7 +66,7 @@ def import_maisons_bi():
             "email",
         ]
 
-        for maison in cursor.fetchall():
+        for i, maison in enumerate(cursor.fetchall(), 1):
             maison_dict = dict(zip(list_fields, maison))
 
             try:
@@ -110,3 +113,18 @@ def import_maisons_bi():
                             },
                         }
                     )
+
+        print(i)
+
+
+if __name__ == '__main__':
+    while True:
+        maintenant = datetime.now()
+        heure = maintenant.hour
+        minute = maintenant.minute
+
+        if heure == 7 and minute == 00:
+            print("lancement import maisons_bi : ", maintenant)
+            import_maisons_bi()
+
+        time.sleep(60)

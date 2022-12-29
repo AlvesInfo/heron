@@ -430,7 +430,7 @@ class MaisonBi(models.Model):
     FR : Table des Maisons
     EN : Shop table
     """
-
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     code_maison = models.CharField(primary_key=True, max_length=15, verbose_name="code maison")
     intitule = models.CharField(null=True, blank=True, max_length=50)
     intitule_court = models.CharField(null=True, blank=True, max_length=12)

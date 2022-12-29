@@ -16,7 +16,7 @@ from uuid import UUID
 from psycopg2 import sql
 from django.db import connection, transaction
 
-from apps.core.functions.functions_setups import settings
+# from apps.core.functions.functions_setups import settings
 
 
 @transaction.atomic
