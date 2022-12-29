@@ -18,6 +18,7 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
+from apps.core.functions.functions_setups import settings
 from apps.accountancy.models import AccountSage, CodePlanSage, CctSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison, MaisonBi
