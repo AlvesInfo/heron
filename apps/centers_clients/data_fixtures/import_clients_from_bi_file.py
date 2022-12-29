@@ -31,8 +31,8 @@ def import_file(file_path: Path):
     :param file_path: chemin du fichier
     :return: None
     """
-    data_list = []
     code_plan_sage = CodePlanSage.objects.get(code_plan_sage="FRA")
+
     with file_path.open() as file:
         csv_reader = csv.reader(
             file,
@@ -41,6 +41,7 @@ def import_file(file_path: Path):
             lineterminator="",
             quoting=csv.QUOTE_MINIMAL,
         )
+
         for i, row in enumerate(csv_reader):
             if i > 0:
                 (
@@ -90,7 +91,8 @@ def import_file(file_path: Path):
                                 "cct": cct,
                                 "third_party_num": society,
                                 "intitule": maison_bi.intitule,
-                                "intitule_court": maison_bi.intitule_court or maison_bi.intitule[:12],
+                                "intitule_court": maison_bi.intitule_court
+                                or maison_bi.intitule[:12],
                                 "code_cosium": maison_bi.code_cosium,
                                 "code_bbgr": maison_bi.code_bbgr,
                                 "opening_date": maison_bi.opening_date,
