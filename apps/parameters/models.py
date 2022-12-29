@@ -395,15 +395,6 @@ class BaseInvoiceTable(models.Model):
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
-    cct_uuid_identification = models.ForeignKey(
-        CctSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="+",
-        verbose_name="CCT x3",
-        db_column="cct_uuid_identification",
-    )
 
     class Meta:
         """class Meta du modèle django"""

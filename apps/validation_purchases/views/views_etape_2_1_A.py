@@ -10,6 +10,7 @@ from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.accountancy.models import CctSage
 from apps.validation_purchases.excel_outputs import (
     excel_supplier_purchases,
 )
@@ -20,6 +21,7 @@ from apps.edi.forms import (
 )
 from apps.edi.models import EdiImportControl
 from apps.edi.forms import EdiImportControlForm
+from apps.validation_purchases.forms import ChangeCttForm
 
 
 # CONTROLES ETAPE 2.1.A - LISTING FACTURES
@@ -34,6 +36,18 @@ def integration_supplier_purchases(request, enc_param):
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
     big_category, third_party_num, supplier, invoice_month = get_base_64(enc_param)
+
+    form = ChangeCttForm(request.POST or None)
+
+    print(request.POST)
+
+    if request.method == "POST":
+        if form.is_valid():
+            print(form.cleaned_data)
+            data_dict = form.cleaned_data
+            cct_uuid_identification = data_dict.pop("cct")
+        else:
+            print(form.errors)
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
@@ -64,6 +78,8 @@ def integration_supplier_purchases(request, enc_param):
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
             "nb_paging": 100,
+            "form": form,
+            "enc_param": enc_param,
         }
 
     return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)

@@ -297,6 +297,9 @@ class Maison(FlagsTable):
     chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
     od_ana = models.BooleanField(null=True, default=False, verbose_name="OD Analytique")
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def save(self, *args, **kwargs):
         """
         FR : Avant la sauvegarde on clean les données
@@ -315,7 +318,7 @@ class Maison(FlagsTable):
         return reverse("centers_clients:maisons_list")
 
     class Meta:
-        ordering = ["code_maison"]
+        ordering = ["cct"]
 
 
 class DocumentsSubscription(FlagsTable):

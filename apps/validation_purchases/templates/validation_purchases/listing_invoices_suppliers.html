@@ -11,11 +11,54 @@
 
     {% if user.is_authenticated %}
 
-            {% include "validation_purchases/listing_invoices_suppliers_entete.html" %}
-            {% include "validation_purchases/listing_invoices_suppliers_table.html" %}
+        {% include "validation_purchases/listing_invoices_suppliers_entete.html" %}
+        {% include "validation_purchases/listing_invoices_suppliers_table.html" %}
 
-        <div class="ui equal width grid center"></div>
-
+        {# Fenêtre modale pour changer les code maison ========================================== #}
+        <form id="cctFormChange" action="" method="post">
+            {% csrf_token %}
+            <div id="modalCct" class="ui large modal transition" style="display: none;">
+                <i class="close icon"></i>
+                <div class="header">
+                  CHANGEMENT DE CCT
+                </div>
+                <div class="content">
+                  <div class="ui form">
+                    <h4 id="headerTiers" class="ui dividing header"></h4>
+                      <div class="fields">
+                            <div class="one wide field" style="">
+                              {{ form.uuid_identification }}
+                              {{ form.third_party_num }}
+                              {{ form.invoice_number }}
+                              {{ form.invoice_year }}
+                            </div>
+                            <div class="fourteen wide field">
+                                <label for="id_cct"
+                                       style="text-align: left;">CCT X3</label>
+                                <select id="id_cct"
+                                        name="cct"
+                                        class="ui fluid search dropdown">
+                                    {% for value, label in form.CCT_CHOICES %}
+                                        <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                      </div>
+                  </div>
+                </div>
+                <div class="actions" style="text-align: center !important;">
+                  <div class="ui red cancel button">
+                    <i class="remove icon"></i>
+                    Annuler
+                  </div>
+                  <div class="ui green ok button">
+                    <i class="checkmark icon"></i>
+                    Valider
+                  </div>
+                </div>
+            </div>
+        </form>
+        {# ====================================================================================== #}
     {% else %}
 
         <br>
@@ -31,6 +74,8 @@
 
 {% endblock content %}
 
+
+
 {% block script %}
 
     <script>
@@ -39,7 +84,52 @@
 
             {% include "heron/base_data_table.html" %}
 
-        });
+            $(".cct_sage").dblclick(function () {
+                let cct = $(this).data("cct");
+                let [uuid_identification, third_party_num, invoice_number, invoice_year, code_maison, maison] = $(this).data("value").split("|");
+                console.log(uuid_identification, third_party_num, invoice_number, invoice_year, cct)
+                $(`div.item`).each(function () {
+                    if ($(this).data().value === cct ) {
+                        $(this).addClass("active").addClass("selected")
+                    }
+                })
+                $(`#headerTiers`).html(`Tiers : ${third_party_num} - N° Facture : ${invoice_number} - CCT venant du fournisseur : ${code_maison} - ${maison}`)
+                $(`#id_uuid_identification`).val(uuid_identification)
+                $(`#id_third_party_num`).val(third_party_num)
+                $(`#id_invoice_number`).val(invoice_number)
+                $(`#id_invoice_year`).val(invoice_year)
+                let modale = $('#modalCct')
+
+                modale
+                    .modal({
+                        closable: false,
+                        onApprove: function() {
+                            $(`#cctFormChange`).submit();
+                        }
+                    })
+                    .modal(`show`)
+                })
+
+            });
+
+          $(`#cctFormChange`).submit(function (event) {
+                let formData = {
+                  uuid_identification: $("#id_uuid_identification").val(),
+                  third_party_num: $("#id_third_party_num").val(),
+                  invoice_number: $("#id_invoice_number").val(),
+                  invoice_year: $("#id_invoice_year").val(),
+                  cct: $("#id_cct").val(),
+                };
+
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'validation_purchases:integration_supplier_purchases' enc_param=enc_param %}",
+                  data: formData,
+                  encode: true,
+                }).done(function (data) {});
+
+                event.preventDefault();
+          });
 
     </script>
 

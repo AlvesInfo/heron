@@ -110,11 +110,18 @@
           <div id="demandeModal" class="ui basic modal">
             <div  class="ui icon header">
               <i class="warning sign icon"></i>
-              <p id="textModal"></p>
+              <p id="textModal">
+                  {% block content_header_modal %}
+
+                  {% endblock content_header_modal %}
+              </p>
             </div>
             <div class="content">
               <p id="modalContent"
                  style="text-align: center;font-size: 20px;">
+                  {% block content_modal %}
+                  
+                  {% endblock content_modal%}
               </p>
             </div>
             <div class="actions" style="text-align: center !important;">

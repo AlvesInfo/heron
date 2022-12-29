@@ -14,7 +14,7 @@ from apps.core.functions.functions_http_response import response_file, CONTENT_T
 from apps.data_flux.models import Trace
 from apps.parameters.models import Category
 from apps.parameters.bin.core import get_in_progress
-
+from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
@@ -35,6 +35,9 @@ def integration_purchases(request):
     :param request: Request Django
     :return: view
     """
+    # on met à jour les cct au cas où l'on est rempli des cct dans un autre écran
+    update_cct_edi_import()
+
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_purchases.sql"
 
     with connection.cursor() as cursor:

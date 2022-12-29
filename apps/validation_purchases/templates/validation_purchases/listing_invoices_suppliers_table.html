@@ -35,7 +35,11 @@
                 </td>
                 <td >{{ export.invoice_number }}</td>
                 <td >{{ export.invoice_date|date:"d/m/Y" }}</td>
-                <td style="{% if export.axe_cct == '' %}background-color: lightpink;{% endif %}">{{ export.axe_cct }}</td>
+
+                <td class="cct_sage"
+                    data-value="{{ export.uuid_identification }}|{{ export.third_party_num }}|{{ export.invoice_number }}|{{ export.invoice_year }}|{{ export.code_maison }}|{{ export.maison }}"
+                    data-cct="{{ export.axe_cct }}"
+                    style="{% if export.axe_cct == '' %}background-color: lightpink;{% endif %}">{{ export.axe_cct }}</td>
                 <td style="{% if export.code_maison == '' %}background-color: lightpink;{% endif %}">{{ export.code_maison }}</td>
                 <td style="text-align: left;{% if export.code_maison == '' %}background-color: lightpink;{% endif %}">{{ export.maison|default_if_none:'' }}</td>
                 <td style="text-align: center;">

@@ -18,6 +18,7 @@ from django.db import models
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import VatSage, VatRegimeSage, CctSage
 from apps.book.models import Society
+from apps.centers_clients.models import Maison
 from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
 
 
@@ -142,6 +143,15 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         db_column="vat",
     )
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
+    cct_uuid_identification = models.ForeignKey(
+        Maison,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
+    )
 
 
 class EdiImportTax(FlagsTable):

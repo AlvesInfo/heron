@@ -4,6 +4,7 @@ from django.shortcuts import render, reverse, redirect
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.models import EdiImport
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_without_cct import (
     excel_integration_without_cct,
@@ -19,6 +20,8 @@ def without_cct_purchases(request):
     :param request: Request Django
     :return: view
     """
+    # on met à jour les cct au cas où l'on est rempli des cct dans un autre écran
+    update_cct_edi_import()
 
     context = {
         "titre_table": "2.2 - Listing Factures sans CCT - Achats",

@@ -3,8 +3,8 @@ select
     third_party_num,
     supplier,
     case when max(ac.cct) isnull then '' else max(cct) end as axe_cct,
-    case when max(code_maison) isnull then '' else max(code_maison) end as code_maison,
-    left(max(maison), 100) as maison,
+    case when max(code_maison) isnull then '' else replace(max(code_maison), '|', '') end as code_maison,
+    replace(left(max(maison), 100), '|', '') as maison,
     invoice_number,
     invoice_date,
     sum(net_amount) as net_amount,
@@ -32,7 +32,9 @@ select
         supplier || '||' ||
         invoice_month || '||' ||
         invoice_number
-    ) as enc_param
+    ) as enc_param,
+    ee.uuid_identification,
+    ee.invoice_year
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification
@@ -52,5 +54,7 @@ group by supplier,
          invoice_amount_with_tax,
          invoice_month,
          uuid_big_category,
-         third_party_num
+         third_party_num,
+         ee.uuid_identification,
+         ee.invoice_year
 order by invoice_number

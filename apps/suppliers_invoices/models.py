@@ -18,6 +18,7 @@ from django.db import models
 from heron.models import FlagsTable
 from apps.parameters.models import BaseAdressesTable, BaseInvoiceTable, BaseInvoiceDetailsTable
 from apps.accountancy.models import VatSage, VatRegimeSage
+from apps.centers_clients.models import Maison
 from apps.articles.models import (
     Article,
     Category,
@@ -48,13 +49,14 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
 
     # Magasin Facturé
-    cct = models.ForeignKey(
+    cct_uuid_identification = models.ForeignKey(
         Maison,
         null=True,
         on_delete=models.PROTECT,
-        to_field="cct",
-        related_name="invoice_supplier_cct",
-        db_column="cct",
+        to_field="uuid_identification",
+        related_name="+",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
     )
     periode = models.IntegerField()
     flag_sage = models.BooleanField(null=True, default=False)
