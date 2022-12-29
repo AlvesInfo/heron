@@ -140,7 +140,7 @@ def import_bi(request):
     """
 
     form = ImportMaisonBiForm(request.POST or None)
-
+    print(request.POST)
     if request.method == "POST":
 
         if form.is_valid():
@@ -159,7 +159,7 @@ def import_bi(request):
             else:
                 initials = {
                     "cct": cct,
-                    "tiers": society,
+                    "third_party_num": society,
                     "code_maison": maison_bi.code_maison,
                     "intitule": maison_bi.intitule,
                     "intitule_court": maison_bi.intitule_court,

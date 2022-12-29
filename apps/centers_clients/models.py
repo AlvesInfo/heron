@@ -96,13 +96,13 @@ class Maison(FlagsTable):
         verbose_name="cct x3",
         db_column="cct",
     )
-    tiers = models.ForeignKey(
+    third_party_num = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
         to_field="third_party_num",
         related_name="tiers_maison",
         verbose_name="tiers X3",
-        db_column="tiers",
+        db_column="third_party_num",
     )
     center_purchase = models.ForeignKey(
         ChildCenterPurchase,

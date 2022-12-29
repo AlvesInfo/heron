@@ -39,7 +39,7 @@ class MaisonForm(forms.ModelForm):
             "telephone",
             "mobile",
             "email",
-            "tiers",
+            "third_party_num",
             "invoice_client_name",
             "sage_vat_by_default",
             "sage_plan_code",
@@ -55,6 +55,39 @@ class MaisonForm(forms.ModelForm):
             "integrable",
             "chargeable",
             "od_ana",
+        ]
+
+
+class MaisonImportForm(forms.ModelForm):
+    class Meta:
+        model = Maison
+        fields = [
+            "code_maison",
+            "cct",
+            "third_party_num",
+            "intitule",
+            "intitule_court",
+            "code_cosium",
+            "code_bbgr",
+            "opening_date",
+            "closing_date",
+            "immeuble",
+            "adresse",
+            "code_postal",
+            "ville",
+            "pays",
+            "telephone",
+            "email",
+            "sage_vat_by_default",
+            "center_purchase",
+            "sign_board",
+            "integrable",
+            "chargeable",
+            "credit_account",
+            "debit_account",
+            "client_familly",
+            "signature_franchise_date",
+            "sage_plan_code",
         ]
 
 
