@@ -12,12 +12,26 @@ modified at: 2022-04-07
 modified by: Paulo ALVES
 """
 from copy import deepcopy
+import os
+import platform
+import sys
 from datetime import datetime
 import time
 
+import django
+
+BASE_DIR = r"C:\SitesWeb\heron"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.append(BASE_DIR)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+django.setup()
+
 from django.db import connections
 
-from apps.core.functions.functions_setups import settings
 from apps.countries.models import Country
 from apps.centers_clients.models import MaisonBi
 
