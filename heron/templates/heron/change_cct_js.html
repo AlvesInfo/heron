@@ -14,6 +14,7 @@ $(".cct_sage").dblclick(function () {
             closable: false,
             onApprove: function() {
                 $(`#cctFormChange`).submit();
+                $(`.message`).hide();
                 $(`.datatable-chargement`).show();
             }
         })

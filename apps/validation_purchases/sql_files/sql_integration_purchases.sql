@@ -30,7 +30,8 @@ select
         '", "delete": "'
         || 'false' ||
         '"}'
-    ) as str_json
+    ) as str_json,
+    case when min(cct_error) = 0 then true else false end as cct_error
 from (
     select
         pc."name" as big_category,
@@ -46,7 +47,8 @@ from (
         ec.statement_with_tax,
         ec."comment",
         ec.uuid_identification,
-        ec."id" as pk
+        ec."id" as pk,
+        case when ee.cct_uuid_identification is null then 0 else 1 end as cct_error
     from edi_ediimport ee
     left join parameters_category pc
     on ee.uuid_big_category = pc.uuid_identification
@@ -65,7 +67,8 @@ from (
 	         ec.statement_with_tax,
         	 ec."comment",
              ec.uuid_identification,
-             ec."id"
+             ec."id",
+        	 ee.cct_uuid_identification
     ) edi
 group by big_category,
          supplier,

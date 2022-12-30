@@ -12,6 +12,7 @@
     {% if user.is_authenticated %}
 
             {% include "validation_purchases/integration_purchases_entete.html" %}
+
             {% if not en_cours %}
                 <div class="ui segment" style="padding: 5px;margin: 20px 10px;">
                     <div class="ui top attached tabular menu">
@@ -28,7 +29,6 @@
                     </div>
                 </div>
             {% endif %}
-{#        <div class="ui equal width grid center"></div>#}
 
     {% else %}
 

@@ -12,13 +12,14 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th colspan="8" style="background-color: lavender;font-weight: bold;">INTEGRATIONS</th>
+                    <th colspan="9" style="background-color: lavender;font-weight: bold;">INTEGRATIONS</th>
                     <th colspan="3" style="background-color: lavender;border: 1px solid darkgray;">RELEVES</th>
                     <th colspan="4" style="background-color: lavender;font-weight: bold;">CONTROLES</th>
                 </tr>
                 <tr>
                     <th class="no-sort" style="width: 2px;"></th>
                     <th style="width: 15px;">Catégorie</th>
+                    <th style="width: 15px;">CCT</th>
                     <th style="width: 20px;">Tiers X3</th>
                     <th style="width: 234px;">Fournisseur</th>
                     <th style="width: 60px;">Total HT</th>
@@ -36,7 +37,7 @@
             </thead>
             <thead>
                 <tr>
-                    <th colspan="4" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
+                    <th colspan="5" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
                     <th id="supplierHt" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
                     <th id="SupplierTtc" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
                     <th id="nbreFac" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
@@ -59,6 +60,7 @@
                         </a>
                     </td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.big_category }}</td>
+                    <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: lightpink;{% endif %}"></td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
                     <td style="text-align: left;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.supplier }}</td>
                     <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>

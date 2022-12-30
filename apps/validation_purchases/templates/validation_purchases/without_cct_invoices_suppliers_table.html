@@ -4,8 +4,8 @@
 {% load filters_tags %}
 
 {% block table %}
-    <div class="one wide column"></div>
-<div class="fourteen wide column">
+
+<div class="sixteen wide column">
 
     <table id="table_document"
        class="ui celled table"
@@ -14,9 +14,10 @@
             <tr>
                 <th>Ajout Codes</th>
                 <th>Tiers X3</th>
-                <th>Nom du fournisseur</th>
-                <th>Code Founisseur</th>
-                <th style="text-align: left;">Maison</th>
+                <th>Fournisseur</th>
+                <th>CCT<br>Sage X3</th>
+                <th>Code Foun.</th>
+                <th style="text-align: left;">Libellé CCT Fournisseur</th>
                 <th>N° Facture</th>
                 <th>Date de la facture</th>
                 <th>Montant HT</th>
@@ -33,6 +34,10 @@
                 </td>
                 <td>{{ invoice.third_party_num }}</td>
                 <td>{{ invoice.supplier }}</td>
+                <td class="cct_sage"
+                    data-value="{{ invoice.uuid_identification }}|{{ invoice.third_party_num }}|{{ invoice.invoice_number }}|{{ invoice.invoice_year }}|{{ invoice.code_maison }}|{{ invoice.maison }}"
+                    data-cct="{{ invoice.axe_cct }}"
+                    style="background-color: lightpink;">{{ invoice.axe_cct }}</td>
                 <td>{{ invoice.code_maison|default_if_none:'' }}</td>
                 <td style="text-align: left;">{{ invoice.maison|default_if_none:'' }}</td>
                 <td>{{ invoice.invoice_number }}</td>

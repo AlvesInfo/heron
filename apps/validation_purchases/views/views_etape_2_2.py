@@ -9,6 +9,7 @@ from apps.edi.models import EdiImport
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_without_cct import (
     excel_integration_without_cct,
 )
+from apps.validation_purchases.forms import ChangeCttForm
 
 
 # CONTROLES ETAPE 2.2 - FACTURES SANS CCT
@@ -28,6 +29,7 @@ def without_cct_purchases(request):
         "invoices_without_cct": EdiImport.objects.filter(cct_uuid_identification__isnull=True)
         .exclude(delete=True)
         .values(
+            "uuid_identification",
             "third_party_num",
             "supplier",
             "code_maison",
@@ -36,11 +38,13 @@ def without_cct_purchases(request):
             "invoice_date",
             "invoice_amount_without_tax",
             "invoice_amount_with_tax",
+            "invoice_year",
         )
         .annotate(dcount=Count("third_party_num"))
         .order_by("third_party_num", "invoice_number"),
         "nature": "La facture n° ",
         "nb_paging": 100,
+        "form": ChangeCttForm(),
     }
     return render(
         request, "validation_purchases/without_cct_invoices_suppliers.html", context=context
