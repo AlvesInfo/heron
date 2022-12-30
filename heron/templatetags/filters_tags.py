@@ -240,3 +240,22 @@ def encode_b64_str(value):
 def encode_b64_list(values_list):
     """Renvoi une liste en base 64 decodée"""
     return set_base_64_list(values_list)
+
+
+@register.simple_tag
+def regroup_list_pipe(*args):
+    """Retourne un str avec separateur '||'"""
+    return "||".join(args)
+
+
+@register.simple_tag
+def get_address(adresse):
+    """Compose une adresse avec un str comme séparateur ||,
+    avec obligatoirement le code postal et la ville en dernière position
+    """
+    values_list = adresse.split("||")
+    intitule_list = [value for value in values_list[:-2] if value]
+    lieux_liste = [value for value in values_list[-2:] if value]
+    intitule = ", ".join(intitule_list) if intitule_list else ""
+    lieux = (" - " + " ".join(lieux_liste)) if lieux_liste else ""
+    return f"{intitule}{lieux}"

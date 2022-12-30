@@ -313,6 +313,16 @@ class Maison(FlagsTable):
     def __str__(self):
         return f"{self.code_maison} - {self.intitule}"
 
+    @property
+    def get_address(self):
+        """Renvoie le nom à afficher"""
+        values_list = [self.intitule, self.immeuble, self.adresse, self.code_postal, self.ville]
+        intitule_list = [value for value in values_list[:-2] if value]
+        lieux_liste = [value for value in values_list[-2:] if value]
+        intitule = ", ".join(intitule_list) if intitule_list else ""
+        lieux = (" - " + " ".join(lieux_liste)) if lieux_liste else ""
+        return f"{intitule}{lieux}"
+
     @staticmethod
     def get_absolute_url():
         return reverse("centers_clients:maisons_list")

@@ -1,10 +1,10 @@
 {% extends "heron/update_create_courant.html" %}
 
+{% load filters_tags %}
+
 {% block table %}
 
-    <div class="two wide column" style="padding: 0;margin: 10px;"></div>
-
-    <div class="twelve wide column" style="padding: 0;margin: 10px;">
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
         <input type="hidden" name="form-TOTAL_FORMS" value="{{ count }}" id="id_form-TOTAL_FORMS">
         <input type="hidden" name="form-INITIAL_FORMS" value="{{ count }}" id="id_form-INITIAL_FORMS">
         <input type="hidden" name="form-MIN_NUM_FORMS" value="{{ count }}" id="id_form-MIN_NUM_FORMS">
@@ -12,48 +12,49 @@
 
         <table id="table_document"
            class="ui celled table"
-           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+           style="font-size: 12px !important;text-align: center;font-weight: 900;margin: 5px;">
             <thead>
 
                 <tr>
-                    <th class="no-sort" style="display: none;">pk</th>
-                    <th style="width: 25%;text-align: left;">Maison</th>
-                    <th style="width: 10%;">CCT</th>
-                    <th style="width: 65%;text-align: left;">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
-
+                    <th class="no-sort" style="width: 0;display: none;">pk</th>
+                    <th style="width: 17%;text-align: left;">Maison</th>
+                    <th style="width: 45%;text-align: left;">Adresse</th>
+                    <th style="width: 6%;">CCT</th>
+                    <th style="width: 33%;text-align: left;">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
                 </tr>
             </thead>
             <tbody>
             {% for identifier in queryset %}
                 <tr class="hide_plans">
-
-                    <td style="display: none;">
-                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-                            <div class="field">
+                    <td style="display: none;padding: 0;">
                                 <input type="text"
                                        name="form-{{ forloop.counter0 }}-id"
                                        value="{{ identifier.id }}"
                                        id="id_form-{{ forloop.counter0 }}-id"
                                        readonly=""
                                        style="background-color: lavender;font-weight: bold;">
-                            </div>
-                        </div>
                     </td>
-                    <td style="text-align: left;">
+                    <td style="text-align: left;padding: 0 9px;">
                         {{ identifier.cct_uuid_identification__name }}
                     </td>
-                    <td>
+                    <td style="text-align: left;padding: 0 9px;">
+                        {% regroup_list_pipe identifier.cct_uuid_identification__maison_cct__immeuble|default_if_none:'' identifier.cct_uuid_identification__maison_cct__adresse|default_if_none:'' identifier.cct_uuid_identification__maison_cct__code_postal|default_if_none:'' identifier.cct_uuid_identification__maison_cct__ville|default_if_none:'' as adresse %}
+                        {% get_address adresse %}
+                    </td>
+                    <td style="padding: 0 9px;">
                         {{ identifier.cct_uuid_identification__cct }}
                     </td>
-                    <td>
+                    <td style="padding: 4px 4px;">
                         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-                            <div class="field">
-                                <input type="text"
-                                       name="form-{{ forloop.counter0 }}-cct_identifier"
-                                       value="{{ identifier.cct_identifier|default_if_none:'' }}"
-                                       id="id_form-{{ forloop.counter0 }}-cct_identifier"
-                                       maxlength="150"
-                                       style="font-weight: bold;">
+                            <div style="margin: 0;padding: 0;" class="fields">
+                                <div style="padding: 0;" class="fifteen wide field">
+                                    <input type="text"
+                                           name="form-{{ forloop.counter0 }}-cct_identifier"
+                                           value="{{ identifier.cct_identifier|default_if_none:'' }}"
+                                           id="id_form-{{ forloop.counter0 }}-cct_identifier"
+                                           maxlength="150"
+                                           style="font-weight: bold;">
+                                </div>
                             </div>
                         </div>
                     </td>

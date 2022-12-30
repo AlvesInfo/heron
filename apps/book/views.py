@@ -114,6 +114,24 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().form_invalid(form)
 
 
+def export_list_societies(request, file_name: str):
+    """
+    Export Excel de la liste des Sociétés
+    :param request: Request Django
+    :param file_name: Nom du fichier à downloader
+    :return: response_file
+    """
+    file_dict = {
+        "export_list_societies": "LISTING_DES_TIERS.xlsx",
+        "export_list_clients": "LISTING_DES_CLIENTS.xlsx",
+        "export_list_suppliers": "LISTING_DES_FOURNISSEURS.xlsx",
+    }
+    file = Path(MEDIA_EXCEL_FILES_DIR) / file_dict.get(file_name)
+    response = x_accel_exists_file_response(file)
+
+    return response
+
+
 @transaction.atomic
 def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
     """UpdateView pour modification des couples Tiers/Code Maisons"""
@@ -136,10 +154,12 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                 "cct_uuid_identification__cct",
                 "cct_uuid_identification__name",
                 "cct_identifier",
+                "cct_uuid_identification__maison_cct__immeuble",
+                "cct_uuid_identification__maison_cct__adresse",
+                "cct_uuid_identification__maison_cct__code_postal",
+                "cct_uuid_identification__maison_cct__ville",
             )
         )
-        # third_party_num_pk = Society.objects.get(third_party_num=third_party_num)
-        # reverse("book:society_update", args=[third_party_num_pk.pk])
         context = {
             "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
             "queryset": queryset,
@@ -196,24 +216,6 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
     return render(request, "book/supplier_cct.html", context=context)
 
 
-def export_list_societies(request, file_name: str):
-    """
-    Export Excel de la liste des Sociétés
-    :param request: Request Django
-    :param file_name: Nom du fichier à downloader
-    :return: response_file
-    """
-    file_dict = {
-        "export_list_societies": "LISTING_DES_TIERS.xlsx",
-        "export_list_clients": "LISTING_DES_CLIENTS.xlsx",
-        "export_list_suppliers": "LISTING_DES_FOURNISSEURS.xlsx",
-    }
-    file = Path(MEDIA_EXCEL_FILES_DIR) / file_dict.get(file_name)
-    response = x_accel_exists_file_response(file)
-
-    return response
-
-
 def export_list_supplier_cct(request, third_party_num):
     """
     Export Excel de la liste des Sociétés
@@ -239,8 +241,15 @@ def export_list_supplier_cct(request, third_party_num):
             )
 
     except:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            f"Une erreur c'est produite, lors de l'export du listing Excel des indentifiants CCT, "
+            f"veuillez consulter les logs",
+        )
         LOGGER_VIEWS.exception("view : export_list_supplier_cct")
 
-    return redirect(
-        reverse("book:supplier_cct_identifier", kwargs={"third_party_num": third_party_num})
-    )
+    id_third_party_num = Society.objects.get(third_party_num=third_party_num)
+
+    return redirect(reverse("book:society_update", kwargs={"pk": id_third_party_num.pk}))
