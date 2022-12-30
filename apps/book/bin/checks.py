@@ -46,7 +46,17 @@ def check_cct_identifier(cleaned_data: dict):
                 select
                        third_party_num, 
                        ac.cct ,
-                       unnest(string_to_array("cct_identifier", '|')) as cct_identifier
+                       unnest(
+                            string_to_array(
+                                case 
+                                    when right("cct_identifier", 1) = '|' 
+                                    then left("cct_identifier", length("cct_identifier")-1) 
+                                    else "cct_identifier"
+                                end
+                                , 
+                                '|'
+                            )
+                       ) as cct_identifier
                 from {table_supplier} bs
                 join {table_cct} ac 
                 on bs.cct_uuid_identification = ac.uuid_identification 

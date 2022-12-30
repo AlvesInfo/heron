@@ -4,6 +4,7 @@ from django.shortcuts import render, reverse, redirect
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.bin.encoders import set_base_64_str
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.models import EdiImport
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_without_cct import (
@@ -45,6 +46,9 @@ def without_cct_purchases(request):
         "nature": "La facture n° ",
         "nb_paging": 100,
         "form": ChangeCttForm(),
+        "url_retour_supplier_cct": set_base_64_str(
+            reverse("validation_purchases:without_cct_purchases")
+        ),
     }
     return render(
         request, "validation_purchases/without_cct_invoices_suppliers.html", context=context

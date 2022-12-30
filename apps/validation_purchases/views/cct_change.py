@@ -1,3 +1,17 @@
+# pylint: disable=E1101,W1203
+"""
+FR : Module qui change les CCT dans les écrans ou l'on peut modifier le CCT par double click
+EN : Module that changes the CCTs in the screens where you can modify the CCT by double click
+
+Commentaire:
+
+created at: 2021-12-30
+created by: Paulo ALVES
+
+modified at: 2021-12-30
+modified by: Paulo ALVES
+"""
+
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -24,7 +38,6 @@ def cct_change(request):
         cct = Maison.objects.get(cct=data_dict.pop("cct"))
 
         if form.changed_data:
-            # changed, message = check_cct_identifier(form.cleaned_data)
             changed, message = trace_change(
                 request,
                 EdiImport,

@@ -28,7 +28,7 @@
         {% for invoice in invoices_without_cct %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
                 <td style="text-align: center;">
-                    <a href="{% url 'book:supplier_cct_identifier' third_party_num=invoice.third_party_num %}">
+                    <a href="{% url 'book:supplier_cct_identifier' third_party_num=invoice.third_party_num url_retour_supplier_cct=url_retour_supplier_cct %}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>

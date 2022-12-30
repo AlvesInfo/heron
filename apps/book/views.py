@@ -1,4 +1,4 @@
-# pylint: disable=R0903,E0401,C0103,W0702,W0613
+# pylint: disable=R0903,E0401,C0103,W0702,W0613,E1101,W1309,W1203
 """
 Views des Tiers X3
 """
@@ -17,8 +17,13 @@ from heron.settings import MEDIA_EXCEL_FILES_DIR
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
+from apps.core.bin.encoders import get_base_64, set_base_64_str
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.bin.checks import check_cct_identifier
+from apps.edi.bin.set_suppliers_cct import (
+    add_news_cct_sage,
+    update_edi_import_cct_uui_identifiaction,
+)
 from apps.book.models import Society, SupplierCct
 from apps.book.forms import SocietyForm, SupplierCctForm
 from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier_cct
@@ -55,21 +60,29 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
-        context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("book:societies_list")
-        context["titre_table"] = (
-            f"Mise à jour du Tiers : "
-            f"{context.get('object').third_party_num} - "
-            f"{context.get('object').name}"
-        )
-        context["adresse_principale_sage"] = (
-            context.get("object").society_society.filter(default_adress=True).first()
-        )
-        context["compte_banque"] = (
-            context.get("object").bank_society.filter(is_default=True).first()
-        )
-        context["third_party_num"] = context.get("object").third_party_num
-        context["pk"] = context.get("object").pk
+        context_dict = super().get_context_data(**kwargs)
+        context = {
+            **context_dict,
+            **{
+                "chevron_retour": reverse("book:societies_list"),
+                "titre_table": (
+                    f"Mise à jour du Tiers : "
+                    f"{context_dict.get('object').third_party_num} - "
+                    f"{context_dict.get('object').name}"
+                ),
+                "adresse_principale_sage": (
+                    context_dict.get("object").society_society.filter(default_adress=True).first()
+                ),
+                "compte_banque": (
+                    context_dict.get("object").bank_society.filter(is_default=True).first()
+                ),
+                "third_party_num": context_dict.get("object").third_party_num,
+                "pk": context_dict.get("object").pk,
+                "url_retour_supplier_cct": set_base_64_str(
+                    reverse("book:society_update", args=[context_dict.get("object").pk])
+                ),
+            },
+        }
         return context
 
     def form_valid(self, form, **kwargs):
@@ -102,12 +115,13 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 @transaction.atomic
-def supplier_cct_identifier(request, third_party_num):
+def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
     """UpdateView pour modification des couples Tiers/Code Maisons"""
     context = {}
 
     try:
-
+        # Ajout des cct par défaut pour les maisons existantes, pour éviter de les saisir
+        add_news_cct_sage(third_party_num=third_party_num)
         SupplierCctFormset = modelformset_factory(
             SupplierCct,
             fields=("id", "cct_identifier"),
@@ -124,31 +138,32 @@ def supplier_cct_identifier(request, third_party_num):
                 "cct_identifier",
             )
         )
-        third_party_num_pk = Society.objects.get(third_party_num=third_party_num)
-
+        # third_party_num_pk = Society.objects.get(third_party_num=third_party_num)
+        # reverse("book:society_update", args=[third_party_num_pk.pk])
         context = {
             "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
             "queryset": queryset,
             "count": queryset.count(),
-            "chevron_retour": reverse("book:society_update", args=[third_party_num_pk.pk]),
+            "chevron_retour": get_base_64(url_retour_supplier_cct)[0],
             "third_party_num": third_party_num,
         }
         request.session["level"] = 20
 
         if request.method == "POST":
+            request.session["level"] = 50
             formset = SupplierCctFormset(request.POST, initial=queryset)
             message = ""
 
             if formset.is_valid():
+                changed = True
+
                 for form in formset:
                     if form.changed_data:
                         changed, message = check_cct_identifier(form.cleaned_data)
 
                         if changed is None:
-                            request.session["level"] = 50
                             messages.add_message(request, 50, message)
                         elif not changed:
-                            request.session["level"] = 50
                             messages.add_message(request, 50, message)
                         elif changed:
                             trace_form_change(request, form)
@@ -157,14 +172,17 @@ def supplier_cct_identifier(request, third_party_num):
                                 f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
                                 "on bien été changés."
                             )
+                            request.session["level"] = 20
                             messages.add_message(request, 20, message)
 
                 if not message:
-                    request.session["level"] = 50
                     messages.add_message(request, 50, "Vous n'avez rien modifié !")
 
+                if changed:
+                    # Mise à jour du champ cct_uuid_identification dans edi_import quand il est null
+                    update_edi_import_cct_uui_identifiaction()
+
             elif formset.errors:
-                request.session["level"] = 50
                 messages.add_message(
                     request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
                 )

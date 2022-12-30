@@ -14,7 +14,7 @@ urlpatterns = [
     path("societies_list/", SocietiesList.as_view(), name="societies_list"),
     path("society_update/<int:pk>/", SocietyUpdate.as_view(), name="society_update"),
     path(
-        "update_supplier_cct_identifier/<str:third_party_num>/",
+        "update_supplier_cct_identifier/<str:third_party_num>/<str:url_retour_supplier_cct>/",
         supplier_cct_identifier,
         name="supplier_cct_identifier",
     ),

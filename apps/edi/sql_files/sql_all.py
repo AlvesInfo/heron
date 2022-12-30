@@ -353,40 +353,50 @@ and edi."invoice_number" = edi_fac."invoice_number"
     ),
     "sql_cct": sql.SQL(
         """
-         update edi_ediimport edi
-         set cct_uuid_identification = cc.cct_uuid_identification
+         update "edi_ediimport" edi
+         set "cct_uuid_identification" = cc."cct_uuid_identification"
          from (
            select
-                 ei."id", re.cct_uuid_identification
-           from edi_ediimport ei
+                 ei."id", re."cct_uuid_identification"
+           from "edi_ediimport" ei
            left join (
                  select
                         ee."id", 
-                        ee.third_party_num, 
-                        ee.supplier, 
-                        ee.code_fournisseur, 
-                        ee.maison, 
-                        ee.code_maison, 
-                        bs.cct_identifier, 
-                        bs.cct_uuid_identification
-             from edi_ediimport ee
+                        ee."third_party_num", 
+                        ee."supplier", 
+                        ee."code_fournisseur", 
+                        ee."maison", 
+                        ee."code_maison", 
+                        bs."cct_identifier", 
+                        bs."cct_uuid_identification"
+             from "edi_ediimport" ee
              left join (
                     select
-                       bsp.third_party_num, 
-                       ccm.uuid_identification as cct_uuid_identification, 
-                       unnest(string_to_array("cct_identifier", '|')) as cct_identifier
-                    from book_suppliercct bsp
-                    join accountancy_cctsage ac 
-                    on bsp.cct_uuid_identification = ac.uuid_identification 
-                    join centers_clients_maison ccm 
-                    on ac.cct = ccm.cct
+                       bsp."third_party_num", 
+                       ccm."uuid_identification" as "cct_uuid_identification", 
+                       unnest(
+                            string_to_array(
+                                case 
+                                    when right("cct_identifier", 1) = '|' 
+                                    then left("cct_identifier", length("cct_identifier")-1) 
+                                    else "cct_identifier"
+                                end
+                                , 
+                                '|'
+                            )
+                       ) as "cct_identifier"
+                    from "book_suppliercct" bsp
+                    join "accountancy_cctsage" ac 
+                    on bsp."cct_uuid_identification" = ac."uuid_identification" 
+                    join "centers_clients_maison" ccm
+                    on ac."cct" = ccm."cct"
                  ) bs
-                 on ee.third_party_num = bs.third_party_num
-                 where ee.third_party_num = bs.third_party_num
-                 and ee.code_maison = bs.cct_identifier
+                 on ee."third_party_num" = bs."third_party_num"
+                 where ee."third_party_num" = bs."third_party_num"
+                 and ee."code_maison" = bs."cct_identifier"
            ) re
-           on ei.id = re.id
-           where cct_identifier is not null
+           on ei."id" = re."id"
+           where "cct_identifier" is not null
         ) cc
         where edi."id" = cc."id"
         and ("valid" = false or "valid" isnull)

@@ -42,7 +42,17 @@ def update_cct_edi_import():
                         select
                            bsp.third_party_num, 
                            ccm.uuid_identification as cct_uuid_identification, 
-                           unnest(string_to_array("cct_identifier", '|')) as cct_identifier
+                           unnest(
+                            string_to_array(
+                                case 
+                                    when right("cct_identifier", 1) = '|' 
+                                    then left("cct_identifier", length("cct_identifier")-1) 
+                                    else "cct_identifier"
+                                end
+                                , 
+                                '|'
+                            )
+                        ) as cct_identifier
                         from book_suppliercct bsp
                         join accountancy_cctsage ac 
                         on bsp.cct_uuid_identification = ac.uuid_identification 
