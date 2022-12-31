@@ -19,7 +19,7 @@ import time
 
 import django
 
-BASE_DIR = r"C:\SitesWeb\heron"
+BASE_DIR = r"/"
 
 if platform.uname().node not in ["PauloMSI", "MSI"]:
     BASE_DIR = "/home/paulo/heron"

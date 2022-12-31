@@ -77,6 +77,9 @@
                     <div class="column">
                         <h4 class="ui header" style="font-size: 1em;">FACTURATION</h4>
                         <div class="ui link list">
+                            <a href="{% url 'edi:import_edi_invoices' %}" class="item">Import Factures EDI</a>
+                        </div>
+                        <div class="ui link list">
                             <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
                         </div>
                     </div>
@@ -153,7 +156,6 @@
                     <div class="column">
                         <h4 class="ui header">2. Marchandises</h4>
                         <div class="ui link list">
-                            <a href="" class="item">Import</a>
                             <a href="" class="item">Saisie</a>
                             <a href="" class="item">Visualisation</a>
                         </div>
@@ -264,9 +266,7 @@
                         <h4 class="ui header">Achats</h4>
                         <div class="ui link list">
 
-                            <a href="{% url 'edi:import_edi_invoices' %}" class="item">1.1 &nbsp;&nbsp;&nbsp;&nbsp;Import Factures EDI</a>
                             <a href="{% url 'validation_purchases:integration_purchases' %}" class="item">2.1 &nbsp;&nbsp;&nbsp;&nbsp;Intégrations</a>
-{#                            <a href="{% url 'validation_purchases:integration_supplier_purchases' %}" class="item">Listing Factures</a>#}
                             <a href="{% url 'validation_purchases:without_cct_purchases' %}" class="item">2.2 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle CCT</a>
                             <a href="{% url 'validation_purchases:families_invoices_purchases' %}" class="item">3.1 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Familles</a>
                             <a href="{% url 'validation_purchases:articles_families_invoices_purchases' %}" class="item">3.1.A Contrôle Articles</a>

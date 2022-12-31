@@ -82,7 +82,8 @@ class Article(FlagsTable):
     )
     famille_supplier = models.CharField(null=True, blank=True, max_length=35)
     axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
-    axe_pro_copie_de_acuitis = models.CharField(null=True, blank=True, max_length=10)
+    famille_acuitis = models.CharField(null=True, blank=True, max_length=35)
+    axe_pro_acuitis = models.CharField(null=True, blank=True, max_length=10)
     axe_bu = models.ForeignKey(
         SectionSage,
         null=True,
