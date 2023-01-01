@@ -66,7 +66,11 @@ post_all_dict = {
                         then "tiers"."name" 
                         else "supplier" 
                      end,
-        "uuid_big_category" = 'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
+        "uuid_big_category" = case 
+                                when "uuid_big_category" is null
+                                then'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
+                                else "uuid_big_category"
+                              end
     from (
         select 
             left("name", 35) as "name",

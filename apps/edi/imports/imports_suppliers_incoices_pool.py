@@ -219,7 +219,8 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             first_line=get_first_line(SupplierDefinition, flow_name),
             params_dict=params_dict_load,
         ) as file_load:
-
+            for line in file_load.read_dict():
+                print(line)
             validation = Validation(
                 dict_flow=file_load.read_dict(),
                 model=model,

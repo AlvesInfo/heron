@@ -276,7 +276,6 @@ def proc_files(process_object):
 
     try:
         trace, to_print = function(file)
-        shutil.move(file.resolve(), backup_file.resolve())
 
     except TypeError as except_error:
         error = True
@@ -297,6 +296,9 @@ def proc_files(process_object):
         if trace is not None:
             print(trace.uuid_identification)
             trace.save()
+
+        if file.is_file():
+            shutil.move(file.resolve(), backup_file.resolve())
 
         # TODO : faire une fonction d'envoie de mails
 

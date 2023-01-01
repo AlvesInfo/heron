@@ -47,7 +47,7 @@ def edi_import_duplicate_check():
                 "Cette facture à été supprimée de l'intégration.<br>"
                 if len(errors_array) == 1
                 else "</div>) ont dèjà été importés.<br>"
-                "Ces factures ont étté supprimées de l'intégration.<br>"
+                "Ces factures ont été supprimées de l'intégration.<br>"
             )
 
             trace_comment = first_comment + ",<br>".join(errors_array) + last_comment
@@ -84,7 +84,7 @@ def suppliers_invoices_duplicate_check():
                 "Cette facture à été supprimée de l'intégration.<br>"
                 if len(errors_array) == 1
                 else "</div>) ont dèjà été importés.<br>"
-                "Ces factures ont étté supprimées de l'intégration.<br>"
+                "Ces factures ont été supprimées de l'intégration.<br>"
             )
 
             trace_comment = first_comment + ",<br>".join(errors_array) + last_comment

@@ -110,7 +110,7 @@ def bulk_post_insert(uuid_identification: AnyStr):
     packaging_amount_dict = (
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True))
         .filter(uuid_identification=uuid_identification)
-        .values("invoice_number", *list(charges_dict))
+        .values("invoice_number", "uuid_identification", *list(charges_dict))
         .annotate(dcount=Count("invoice_number"))
     )
     bulk_list = []
@@ -148,7 +148,6 @@ def bulk_post_insert(uuid_identification: AnyStr):
             )
             .first()
         )
-
         for key, value in packaging_dict.items():
             if key in charges_dict and value:
                 libelle = charges_dict.get(key)
@@ -181,7 +180,6 @@ def bulk_post_insert(uuid_identification: AnyStr):
 
     if bulk_list:
         EdiImport.objects.bulk_create(bulk_list)
-
     # Mise à jour des autres champs ================================================================
     sql_update = post_bulk_dict.get("sql_update")
 
