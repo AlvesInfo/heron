@@ -518,7 +518,8 @@ class GenericExcel:
 
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
-
+        # print(len(valeurs), len(styles))
+        # print(valeurs)
         for num in range(nb_col):
             val = valeurs[num]
             if styles:
