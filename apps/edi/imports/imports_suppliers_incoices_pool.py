@@ -8,7 +8,7 @@ Commentaire:
 created at: 2022-04-08
 created by: Paulo ALVES
 
-modified at: 2022-04-08
+modified at: 2023-01-01
 modified by: Paulo ALVES
 """
 import io
@@ -20,7 +20,7 @@ from psycopg2 import sql
 
 from apps.core.functions.functions_setups import settings, connection
 from apps.edi.loggers import EDI_LOGGER
-from apps.edi.bin.edi_pre_processing_pool import bulk_translate_file
+from apps.edi.bin.edi_pre_processing_pool import bulk_translate_file, interson_translate_file
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
     bbgr_statment_post_insert,
@@ -104,7 +104,7 @@ proccessing_dir = Path(settings.PROCESSING_SUPPLIERS_DIR)
 
 def get_suppliers(flow_name: str):
     """
-    :param flow_name: champ flow_name dans la table SupplierDefinition
+    :param flow_name: Champ flow_name dans la table SupplierDefinition
     :return: Retourne le supplier et l'indentifier du fournisseur dans la table SupplierDefinition
     """
     with connection.cursor() as cursor:
@@ -124,7 +124,7 @@ def get_suppliers(flow_name: str):
 
 def get_supplier_name(flow_name: str):
     """
-    :param flow_name: champ flow_name dans la table SupplierDefinition
+    :param flow_name: Champ flow_name dans la table SupplierDefinition
     :return: Retourne le supplier du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
@@ -141,7 +141,7 @@ def get_supplier_name(flow_name: str):
 
 def get_supplier_ident(flow_name: str):
     """
-    :param flow_name: champ flow_name dans la table SupplierDefinition
+    :param flow_name: Champ flow_name dans la table SupplierDefinition
     :return: Retourne le supplier_ident du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
@@ -219,8 +219,6 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             first_line=get_first_line(SupplierDefinition, flow_name),
             params_dict=params_dict_load,
         ) as file_load:
-            for line in file_load.read_dict():
-                print(line)
             validation = Validation(
                 dict_flow=file_load.read_dict(),
                 model=model,
@@ -616,6 +614,7 @@ def interson(file_path: Path):
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Interson"
     comment = ""
+    new_file_path = interson_translate_file(file_path)
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -628,7 +627,7 @@ def interson(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     interson_post_insert(trace.uuid_identification)
 
     return trace, to_print

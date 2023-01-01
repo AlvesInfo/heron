@@ -8,7 +8,7 @@ Commentaire:
 created at: 2022-04-10
 created by: Paulo ALVES
 
-modified at: 2022-04-10
+modified at: 2023-01-01
 modified by: Paulo ALVES
 """
 import csv
@@ -16,6 +16,7 @@ from pathlib import Path
 
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.postgres_save import get_random_name
+from apps.data_flux.utilities import encoding_detect
 
 
 def bulk_translate_file(file: Path):
@@ -56,3 +57,42 @@ def bulk_translate_file(file: Path):
                     csv_writer.writerow(e_row + write_row)
 
     return new_file
+
+
+def interson_translate_file(file: Path):
+    """
+    Transformation du fichier en entrée des factures Interson, pour remplacer le separateur \t par;
+    :param file:
+    :return: Path(file)
+    """
+    while True:
+        new_file = Path(settings.INTERSON) / f"{get_random_name()}.csv"
+        if not new_file.is_file():
+            break
+    encoding = encoding_detect(file)
+    with file.open("r", encoding=encoding, errors="replace") as file_to_parse, new_file.open(
+        "w", encoding="utf8", newline=""
+    ) as file_to_write:
+
+        csv_writer = csv.writer(
+            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+
+        for line in file_to_parse:
+            if "\t" in line:
+                write_line = line.replace(";", "").replace("\r", "").replace("\n", "").split("\t")
+            else:
+                write_line = line.replace("\r", "").replace("\n", "").split(";")
+
+            csv_writer.writerow(write_line)
+
+    file.unlink()
+
+    with file.open("w", encoding="utf8") as old_file, new_file.open(
+        "r", encoding="utf8"
+    ) as file_to_read:
+        old_file.write(file_to_read.read())
+
+    new_file.unlink()
+
+    return file

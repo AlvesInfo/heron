@@ -294,7 +294,6 @@ def proc_files(process_object):
             )
 
         if trace is not None:
-            print(trace.uuid_identification)
             trace.save()
 
         if file.is_file():
