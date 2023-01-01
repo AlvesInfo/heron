@@ -17,6 +17,7 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import VatSage, VatRegimeSage, CctSage, SectionSage
@@ -211,6 +212,7 @@ class Category(FlagsTable):
 
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
+    slug_name = models.CharField(max_length=120)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -223,6 +225,15 @@ class Category(FlagsTable):
     def get_absolute_url():
         """get absolute url in succes case"""
         return reverse("parameters:categories_list")
+
+    def save(self, *args, **kwargs):
+        """
+        FR : Avant la sauvegarde on ajoute slug_name
+        EN : Before the backup we add slug_name
+        """
+        self.slug_name = slugify(self.name)
+
+        super().save(*args, **kwargs)
 
     class Meta:
         """class Meta du modèle django"""
