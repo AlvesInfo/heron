@@ -41,13 +41,13 @@
 
             $(`#import_edi_invoices_button`).click(function () {
                 $(this).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS DES FACTURES EN COURS, PATIENTEZ .... (Rafraîchissez la page)").css("color", "teal")
+                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
             })
             {% if en_cours %}
                 setTimeout(function() {
-                        window.location.reload()
+                        location.href = "{% url 'edi:import_edi_invoices' %}"
                     },
-                    30000
+                    10000
                 )
             {% endif %}
         });

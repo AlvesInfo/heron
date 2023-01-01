@@ -26,10 +26,11 @@ from apps.core.excel_outputs.excel_writer import (
     rows_writer,
 )
 from apps.book.models import Society
+from apps.parameters.models import Category
 from apps.articles.excel_outputs.output_excel_articles_columns import columns_list_articles
 
 
-def get_clean_rows(third_party_num) -> iter:
+def get_clean_rows(third_party_num: str, category: str) -> iter:
     """Retourne les lignes à écrire"""
 
     sql_query = sql.SQL(
@@ -55,7 +56,9 @@ def get_clean_rows(third_party_num) -> iter:
             "aa"."comment"
         from "articles_article" "aa"
         join "book_society" "bs"
-        on "aa"."third_party_num" = "bs".third_party_num
+        on "aa"."third_party_num" = "bs"."third_party_num"
+        join "parameters_category" "pp"
+        on "aa"."uuid_big_category" = "pp"."uuid_identification"
         left join "accountancy_sectionsage" "as2"
         on "aa"."axe_bu" = "as2"."uuid_identification"
         left join "accountancy_sectionsage" "as3"
@@ -71,20 +74,31 @@ def get_clean_rows(third_party_num) -> iter:
         left join "parameters_subfamilly" "ps"
         on "aa"."uuid_sub_familly" = "ps"."uuid_identification"
         where "aa"."third_party_num" = %(third_party_num)s
+        and "pp"."slug_name"= %(category)s
         """
     )
 
     with cnx_postgresql(CNX_STRING).cursor() as cursor:
-        cursor.execute(sql_query, {"third_party_num": third_party_num})
+        cursor.execute(
+            sql_query,
+            {
+                "third_party_num": third_party_num,
+                "category": category,
+            },
+        )
         return cursor.fetchall()
 
 
-def excel_liste_articles(file_io: io.BytesIO, file_name: str, third_party_num: str) -> dict:
+def excel_liste_articles(
+    file_io: io.BytesIO, file_name: str, third_party_num: str, category: str
+) -> dict:
     """Fonction de génération du fichier de liste des Centrales Mère"""
+    categorie_name = Category.objects.get(slug_name=category)
     titre_list = file_name.split("_")
     titre = (
         " ".join(titre_list[:-4])
         + f" DU FOURNISSEUR : {str(Society.objects.get(third_party_num=third_party_num))}"
+        f" - Catégorie : {categorie_name.name}"
     )
     list_excel = [file_io, [titre[:30]]]
     excel = GenericExcel(list_excel)
@@ -98,7 +112,9 @@ def excel_liste_articles(file_io: io.BytesIO, file_name: str, third_party_num: s
         f_lignes_odd = [
             {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
         ]
-        rows_writer(excel, 1, 4, 0, get_clean_rows(third_party_num), f_lignes, f_lignes_odd)
+        rows_writer(
+            excel, 1, 4, 0, get_clean_rows(third_party_num, category), f_lignes, f_lignes_odd
+        )
         sheet_formatting(
             excel, 1, columns, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
         )

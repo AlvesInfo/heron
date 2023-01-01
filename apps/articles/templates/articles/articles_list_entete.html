@@ -2,13 +2,13 @@
 
 {% block right_side %}
 
-    <a class="item" href="{% url 'articles:article_create'  third_party_num=third_party_num%}">
+    <a class="item" href="{% url 'articles:article_create'  third_party_num=third_party_num category=category %}">
         <button class="ui blue button" name="create_article" style="padding: 7px 10px;margin: 10px;font-size: 11px">
             CREATION
         </button>
     </a>
 
-    <a class="item" href="{% url 'articles:articles_export_list' third_party_num=third_party_num %}">
+    <a class="item" href="{% url 'articles:articles_export_list' third_party_num=third_party_num category=category %}">
       <button class="ui green button" style="padding: 7px 10px;margin: 10px;font-size: 11px">LISTING ARTICLES</button>
     </a>
 

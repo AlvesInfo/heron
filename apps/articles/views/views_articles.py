@@ -27,14 +27,36 @@ class SuppliersArticlesList(ListView):
 
     model = Society
     context_object_name = "suppliers"
-    queryset = Society.objects.filter(
-        third_party_num__in=Article.objects.values("third_party_num")
-        .annotate(nb_plan=Count("third_party_num"))
-        .order_by("third_party_num")
-        .values_list("third_party_num", flat=True)
-    )
     template_name = "articles/suppliers_articles_list.html"
     extra_context = {"titre_table": "Fournisseurs - Articles"}
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context.update(kwargs)
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        """
+        Return the list of items for this view.
+        The return value must be an iterable and may be an instance of
+        `QuerySet` in which case `QuerySet` specific behavior will be enabled.
+        """
+        queryset = Society.objects.filter(
+            third_party_num__in=Article.objects.filter(
+                big_category__slug_name=self.kwargs.get("category")
+            )
+            .values("third_party_num")
+            .annotate(nb_plan=Count("third_party_num"))
+            .order_by("third_party_num")
+            .values_list("third_party_num", flat=True)
+        )
+        ordering = self.get_ordering()
+
+        if ordering:
+            if isinstance(ordering, str):
+                ordering = (ordering,)
+            queryset = queryset.order_by(*ordering)
+
+        return queryset
 
 
 class ArticlesList(ListView):
@@ -43,19 +65,40 @@ class ArticlesList(ListView):
     model = Article
     context_object_name = "articles"
     template_name = "articles/articles_list.html"
+    extra_context = {}
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context.update(kwargs)
+        self.third_party_num = self.extra_context.get("third_party_num")
+        self.category = self.extra_context.get("category")
+        self.extra_context["chevron_retour"] = reverse(
+            "articles:suppliers_articles_list", args=(self.category,)
+        )
+        self.extra_context["titre_table"] = f"Articles Marchandises du Tiers {self.third_party_num}"
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self, **kwargs):
-        self.third_party_num = self.kwargs.get("third_party_num", "")
-        queryset = Article.objects.filter(third_party_num=self.third_party_num)
-        return queryset
+        queryset = Article.objects.filter(
+            third_party_num=self.third_party_num, big_category__slug_name=self.category
+        ).values(
+            "pk",
+            "reference",
+            "libelle_heron",
+            "axe_pro__section",
+            "axe_bu__section",
+            "axe_prj__section",
+            "axe_pys__section",
+            "axe_rfa__section",
+            "comment",
+        )
+        ordering = self.get_ordering()
 
-    def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
-        context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("articles:suppliers_articles_list")
-        context["titre_table"] = f"Articles Marchandises du Tiers {self.third_party_num}"
-        context["third_party_num"] = self.third_party_num
-        return context
+        if ordering:
+            if isinstance(ordering, str):
+                ordering = (ordering,)
+            queryset = queryset.order_by(*ordering)
+
+        return queryset
 
 
 class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -70,25 +113,27 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
-        third_party_num = self.kwargs.get("third_party_num", "")
-        if third_party_num == "create":
+        self.third_party_num = self.kwargs.get("third_party_num", "")
+        self.category = self.kwargs.get("category", "")
+
+        if self.third_party_num == "create":
             self.third_party_num = None
             self.base_create = True
         else:
             self.base_create = False
-            self.third_party_num = Society.objects.get(third_party_num=third_party_num)
+            self.third_party_num = Society.objects.get(third_party_num=self.third_party_num)
+
         self.object = None
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         """Rajout de third_party_num dans le post"""
-        third_party_num = self.kwargs.get("third_party_num", "")
-        if third_party_num == "create":
+        if self.third_party_num == "create":
             self.third_party_num = None
             self.base_create = True
         else:
             self.base_create = False
-            self.third_party_num = Society.objects.get(third_party_num=third_party_num)
+            self.third_party_num = Society.objects.get(third_party_num=self.third_party_num)
         self.object = None
         return super().post(request, *args, **kwargs)
 
@@ -99,18 +144,22 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["base_create"] = self.base_create
 
         if not self.base_create:
-            context[
-                "titre_table"
-            ] = f"Création d'un Nouvel Article pour le Tiers : {self.third_party_num.third_party_num}"
+            context["titre_table"] = (
+                "Création d'un Nouvel Article pour le Tiers : "
+                f"{self.third_party_num.third_party_num}"
+            )
             context["chevron_retour"] = reverse(
                 "articles:articles_list",
-                args=[
+                args=(
                     self.third_party_num.third_party_num,
-                ],
+                    self.category,
+                ),
             )
             context["third_party_num"] = self.third_party_num.third_party_num
         else:
-            context["chevron_retour"] = reverse("articles:suppliers_articles_list")
+            context["chevron_retour"] = reverse(
+                "articles:suppliers_articles_list", args=(self.category,)
+            )
 
         return context
 
@@ -120,6 +169,7 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             "articles:articles_list",
             args=[
                 self.object.third_party_num.third_party_num,
+                self.category,
             ],
         )
 
@@ -157,7 +207,11 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse(
-            "articles:articles_list", args=[self.object.third_party_num.third_party_num]
+            "articles:articles_list",
+            args=(
+                self.object.third_party_num.third_party_num,
+                self.object.big_category.slug_name,
+            ),
         )
         context["titre_table"] = f"Mise à jour Article {str(self.object)}"
         context["article"] = f"Article Référence : {self.object.reference}"
@@ -168,9 +222,10 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Return the URL to redirect to after processing a valid form."""
         return reverse(
             "articles:articles_list",
-            args=[
+            args=(
                 self.object.third_party_num.third_party_num,
-            ],
+                self.object.big_category.slug_name,
+            ),
         )
 
     @transaction.atomic
@@ -186,11 +241,12 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().form_invalid(form)
 
 
-def articles_export_list(_, third_party_num):
+def articles_export_list(_, third_party_num, category):
     """
     Export Excel de la liste des Sociétés
     :param _: Request Django
     :param third_party_num: N° de tiers X3
+    :param category: slug_name de la catégorie
     :return: response_file
     """
     try:
@@ -198,9 +254,15 @@ def articles_export_list(_, third_party_num):
         today = pendulum.now()
         file_name = f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
-        return response_file(excel_liste_articles, file_name, CONTENT_TYPE_EXCEL, third_party_num)
+        return response_file(
+            excel_liste_articles, file_name, CONTENT_TYPE_EXCEL, third_party_num, category
+        )
 
     except:
         LOGGER_VIEWS.exception("view : articles_export_list")
 
-    return redirect(reverse("articles:articles_list", {"third_party_num": third_party_num}))
+    return redirect(
+        reverse(
+            "articles:articles_list", {"third_party_num": third_party_num, "category": category}
+        )
+    )

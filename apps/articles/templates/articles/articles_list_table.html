@@ -1,9 +1,8 @@
 {% extends "heron/table_courant.html" %}
 
 {% block table %}
-    <div class="one wide column"></div>
 
-    <div class="fourteen wide column">
+    <div class="sixteen wide column">
 
         <table id="table_document"
            class="ui celled table"
@@ -11,18 +10,22 @@
             <thead>
 
                 <tr>
-                    <th class="no-sort" style="width: 5.89%">Modifier</th>
-                    <th style="width: 15.79%">Référence</th>
-                    <th style="width: 17.26%">Libelle Héron</th>
-                    <th style="width: 16.84%">Axe Pro</th>
-                    <th style="width: 33.38%">Commentaire</th>
+                    <th class="no-sort" style="width: 2.6%">Edit</th>
+                    <th style="width: 11%">Référence</th>
+                    <th style="width: 31.22%">Libelle Héron</th>
+                    <th style="width: 7.14%">Axe PRO</th>
+                    <th style="width: 7.14%">Axe BU</th>
+                    <th style="width: 7.14%">Axe PRJ</th>
+                    <th style="width: 7.14%">Axe PYS</th>
+                    <th style="width: 7.14%">Axe RFA</th>
+                    <th style="width: 19.48%">Commentaire</th>
                 </tr>
             </thead>
             <tbody>
             {% for article in articles %}
-                <tr id="id_{{ article.third_party_num }}" class="hide_plans">
+                <tr id="id_{{ third_party_num }}" class="hide_plans">
 
-                    <td data-value="{{ article.third_party_num }}"
+                    <td data-value="{{ third_party_num }}"
                         style="text-align: center;">
                         <a href="{% url 'articles:article_update' third_party_num=third_party_num pk=article.pk %}">
                             <i class="edit icon modification"></i>
@@ -35,7 +38,19 @@
                         {{ article.libelle_heron|default_if_none:'' }}
                     </td>
                     <td>
-                        {{ article.axe_pro.section|default_if_none:'' }}
+                        {{ article.axe_pro__section|default_if_none:'' }}
+                    </td>
+                    <td>
+                        {{ article.axe_bu__section|default_if_none:'' }}
+                    </td>
+                    <td>
+                        {{ article.axe_prj__section|default_if_none:'' }}
+                    </td>
+                    <td>
+                        {{ article.axe_pys__section|default_if_none:'' }}
+                    </td>
+                    <td>
+                        {{ article.axe_rfa__section|default_if_none:'' }}
                     </td>
                     <td>
                           {{ article.comment|default_if_none:'' }}
@@ -46,7 +61,5 @@
         </table>
 
     </div>
-
-    <div class="one wide column"></div>
 
 {% endblock table %}
