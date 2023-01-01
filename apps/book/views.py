@@ -206,7 +206,8 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                 messages.add_message(
                     request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
                 )
-                LOGGER_VIEWS.exception(f"erreur form : {str(formset.data)!r}")
+
+                LOGGER_VIEWS.exception(f"erreur form : {formset.errors!r}")
 
     except Exception as error:
         request.session["level"] = 50
