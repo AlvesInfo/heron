@@ -103,7 +103,8 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     "amount_with_vat",
                     "axe_pro_supplier",
                     "supplier_name",
-                    "bi_id"
+                    "bi_id",
+                    "unity"
                 )
                 select
                     %(uuid_identification)s as "uuid_identification",
@@ -144,7 +145,8 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                    "montant_ttc" as "amount_with_vat",
                    "statistique" as "axe_pro_supplier",
                    'BBGR RETOURS' as "supplier_name",
-                   "id" as "bi_id"
+                   "id" as "bi_id",
+                   1 as "unity"
                 from "heron_bi_factures_monthlydelivery"
                 where "id" > %(min_id)s
                 and "type_article" in ('FRAIS_RETOUR', 'DECOTE')
