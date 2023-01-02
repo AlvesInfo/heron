@@ -71,23 +71,6 @@ def integration_supplier_purchases(request, enc_param):
     return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)
 
 
-class UpdateSupplierPurchases(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des factures founisseurs"""
-
-    model = EdiImportControl
-    form_class = EdiImportControlForm
-    form_class.use_required_attribute = False
-    template_name = "book/society_update.html"
-    success_message = (
-        "La saisie de contrôle pour le tiers %(third_party_num)s "
-        "du mois : %(invoice_month)s, a été modifiée avec success"
-    )
-    error_message = (
-        "La saisie de contrôle pour le tiers N° %(third_party_num)s "
-        "n'a pu être modifiée, une erreur c'est produite"
-    )
-
-
 @transaction.atomic
 def delete_invoice_purchase(request):
     """Suppression des factures non souhaitées

@@ -11,6 +11,7 @@ from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.edi.models import EdiImport
 from apps.edi.forms import (
     EdiImportValidationForm,
+    UpdateSupplierPurchasesForm,
     DeletePkForm,
 )
 
@@ -28,6 +29,8 @@ def details_purchase(request, enc_param):
     sql_context_file = "apps/validation_purchases/sql_files/sql_details_purchases.sql"
     big_category, third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
 
+    form = UpdateSupplierPurchasesForm(request.POST or None)
+    print(form.as_table())
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
             cursor,

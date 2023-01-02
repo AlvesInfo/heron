@@ -10,13 +10,13 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th>details</th>
+                <th>Edit</th>
+                <th>Type</th>
                 <th>N° Facture</th>
                 <th>Date Facture</th>
                 <th>CCT<br>Sage X3</th>
                 <th>Code<br>Fourn.</th>
                 <th>Libellé CCT Fournisseur</th>
-                <th>edit</th>
                 <th>NET HT</th>
                 <th>Delta HT</th>
                 <th>Montant HT</th>
@@ -30,10 +30,11 @@
             <tr id="id_{{ forloop.counter }}" class="hide_plans">
                 <td>
                     <a href="{% url 'validation_purchases:details_purchase' export.enc_param|encode_b64_str %}">
-                        <i class="eye icon modification"></i>
+                        <i class="edit icon modification"></i>
                     </a>
                 </td>
-                <td >{{ export.invoice_number }}</td>
+                <td style="color: {{ export.color_invoice }};">{{ export.type_invoice }}</td>
+                <td style="color: {{ export.color_invoice }};">{{ export.invoice_number }}</td>
                 <td >{{ export.invoice_date|date:"d/m/Y" }}</td>
 
                 <td class="cct_sage"
@@ -42,11 +43,6 @@
                     style="{% if export.axe_cct == '' %}background-color: lightpink;{% else %}background-color: lavender;{% endif %}">{{ export.axe_cct }}</td>
                 <td style="{% if export.code_maison == '' %}background-color: lightpink;{% endif %}">{{ export.code_maison }}</td>
                 <td style="text-align: left;{% if export.code_maison == '' %}background-color: lightpink;{% endif %}">{{ export.maison|default_if_none:'' }}</td>
-                <td style="text-align: center;">
-                    <a href="{% url 'validation_purchases:details_purchase' export.enc_param|encode_b64_str %}">
-                        <i class="edit icon modification"></i>
-                    </a>
-                </td>
                 <td style="text-align: right;">{{ export.net_amount|numbers_format:2 }}</td>
                 <td style="text-align: right;{% if export.delta %}background-color: lightpink;{% endif %}">{% if export.delta %}{{ export.delta }}{% endif %}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>

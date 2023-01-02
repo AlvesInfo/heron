@@ -119,8 +119,8 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                    "livraison" as "delivery_number",
                    "date_livraison" as "delivery_date",
                    coalesce(
-                        case when no_facture_acuitis = '' then null else no_facture_acuitis end, 
-                        case when customer_po_number = '' then null else customer_po_number end,
+                        case when "livraison" = '' then null else "livraison" end,
+                        case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end, 
                         "id"::varchar
                     ) as "invoice_number",
                    "date_mouvement" as "invoice_date",

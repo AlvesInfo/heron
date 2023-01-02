@@ -42,5 +42,6 @@ class ChangeCttForm(forms.ModelForm):
         self.fields["uuid_identification"] = uuid_identification
 
     class Meta:
+        """class Meta"""
         model = EdiImport
         fields = ("third_party_num", "invoice_number", "invoice_year")

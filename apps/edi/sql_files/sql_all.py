@@ -440,7 +440,10 @@ and edi."invoice_number" = edi_fac."invoice_number"
                                end,
             "invoice_month" = date_trunc('month', invoice_date)::date,
             "invoice_year" = date_part('year', invoice_date),
-            "delete" = false
+            "delete" = false,
+            "unity" =  case
+                            when "unity" isnull then 1 else "unity" 
+                       end
     where ("valid" = false or "valid" isnull)
     """
     ),

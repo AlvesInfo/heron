@@ -114,3 +114,13 @@ class EdiImportControlForm(forms.ModelForm):
             "statement_with_tax",
             "comment",
         ]
+
+
+class UpdateSupplierPurchasesForm(forms.ModelForm):
+    """Update du détail d'une facture"""
+
+    class Meta:
+        """class Meta"""
+
+        model = EdiImport
+        fields = ("id", "qty", "net_unit_price", "vat_rate")

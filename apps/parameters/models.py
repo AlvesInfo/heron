@@ -420,6 +420,21 @@ class BaseInvoiceDetailsTable(models.Model):
     EN : Flags Abstract Table for Invoices details
     """
 
+    class DateType(models.TextChoices):
+        """DateType choices"""
+
+        UNI = 1, _("U")
+        GRA = 2, _("Grammes")
+        KIL = 3, _("Kilos")
+        PIE = 4, _("Pièce")
+        BOI = 5, _("Boite")
+        CAR = 6, _("Carton")
+        JRS = 7, _("Jrs")
+        MOI = 8, _("Mois")
+        FOR = 9, _("Forfait")
+        HEU = 10, _("Heures")
+        ENS = 11, _("Ens")
+
     # Livraison
     acuitis_order_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
@@ -429,6 +444,18 @@ class BaseInvoiceDetailsTable(models.Model):
         null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
     )
     delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
+
+    # Formation
+    final_date = models.DateField(null=True, verbose_name="date finale")
+    first_name = models.CharField(null=True, max_length=80, verbose_name="prenom")
+    last_name = models.CharField(null=True, max_length=80, verbose_name="nom")
+    heures_formation = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="nombre heures formation",
+    )
 
     # Article
     reference_article = models.CharField(
@@ -448,6 +475,9 @@ class BaseInvoiceDetailsTable(models.Model):
     # Qty / Montants
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
+    )
+    unity = models.IntegerField(
+        null=True, blank=True, choices=DateType.choices, default=DateType.UNI
     )
     gross_unit_price = models.DecimalField(
         null=True,
@@ -504,6 +534,7 @@ class BaseInvoiceDetailsTable(models.Model):
     amount_with_vat = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
+
 
     # Sage
     axe_bu = models.ForeignKey(
