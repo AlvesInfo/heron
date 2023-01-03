@@ -1,4 +1,3 @@
-from apps.validation_purchases.views.cct_change import *
 from apps.validation_purchases.views.views_etape_2_1 import *
 from apps.validation_purchases.views.views_etape_2_2 import *
 from apps.validation_purchases.views.views_etape_2_1_A import *
@@ -8,3 +7,4 @@ from apps.validation_purchases.views.views_etape_3_1_A import *
 from apps.validation_purchases.views.views_etape_5_1 import *
 from apps.validation_purchases.views.views_etape_5_5 import *
 from apps.validation_purchases.views.views_etape_rfa import *
+from apps.validation_purchases.views.views_cct_change import *
