@@ -1,12 +1,10 @@
 import pendulum
-from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
-from django.views.generic import UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -17,8 +15,6 @@ from apps.edi.models import EdiImport
 from apps.edi.forms import (
     DeleteInvoiceForm,
 )
-from apps.edi.models import EdiImportControl
-from apps.edi.forms import EdiImportControlForm
 from apps.validation_purchases.forms import ChangeCttForm
 
 
@@ -47,19 +43,17 @@ def integration_supplier_purchases(request, enc_param):
             },
         )
 
-        if elements:
-            titre_table = elements[0]
-            mois = (
-                pendulum.parse(titre_table.get("invoice_month").isoformat())
-                .format("MMMM YYYY", locale="fr")
-                .capitalize()
-            )
+        if not elements:
+            return redirect(reverse("validation_purchases:integration_purchases"))
 
-        else:
-            mois = ""
+        mois = (
+            pendulum.parse(invoice_month)
+            .format("MMMM YYYY", locale="fr")
+            .capitalize()
+        )
 
         context = {
-            "titre_table": f"Contrôle : {supplier}  - {mois}",
+            "titre_table": f"Contrôle : {third_party_num}  - {supplier}  - {mois}",
             "controles_exports": elements,
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",

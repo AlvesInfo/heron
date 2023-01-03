@@ -131,7 +131,16 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                         else '381' 
                     end as "invoice_type",
                    'EUR' as "devise",
-                   "article" as "reference_article",
+                   case
+                        when "type_article" = 'FRAIS_RETOUR' then 'F-'||"article"
+                        when "type_article"  = 'DECOTE'
+                            then case 
+                                when left("description", 11) = 'Décote de 1' then 'D1-'||"article"
+                                when left("description", 11) = 'Décote de 2' then 'D2-'||"article"
+                                else 'D3-'||"article"
+                            end    
+                        else "article"
+                   end as "reference_article",
                    "article" as "ean_code",
                    "description" as "libelle",
                    "type_article" as "famille",
