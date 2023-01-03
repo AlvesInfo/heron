@@ -47,6 +47,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     # Fournisseur
     flow_name = models.CharField(max_length=80)
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
+    supplier = models.CharField(null=True, blank=True, max_length=35)
 
     # Magasin Facturé
     cct_uuid_identification = models.ForeignKey(

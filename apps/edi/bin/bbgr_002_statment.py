@@ -148,6 +148,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                    1 as "unity"
                 from "heron_bi_factures_billstatement"
                 where "id" > %(min_id)s
+                order by "id"
                 """
             )
             cursor.execute(

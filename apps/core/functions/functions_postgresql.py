@@ -715,10 +715,57 @@ def query_file_dict_cursor(
             raise Exception(f"Le fichier {file.name!r} n'existe pas")
 
     # print(cursor.mogrify(query, parmas.decode())
-    cursor.execute(query, parmas_dict)
+    if parmas_dict:
+        cursor.execute(query, parmas_dict)
+    else:
+        cursor.execute(query)
+
     columns = [col[0] for col in cursor.description]
 
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+
+def query_file_yield_dict_cursor(
+    cursor,
+    query_str: str = "",
+    file_path: [AnyStr, Path] = None,
+    base_dir: os.path = BASE_DIR,
+    parmas_dict: Dict = None,
+):
+    """Renvoie les résultats de la requête, dont le sql vient d'un fichier et renvoi le résultat de
+    la requête sous la forme d'un dictionnaire
+    :param cursor: connexion à la base postgresql psycopg2
+    :param query_str: sql_context est utilisé si c'est une requête en str
+    :param file_path: file pathlib.PATH
+    :param base_dir: repertoire de base du fichier
+    :param parmas_dict: paramètre de la requête
+    :return: resultats de la requête sous forme d'un dictionnaire
+    """
+
+    parmas_dict = parmas_dict or {}
+
+    if query_str:
+        query = query_str
+
+    else:
+        file = Path(base_dir) / file_path
+
+        if file.is_file():
+            with file.open("r") as sql_file:
+                query = sql_file.read()
+
+        else:
+            raise Exception(f"Le fichier {file.name!r} n'existe pas")
+
+    # print(cursor.mogrify(query, parmas.decode())
+    if parmas_dict:
+        cursor.execute(query, parmas_dict)
+    else:
+        cursor.execute(query)
+
+    columns = [col[0] for col in cursor.description]
+
+    yield from [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
 if __name__ == "__main__":

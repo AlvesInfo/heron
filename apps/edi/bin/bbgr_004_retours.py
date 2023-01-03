@@ -159,6 +159,7 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                 from "heron_bi_factures_monthlydelivery"
                 where "id" > %(min_id)s
                 and "type_article" in ('FRAIS_RETOUR', 'DECOTE')
+                order by "id"
                 """
             )
             cursor.execute(

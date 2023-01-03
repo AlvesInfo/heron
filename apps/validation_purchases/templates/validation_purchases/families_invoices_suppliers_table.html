@@ -4,33 +4,36 @@
 {% load filters_tags %}
 
 {% block table %}
+    <div class="one wide column"></div>
 
-<div class="sixteen wide column">
+<div class="fourteen wide column">
 
     <table id="table_document"
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th>Fournisseur</th>
-                <th>AXE PRO X3</th>
-                <th style="text-align: right;">M-2</th>
-                <th style="text-align: right;">M-1</th>
-                <th style="text-align: right;">M</th>
-                <th style="text-align: right;">Variation</th>
-                <th style="text-align: left;">Commentaire</th>
+                <th style="width: 6%;">Tiers X3</th>
+                <th style="width: 20%;">Fournisseur</th>
+                <th style="width: 10%;">AXE PRO X3</th>
+                <th style="width: 7%;text-align: right;">M-2</th>
+                <th style="width: 7%;text-align: right;">M-1</th>
+                <th style="width: 7%;text-align: right;">M</th>
+                <th style="width: 7%;text-align: right;">Variation</th>
+                <th style="width: 36%;">Commentaire</th>
             </tr>
         </thead>
         <tbody>
-        {% for invoice in invoices_without_cct %}
-            <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ invoice.supplier }}</td>
-                <td>{{ invoice.axe_pro_uuid.name }}</td>
-                <td style="text-align: right;"></td>
-                <td style="text-align: right;"></td>
-                <td style="text-align: right;">{{ invoice.total_without_tax|numbers_format:2 }}</td>
-                <td style="text-align: right;"></td>
-                <td style="text-align: left;"></td>
+        {% for invoice in invoices_famillies %}
+            <tr class="hide_plans">
+                <td>{{ invoice.third_party_num }}</td>
+                <td style="text-align: left;">{{ invoice.supplier }}</td>
+                <td>{{ invoice.axe_pro|default_if_none:'' }}</td>
+                <td style="text-align: right;">{{ invoice.m_02|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ invoice.m_01|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ invoice.m_00|numbers_format:2 }}</td>
+                <td style="text-align: right;">{{ invoice.variation|numbers_format:2 }}</td>
+                <td style="text-align: left;">{{ invoice.commentaire }}</td>
             </tr>
         {% endfor %}
         </tbody>

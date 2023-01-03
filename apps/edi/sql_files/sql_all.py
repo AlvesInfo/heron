@@ -1,4 +1,4 @@
-# pylint: disable=
+# pylint: disable=E0401,C0303
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers de factures fournisseur
 EN : Post-processing sql module after importing supplier invoice files
@@ -428,6 +428,34 @@ and edi."invoice_number" = edi_fac."invoice_number"
           and ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_update_articles": sql.SQL(
+        """
+        update "edi_ediimport" edi 
+        set 
+            "axe_bu_uuid" = maj."axe_bu",
+            "axe_prj_uuid" = maj."axe_prj",
+            "axe_pro_uuid" = maj."axe_pro",
+            "axe_pys_uuid"  = maj."axe_pys",
+            "axe_rfa_uuid" = maj."axe_rfa"
+        from (
+            select 
+                ee."id", 
+                aa."axe_bu", 
+                aa."axe_prj", 
+                aa."axe_pro", 
+                aa."axe_pys", 
+                aa."axe_rfa" 
+            from "edi_ediimport" ee 
+            join "articles_article" aa 
+            on ee."reference_article" = aa."reference" 
+            and ee."third_party_num" = aa."third_party_num"
+            where (ee."valid" = false or ee."valid" isnull)
+            and ee."axe_pro_uuid" isnull
+            and aa."axe_pro" is not null
+        ) maj
+        where edi."id" = maj."id" 
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
@@ -449,7 +477,7 @@ and edi."invoice_number" = edi_fac."invoice_number"
             "unity" =  case
                             when "unity" isnull then 1 else "unity" 
                        end
-    where ("valid" = false or "valid" isnull)
+        where ("valid" = false or "valid" isnull)
     """
     ),
 }
