@@ -1,12 +1,10 @@
 import pendulum
 from django.db import connection
-from django.db.models import Sum
 from django.shortcuts import render, redirect, reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_yield_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.edi.models import EdiImport
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_familly import (
     excel_integration_invoices_familly,
 )

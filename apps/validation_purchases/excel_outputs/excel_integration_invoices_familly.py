@@ -11,9 +11,11 @@ modified by: Paulo ALVES
 """
 import io
 
-from django.db.models import Count
+import pendulum
+from django.db import connection
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
+from apps.core.functions.functions_postgresql import query_file_cursor
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
@@ -24,7 +26,6 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
-from apps.edi.models import EdiImport
 
 COLUMNS = [
     {
@@ -41,7 +42,7 @@ COLUMNS = [
                 "align": "center",
             },
         },
-        "width": 12,
+        "width": 10,
     },
     {
         "entete": "Fournisseur",
@@ -54,10 +55,21 @@ COLUMNS = [
         "f_ligne": {
             **f_ligne,
         },
+        "width": 32,
+    },
+    {
+        "entete": "Axe Pro",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {**f_ligne, **{"align": "center"}},
         "width": 18,
     },
     {
-        "entete": "Mois facture",
+        "entete": "Mois-2\n",
         "f_entete": {
             **f_entetes,
             **{
@@ -66,12 +78,12 @@ COLUMNS = [
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "mmmm yyyy"},
+            **{"num_format": "#,##0.00"},
         },
-        "width": 13,
+        "width": 11,
     },
     {
-        "entete": "Code Fournisseur",
+        "entete": "Mois-1\n",
         "f_entete": {
             **f_entetes,
             **{
@@ -80,14 +92,40 @@ COLUMNS = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{"num_format": "#,##0.00"},
         },
-        "width": 24,
+        "width": 11,
     },
     {
-        "entete": "Maison",
+        "entete": "Mois M\n",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"num_format": "#,##0.00"},
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Variation",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"num_format": "#,##0.00"},
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
             **{
@@ -100,112 +138,19 @@ COLUMNS = [
                 "text_wrap": True,
             },
         },
-        "width": 75,
-    },
-    {
-        "entete": "N° Facture",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 14,
-    },
-    {
-        "entete": "Date Facture",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{"align": "center", "num_format": "dd/mm/yy"},
-        },
-        "width": 12,
-    },
-    {
-        "entete": "Montant\nHT",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Montant\nTTC",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 11,
+        "width": 80,
     },
 ]
 
 
-def get_rows():
+def get_rows(cursor):
     """Renvoie les résultats de la requête nécessaire à l'export excel
     :return: resultats de la requête
     """
-    # TODO Changer la requête
-    rows_without_cct = (
-        EdiImport.objects.filter(cct_uuid_identification__isnull=True)
-        .exclude(delete=True)
-        .values(
-            "third_party_num",
-            "supplier",
-            "invoice_month",
-            "code_maison",
-            "maison",
-            "invoice_number",
-            "invoice_date",
-            "invoice_amount_without_tax",
-            "invoice_amount_with_tax",
-        )
-        .annotate(dcount=Count("third_party_num"))
-        .order_by("third_party_num", "invoice_number")
-    )
+    sql_context_file = "apps/validation_purchases/sql_files/sql_families_invoices.sql"
+    invoices_famillies = query_file_cursor(cursor, file_path=sql_context_file)
 
-    return [
-        (
-            row.get("third_party_num"),
-            row.get("supplier"),
-            row.get("invoice_month"),
-            row.get("code_maison"),
-            row.get("maison"),
-            row.get("invoice_number"),
-            row.get("invoice_date"),
-            row.get("invoice_amount_without_tax"),
-            row.get("invoice_amount_with_tax"),
-        )
-        for row in rows_without_cct
-    ]
+    return invoices_famillies
 
 
 def excel_integration_invoices_familly(file_io: io.BytesIO, file_name: str) -> dict:
@@ -214,21 +159,34 @@ def excel_integration_invoices_familly(file_io: io.BytesIO, file_name: str) -> d
     titre = " ".join(titre_list[:-3])
     list_excel = [file_io, [titre]]
     excel = GenericExcel(list_excel)
-    get_clean_rows = get_rows()
 
     try:
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, COLUMNS)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
-            for i, dict_row in enumerate(COLUMNS)
-        ]
-        rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
-        )
+        with connection.cursor() as cursor:
+            mois = pendulum.now().start_of("month")
+            mois_m = mois.subtract(months=1).format("MMM YYYY", locale="fr")
+            mois_1 = mois.subtract(months=2).format("MMM YYYY", locale="fr")
+            mois_2 = mois.subtract(months=3).format("MMM YYYY", locale="fr")
+
+            for i, column in enumerate(COLUMNS):
+                if i == 3:
+                    column["entete"] = column["entete"] + mois_2
+                if i == 4:
+                    column["entete"] = column["entete"] + mois_1
+                if i == 5:
+                    column["entete"] = column["entete"] + mois_m
+
+            titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
+            output_day_writer(excel, 1, 1, 0)
+            columns_headers_writer(excel, 1, 3, 0, COLUMNS)
+            f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
+            f_lignes_odd = [
+                {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
+                for i, dict_row in enumerate(COLUMNS)
+            ]
+            rows_writer(excel, 1, 4, 0, get_rows(cursor), f_lignes, f_lignes_odd)
+            sheet_formatting(
+                excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
+            )
 
     except:
         LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")

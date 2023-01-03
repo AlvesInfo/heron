@@ -154,6 +154,8 @@ def rows_writer(excel, sheet, row, col, clean_rows, formatage, formatage_odd=Non
         if formatage is None:
             excel.write_rows(sheet, row, col, clean_row, formatage)
         else:
+            # print(clean_row)
+            # print(len(clean_row), len(formatage))
             excel.write_rows(
                 sheet, row, col, clean_row, formatage if row % 2 == 0 else formatage_odd
             )
