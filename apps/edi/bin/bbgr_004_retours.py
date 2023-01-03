@@ -143,7 +143,7 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                    end as "reference_article",
                    "article" as "ean_code",
                    "description" as "libelle",
-                   "type_article" as "famille",
+                   "famille" as "famille",
                    "qte_expediee" as "qty",
                    "prix_unitaire" as "gross_unit_price",
                    "prix_unitaire" as "net_unit_price",

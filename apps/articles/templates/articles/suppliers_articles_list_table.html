@@ -2,17 +2,18 @@
 
 {% block table %}
 
-<div class="four wide column"></div>
+<div class="three wide column"></div>
 
-<div class="eight wide column">
+<div class="ten wide column">
 
     <table id="table_document"
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 10%">Visualiser</th>
-                <th style="width: 70%">Fournisseur</th>
+                <th class="no-sort" style="text-align: center;width: 15%">Visualiser<br>(1000 premiers)</th>
+                <th class="no-sort" style="text-align: center;width: 10%">Rechercher</th>
+                <th style="width: 65%">Fournisseur</th>
                 <th style="width: 20%">Nombre d'articles</th>
             </tr>
         </thead>
@@ -24,6 +25,12 @@
                     style="text-align: center;">
                     <a href="#" onclick="gotToUrl(`{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num category=category %}`)">
                         <i class="eye icon modification"></i>
+                    </a>
+                </td>
+                <td data-value="{{ supplier.third_party_num }}"
+                    style="text-align: center;">
+                    <a href="#" onclick="gotToUrl(`{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num category=category %}`)">
+                        <i class="zoom-in icon"></i>
                     </a>
                 </td>
                 <td style="text-align: left;">
@@ -43,6 +50,5 @@
 
 </div>
 
-<div class="four wide column"></div>
 
 {% endblock table %}

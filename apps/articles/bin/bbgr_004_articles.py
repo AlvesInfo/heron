@@ -129,7 +129,7 @@ def insert_bbgr_004_articles():
                 1 as "packaging_qty"
             from "heron_bi_articles" hba, 
             (select unnest(string_to_array('D1-|D2-|D3-|F-', '|')) as "prefix") pre
-            where hba."code_rayon" != 'SAV'
+            where (hba."code_rayon" != 'SAV' and hba."famille" != 'SAV')
             on conflict do nothing
             """
         )

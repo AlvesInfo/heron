@@ -90,7 +90,7 @@ class ArticlesList(ListView):
             "axe_pys__section",
             "axe_rfa__section",
             "comment",
-        )
+        )[:1000]
         ordering = self.get_ordering()
 
         if ordering:
