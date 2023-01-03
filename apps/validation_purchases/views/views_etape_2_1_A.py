@@ -57,7 +57,7 @@ def integration_supplier_purchases(request, enc_param):
             "controles_exports": elements,
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
-            "nb_paging": 100,
+            "nb_paging": 25,
             "form": ChangeCttForm(),
             "enc_param": enc_param,
         }
