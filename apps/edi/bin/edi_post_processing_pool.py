@@ -1,4 +1,4 @@
-# pylint: disable=E0401,C0303
+# pylint: disable=E0401,C0303,E1101
 """
 FR : Module de post-traitement avant import des fichiers de factures fournisseur
 EN : Post-processing module before importing supplier invoice files
@@ -73,6 +73,7 @@ def post_processing_all():
     sql_edi_generique = post_all_dict.get("sql_edi_generique")
     sql_update_articles = post_all_dict.get("sql_update_articles")
     sql_validate = post_all_dict.get("sql_validate")
+    sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
 
     with connection.cursor() as cursor:
         cursor.execute(sql_round_amount)
@@ -88,6 +89,7 @@ def post_processing_all():
             created_by=get_user_automate()
         )
         cursor.execute(sql_validate)
+        cursor.execute(sql_in_use_third_party_num)
 
     edi_import_duplicate_check()
     suppliers_invoices_duplicate_check()

@@ -267,6 +267,7 @@ class Society(FlagsTable):
         default=Remise.AUCUNE,
         verbose_name="taux de remboursement rfa",
     )
+    in_use = models.NullBooleanField(default=False, verbose_name="utilisé")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

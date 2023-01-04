@@ -48,6 +48,33 @@ class SocietiesList(ListView):
     )
 
 
+class SocietiesInUseList(ListView):
+    """View de la liste des Tiers X3, qui ont été utilisés dans les imports ou factures fournisseurs
+    ou ceux qui ont été cochés en utilisation
+    """
+
+    model = Society
+    context_object_name = "societies"
+    template_name = "book/societies_list.html"
+    extra_context = {
+        "titre_table": "Tiers X3",
+        "nb_paging": 50,
+    }
+    queryset = (
+        Society.objects.filter(Q(is_client=True) | Q(is_supplier=True))
+        .filter(in_use=True)
+        .values(
+            "third_party_num",
+            "pk",
+            "third_party_num",
+            "name",
+            "is_supplier",
+            "is_client",
+            "centers_suppliers_indentifier",
+        )
+    )
+
+
 class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Centrales Filles"""
 

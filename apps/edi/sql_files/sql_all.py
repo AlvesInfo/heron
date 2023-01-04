@@ -480,4 +480,25 @@ and edi."invoice_number" = edi_fac."invoice_number"
         where ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_in_use_third_party_num": sql.SQL(
+        """
+        with alls as (
+            select 
+                "third_party_num"
+            from (
+                select 
+                    "third_party_num" 
+                from "edi_ediimport" ee 
+                union all
+                select
+                    "third_party_num" 
+                from "suppliers_invoices_invoice" sii 
+            ) r
+            group by "third_party_num"
+        )
+        update "book_society" bs
+        set "in_use" = true 
+        where exists (select 1 from alls aa where aa."third_party_num" = bs."third_party_num")
+    """
+    ),
 }
