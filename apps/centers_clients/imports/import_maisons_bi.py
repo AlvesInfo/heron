@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0903
+# pylint: disable=E0401,R0903,C0413,E1101
 """
 FR : Module du modèle des maisons
 EN : Houses model module
@@ -30,7 +30,7 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
-from django.db import connections
+from django.db import connection
 
 from apps.countries.models import Country
 from apps.centers_clients.models import MaisonBi
@@ -38,7 +38,7 @@ from apps.centers_clients.models import MaisonBi
 
 def import_maisons_bi():
     """Import des maisons depuis la B.I"""
-    with connections["bi_bdd"].cursor() as cursor:
+    with connection.cursor() as cursor:
         sql_maisons = """
         select
             left("code_maison", 15) as "code_maison",
@@ -59,7 +59,7 @@ def import_maisons_bi():
             left("pays_x3", 2) as "pays_x3",
             left("telephone", 25) as "telephone",
             left("email", 85) as "email"
-        from maisons_maison
+        from heron_bi_maisons
         """
         cursor.execute(sql_maisons)
 
@@ -79,6 +79,7 @@ def import_maisons_bi():
             "telephone",
             "email",
         ]
+        i = 0
 
         for i, maison in enumerate(cursor.fetchall(), 1):
             maison_dict = dict(zip(list_fields, maison))
@@ -128,10 +129,11 @@ def import_maisons_bi():
                         }
                     )
 
-        print(i)
+        print(i, "masions importées ou mises à jour")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     while True:
         maintenant = datetime.now()
         heure = maintenant.hour
