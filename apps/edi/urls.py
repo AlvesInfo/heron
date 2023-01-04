@@ -1,8 +1,6 @@
 from django.urls import path
 
-from apps.edi.views import (
-    import_edi_invoices
-)
+from apps.edi.views import import_edi_invoices
 
 app_name = "apps.edi"
 

@@ -26,7 +26,7 @@ def details_purchase(request, enc_param):
     :param enc_param: paramètres encodés en base 64
     :return: view
     """
-    sql_context_file = "apps/validation_purchases/sql_files/sql_details_purchases.sql"
+    sql_context_file = "apps/validation_purchases/sql_files/sql_integration_details_purchases.sql"
     big_category, third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
 
     form = UpdateSupplierPurchasesForm(request.POST or None)

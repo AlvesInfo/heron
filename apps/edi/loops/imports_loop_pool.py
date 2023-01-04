@@ -1,4 +1,4 @@
-# pylint: disable=E0401,W0703,W1203
+# pylint: disable=E0401,W0703,W1203,C0413,C0303,W1201,E1101,C0415
 """
 FR : Module d'import en boucle des fichiers de factures fournisseurs
 EN : Loop import module for invoices suppliers files
@@ -41,6 +41,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_statment,
     bbgr_monthly,
     bbgr_retours,
+    bbgr_receptions,
     edi,
     eye_confort,
     generique,
@@ -58,6 +59,10 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex,
     widex_ga,
 )
+from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
+from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
+from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
+from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
 from apps.parameters.models import ActionInProgress
 
@@ -142,8 +147,8 @@ def have_files():
     Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
     la page ne s'affiche jamais.
     """
-
     with connection.cursor() as cursor:
+        # Verification si il y a des Statements
         sql_id_statment = sql.SQL(
             """
             select 
@@ -175,12 +180,13 @@ def have_files():
             )
             """
         )
-        cursor.execute(sql_id_statment, {"historic_id": 1947055})
+        cursor.execute(sql_id_statment, {"historic_id": HISTORIC_STATMENT_ID})
         test_have_lines_statment = cursor.fetchone()
 
         if test_have_lines_statment:
             return True
 
+        # Verification si il y a des Monthly
         sql_id_monthly = sql.SQL(
             """
             select 
@@ -213,12 +219,13 @@ def have_files():
             )
             """
         )
-        cursor.execute(sql_id_monthly, {"historic_id": 2012339})
+        cursor.execute(sql_id_monthly, {"historic_id": HISTORIC_MONTHLY_ID})
         test_have_lines_montly = cursor.fetchone()
 
         if test_have_lines_montly:
             return True
 
+        # Verification si il y a des Retours
         sql_id_retours = sql.SQL(
             """
             select 
@@ -251,13 +258,50 @@ def have_files():
             )
             """
         )
-        cursor.execute(sql_id_retours, {"historic_id": 2042093})
+        cursor.execute(sql_id_retours, {"historic_id": HISTORIC_RETOURS_ID})
         test_have_lines_retours = cursor.fetchone()
 
         if test_have_lines_retours:
             return True
 
-    return True if get_files() else False
+        sql_id_receptions = sql.SQL(
+            """
+            select 
+                "max_id"
+            from (
+                select 
+                    max("id") as max_id
+                from "heron_bi_receptions_bbgr"
+            )he
+            where exists (
+                select 1 from (
+                    select 
+                        max(max_id) as max_id
+                    from (
+                        select  
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from edi_ediimport ee 
+                        where flow_name = 'BbgrReceptions'
+                        union all 
+                        select 
+                            coalesce(max(bi_id), %(historic_id)s) as max_id 
+                        from suppliers_invoices_invoice sii 
+                        join suppliers_invoices_invoicedetail sii2 
+                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        where sii.flow_name = 'BbgrReceptions'
+                    ) req
+                ) mx 
+                where mx.max_id < he.max_id
+            )
+            """
+        )
+        cursor.execute(sql_id_receptions, {"historic_id": HISTORIC_RECEPTIONS_ID})
+        test_have_lines_receptions = cursor.fetchone()
+
+        if test_have_lines_receptions:
+            return True
+
+    return bool(get_files())
 
 
 def proc_files(process_object):
@@ -328,6 +372,7 @@ def loop_pool_proc(proc_files_list):
 
 
 def main():
+    """Main pour lancement de l'import"""
     import time
 
     # Si l'action n'existe pas on la créée
@@ -358,6 +403,8 @@ def main():
             bbgr_monthly()
             # On insert BBGR RETOURS
             bbgr_retours()
+            # On insert BBGR RECEPTIONS
+            bbgr_receptions()
 
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
@@ -366,7 +413,7 @@ def main():
             EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 
     except:
-        EDI_LOGGER.exception(f"Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
+        EDI_LOGGER.exception("Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
 
     finally:
         # On remet l'action en cours à False, après l'execution
@@ -375,6 +422,7 @@ def main():
 
 
 def main_pool():
+    """main pool"""
     import time
 
     # Si l'action n'existe pas on la créée

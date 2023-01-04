@@ -60,7 +60,7 @@
                         </a>
                     </td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.big_category }}</td>
-                    <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: lightpink;{% endif %}"></td>
+                    <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: lightpink;color: lightpink;{% else %}color: white;{% endif %};">{{ supplier_purchase.cct_error }}</td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
                     <td style="text-align: left;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.supplier }}</td>
                     <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>

@@ -1,14 +1,14 @@
 # pylint: disable=E0401,C0303
 """
-FR : Module de génération du fichier BBGR Retours
-EN : BBGR Returns file generation module
+FR : Module de génération du fichier BBGR Receptions
+EN : BBGR Receptions file generation module
 
 Commentaire:
 
-created at: 2022-12-10
+created at: 2023-01-04
 created by: Paulo ALVES
 
-modified at: 2022-12-10
+modified at: 2023-01-04
 modified by: Paulo ALVES
 """
 from uuid import UUID
@@ -16,14 +16,14 @@ from uuid import UUID
 from psycopg2 import sql
 from django.db import connection, transaction
 
-# from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_setups import settings
 
-HISTORIC_RETOURS_ID = 2042093
+HISTORIC_RECEPTIONS_ID = 17732
 
 
 @transaction.atomic
-def insert_bbgr_retours_file(uuid_identification: UUID):
-    """Intégration des lignes de la table des Retours
+def insert_bbgr_receptions_file(uuid_identification: UUID):
+    """Intégration des lignes de la table des Réceptions
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
@@ -38,18 +38,18 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                 select  
                     coalesce(max(bi_id), %(historic_id)s) as max_id 
                 from edi_ediimport ee 
-                where flow_name = 'BbgrRetours'
+                where flow_name = 'BbgrReceptions'
                 union all 
                 select 
                     coalesce(max(bi_id), %(historic_id)s) as max_id 
                 from suppliers_invoices_invoice sii 
                 join suppliers_invoices_invoicedetail sii2 
                 on sii.uuid_identification  = sii2.uuid_invoice 
-                where sii.flow_name = 'BbgrRetours'
+                where sii.flow_name = 'BbgrReceptions'
             ) req
             """
         )
-        cursor.execute(sql_id, {"historic_id": HISTORIC_RETOURS_ID})
+        cursor.execute(sql_id, {"historic_id": HISTORIC_RECEPTIONS_ID})
 
         min_id = cursor.fetchone()[0]
 
@@ -58,20 +58,31 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
             """
             select
                 "id"
-            from heron_bi_factures_monthlydelivery hbfm 
-            where type_article in ('FRAIS_RETOUR', 'DECOTE')
-            and "id" > %(historic_id)s
+            from heron_bi_receptions_bbgr br
+            where "id" > %(historic_id)s
             limit 1
             """
         )
-        cursor.execute(sql_id, {"historic_id": HISTORIC_RETOURS_ID})
+        cursor.execute(sql_id, {"historic_id": HISTORIC_RECEPTIONS_ID})
         test_have_lines = cursor.fetchone()
-        print("vérification BBGR Retours")
+        print("vérification BBGR Réceptions")
 
         if test_have_lines:
-            print("intégration des lignes BBGR Retours")
+            print("intégration des lignes BBGR Réceptions")
             sql_insert_retours = sql.SQL(
                 """
+                with vat as (
+                    select 
+                        rate
+                    from accountancy_vatratsage av 
+                    where vat = '001'
+                    and exists (
+                        select 1 
+                        from accountancy_vatratsage avv 
+                        group by avv.vat 
+                        having max(avv.vat_start_date) = av.vat_start_date and avv.vat = av.vat
+                    )
+                )
                 insert into edi_ediimport 
                 (
                     "uuid_identification",
@@ -83,7 +94,6 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     "code_fournisseur",
                     "code_maison",
                     "maison",
-                    "acuitis_order_number",
                     "delivery_number",
                     "delivery_date",
                     "invoice_number",
@@ -91,7 +101,6 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     "invoice_type",
                     "devise",
                     "reference_article",
-                    "ean_code",
                     "libelle",
                     "famille",
                     "qty",
@@ -112,57 +121,50 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     %(uuid_identification)s as "uuid_identification",
                     now() as "created_at",
                     now() as "modified_at",
-                   'BbgrRetours' as "flow_name",
-                   'BbgrRetours' as "supplier_ident",
+                   'BbgrReceptions' as "flow_name",
+                   'BbgrReceptions' as "supplier_ident",
                    '9524514' as "siret_payeur",
-                   "boutique_bbgr" as "code_fournisseur",
-                   "boutique_acuitis" as "code_maison",
-                   "nom_boutique" as "maison",
-                   "customer_po_number" as "acuitis_order_number",
-                   "livraison" as "delivery_number",
-                   "date_livraison" as "delivery_date",
-                   coalesce(
-                        case when "livraison" = '' then null else "livraison" end,
-                        case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end, 
-                        "id"::varchar
-                    ) as "invoice_number",
-                   "date_mouvement" as "invoice_date",
+                   'CAHA' as "code_fournisseur",
+                   'CAHA' as "code_maison",
+                   'ACUITIS' as "maison",
+                   'BL-'||max(id) as "delivery_number",
+                   date_trunc('month', entered_date) as "delivery_date",
+                   max("id") as "invoice_number",
+                   date_trunc('month', entered_date) as "invoice_date",
                    case 
-                        when "qte_expediee" > 0
+                        when sum("entered_valorise") >= 0 
                         then '380' 
                         else '381' 
                     end as "invoice_type",
                    'EUR' as "devise",
-                   case
-                        when "type_article" = 'FRAIS_RETOUR' then 'F-'||"article"
-                        when "type_article"  = 'DECOTE'
-                            then case 
-                                when left("description", 11) = 'Décote de 1' then 'D1-'||"article"
-                                when left("description", 11) = 'Décote de 2' then 'D2-'||"article"
-                                else 'D3-'||"article"
-                            end    
-                        else "article"
-                   end as "reference_article",
-                   "article" as "ean_code",
-                   "description" as "libelle",
+                   "type_article"||'-'||"famille" as "reference_article",
+                   "type_article"||'-'||"famille" as "libelle",
                    "famille" as "famille",
-                   "qte_expediee" as "qty",
-                   "prix_unitaire" as "gross_unit_price",
-                   "prix_unitaire" as "net_unit_price",
-                   "montant_ht" as "gross_amount",
-                   "montant_ht" as "net_amount",
-                   "taux_tva" as "vat_rate",
-                   "montant_tva" as "vat_amount",
-                   "montant_ttc" as "amount_with_vat",
-                   "statistique" as "axe_pro_supplier",
-                   'BBGR RETOURS' as "supplier_name",
-                   "id" as "bi_id",
-                   1 as "unity",
+                   1 as "qty",
+                   sum("entered_valorise") as "gross_unit_price",
+                   sum("entered_valorise") as "net_unit_price",
+                   sum("entered_valorise") as "gross_amount",
+                   sum("entered_valorise") as "net_amount",
+                   (select rate from vat) as "vat_rate",
+                   round(
+                        ((select rate from vat)::numeric/100) 
+                        * 
+                        sum("entered_valorise")::numeric, 2
+                    )::numeric as "vat_amount",
+                   round(
+                        ((select rate from vat)::numeric/100) 
+                        * 
+                        sum("entered_valorise")::numeric, 2
+                    )::numeric + sum("entered_valorise") as "amount_with_vat",
+                   "type_article" as "axe_pro_supplier",
+                   'BBGR RECEPTIONS' as "supplier_name",
+                   max("id") as "bi_id",
+                   11 as "unity",
                    1 as "invoice_for"
-                from "heron_bi_factures_monthlydelivery"
+                from "heron_bi_receptions_bbgr"
                 where "id" > %(min_id)s
-                and "type_article" in ('FRAIS_RETOUR', 'DECOTE')
-                order by "id"
+                group by "famille", "type_article", date_trunc('month', entered_date) 
+                order by max("id")
                 """
             )
             cursor.execute(
@@ -171,4 +173,4 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
 
 
 if __name__ == "__main__":
-    insert_bbgr_retours_file("3b0183a3-e2f9-4a1a-9c47-aa753c300a1e")
+    insert_bbgr_receptions_file("3b0183a3-e2f9-4a1a-9c47-aa753c300a1e")

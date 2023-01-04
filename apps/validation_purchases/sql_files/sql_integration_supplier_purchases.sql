@@ -47,6 +47,7 @@ where ee.third_party_num = %(third_party_num)s
   and pc."name" = %(big_category)s
   and date_trunc('month', invoice_date)::date = %(invoice_month)s
   and (ee."delete" = false or ee."delete" isnull)
+  and "invoice_for" = 0
 group by supplier,
          pc."name",
          invoice_number,

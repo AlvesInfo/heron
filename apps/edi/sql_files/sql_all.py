@@ -456,6 +456,14 @@ and edi."invoice_number" = edi_fac."invoice_number"
         where edi."id" = maj."id" 
     """
     ),
+    "sql_invoice_for": sql.SQL(
+        """
+        update "edi_ediimport" edi 
+        set "invoice_for" = 0
+        where ("valid" = false or "valid" isnull)
+          and "invoice_for" isnull
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi

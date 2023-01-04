@@ -20,7 +20,6 @@ from apps.book.models import Society, SupplierCct
 
 
 class SocietyForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
 
@@ -76,7 +75,30 @@ class SocietyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["copy_default_address"] = forms.BooleanField(required=False)
+        self.fields["in_use"] = forms.BooleanField(
+            required=False,
+            widget=forms.CheckboxInput,
+        )
+        self.fields["in_use"] = forms.BooleanField(
+            required=False,
+            widget=forms.CheckboxInput,
+        )
+        self.fields["integrable"] = forms.BooleanField(
+            required=False,
+            widget=forms.CheckboxInput,
+        )
+        self.fields["chargeable"] = forms.BooleanField(
+            required=False,
+            widget=forms.CheckboxInput,
+        )
+        self.fields["od_ana"] = forms.BooleanField(
+            required=False,
+            widget=forms.CheckboxInput,
+        )
+        self.fields["copy_default_address"] = forms.BooleanField(
+            required=False,
+            widget=forms.CheckboxInput,
+        )
 
     class Meta:
         model = Society
@@ -124,11 +146,11 @@ class SocietyForm(forms.ModelForm):
             "chargeable",
             "od_ana",
             "stat_axe_pro",
+            "in_use",
         ]
 
 
 class SupplierCctForm(forms.ModelForm):
-
     class Meta:
         model = SupplierCct
         fields = [

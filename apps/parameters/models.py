@@ -212,7 +212,7 @@ class Category(FlagsTable):
 
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
-    slug_name = models.CharField(max_length=120)
+    slug_name = models.CharField(unique=True, max_length=120)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -231,7 +231,8 @@ class Category(FlagsTable):
         FR : Avant la sauvegarde on ajoute slug_name
         EN : Before the backup we add slug_name
         """
-        self.slug_name = slugify(self.name)
+        if not self.slug_name:
+            self.slug_name = slugify(self.name)
 
         super().save(*args, **kwargs)
 
@@ -386,6 +387,12 @@ class BaseInvoiceTable(models.Model):
     EN : Flags Abstract Table Flags
     """
 
+    class ForChoices(models.IntegerChoices):
+        """Frequence choices"""
+
+        FOUR = 0, "Fournisseur"
+        CLI = 1, "Client"
+
     uuid_file = models.UUIDField(null=True)
 
     invoice_number = models.CharField(max_length=35)
@@ -405,6 +412,11 @@ class BaseInvoiceTable(models.Model):
     )
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
+    )
+    invoice_for = models.IntegerField(
+        choices=ForChoices.choices,
+        default=ForChoices.FOUR,
+        verbose_name="type de facture",
     )
 
     class Meta:
@@ -534,7 +546,6 @@ class BaseInvoiceDetailsTable(models.Model):
     amount_with_vat = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
-
 
     # Sage
     axe_bu = models.ForeignKey(

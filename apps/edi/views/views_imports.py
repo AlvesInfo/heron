@@ -1,3 +1,16 @@
+# pylint: disable=
+"""
+FR : Module des vues pour les imports
+EN : Views module for imports
+
+Commentaire:
+
+created at: 2022-12-26
+created by: Paulo ALVES
+
+modified at: 2022-12-26
+modified by: Paulo ALVES
+"""
 from django.shortcuts import render
 from django.contrib import messages
 

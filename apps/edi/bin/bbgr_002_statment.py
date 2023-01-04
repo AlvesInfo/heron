@@ -5,10 +5,10 @@ EN : BBGR Statement file generation module
 
 Commentaire:
 
-created at: 2022-04-10
+created at: 2022-12-10
 created by: Paulo ALVES
 
-modified at: 2022-04-10
+modified at: 2022-12-10
 modified by: Paulo ALVES
 """
 from uuid import UUID
@@ -19,16 +19,18 @@ from django.db import connection, transaction
 # from apps.core.functions.functions_setups import settings
 
 
+HISTORIC_STATMENT_ID = 1947055
+
+
 @transaction.atomic
 def insert_bbgr_stament_file(uuid_identification: UUID):
-    """Génération du ficfier csv du statment
+    """Intégration des lignes de la table des Statment
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
 
     with connection.cursor() as cursor:
         # ID Minimum pour le premier import
-        historic_id = 1947055
         sql_id = sql.SQL(
             """
             select 
@@ -48,7 +50,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
             ) req
             """
         )
-        cursor.execute(sql_id, {"historic_id": historic_id})
+        cursor.execute(sql_id, {"historic_id": HISTORIC_STATMENT_ID})
 
         min_id = cursor.fetchone()[0]
 
@@ -62,7 +64,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
             limit 1
             """
         )
-        cursor.execute(sql_id, {"historic_id": historic_id})
+        cursor.execute(sql_id, {"historic_id": HISTORIC_STATMENT_ID})
         test_have_lines = cursor.fetchone()
         print("vérification BBGR statment")
 
@@ -103,7 +105,8 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                     "axe_pro_supplier",
                     "supplier_name",
                     "bi_id",
-                    "unity"
+                    "unity",
+                    "invoice_for"
                 )
                 select
                     %(uuid_identification)s as "uuid_identification",
@@ -145,7 +148,8 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                    "statistique" as "axe_pro_supplier",
                    'BBGR STATMENT' as "supplier_name",
                    "id" as "bi_id",
-                   1 as "unity"
+                   1 as "unity",
+                   0 as "invoice_for"
                 from "heron_bi_factures_billstatement"
                 where "id" > %(min_id)s
                 order by "id"

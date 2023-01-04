@@ -25,6 +25,7 @@ with families as (
 	on (edi."axe_pro_uuid" = ac."uuid_identification")
 	where not (edi."delete" AND edi."delete" IS NOT NULL)
 	and edi.invoice_month >= (date_trunc('month', now())- interval '3 month')::date
+	and "invoice_for" = 0
 
 	union all
 
@@ -55,6 +56,7 @@ with families as (
     left join "accountancy_sectionsage" ac
 	ON (siid."axe_pro_uuid" = ac."uuid_identification")
 	and sii.invoice_month >= (date_trunc('month', now())- interval '3 month')::date
+	and "invoice_for" = 0
 )
 select
 	fm."third_party_num",

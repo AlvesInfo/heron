@@ -36,7 +36,7 @@ class SocietiesList(ListView):
     model = Society
     context_object_name = "societies"
     template_name = "book/societies_list.html"
-    extra_context = {"titre_table": "Tiers X3"}
+    extra_context = {"titre_table": "Tiers X3", "in_use": "alls"}
     queryset = Society.objects.filter(Q(is_client=True) | Q(is_supplier=True)).values(
         "third_party_num",
         "pk",
@@ -58,6 +58,7 @@ class SocietiesInUseList(ListView):
     template_name = "book/societies_list.html"
     extra_context = {
         "titre_table": "Tiers X3",
+        "in_use": "in_use",
         "nb_paging": 50,
     }
     queryset = (
@@ -84,14 +85,21 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     template_name = "book/society_update.html"
     success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
     error_message = "Le Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
+    extra_context = {}
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context_dict = super().get_context_data(**kwargs)
+        pk = self.kwargs.get("pk")
+        in_use = self.kwargs.get("in_use")
         context = {
             **context_dict,
             **{
-                "chevron_retour": reverse("book:societies_list"),
+                "chevron_retour": (
+                    reverse("book:societies_list")
+                    if in_use == "alls"
+                    else reverse("book:societies_list_in_use")
+                ),
                 "titre_table": (
                     f"Mise à jour du Tiers : "
                     f"{context_dict.get('object').third_party_num} - "
@@ -106,21 +114,32 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                 "third_party_num": context_dict.get("object").third_party_num,
                 "pk": context_dict.get("object").pk,
                 "url_retour_supplier_cct": set_base_64_str(
-                    reverse("book:society_update", args=[context_dict.get("object").pk])
+                    reverse("book:society_update", args=[pk, in_use])
                 ),
             },
         }
         return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        in_use = self.kwargs.get("in_use")
+        return (
+                    reverse("book:societies_list")
+                    if in_use == "alls"
+                    else reverse("book:societies_list_in_use")
+                )
 
     def form_valid(self, form, **kwargs):
         """
         On surcharge la méthode form_valid, pour ajouter les données, à la vollée,
         de l'adresse par défaut si la checkbox adresse_principale_sage est à true.
         """
+        print(self.request.POST)
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         copy_default_address = form.cleaned_data.get("copy_default_address")
-
+        print(form.initial)
+        print(form.cleaned_data)
         if copy_default_address:
             adress = self.get_context_data().get("adresse_principale_sage")
             if adress:
@@ -133,7 +152,7 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                 self.object.mobile = adress.mobile_number
                 self.object.email = adress.email_01
                 self.object.save()
-
+        form.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -229,7 +248,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                     # Mise à jour du champ cct_uuid_identification dans edi_import quand il est null
                     update_edi_import_cct_uui_identifiaction()
 
-            elif formset.errors:
+            else:
                 messages.add_message(
                     request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
                 )

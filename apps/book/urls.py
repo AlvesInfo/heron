@@ -14,7 +14,7 @@ app_name = "apps.book"
 urlpatterns = [
     path("societies_list/", SocietiesList.as_view(), name="societies_list"),
     path("societies_list_in_use/", SocietiesInUseList.as_view(), name="societies_list_in_use"),
-    path("society_update/<int:pk>/", SocietyUpdate.as_view(), name="society_update"),
+    path("society_update/<int:pk>/<str:in_use>/", SocietyUpdate.as_view(), name="society_update"),
     path(
         "update_supplier_cct_identifier/<str:third_party_num>/<str:url_retour_supplier_cct>/",
         supplier_cct_identifier,

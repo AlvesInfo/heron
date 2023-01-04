@@ -48,6 +48,7 @@ from apps.edi.parameters.invoices_imports import get_columns, get_first_line, ge
 from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
 from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
 from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
+from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
 from apps.edi.forms.forms_djantic.forms_invoices import (
     BbgrBulkSchema,
     EdiSchema,
@@ -448,7 +449,7 @@ def bbgr_monthly():
 
 def bbgr_retours():
     """
-    Insertion depuis B.I des factures BBGR Monthly
+    Insertion depuis B.I des factures Monthly Retours
     """
     trace_name = "Import BBGR Retours"
     application_name = "edi_imports_imports_suppliers_incoices"
@@ -467,6 +468,43 @@ def bbgr_retours():
     error = False
     try:
         insert_bbgr_retours_file(uuid_identification=trace.uuid_identification)
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    to_print = f"Import : {flow_name}\n"
+
+    bbgr_retours_post_insert(trace.uuid_identification)
+
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.final_at = timezone.now()
+    trace.save()
+
+    return trace, to_print
+
+
+def bbgr_receptions():
+    """
+    Insertion depuis B.I des factures BBGR Monthly
+    """
+    trace_name = "Import BBGR Receptions"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "BbgrReceptions"
+    comment = ""
+    trace = get_trace(
+        trace_name,
+        "insert into (...) selec ... from heron_bi_receptions_bbgr ",
+        application_name,
+        flow_name,
+        comment,
+    )
+    error = False
+    try:
+        insert_bbgr_receptions_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
         error = True
         EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")

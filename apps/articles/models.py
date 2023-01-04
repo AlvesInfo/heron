@@ -81,9 +81,9 @@ class Article(FlagsTable):
         db_column="budget_code",
     )
     famille_supplier = models.CharField(null=True, blank=True, max_length=35)
-    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
+    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=35)
     famille_acuitis = models.CharField(null=True, blank=True, max_length=35)
-    axe_pro_acuitis = models.CharField(null=True, blank=True, max_length=10)
+    axe_pro_acuitis = models.CharField(null=True, blank=True, max_length=35)
     axe_bu = models.ForeignKey(
         SectionSage,
         null=True,
@@ -149,7 +149,7 @@ class Article(FlagsTable):
     )
     packaging_qty = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     customs_code = models.CharField(null=True, blank=True, max_length=35)
-    catalog_price = models.CharField(null=True, blank=True, max_length=35)
+    catalog_price = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     comment = models.TextField(null=True, blank=True)
     new_article = models.BooleanField(null=True, default=False)
 

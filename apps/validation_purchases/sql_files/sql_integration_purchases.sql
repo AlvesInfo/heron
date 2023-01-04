@@ -31,7 +31,7 @@ select
         || 'false' ||
         '"}'
     ) as str_json,
-    case when min(cct_error) = 0 then true else false end as cct_error
+    case when min(cct_error) = 0 then 1 else 0 end as cct_error
 from (
     select
         pc."name" as big_category,
@@ -55,6 +55,7 @@ from (
     left join edi_ediimportcontrol ec
     on ee.uuid_control = ec.uuid_identification
     where (ee."delete" = false or ee."delete" isnull)
+      and "invoice_for" = 0
     group by supplier,
              pc."name",
              invoice_number,

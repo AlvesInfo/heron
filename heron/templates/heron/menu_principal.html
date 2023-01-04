@@ -20,37 +20,42 @@
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#h" id="hmenu">
+            <a class="browse item bold" data-target="#b" id="bmenu">
                 Imports
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#b" id="bmenu">
+            <a class="browse item bold" data-target="#c" id="cmenu">
                 Articles
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#c" id="cmenu">
-                Saisies
-                <i class="dropdown icon"></i>
-            </a>
-
             <a class="browse item bold" data-target="#d" id="dmenu">
-                Contôles Achats
+                Factures
                 <i class="dropdown icon"></i>
             </a>
 
             <a class="browse item bold" data-target="#e" id="emenu">
-                Contôles Ventes
+                Saisies
                 <i class="dropdown icon"></i>
             </a>
 
             <a class="browse item bold" data-target="#f" id="fmenu">
-                Contôles Sage
+                Contôles Achats
                 <i class="dropdown icon"></i>
             </a>
 
             <a class="browse item bold" data-target="#g" id="gmenu">
+                Contôles Ventes
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#h" id="hmenu">
+                Contôles Sage
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#i" id="imenu">
                 Logs / Traces
                 <i class="dropdown icon"></i>
             </a>
@@ -115,22 +120,22 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="h">
+            <div class="ui popup" id="b">
                 <div class="ui two column relaxed divided grid" style="width: 24em;">
 
                     <div class="column">
                         <div class="ui link list">
                             <a href="{% url 'edi:import_edi_invoices' %}" class="item">0. Factures EDI</a>
-                            <a href="/" class="item">1. Marchandises</a>
-                            <a href="/" class="item">2. RFA</a>
-                            <a href="/" class="item">3. Redevances</a>
-                            <a href="/" class="item">4. Publicité</a>
-                            <a href="/" class="item">5. Formations</a>
-                            <a href="/" class="item">6. Personnel</a>
-                            <a href="/" class="item">7. Matériel</a>
-                            <a href="/" class="item">8. Prestations</a>
-                            <a href="/" class="item">9. Abonnements</a>
-                            <a href="/" class="item">10. Divers</a>
+{#                            <a href="/" class="item">1. Marchandises</a>#}
+{#                            <a href="/" class="item">2. RFA</a>#}
+{#                            <a href="/" class="item">3. Redevances</a>#}
+{#                            <a href="/" class="item">4. Publicité</a>#}
+{#                            <a href="/" class="item">5. Formations</a>#}
+{#                            <a href="/" class="item">6. Personnel</a>#}
+{#                            <a href="/" class="item">7. Matériel</a>#}
+{#                            <a href="/" class="item">8. Prestations</a>#}
+{#                            <a href="/" class="item">9. Abonnements</a>#}
+{#                            <a href="/" class="item">10. Divers</a>#}
                         </div>
 
                     </div>
@@ -138,10 +143,13 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="b">
+            <div class="ui popup" id="c">
                 <div class="ui two column relaxed divided grid" style="width: 24em;">
 
                     <div class="column">
+                        <div class="ui link list">
+                            <a href="/" class="item">0. Recherches</a>
+                        </div>
                         <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='marchandises' %}" class="item">1. Marchandises</a>
                         </div>
@@ -177,7 +185,23 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="c">
+            <div class="ui popup" id="d">
+                <div class="ui two column relaxed divided grid" style="width: 24em;">
+
+                    <div class="column">
+                        <div class="ui link list">
+                            <a href="/" class="item">1. Achats</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="/" class="item">2. Ventes</a>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ui popup" id="e">
                 <div class="ui five column relaxed equal divided grid" style="width: 70em;">
 
 {#              1. Marchandises #}
@@ -190,91 +214,91 @@
                     </div>
 
 {#              2. RFA #}
-                    <div class="column">
-                        <h4 class="ui header">2. RFA</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">2. RFA</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              3.Redevance #}
-                    <div class="column">
-                        <h4 class="ui header">3. Redevances</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Génération</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">3. Redevances</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Génération</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              4. Publicité #}
-                    <div class="column">
-                        <h4 class="ui header">4. Publicité</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Génération</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">4. Publicité</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Génération</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              5. Formations#}
-                    <div class="column">
-                        <h4 class="ui header">5. Formations</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">5. Formations</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              6. Personnel#}
-                    <div class="column">
-                        <h4 class="ui header">6. Personnel</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">6. Personnel</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              7. Matériel#}
-                    <div class="column">
-                        <h4 class="ui header">7. Matériel</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">7. Matériel</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              8. Prestations #}
-                    <div class="column">
-                        <h4 class="ui header">8. Prestations</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">8. Prestations</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              9. Abonnements#}
-                    <div class="column">
-                        <h4 class="ui header">9. Abonnements</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
-
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">9. Abonnements</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
 {#              10. Divers#}
-                    <div class="column">
-                        <h4 class="ui header">11. Divers</h4>
-                        <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
-                            <a href="" class="item">Visualisation</a>
-                        </div>
-                    </div>
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">10. Divers</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="" class="item">Saisie</a>#}
+{#                            <a href="" class="item">Visualisation</a>#}
+{#                        </div>#}
+{#                    </div>#}
 
 
                 </div>
             </div>
 
-            <div class="ui popup" id="d">
+            <div class="ui popup" id="f">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
@@ -293,7 +317,7 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="e">
+            <div class="ui popup" id="g">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
@@ -307,7 +331,7 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="f">
+            <div class="ui popup" id="h">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
                     <div class="column">
                         <h4 class="ui header">Sage</h4>
@@ -322,7 +346,7 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="g">
+            <div class="ui popup" id="i">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
