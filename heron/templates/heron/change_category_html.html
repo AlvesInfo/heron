@@ -1,29 +1,28 @@
-{# Fenêtre modale pour changer les code maison ========================================== #}
-<form id="cctFormChange" action="" method="post">
+{# Fenêtre modale pour changer les grandes catégories des founisseurs =========================== #}
+<form id="categoryFormChange" action="" method="post">
     {% csrf_token %}
-    <div id="modalCct" class="ui large modal transition" style="display: none;">
+    <div id="modalCategory" class="ui large modal transition" style="display: none;">
         <i class="close icon"></i>
         <div class="header">
-          CHANGEMENT DE CCT
+          CHANGEMENT DE GRANDE CATEGORIE
         </div>
         <div class="content">
           <div class="ui form">
             <h4 id="headerTiers" class="ui dividing header"></h4>
               <div class="fields">
                     <div class="one wide field" style="display: none;">
-                        {{ form.id }}
-                        {{ form.uuid_identification }}
-                        {{ form.third_party_num }}
-                        {{ form.invoice_number }}
-                        {{ form.invoice_year }}
+                        <input type="text" name="big_category" maxlength="15" required id="big_category">
+                        <input type="text" name="third_party_num" maxlength="15" required id="id_third_party_num">
+                        <input type="text" name="invoice_month" id="id_invoice_month">
+                        <input type="text" name="uuid_origin" id="id_uuid_origin">
                     </div>
                     <div class="fourteen wide field">
-                        <label for="id_cct"
-                               style="text-align: left;">CCT X3</label>
-                        <select id="id_cct"
-                                name="cct"
+                        <label for="id_big_category_default"
+                               style="text-align: left;">Sélectionnez la nouvelle Grande Catégorie :</label>
+                        <select id="id_big_category_default"
+                                name="big_category_default"
                                 class="ui fluid search dropdown">
-                            {% for value, label in form.cct_choices %}
+                            {% for value, label in form.big_category_choices %}
                                 <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
                             {% endfor %}
                         </select>

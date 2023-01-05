@@ -28,6 +28,7 @@
                         {% include "data_flux/data_flux_trace.html" %}
                     </div>
                 </div>
+                {% include "heron/change_category_html.html" %}
             {% endif %}
 
     {% else %}
@@ -51,6 +52,7 @@
 
         $(document).ready(function () {
             {% include "heron/base_data_table.html" %}
+            {% include "heron/change_category_js.html" %}
 
             $('.menu .item').tab();
 

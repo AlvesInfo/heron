@@ -4,6 +4,7 @@ from apps.validation_purchases.views import (
     integration_purchases,
     delete_supplier_edi_import,
     integration_purchases_export,
+    big_category_change,
     CreateIntegrationControl,
     UpdateIntegrationControl,
     integration_supplier_purchases,
@@ -65,6 +66,11 @@ urlpatterns = [
             "integration_purchases_export/",
             integration_purchases_export,
             name="integration_purchases_export",
+        ),
+        path(
+            "big_category_change/",
+            big_category_change,
+            name="big_category_change",
         ),
         # Listing
         path(

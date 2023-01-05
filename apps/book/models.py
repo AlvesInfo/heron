@@ -22,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from heron.models import FlagsTable
 from apps.accountancy.models import CategorySage, PaymentCondition, SupplierArticleAxePro, CctSage
 from apps.countries.models import Country
+from apps.parameters.models import Category
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
@@ -268,6 +269,15 @@ class Society(FlagsTable):
         verbose_name="taux de remboursement rfa",
     )
     in_use = models.BooleanField(null=True, default=False, verbose_name="utilisé")
+    big_category_default = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="big_category_definition",
+        db_column="uuid_big_category",
+        verbose_name="grande catégorie par défaut"
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

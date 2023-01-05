@@ -18,7 +18,7 @@ from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
-
+from apps.validation_purchases.forms.forms_django import ChangeBigCategoryForm
 from apps.edi.models import EdiImport
 from apps.edi.forms import (
     DeleteEdiForm,
@@ -45,13 +45,14 @@ def integration_purchases(request):
         context = {
             "titre_table": "2.1 - Contrôle des Intégrations - Achats",
             "integration_purchases": elements,
-            "margin_table": 10,
-            "nb_paging": 100,
             "nature": "les factures du fournisseur",
             "addition": True,
             "traces": Trace.objects.filter(
                 modified_at__gte=pendulum.now().start_of("month"),
             ).exclude(file_name__istartswith="ZBI"),
+            "form": ChangeBigCategoryForm(),
+            "margin_table": 10,
+            "nb_paging": 100,
         }
 
     if get_in_progress():

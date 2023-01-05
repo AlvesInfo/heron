@@ -59,7 +59,10 @@
                             <i class="eye icon modification"></i>
                         </a>
                     </td>
-                    <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.big_category }}</td>
+                    <td class="category"
+                        data-value="{{ supplier_purchase.uuid_category }}|{{ supplier_purchase.big_category }}|{{ supplier_purchase.third_party_num }}|{{ supplier_purchase.invoice_month.isoformat }}"
+                        data-category="{{ supplier_purchase.uuid_category }}"
+                        style="background-color: {% if supplier_purchase.error %}lightpink{% else %}lavender{% endif %};">{{ supplier_purchase.big_category }}</td>
                     <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: lightpink;color: lightpink;{% else %}color: white;{% endif %};">{{ supplier_purchase.cct_error }}</td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
                     <td style="text-align: left;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.supplier }}</td>

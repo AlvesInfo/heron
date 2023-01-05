@@ -56,7 +56,6 @@ class Article(FlagsTable):
         Category,
         on_delete=models.PROTECT,
         null=True,
-        blank=True,
         to_field="uuid_identification",
         related_name="big_category_category",
         db_column="uuid_big_category",

@@ -8,3 +8,4 @@ from apps.validation_purchases.views.views_etape_5_1 import *
 from apps.validation_purchases.views.views_etape_5_5 import *
 from apps.validation_purchases.views.views_etape_rfa import *
 from apps.validation_purchases.views.views_cct_change import *
+from apps.validation_purchases.views.view_big_category_change import *

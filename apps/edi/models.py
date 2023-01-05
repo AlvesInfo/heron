@@ -120,7 +120,6 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         Category,
         on_delete=models.PROTECT,
         null=True,
-        blank=True,
         to_field="uuid_identification",
         related_name="big_category_edi_import",
         db_column="uuid_big_category",

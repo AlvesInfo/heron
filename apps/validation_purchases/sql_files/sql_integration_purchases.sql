@@ -31,7 +31,8 @@ select
         || 'false' ||
         '"}'
     ) as str_json,
-    case when min(cct_error) = 0 then 1 else 0 end as cct_error
+    case when min(cct_error) = 0 then 1 else 0 end as cct_error,
+    uuid_category
 from (
     select
         pc."name" as big_category,
@@ -48,7 +49,8 @@ from (
         ec."comment",
         ec.uuid_identification,
         ec."id" as pk,
-        case when ee.cct_uuid_identification is null then 0 else 1 end as cct_error
+        case when ee.cct_uuid_identification is null then 0 else 1 end as cct_error,
+        pc.uuid_identification as uuid_category
     from edi_ediimport ee
     left join parameters_category pc
     on ee.uuid_big_category = pc.uuid_identification
@@ -69,7 +71,8 @@ from (
         	 ec."comment",
              ec.uuid_identification,
              ec."id",
-        	 ee.cct_uuid_identification
+        	 ee.cct_uuid_identification,
+             pc.uuid_identification
     ) edi
 group by big_category,
          supplier,
@@ -79,7 +82,8 @@ group by big_category,
          statement_with_tax,
          "comment",
          uuid_identification,
-         pk
+         pk,
+         uuid_category
 order by big_category,
          third_party_num,
          supplier,
