@@ -1,0 +1,88 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+
+            {% include "validation_sales/integration_sales_entete.html" %}
+
+            {% if not en_cours %}
+                <div class="ui segment" style="padding: 5px;margin: 20px 10px;">
+                    <div class="ui top attached tabular menu">
+                      <a class="active item" data-tab="integration">Intégrations/Relevés</a>
+                      <a class="item" data-tab="trace">Trace des Imports</a>
+                    </div>
+                    <div class="ui bottom attached active tab segment"
+                         data-tab="integration"
+                         style="padding: 5px 0 10px 0;">
+                        {% include "validation_sales/integration_sales_table.html" %}
+                    </div>
+                    <div class="ui bottom attached tab segment" data-tab="trace">
+                        {% include "data_flux/data_flux_trace.html" %}
+                    </div>
+                </div>
+                {% include "heron/change_category_html.html" %}
+            {% endif %}
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+            {% include "heron/base_data_table.html" %}
+            {% include "heron/change_category_js.html" %}
+
+            $('.menu .item').tab();
+
+            makeAddition()
+
+            $('.ui.error.checkbox')
+              .checkbox()
+              .first().checkbox({
+                onChecked: function() {
+                  $('.ui.segment.success').hide();
+                },
+                onUnchecked: function() {
+                  $('.ui.segment.success').show();
+                },
+            });
+
+            {% if en_cours %}
+                setTimeout(function() {
+                        window.location.reload()
+                    },
+                    30000
+                )
+            {% endif %}
+
+            {% if not integration_purchases %}
+                $(`.datatable-chargement`).hide();
+            {% endif %}
+
+        });
+
+    </script>
+
+{% endblock script %}

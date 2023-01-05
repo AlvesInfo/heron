@@ -1,6 +1,7 @@
 from django.urls import path
 
-from apps.validation_sales.views import (
+from .views import (
+    integration_sales,
     # MENU CONTROLES VENTES
     compare_turnover_sales,
     compare_turnover_sales_export,
@@ -26,6 +27,12 @@ app_name = "apps.validation_sales"
 urlpatterns = [
     # MENU CONTROLES VENTES
     *[
+        # Intégration
+        path(
+            "integration_sales/",
+            integration_sales,
+            name="integration_sales",
+        ),
         # Ventes vs CA
         path(
             "compare_turnover_sales/",

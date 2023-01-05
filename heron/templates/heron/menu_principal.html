@@ -151,31 +151,31 @@
                             <a href="/" class="item">0. Recherches</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='marchandises' %}" class="item">1. Marchandises</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='marchandises' %}" class="item">01. Marchandises</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='rfa' %}" class="item">2. RFA</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='rfa' %}" class="item">02. RFA</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='redevances' %}" class="item">3. Redevances</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='redevances' %}" class="item">03. Redevances</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='redevances-de-publicite' %}" class="item">4. Publicité</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='redevances-de-publicite' %}" class="item">04. Publicité</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='formation' %}" class="item">5. Formations</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='formation' %}" class="item">05. Formations</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='personnel' %}" class="item">6. Personnel</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='personnel' %}" class="item">06. Personnel</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='materiel' %}" class="item">7. Matériel</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='materiel' %}" class="item">07. Matériel</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='prestation' %}" class="item">8. Prestations</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='prestation' %}" class="item">08. Prestations</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:suppliers_articles_list' category='abonnements' %}" class="item">9. Abonnements</a>
+                            <a href="{% url 'articles:suppliers_articles_list' category='abonnements' %}" class="item">09. Abonnements</a>
                         </div>
                         <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">10. Divers</a>
@@ -190,10 +190,10 @@
 
                     <div class="column">
                         <div class="ui link list">
-                            <a href="/" class="item">1. Achats</a>
+                            <a href="/" class="item">01. Achats</a>
                         </div>
                         <div class="ui link list">
-                            <a href="/" class="item">2. Ventes</a>
+                            <a href="/" class="item">02. Ventes</a>
                         </div>
 
                     </div>
@@ -206,7 +206,7 @@
 
 {#              1. Marchandises #}
                     <div class="column">
-                        <h4 class="ui header">1. Marchandises</h4>
+                        <h4 class="ui header">01. Marchandises</h4>
                         <div class="ui link list">
                             <a href="" class="item">Saisie</a>
                             <a href="" class="item">Visualisation</a>
@@ -323,6 +323,7 @@
                     <div class="column">
                         <h4 class="ui header">Ventes</h4>
                         <div class="ui link list">
+                            <a href="{% url 'validation_sales:integration_sales' %}" class="item">2.1 &nbsp;&nbsp;&nbsp;&nbsp;Intégrations</a>
                             <a href="{% url 'validation_sales:compare_turnover_sales' %}" class="item">Ventes vs CA</a>
                             <a href="{% url 'validation_sales:controls_cct_sales' %}" class="item">Ventes par CCT</a>
                         </div>

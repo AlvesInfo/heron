@@ -29,7 +29,7 @@ post_technidis_dict = {
         update "edi_ediimport" "ei"
            set "invoice_type" = "gt"."invoice_type",
                 "purchase_invoice" = true,
-                "client_invoice" = true
+                "sale_invoice" = true
           from "group_technidis" "gt"
          where "ei"."uuid_identification" = "gt"."uuid_identification"
            and "ei"."invoice_number" = "gt"."invoice_number"

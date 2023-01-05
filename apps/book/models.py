@@ -272,6 +272,7 @@ class Society(FlagsTable):
     big_category_default = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
+        blank=True,
         null=True,
         to_field="uuid_identification",
         related_name="big_category_definition",

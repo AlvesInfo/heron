@@ -23,7 +23,7 @@ post_hearing_dict = {
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "net_amount" = round("net_amount"::numeric, 2)::numeric,
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

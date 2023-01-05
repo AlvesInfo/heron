@@ -23,7 +23,7 @@ post_newson_dict = {
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "famille" = left("reference_article", 2),
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

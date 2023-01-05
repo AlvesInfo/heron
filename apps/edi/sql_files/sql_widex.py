@@ -39,7 +39,7 @@ post_widex_dict = {
             )::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

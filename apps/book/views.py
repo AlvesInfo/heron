@@ -134,12 +134,10 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         On surcharge la méthode form_valid, pour ajouter les données, à la vollée,
         de l'adresse par défaut si la checkbox adresse_principale_sage est à true.
         """
-        print(self.request.POST)
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         copy_default_address = form.cleaned_data.get("copy_default_address")
-        print(form.initial)
-        print(form.cleaned_data)
+
         if copy_default_address:
             adress = self.get_context_data().get("adresse_principale_sage")
             if adress:
@@ -152,6 +150,7 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                 self.object.mobile = adress.mobile_number
                 self.object.email = adress.email_01
                 self.object.save()
+
         form.save()
         return super().form_valid(form)
 

@@ -25,7 +25,7 @@ post_eye_dict = {
             "vat_amount" = 0,
             "amount_with_vat" = "net_amount"::numeric,
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

@@ -22,7 +22,11 @@ def add_news_cct_sage(third_party_num: str = None):
     :return: None
     """
     with connection.cursor() as cursor:
-        condition = 'and "third_party_num" = %(third_party_num)s' if third_party_num else ""
+        condition = (
+            'and "third_party_num" = %(third_party_num)s'
+            if third_party_num
+            else 'and "third_party_num" is not null'
+        )
         sql_to_create = sql.SQL(
             f"""
             with "suppliers" as (

@@ -81,7 +81,7 @@ post_edi_dict = {
                                     else "reference_article"
                                   end,
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

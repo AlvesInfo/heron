@@ -219,7 +219,7 @@ class Category(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.ranking} - {self.name}"
+        return f"{self.ranking:02d} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
@@ -412,7 +412,7 @@ class BaseInvoiceTable(models.Model):
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
-    client_invoice = models.BooleanField(null=True, default=False)
+    sale_invoice = models.BooleanField(null=True, default=False)
 
     class Meta:
         """class Meta du modèle django"""

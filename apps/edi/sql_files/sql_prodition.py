@@ -25,7 +25,7 @@ post_prodition_dict = {
                             else "libelle" 
                         end,
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

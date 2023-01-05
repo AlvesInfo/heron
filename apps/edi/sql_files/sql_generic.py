@@ -20,7 +20,7 @@ post_generic_dict = {
         set 
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "purchase_invoice" = true,
-            "client_invoice" = true
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
