@@ -129,7 +129,7 @@ def import_maisons_bi():
                         }
                     )
 
-        print(i, "masions importées ou mises à jour")
+        print(i, "maisons importées ou mises à jour")
 
 
 if __name__ == "__main__":
