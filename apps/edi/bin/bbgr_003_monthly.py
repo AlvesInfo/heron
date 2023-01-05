@@ -106,7 +106,8 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                     "supplier_name",
                     "bi_id",
                      "unity",
-                     "invoice_for"
+                     "purchase_invoice",
+                     "client_invoice"
                 )
                 select
                     %(uuid_identification)s as "uuid_identification",
@@ -149,7 +150,8 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                    'BBGR MONTHLY' as "supplier_name",
                    "id" as "bi_id",
                    1 as "unity",
-                   1 as "invoice_for"
+                   false as "purchase_invoice",
+                   true as "client_invoice"
                 from "heron_bi_factures_monthlydelivery"
                 where "id" > %(min_id)s
                 and "type_article" not in ('FRAIS_RETOUR', 'DECOTE')

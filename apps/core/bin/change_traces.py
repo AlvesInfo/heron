@@ -11,6 +11,7 @@ modified by:
 """
 import inspect
 from copy import deepcopy
+from typing import AnyStr
 
 from django import forms
 from django.forms import model_to_dict
@@ -27,6 +28,20 @@ ACTION_DICT = {
     "UPDATE": 2,
     "UNDIFINED": 9,
 }
+
+
+def get_bool_or_str(value: AnyStr):
+    """Retourne le bolléen de postgresql ou la valeur
+    :param value: 'false' ou 'true'
+    :return: bool
+    """
+    if value == 'false':
+        return False
+
+    if value == 'true':
+        return True
+
+    return value
 
 
 def get_difference_dict(before, after):
@@ -60,8 +75,8 @@ class ChangeTraceMixin:
 
     def initialisation(self, object_model, mark_delete: bool = None):
         """Surcharge pour l'instanciation quand cette class mixin, est utilisée directement.
-        :param object_model: surcharge de l'attribut, lors d'une instanciation
-        :param mark_delete: surcharge de l'attribut, lors d'une instanciation
+        :param object_model: Surcharge de l'attribut, lors d'une instanciation
+        :param mark_delete: Surcharge de l'attribut, lors d'une instanciation
         """
         self.object = object_model
         self.mark_delete = mark_delete
@@ -329,6 +344,45 @@ def trace_form_change(
         model_name=model._meta.model_name,
         model=model,
         db_table=model._meta.db_table,
+    )
+    request.session["level"] = 20
+
+
+def trace_bulk_change(
+    request, django_model: models.Model, form: forms, changed_data_dict: dict, elements_change: ()
+):
+    """Fonction trace des changements de données, pour views functions flag delete à True
+    :param request: request au sens Django
+    :param django_model: Model au sens Django
+    :param form: Formulaire de validation
+    :param changed_data_dict: dictionnaire de données validées
+    :param elements_change: éléments qui changent
+    """
+    function_call = str(inspect.currentframe().f_back)[:255]
+    user = request.user
+    action_datetime = timezone.now()
+    before_form = {
+        key: value for key, value in form.cleaned_data.items() if key not in elements_change
+    }
+    before = {key: value for key, value in changed_data_dict.items() if key not in elements_change}
+    after = {key: value for key, value in changed_data_dict.items()}
+    to_change = {
+        **{key: value for key, value in changed_data_dict.items() if key in elements_change},
+        **{"modified_by": user},
+    }
+    django_model.objects.filter(**before_form).update(**to_change)
+
+    ChangesTrace.objects.create(
+        action_datetime=action_datetime,
+        action_type=0,
+        function_name=function_call,
+        action_by=user,
+        before=before,
+        after=after,
+        difference=get_difference_dict(before, after),
+        model_name=django_model._meta.model_name,
+        model=django_model,
+        db_table=django_model._meta.db_table,
     )
     request.session["level"] = 20
 

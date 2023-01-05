@@ -413,11 +413,8 @@ class BaseInvoiceTable(models.Model):
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
     )
-    invoice_for = models.IntegerField(
-        choices=ForChoices.choices,
-        default=ForChoices.FOUR,
-        verbose_name="type de facture",
-    )
+    purchase_invoice = models.BooleanField(null=True, default=False)
+    client_invoice = models.BooleanField(null=True, default=False)
 
     class Meta:
         """class Meta du modèle django"""

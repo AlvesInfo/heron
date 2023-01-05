@@ -106,7 +106,8 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                     "supplier_name",
                     "bi_id",
                     "unity",
-                    "invoice_for"
+                    "purchase_invoice",
+                    "client_invoice"
                 )
                 select
                     %(uuid_identification)s as "uuid_identification",
@@ -149,7 +150,8 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                    'BBGR STATMENT' as "supplier_name",
                    "id" as "bi_id",
                    1 as "unity",
-                   0 as "invoice_for"
+                   true as "purchase_invoice",
+                   false as "client_invoice"
                 from "heron_bi_factures_billstatement"
                 where "id" > %(min_id)s
                 order by "id"

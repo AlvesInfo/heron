@@ -79,7 +79,9 @@ post_edi_dict = {
                                     when "reference_article" isnull or "reference_article" = '' 
                                     then "ean_code"
                                     else "reference_article"
-                                  end
+                                  end,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

@@ -72,7 +72,6 @@ def post_processing_all():
     sql_cct = post_all_dict.get("sql_cct")
     sql_edi_generique = post_all_dict.get("sql_edi_generique")
     sql_update_articles = post_all_dict.get("sql_update_articles")
-    sql_invoice_for = post_all_dict.get("sql_invoice_for")
     sql_validate = post_all_dict.get("sql_validate")
     sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
 
@@ -86,7 +85,6 @@ def post_processing_all():
         cursor.execute(sql_cct)
         cursor.execute(sql_edi_generique)
         cursor.execute(sql_update_articles)
-        cursor.execute(sql_invoice_for)
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()
         )

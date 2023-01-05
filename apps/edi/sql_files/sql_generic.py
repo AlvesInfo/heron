@@ -18,7 +18,9 @@ post_generic_dict = {
         """
         update "edi_ediimport"
         set 
-            "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end
+            "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

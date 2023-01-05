@@ -21,7 +21,9 @@ post_johnson_dict = {
             "invoice_type" = case when "qty" >= 0 then '380' else '381' end,
             "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-            "gross_amount" = "net_amount"::numeric
+            "gross_amount" = "net_amount"::numeric,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

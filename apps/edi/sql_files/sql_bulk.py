@@ -20,7 +20,9 @@ post_bulk_dict = {
     set 
         "famille" = case when "famille" is null then 'VERRE' else "famille" end,
         "gross_unit_price" = "net_unit_price",
-        "gross_amount" = "net_amount"
+        "gross_amount" = "net_amount",
+        "purchase_invoice" = true,
+        "client_invoice" = true
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """

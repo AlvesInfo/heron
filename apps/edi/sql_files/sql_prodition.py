@@ -23,7 +23,9 @@ post_prodition_dict = {
                             when "libelle" is null or "libelle" = ''
                             then "famille" 
                             else "libelle" 
-                        end
+                        end,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

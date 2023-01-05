@@ -23,7 +23,9 @@ post_eye_dict = {
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "vat_rate" = 0,
             "vat_amount" = 0,
-            "amount_with_vat" = "net_amount"::numeric
+            "amount_with_vat" = "net_amount"::numeric,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

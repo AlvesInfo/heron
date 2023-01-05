@@ -75,6 +75,10 @@
                 )
             {% endif %}
 
+            {% if not integration_purchases %}
+                $(`.datatable-chargement`).hide();
+            {% endif %}
+
         });
 
     </script>

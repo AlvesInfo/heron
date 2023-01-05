@@ -19,7 +19,9 @@ post_starkey_dict = {
         update "edi_ediimport"
         set 
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
-            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
+            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

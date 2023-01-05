@@ -62,7 +62,7 @@ class DeleteEdiForm(forms.ModelForm):
             "supplier",
             "big_category",
             "invoice_month",
-            "delete",
+            "purchase_invoice",
         ]
 
 
@@ -92,7 +92,7 @@ class DeleteFieldForm(forms.ModelForm):
             "third_party_num",
             "invoice_number",
             "invoice_month",
-            "delete",
+            "purchase_invoice",
         ]
 
 
@@ -104,6 +104,7 @@ class DeletePkForm(forms.Form):
 
 class EdiImportControlForm(forms.ModelForm):
     """Formulaire pour l'update des factures founisseurs importées"""
+
     third_party_num = forms.CharField(max_length=15, required=False)
     invoice_month = forms.CharField(max_length=15, required=False)
 

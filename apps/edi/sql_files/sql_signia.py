@@ -27,7 +27,9 @@ post_signia_dict = {
                                 when "invoice_type" = '400' then '381' 
                                 -- 400 = RFA
                                 else '380' 
-                            end
+                            end,
+            "purchase_invoice" = true,
+            "client_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
