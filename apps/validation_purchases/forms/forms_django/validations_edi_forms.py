@@ -140,7 +140,9 @@ class UpdateThirdpartynumForm(forms.ModelForm):
                 society.third_party_num,
                 f"{society.third_party_num} - {society.name}",
             )
-            for society in Society.objects.exclude(third_party_num__regex=r"^\d")
+            for society in Society.objects.exclude(third_party_num__regex=r"^\d").filter(
+                is_supplier=True
+            )
         ]
         third_party_num = forms.ChoiceField(
             choices=self.third_party_num_choices,

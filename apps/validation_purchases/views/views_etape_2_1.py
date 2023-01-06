@@ -24,7 +24,6 @@ from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
     EdiImportControlForm,
-    UpdateThirdpartynumForm,
 )
 from apps.edi.models import EdiImportControl
 
@@ -65,30 +64,6 @@ def integration_purchases(request):
         context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ..."
 
     return render(request, "validation_purchases/integration_purchases.html", context=context)
-
-
-def purchase_without_suppliers(request):
-    """Visualisation des intégrations sans Tiers Identifiés"""
-    form = UpdateThirdpartynumForm(request.POST or None)
-    context = {
-        "titre_table": "2.1 - Factures Intégrées sans Tiers X3",
-        "elements_list": EdiImport.objects.filter(
-            Q(third_party_num="") | Q(third_party_num__isnull=True)
-        )
-        .values("uuid_identification", "flow_name", "supplier_ident", "third_party_num")
-        .annotate(dcount=Count("uuid_identification")),
-        "form": form,
-        "margin_table": 50,
-    }
-    print(context.get("elements_list"))
-
-    if get_in_progress():
-        context["en_cours"] = True
-        context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ..."
-
-    return render(
-        request, "validation_purchases/integration_without_third_party_num.html", context=context
-    )
 
 
 class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView):
