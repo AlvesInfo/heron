@@ -14,22 +14,23 @@ modified by: Paulo ALVES
 from psycopg2 import sql
 
 post_edi_dict = {
-    "sql_fac_update_edi": sql.SQL(
+    "sql_col_essilor": sql.SQL(
         """
         update "edi_ediimport"
-        set             
-            "supplier_ident" = case 
-                                    when "siret_payeur" in (
-                                        '9524514', '433193067', '43319306700033', 'FR82433193067'
-                                    )
-                                    then 'col_opticlibre'
-                                    else "supplier_ident"
-                                end,
+        set 
+            "supplier_ident" = 'col_opticlibre'
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        and "siret_payeur" in ('9524514', '433193067', '43319306700033', 'FR82433193067')
+        """
+    ),
+    "sql_tva": sql.SQL(
+        """
+        update edi_ediimport
+        set
             vat_rate =  case
                             when vat_rate = 5.5 then 0.055
                             when vat_rate = 20 then 0.20
-                            when vat_rate = 0.055 then 0.055
-                            when vat_rate = .20 then 0.20
                             when vat_rate > 0 then (vat_rate / 100)::numeric
                             else vat_rate
                         end,
@@ -37,7 +38,15 @@ post_edi_dict = {
                                         when acuitis_order_number = 'UNKNOWN' 
                                         then '' 
                                         else acuitis_order_number
-                                    end,
+                                    end
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        """
+    ),
+    "sql_fac_update_edi": sql.SQL(
+        """
+        update "edi_ediimport"
+        set 
             "net_amount" = case
                                 when ("invoice_type" = '381' and "qty" < 0) 
                                   or ("invoice_type" = '380' and "qty" > 0) 

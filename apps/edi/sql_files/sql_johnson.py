@@ -19,19 +19,9 @@ post_johnson_dict = {
         update "edi_ediimport"
         set 
             "invoice_type" = case when "qty" >= 0 then '380' else '381' end,
-            "gross_unit_price" = abs("net_amount"::numeric / "qty"::numeric)::numeric,
-            "net_unit_price" = abs("net_amount"::numeric / "qty"::numeric)::numeric,
-            "qty" = case 
-                        when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                        when "net_amount" > 0 then abs("qty")::numeric
-                        else "qty" 
-                    end,
-            "gross_amount" = case 
-                                when "net_amount" = 0 then 0
-                                when "net_amount" < 0 
-                                then (abs("gross_amount")::numeric * -1::numeric)
-                                when "net_amount" > 0 then abs("gross_amount")::numeric
-                            end,
+            "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+            "gross_amount" = "net_amount"::numeric,
             "purchase_invoice" = true,
             "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
@@ -60,6 +50,26 @@ post_johnson_dict = {
             and ("valid" = false or "valid" isnull)
         ) "req" 
         where "req"."id" = "ed"."id"
+        """
+    ),
+    "sql_update_units": sql.SQL(
+        """
+        update "edi_ediimport"
+        set 
+            "qty" = case 
+                        when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                        when "net_amount" > 0 then abs("qty")::numeric
+                        else "qty" 
+                    end,
+            "gross_unit_price" = abs("gross_unit_price"),
+            "net_unit_price" = abs("net_unit_price"),
+            "gross_amount" = case 
+                                when "net_amount" = 0 then 0
+                                when "net_amount" < 0 then (abs("gross_amount")::numeric * -1::numeric)
+                                when "net_amount" > 0 then abs("gross_amount")::numeric
+                            end
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
         """
     ),
 }

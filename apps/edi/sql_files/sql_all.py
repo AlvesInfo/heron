@@ -67,18 +67,15 @@ post_all_dict = {
                         else "supplier" 
                      end,
         "uuid_big_category" = case 
-                                when "tiers"."uuid_big_category" is not null 
-                                    then "tiers"."uuid_big_category"
-                                when "edi"."uuid_big_category" is null
-                                    then'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
-                                else "edi"."uuid_big_category"
+                                when "uuid_big_category" is null
+                                then'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
+                                else "uuid_big_category"
                               end
     from (
         select 
             left("name", 35) as "name",
             "third_party_num",
-            unnest(string_to_array("centers_suppliers_indentifier", '|')) as "identifier",
-            "uuid_big_category"
+            unnest(string_to_array("centers_suppliers_indentifier", '|')) as "identifier"
             from "book_society" bs
     ) "tiers"
     where ("edi"."third_party_num" is null or "edi"."third_party_num" = '')
@@ -457,10 +454,6 @@ and edi."invoice_number" = edi_fac."invoice_number"
             and aa."axe_pro" is not null
         ) maj
         where edi."id" = maj."id" 
-    """
-    ),
-    "sql_invoice_for": sql.SQL(
-        """
     """
     ),
     "sql_validate": sql.SQL(

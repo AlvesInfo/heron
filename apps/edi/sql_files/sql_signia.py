@@ -14,16 +14,27 @@ modified by: Paulo ALVES
 from psycopg2 import sql
 
 post_signia_dict = {
-    "sql_update_units": sql.SQL(
+    "sql_update": sql.SQL(
         """
         update "edi_ediimport"
         set 
-            "qty" = case when "qty" = 0 then 1::numeric else "qty" end
+            "qty" = case when "qty" = 0 then 1::numeric else "qty" end,
+            "invoice_type" = case 
+                                when "invoice_type" = '301' then '380' 
+                                when "invoice_type" = '307' then '380' 
+                                when "invoice_type" = '302' then '381' 
+                                when "invoice_type" = '304' then '381' 
+                                when "invoice_type" = '400' then '381' 
+                                -- 400 = RFA
+                                else '380' 
+                            end,
+            "purchase_invoice" = true,
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
     ),
-    "sql_update": sql.SQL(
+    "sql_update_units": sql.SQL(
         """
         update "edi_ediimport"
         set 
@@ -45,18 +56,7 @@ post_signia_dict = {
                             when "libelle" ilike 'WARRANTY%%' then 'WARRANTY'
                             when "libelle" ilike 'DISCOUNT INSTANT' then 'RFA'
                             else "famille"
-                        end,
-            "invoice_type" = case 
-                                when "invoice_type" = '301' then '380' 
-                                when "invoice_type" = '307' then '380' 
-                                when "invoice_type" = '302' then '381' 
-                                when "invoice_type" = '304' then '381' 
-                                when "invoice_type" = '400' then '381' 
-                                -- 400 = RFA
-                                else '380' 
-                            end,
-            "purchase_invoice" = true,
-            "sale_invoice" = true
+                        end
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
