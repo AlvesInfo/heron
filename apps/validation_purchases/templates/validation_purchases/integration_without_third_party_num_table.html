@@ -1,0 +1,77 @@
+{% extends "heron/table_courant.html" %}
+{% load filters_tags %}
+
+{% block table %}
+    <div class="three wide column" style="padding: 0;margin: 10px;"></div>
+<div class="ten wide column" style="padding: 0;margin: 10px;">
+    <div class="ui segments">
+        <div class="ui segment" style="padding-bottom: 0;">
+            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                <div class="fields">
+
+
+                    <div class="three wide field" style="text-align: left;padding-left: 10px;">
+                        <h5>Flow Name</h5>
+                    </div>
+
+                    <div class="six wide field" style="text-align: left;padding-left: 10px;">
+                        <h5>Identifiant Fournisseur</h5>
+                    </div>
+
+                    <div class="six wide field" style="text-align: left;padding-left: 10px;">
+                        <h5>Tiers X3</h5>
+                    </div>
+
+                    <div class="one wide field" style="text-align: left;padding-left: 10px;">
+                        <h5></h5>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% for element_dict in elements_list %}
+            <div class="ui segment" style="padding-bottom: 0;">
+                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields">
+
+                        <div style="display: none;">
+                            <label for="id_uuid_identification" style="text-align: left;"></label>
+                            <input type="text" name="uuid_identification" maxlength="80" required="" id="id_uuid_identification" value="{{ element_dict.uuid_identification }}" readonly style="background-color: lavender;">
+                        </div>
+
+
+                        <div class="three wide field">
+                            <label for="id_flow_name" style="text-align: left;"></label>
+                            <input type="text" name="flow_name" maxlength="80" required="" id="id_flow_name" value="{{ element_dict.flow_name }}" readonly style="background-color: lavender;">
+                        </div>
+
+                        <div class="six wide field">
+                            <label for="id_supplier_ident" style="text-align: left;"></label>
+                            <input type="text" name="supplier_ident" maxlength="20" id="id_supplier_ident" value="{{ element_dict.supplier_ident }}" readonly style="background-color: lavender;">
+                        </div>
+
+                        <div class="six wide field">
+                            <label for="id_third_party_num"
+                                   style="text-align: left;"></label>
+                            <select id="id_third_party_num"
+                                    name="third_party_num"
+                                    class="ui fluid search dropdown"
+                                    required="">
+                                {% for value, label in form.third_party_num_choices %}
+                                    <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="one wide field">
+                            <button class="ui teal button submit" type="button" style="padding: 7px 10px;margin: 4px 10px;font-size: 11px;height: 33px;">VALIDER</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock table %}

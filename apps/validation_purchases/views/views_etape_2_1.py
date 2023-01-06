@@ -1,6 +1,7 @@
 import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
+from django.db.models import Q, Count
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import CreateView, UpdateView
@@ -20,11 +21,12 @@ from apps.validation_purchases.excel_outputs import (
 )
 from apps.validation_purchases.forms.forms_django import ChangeBigCategoryForm
 from apps.edi.models import EdiImport
-from apps.edi.forms import (
+from apps.validation_purchases.forms import (
     DeleteEdiForm,
+    EdiImportControlForm,
+    UpdateThirdpartynumForm,
 )
 from apps.edi.models import EdiImportControl
-from apps.edi.forms import EdiImportControlForm
 
 # CONTROLES ETAPE 2.1 - CONTROLE INTEGRATION
 
@@ -37,6 +39,9 @@ def integration_purchases(request):
     """
     # on met à jour les cct au cas où l'on est rempli des cct dans un autre écran
     update_cct_edi_import()
+
+    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count:
+        return redirect(reverse("validation_purchases:purchase_without_suppliers"))
 
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_purchases.sql"
 
@@ -60,6 +65,30 @@ def integration_purchases(request):
         context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ..."
 
     return render(request, "validation_purchases/integration_purchases.html", context=context)
+
+
+def purchase_without_suppliers(request):
+    """Visualisation des intégrations sans Tiers Identifiés"""
+    form = UpdateThirdpartynumForm(request.POST or None)
+    context = {
+        "titre_table": "2.1 - Factures Intégrées sans Tiers X3",
+        "elements_list": EdiImport.objects.filter(
+            Q(third_party_num="") | Q(third_party_num__isnull=True)
+        )
+        .values("uuid_identification", "flow_name", "supplier_ident", "third_party_num")
+        .annotate(dcount=Count("uuid_identification")),
+        "form": form,
+        "margin_table": 50,
+    }
+    print(context.get("elements_list"))
+
+    if get_in_progress():
+        context["en_cours"] = True
+        context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ..."
+
+    return render(
+        request, "validation_purchases/integration_without_third_party_num.html", context=context
+    )
 
 
 class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView):

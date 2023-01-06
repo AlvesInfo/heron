@@ -2,6 +2,7 @@ from django.urls import path
 
 from apps.validation_purchases.views import (
     integration_purchases,
+    purchase_without_suppliers,
     delete_supplier_edi_import,
     integration_purchases_export,
     big_category_change,
@@ -46,6 +47,11 @@ urlpatterns = [
             "integration_purchases/",
             integration_purchases,
             name="integration_purchases",
+        ),
+        path(
+            "purchase_without_suppliers/",
+            purchase_without_suppliers,
+            name="purchase_without_suppliers",
         ),
         path(
             "delete_supplier_edi_import/",

@@ -11,24 +11,12 @@
 
     {% if user.is_authenticated %}
 
-            {% include "validation_sales/integration_sales_entete.html" %}
+            {% csrf_token %}
+
+            {% include "validation_purchases/integration_without_third_party_num_entete.html" %}
 
             {% if not en_cours %}
-                <div class="ui segment" style="padding: 5px;margin: 20px 10px;">
-                    <div class="ui top attached tabular menu">
-                      <a class="active item" data-tab="integration">Intégrations/Relevés</a>
-                      <a class="item" data-tab="trace">Trace des Imports</a>
-                    </div>
-                    <div class="ui bottom attached active tab segment"
-                         data-tab="integration"
-                         style="padding: 5px 0 10px 0;">
-                        {% include "validation_sales/integration_sales_table.html" %}
-                    </div>
-                    <div class="ui bottom attached tab segment" data-tab="trace">
-                        {% include "data_flux/data_flux_trace.html" %}
-                    </div>
-                </div>
-                {% include "heron/change_category_html.html" %}
+                {% include "validation_purchases/integration_without_third_party_num_table.html" %}
             {% endif %}
 
     {% else %}

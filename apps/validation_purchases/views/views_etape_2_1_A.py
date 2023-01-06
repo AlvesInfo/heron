@@ -12,7 +12,7 @@ from apps.validation_purchases.excel_outputs import (
     excel_supplier_purchases,
 )
 from apps.edi.models import EdiImport
-from apps.edi.forms import (
+from apps.validation_purchases.forms import (
     DeleteInvoiceForm,
 )
 from apps.validation_purchases.forms import ChangeCttForm

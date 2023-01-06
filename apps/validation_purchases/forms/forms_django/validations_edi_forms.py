@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 from django import forms
 
+from apps.book.models import Society
 from apps.edi.models import EdiImport, EdiImportControl
 
 
@@ -125,3 +126,31 @@ class UpdateSupplierPurchasesForm(forms.ModelForm):
 
         model = EdiImport
         fields = ("id", "qty", "net_unit_price", "vat_rate")
+
+
+class UpdateThirdpartynumForm(forms.ModelForm):
+    """Changer le Tiers X3 d'une intégration"""
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.third_party_num_choices = [("", "")] + [
+            (
+                society.third_party_num,
+                f"{society.third_party_num} - {society.name}",
+            )
+            for society in Society.objects.exclude(third_party_num__regex=r"^\d")
+        ]
+        third_party_num = forms.ChoiceField(
+            choices=self.third_party_num_choices,
+            label="Tiers X3",
+            required=True,
+        )
+        self.fields["third_party_num"] = third_party_num
+
+    class Meta:
+        """class Meta"""
+
+        model = EdiImport
+        fields = ("flow_name", "supplier_ident", "third_party_num")

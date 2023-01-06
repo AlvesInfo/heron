@@ -9,7 +9,7 @@ from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.bin.encoders import get_base_64, set_base_64_list
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.edi.models import EdiImport
-from apps.edi.forms import (
+from apps.validation_purchases.forms import (
     EdiImportValidationForm,
     UpdateSupplierPurchasesForm,
     DeletePkForm,

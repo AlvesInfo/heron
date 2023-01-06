@@ -197,10 +197,15 @@ def edi_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Opto33 EDI
     :param uuid_identification: uuid_identification
     """
+
+    sql_col_essilor = post_edi_dict.get("sql_col_essilor")
+    sql_tva = post_edi_dict.get("sql_tva")
     sql_fac_update_edi = post_edi_dict.get("sql_fac_update_edi")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_col_essilor, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_tva, {"uuid_identification": uuid_identification})
         cursor.execute(sql_fac_update_edi, {"uuid_identification": uuid_identification})
 
 
@@ -246,10 +251,12 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_eye_dict.get("sql_update")
+    sql_update_units = post_eye_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def generique_post_insert(uuid_identification: AnyStr):
@@ -301,11 +308,13 @@ def johnson_post_insert(uuid_identification: AnyStr):
     """
     sql_update = post_johnson_dict.get("sql_update")
     sql_update_vat_rate = post_johnson_dict.get("sql_update_vat_rate")
+    sql_update_units = post_johnson_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_vat_rate, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def lmc_post_insert(uuid_identification: AnyStr):
@@ -326,10 +335,14 @@ def newson_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_newson_dict.get("sql_update")
+    sql_round_net_amount = post_newson_dict.get("sql_round_net_amount")
+    sql_net_amount = post_newson_dict.get("sql_net_amount")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_round_net_amount, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
 
 
 def phonak_post_insert(uuid_identification: AnyStr):
@@ -338,11 +351,13 @@ def phonak_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_phonak_dict.get("sql_update")
+    sql_net_amount = post_phonak_dict.get("sql_net_amount")
     sql_mulitiple_dates = post_phonak_dict.get("sql_mulitiple_dates")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mulitiple_dates, {"uuid_identification": uuid_identification})
 
 
@@ -351,10 +366,12 @@ def prodition_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Prodition
     :param uuid_identification: uuid_identification
     """
+    sql_libele = post_prodition_dict.get("sql_libele")
     sql_update = post_prodition_dict.get("sql_update")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_libele, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
@@ -363,14 +380,14 @@ def signia_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier SIGNA
     :param uuid_identification: uuid_identification
     """
-    sql_update_units = post_signia_dict.get("sql_update_units")
     sql_update = post_signia_dict.get("sql_update")
+    sql_update_units = post_signia_dict.get("sql_update_units")
     sql_update_bl = post_signia_dict.get("sql_update_bl")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_bl, {"uuid_identification": uuid_identification})
 
 
@@ -380,10 +397,12 @@ def starkey_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_starkey_dict.get("sql_update")
+    sql_update_units = post_starkey_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def technidis_post_insert(uuid_identification: AnyStr):
@@ -392,10 +411,12 @@ def technidis_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_technidis_dict.get("sql_update")
+    sql_update_units = post_technidis_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
 
 
 def unitron_post_insert(uuid_identification: AnyStr):
@@ -418,11 +439,13 @@ def widex_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_widex_dict.get("sql_update")
+    sql_update_units = post_widex_dict.get("sql_update_units")
     sql_invoices_amounts = post_widex_dict.get("sql_invoices_amounts")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_invoices_amounts, {"uuid_identification": uuid_identification})
 
 

@@ -1,6 +1,11 @@
 select
     big_category,
     third_party_num,
+    case
+        when "purchase_invoice" = true and "sale_invoice" = true then 'AC/VE'
+        when "purchase_invoice" = true then 'AC'
+        when "sale_invoice" = true then 'VE'
+    end as achat_vente,
     supplier,
     sum(invoice_amount_without_tax) as invoice_amount_without_tax,
     sum(invoice_amount_with_tax) as invoice_amount_with_tax,
@@ -50,7 +55,9 @@ from (
         ec.uuid_identification,
         ec."id" as pk,
         case when ee.cct_uuid_identification is null then 0 else 1 end as cct_error,
-        pc.uuid_identification as uuid_category
+        pc.uuid_identification as uuid_category,
+        "purchase_invoice",
+        "sale_invoice"
     from edi_ediimport ee
     left join parameters_category pc
     on ee.uuid_big_category = pc.uuid_identification
@@ -72,7 +79,9 @@ from (
              ec.uuid_identification,
              ec."id",
         	 ee.cct_uuid_identification,
-             pc.uuid_identification
+             pc.uuid_identification,
+            "purchase_invoice",
+            "sale_invoice"
     ) edi
 group by big_category,
          supplier,
@@ -83,7 +92,9 @@ group by big_category,
          "comment",
          uuid_identification,
          pk,
-         uuid_category
+         uuid_category,
+        "purchase_invoice",
+        "sale_invoice"
 order by big_category,
          third_party_num,
          supplier,

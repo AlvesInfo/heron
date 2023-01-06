@@ -1,7 +1,6 @@
 from django.urls import path
 
 from .views import (
-    integration_sales,
     # MENU CONTROLES VENTES
     compare_turnover_sales,
     compare_turnover_sales_export,
@@ -28,11 +27,6 @@ urlpatterns = [
     # MENU CONTROLES VENTES
     *[
         # Intégration
-        path(
-            "integration_sales/",
-            integration_sales,
-            name="integration_sales",
-        ),
         # Ventes vs CA
         path(
             "compare_turnover_sales/",
