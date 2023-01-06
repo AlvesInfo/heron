@@ -2,23 +2,27 @@
 {% load filters_tags %}
 
 {% block table %}
-    <div class="three wide column" style="padding: 0;margin: 10px;"></div>
-<div class="ten wide column" style="padding: 0;margin: 10px;">
+    <div class="two wide column" style="padding: 0;margin: 10px;"></div>
+<div class="twelve wide column" style="padding: 0;margin: 10px;">
     <div class="ui segments">
         <div class="ui segment" style="padding-bottom: 0;">
             <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                 <div class="fields">
 
 
-                    <div class="three wide field" style="text-align: left;padding-left: 10px;">
+                    <div class="two wide field" style="text-align: left;padding-left: 10px;">
                         <h5>Flow Name</h5>
                     </div>
 
-                    <div class="six wide field" style="text-align: left;padding-left: 10px;">
+                    <div class="four wide field" style="text-align: left;padding-left: 10px;">
+                        <h5>Fournisseur</h5>
+                    </div>
+
+                    <div class="four wide field" style="text-align: left;padding-left: 10px;">
                         <h5>Identifiant Fournisseur</h5>
                     </div>
 
-                    <div class="six wide field" style="text-align: left;padding-left: 10px;">
+                    <div class="five wide field" style="text-align: left;padding-left: 10px;">
                         <h5>Tiers X3</h5>
                     </div>
 
@@ -40,17 +44,23 @@
                         </div>
 
 
-                        <div class="three wide field">
+                        <div class="two wide field">
                             <label for="id_flow_name" style="text-align: left;"></label>
                             <input type="text" name="flow_name" maxlength="80" required="" id="id_flow_name" value="{{ element_dict.flow_name }}" readonly style="background-color: lavender;">
                         </div>
 
-                        <div class="six wide field">
+
+                        <div class="four wide field">
+                            <label for="id_supplier" style="text-align: left;"></label>
+                            <input type="text" name="supplier" maxlength="80" required="" id="id_supplier" value="{{ element_dict.supplier|default_if_none:'' }}" readonly style="background-color: lavender;">
+                        </div>
+
+                        <div class="four wide field">
                             <label for="id_supplier_ident" style="text-align: left;"></label>
                             <input type="text" name="supplier_ident" maxlength="20" id="id_supplier_ident" value="{{ element_dict.supplier_ident }}" readonly style="background-color: lavender;">
                         </div>
 
-                        <div class="six wide field">
+                        <div class="five wide field">
                             <label for="id_third_party_num"
                                    style="text-align: left;"></label>
                             <select id="id_third_party_num"

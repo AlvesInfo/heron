@@ -155,4 +155,4 @@ class UpdateThirdpartynumForm(forms.ModelForm):
         """class Meta"""
 
         model = EdiImport
-        fields = ("flow_name", "supplier_ident", "third_party_num")
+        fields = ("flow_name", "supplier", "supplier_ident", "third_party_num")

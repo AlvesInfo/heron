@@ -14,7 +14,7 @@ def purchase_without_suppliers(request):
         "elements_list": EdiImport.objects.filter(
             Q(third_party_num="") | Q(third_party_num__isnull=True)
         )
-        .values("uuid_identification", "flow_name", "supplier_ident", "third_party_num")
+        .values("uuid_identification", "third_party_num", "flow_name", "supplier", "supplier_ident")
         .annotate(dcount=Count("uuid_identification")),
         "form": form,
         "margin_table": 50,
