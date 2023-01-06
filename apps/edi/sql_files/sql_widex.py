@@ -18,6 +18,11 @@ post_widex_dict = {
         """
         update "edi_ediimport"
         set 
+            "qty" = case 
+                        when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
+                        when "net_amount" > 0 then abs("qty")::numeric
+                        else "qty" 
+                    end,
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "famille" = case 
                             when "famille" = '' or "famille" is null 
@@ -25,11 +30,14 @@ post_widex_dict = {
                             else "famille" 
                         end,
             "gross_amount" = case 
-                                when "gross_amount" is null or "gross_amount" = 0 
-                                then "net_amount"::numeric 
-                                else "gross_amount"::numeric 
+                                when "net_amount" = 0 
+                                    then 0
+                                when "net_amount" < 0 
+                                    then (abs("gross_amount")::numeric * -1::numeric)
+                                when "net_amount" > 0 
+                                    then abs("gross_amount")::numeric
                             end,
-            "gross_unit_price" = (
+            "gross_unit_price" = abs(
                 case 
                     when "gross_amount" is null or "gross_amount" = 0 
                     then "net_amount"::numeric 
@@ -37,32 +45,9 @@ post_widex_dict = {
                 end 
                 / "qty"::numeric
             )::numeric,
-            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+            "net_unit_price" = abs("net_amount"::numeric / "qty"::numeric)::numeric,
             "purchase_invoice" = true,
             "sale_invoice" = true
-        where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull)
-        """
-    ),
-    "sql_update_units": sql.SQL(
-        """
-        update "edi_ediimport"
-        set 
-            "qty" = case 
-                        when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
-                        when "net_amount" > 0 then abs("qty")::numeric
-                        else "qty" 
-                    end,
-            "gross_unit_price" = abs("gross_unit_price"),
-            "net_unit_price" = abs("net_unit_price"),
-            "gross_amount" = case 
-                                when "net_amount" = 0 
-                                    then 0
-                                when "net_amount" < 0 
-                                    then (abs("gross_amount")::numeric * -1::numeric)
-                                when "net_amount" > 0 
-                                    then abs("gross_amount")::numeric
-                            end
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

@@ -14,22 +14,6 @@ modified by: Paulo ALVES
 from psycopg2 import sql
 
 post_prodition_dict = {
-    "sql_libele": sql.SQL(
-        """
-        update "edi_ediimport"
-        set 
-            "qty" = case when "qty" = 0 then 1::numeric else "qty" end,
-            "libelle"= case 
-                            when "libelle" is null or "libelle" = ''
-                            then "famille" 
-                            else "libelle" 
-                        end,
-            "purchase_invoice" = true,
-            "sale_invoice" = true
-        where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull)
-        """
-    ),
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"
@@ -46,7 +30,10 @@ post_prodition_dict = {
                             else "libelle" 
                         end,
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric
+            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+            "qty" = case when "qty" = 0 then 1::numeric else "qty" end,
+            "purchase_invoice" = true,
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s 
         and ("valid" = false or "valid" isnull)
         """

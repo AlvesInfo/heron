@@ -22,34 +22,17 @@ post_newson_dict = {
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "famille" = left("reference_article", 2),
-            "purchase_invoice" = true,
-            "sale_invoice" = true
-        where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull)
-        """
-    ),
-    "sql_round_net_amount": sql.SQL(
-        """
-        update "edi_ediimport"
-        set 
-            "net_amount" = round("net_amount", 2)::numeric,
-            "amount_with_vat" = round(round("amount_with_vat", 2) * (1 + "vat_rate"), 2)::numeric
-        where "uuid_identification" = %(uuid_identification)s
-        and ("valid" = false or "valid" isnull)
-        """
-    ),
-    "sql_net_amount": sql.SQL(
-        """
-        update "edi_ediimport" edi
-        set
             "net_amount" = case
                                 when ("invoice_type" = '381' and "qty" < 0) 
                                   or ("invoice_type" = '380' and "qty" > 0) 
-                                then abs("net_amount")::numeric
+                                then abs(round("net_amount", 2)::numeric)::numeric
                                 when ("invoice_type" = '381' and "qty" > 0) 
                                   or ("invoice_type" = '380' and "qty" < 0) 
                                 then -abs("net_amount")::numeric
-                            end
+                            end,
+            "amount_with_vat" = round(round("amount_with_vat", 2) * (1 + "vat_rate"), 2)::numeric,
+            "purchase_invoice" = true,
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
