@@ -35,7 +35,7 @@ post_edi_dict = {
                                         when acuitis_order_number = 'UNKNOWN' 
                                         then '' 
                                         else acuitis_order_number
-                                    end
+                                    end,
             "net_amount" = case
                                 when ("invoice_type" = '381' and "qty" < 0) 
                                   or ("invoice_type" = '380' and "qty" > 0) 
