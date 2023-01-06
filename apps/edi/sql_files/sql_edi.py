@@ -28,6 +28,8 @@ post_edi_dict = {
             vat_rate =  case
                             when vat_rate = 5.5 then 0.055
                             when vat_rate = 20 then 0.20
+                            when vat_rate = 0.055 then 0.055
+                            when vat_rate = .20 then 0.20
                             when vat_rate > 0 then (vat_rate / 100)::numeric
                             else vat_rate
                         end,
