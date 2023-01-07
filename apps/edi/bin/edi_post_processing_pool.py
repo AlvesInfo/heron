@@ -88,19 +88,51 @@ def post_common():
     sql_validate = post_common_dict.get("sql_validate")
 
     with connection.cursor() as cursor:
+        print("Début : sql_round_amount")
         cursor.execute(sql_round_amount)
+        print("Fin : sql_round_amount")
+
+        print("Début : sql_supplier_update")
         cursor.execute(sql_supplier_update)
+        print("Fin : sql_supplier_update")
+
+        print("Début : sql_fac_update_except_edi")
         cursor.execute(sql_fac_update_except_edi)
+        print("Fin : sql_fac_update_except_edi")
+
+        print("Début : sql_reference")
         cursor.execute(sql_reference)
+        print("Fin : sql_reference")
+
+        print("Début : sql_vat")
         cursor.execute(sql_vat)
+        print("Fin : sql_vat")
+
+        print("Début : sql_vat_rate")
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
+        print("Fin : sql_vat_rate")
+
+        print("Début : sql_cct")
         cursor.execute(sql_cct)
+        print("Fin : sql_cct")
+
+        print("Début : sql_is_multi_store")
         cursor.execute(sql_is_multi_store)
+        print("Fin : sql_is_multi_store")
+
+        print("Début : sql_update_articles")
         cursor.execute(sql_update_articles)
+        print("Fin : sql_update_articles")
+
+        print("Début : EdiImport set created by")
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()
         )
+        print("Fin : EdiImport set created by")
+
+        print("Début : sql_validate")
         cursor.execute(sql_validate)
+        print("Fin : sql_validate")
 
 
 def bulk_post_insert(uuid_identification: AnyStr):
