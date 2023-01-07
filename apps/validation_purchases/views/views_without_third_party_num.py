@@ -74,8 +74,9 @@ def purchase_without_suppliers_update(request):
             center_identifier = (
                 f"{old_center if old_center else ''}"
                 f"{'|' if old_center else ''}"
-                f"{data.get('BbgrReceptions', '')}{'|' if data.get('BbgrReceptions') else '|'}"
+                f"{data_dict.get('supplier_ident', '')}{'|' if data_dict.get('supplier_ident') else '|'}"
             )
+
             if form.changed_data:
                 changed, message = trace_change(
                     request,
