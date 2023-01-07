@@ -56,7 +56,7 @@ def purchase_without_suppliers_update(request):
     if not request.is_ajax() and request.method != "POST":
         return redirect("home")
 
-    data = {"success": "ko"}
+    data = {"success": "success"}
     form = UpdateThirdpartynumForm(request.POST)
     request.session["level"] = 50
 
