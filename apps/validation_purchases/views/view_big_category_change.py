@@ -37,7 +37,7 @@ def big_category_change(request):
         data_dict.pop("big_category_default")
         data_dict.pop("uuid_origin")
         new_big_category = data_dict.pop("big_category")
-
+        print(new_big_category)
         if form.changed_data:
             changed, message = trace_change(
                 request,

@@ -23,6 +23,7 @@ from django.shortcuts import render, redirect, reverse
 from apps.parameters.bin.core import get_in_progress
 from apps.core.bin.change_traces import trace_change
 from apps.book.models import Society
+from apps.parameters.models import Category
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import UpdateThirdpartynumForm
 
@@ -89,11 +90,25 @@ def purchase_without_suppliers_update(request):
                 else:
                     data_dict.pop("supplier")
                     old_message = message
+                    update_kwargs = {
+                        "third_party_num": third_party_num,
+                        "supplier": society.name,
+                    }
+                    big_category_object = society.big_category_default
+
+                    if not big_category_object:
+                        big_category_object = Category.objects.filter(
+                            slug_name="marchandises"
+                        ).first()
+
+                    if big_category_object:
+                        update_kwargs["big_category_id"] = big_category_object
+
                     changed, message = trace_change(
                         request,
                         model=EdiImport,
                         before_kwargs=data_dict,
-                        update_kwargs={"third_party_num": third_party_num, "supplier": society.name},
+                        update_kwargs=update_kwargs,
                     )
                     message = old_message + message
 
