@@ -87,7 +87,7 @@ def purchase_without_suppliers_update(request):
                     messages.add_message(request, 50, message)
 
                 else:
-                    supplier = data_dict.pop("supplier")
+                    data_dict.pop("supplier")
                     old_message = message
                     changed, message = trace_change(
                         request,
