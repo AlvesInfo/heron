@@ -3,8 +3,14 @@ select
     ee.third_party_num,
     supplier,
     case when max(ac.cct) isnull then '' else max(cct) end as axe_cct,
-    case when max(ee.code_maison) isnull then '' else replace(max(ee.code_maison), '|', '') end as code_maison,
-    replace(left(max(maison), 100), '|', '') as maison,
+    case
+        when count(ee.code_maison) > 1 then ''
+        when max(ee.code_maison) isnull then '' else replace(max(ee.code_maison), '|', '')
+    end as code_maison,
+    case
+        when count(ee.code_maison) > 1 then '!!! MULTI MAGASINS !!!'
+        else replace(left(max(maison), 100), '|', '')
+    end as maison,
     case when ee."invoice_type" = '380' then 'FAF' else 'AVO' end as type_invoice,
     invoice_number,
     invoice_date,
@@ -36,7 +42,8 @@ select
     ) as enc_param,
     ee.uuid_identification,
     ee.invoice_year,
-    case when ee."invoice_type" = '380' then 'darkblue' else 'brown' end as color_invoice
+    case when ee."invoice_type" = '380' then 'darkblue' else 'brown' end as color_invoice,
+    case when count(ee.code_maison) > 1 then true else false end as multi_maison
 from edi_ediimport ee
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification

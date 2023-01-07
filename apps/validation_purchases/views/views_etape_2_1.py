@@ -1,7 +1,7 @@
 import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import CreateView, UpdateView

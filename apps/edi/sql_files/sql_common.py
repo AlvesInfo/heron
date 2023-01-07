@@ -13,6 +13,73 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
+BASE_SQL_CCT = sql.SQL(
+    """
+    update "edi_ediimport" edi
+    set "cct_uuid_identification" = cc."cct_uuid_identification"
+    from (
+        select
+            ee."id",
+            bs."cct_uuid_identification"
+        from "edi_ediimport" ee
+        left join (
+            select
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number"
+            from (
+                select 
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    "code_fournisseur"
+                from "edi_ediimport"
+                group by 
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    "code_fournisseur"
+            ) req
+            group by 		
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number"
+            having count("code_fournisseur") > 1
+        ) er
+        on ee."third_party_num" = er."third_party_num"
+        and ee."uuid_identification" = er."uuid_identification"
+        and ee."invoice_number" = er."invoice_number"
+        left join (
+            select
+               bsp."third_party_num", 
+               ccm."uuid_identification" as "cct_uuid_identification", 
+               unnest(
+                    string_to_array(
+                        case 
+                            when right("cct_identifier", 1) = '|' 
+                            then left("cct_identifier", length("cct_identifier")-1) 
+                            else "cct_identifier"
+                        end
+                        , 
+                        '|'
+                    )
+               ) as "cct_identifier"
+            from "book_suppliercct" bsp
+            join "accountancy_cctsage" ac 
+            on bsp."cct_uuid_identification" = ac."uuid_identification" 
+            join "centers_clients_maison" ccm
+            on ac."cct" = ccm."cct"
+        ) bs
+        on ee."third_party_num" = bs."third_party_num"
+        where ee."third_party_num" = bs."third_party_num"
+        and ee."code_maison" = bs."cct_identifier"
+        and er."invoice_number" isnull
+    ) cc
+    where edi."id" = cc."id"
+    and edi."cct_uuid_identification" isnull
+    """
+)
+
 post_common_dict = {
     "sql_round_amount": sql.SQL(
         """
@@ -332,55 +399,10 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
     ),
     "sql_cct": sql.SQL(
         """
-         update "edi_ediimport" edi
-         set "cct_uuid_identification" = cc."cct_uuid_identification"
-         from (
-           select
-                 ei."id", re."cct_uuid_identification"
-           from "edi_ediimport" ei
-           left join (
-                 select
-                        ee."id", 
-                        ee."third_party_num", 
-                        ee."supplier", 
-                        ee."code_fournisseur", 
-                        ee."maison", 
-                        ee."code_maison", 
-                        bs."cct_identifier", 
-                        bs."cct_uuid_identification"
-             from "edi_ediimport" ee
-             left join (
-                    select
-                       bsp."third_party_num", 
-                       ccm."uuid_identification" as "cct_uuid_identification", 
-                       unnest(
-                            string_to_array(
-                                case 
-                                    when right("cct_identifier", 1) = '|' 
-                                    then left("cct_identifier", length("cct_identifier")-1) 
-                                    else "cct_identifier"
-                                end
-                                , 
-                                '|'
-                            )
-                       ) as "cct_identifier"
-                    from "book_suppliercct" bsp
-                    join "accountancy_cctsage" ac 
-                    on bsp."cct_uuid_identification" = ac."uuid_identification" 
-                    join "centers_clients_maison" ccm
-                    on ac."cct" = ccm."cct"
-                 ) bs
-                 on ee."third_party_num" = bs."third_party_num"
-                 where ee."third_party_num" = bs."third_party_num"
-                 and ee."code_maison" = bs."cct_identifier"
-           ) re
-           on ei."id" = re."id"
-           where "cct_identifier" is not null
-        ) cc
-        where edi."id" = cc."id"
-        and ("valid" = false or "valid" isnull)
+        {}
+          and ("valid" = false or "valid" isnull)
     """
-    ),
+    ).format(BASE_SQL_CCT),
     "sql_update_articles": sql.SQL(
         """
         update "edi_ediimport" edi 
@@ -433,4 +455,41 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         where ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_is_multi_store": sql.SQL(
+        """
+    update "edi_ediimport" edi
+    set 
+        "is_multi_store" = ms."is_multi_store"
+    from (
+        select
+            "third_party_num",
+            "uuid_identification",
+            "invoice_number",
+            case when count("code_fournisseur") > 1 then true else false end as "is_multi_store"
+        from (
+            select 
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number",
+                "code_fournisseur"
+            from "edi_ediimport"
+            where "is_multi_store" isnull
+            group by 
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number",
+                "code_fournisseur"
+        ) req
+        group by 		
+            "third_party_num",
+            "uuid_identification",
+            "invoice_number"
+    ) ms 
+    where edi."third_party_num" = ms."third_party_num"
+    and edi."uuid_identification" = ms."uuid_identification"
+    and edi."invoice_number" = ms."invoice_number"
+    and edi."is_multi_store" isnull
+    and ("valid" = false or "valid" isnull)
+    """
+    )
 }

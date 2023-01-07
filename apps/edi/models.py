@@ -152,6 +152,9 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         db_column="cct_uuid_identification",
     )
 
+    # pour vérifier si les factures sont multi magasins
+    is_multi_store = models.BooleanField(null=True)
+
 
 class EdiImportTax(FlagsTable):
 

@@ -83,6 +83,7 @@ def post_common():
     sql_vat = post_common_dict.get("sql_vat")
     sql_vat_rate = post_common_dict.get("sql_vat_rate")
     sql_cct = post_common_dict.get("sql_cct")
+    sql_is_multi_store = post_common_dict.get("sql_is_multi_store")
     sql_update_articles = post_common_dict.get("sql_update_articles")
     sql_validate = post_common_dict.get("sql_validate")
 
@@ -94,6 +95,7 @@ def post_common():
         cursor.execute(sql_vat)
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
         cursor.execute(sql_cct)
+        cursor.execute(sql_is_multi_store)
         cursor.execute(sql_update_articles)
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()

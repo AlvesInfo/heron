@@ -19,7 +19,11 @@ select
     sum(invoice_amount_with_tax) - coalesce(statement_with_tax, 0) as delta_ttc,
     "comment",
     sum(net_amount) as net_amount,
-    case when sum(net_amount) != sum(invoice_amount_without_tax) then true else false end as error,
+    case
+	    when sum(net_amount) != sum(invoice_amount_without_tax) then true
+		when min("is_multi_store") = 0 then true
+	    else false
+	end as error,
     uuid_identification,
     big_category || '||' || third_party_num || '||' || supplier || '||' || invoice_month as enc_param,
     pk,
@@ -54,10 +58,14 @@ from (
         ec."comment",
         ec.uuid_identification,
         ec."id" as pk,
-        case when ee.cct_uuid_identification is null then 0 else 1 end as cct_error,
+        case
+	        when ee.cct_uuid_identification is null then 0
+	        else 1
+	    end as cct_error,
         pc.uuid_identification as uuid_category,
         "purchase_invoice",
-        "sale_invoice"
+        "sale_invoice",
+        case when "is_multi_store" then 0 else 1 end as "is_multi_store"
     from edi_ediimport ee
     left join parameters_category pc
     on ee.uuid_big_category = pc.uuid_identification
@@ -81,7 +89,8 @@ from (
         	 ee.cct_uuid_identification,
              pc.uuid_identification,
             "purchase_invoice",
-            "sale_invoice"
+            "sale_invoice",
+            is_multi_store
     ) edi
 group by big_category,
          supplier,
