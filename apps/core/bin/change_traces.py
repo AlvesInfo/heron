@@ -35,10 +35,10 @@ def get_bool_or_str(value: AnyStr):
     :param value: 'false' ou 'true'
     :return: bool
     """
-    if value == 'false':
+    if value == "false":
         return False
 
-    if value == 'true':
+    if value == "true":
         return True
 
     return value

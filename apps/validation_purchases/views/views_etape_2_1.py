@@ -39,7 +39,7 @@ def integration_purchases(request):
     # on met à jour les cct au cas où l'on est rempli des cct dans un autre écran
     update_cct_edi_import()
 
-    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count:
+    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count():
         return redirect(reverse("validation_purchases:purchase_without_suppliers"))
 
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_purchases.sql"

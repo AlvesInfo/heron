@@ -39,23 +39,6 @@
     <script>
 
         $(document).ready(function () {
-            {% include "heron/base_data_table.html" %}
-            {% include "heron/change_category_js.html" %}
-
-            $('.menu .item').tab();
-
-            makeAddition()
-
-            $('.ui.error.checkbox')
-              .checkbox()
-              .first().checkbox({
-                onChecked: function() {
-                  $('.ui.segment.success').hide();
-                },
-                onUnchecked: function() {
-                  $('.ui.segment.success').show();
-                },
-            });
 
             {% if en_cours %}
                 setTimeout(function() {
@@ -65,9 +48,67 @@
                 )
             {% endif %}
 
-            {% if not integration_purchases %}
-                $(`.datatable-chargement`).hide();
-            {% endif %}
+            $(`.datatable-chargement`).hide();
+
+            $(".button.submit").click(function () {
+                let [pk, uuid_identification, flow_name, supplier, supplier_ident] = $(this).data("value").split("|");
+                let third_party_num = $(`#id_third_party_num_${pk}`).val();
+                $(`#textModal`).html(`Intégration : Flow Name : ${flow_name} - Fournisseur : ${supplier} - Identifiant : ${supplier_ident}`);
+                $(`#modalContent`).html(`Voulez y assigner le tiers X3 : ${third_party_num}`);
+                $(`#id_uuid_identification`).val(uuid_identification);
+                $(`#id_flow_name`).val(flow_name);
+                $(`#id_supplier`).val(supplier);
+                $(`#id_supplier_ident`).val(supplier_ident);
+                $("#id_third_party_num").val(third_party_num);
+
+                if (third_party_num) {
+                    let modale = $('#demandeModal');
+
+                    modale
+                        .modal({
+                            closable: false,
+                            onApprove: function() {
+                                $(`#thirdPartyNumFormChange`).submit();
+                                $(`.message`).hide();
+                                $(`.datatable-chargement`).show();
+                            }
+                        })
+                        .modal(`show`)
+
+                } else {
+                    alert("Vous devez choisir un tiers")
+                }
+            });
+
+
+
+            });
+
+            $(`#thirdPartyNumFormChange`).submit(function (event) {
+                let formData = {
+                  uuid_identification: $("#id_uuid_identification").val(),
+                  flow_name: $("#id_flow_name").val(),
+                  supplier: $("#id_supplier").val(),
+                  supplier_ident: $("#id_supplier_ident").val(),
+                  third_party_num: $("#id_third_party_num").val(),
+                };
+
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'validation_purchases:purchase_without_suppliers_update' %}",
+                  data: formData,
+                  encode: true,
+                }).done(function (data) {
+
+                    if (data.success === "success") {
+                        window.location.reload()
+                    } else {
+                        window.location.href = data.success;
+                    }
+
+                });
+
+                event.preventDefault();
 
         });
 

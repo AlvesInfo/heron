@@ -1,0 +1,46 @@
+{# Fenêtre modale pour changer les tiers x3  ========================================== #}
+<form id="thirdPartyNumFormChange" action="" method="post">
+    {% csrf_token %}
+    <div id="modalCct" class="ui large modal transition" style="display: none;">
+        <i class="close icon"></i>
+        <div class="header">
+          CHANGEMENT DE CCT
+        </div>
+        <div class="content">
+          <div class="ui form">
+            <h4 id="headerTiers" class="ui dividing header"></h4>
+              <div class="fields">
+                    <div class="one wide field" style="display: none;">
+                        {{ form.id }}
+                        {{ form.uuid_identification }}
+                        {{ form.third_party_num }}
+                        {{ form.invoice_number }}
+                        {{ form.invoice_year }}
+                    </div>
+                    <div class="fourteen wide field">
+                        <label for="id_cct"
+                               style="text-align: left;">CCT X3</label>
+                        <select id="id_cct"
+                                name="cct"
+                                class="ui fluid search dropdown">
+                            {% for value, label in form.cct_choices %}
+                                <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+              </div>
+          </div>
+        </div>
+        <div class="actions" style="text-align: center !important;">
+          <div class="ui red cancel button">
+            <i class="remove icon"></i>
+            Annuler
+          </div>
+          <div class="ui green ok button">
+            <i class="checkmark icon"></i>
+            Valider
+          </div>
+        </div>
+    </div>
+</form>
+{# ====================================================================================== #}

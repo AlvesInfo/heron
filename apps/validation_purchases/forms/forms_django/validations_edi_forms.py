@@ -150,6 +150,7 @@ class UpdateThirdpartynumForm(forms.ModelForm):
             required=True,
         )
         self.fields["third_party_num"] = third_party_num
+        self.fields["uuid_identification"] = forms.UUIDField()
 
     class Meta:
         """class Meta"""
