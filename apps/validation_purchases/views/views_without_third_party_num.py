@@ -93,7 +93,7 @@ def purchase_without_suppliers_update(request):
                         request,
                         model=EdiImport,
                         before_kwargs=data_dict,
-                        update_kwargs={"third_party_num": third_party_num, "supplier": supplier},
+                        update_kwargs={"third_party_num": third_party_num, "supplier": society.name},
                     )
                     message = old_message + message
 
