@@ -230,7 +230,6 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
 
             if error_lines:
                 to_print += f"\nLignes en erreur : {error_lines}\n"
-
                 raise ValidationError(
                     f"Le fichier comporte des erreurs: {flow_name} - {str(source)!r}"
                 )
@@ -244,9 +243,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
                 cnx=connection,
                 exclude_update_fields={},
             )
-
             valide_file_io.seek(0)
-
             postgres_upsert.insertion(
                 file=valide_file_io,
                 insert_mode="insert",
@@ -365,9 +362,7 @@ def bbgr_bulk(file_path: Path):
     new_file_path = bulk_translate_file(file_path)
     to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     new_file_path.unlink()
-    print("Début bulk_post_insert")
     bulk_post_insert(trace.uuid_identification)
-    print("Fin bulk_post_insert")
 
     return trace, to_print
 
@@ -388,6 +383,7 @@ def bbgr_statment():
         comment,
     )
     error = False
+
     try:
         insert_bbgr_stament_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
@@ -399,11 +395,7 @@ def bbgr_statment():
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
-
-    print("Début bbgr_statment_post_insert")
     bbgr_statment_post_insert(trace.uuid_identification)
-    print("Fin bbgr_statment_post_insert")
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.save()
@@ -430,6 +422,7 @@ def bbgr_monthly():
         comment,
     )
     error = False
+
     try:
         insert_bbgr_monthly_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
@@ -441,11 +434,7 @@ def bbgr_monthly():
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
-
-    print("Début bbgr_monthly_post_insert")
     bbgr_monthly_post_insert(trace.uuid_identification)
-    print("Fin bbgr_monthly_post_insert")
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.save()
@@ -472,6 +461,7 @@ def bbgr_retours():
         comment,
     )
     error = False
+
     try:
         insert_bbgr_retours_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
@@ -483,11 +473,7 @@ def bbgr_retours():
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
-
-    print("Début bbgr_retours_post_insert")
     bbgr_retours_post_insert(trace.uuid_identification)
-    print("Fin bbgr_retours_post_insert")
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.save()
@@ -511,6 +497,7 @@ def bbgr_receptions():
         comment,
     )
     error = False
+
     try:
         insert_bbgr_receptions_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
@@ -522,11 +509,7 @@ def bbgr_receptions():
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
-
-    print("Début bbgr_retours_post_insert")
     bbgr_retours_post_insert(trace.uuid_identification)
-    print("Fin bbgr_retours_post_insert")
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.save()
@@ -557,10 +540,7 @@ def edi(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début edi_post_insert")
     edi_post_insert(trace.uuid_identification)
-    print("Fin edi_post_insert")
 
     return trace, to_print
 
@@ -590,10 +570,7 @@ def eye_confort(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début eye_confort_post_insert")
     eye_confort_post_insert(trace.uuid_identification)
-    print("Fin eye_confort_post_insert")
 
     return trace, to_print
 
@@ -621,10 +598,7 @@ def generique(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début generique_post_insert")
     generique_post_insert(trace.uuid_identification)
-    print("Fin generique_post_insert")
 
     return trace, to_print
 
@@ -654,10 +628,7 @@ def hearing(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début hearing_post_insert")
     hearing_post_insert(trace.uuid_identification)
-    print("Fin hearing_post_insert")
 
     return trace, to_print
 
@@ -688,10 +659,7 @@ def interson(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
-
-    print("Début interson_post_insert")
     interson_post_insert(trace.uuid_identification)
-    print("Fin interson_post_insert")
 
     return trace, to_print
 
@@ -722,10 +690,7 @@ def johnson(file_path: Path):
         "exclude_rows_dict": {1: "Total"},
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début johnson_post_insert")
     johnson_post_insert(trace.uuid_identification)
-    print("Fin johnson_post_insert")
 
     return trace, to_print
 
@@ -755,10 +720,7 @@ def lmc(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début lmc_post_insert")
     lmc_post_insert(trace.uuid_identification)
-    print("Fin lmc_post_insert")
 
     return trace, to_print
 
@@ -788,10 +750,7 @@ def newson(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début newson_post_insert")
     newson_post_insert(trace.uuid_identification)
-    print("Fin newson_post_insert")
 
     return trace, to_print
 
@@ -821,10 +780,7 @@ def phonak(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début phonak_post_insert")
     phonak_post_insert(trace.uuid_identification)
-    print("Fin phonak_post_insert")
 
     return trace, to_print
 
@@ -854,10 +810,7 @@ def prodition(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début prodition_post_insert")
     prodition_post_insert(trace.uuid_identification)
-    print("Fin prodition_post_insert")
 
     return trace, to_print
 
@@ -887,10 +840,7 @@ def signia(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début signia_post_insert")
     signia_post_insert(trace.uuid_identification)
-    print("Fin signia_post_insert")
 
     return trace, to_print
 
@@ -920,10 +870,7 @@ def starkey(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début starkey_post_insert")
     starkey_post_insert(trace.uuid_identification)
-    print("Fin starkey_post_insert")
 
     return trace, to_print
 
@@ -953,10 +900,7 @@ def technidis(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début technidis_post_insert")
     technidis_post_insert(trace.uuid_identification)
-    print("Fin technidis_post_insert")
 
     return trace, to_print
 
@@ -986,10 +930,7 @@ def unitron(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début unitron_post_insert")
     unitron_post_insert(trace.uuid_identification)
-    print("Fin unitron_post_insert")
 
     return trace, to_print
 
@@ -1019,10 +960,7 @@ def widex(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début widex_post_insert")
     widex_post_insert(trace.uuid_identification)
-    print("Fin widex_post_insert")
 
     return trace, to_print
 
@@ -1052,9 +990,6 @@ def widex_ga(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
-    print("Début widexga_post_insert")
     widexga_post_insert(trace.uuid_identification)
-    print("Fin widexga_post_insert")
 
     return trace, to_print

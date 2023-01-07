@@ -22,6 +22,7 @@ from apps.edi.bin.duplicates_check import (
     suppliers_invoices_duplicate_check,
 )
 from apps.edi.bin.set_suppliers_cct import add_news_cct_sage
+from apps.edi.sql_files.sql_common import post_common_dict
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
 from apps.edi.sql_files.sql_bulk import post_bulk_dict
 from apps.edi.sql_files.sql_bbgr_002_statment import bbgr_002_statment_dict
@@ -63,17 +64,27 @@ def get_user_automate():
 
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
-    sql_round_amount = post_all_dict.get("sql_round_amount")
-    sql_supplier_update = post_all_dict.get("sql_supplier_update")
-    sql_fac_update_except_edi = post_all_dict.get("sql_fac_update_except_edi")
-    sql_reference = post_all_dict.get("sql_reference")
-    sql_vat = post_all_dict.get("sql_vat")
-    sql_vat_rate = post_all_dict.get("sql_vat_rate")
-    sql_cct = post_all_dict.get("sql_cct")
-    sql_edi_generique = post_all_dict.get("sql_edi_generique")
-    sql_update_articles = post_all_dict.get("sql_update_articles")
-    sql_validate = post_all_dict.get("sql_validate")
     sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_in_use_third_party_num)
+
+    edi_import_duplicate_check()
+    suppliers_invoices_duplicate_check()
+    add_news_cct_sage()
+
+
+def post_common():
+    """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+    sql_round_amount = post_common_dict.get("sql_round_amount")
+    sql_supplier_update = post_common_dict.get("sql_supplier_update")
+    sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")
+    sql_reference = post_common_dict.get("sql_reference")
+    sql_vat = post_common_dict.get("sql_vat")
+    sql_vat_rate = post_common_dict.get("sql_vat_rate")
+    sql_cct = post_common_dict.get("sql_cct")
+    sql_update_articles = post_common_dict.get("sql_update_articles")
+    sql_validate = post_common_dict.get("sql_validate")
 
     with connection.cursor() as cursor:
         cursor.execute(sql_round_amount)
@@ -83,17 +94,11 @@ def post_processing_all():
         cursor.execute(sql_vat)
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
         cursor.execute(sql_cct)
-        cursor.execute(sql_edi_generique)
         cursor.execute(sql_update_articles)
         EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
             created_by=get_user_automate()
         )
         cursor.execute(sql_validate)
-        cursor.execute(sql_in_use_third_party_num)
-
-    edi_import_duplicate_check()
-    suppliers_invoices_duplicate_check()
-    add_news_cct_sage()
 
 
 def bulk_post_insert(uuid_identification: AnyStr):
@@ -201,12 +206,14 @@ def edi_post_insert(uuid_identification: AnyStr):
     sql_col_essilor = post_edi_dict.get("sql_col_essilor")
     sql_tva = post_edi_dict.get("sql_tva")
     sql_fac_update_edi = post_edi_dict.get("sql_fac_update_edi")
+    sql_edi_generique = post_edi_dict.get("sql_edi_generique")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_col_essilor, {"uuid_identification": uuid_identification})
         cursor.execute(sql_tva, {"uuid_identification": uuid_identification})
         cursor.execute(sql_fac_update_edi, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
 
 
 def bbgr_statment_post_insert(uuid_identification: AnyStr):
@@ -267,12 +274,14 @@ def generique_post_insert(uuid_identification: AnyStr):
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
     sql_maison = post_generic_dict.get("sql_maison")
+    sql_edi_generique = post_generic_dict.get("sql_edi_generique")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
         cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
 
 
 def hearing_post_insert(uuid_identification: AnyStr):

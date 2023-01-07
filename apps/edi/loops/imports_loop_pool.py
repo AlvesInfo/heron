@@ -63,6 +63,7 @@ from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
 from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
+from apps.edi.bin.edi_post_processing_pool import post_common
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
 from apps.parameters.models import ActionInProgress
 
@@ -360,8 +361,6 @@ def loop_proc(proc_files_list):
     with ThreadPoolExecutor() as executor:
         executor.map(proc_files, proc_files_list)
 
-    post_processing_all()
-
 
 def loop_pool_proc(proc_files_list):
     """Lancement des process en Multiprocessing pool"""
@@ -409,6 +408,10 @@ def main():
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
             loop_proc(proc_files_l)
+
+            post_common()
+            post_processing_all()
+
             print(f"All validations : {time.time() - start_all} s")
             EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 

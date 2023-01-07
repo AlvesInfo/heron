@@ -109,62 +109,134 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     "purchase_invoice",
                     "sale_invoice"
                 )
-                select
+                select 
                     %(uuid_identification)s as "uuid_identification",
                     now() as "created_at",
                     now() as "modified_at",
                    'BbgrRetours' as "flow_name",
                    'BbgrRetours' as "supplier_ident",
                    '9524514' as "siret_payeur",
-                   "boutique_bbgr" as "code_fournisseur",
-                   "boutique_acuitis" as "code_maison",
-                   "nom_boutique" as "maison",
-                   "customer_po_number" as "acuitis_order_number",
-                   "livraison" as "delivery_number",
-                   "date_livraison" as "delivery_date",
-                   coalesce(
-                        case when "livraison" = '' then null else "livraison" end,
-                        case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end, 
-                        "id"::varchar
-                    ) as "invoice_number",
-                   "date_mouvement" as "invoice_date",
-                   case 
-                        when "qte_expediee" > 0
-                        then '380' 
-                        else '381' 
-                    end as "invoice_type",
+                   "code_fournisseur",
+                   "code_maison",
+                   "maison",
+                   "acuitis_order_number",
+                   "delivery_number",
+                   "delivery_date",
+                   "invoice_number",
+                   "invoice_date",
+                   "invoice_type",
                    'EUR' as "devise",
-                   case
-                        when "type_article" = 'FRAIS_RETOUR' then 'F-'||"article"
-                        when "type_article"  = 'DECOTE'
-                            then case 
-                                when left("description", 11) = 'Décote de 1' then 'D1-'||"article"
-                                when left("description", 11) = 'Décote de 2' then 'D2-'||"article"
-                                else 'D3-'||"article"
-                            end    
-                        else "article"
-                   end as "reference_article",
-                   "article" as "ean_code",
-                   "description" as "libelle",
-                   "famille" as "famille",
-                   "qte_expediee" as "qty",
-                   "prix_unitaire" as "gross_unit_price",
-                   "prix_unitaire" as "net_unit_price",
-                   "montant_ht" as "gross_amount",
-                   "montant_ht" as "net_amount",
-                   "taux_tva" as "vat_rate",
-                   "montant_tva" as "vat_amount",
-                   "montant_ttc" as "amount_with_vat",
-                   "statistique" as "axe_pro_supplier",
+                   "reference_article",
+                   "ean_code",
+                   "libelle",
+                   "famille",
+                   "qty",
+                   "gross_unit_price",
+                   "net_unit_price",
+                   "gross_amount",
+                   "net_amount",
+                   "vat_rate",
+                   "vat_amount",
+                   "amount_with_vat",
+                   "axe_pro_supplier",
                    'BBGR RETOURS' as "supplier_name",
-                   "id" as "bi_id",
+                   "bi_id",
                    1 as "unity",
                    false as "purchase_invoice",
                    true as "sale_invoice"
-                from "heron_bi_factures_monthlydelivery"
-                where "id" > %(min_id)s
-                and "type_article" in ('FRAIS_RETOUR', 'DECOTE')
-                order by "id"
+                from (
+                    select
+                       "boutique_bbgr" as "code_fournisseur",
+                       "boutique_acuitis" as "code_maison",
+                       "nom_boutique" as "maison",
+                       "customer_po_number" as "acuitis_order_number",
+                       "livraison" as "delivery_number",
+                       "date_livraison" as "delivery_date",
+                       coalesce(
+                            case when "livraison" = '' then null else "livraison" end,
+                            case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end, 
+                            max("id")::varchar
+                        ) as "invoice_number",
+                       "date_mouvement" as "invoice_date",
+                       case 
+                            when sum("qte_expediee") > 0
+                            then '380' 
+                            else '381' 
+                        end as "invoice_type",
+                       'FRAIS_RETOUR' as "reference_article",
+                       null as "ean_code",
+                       'Frais de retour' as "libelle",
+                       'FRAIS_RETOUR' as "famille",
+                       sum("qte_expediee") as "qty",
+                       "prix_unitaire" as "gross_unit_price",
+                       "prix_unitaire" as "net_unit_price",
+                       sum("montant_ht") as "gross_amount",
+                       sum("montant_ht") as "net_amount",
+                       "taux_tva" as "vat_rate",
+                       sum("montant_tva") as "vat_amount",
+                       sum("montant_ttc") as "amount_with_vat",
+                       "statistique" as "axe_pro_supplier",
+                       max("id") as "bi_id"
+                    from "heron_bi_factures_monthlydelivery"
+                    where "id" > %(min_id)s
+                    and "type_article" = 'FRAIS_RETOUR'
+                    group by 
+                        "boutique_bbgr",
+                        "boutique_acuitis",
+                        "nom_boutique",
+                        "customer_po_number", 
+                        "livraison",
+                        "date_livraison",
+                        "no_facture_acuitis",
+                        "date_mouvement",
+                        "famille",
+                        "prix_unitaire",
+                        "taux_tva",
+                        "statistique"
+                            
+                       union all 
+                                   
+                       select
+                       "boutique_bbgr" as "code_fournisseur",
+                       "boutique_acuitis" as "code_maison",
+                       "nom_boutique" as "maison",
+                       "customer_po_number" as "acuitis_order_number",
+                       "livraison" as "delivery_number",
+                       "date_livraison" as "delivery_date",
+                       coalesce(
+                            case when "livraison" = '' then null else "livraison" end,
+                            case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end, 
+                            "id"::varchar
+                        ) as "invoice_number",
+                       "date_mouvement" as "invoice_date",
+                       case 
+                            when "qte_expediee" > 0
+                            then '380' 
+                            else '381' 
+                        end as "invoice_type",
+                       case
+                            when left("description", 11) = 'Décote de 1' then 'D1-'||"article"
+                            when left("description", 11) = 'Décote de 2' then 'D2-'||"article"
+                            else 'D3-'||"article"
+                       end as "reference_article",
+                       "article" as "ean_code",
+                       "description" as "libelle",
+                       "famille" as "famille",
+                       "qte_expediee" as "qty",
+                       "prix_unitaire" as "gross_unit_price",
+                       "prix_unitaire" as "net_unit_price",
+                       "montant_ht" as "gross_amount",
+                       "montant_ht" as "net_amount",
+                       "taux_tva" as "vat_rate",
+                       "montant_tva" as "vat_amount",
+                       "montant_ttc" as "amount_with_vat",
+                       "statistique" as "axe_pro_supplier",
+                       "id" as "bi_id"
+                    from "heron_bi_factures_monthlydelivery"
+                    where "id" > %(min_id)s
+                    and "type_article"= 'DECOTE'
+                ) retours 
+                order by "bi_id"
                 """
             )
             cursor.execute(

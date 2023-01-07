@@ -46,6 +46,10 @@ def integration_purchases(request):
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(cursor, file_path=sql_context_file)
+
+        if not elements:
+            return redirect(reverse("edi:import_edi_invoices"))
+
         context = {
             "titre_table": "2.1 - Contrôle des Intégrations - Achats",
             "integration_purchases": elements,
