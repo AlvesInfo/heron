@@ -65,7 +65,7 @@ def purchase_without_suppliers_update(request):
             data_dict = form.cleaned_data
             third_party_num = data_dict.pop("third_party_num")
             society = Society.objects.get(third_party_num=third_party_num)
-            old_center = society.centers_suppliers_indentifier or ""
+            old_center = society.centers_suppliers_indentifier or "|"
 
             if old_center[-1] == "|":
                 old_center = old_center[:-1]
