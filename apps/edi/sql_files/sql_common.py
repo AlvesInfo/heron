@@ -134,60 +134,61 @@ post_common_dict = {
     ),
     "sql_fac_update_except_edi": sql.SQL(
         """
-update "edi_ediimport" edi
-set
-    "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
-    "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
-    "invoice_amount_tax" = (
-                                edi_fac."invoice_amount_with_tax" 
-                                - 
-                                edi_fac."invoice_amount_without_tax"
-                            ),
-    "reference_article" = case 
-                            when "reference_article" isnull or "reference_article" = '' 
-                            then "ean_code"
-                            else "reference_article"
-                          end
-from (
-    select 
-        "uuid_identification", 
-        "invoice_number",
-        case 
-            when invoice_type = '381' 
-            then -abs(sum("mont_HT"))::numeric
-            else abs(sum("mont_HT"))::numeric
-        end as "invoice_amount_without_tax",
-        case 
-            when invoice_type = '381'
-            then -abs(sum("mont_TTC"))::numeric 
-            else abs(sum("mont_TTC"))::numeric    
-        end as "invoice_amount_with_tax"
-    from (
-        select 
-            "uuid_identification", 
-            "invoice_number", 
-            "invoice_type",
-            round(sum("net_amount")::numeric, 2) as "mont_HT",
-            (
-                round(sum("net_amount")::numeric, 2) +
-                round(round(sum("net_amount")::numeric, 2) * "vat_rate"::numeric, 2)
-            ) as "mont_TTC",
-            "vat_rate"
-        from "edi_ediimport"                
-        where (
-            flow_name not in ('Edi', 'Widex', 'WidexGa') 
-            -- Spécifique pour ophtalmic qui n'additionnent pas le port avec le total 
-            -- comme spécifié dans la norme edi
-            or third_party_num = 'OPHT001'
-        )
-        and ("valid" = false or "valid" isnull)
-        group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
-    ) as "tot_amount"
-    group by "uuid_identification", "invoice_number", "invoice_type"
-) edi_fac
-where edi."uuid_identification" = edi_fac."uuid_identification"
-  and edi."invoice_number" = edi_fac."invoice_number"
-"""
+        update "edi_ediimport" edi
+        set
+            "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
+            "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
+            "invoice_amount_tax" = (
+                                        edi_fac."invoice_amount_with_tax" 
+                                        - 
+                                        edi_fac."invoice_amount_without_tax"
+                                    ),
+            "reference_article" = case 
+                                    when "reference_article" isnull or "reference_article" = '' 
+                                    then "ean_code"
+                                    else "reference_article"
+                                  end
+        from (
+            select 
+                "uuid_identification", 
+                "invoice_number",
+                case 
+                    when invoice_type = '381' 
+                    then -abs(sum("mont_HT"))::numeric
+                    else abs(sum("mont_HT"))::numeric
+                end as "invoice_amount_without_tax",
+                case 
+                    when invoice_type = '381'
+                    then -abs(sum("mont_TTC"))::numeric 
+                    else abs(sum("mont_TTC"))::numeric    
+                end as "invoice_amount_with_tax"
+            from (
+                select 
+                    "uuid_identification", 
+                    "invoice_number", 
+                    "invoice_type",
+                    round(sum("net_amount")::numeric, 2) as "mont_HT",
+                    (
+                        round(sum("net_amount")::numeric, 2) +
+                        round(round(sum("net_amount")::numeric, 2) * "vat_rate"::numeric, 2)
+                    ) as "mont_TTC",
+                    "vat_rate"
+                from "edi_ediimport"                
+                where (
+                    flow_name not in ('Edi', 'Widex', 'WidexGa') 
+                    -- Spécifique pour ophtalmic qui n'additionnent pas le port avec le total 
+                    -- comme spécifié dans la norme edi
+                    or third_party_num = 'OPHT001'
+                )
+                and ("valid" = false or "valid" isnull)
+                group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
+            ) as "tot_amount"
+            group by "uuid_identification", "invoice_number", "invoice_type"
+        ) edi_fac
+        where edi."uuid_identification" = edi_fac."uuid_identification"
+          and edi."invoice_number" = edi_fac."invoice_number"
+          and ("edi"."valid" = false or "edi"."valid" isnull)
+    """
     ),
     "sql_reference": sql.SQL(
         """
@@ -204,20 +205,22 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             vat_regime = rvat.vat_sheme_supplier
          from (
             select 
-                rs."id" , 
+                third_party_num,
+                invoice_number,
                 rs.vat_sheme_supplier,
                 rs.vat_rate,
                 rv.vat
             from (
                 select 
-                    ei."id", 
+                    ei.third_party_num,
+                    invoice_number,
                     vat_sheme_supplier, 
                     vat_rate
                 from edi_ediimport ei
                 join book_society bs
                 on ei.third_party_num = bs.third_party_num
                 where vat_sheme_supplier is not null
-                  and (ei."valid" = false or ei."valid" isnull)
+                              and (ei."valid" = false or ei."valid" isnull)
             ) rs
             join (
                 select 
@@ -238,163 +241,164 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                 ) r_rate		
                 join (
                     select 
-                        avm.vat, avm.vat_regime
+                        avm.vat, 
+                        case when avm.vat_regime is null then ''end as vat_regime
                     from accountancy_vatsage avm
-                    where (vat_regime is not null and vat_regime != '')
                 ) r_vat
                 on r_rate.vat = r_vat.vat
                 group by r_vat.vat_regime, r_rate.rate
             ) rv 
             on rs.vat_sheme_supplier = rv.vat_regime
             and rs.vat_rate = rv.vat_rate
-         ) rvat
-        where edi."id" = rvat."id"
+    ) rvat
+    where edi.third_party_num = rvat.third_party_num
+    and edi."invoice_number" = rvat."invoice_number"
     """
     ),
     "sql_vat_rate": sql.SQL(
         """
-    with ranks as (
-        select
+        with ranks as (
+            select
+                uuid_identification,
+                invoice_number,
+                third_party_num,
+                sum(net_amount::numeric)::numeric as net_amount,
+                vat_rate,
+                invoice_amount_without_tax,
+                invoice_amount_tax,
+                invoice_amount_with_tax,
+                vat,
+                RANK () OVER ( 
+                    partition by third_party_num, invoice_number
+                    ORDER BY third_party_num, invoice_number, vat_rate
+                ) vat_rank
+    
+            from edi_ediimport ee
+            where ("valid" = false or "valid" isnull)
+            group by
+                uuid_identification,
+                third_party_num,
+                invoice_number,
+                vat_rate,
+                invoice_amount_without_tax,
+                invoice_amount_tax,
+                invoice_amount_with_tax,
+                third_party_num, 
+                vat
+        ),
+        max_ranks as (
+            select
+                uuid_identification,
+                invoice_number,
+                third_party_num,
+                max(vat_rank) as max_rank
+            from ranks
+            group by
+                uuid_identification,
+                invoice_number,
+                third_party_num
+        ),
+        not_max_rank as (
+            select 
+                rk.uuid_identification,
+                rk.third_party_num,
+                rk.invoice_number,
+                rk.net_amount,
+                rk.vat_rate,
+                rk.invoice_amount_without_tax,
+                rk.invoice_amount_tax,
+                rk.invoice_amount_with_tax,
+                rk.vat_rank,
+                rk.vat,
+                mr.max_rank,
+                case 
+                    when rk.vat_rank != mr.max_rank
+                    then round(rk.net_amount::numeric * rk.vat_rate::numeric, 2)::numeric 
+                    else 0::numeric
+                end as tax,
+                case 
+                    when rk.vat_rank != mr.max_rank
+                    then (
+                        round(rk.net_amount::numeric * rk.vat_rate::numeric, 2)::numeric 
+                        + 
+                        net_amount::numeric
+                    )
+                    else 0::numeric
+                end as with_tax
+    
+            from ranks rk
+            join max_ranks mr
+            on rk.uuid_identification = mr.uuid_identification
+            and rk.third_party_num = mr.third_party_num
+            and rk.invoice_number = mr.invoice_number
+        ),
+        yes_max_rank as (
+            select 
+                uuid_identification,
+                third_party_num,
+                invoice_number,
+                vat,
+                (invoice_amount_tax::numeric - sum(tax::numeric))::numeric as tax,
+                (invoice_amount_with_tax::numeric - sum(with_tax::numeric))::numeric as with_tax,
+                max(max_rank) as vat_rank
+            from not_max_rank
+            group by 
+                uuid_identification,
+                third_party_num,
+                invoice_number,
+                invoice_amount_tax,
+                invoice_amount_with_tax,
+                vat
+        )
+        insert into edi_ediimporttax
+        (
+            created_at,
+            modified_at,
+            created_by,
             uuid_identification,
-            invoice_number,
+            uuid_edi_import,
             third_party_num,
-            sum(net_amount::numeric)::numeric as net_amount,
+            invoice_number,
+            total_without_tax,
             vat_rate,
-            invoice_amount_without_tax,
-            invoice_amount_tax,
-            invoice_amount_with_tax,
-            vat,
-            RANK () OVER ( 
-                partition by third_party_num, invoice_number
-                ORDER BY third_party_num, invoice_number, vat_rate
-            ) vat_rank
-
-        from edi_ediimport ee
-        where ("valid" = false or "valid" isnull)
-        group by
-            uuid_identification,
-            third_party_num,
-            invoice_number,
-            vat_rate,
-            invoice_amount_without_tax,
-            invoice_amount_tax,
-            invoice_amount_with_tax,
-            third_party_num, 
+            total_tax,
+            total_with_tax,
+            vat_rank,
             vat
-    ),
-    max_ranks as (
+        )
         select
-            uuid_identification,
-            invoice_number,
-            third_party_num,
-            max(vat_rank) as max_rank
-        from ranks
-        group by
-            uuid_identification,
-            invoice_number,
-            third_party_num
-    ),
-    not_max_rank as (
-        select 
-            rk.uuid_identification,
-            rk.third_party_num,
-            rk.invoice_number,
-            rk.net_amount,
-            rk.vat_rate,
-            rk.invoice_amount_without_tax,
-            rk.invoice_amount_tax,
-            rk.invoice_amount_with_tax,
-            rk.vat_rank,
-            rk.vat,
-            mr.max_rank,
+            now() as created_at,
+            now() as modified_at,
+            %(automat_user)s::uuid as created_by,
+            gen_random_uuid() as uuid_identification,
+            nm.uuid_identification as uuid_edi_import,
+            nm.third_party_num,
+            nm.invoice_number,
+            net_amount as total_without_tax,
+            nm.vat_rate,
             case 
-                when rk.vat_rank != mr.max_rank
-                then round(rk.net_amount::numeric * rk.vat_rate::numeric, 2)::numeric 
-                else 0::numeric
-            end as tax,
+                when (nm.vat_rank = nm.max_rank)
+                then ym.tax
+                else nm.tax
+            end as total_tax,
             case 
-                when rk.vat_rank != mr.max_rank
-                then (
-                    round(rk.net_amount::numeric * rk.vat_rate::numeric, 2)::numeric 
-                    + 
-                    net_amount::numeric
-                )
-                else 0::numeric
-            end as with_tax
-
-        from ranks rk
-        join max_ranks mr
-        on rk.uuid_identification = mr.uuid_identification
-        and rk.third_party_num = mr.third_party_num
-        and rk.invoice_number = mr.invoice_number
-    ),
-    yes_max_rank as (
-        select 
-            uuid_identification,
-            third_party_num,
-            invoice_number,
-            vat,
-            (invoice_amount_tax::numeric - sum(tax::numeric))::numeric as tax,
-            (invoice_amount_with_tax::numeric - sum(with_tax::numeric))::numeric as with_tax,
-            max(max_rank) as vat_rank
-        from not_max_rank
-        group by 
-            uuid_identification,
-            third_party_num,
-            invoice_number,
-            invoice_amount_tax,
-            invoice_amount_with_tax,
-            vat
-    )
-    insert into edi_ediimporttax
-    (
-        created_at,
-        modified_at,
-        created_by,
-        uuid_identification,
-        uuid_edi_import,
-        third_party_num,
-        invoice_number,
-        total_without_tax,
-        vat_rate,
-        total_tax,
-        total_with_tax,
-        vat_rank,
-        vat
-    )
-    select
-        now() as created_at,
-        now() as modified_at,
-        %(automat_user)s::uuid as created_by,
-        gen_random_uuid() as uuid_identification,
-        nm.uuid_identification as uuid_edi_import,
-        nm.third_party_num,
-        nm.invoice_number,
-        net_amount as total_without_tax,
-        nm.vat_rate,
-        case 
-            when (nm.vat_rank = nm.max_rank)
-            then ym.tax
-            else nm.tax
-        end as total_tax,
-        case 
-            when (nm.vat_rank = nm.max_rank)
-            then ym.with_tax
-            else nm.with_tax
-        end as total_with_tax,
-        nm.vat_rank,
-        nm.vat
-    from not_max_rank nm
-    left join yes_max_rank ym
-    on nm.uuid_identification = ym.uuid_identification
-    and nm.invoice_number = ym.invoice_number
-    and nm.vat_rank = ym.vat_rank
-    order by 
-        nm.uuid_identification,
-        nm.third_party_num,
-        nm.invoice_number,
-        nm.vat,
-        vat_rate
+                when (nm.vat_rank = nm.max_rank)
+                then ym.with_tax
+                else nm.with_tax
+            end as total_with_tax,
+            nm.vat_rank,
+            nm.vat
+        from not_max_rank nm
+        left join yes_max_rank ym
+        on nm.uuid_identification = ym.uuid_identification
+        and nm.invoice_number = ym.invoice_number
+        and nm.vat_rank = ym.vat_rank
+        order by 
+            nm.uuid_identification,
+            nm.third_party_num,
+            nm.invoice_number,
+            nm.vat,
+            vat_rate
     """
     ),
     "sql_cct": sql.SQL(
@@ -429,30 +433,7 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             and aa."axe_pro" is not null
         ) maj
         where edi."id" = maj."id" 
-    """
-    ),
-    "sql_validate": sql.SQL(
-        """
-        update "edi_ediimport" edi
-        set "valid"=true, "vat_rate_exists" = false, "supplier_exists" = false,
-            "maison_exists" = false, "article_exists" = false, "axe_pro_supplier_exists" = false,
-            "acuitis_order_date" = case 
-                                    when "acuitis_order_date" = '1900-01-01' 
-                                    then null
-                                    else "acuitis_order_date"
-                                   end,
-            "delivery_date" = case 
-                                when "delivery_date" = '1900-01-01' 
-                                then null
-                                else "delivery_date"
-                               end,
-            "invoice_month" = date_trunc('month', invoice_date)::date,
-            "invoice_year" = date_part('year', invoice_date),
-            "delete" = false,
-            "unity" =  case
-                            when "unity" isnull then 1 else "unity" 
-                       end
-        where ("valid" = false or "valid" isnull)
+        and ("edi"."valid" = false or "edi"."valid" isnull)
     """
     ),
     "sql_is_multi_store": sql.SQL(
@@ -491,5 +472,29 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
     and edi."is_multi_store" isnull
     and ("valid" = false or "valid" isnull)
     """
-    )
+    ),
+    "sql_validate": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "valid"=true, "vat_rate_exists" = false, "supplier_exists" = false,
+            "maison_exists" = false, "article_exists" = false, "axe_pro_supplier_exists" = false,
+            "acuitis_order_date" = case 
+                                    when "acuitis_order_date" = '1900-01-01' 
+                                    then null
+                                    else "acuitis_order_date"
+                                   end,
+            "delivery_date" = case 
+                                when "delivery_date" = '1900-01-01' 
+                                then null
+                                else "delivery_date"
+                               end,
+            "invoice_month" = date_trunc('month', invoice_date)::date,
+            "invoice_year" = date_part('year', invoice_date),
+            "delete" = false,
+            "unity" =  case
+                            when "unity" isnull then 1 else "unity" 
+                       end
+        where ("valid" = false or "valid" isnull)
+    """
+    ),
 }
