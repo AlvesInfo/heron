@@ -319,6 +319,25 @@ def get_have_receptions():
     return False
 
 
+def have_files():
+    if get_have_statment():
+        return True
+
+    if get_have_monthly():
+        return True
+
+    if get_have_retours():
+        return True
+
+    if get_have_receptions():
+        return True
+
+    if bool(get_files()):
+        return True
+
+    return False
+
+
 def proc_files(process_object):
     """
     Intégration des factures fournisseurs présentes
@@ -433,6 +452,7 @@ def main():
 
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
+
             if bool(proc_files_l):
                 elements_to_insert = True
                 loop_proc(proc_files_l)
