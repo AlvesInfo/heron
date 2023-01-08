@@ -430,7 +430,7 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             and aa."axe_pro" is not null
         ) maj
         where edi."id" = maj."id" 
-        and (ei."valid" = false or ei."valid" isnull)
+        and (edi."valid" = false or edi."valid" isnull)
     """
     ),
     "sql_validate": sql.SQL(
