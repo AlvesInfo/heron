@@ -178,10 +178,10 @@ def get_have_statment():
         )
         cursor.execute(sql_id_statment, {"historic_id": HISTORIC_STATMENT_ID})
         test_have_lines_statment = cursor.fetchone()
-        
+
         if test_have_lines_statment:
             return True
-    
+
     return False
 
 
@@ -223,10 +223,10 @@ def get_have_monthly():
         )
         cursor.execute(sql_id_monthly, {"historic_id": HISTORIC_MONTHLY_ID})
         test_have_lines_montly = cursor.fetchone()
-    
+
         if test_have_lines_montly:
             return True
-    
+
     return False
 
 
@@ -317,17 +317,6 @@ def get_have_receptions():
             return True
 
     return False
-
-def get_have_files():
-    """Retourne True si il y a des fichiers sinon False.
-    Fonction faite pour l'affichage de la page d'import en cas de rafraichissement seulement.
-    Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
-    la page ne s'affiche jamais.
-    """
-
-
-
-    return bool(get_files())
 
 
 def proc_files(process_object):
