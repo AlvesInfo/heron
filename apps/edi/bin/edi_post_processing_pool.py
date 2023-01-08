@@ -1,4 +1,4 @@
-# pylint: disable=E0401,C0303,E1101
+# pylint: disable=E0401,C0303,E1101,R0915
 """
 FR : Module de post-traitement avant import des fichiers de factures fournisseur
 EN : Post-processing module before importing supplier invoice files
@@ -91,65 +91,75 @@ def post_common():
     with connection.cursor() as cursor:
         print("Début : sql_round_amount")
         cursor.execute(sql_round_amount)
-        sleep(1)
         print("Fin : sql_round_amount")
+
+        sleep(1)
 
         print("Début : sql_supplier_update")
         cursor.execute(sql_supplier_update)
-        sleep(1)
         print("Fin : sql_supplier_update")
+
+        sleep(1)
 
         print("Début : sql_fac_update_except_edi")
         cursor.execute(sql_fac_update_except_edi)
-        sleep(1)
         print("Fin : sql_fac_update_except_edi")
+
+        sleep(1)
 
         print("Début : sql_reference")
         cursor.execute(sql_reference)
-        sleep(1)
         print("Fin : sql_reference")
+
+        sleep(1)
 
         print("Début : sql_vat")
         cursor.execute(sql_vat)
-        sleep(1)
         print("Fin : sql_vat")
+
+        sleep(1)
 
         print("Début : sql_vat_rate")
         cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
-        sleep(1)
         print("Fin : sql_vat_rate")
+
+        sleep(1)
 
         print("Début : sql_cct")
         cursor.execute(sql_cct)
-        sleep(1)
         print("Fin : sql_cct")
+
+        sleep(1)
 
         print("Début : sql_is_multi_store")
         cursor.execute(sql_is_multi_store)
-        sleep(1)
         print("Fin : sql_is_multi_store")
+
+        sleep(1)
 
         print("Début : sql_update_articles")
         cursor.execute(sql_update_articles)
-        sleep(1)
         print("Fin : sql_update_articles")
 
-        print("Début : EdiImport set created by")
-        EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
-            created_by=get_user_automate()
-        )
         sleep(1)
-        print("Fin : EdiImport set created by")
+
+        # print("Début : EdiImport set created by")
+        # EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
+        #     created_by=get_user_automate()
+        # )
+        # print("Fin : EdiImport set created by")
+        # sleep(1)
 
         print("Début : sql_validate")
-        cursor.execute(sql_validate)
-        sleep(1)
+        cursor.execute(sql_validate, {"created_by": get_user_automate()})
         print("Fin : sql_validate")
 
-        print("Début : VACUUM")
-        cursor.execute("VACUUM (full)")
         sleep(1)
-        print("Fin : VACUUM")
+
+        # print("Début : VACUUM")
+        # cursor.execute("VACUUM (full)")
+        # print("Fin : VACUUM")
+        # sleep(1)
 
 
 def bulk_post_insert(uuid_identification: AnyStr):

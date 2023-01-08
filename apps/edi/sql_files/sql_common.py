@@ -433,6 +433,43 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         and (edi."valid" = false or edi."valid" isnull)
     """
     ),
+    "sql_is_multi_store": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set 
+            "is_multi_store" = ms."is_multi_store"
+        from (
+            select
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number",
+                case when count("code_fournisseur") > 1 then true else false end as "is_multi_store"
+            from (
+                select 
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    "code_fournisseur"
+                from "edi_ediimport"
+                where "is_multi_store" isnull
+                group by 
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    "code_fournisseur"
+            ) req
+            group by 		
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number"
+        ) ms 
+        where edi."third_party_num" = ms."third_party_num"
+        and edi."uuid_identification" = ms."uuid_identification"
+        and edi."invoice_number" = ms."invoice_number"
+        and edi."is_multi_store" isnull
+        and ("valid" = false or "valid" isnull)
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
@@ -453,45 +490,9 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             "delete" = false,
             "unity" =  case
                             when "unity" isnull then 1 else "unity" 
-                       end
+                       end,
+            "created_by" = %(created_by)s
         where ("valid" = false or "valid" isnull)
     """
     ),
-    "sql_is_multi_store": sql.SQL(
-        """
-    update "edi_ediimport" edi
-    set 
-        "is_multi_store" = ms."is_multi_store"
-    from (
-        select
-            "third_party_num",
-            "uuid_identification",
-            "invoice_number",
-            case when count("code_fournisseur") > 1 then true else false end as "is_multi_store"
-        from (
-            select 
-                "third_party_num",
-                "uuid_identification",
-                "invoice_number",
-                "code_fournisseur"
-            from "edi_ediimport"
-            where "is_multi_store" isnull
-            group by 
-                "third_party_num",
-                "uuid_identification",
-                "invoice_number",
-                "code_fournisseur"
-        ) req
-        group by 		
-            "third_party_num",
-            "uuid_identification",
-            "invoice_number"
-    ) ms 
-    where edi."third_party_num" = ms."third_party_num"
-    and edi."uuid_identification" = ms."uuid_identification"
-    and edi."invoice_number" = ms."invoice_number"
-    and edi."is_multi_store" isnull
-    and ("valid" = false or "valid" isnull)
-    """
-    )
 }

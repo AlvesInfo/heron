@@ -29,7 +29,7 @@ def trace_edi_list(request):
         ),
         "num_items": paginator.count,
         "num_pages": paginator.num_pages,
-        "start_index": traces.start_index() - 1,
+        "start_index": (traces.start_index() - 1) if traces.start_index() else 0,
         "end_index": traces.end_index(),
     }
     return render(request, "traces/edi_traces.html", context=context)
