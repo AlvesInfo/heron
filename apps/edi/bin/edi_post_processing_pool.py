@@ -146,6 +146,11 @@ def post_common():
         sleep(1)
         print("Fin : sql_validate")
 
+        print("Début : VACUUM")
+        cursor.execute("VACUUM (full)")
+        sleep(1)
+        print("Fin : VACUUM")
+
 
 def bulk_post_insert(uuid_identification: AnyStr):
     """
