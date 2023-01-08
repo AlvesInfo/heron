@@ -155,6 +155,56 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
     # pour vérifier si les factures sont multi magasins
     is_multi_store = models.BooleanField(null=True)
 
+    class Meta:
+        """Class Meta Django"""
+
+        indexes = [
+            models.Index(fields=["cct_uuid_identification"]),
+            models.Index(fields=["valid"]),
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["supplier_ident"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(fields=["invoice_number"]),
+            models.Index(fields=["id"]),
+            models.Index(fields=["is_multi_store"]),
+            models.Index(fields=["third_party_num", "supplier_ident", "valid"]),
+            models.Index(fields=["uuid_identification", "invoice_number"]),
+            models.Index(fields=["id", "valid"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    "is_multi_store",
+                    "valid",
+                ]
+            ),
+        ]
+
+
+"""
+cct_uuid_identification
+valid
+
+multiples
+third_party_num
+supplier_ident
+valid
+
+uuid_identification
+invoice_number
+
+id
+valid
+
+third_party_num
+uuid_identification
+invoice_number
+is_multi_store
+valid
+
+"""
+
 
 class EdiImportTax(FlagsTable):
 

@@ -42,6 +42,7 @@ PASSWORD_DATABASE = config("PASSWORD_DATABASE")
 HOST_DATABASE = config("HOST_DATABASE")
 HOST_DATABASE_HERON = config("HOST_DATABASE_HERON")
 PORT_DATABASE = config("PORT_DATABASE")
+PORT_DATABASE_HERON = config("PORT_DATABASE_HERON", default=PORT_DATABASE)
 
 # CNX_STRING pour le pool de connexion
 CNX_STRING = (
@@ -196,7 +197,7 @@ DATABASES = {
         "USER": USER_DATABASE,
         "PASSWORD": PASSWORD_DATABASE,
         "HOST": HOST_DATABASE_HERON,
-        "PORT": PORT_DATABASE,
+        "PORT": PORT_DATABASE_HERON,
         "client_encoding": "UTF8",
     },
     "bi_bdd": {
