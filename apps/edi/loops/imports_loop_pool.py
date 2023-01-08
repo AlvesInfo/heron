@@ -142,14 +142,9 @@ def get_files():
     return files_list
 
 
-def have_files():
-    """Retourne True si il y a des fichiers sinon False.
-    Fonction faite pour l'affichage de la page d'import en cas de rafraichissement seulement.
-    Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
-    la page ne s'affiche jamais.
-    """
+def get_have_statment():
+    """Vérifie si il y a des statment à intégrer"""
     with connection.cursor() as cursor:
-        # Verification si il y a des Statements
         sql_id_statment = sql.SQL(
             """
             select 
@@ -183,11 +178,17 @@ def have_files():
         )
         cursor.execute(sql_id_statment, {"historic_id": HISTORIC_STATMENT_ID})
         test_have_lines_statment = cursor.fetchone()
-
+        
         if test_have_lines_statment:
             return True
+    
+    return False
 
-        # Verification si il y a des Monthly
+
+def get_have_monthly():
+    """Verification si il y a des Monthly"""
+
+    with connection.cursor() as cursor:
         sql_id_monthly = sql.SQL(
             """
             select 
@@ -222,11 +223,17 @@ def have_files():
         )
         cursor.execute(sql_id_monthly, {"historic_id": HISTORIC_MONTHLY_ID})
         test_have_lines_montly = cursor.fetchone()
-
+    
         if test_have_lines_montly:
             return True
+    
+    return False
 
-        # Verification si il y a des Retours
+
+def get_have_retours():
+    """Verification si il y a des Retours"""
+
+    with connection.cursor() as cursor:
         sql_id_retours = sql.SQL(
             """
             select 
@@ -265,6 +272,13 @@ def have_files():
         if test_have_lines_retours:
             return True
 
+    return False
+
+
+def get_have_receptions():
+    """Verification si il y a des Réceptions"""
+
+    with connection.cursor() as cursor:
         sql_id_receptions = sql.SQL(
             """
             select 
@@ -301,6 +315,17 @@ def have_files():
 
         if test_have_lines_receptions:
             return True
+
+    return False
+
+def get_have_files():
+    """Retourne True si il y a des fichiers sinon False.
+    Fonction faite pour l'affichage de la page d'import en cas de rafraichissement seulement.
+    Si ce n'ast pas contrôlé le rafraichissement envoie true à in_progress,
+    la page ne s'affiche jamais.
+    """
+
+
 
     return bool(get_files())
 
@@ -395,25 +420,44 @@ def main():
             action.in_progress = True
             action.save()
             start_all = time.time()
+            elements_to_insert = False
 
             # On insert BBGR STATMENT
-            bbgr_statment()
+            if get_have_statment():
+                elements_to_insert = True
+                bbgr_statment()
+
             # On insert BBGR MONTHLY
-            bbgr_monthly()
+            if get_have_monthly():
+                elements_to_insert = True
+                bbgr_monthly()
+
             # On insert BBGR RETOURS
-            bbgr_retours()
+            if get_have_retours():
+                elements_to_insert = True
+                bbgr_retours()
+
             # On insert BBGR RECEPTIONS
-            bbgr_receptions()
+            if get_have_receptions():
+                elements_to_insert = True
+                bbgr_receptions()
 
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
-            loop_proc(proc_files_l)
+            if bool(proc_files_l):
+                elements_to_insert = True
+                loop_proc(proc_files_l)
 
-            post_common()
-            post_processing_all()
+            if elements_to_insert:
+                post_common()
+                post_processing_all()
 
-            print(f"All validations : {time.time() - start_all} s")
-            EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+                print(f"All validations : {time.time() - start_all} s")
+                EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+
+            else:
+                print(f"Rien à Insérer : {time.time() - start_all} s")
+                EDI_LOGGER.warning(f"Rien à Insérer : {time.time() - start_all} s")
 
     except:
         EDI_LOGGER.exception("Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
