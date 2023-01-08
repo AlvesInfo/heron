@@ -41,8 +41,8 @@
                     data-value="{{ export.uuid_identification }}|{{ export.third_party_num }}|{{ export.invoice_number }}|{{ export.invoice_year }}|{{ export.code_maison }}|{{ export.maison }}"
                     data-cct="{{ export.axe_cct }}"
                     style="{% if export.axe_cct == '' %}background-color: lightpink;{% else %}background-color: lavender;{% endif %}">{{ export.axe_cct }}</td>
-                <td style="{% if export.code_maison == '' %}background-color: lightpink;{% endif %}">{{ export.code_maison }}</td>
-                <td style="text-align: left;{% if export.code_maison == '' %}background-color: lightpink;{% endif %}">{{ export.maison|default_if_none:'' }}</td>
+                <td style="{% if export.code_maison == '' or export.is_multi_store %}background-color: lightpink;{% endif %}">{% if export.code_maison == '' or export.is_multi_store %}{% else %}{{ export.code_maison }}{% endif %}</td>
+                <td style="text-align: left;{% if export.code_maison == '' or export.is_multi_store %}background-color: lightpink;{% endif %}">{% if export.code_maison == '' or export.is_multi_store %}!!! MULTI MAGASIN !!!{% else %}{{ export.maison|default_if_none:'' }}{% endif %}</td>
                 <td style="text-align: right;">{{ export.net_amount|numbers_format:2 }}</td>
                 <td style="text-align: right;{% if export.delta %}background-color: lightpink;{% endif %}">{% if export.delta %}{{ export.delta }}{% endif %}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>

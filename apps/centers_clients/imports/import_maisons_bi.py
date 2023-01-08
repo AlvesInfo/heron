@@ -37,7 +37,7 @@ from apps.centers_clients.models import MaisonBi
 
 
 def import_maisons_bi():
-    """Import des maisons depuis la B.I"""
+    """Import des maisons depuis la B.I Acuitis et Direct Optic"""
     with connection.cursor() as cursor:
         sql_maisons = """
         select
@@ -60,6 +60,33 @@ def import_maisons_bi():
             left("telephone", 25) as "telephone",
             left("email", 85) as "email"
         from heron_bi_maisons
+        
+        union
+        
+        select
+            case 
+                when left(code_maison, 2) = 'DO' 
+                then left("code_maison", 15)
+                else 'DO'||left("code_maison", 13)
+            end  as "code_maison",
+            left("intitule", 50) as "intitule",
+            case 
+                when "affaire"='' or "affaire" isnull 
+                then left("intitule_court", 12)
+                else left("affaire", 12) 
+            end as "intitule_court",
+            left("code_cosium", 15) as "code_cosium",
+            left("compte_bbgr", 15) as "compte_bbgr",
+            "date_ouverture" as "opening_date",
+            "date_fermeture" as "closing_date",
+            left("immeuble", 200) as "immeuble",
+            left("adresse", 200) as "adresse",
+            left("code_postal", 15) as "code_postal",
+            left("ville", 50) as "ville",
+            left("pays_x3", 2) as "pays_x3",
+            left("telephone", 25) as "telephone",
+            left("email", 85) as "email"
+        from heron_directbi_maisons
         """
         cursor.execute(sql_maisons)
 
@@ -87,7 +114,7 @@ def import_maisons_bi():
             try:
                 maison_dict["pays"] = Country.objects.get(country=maison_dict.get("pays"))
             except Country.DoesNotExist:
-                maison_dict["pays"] = None
+                maison_dict["pays"] = Country.objects.get(country="FR")
 
             maison = MaisonBi.objects.filter(code_maison=maison_dict.get("code_maison"))
 

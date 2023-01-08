@@ -1,8 +1,16 @@
 {% extends "heron/list_table_courant.html" %}
 
+{% block left_side %}
+    <a class="item" href="{% url 'edi:import_edi_invoices' %}">
+        <button class="ui teal button" name="" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          Import factures EDI
+       </button>
+    </a>
+{% endblock %}
+
 {% block right_side %}
     {% if not details %}
-        <a class="item" href="{% url 'validation_purchases:integration_purchases_export' %}">
+        <a class="item" href="{% url 'validation_purchases:integration_purchases_export' %}"></a>
     {% else %}
         <a class="item" href="{% url 'validation_purchases:integration_purchases_export' %}">
     {% endif %}
