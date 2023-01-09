@@ -174,7 +174,7 @@ def get_rows():
     :return: resultats de la requête
     """
     rows_without_cct = (
-        EdiImport.objects.filter(cct_uuid_identification__isnull=True, purchase_invoice=True)
+        EdiImport.objects.filter(cct_uuid_identification__isnull=True)
         .exclude(delete=True)
         .values(
             "third_party_num",

@@ -28,7 +28,7 @@ def without_cct_purchases(request):
     context = {
         "titre_table": "2.2 - Listing Factures sans CCT - Achats",
         "invoices_without_cct": EdiImport.objects.filter(
-            cct_uuid_identification__isnull=True, purchase_invoice=True
+            cct_uuid_identification__isnull=True
         )
         .exclude(delete=True)
         .values(
