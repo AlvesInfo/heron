@@ -72,7 +72,6 @@ from (
     left join edi_ediimportcontrol ec
     on ee.uuid_control = ec.uuid_identification
     where (ee."delete" = false or ee."delete" isnull)
-      and "purchase_invoice" = true
     group by supplier,
              pc."name",
              invoice_number,
