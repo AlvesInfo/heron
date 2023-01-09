@@ -185,6 +185,7 @@ def import_bi(request):
                     "pays": maison_bi.pays,
                     "telephone": maison_bi.telephone,
                     "email": maison_bi.email,
+                    "signature_franchise_date": maison_bi.opening_date,
                 }
 
                 pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
