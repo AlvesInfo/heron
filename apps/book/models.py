@@ -277,7 +277,7 @@ class Society(FlagsTable):
         to_field="uuid_identification",
         related_name="big_category_definition",
         db_column="uuid_big_category",
-        verbose_name="grande catégorie par défaut"
+        verbose_name="grande catégorie par défaut",
     )
 
     def __str__(self):
@@ -293,6 +293,22 @@ class Society(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["third_party_num"]
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["name"]),
+            models.Index(fields=["is_client"]),
+            models.Index(fields=["is_supplier"]),
+            models.Index(fields=["centers_suppliers_indentifier"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "name",
+                    "is_client",
+                    "is_supplier",
+                    "centers_suppliers_indentifier",
+                ]
+            ),
+        ]
 
 
 class Address(FlagsTable):

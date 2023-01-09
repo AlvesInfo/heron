@@ -329,6 +329,28 @@ class Maison(FlagsTable):
 
     class Meta:
         ordering = ["cct"]
+        indexes = [
+            models.Index(fields=["cct"]),
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["center_purchase"]),
+            models.Index(fields=["sign_board"]),
+            models.Index(fields=["intitule"]),
+            models.Index(fields=["currency"]),
+            models.Index(fields=["language"]),
+            models.Index(fields=["pays"]),
+            models.Index(
+                fields=[
+                    "cct",
+                    "third_party_num",
+                    "center_purchase",
+                    "sign_board",
+                    "intitule",
+                    "currency",
+                    "language",
+                    "pays",
+                ]
+            ),
+        ]
 
 
 class DocumentsSubscription(FlagsTable):
@@ -443,6 +465,7 @@ class MaisonBi(models.Model):
     FR : Table des Maisons
     EN : Shop table
     """
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     code_maison = models.CharField(primary_key=True, max_length=15, verbose_name="code maison")
     intitule = models.CharField(null=True, blank=True, max_length=50)
@@ -476,6 +499,7 @@ class MaisonSupllierExclusion(FlagsTable):
     FR : Table Identifiants Maisons/Tiers
     EN : Shop/Suppliers Identifiers Table
     """
+
     cct = models.ForeignKey(
         CctSage,
         on_delete=models.PROTECT,
