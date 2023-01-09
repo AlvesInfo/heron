@@ -125,7 +125,7 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                     now() as "modified_at",
                    'BbgrReceptions' as "flow_name",
                    'BbgrReceptions' as "supplier_ident",
-                   'BBGR RECEPTIONS' as "supplier"
+                   'BBGR RECEPTIONS' as "supplier",
                    '9524514' as "siret_payeur",
                    'CAHA' as "code_fournisseur",
                    'CAHA' as "code_maison",
