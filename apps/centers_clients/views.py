@@ -40,7 +40,7 @@ class MaisonsList(ListView):
         "sign_board",
         "currency",
         "language",
-        "pays",
+        "pays__country_name",
     )
     context_object_name = "maisons"
     template_name = "centers_clients/clients_list.html"
