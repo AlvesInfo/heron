@@ -14,13 +14,14 @@
            class="ui celled table"
            style="font-size: 12px !important;text-align: center;font-weight: 900;margin: 5px;">
             <thead>
-
                 <tr>
                     <th class="no-sort" style="width: 0;display: none;">pk</th>
                     <th style="width: 17%;text-align: left;">Maison</th>
-                    <th style="width: 45%;text-align: left;">Adresse</th>
+                    <th style="width: 40%;text-align: left;">Adresse</th>
                     <th style="width: 6%;">CCT</th>
-                    <th style="width: 33%;text-align: left;">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
+                    <th style="width: 30%;text-align: left;">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
+                    <th style="width: 6%;"></th>
+
                 </tr>
             </thead>
             <tbody>
@@ -59,6 +60,7 @@
                             </div>
                         </div>
                     </td>
+                    <td><input type="button" class="ui fluide teal mini button color-button" value="Valider" onclick="setIdentifierCct('{{ identifier.id }}', 'id_form-{{ forloop.counter0 }}-')"></td>
                 </tr>
             {% endfor %}
             </tbody>

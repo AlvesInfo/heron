@@ -124,16 +124,22 @@ def add_news_cct_sage(third_party_num: str = None):
             cursor.execute(sql_to_create)
 
 
-def update_edi_import_cct_uui_identifiaction(force_update: bool = False):
+def update_edi_import_cct_uui_identifiaction(
+    force_update: bool = False, third_party_num: str = None
+):
     """Mise à jour du champ cct_uui_identifiaction de la table edi_import,
     après mise à jour des suppliers_cct. Ou par appel de la fonction.
     force_update = False, on fait la mise à jour des lignes ou le cct_uuid_identification est null.
     force_update = True, on fait la mise à jour de toutes lignes.
-    :param force_update: booléen True ou False
+    :param force_update: Booléen True ou False
+    :param third_party_num: third_party_num qui change ce cct
     :return: None
     """
     with connection.cursor() as cursor:
         alls = ' and edi."cct_uuid_identification" isnull ' if force_update else ""
+        third_party_num_filter = (
+            'and ei."third_party_num" = %(third_party_num)s' if third_party_num else ""
+        )
         sql_update = sql.SQL(
             f"""
              update "edi_ediimport" edi
@@ -180,10 +186,15 @@ def update_edi_import_cct_uui_identifiaction(force_update: bool = False):
                ) re
                on ei."id" = re."id"
                where "cct_identifier" is not null
+               {third_party_num_filter}
             ) cc
             where edi."id" = cc."id"
             and "valid" = true
             {alls}
             """
         )
-        cursor.execute(sql_update)
+
+        if third_party_num:
+            cursor.execute(sql_update, {"third_party_num": third_party_num})
+        else:
+            cursor.execute(sql_update)

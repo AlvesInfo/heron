@@ -147,11 +147,20 @@ class SocietyForm(forms.ModelForm):
             "od_ana",
             "stat_axe_pro",
             "in_use",
-            "big_category_default"
+            "big_category_default",
         ]
 
 
 class SupplierCctForm(forms.ModelForm):
+    class Meta:
+        model = SupplierCct
+        fields = [
+            "id",
+            "cct_identifier",
+        ]
+
+
+class SupplierCctUnitForm(forms.ModelForm):
     class Meta:
         model = SupplierCct
         fields = [

@@ -5,6 +5,7 @@ from apps.book.views import (
     SocietiesInUseList,
     SocietyUpdate,
     supplier_cct_identifier,
+    change_supplier_cct_unit,
     export_list_societies,
     export_list_supplier_cct,
 )
@@ -20,6 +21,7 @@ urlpatterns = [
         supplier_cct_identifier,
         name="supplier_cct_identifier",
     ),
+    path("change_supplier_cct_unit/", change_supplier_cct_unit, name="change_supplier_cct_unit"),
     path("excel_outputs/<str:file_name>/", export_list_societies, name="excel_outputs"),
     path(
         "export_list_supplier_cct/<str:third_party_num>/",

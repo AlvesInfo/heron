@@ -20,8 +20,18 @@ def check_cct_identifier(cleaned_data: dict):
     :param cleaned_data: les données du formulaire après validation du formulaire par django
     :return: message
     """
-    before = str(cleaned_data.get("id").cct_identifier).split("|")
-    after = str(cleaned_data.get("cct_identifier")).split("|")
+    before_cct_identifier = cleaned_data.get("id").cct_identifier
+    before_cct_identifier = (
+        before_cct_identifier[:-1] if before_cct_identifier[-1] == "|" else before_cct_identifier
+    )
+    before = str(before_cct_identifier).split("|")
+
+    after_cct_identifier = cleaned_data.get("cct_identifier")
+    after_cct_identifier = (
+        after_cct_identifier[:-1] if after_cct_identifier[-1] == "|" else after_cct_identifier
+    )
+
+    after = str(after_cct_identifier).split("|")
 
     if before == after:
         message = "Vous n'avez rien modifié !"

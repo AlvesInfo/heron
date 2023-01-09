@@ -11,12 +11,13 @@ from django.shortcuts import render, reverse, redirect
 from django.views.generic import ListView, UpdateView
 from django.db import transaction
 from django.db.models import Q
+from django.http import JsonResponse
 from django.forms import modelformset_factory
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change, trace_change
 from apps.core.bin.encoders import get_base_64, set_base_64_str
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.bin.checks import check_cct_identifier
@@ -25,7 +26,7 @@ from apps.edi.bin.set_suppliers_cct import (
     update_edi_import_cct_uui_identifiaction,
 )
 from apps.book.models import Society, SupplierCct
-from apps.book.forms import SocietyForm, SupplierCctForm
+from apps.book.forms import SocietyForm, SupplierCctForm, SupplierCctUnitForm
 from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier_cct
 
 
@@ -124,10 +125,10 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Return the URL to redirect to after processing a valid form."""
         in_use = self.kwargs.get("in_use")
         return (
-                    reverse("book:societies_list")
-                    if in_use == "alls"
-                    else reverse("book:societies_list_in_use")
-                )
+            reverse("book:societies_list")
+            if in_use == "alls"
+            else reverse("book:societies_list_in_use")
+        )
 
     def form_valid(self, form, **kwargs):
         """
@@ -196,6 +197,8 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
             .order_by("cct_uuid_identification__cct")
             .values(
                 "id",
+                "third_party_num",
+                "cct_uuid_identification",
                 "cct_uuid_identification__cct",
                 "cct_uuid_identification__name",
                 "cct_identifier",
@@ -220,7 +223,6 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
             message = ""
 
             if formset.is_valid():
-                changed = True
 
                 for form in formset:
                     if form.changed_data:
@@ -231,6 +233,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                         elif not changed:
                             messages.add_message(request, 50, message)
                         elif changed:
+                            print("form.clean_data : ", form.cleaned_data, form)
                             trace_form_change(request, form)
                             message = (
                                 "Les identifiants du cct "
@@ -240,12 +243,12 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                             request.session["level"] = 20
                             messages.add_message(request, 20, message)
 
+                            # Mise à jour du champ cct_uuid_identification
+                            # dans edi_import quand il est null
+                            update_edi_import_cct_uui_identifiaction()
+
                 if not message:
                     messages.add_message(request, 50, "Vous n'avez rien modifié !")
-
-                if changed:
-                    # Mise à jour du champ cct_uuid_identification dans edi_import quand il est null
-                    update_edi_import_cct_uui_identifiaction()
 
             else:
                 messages.add_message(
@@ -260,6 +263,70 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
         LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
 
     return render(request, "book/supplier_cct.html", context=context)
+
+
+@transaction.atomic
+def change_supplier_cct_unit(request):
+    """Changement 1 à 1 des identifiants par fournisseurs"""
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {"success": "success"}
+    form = SupplierCctUnitForm(request.POST)
+    request.session["level"] = 50
+
+    if form.is_valid() and form.cleaned_data:
+        cct_identifier = form.cleaned_data.get("cct_identifier")
+
+        if cct_identifier[-1] != "|":
+            cct_identifier = f"{cct_identifier}|"
+
+        get_supplier_cct = SupplierCct.objects.get(id=request.POST.get("pk"))
+
+        changed, message = check_cct_identifier(
+            {
+                "id": get_supplier_cct,
+                "cct_identifier": cct_identifier,
+            }
+        )
+
+        if changed is None:
+            messages.add_message(request, 50, message)
+
+        elif not changed:
+            messages.add_message(request, 50, message)
+
+        elif changed:
+            changed, message = trace_change(
+                request,
+                model=SupplierCct,
+                before_kwargs={"id": get_supplier_cct.pk},
+                update_kwargs={"cct_identifier": cct_identifier},
+            )
+
+            if not changed:
+                messages.add_message(request, 50, message)
+
+            else:
+                message = (
+                    "Les identifiants du cct "
+                    f"{get_supplier_cct.cct_uuid_identification.cct}, "
+                    "on bien été changés."
+                )
+                request.session["level"] = 20
+                messages.add_message(request, 20, message)
+
+                # Mise à jour du champ cct_uuid_identification dans edi_import quand il est null
+                update_edi_import_cct_uui_identifiaction(
+                    third_party_num=get_supplier_cct.third_party_num.third_party_num
+                )
+
+    else:
+        messages.add_message(request, 50, f"Une erreur c'est produite : {form.errors}")
+        LOGGER_VIEWS.exception(f"cct_change, form invalid : {form.errors!r}")
+
+    return JsonResponse(data)
 
 
 def export_list_supplier_cct(request, third_party_num):
