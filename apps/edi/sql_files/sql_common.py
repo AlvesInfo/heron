@@ -491,6 +491,7 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             "unity" =  case
                             when "unity" isnull then 1 else "unity" 
                        end,
+            "manual_entry" = false,
             "created_by" = %(created_by)s
         where ("valid" = false or "valid" isnull)
     """

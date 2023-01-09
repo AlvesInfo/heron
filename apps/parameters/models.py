@@ -413,6 +413,7 @@ class BaseInvoiceTable(models.Model):
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
     sale_invoice = models.BooleanField(null=True, default=False)
+    manual_entry = models.BooleanField(null=True, default=False)
 
     class Meta:
         """class Meta du modèle django"""
