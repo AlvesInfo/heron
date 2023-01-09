@@ -2,23 +2,18 @@
 
 {% block left_side %}
     <a class="item" href="{% url 'edi:import_edi_invoices' %}">
-        <button class="ui teal button" name="" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        <button class="ui blue button" name="" style="padding: 7px 10px;margin: 10px;font-size: 11px">
           Import factures EDI
        </button>
     </a>
 {% endblock %}
 
 {% block right_side %}
-    {% if not details %}
-        <a class="item" href="{% url 'validation_purchases:integration_purchases_export' %}"></a>
-    {% else %}
+    {% if integration_purchases %}
         <a class="item" href="{% url 'validation_purchases:integration_purchases_export' %}">
+           <button class="ui green button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+              EXPORT EXCEL
+           </button>
+        </a>
     {% endif %}
-    {% if not en_cours %}
-       <button class="ui green button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-          EXPORT EXCEL
-       </button>
-    {% endif %}
-    </a>
-
 {% endblock right_side %}

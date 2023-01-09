@@ -303,6 +303,7 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
     titre = " ".join(titre_list[:3])
     list_excel = [file_io, [titre]]
     excel = GenericExcel(list_excel)
+    excel.sheet_hide_zero(0)
     file_path = Path(
         f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_integration_purchases.sql"
     )
@@ -315,8 +316,8 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
         f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
         f_lignes_odd = [
             dict_row.get("f_ligne")
-            if i in {7, 10}
-            else {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
+            if i in {8, 11}
+            else {**dict_row.get("f_ligne"), **{"bg_color": "#D8E4BC"}}
             for i, dict_row in enumerate(COLUMNS)
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
