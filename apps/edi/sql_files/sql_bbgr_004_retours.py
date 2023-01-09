@@ -23,4 +23,39 @@ bbgr_004_retours_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_total_amount_by_invoices": sql.SQL(
+        """
+        update edi_ediimport ei 
+        set 
+            "invoice_amount_without_tax" = rec."invoice_amount_without_tax",
+            "invoice_amount_tax" = rec."invoice_amount_tax",
+            "invoice_amount_with_tax" = rec."invoice_amount_with_tax"
+        from (
+            select 
+                "uuid_identification", 
+                "invoice_number", 
+                case 
+                    when "invoice_type" = '380' 
+                        then abs(sum("net_amount")) 
+                        else -abs(sum("net_amount"))
+                end as "invoice_amount_without_tax", 
+                    case 
+                    when "invoice_type" = '380' 
+                        then abs(sum("vat_amount")) 
+                        else -abs(sum("vat_amount"))
+                end as "invoice_amount_tax",
+                    case 
+                    when "invoice_type" = '380' 
+                        then abs(sum("amount_with_vat")) 
+                        else -abs(sum("amount_with_vat"))
+                end as "invoice_amount_with_tax"
+            from "edi_ediimport" ee 
+            where "uuid_identification" = %(uuid_identification)s
+            and ("valid" = false or "valid" isnull)
+            group by "uuid_identification" , "invoice_number", "invoice_type"
+        ) rec 
+        where ei."uuid_identification" = rec."uuid_identification"
+        and ei."invoice_number" = rec."invoice_number"
+        """
+    ),
 }

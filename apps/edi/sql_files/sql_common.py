@@ -175,7 +175,7 @@ from (
             "vat_rate"
         from "edi_ediimport"                
         where (
-            flow_name not in ('Edi', 'Widex', 'WidexGa') 
+            flow_name not in ('Edi', 'Widex', 'WidexGa', 'BbgrRetours') 
             -- Spécifique pour ophtalmic qui n'additionnent pas le port avec le total 
             -- comme spécifié dans la norme edi
             or third_party_num = 'OPHT001'

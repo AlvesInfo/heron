@@ -63,7 +63,6 @@ class DeleteEdiForm(forms.ModelForm):
             "supplier",
             "big_category",
             "invoice_month",
-            "purchase_invoice",
         ]
 
 
