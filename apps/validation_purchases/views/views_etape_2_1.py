@@ -59,7 +59,7 @@ def integration_purchases(request):
                 modified_at__gte=pendulum.now().start_of("month"),
             ).exclude(file_name__istartswith="ZBI"),
             "form": ChangeBigCategoryForm(),
-            "margin_table": 50,
+            "margin_table": 10,
             "nb_paging": 100,
         }
 
