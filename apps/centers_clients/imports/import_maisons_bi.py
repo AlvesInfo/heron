@@ -45,8 +45,8 @@ def import_maisons_bi():
             left("intitule", 50) as "intitule",
             case 
                 when "affaire"='' or "affaire" isnull 
-                then left("intitule_court", 12)
-                else left("affaire", 12) 
+                then left("intitule_court", 20)
+                else left("affaire", 20) 
             end as "intitule_court",
             left("code_cosium", 15) as "code_cosium",
             left("compte_bbgr", 15) as "compte_bbgr",
@@ -72,8 +72,8 @@ def import_maisons_bi():
             left("intitule", 50) as "intitule",
             case 
                 when "affaire"='' or "affaire" isnull 
-                then left("intitule_court", 12)
-                else left("affaire", 12) 
+                then left("intitule_court", 20)
+                else left("affaire", 20) 
             end as "intitule_court",
             left("code_cosium", 15) as "code_cosium",
             left("compte_bbgr", 15) as "compte_bbgr",

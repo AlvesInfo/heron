@@ -121,7 +121,7 @@ class Maison(FlagsTable):
         db_column="sign_board",
     )
     intitule = models.CharField(max_length=50)
-    intitule_court = models.CharField(max_length=12)
+    intitule_court = models.CharField(max_length=20)
     client_familly = models.ForeignKey(
         ClientFamilly,
         on_delete=models.PROTECT,
@@ -469,7 +469,7 @@ class MaisonBi(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     code_maison = models.CharField(primary_key=True, max_length=15, verbose_name="code maison")
     intitule = models.CharField(null=True, blank=True, max_length=50)
-    intitule_court = models.CharField(null=True, blank=True, max_length=12)
+    intitule_court = models.CharField(null=True, blank=True, max_length=20)
     code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
     code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
     opening_date = models.DateField(null=True, verbose_name="date d'ouveture")

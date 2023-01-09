@@ -129,7 +129,7 @@ def import_file(file_path: Path):
                             "cct": cct,
                             "third_party_num": third_party_num,
                             "intitule": intitule,
-                            "intitule_court": intitule_court[:12] or intitule[:12],
+                            "intitule_court": intitule_court[:20] or intitule[:20],
                             "code_cosium": None,
                             "code_bbgr": None,
                             "opening_date": opening_date,
