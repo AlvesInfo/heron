@@ -268,7 +268,12 @@ class Society(FlagsTable):
         default=Remise.AUCUNE,
         verbose_name="taux de remboursement rfa",
     )
+
+    # Champ pour afficher les tiers courants,
+    # si il vient par les import le tiers est automatiquement mis en courant
     in_use = models.BooleanField(null=True, default=False, verbose_name="utilisé")
+
+    # Grande catégorie courante pour le tiers
     big_category_default = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
