@@ -601,6 +601,13 @@ class SupplierCct(FlagsTable):
 
         ordering = ["third_party_num", "cct_uuid_identification"]
         unique_together = (("third_party_num", "cct_uuid_identification"),)
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["cct_uuid_identification"]),
+            models.Index(fields=["cct_identifier"]),
+            models.Index(fields=["third_party_num", "cct_uuid_identification"]),
+            models.Index(fields=["third_party_num", "cct_uuid_identification", "cct_identifier"]),
+        ]
 
 
 class BprBookSage:
