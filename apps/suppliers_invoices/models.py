@@ -27,6 +27,7 @@ from apps.articles.models import (
 )
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
+from apps.edi.models import EdiImportControl
 
 
 class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
@@ -69,6 +70,15 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     function_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     function_created_at = models.DateTimeField()
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
+    uuid_control = models.ForeignKey(
+        EdiImportControl,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="invoices_edi_import_control",
+        db_column="uuid_control",
+    )
 
     def save(self, *args, **kwargs):
         """
@@ -163,7 +173,6 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
         to_field="vat",
         db_column="vat",
     )
-    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
     vat_start_date = models.DateField()
 
     brand = models.CharField(null=True, blank=True, max_length=80)

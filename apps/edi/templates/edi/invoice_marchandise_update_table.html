@@ -1,0 +1,234 @@
+{% load filters_tags %}
+
+<div class="ui grid" style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px;margin-right: {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px;">
+    <div class="ui datatable-chargement active inverted dimmer">
+        <div class="ui medium text loader">Chargement</div>
+    </div>
+    <div class="sixteen wide column" style="padding: 0;">
+{#      ENTETES DU FORMSET ====================================================================== #}
+        <input type="hidden" name="form-TOTAL_FORMS" value="{{ count_elements }}" id="id_form-TOTAL_FORMS">
+        <input type="hidden" name="form-INITIAL_FORMS" value="{{ count_elements }}" id="id_form-INITIAL_FORMS">
+        <input type="hidden" name="form-MIN_NUM_FORMS" value="1" id="id_form-MIN_NUM_FORMS">
+        <input type="hidden" name="form-MAX_NUM_FORMS" value="{{ count_elements }}" id="id_form-MAX_NUM_FORMS">
+
+        <div class="ui segments">
+
+{#        CHAMPS CACHES POUR VALEURS PAR DEFAUT ================================================= #}
+          <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
+            <div class="dontDisplay" style="display: none;">
+                {{ form.big_category }}
+                {{ form.manual_entry }}
+            </div>
+            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                <div class="fields" style="">
+                  <div class="eight wide field">
+                      <label for="id_cct_uuid_identification"
+                               style="text-align: left;">Magasin à facturer</label>
+                        <select id="id_cct_uuid_identification"
+                                name="cct_uuid_identification"
+                                class="ui fluid search dropdown" style="font-size: 10px;">
+                            {% for value, label in form.cct_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                  </div>
+                  <div class="six wide field">
+                        <label for="id_third_party_num"
+                               style="text-align: left;">Fournisseur</label>
+                        <select id="id_third_party_num"
+                                name="third_party_num"
+                                class="ui fluid search dropdown" style="font-size: 10px;">
+                            {% for value, label in form.third_party_num_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                  </div>
+
+                </div>
+
+{#        ENETETE DETAILS ======================================================================= #}
+                <div class="fields" style="text-align: center;">
+                <div class="three wide field">
+                    <label for="id_invoice_number" style="text-align: left;">N° Facture</label>
+                    <input type="text" name="invoice_number" maxlength="35" required="" id="id_invoice_number">
+                </div>
+                <div class="one wide field">
+                  <label for="id_invoice_type"
+                           style="text-align: left;">Type</label>
+                    <select id="id_invoice_type"
+                            name="invoice_type"
+                            class="ui fluid search dropdown" style="font-size: 10px;">
+                        {% for value, label in form.invoice_type_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="two wide field">
+                  <label for="id_invoice_date"
+                           style="text-align: left;">Date Facture</label>
+                  <input type="date"
+                         name="invoice_date"
+                         id="id_invoice_date"
+                         value="{{ date_du_jour.isoformat }}">
+                </div>
+                <div class="one wide field">
+                  <label for="id_devise_choices"
+                           style="text-align: left;">Devise</label>
+                    <select id="id_devise_choices"
+                            name="devise_choices"
+                            class="ui fluid search dropdown" style="font-size: 10px;">
+                        {% for value, label in form.devise_choices %}
+                            <option value="{{ value }}" {% if value == 'EUR' %}selected=""{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="one wide field">
+                  <label for="id_sens"
+                           style="text-align: left;">Sens</label>
+                    <select id="id_sens"
+                            name="sens"
+                            class="ui fluid search dropdown" style="font-size: 10px;">
+                        {% for value, label in form.sens_choices %}
+                            <option value="{{ value }}" {% if value == 2 %}selected=""{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="two wide field" style="text-align: left;">
+                    <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER LIGNE</button>
+                </div>
+
+{#                  <div class="two wide field">#}
+{#                      <label for="id_invoice_amount_without_tax" style="text-align: right;padding-right: 0;">H.T</label>#}
+{#                      <input type="text"#}
+{#                             name="invoice_amount_without_tax"#}
+{#                             maxlength="15"#}
+{#                             id="id_invoice_amount_without_tax"#}
+{#                             readonly#}
+{#                             style="background-color: lavender;text-align: right;"#}
+{#                             value="">#}
+{#                  </div>#}
+{#                  <div class="two wide field">#}
+{#                      <label for="id_invoice_amount_tax" style="text-align: right;padding-right: 0;">TVA</label>#}
+{#                      <input type="text"#}
+{#                             name="invoice_amount_tax"#}
+{#                             maxlength="15"#}
+{#                             id="id_invoice_amount_tax"#}
+{#                             readonly#}
+{#                             style="background-color: lavender;text-align: right;"#}
+{#                             value="">#}
+{#                  </div>#}
+{#                  <div class="two wide field" style="padding-right: 0;">#}
+{#                      <label for="id_invoice_amount_with_tax" style="text-align: right;padding-right: 0;">TTC</label>#}
+{#                      <input type="text"#}
+{#                             name="invoice_amount_with_tax"#}
+{#                             maxlength="15"#}
+{#                             id="id_invoice_amount_with_tax"#}
+{#                             readonly#}
+{#                             style="background-color: lavender;text-align: right;"#}
+{#                             value="">#}
+{#                  </div>#}
+                </div>
+              </div>
+          </div>
+
+{#        ENETETE LIGNES ======================================================================== #}
+          <div class="ui segment" style="margin:0;padding-bottom: 0;padding-top: 5px;">
+            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                <div class="fields" style="margin: auto 0;">
+                    <div class="two wide field">
+                        <label for="id_reference_article">Référence</label>
+                    </div>
+                    <div class="five wide field">
+                        <label for="id_libelle">Libellé Heron</label>
+                    </div>
+                    <div class="one wide field">
+                        <label for="id_qty" style="text-align: right;margin-right: 14px">Qté</label>
+                    </div>
+                    <div class="one wide field">
+                        <label for="id_net_unit_price" style="text-align: right;padding-right: 14px;">P.U HT</label>
+                    </div>
+                    <div class="one wide field">
+                        <label for="id_vat" style="text-align: center;padding-right: 14px;">TVA</label>
+                    </div>
+                    <div class="two wide field">
+                        <label for="id_net_amount" style="text-align: right;padding-right: 14px;">Montant HT</label>
+                    </div>
+                    <div class="four wide field">
+                        <label for="id_comment" style="padding-left: 5px;">Commentaire</label>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+{#        DEBUT FORMSET ========================================================================= #}
+            <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
+              <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                {% for line in nb_elements %}
+                    <div class="fields formset" data-max="{{ nb_display }}" id="formset{{ forloop.counter }}" style="margin-bottom: 5px;{% if forloop.counter > nb_display %}display: none;{% endif %}">
+                        <div class="doNotDisplay" style="display: none;">
+
+                        </div>
+                        <div class="two wide field">
+                            <input type="text"
+                                 name="form-{{ forloop.counter0 }}-reference_article"
+                                 id="id_form-{{ forloop.counter0 }}-reference_article"
+                                 style="background-color: lavender;text-align: left;"
+                                 value="">
+                        </div>
+                        <div class="five wide field">
+                            <input type="text"
+                                 name="form-{{ forloop.counter0 }}-libelle"
+                                 id="id_form-{{ forloop.counter0 }}-libelle"
+                                 style=""
+                                 value="">
+                        </div>
+                        <div class="one wide field">
+                            <input type="text"
+                                   name="form-{{ forloop.counter0 }}-qty"
+                                   id="id_form-{{ forloop.counter0 }}-qty"
+                                   style="text-align: right;"
+                                   value="1"
+                                   step="1">
+                        </div>
+                        <div class="one wide field">
+                            <input type="number"
+                                   name="form-{{ forloop.counter0 }}-net_unit_price"
+                                   id="id_form-{{ forloop.counter0 }}-net_unit_price"
+                                   style="text-align: right;"
+                                   value="0"
+                                   step="0.01">
+                        </div>
+                        <div class="one wide field">
+                            <select id="id_form-{{ forloop.counter0 }}-vat"
+                                    name="form-{{ forloop.counter0 }}-vat"
+                                    class="ui fluid search dropdown" style="font-size: 10px;">
+                                {% for value, label in form.vat_choices %}
+                                    <option value="{{ value }}" {% if value == '001' %}selected=""{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="two wide field">
+                            <input type="text"
+                                 name="form-{{ forloop.counter0 }}-net_amount"
+                                 maxlength="20"
+                                 id="id_form-{{ forloop.counter0 }}-net_amount"
+                                 readonly
+                                 style="background-color: lavender;text-align: right;"
+                                 value="0">
+                        </div>
+                        <div class="four wide field">
+                            <input type="text"
+                                 name="form-{{ forloop.counter0 }}-comment"
+                                 maxlength="15"
+                                 id="id_form-{{ forloop.counter0 }}-comment"
+                                 style="text-align: left;"
+                                 value="">
+                        </div>
+                    </div>
+                {% endfor %}
+              </div>
+          </div>
+
+        </div>
+    </div>
+</div>

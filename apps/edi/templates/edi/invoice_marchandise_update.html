@@ -1,0 +1,57 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+            {% include "edi/invoice_marchandise_update_entete.html" %}
+            {% include "edi/invoice_marchandise_update_table.html" %}
+
+        </form>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $(`.datatable-chargement`).hide();
+
+            let nbDisplay = {{ nb_display }};
+
+            $(`#idAjoutLigne`).on("click", function () {
+                nbDisplay += 1
+                if (nbDisplay <= {{ count_elements }}) {
+                    $(`#formset${nbDisplay}`).show()
+                } else {
+                    alert("Vous avez atteind le nombre maximal de lignes")
+                }
+            })
+        });
+
+    </script>
+
+{% endblock script %}
