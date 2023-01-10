@@ -1,5 +1,4 @@
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import UpdateView
@@ -7,7 +6,6 @@ from django.views.generic import UpdateView
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.bin.encoders import get_base_64, set_base_64_list
-from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     EdiImportValidationForm,
@@ -26,35 +24,29 @@ def details_purchase(request, enc_param):
     :param enc_param: paramètres encodés en base 64
     :return: view
     """
-    sql_context_file = "apps/validation_purchases/sql_files/sql_integration_details_purchases.sql"
     big_category, third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
 
-    with connection.cursor() as cursor:
-        elements = query_file_dict_cursor(
-            cursor,
-            file_path=sql_context_file,
-            parmas_dict={
-                "big_category": big_category,
-                "third_party_num": third_party_num,
-                "supplier": supplier,
-                "invoice_month": invoice_month,
-                "invoice_number": invoice_number,
+    context = {
+        "titre_table": f"Contrôle : {supplier} - " f"Facture N°: {invoice_number}",
+        "invoices": EdiImport.objects.filter(
+            big_category__name=big_category,
+            third_party_num=third_party_num,
+            supplier=supplier,
+            invoice_month=invoice_month,
+            invoice_number=invoice_number,
+        ).order_by("pk"),
+        "chevron_retour": reverse(
+            "validation_purchases:integration_supplier_purchases",
+            kwargs={
+                "enc_param": set_base_64_list(
+                    [big_category, third_party_num, supplier, invoice_month]
+                ),
             },
-        )
-        context = {
-            "titre_table": f"Contrôle : {supplier} - " f"Facture N°: {invoice_number}",
-            "controles_exports": elements,
-            "chevron_retour": reverse(
-                "validation_purchases:integration_supplier_purchases",
-                kwargs={
-                    "enc_param": set_base_64_list(
-                        [big_category, third_party_num, supplier, invoice_month]
-                    ),
-                },
-            ),
-            "nature": "La ligne n° ",
-            "nb_paging": 50,
-        }
+        ),
+        "nature": "La ligne n° ",
+        "nb_paging": 50,
+    }
+
     return render(request, "validation_purchases/details_invoices_suppliers.html", context=context)
 
 
