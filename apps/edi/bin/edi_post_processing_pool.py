@@ -86,6 +86,8 @@ def post_common():
     sql_cct = post_common_dict.get("sql_cct")
     sql_is_multi_store = post_common_dict.get("sql_is_multi_store")
     sql_update_articles = post_common_dict.get("sql_update_articles")
+    sql_precilens = post_common_dict.get("sql_precilens")
+    sql_alls_381 = post_common_dict.get("sql_alls_381")
     sql_validate = post_common_dict.get("sql_validate")
 
     with connection.cursor() as cursor:
@@ -143,12 +145,17 @@ def post_common():
 
         sleep(1)
 
-        # print("Début : EdiImport set created by")
-        # EdiImport.objects.filter(Q(valid=False) | Q(valid__isnull=True)).update(
-        #     created_by=get_user_automate()
-        # )
-        # print("Fin : EdiImport set created by")
-        # sleep(1)
+        print("Début : sql_precilens")
+        cursor.execute(sql_precilens)
+        print("Fin : sql_precilens")
+
+        sleep(1)
+
+        print("Début : sql_alls_381")
+        cursor.execute(sql_precilens)
+        print("Fin : sql_alls_381")
+
+        sleep(1)
 
         print("Début : sql_validate")
         cursor.execute(sql_validate, {"created_by": get_user_automate()})

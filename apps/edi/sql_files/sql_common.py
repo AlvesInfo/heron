@@ -470,6 +470,39 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         and ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_precilens": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "gross_amount" = case 
+                                when "qty" < 0 
+                                then abs("gross_amount") 
+                                else -abs("gross_amount") 
+                            end,
+            "net_amount" = case 
+                                when "qty" < 0 
+                                then abs("net_amount") 
+                                else -abs("net_amount") 
+                            end,
+            "qty" = -qty
+        where "third_party_num" = 'PREC001'
+        and "invoice_type" = '381'
+        and ("valid" = false or "valid" isnull)
+    """
+    ),
+    "sql_alls_381": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "qty" = case when "net_amount" < 0 then -abs("qty") else abs("qty") end,
+            "gross_amount" = case 
+                                when "net_amount" < 0 
+                                then -abs("gross_amount") 
+                                else abs("gross_amount") 
+                            end
+        where "third_party_num" <> 'PREC001'
+        and "invoice_type" = '381'
+        and ("valid" = false or "valid" isnull)
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
@@ -491,6 +524,14 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             "unity" =  case
                             when "unity" isnull then 1 else "unity" 
                        end,
+            "packaging_qty" = abs("packaging_qty"),
+            "gross_unit_price" = abs("gross_unit_price"),
+            "net_unit_price" = abs("net_unit_price"),
+            "packaging_amount" = abs("packaging_amount"),
+            "transport_amount" = abs("transport_amount"),
+            "insurance_amount" = abs("insurance_amount"),
+            "fob_amount" = abs("fob_amount"),
+            "fees_amount" = abs("fees_amount"),
             "manual_entry" = false,
             "created_by" = %(created_by)s
         where ("valid" = false or "valid" isnull)

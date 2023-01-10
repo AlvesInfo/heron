@@ -14,7 +14,7 @@
                                  name="third_party_num"
                                  id="id_third_party_num"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.third_party_num }}">
                       </div>
                       <div class="four wide field">
@@ -42,7 +42,7 @@
                                  maxlength="15"
                                  id="id_cct_uuid_identification"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.cct_uuid_identification.cct }}">
                       </div>
                       <div class="six wide field">
@@ -53,13 +53,13 @@
                                  id="id_maison"
                                  readonly
                                  style="background-color: lavender;"
-                                 value="{{ invoices.0.maison }}">
+                                 value="{{ invoices.0.maison|default_if_none:'' }}">
                       </div>
                     </div>
         {#  ============================================================================================  #}
                     <div class="fields" style="">
                       <div class="one wide field">
-                          <label for="id_invoice_type" style="text-align: center;">Type Facture</label>
+                          <label for="id_invoice_type" style="text-align: center;">Type</label>
                           <input type="text"
                                  name="invoice_type"
                                  id="id_invoice_type"
@@ -83,7 +83,7 @@
                                  name="invoice_date"
                                  id="id_invoice_date"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.invoice_date|date:"d/m/Y" }}">
                       </div>
                       <div class="two wide field">
@@ -97,7 +97,7 @@
                                  value="{% if invoices.0.manual_entry %}Facture Saisie{% else %}Facture Intégrée{% endif %}">
                       </div>
                       <div class="one wide field">
-                          <label for="id_achat_vente" style="text-align: center;">Type</label>
+                          <label for="id_achat_vente" style="text-align: center;">Sens</label>
                           <input type="text"
                                  name="achat_vente"
                                  maxlength="15"
@@ -146,7 +146,7 @@
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="margin: auto 0;">
                         <div class="one wide field">
-                            <label for="">Ligne</label>
+                            <label for="" style="text-align: center;padding-right: 14px;">Ligne</label>
                         </div>
                         <div class="three wide field">
                             <label for="">Référence</label>
@@ -202,7 +202,8 @@
                                  name="qty"
                                  maxlength="6"
                                  id="id_qty"
-                                 style="text-align: right;"
+                                 readonly
+                                 style="background-color: lavender;text-align: right;"
                                  value="{{ invoice.qty|numbers:0 }}">
                         </div>
                         <div class="two wide field">
@@ -210,7 +211,8 @@
                                  name="net_unit_price"
                                  maxlength="20"
                                  id="id_net_unit_price"
-                                 style="text-align: right;"
+                                 readonly
+                                 style="background-color: lavender;text-align: right;"
                                  value="{{ invoice.net_unit_price|numbers_format:2 }}">
                         </div>
                         <div class="two wide field">

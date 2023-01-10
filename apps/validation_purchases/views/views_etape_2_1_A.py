@@ -46,11 +46,7 @@ def integration_supplier_purchases(request, enc_param):
         if not elements:
             return redirect(reverse("validation_purchases:integration_purchases"))
 
-        mois = (
-            pendulum.parse(invoice_month)
-            .format("MMMM YYYY", locale="fr")
-            .capitalize()
-        )
+        mois = pendulum.parse(invoice_month).format("MMMM YYYY", locale="fr").capitalize()
 
         context = {
             "titre_table": f"Contrôle : {third_party_num}  - {supplier}  - {mois}",

@@ -62,4 +62,5 @@ group by supplier,
          ee.invoice_year,
          ee."invoice_type",
          ee."is_multi_store"
-order by invoice_number
+order by ee."invoice_type" desc,
+         "invoice_number"
