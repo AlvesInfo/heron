@@ -46,30 +46,35 @@ def invoice_marchandise_create(request):
         request.session["level"] = 20
 
         if request.method == "POST":
+            print("après POST et avant formset_factory")
             InvoiceFormset = formset_factory(
                 CreateInvoiceForm,
-                extra=count_elements,
+                extra=1,
             )
+            print("après formset_factory")
             request.session["level"] = 50
+            print("request.POST : ", request.POST)
+            print("avant InvoiceFormset")
             formset = InvoiceFormset(request.POST)
+            print("après InvoiceFormset")
             message = ""
 
             if formset.is_valid():
-
-                for form in formset:
-                    if form.changed_data:
-                        print("form.clean_data : ", form.cleaned_data, form)
-                        trace_form_change(request, form)
-                        message = (
-                            "Les identifiants du cct "
-                            f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
-                            "on bien été changés."
-                        )
-                        request.session["level"] = 20
-                        messages.add_message(request, 20, message)
-
-                if not message:
-                    messages.add_message(request, 50, "Vous n'avez rien modifié !")
+                print("form.changed_data : ", formset.changed_data)
+                # for form in formset:
+                #     if form.changed_data:
+                #         print("form.clean_data : ", form.cleaned_data, form)
+                #         trace_form_change(request, form)
+                #         message = (
+                #             "Les identifiants du cct "
+                #             f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
+                #             "on bien été changés."
+                #         )
+                #         request.session["level"] = 20
+                #         messages.add_message(request, 20, message)
+                #
+                # if not message:
+                #     messages.add_message(request, 50, "Vous n'avez rien modifié !")
 
             else:
                 messages.add_message(
