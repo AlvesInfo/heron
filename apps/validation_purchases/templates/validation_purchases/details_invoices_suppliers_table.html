@@ -3,9 +3,9 @@
     <div class="sixteen wide column" style="padding: 0;">
 
         <div class="ui segments">
-          <div class="ui segment">
+          <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
                 <h3 class="ui floated header" style="margin-bottom: 5px;">{% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %}</h3>
-                <div class="ui clearing divider"></div>
+                <div class="ui clearing divider" style="margin: 3px 0;"></div>
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="">
                       <div class="one wide field">
@@ -138,11 +138,10 @@
                       </div>
                     </div>
                 </div>
-
           </div>
-          <div class="ui segment">
+          <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
                 <h3 class="ui floated header" style="margin-bottom: 5px;">Détails</h3>
-                <div class="ui clearing divider" style="margin: auto;"></div>
+                <div class="ui clearing divider"  style="margin: 3px 0;"></div>
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="margin: auto 0;">
                         <div class="one wide field">
@@ -170,7 +169,7 @@
                             <label for="" style="text-align: center;">Taux TVA</label>
                         </div>
                     </div>
-                <div class="ui clearing divider" style="margin-top: 0;"></div>
+                <div class="ui clearing divider" style="margin-top: 0;margin-bottom: 5px;"></div>
                 {% for invoice in invoices %}
                     <div class="fields" style="margin-bottom: 5px;">
                         <div class="one wide field">

@@ -27,7 +27,7 @@ def details_purchase(request, enc_param):
     big_category, third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
 
     context = {
-        "titre_table": f"Contrôle : {supplier} - " f"Facture N°: {invoice_number}",
+        "titre_table": f"Contrôle : {supplier} - INVOICE N° {invoice_number}",
         "invoices": EdiImport.objects.filter(
             big_category__name=big_category,
             third_party_num=third_party_num,
