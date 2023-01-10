@@ -259,3 +259,8 @@ def get_address(adresse):
     intitule = ", ".join(intitule_list) if intitule_list else ""
     lieux = (" - " + " ".join(lieux_liste)) if lieux_liste else ""
     return f"{intitule}{lieux}"
+
+
+@register.filter
+def percentage(value):
+    return f"{value:.1%}"

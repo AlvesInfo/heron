@@ -237,8 +237,8 @@
                                  maxlength="15"
                                  id="id_vat_rate"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
-                                 value="{{ invoice.vat_rate|numbers_format:2 }}">
+                                 style="background-color: lavender;text-align: center;"
+                                 value="{{ invoice.vat_rate|percentage }}">
                         </div>
                     </div>
                 {% endfor %}
