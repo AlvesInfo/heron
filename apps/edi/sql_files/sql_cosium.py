@@ -38,8 +38,9 @@ post_cosium_dict = {
                     when req."total_amount" < 0 
                     then -abs("qty") 
                     else abs("qty") 
-                end
-        
+                end,
+            "purchase_invoice" = true,
+            "sale_invoice" = true
         from (
             select 
                 "uuid_identification", 

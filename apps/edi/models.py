@@ -19,7 +19,7 @@ from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import VatSage, VatRegimeSage, CctSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
-from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category
+from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category, SubCategory
 
 
 class EdiImportControl(FlagsTable):
@@ -124,7 +124,14 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         related_name="big_category_edi_import",
         db_column="uuid_big_category",
     )
-
+    sub_category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="sub_category_edi_import",
+        db_column="uuid_sub_big_category",
+    )
     uuid_control = models.ForeignKey(
         EdiImportControl,
         on_delete=models.PROTECT,

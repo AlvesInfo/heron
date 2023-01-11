@@ -82,6 +82,7 @@ class ChildCenterPurchase(FlagsTable):
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. Centrale Fille"
     )
+    site_fcy_x3 = models.CharField(max_length=5, verbose_name="Site X3")
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
 
     def __str__(self):
@@ -267,7 +268,7 @@ class SignboardModelTranslate(FlagsTable):
 
 class TranslationParamaters(FlagsTable):
     """
-    Table des toutes les variables à interpoler dans les modèles
+    Table de toutes les variables à interpoler dans les modèles
     FR : Interpolations
     EN : Interpolations
     """

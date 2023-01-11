@@ -19,7 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import TabDivSage, SectionSage
 from apps.countries.models import Country
-from apps.parameters.models import SubFamilly, Category, SalePriceCategory
+from apps.parameters.models import SubFamilly, Category, SubCategory, SalePriceCategory
 from apps.book.models import Society
 
 
@@ -59,6 +59,14 @@ class Article(FlagsTable):
         to_field="uuid_identification",
         related_name="big_category_category",
         db_column="uuid_big_category",
+    )
+    sub_category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="sub_category_article",
+        db_column="uuid_sub_big_category",
     )
     sub_familly = models.ForeignKey(
         SubFamilly,
@@ -167,6 +175,10 @@ class Article(FlagsTable):
 
         if not self.axe_pys:
             axe = SectionSage.objects.filter(axe="PYS", section="FR").first()
+            self.axe_pys = None if not axe else axe
+
+        if not self.axe_rfa:
+            axe = SectionSage.objects.filter(axe="RFA", section="NAF").first()
             self.axe_pys = None if not axe else axe
 
         super().save(*args, **kwargs)
