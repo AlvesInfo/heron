@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.edi.views import (
     import_edi_invoices,
-    invoice_marchandise_create,
+    InvoiceMarchandiseCreate,
 )
 
 app_name = "apps.edi"
@@ -17,7 +17,7 @@ urlpatterns = [
     # Saisie Facture de marchandise
     path(
         "create_invoice_marchandise/",
-        invoice_marchandise_create,
+        InvoiceMarchandiseCreate.as_view(),
         name="create_invoice_marchandise",
     ),
 ]

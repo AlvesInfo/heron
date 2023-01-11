@@ -19,7 +19,7 @@ from django.forms import formset_factory
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import trace_form_change
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
 from apps.edi.forms import CreateInvoiceForm
@@ -41,7 +41,7 @@ def invoice_marchandise_create(request):
             "count_elements": count_elements,
             "nb_display": 10,
             "chevron_retour": reverse("home"),
-            "form": CreateInvoiceForm()
+            "form": CreateInvoiceForm(),
         }
         request.session["level"] = 20
 
@@ -89,6 +89,50 @@ def invoice_marchandise_create(request):
         LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
 
     return render(request, "edi/invoice_marchandise_update.html", context=context)
+
+
+class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
+    """View de création des factures de marchandises"""
+
+    model = EdiImport
+    form_class = CreateInvoiceForm
+    form_class.use_required_attribute = False
+    template_name = "edi/invoice_marchandise_update.html"
+    success_message = "La Facture N° %(invoice_number)s a été créé avec success"
+    error_message = "La facture %(invoice_number)s n'a pu être créé, une erreur c'est produite"
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        count_elements = 50
+        context = {
+            **super().get_context_data(**kwargs),
+            **{
+                "titre_table": f"Facture de {Category.objects.get(slug_name='marchandises').name}",
+                "nb_elements": range(count_elements),
+                "count_elements": count_elements,
+                "nb_display": 10,
+                "chevron_retour": reverse("home"),
+                "form": CreateInvoiceForm(),
+            },
+        }
+
+        return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("home")
+
+    @transaction.atomic
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        if not form.instance.libelle_heron:
+            form.instance.libelle_heron = form.instance.libelle
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.request.session["level"] = 50
+        return super().form_invalid(form)
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
