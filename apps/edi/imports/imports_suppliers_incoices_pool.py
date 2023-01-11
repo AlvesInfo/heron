@@ -368,33 +368,6 @@ def bbgr_bulk(file_path: Path):
     return trace, to_print
 
 
-def cosium(file_path: Path):
-    """
-    Import du fichier des factures Cosium
-    :param file_path: Path du fichier à traiter
-    """
-    model = EdiImport
-    validator = CosiumSchema
-    file_name = file_path.name
-    trace_name = "Import Cosium"
-    application_name = "edi_imports_imports_suppliers_incoices"
-    flow_name = "Cosium"
-    comment = ""
-    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    params_dict_loader = {
-        "trace": trace,
-        "add_fields_dict": {
-            "uuid_identification": trace.uuid_identification,
-            "created_at": timezone.now(),
-            "modified_at": timezone.now(),
-        },
-    }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    bulk_post_insert(trace.uuid_identification)
-
-    return trace, to_print
-
-
 def bbgr_statment():
     """
     Insertion depuis B.I des factures BBGR Statment
@@ -541,6 +514,33 @@ def bbgr_receptions():
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.save()
+
+    return trace, to_print
+
+
+def cosium(file_path: Path):
+    """
+    Import du fichier des factures Cosium
+    :param file_path: Path du fichier à traiter
+    """
+    model = EdiImport
+    validator = CosiumSchema
+    file_name = file_path.name
+    trace_name = "Import Cosium"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "Cosium"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    bulk_post_insert(trace.uuid_identification)
 
     return trace, to_print
 

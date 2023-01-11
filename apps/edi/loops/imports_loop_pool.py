@@ -42,6 +42,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_monthly,
     bbgr_retours,
     bbgr_receptions,
+    cosium,
     edi,
     eye_confort,
     generique,
@@ -70,6 +71,7 @@ from apps.parameters.models import ActionInProgress
 
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
+    "COSIUM": cosium,
     "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,
