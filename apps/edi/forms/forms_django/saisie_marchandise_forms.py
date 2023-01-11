@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0903
+# pylint: disable=E0401,R0903, E1101
 """
 FR : Module de Formulaires pour le saisie de marchandises
 EN : Forms module for entering goods
@@ -19,6 +19,26 @@ from apps.accountancy.models import VatSage
 from apps.countries.models import Currency
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
+
+INVOICES_CREATE_FIELDS = (
+    "third_party_num",
+    "invoice_number",
+    "invoice_date",
+    "invoice_type",
+    "devise",
+    "reference_article",
+    "libelle",
+    "qty",
+    "net_unit_price",
+    "client_name",
+    "serial_number",
+    "big_category",
+    "created_by",
+    "vat",
+    "cct_uuid_identification",
+    "unity",
+    "manual_entry",
+)
 
 
 class CreateInvoiceForm(forms.ModelForm):
@@ -90,12 +110,8 @@ class CreateInvoiceForm(forms.ModelForm):
         self.fields["sens"] = sens
 
         # TVA ======================================================================================
-        self.vat_choices = [
-            (vat.vat, vat.vat) for vat in VatSage.objects.all()
-        ]
-        vat = forms.ChoiceField(
-            choices=self.vat_choices, label="TVA", required=True, initial="001"
-        )
+        self.vat_choices = [(vat.vat, vat.vat) for vat in VatSage.objects.all()]
+        vat = forms.ChoiceField(choices=self.vat_choices, label="TVA", required=True, initial="001")
         self.fields["vat"] = vat
 
         # ==========================================================================================
@@ -108,25 +124,4 @@ class CreateInvoiceForm(forms.ModelForm):
         """class Meta"""
 
         model = EdiImport
-        fields = (
-            "third_party_num",
-            "delivery_number",
-            "delivery_date",
-            "invoice_number",
-            "invoice_date",
-            "invoice_type",
-            "devise",
-            "reference_article",
-            "libelle",
-            "qty",
-            "net_unit_price",
-            "client_name",
-            "serial_number",
-            "comment",
-            "big_category",
-            "created_by",
-            "vat",
-            "cct_uuid_identification",
-            "unity",
-            "manual_entry",
-        )
+        fields = INVOICES_CREATE_FIELDS

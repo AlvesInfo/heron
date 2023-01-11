@@ -46,6 +46,7 @@
                 nbDisplay += 1
                 if (nbDisplay <= {{ count_elements }}) {
                     $(`#formset${nbDisplay}`).show()
+                    $(`#id_form-TOTAL_FORMS`).val(nbDisplay)
                 } else {
                     alert("Vous avez atteind le nombre maximal de lignes")
                 }

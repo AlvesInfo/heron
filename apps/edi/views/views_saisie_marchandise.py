@@ -15,80 +15,17 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
-from django.forms import formset_factory
+from django.forms import formset_factory, modelformset_factory
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
-from apps.edi.forms import CreateInvoiceForm
+from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
 
 # 1. MARCHANDISES
-
-
-@transaction.atomic
-def invoice_marchandise_create(request):
-    """View de création des factures de marchandises"""
-    context = {}
-
-    try:
-        # Ajout des cct par défaut pour les maisons existantes, pour éviter de les saisir
-        count_elements = 50
-        context = {
-            "titre_table": f"Facture de {Category.objects.get(slug_name='marchandises').name}",
-            "nb_elements": range(count_elements),
-            "count_elements": count_elements,
-            "nb_display": 10,
-            "chevron_retour": reverse("home"),
-            "form": CreateInvoiceForm(),
-        }
-        request.session["level"] = 20
-
-        if request.method == "POST":
-            print("après POST et avant formset_factory")
-            InvoiceFormset = formset_factory(
-                CreateInvoiceForm,
-                extra=1,
-            )
-            print("après formset_factory")
-            request.session["level"] = 50
-            print("request.POST : ", request.POST)
-            print("avant InvoiceFormset")
-            formset = InvoiceFormset(request.POST)
-            print("après InvoiceFormset")
-            message = ""
-
-            if formset.is_valid():
-                print("form.changed_data : ", formset.changed_data)
-                # for form in formset:
-                #     if form.changed_data:
-                #         print("form.clean_data : ", form.cleaned_data, form)
-                #         trace_form_change(request, form)
-                #         message = (
-                #             "Les identifiants du cct "
-                #             f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
-                #             "on bien été changés."
-                #         )
-                #         request.session["level"] = 20
-                #         messages.add_message(request, 20, message)
-                #
-                # if not message:
-                #     messages.add_message(request, 50, "Vous n'avez rien modifié !")
-
-            else:
-                messages.add_message(
-                    request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
-                )
-
-                LOGGER_VIEWS.exception(f"erreur form : {formset.errors!r}")
-
-    except Exception as error:
-        request.session["level"] = 50
-        messages.add_message(request, 50, f"Une erreur c'est produite, veuillez consulter les logs")
-        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
-
-    return render(request, "edi/invoice_marchandise_update.html", context=context)
+InvoiceMarchandiseFormset = modelformset_factory(EdiImport, fields=INVOICES_CREATE_FIELDS)
 
 
 class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -110,13 +47,24 @@ class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
                 "titre_table": f"Facture de {Category.objects.get(slug_name='marchandises').name}",
                 "nb_elements": range(count_elements),
                 "count_elements": count_elements,
-                "nb_display": 10,
+                "nb_display": 5,
                 "chevron_retour": reverse("home"),
-                "form": CreateInvoiceForm(),
+                "formset": InvoiceMarchandiseFormset(queryset=EdiImport.objects.none()),
             },
         }
 
         return context
+
+    def post(self, request, *args, **kwargs):
+        """On adapte la méthode post pour inclure les données générale telles que,
+        third_party_num, delivery_number, delivery_date, ...
+        """
+        print("request.POST : ", request.POST.dict())
+        formset = CreateInvoiceForm(request.POST)
+        if formset.is_valid():
+            return self.form_valid(formset)
+        else:
+            print(formset.errors)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
