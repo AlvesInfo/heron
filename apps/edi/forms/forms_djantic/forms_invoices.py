@@ -55,6 +55,26 @@ class BbgrBulkSchema(
         ]
 
 
+class CosiumSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+    TvaWidex,
+):
+    """Schema Djantic pour validation du modèle BbrgVerre"""
+
+    uuid_identification: uuid.UUID
+
+    class Config:
+        """Config"""
+
+        model = EdiImport
+        include = list(get_columns(ColumnDefinition, "Cosium")) + [
+            "uuid_identification",
+            "created_at",
+            "modified_at",
+        ]
+
+
 class EdiSchema(
     ModelSchema,
     ValidateFieldsBase,

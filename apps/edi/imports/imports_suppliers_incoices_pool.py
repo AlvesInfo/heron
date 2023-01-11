@@ -51,6 +51,7 @@ from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
 from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
 from apps.edi.forms.forms_djantic.forms_invoices import (
     BbgrBulkSchema,
+    CosiumSchema,
     EdiSchema,
     EyeConfortSchema,
     GeneriqueSchema,
@@ -362,6 +363,33 @@ def bbgr_bulk(file_path: Path):
     new_file_path = bulk_translate_file(file_path)
     to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     new_file_path.unlink()
+    bulk_post_insert(trace.uuid_identification)
+
+    return trace, to_print
+
+
+def cosium(file_path: Path):
+    """
+    Import du fichier des factures Cosium
+    :param file_path: Path du fichier à traiter
+    """
+    model = EdiImport
+    validator = CosiumSchema
+    file_name = file_path.name
+    trace_name = "Import Cosium"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "Cosium"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
     bulk_post_insert(trace.uuid_identification)
 
     return trace, to_print

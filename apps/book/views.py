@@ -185,7 +185,8 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
 
     try:
         # Ajout des cct par défaut pour les maisons existantes, pour éviter de les saisir
-        add_news_cct_sage(third_party_num=third_party_num)
+        add_news_cct_sage(third_party_num=third_party_num, force_add=True)
+
         SupplierCctFormset = modelformset_factory(
             SupplierCct,
             fields=("id", "cct_identifier"),

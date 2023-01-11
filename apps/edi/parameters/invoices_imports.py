@@ -13,12 +13,11 @@ modified by: Paulo ALVES
 """
 from typing import AnyStr, Dict
 from django.db import models
-from apps.edi.loggers import EDI_LOGGER
 
 
 def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
     """
-    :param model:       model au sens django
+    :param model:      Model au sens django
     :param flow_name:  Nom de la table
     :return: Le Dictionnaire de correspondance entre le modèle et l'entête du fichier
     """
@@ -34,7 +33,7 @@ def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
 
 def get_first_line(model: models.Model, flow_name: AnyStr) -> int:
     """
-    :param model:       model SupplierDefinition django
+    :param model:      Model SupplierDefinition django
     :param flow_name:  Nom de la table
     :return: Retourne la première ligne du fichier
     """
@@ -47,7 +46,7 @@ def get_first_line(model: models.Model, flow_name: AnyStr) -> int:
 
 def get_loader_params_dict(model: models.Model, flow_name: AnyStr) -> int:
     """
-    :param model:       model SupplierDefinition django
+    :param model:      Model SupplierDefinition django
     :param flow_name:  Nom de la table
     :return: Retourne le dictionnaire des paramètres pour le loader
     """

@@ -15,10 +15,11 @@ from psycopg2 import sql
 from django.db import connection
 
 
-def add_news_cct_sage(third_party_num: str = None):
+def add_news_cct_sage(third_party_num: str = None, force_add=False):
     """Ajoute dans la table d'identification des fournisseurs book_suppliercct
     les nouveaux cct sage avec le paramétrage par défaut
     :param third_party_num: N° de tiers X3
+    :param force_add: Ajout forcé du tiers même si il ne fait pas partie des fournisseurs courants
     :return: None
     """
     with connection.cursor() as cursor:
@@ -26,6 +27,14 @@ def add_news_cct_sage(third_party_num: str = None):
             'and "third_party_num" = %(third_party_num)s'
             if third_party_num
             else 'and "third_party_num" is not null'
+        )
+        force_select = (
+            f"""
+            union all
+            select '{third_party_num}'
+            """
+            if third_party_num and force_add
+            else ""
         )
         sql_to_create = sql.SQL(
             f"""
@@ -40,6 +49,7 @@ def add_news_cct_sage(third_party_num: str = None):
                     select 
                         "third_party_num"
                     from "suppliers_invoices_invoice" sii 
+                    {force_select}
                 ) req 
                 group by "third_party_num"
             ),

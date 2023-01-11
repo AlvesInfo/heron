@@ -19,6 +19,7 @@ from django.forms import formset_factory, modelformset_factory
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
+from apps.core.bin.assembly_formset import get_request_formset
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
@@ -59,7 +60,33 @@ class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
         """On adapte la méthode post pour inclure les données générale telles que,
         third_party_num, delivery_number, delivery_date, ...
         """
-        print("request.POST : ", request.POST.dict())
+        request_dict = request.POST.dict()
+        base_data = {
+            "big_category": request_dict.get("big_category"),
+            "manual_entry": request_dict.get("manual_entry"),
+            "cct_uuid_identification": request_dict.get("cct_uuid_identification"),
+            "third_party_num": request_dict.get("third_party_num"),
+            "invoice_number": request_dict.get("invoice_number"),
+            "invoice_type": request_dict.get("invoice_type"),
+            "invoice_date": request_dict.get("invoice_date"),
+            "devise_choices": request_dict.get("devise_choices")
+        }
+        sens = request_dict.get("sens")
+
+        if sens == "2":
+            base_data["purchase_invoice"] = "on"
+            base_data["sale_invoice"] = "on"
+        elif sens == "1":
+            base_data["purchase_invoice"] = "off"
+            base_data["sale_invoice"] = "on"
+        else:
+            base_data["purchase_invoice"] = "on"
+            base_data["sale_invoice"] = "off"
+
+        data_dict = get_request_formset(request_dict, base_data)
+
+        print(data_dict)
+
         formset = CreateInvoiceForm(request.POST)
         if formset.is_valid():
             return self.form_valid(formset)

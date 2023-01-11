@@ -1,3 +1,16 @@
+base_date = {
+    "big_category": "f2dda460-20db-4b05-8bb8-fa80a1ff146b",
+    "manual_entry": "on",
+    "cct_uuid_identification": "a1c228c0-275a-45f1-bce4-c69b2babd739",
+    "third_party_num": "BAUS001",
+    "invoice_number": "FEGE",
+    "invoice_type": "380",
+    "invoice_date": "2023-01-11",
+    "devise_choices": "EUR",
+    "purchase_invoice": "on",
+    "sale_invoice": "on",
+}
+
 d = {
     "csrfmiddlewaretoken": "fr9HJlcX9qzbXvZ6xUKKAJUJPSufiL1AgYcOBPYwqWmAP0EbNoiRUumKKIYYcH5C",
     "update_tiers": "",

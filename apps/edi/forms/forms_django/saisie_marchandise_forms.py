@@ -38,6 +38,8 @@ INVOICES_CREATE_FIELDS = (
     "cct_uuid_identification",
     "unity",
     "manual_entry",
+    "purchase_invoice",
+    "sale_invoice",
 )
 
 

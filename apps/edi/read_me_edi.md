@@ -2,7 +2,7 @@ Module por l'intégration des factures fournisseur au format EDI ou Propriétair
 ---
 Pour ajouter de nouvelles intégrations, il faut :
 
-1. Créer un Path de création automatique, pour le répertoire ou déposer les facture dans le fichier heron.settings.suppliers.
+1. Créer un Path de création automatique, pour le répertoire en metant le path dans le fichier heron.settings.suppliers.
 ---
 2. Créer l'espace de nom et les paramètre du fichier du founisseur (model: SupplierDefinition):
    - table_name : Nom du namespace souhaité
@@ -31,7 +31,7 @@ FileLoader._get_sanitaze(l):
 ---
 5. Vérifier les formats de type dates, tva, nombres, etc..., dans le fichier pour création d'un pré-validateur éventuel.
 ---
-6.  Créer une fonction pour l'import, dans le fichier apps.edi.imports_suppliers_invoices. Prendre exemple sur les fonctions déjà existantes.
+6.  Créer une fonction pour l'import, dans le fichier apps.edi.imports_suppliers_invoices_pool. Prendre exemple sur les fonctions déjà existantes.
 ---
 7. Rajouter dans le dictionnaire des process, la fonction précédemment créée, dans le fichier apps.edi.loops.imports_loop.
 ___
