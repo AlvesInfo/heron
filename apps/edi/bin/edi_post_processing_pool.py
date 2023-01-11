@@ -29,6 +29,7 @@ from apps.edi.sql_files.sql_bulk import post_bulk_dict
 from apps.edi.sql_files.sql_bbgr_002_statment import bbgr_002_statment_dict
 from apps.edi.sql_files.sql_bbgr_003_monthly import bbgr_003_monthly_dict
 from apps.edi.sql_files.sql_bbgr_004_retours import bbgr_004_retours_dict
+from apps.edi.sql_files.sql_cosium import post_cosium_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
 from apps.edi.sql_files.sql_eye_confort import post_eye_dict
 from apps.edi.sql_files.sql_generic import post_generic_dict
@@ -263,6 +264,20 @@ def bulk_post_insert(uuid_identification: AnyStr):
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+
+
+def cosium_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier Opto33 EDI
+    :param uuid_identification: uuid_identification
+    """
+
+    sql_ttc_a_zero = post_cosium_dict.get("sql_ttc_a_zero")
+    sql_totaux = post_cosium_dict.get("sql_totaux")
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_totaux, {"uuid_identification": uuid_identification})
 
 
 def edi_post_insert(uuid_identification: AnyStr):

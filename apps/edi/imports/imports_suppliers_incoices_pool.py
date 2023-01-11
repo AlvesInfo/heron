@@ -26,6 +26,7 @@ from apps.edi.bin.edi_post_processing_pool import (
     bbgr_statment_post_insert,
     bbgr_monthly_post_insert,
     bbgr_retours_post_insert,
+    cosium_post_insert,
     edi_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
@@ -534,13 +535,15 @@ def cosium(file_path: Path):
     params_dict_loader = {
         "trace": trace,
         "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
             "uuid_identification": trace.uuid_identification,
             "created_at": timezone.now(),
             "modified_at": timezone.now(),
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-    bulk_post_insert(trace.uuid_identification)
+    cosium_post_insert(trace.uuid_identification)
 
     return trace, to_print
 

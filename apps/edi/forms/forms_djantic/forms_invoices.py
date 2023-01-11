@@ -70,6 +70,8 @@ class CosiumSchema(
         model = EdiImport
         include = list(get_columns(ColumnDefinition, "Cosium")) + [
             "uuid_identification",
+            "flow_name",
+            "supplier",
             "created_at",
             "modified_at",
         ]
