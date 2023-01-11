@@ -47,7 +47,7 @@ def without_cct_purchases(request):
         .order_by("third_party_num", "invoice_number"),
         "nature": "La facture n° ",
         "nb_paging": 100,
-        "form": ChangeCttForm(),
+        "cct_form": ChangeCttForm(),
         "url_retour_supplier_cct": set_base_64_str(
             reverse("validation_purchases:without_cct_purchases")
         ),

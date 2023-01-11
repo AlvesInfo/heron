@@ -266,7 +266,7 @@ def trace_mark_bulk_delete(
     :param request: request au sens Django
     :param django_model: Model au sens Django
     :param data_dict: données validées, pour le filtre
-    :param replacements: Tuple des varaibles à remplacer
+    :param replacements: Tuple des variables à remplacer
     :param force_delete: True si l'on souhaite éffacé definitivement
     """
     function_call = str(inspect.currentframe().f_back)[:255]
@@ -398,6 +398,7 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
 
     user = request.user
     action_datetime = timezone.now()
+
     before_dict = {
         key: value
         for key, value in model.objects.filter(**before_kwargs).first().__dict__.items()

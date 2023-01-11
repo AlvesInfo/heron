@@ -1,44 +1,48 @@
-$(".cct_sage").dblclick(function () {
-    let cct = $(this).data("cct");
-    let [uuid_identification, third_party_num, invoice_number, invoice_year, code_maison, maison] = $(this).data("value").split("|");
-    $(`#id_cct`).dropdown('set selected', cct);
-    $(`#headerTiers`).html(`Tiers : ${third_party_num} - N° Facture : ${invoice_number} - CCT venant du fournisseur : ${code_maison} - ${maison}`);
-    $(`#id_uuid_identification`).val(uuid_identification);
-    $(`#id_third_party_num`).val(third_party_num);
-    $(`#id_invoice_number`).val(invoice_number);
-    $(`#id_invoice_year`).val(invoice_year);
-    let modale = $('#modalCct');
+    $(".cct_sage").dblclick(function () {
+        if ($(this).data("clickable") === `yes`) {
+            let cct = $(this).data("cct");
+            let [uuid_identification, third_party_num, invoice_number, invoice_year, code_maison, maison] = $(this).data("value").split("|");
+            $(`#id_cct`).dropdown('set selected', cct);
+            $(`#headerTiers`).html(`Tiers : ${third_party_num} - N° Facture : ${invoice_number} - CCT venant du fournisseur : ${code_maison} - ${maison}`);
+            $(`#id_uuid_identification`).val(uuid_identification);
+            $(`#id_third_party_num`).val(third_party_num);
+            $(`#id_invoice_number`).val(invoice_number);
+            $(`#id_invoice_year`).val(invoice_year);
+            let modale = $('#modalCct');
 
-    modale
-        .modal({
-            closable: false,
-            onApprove: function() {
-                $(`#cctFormChange`).submit();
-                $(`.message`).hide();
-                $(`.datatable-chargement`).show();
-            }
-        })
-        .modal(`show`)
-    })
-
-});
-
-$(`#cctFormChange`).submit(function (event) {
-    let formData = {
-      uuid_identification: $("#id_uuid_identification").val(),
-      third_party_num: $("#id_third_party_num").val(),
-      invoice_number: $("#id_invoice_number").val(),
-      invoice_year: $("#id_invoice_year").val(),
-      cct: $("#id_cct").val(),
-    };
-
-    $.ajax({
-      type: "POST",
-      url: "{% url 'validation_purchases:cct_change' %}",
-      data: formData,
-      encode: true,
-    }).done(function (data) {
-        window.location.reload()
+            modale
+                .modal({
+                    closable: false,
+                    onApprove: function() {
+                        $(`#cctFormChange`).submit(url);
+                        $(`.message`).hide();
+                        $(`.datatable-chargement`).show();
+                    }
+                })
+                .modal(`show`)
+        }
     });
 
-event.preventDefault();
+
+
+    $(`#cctFormChange`).submit(function (event) {
+        let formData = {
+          uuid_identification: $("#id_uuid_identification").val(),
+          third_party_num: $("#id_third_party_num").val(),
+          invoice_number: $("#id_invoice_number").val(),
+          invoice_year: $("#id_invoice_year").val(),
+          cct: $("#id_cct").val(),
+        };
+        console.log(formData)
+        $.ajax({
+          type: "POST",
+          url: "{% url 'validation_purchases:cct_change' %}",
+          data: formData,
+          encode: true,
+        }).done(function () {
+            window.location.reload()
+        });
+
+        event.preventDefault();
+
+    });

@@ -40,10 +40,11 @@
         $(document).ready(function () {
 
             {% include "heron/base_data_table.html" %}
-            {% include "heron/change_cct_js.html" %}
 
         });
 
     </script>
+
+    <script type="text/javascript" src="{% static 'changeCct.js' %}"></script>
 
 {% endblock script %}

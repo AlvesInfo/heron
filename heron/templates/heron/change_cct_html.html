@@ -11,11 +11,11 @@
             <h4 id="headerTiers" class="ui dividing header"></h4>
               <div class="fields">
                     <div class="one wide field" style="display: none;">
-                        {{ form.id }}
-                        {{ form.uuid_identification }}
-                        {{ form.third_party_num }}
-                        {{ form.invoice_number }}
-                        {{ form.invoice_year }}
+                        {{ cct_form.id }}
+                        {{ cct_form.uuid_identification }}
+                        {{ cct_form.third_party_num }}
+                        {{ cct_form.invoice_number }}
+                        {{ cct_form.invoice_year }}
                     </div>
                     <div class="fourteen wide field">
                         <label for="id_cct"
@@ -23,7 +23,7 @@
                         <select id="id_cct"
                                 name="cct"
                                 class="ui fluid search dropdown">
-                            {% for value, label in form.cct_choices %}
+                            {% for value, label in cct_form.cct_choices %}
                                 <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
                             {% endfor %}
                         </select>

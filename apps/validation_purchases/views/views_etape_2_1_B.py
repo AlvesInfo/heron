@@ -9,10 +9,11 @@ from apps.core.bin.encoders import get_base_64, set_base_64_list
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     EdiImportValidationForm,
+    ChangeBigCategoryForm,
     UpdateSupplierPurchasesForm,
     DeletePkForm,
+    ChangeCttForm,
 )
-
 
 # CONTROLES ETAPE 2.1.B - DETAILS FACTURES
 
@@ -24,12 +25,11 @@ def details_purchase(request, enc_param):
     :param enc_param: paramètres encodés en base 64
     :return: view
     """
-    big_category, third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
+    third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
 
     context = {
         "titre_table": f"Contrôle : {supplier} - INVOICE N° {invoice_number}",
         "invoices": EdiImport.objects.filter(
-            big_category__name=big_category,
             third_party_num=third_party_num,
             supplier=supplier,
             invoice_month=invoice_month,
@@ -38,12 +38,11 @@ def details_purchase(request, enc_param):
         "chevron_retour": reverse(
             "validation_purchases:integration_supplier_purchases",
             kwargs={
-                "enc_param": set_base_64_list(
-                    [big_category, third_party_num, supplier, invoice_month]
-                ),
+                "enc_param": set_base_64_list([third_party_num, supplier, invoice_month]),
             },
         ),
-        "nature": "La ligne n° ",
+        "form": ChangeBigCategoryForm(),
+        "cct_form": ChangeCttForm(),
         "nb_paging": 50,
     }
 

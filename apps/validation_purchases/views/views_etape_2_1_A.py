@@ -29,7 +29,7 @@ def integration_supplier_purchases(request, enc_param):
     :return: view
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
-    big_category, third_party_num, supplier, invoice_month = get_base_64(enc_param)
+    third_party_num, supplier, invoice_month = get_base_64(enc_param)
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
@@ -38,7 +38,6 @@ def integration_supplier_purchases(request, enc_param):
             parmas_dict={
                 "third_party_num": third_party_num,
                 "supplier": supplier,
-                "big_category": big_category,
                 "invoice_month": invoice_month,
             },
         )
@@ -54,7 +53,7 @@ def integration_supplier_purchases(request, enc_param):
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
             "nb_paging": 25,
-            "form": ChangeCttForm(),
+            "cct_form": ChangeCttForm(),
             "enc_param": enc_param,
         }
 
@@ -103,14 +102,13 @@ def integration_supplier_purchases_export(request, enc_param):
     """
     try:
         if request.method == "GET":
-            big_category, third_party_num, supplier, invoice_month, _ = get_base_64(enc_param)
+            third_party_num, supplier, invoice_month, _ = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (
-                f"{big_category}_{third_party_num}_{invoice_month}_"
+                f"{third_party_num}_{invoice_month}_"
                 f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
             attr_dict = {
-                "big_category": big_category,
                 "third_party_num": third_party_num,
                 "supplier": supplier,
                 "invoice_month": invoice_month,

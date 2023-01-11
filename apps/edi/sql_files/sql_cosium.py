@@ -40,7 +40,8 @@ post_cosium_dict = {
                     else abs("qty") 
                 end,
             "purchase_invoice" = true,
-            "sale_invoice" = true
+            "sale_invoice" = true,
+            "libelle" = replace("libelle", '-  - ', '')
         from (
             select 
                 "uuid_identification", 

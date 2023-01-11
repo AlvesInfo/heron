@@ -19,7 +19,6 @@ from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
-from apps.validation_purchases.forms.forms_django import ChangeBigCategoryForm
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
@@ -58,7 +57,6 @@ def integration_purchases(request):
             "traces": Trace.objects.filter(
                 modified_at__gte=pendulum.now().start_of("month"),
             ).exclude(file_name__istartswith="ZBI"),
-            "form": ChangeBigCategoryForm(),
             "margin_table": 10,
             "nb_paging": 100,
         }
@@ -89,7 +87,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
     def get_attributes(self, kwargs):
         """Décode-les parammètres de la variable enc_param passés en base64"""
         enc_param = get_base_64(kwargs.get("enc_param"))
-        self.big_category, self.third_party_num, self.supplier, invoice_month = enc_param
+        self.third_party_num, self.supplier, invoice_month = enc_param
         self.invoice_month = pendulum.parse(invoice_month)
         self.month = self.invoice_month.format("MMMM YYYY", locale="fr")
         self.success_message = (
@@ -108,11 +106,10 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"{self.big_category} - {self.third_party_num} - "
+            f"{self.third_party_num} - "
             f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
-        context["big_category"] = self.big_category
         context["supplier"] = self.supplier
         context["invoice_month"] = self.invoice_month.format("MMMM YYYY", locale="fr")
         return context
@@ -135,7 +132,6 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         self.request.session["level"] = 20
         instance = form.save()
         EdiImport.objects.filter(
-            big_category=Category.objects.get(name=self.big_category),
             third_party_num=self.third_party_num,
             supplier=self.supplier,
             invoice_month=self.invoice_month,
@@ -168,7 +164,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     def get_attributes(self, kwargs):
         """Décode-les parammètres de la variable enc_param passés en base64"""
         enc_param = get_base_64(kwargs.get("enc_param"))
-        self.big_category, self.third_party_num, self.supplier, invoice_month = enc_param
+        self.third_party_num, self.supplier, invoice_month = enc_param
         self.invoice_month = pendulum.parse(invoice_month)
         self.month = self.invoice_month.format("MMMM YYYY", locale="fr")
         self.success_message = (
@@ -193,11 +189,10 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"{self.big_category} - {self.third_party_num} - "
+            f"{self.third_party_num} - "
             f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
-        context["big_category"] = self.big_category
         context["supplier"] = self.supplier
         context["invoice_month"] = self.invoice_month.format("MMMM YYYY", locale="fr")
 
@@ -231,33 +226,29 @@ def delete_supplier_edi_import(request):
         return redirect("home")
 
     data = {"success": "ko"}
-    third_party_num, supplier, big_category, invoice_month, delete = request.POST.values()
-    instance_big_categorie = Category.objects.get(name=big_category)
+    third_party_num, supplier, invoice_month, delete = request.POST.values()
+    data_dict = {
+        "third_party_num": third_party_num,
+        "supplier": supplier,
+        "invoice_month": invoice_month,
+        "delete": delete,
+    }
+    form = DeleteEdiForm(data_dict)
 
-    if instance_big_categorie:
-        data_dict = {
-            "third_party_num": third_party_num,
-            "supplier": supplier,
-            "big_category": instance_big_categorie.uuid_identification,
-            "invoice_month": invoice_month,
-            "delete": delete,
-        }
-        form = DeleteEdiForm(data_dict)
+    if form.is_valid() and form.cleaned_data:
+        trace_mark_bulk_delete(
+            request=request,
+            django_model=EdiImport,
+            data_dict=form.cleaned_data,
+            replacements=(),
+            force_delete=True,
+        )
+        data = {"success": "success"}
 
-        if form.is_valid() and form.cleaned_data:
-            trace_mark_bulk_delete(
-                request=request,
-                django_model=EdiImport,
-                data_dict=form.cleaned_data,
-                replacements=(("big_category", instance_big_categorie.name),),
-                force_delete=True,
-            )
-            data = {"success": "success"}
-
-        else:
-            LOGGER_VIEWS.exception(
-                f"delete_supplier_edi_import error, form invalid : {form.errors!r}"
-            )
+    else:
+        LOGGER_VIEWS.exception(
+            f"delete_supplier_edi_import error, form invalid : {form.errors!r}"
+        )
 
     return JsonResponse(data)
 

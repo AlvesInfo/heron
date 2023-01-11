@@ -4,11 +4,12 @@ select
     invoice_amount_tax,
     invoice_amount_with_tax,
     invoice_month,
-    third_party_num,
+    ee.third_party_num,
     pc."name" as big_category,
     ee."id" as pk,
+    ac.cct,
     code_fournisseur,
-    code_maison,
+    ee.code_maison,
     maison,
     invoice_number,
     invoice_date,
@@ -27,8 +28,10 @@ select
     apys.section as axe_pys,
     arfa.section as axe_rfa,
     '{"pk": "' || ee."id" || '"}' as str_json,
-    pc."name" || '||' || third_party_num || '||' || supplier || '||' || invoice_month as enc_param
+    ee.third_party_num || '||' || supplier || '||' || invoice_month as enc_param
 from edi_ediimport ee
+left join centers_clients_maison ac
+on ee.cct_uuid_identification = ac.uuid_identification
 left join parameters_category pc
 on ee.uuid_big_category = pc.uuid_identification
 left join accountancy_sectionsage abu
@@ -43,8 +46,7 @@ left join accountancy_sectionsage apys
 on ee.axe_pys_uuid = apys.uuid_identification
 left join accountancy_sectionsage arfa
 on ee.axe_rfa_uuid = arfa.uuid_identification
-where pc."name" = %(big_category)s
-  and third_party_num = %(third_party_num)s
+where third_party_num = %(third_party_num)s
   and supplier = %(supplier)s
   and invoice_month = %(invoice_month)s
   and invoice_number = %(invoice_number)s

@@ -67,8 +67,10 @@ class ChangeCttForm(forms.ModelForm):
         uuid_identification = forms.UUIDField()
         self.fields["uuid_identification"] = uuid_identification
 
+        self.fields["id"] = forms.IntegerField(initial=0, required=False)
+
     class Meta:
         """class Meta Django"""
 
         model = EdiImport
-        fields = ("third_party_num", "invoice_number", "invoice_year")
+        fields = ("id", "third_party_num", "invoice_number", "invoice_year")

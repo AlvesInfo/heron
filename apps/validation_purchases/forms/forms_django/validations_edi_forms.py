@@ -61,7 +61,6 @@ class DeleteEdiForm(forms.ModelForm):
         fields = [
             "third_party_num",
             "supplier",
-            "big_category",
             "invoice_month",
         ]
 

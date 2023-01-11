@@ -35,6 +35,10 @@ def cct_change(request):
 
     if form.is_valid() and form.cleaned_data:
         data_dict = form.cleaned_data
+
+        if data_dict.get("id") == 0:
+            data_dict.pop("id")
+
         cct = Maison.objects.get(cct=data_dict.pop("cct"))
 
         if form.changed_data:

@@ -29,22 +29,6 @@ from apps.core.excel_outputs.excel_writer import (
 
 COLUMNS = [
     {
-        "entete": "Catégorie",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 12,
-    },
-    {
         "entete": "Tiers X3",
         "f_entete": {
             **f_entetes,
@@ -307,7 +291,7 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
     file_path = Path(
         f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_integration_purchases.sql"
     )
-    get_clean_rows = [line[:15] for line in get_rows(file_path)]
+    get_clean_rows = [line[:len(COLUMNS)] for line in get_rows(file_path)]
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
@@ -316,7 +300,7 @@ def excel_integration_purchases(file_io: io.BytesIO, file_name: str) -> dict:
         f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
         f_lignes_odd = [
             dict_row.get("f_ligne")
-            if i in {8, 11}
+            if i in {7, 10}
             else {**dict_row.get("f_ligne"), **{"bg_color": "#D8E4BC"}}
             for i, dict_row in enumerate(COLUMNS)
         ]

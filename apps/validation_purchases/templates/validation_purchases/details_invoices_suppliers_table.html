@@ -1,14 +1,16 @@
 {% load filters_tags %}
 <div class="ui grid" style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px;margin-right: {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px;">
     <div class="sixteen wide column" style="padding: 0;">
-
+        <div class="ui datatable-chargement active inverted dimmer">
+            <div class="ui medium text loader">Chargement</div>
+        </div>
         <div class="ui segments">
           <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
                 <h3 class="ui floated header" style="margin-bottom: 5px;">{% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %}</h3>
                 <div class="ui clearing divider" style="margin: 3px 0;"></div>
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="">
-                      <div class="one wide field">
+                      <div class="two wide field">
                           <label for="id_third_party_num" style="text-align: center;">Tiers X3</label>
                           <input type="text"
                                  name="third_party_num"
@@ -17,7 +19,7 @@
                                  style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.third_party_num }}">
                       </div>
-                      <div class="four wide field">
+                      <div class="seven wide field">
                           <label for="id_supplier" style="text-align: left;">Fournisseur</label>
                           <input type="text"
                                  name="supplier"
@@ -26,39 +28,8 @@
                                  style="background-color: lavender;"
                                  value="{{ invoices.0.supplier }}">
                       </div>
+
                       <div class="two wide field">
-                          <label for="id_big_category" style="text-align: left;">Catégorie</label>
-                          <input type="text"
-                                 name="big_category"
-                                 id="id_big_category"
-                                 readonly
-                                 style="background-color: lavender;"
-                                 value="{{ invoices.0.big_category.name }}">
-                      </div>
-                      <div class="one wide field">
-                          <label for="id_cct_uuid_identification" style="text-align: center;">CCT X3</label>
-                          <input type="text"
-                                 name="cct_uuid_identification"
-                                 maxlength="15"
-                                 id="id_cct_uuid_identification"
-                                 readonly
-                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
-                                 value="{{ invoices.0.cct_uuid_identification.cct }}">
-                      </div>
-                      <div class="six wide field">
-                          <label for="id_maison" style="text-align: left;">Libelle magasin du fourniseur</label>
-                          <input type="text"
-                                 name="maison"
-                                 maxlength="80"
-                                 id="id_maison"
-                                 readonly
-                                 style="background-color: lavender;"
-                                 value="{{ invoices.0.maison|default_if_none:'' }}">
-                      </div>
-                    </div>
-        {#  ============================================================================================  #}
-                    <div class="fields" style="">
-                      <div class="one wide field">
                           <label for="id_invoice_type" style="text-align: center;">Type</label>
                           <input type="text"
                                  name="invoice_type"
@@ -67,7 +38,7 @@
                                  style="background-color: lavender;text-align: center;"
                                  value="{% if invoices.0.invoice_type == '380' %}FAF{% else %}AVO{% endif %}">
                       </div>
-                      <div class="three wide field">
+                      <div class="five wide field">
                           <label for="id_invoice_number" style="text-align: left;">N° {% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %}</label>
                           <input type="text"
                                  name="invoice_number"
@@ -77,7 +48,7 @@
                                  style="background-color: lavender;"
                                  value="{{ invoices.0.invoice_number }}">
                       </div>
-                      <div class="one wide field">
+                      <div class="two wide field">
                           <label for="id_invoice_date" style="text-align: center;">Date</label>
                           <input type="text"
                                  name="invoice_date"
@@ -86,7 +57,7 @@
                                  style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.invoice_date|date:"d/m/Y" }}">
                       </div>
-                      <div class="two wide field">
+                      <div class="three wide field">
                           <label for="id_manual_entry" style="text-align: left;">Provenance</label>
                           <input type="text"
                                  name="manual_entry"
@@ -96,7 +67,7 @@
                                  style="background-color: lavender;"
                                  value="{% if invoices.0.manual_entry %}Facture Saisie{% else %}Facture Intégrée{% endif %}">
                       </div>
-                      <div class="one wide field">
+                      <div class="two wide field">
                           <label for="id_achat_vente" style="text-align: center;">Sens</label>
                           <input type="text"
                                  name="achat_vente"
@@ -106,7 +77,7 @@
                                  style="background-color: lavender;text-align: center;"
                                  value="{% if invoices.0.purchase_invoice and invoices.0.purchase_invoice %}AC/VE{% elif invoices.0.purchase_invoice %}AC{% else %}VE{% endif %}">
                       </div>
-                      <div class="two wide field">
+                      <div class="three wide field">
                           <label for="id_invoice_amount_without_tax" style="text-align: right;padding-right: 14px;">Total H.T</label>
                           <input type="text"
                                  name="invoice_amount_without_tax"
@@ -116,7 +87,7 @@
                                  style="background-color: lavender;text-align: right;"
                                  value="{{ invoices.0.invoice_amount_without_tax|numbers_format:2 }}">
                       </div>
-                      <div class="two wide field">
+                      <div class="three wide field">
                           <label for="id_invoice_amount_tax" style="text-align: right;padding-right: 14px;">Total TVA</label>
                           <input type="text"
                                  name="invoice_amount_tax"
@@ -126,7 +97,7 @@
                                  style="background-color: lavender;text-align: right;"
                                  value="{{ invoices.0.invoice_amount_tax|numbers_format:2 }}">
                       </div>
-                      <div class="two wide field">
+                      <div class="three wide field">
                           <label for="id_invoice_amount_with_tax" style="text-align: right;padding-right: 14px;">Total TTC</label>
                           <input type="text"
                                  name="invoice_amount_with_tax"
@@ -140,60 +111,87 @@
                 </div>
           </div>
           <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
-                <h3 class="ui floated header" style="margin-bottom: 5px;">Détails</h3>
+                <h4 class="ui floated header" style="margin-bottom: 5px;">Détails</h4>
                 <div class="ui clearing divider"  style="margin: 3px 0;"></div>
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="margin: auto 0;">
-                        <div class="one wide field">
-                            <label for="" style="text-align: center;padding-right: 14px;">Ligne</label>
+                        <div class="two wide field">
+                            <label for="id_line" style="text-align: left;">CCT X3</label>
                         </div>
                         <div class="three wide field">
-                            <label for="">Référence</label>
+                            <label for="id_big_category" style="text-align: left;">Categorie</label>
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_sub_category" style="text-align: left;">Rubrique Presta</label>
                         </div>
                         <div class="five wide field">
-                            <label for="">Libellé Heron</label>
+                            <label for="id_reference_article">Référence</label>
+                        </div>
+                        <div class="twelve wide field">
+                            <label for="id_libelle">Libellé</label>
                         </div>
                         <div class="one wide field">
-                            <label for="" style="text-align: right;padding-right: 14px;">Qté</label>
+                            <label for="id_qty" style="text-align: right;">Qté</label>
                         </div>
                         <div class="two wide field">
-                            <label for="" style="text-align: right;padding-right: 14px;">Prix Unitaire HT</label>
+                            <label for="id_net_unit_price" style="text-align: right;padding-right: 8px;">P.U Net HT</label>
                         </div>
-                        <div class="two wide field">
-                            <label for="" style="text-align: center;">Total HT</label>
-                        </div>
-                        <div class="one wide field">
-                            <label for="" style="text-align: center;">TVA X3</label>
+                        <div class="three wide field">
+                            <label for="id_net_amount" style="text-align: right;padding-right: 8px;">Total HT</label>
                         </div>
                         <div class="one wide field">
-                            <label for="" style="text-align: center;">Taux TVA</label>
+                            <label for="id_vat" style="text-align: center;">TVA</label>
+                        </div>
+                        <div class="one wide field">
+                            <label for="id_vat_rate" style="text-align: center;">Taux</label>
                         </div>
                     </div>
                 <div class="ui clearing divider" style="margin-top: 0;margin-bottom: 5px;"></div>
                 {% for invoice in invoices %}
                     <div class="fields" style="margin-bottom: 5px;">
-                        <div class="one wide field">
-                            <input type="text"
-                                 name="line"
-                                 id="id_line"
-                                 readonly
-                                 style="background-color: lavender;text-align: center;"
-                                 value="{{ forloop.counter }}">
+                        <div class="two wide field">
+                            <input class="cct_sage"
+                                   data-value="{{ invoice.pk }}|{{ invoice.uuid_identification }}|{{ invoice.third_party_num }}|{{ invoice.invoice_number }}|{{ invoice.invoice_year }}|{{ invoice.code_maison }}|{{ invoice.maison }}"
+                                   data-cct="{{ invoice.axe_cct }}"
+                                   data-clickable="{% if export.clickable %}yes{% else %}yes{% endif %}"
+                                   data-url="{% url 'validation_purchases:cct_change' %}"
+                                   type="text"
+                                   name="line"
+                                   id="id_line"
+                                   readonly
+                                   style="background-color: lavender;text-align: center;"
+                                   value="{{ invoice.cct_uuid_identification.cct }}">
                         </div>
                         <div class="three wide field">
+                          <input type="text"
+                                 name="big_category"
+                                 id="id_big_category"
+                                 readonly
+                                 style="background-color: lavender;text-align: center;"
+                                 value="{{ invoice.big_category.name }}">
+                      </div>
+                        <div class="two wide field">
+                          <input type="text"
+                                 name="sub_category"
+                                 id="id_sub_category"
+                                 readonly
+                                 style="background-color: lavender;text-align: center;"
+                                 value="{{ invoice.sub_category.name }}">
+                        </div>
+                        <div class="five wide field">
                             <input type="text"
                                  name="reference_article"
                                  id="id_reference_article"
                                  readonly
-                                 style="background-color: lavender;"
+                                 style="background-color: lavender;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.reference_article }}">
                         </div>
-                        <div class="five wide field">
+                        <div class="twelve wide field">
                             <input type="text"
                                  name="libelle"
                                  id="id_libelle"
                                  readonly
-                                 style="background-color: lavender;"
+                                 style="background-color: lavender;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.libelle }}">
                         </div>
                         <div class="one wide field">
@@ -202,7 +200,7 @@
                                  maxlength="6"
                                  id="id_qty"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
+                                 style="background-color: lavender;text-align: right;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.qty|numbers:0 }}">
                         </div>
                         <div class="two wide field">
@@ -214,7 +212,7 @@
                                  style="background-color: lavender;text-align: right;"
                                  value="{{ invoice.net_unit_price|numbers_format:2 }}">
                         </div>
-                        <div class="two wide field">
+                        <div class="three wide field">
                             <input type="text"
                                  name="net_amount"
                                  maxlength="20"
@@ -229,16 +227,16 @@
                                  maxlength="15"
                                  id="id_vat"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoice.vat.vat }}">
                         </div>
                         <div class="one wide field">
-                            <input type="text"
-                                 name="vat_rate"
-                                 maxlength="15"
+                            <input type="text" class="vat info bulle"
+                                   name="vat_rate"
+                                   maxlength="15"
                                  id="id_vat_rate"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoice.vat_rate|percentage }}">
                         </div>
                     </div>

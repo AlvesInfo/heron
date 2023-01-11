@@ -12,13 +12,12 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th colspan="10" style="background-color: lavender;font-weight: bold;">INTEGRATIONS</th>
+                    <th colspan="9" style="background-color: lavender;font-weight: bold;">INTEGRATIONS</th>
                     <th colspan="3" style="background-color: lavender;border: 1px solid darkgray;">RELEVES</th>
                     <th colspan="4" style="background-color: lavender;font-weight: bold;">CONTROLES</th>
                 </tr>
                 <tr>
                     <th class="no-sort" style="width: 2px;"></th>
-                    <th style="width: 15px;">Catégorie</th>
                     <th style="width: 15px;">CCT</th>
                     <th style="width: 20px;">Tiers X3</th>
                     <th style="width: 7px;">Type</th>
@@ -38,7 +37,7 @@
             </thead>
             <thead>
                 <tr>
-                    <th colspan="6" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
+                    <th colspan="5" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
                     <th id="supplierHt" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
                     <th id="SupplierTtc" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
                     <th id="nbreFac" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
@@ -60,10 +59,6 @@
                             <i class="eye icon modification"></i>
                         </a>
                     </td>
-                    <td class="category"
-                        data-value="{{ supplier_purchase.uuid_category }}|{{ supplier_purchase.big_category }}|{{ supplier_purchase.third_party_num }}|{{ supplier_purchase.invoice_month.isoformat }}"
-                        data-category="{{ supplier_purchase.uuid_category }}"
-                        style="background-color: {% if supplier_purchase.error %}lightpink{% else %}lavender{% endif %};">{{ supplier_purchase.big_category }}</td>
                     <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: lightpink;color: lightpink;{% else %}color: white;{% endif %};">{{ supplier_purchase.cct_error }}</td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
                     <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.achat_vente }}</td>

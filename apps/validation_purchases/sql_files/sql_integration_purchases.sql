@@ -1,5 +1,4 @@
 select
-    big_category,
     third_party_num,
     case
         when "purchase_invoice" = true and "sale_invoice" = true then 'AC/VE'
@@ -21,30 +20,25 @@ select
     sum(net_amount) as net_amount,
     case
 	    when sum(net_amount) != sum(invoice_amount_without_tax) then true
-		when min("is_multi_store") = 0 then true
 	    else false
 	end as error,
     uuid_identification,
-    big_category || '||' || third_party_num || '||' || supplier || '||' || invoice_month as enc_param,
+    third_party_num || '||' || supplier || '||' || invoice_month as enc_param,
     pk,
     (
         '{"third_party_num": "'
         || third_party_num ||
         '", "supplier": "'
         || supplier ||
-        '", "big_category": "'
-        || big_category ||
         '", "invoice_month": "'
         || invoice_month ||
         '", "delete": "'
         || 'false' ||
         '"}'
     ) as str_json,
-    case when min(cct_error) = 0 then 1 else 0 end as cct_error,
-    uuid_category
+    case when min(cct_error) = 0 then 1 else 0 end as cct_error
 from (
     select
-        pc."name" as big_category,
         supplier,
         invoice_number,
         sum(net_amount) as net_amount,
@@ -55,25 +49,24 @@ from (
         third_party_num,
         ec.statement_without_tax,
         ec.statement_with_tax,
-        ec."comment",
+        string_agg(distinct ec."comment", ', ') as "comment",
         ec.uuid_identification,
         ec."id" as pk,
-        case
-	        when ee.cct_uuid_identification is null then 0
-	        else 1
-	    end as cct_error,
-        pc.uuid_identification as uuid_category,
+        sum(cct_error) as cct_error,
         "purchase_invoice",
         "sale_invoice",
         case when "is_multi_store" then 0 else 1 end as "is_multi_store"
     from edi_ediimport ee
-    left join parameters_category pc
-    on ee.uuid_big_category = pc.uuid_identification
     left join edi_ediimportcontrol ec
     on ee.uuid_control = ec.uuid_identification
+    left join (
+    	select
+			ei."id", case when ei.cct_uuid_identification is null then 1 else 0 end as cct_error
+    	from edi_ediimport ei
+    ) as cc
+    on ee.id = cc.id
     where (ee."delete" = false or ee."delete" isnull)
     group by supplier,
-             pc."name",
              invoice_number,
              invoice_amount_without_tax,
              invoice_amount_with_tax,
@@ -82,17 +75,13 @@ from (
              third_party_num,
 	         ec.statement_without_tax,
 	         ec.statement_with_tax,
-        	 ec."comment",
              ec.uuid_identification,
              ec."id",
-        	 ee.cct_uuid_identification,
-             pc.uuid_identification,
             "purchase_invoice",
             "sale_invoice",
             is_multi_store
-    ) edi
-group by big_category,
-         supplier,
+) edi
+group by supplier,
          invoice_month,
          third_party_num,
          statement_without_tax,
@@ -100,10 +89,8 @@ group by big_category,
          "comment",
          uuid_identification,
          pk,
-         uuid_category,
         "purchase_invoice",
         "sale_invoice"
-order by big_category,
-         third_party_num,
+order by third_party_num,
          supplier,
          invoice_month
