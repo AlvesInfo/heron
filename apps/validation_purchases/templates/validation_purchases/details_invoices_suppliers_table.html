@@ -116,7 +116,10 @@
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="margin: auto 0;">
                         <div class="two wide field">
-                            <label for="id_line" style="text-align: left;">CCT X3</label>
+                            <label for="id_cct_uuid_identification" style="text-align: left;">CCT X3</label>
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_code_maision" style="text-align: left;">Four.</label>
                         </div>
                         <div class="three wide field">
                             <label for="id_big_category" style="text-align: left;">Categorie</label>
@@ -124,10 +127,10 @@
                         <div class="two wide field">
                             <label for="id_sub_category" style="text-align: left;">Rubrique Presta</label>
                         </div>
-                        <div class="five wide field">
+                        <div class="four wide field">
                             <label for="id_reference_article">Référence</label>
                         </div>
-                        <div class="twelve wide field">
+                        <div class="eleven wide field">
                             <label for="id_libelle">Libellé</label>
                         </div>
                         <div class="one wide field">
@@ -156,11 +159,19 @@
                                    data-clickable="{% if export.clickable %}yes{% else %}yes{% endif %}"
                                    data-url="{% url 'validation_purchases:cct_change' %}"
                                    type="text"
-                                   name="line"
-                                   id="id_line"
+                                   name="cct_uuid_identification"
+                                   id="id_cct_uuid_identification"
                                    readonly
                                    style="background-color: lavender;text-align: center;"
                                    value="{{ invoice.cct_uuid_identification.cct }}">
+                        </div>
+                        <div class="two wide field">
+                            <input type="text"
+                                   name="code_maision"
+                                   id="id_code_maision"
+                                   readonly
+                                   style="background-color: lavender;text-align: center;"
+                                   value="{{ invoice.code_maison }}">
                         </div>
                         <div class="three wide field">
                           <input type="text"
@@ -178,7 +189,7 @@
                                  style="background-color: lavender;text-align: center;"
                                  value="{{ invoice.sub_category.name }}">
                         </div>
-                        <div class="five wide field">
+                        <div class="four wide field">
                             <input type="text"
                                  name="reference_article"
                                  id="id_reference_article"
@@ -186,7 +197,7 @@
                                  style="background-color: lavender;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.reference_article }}">
                         </div>
-                        <div class="twelve wide field">
+                        <div class="eleven wide field">
                             <input type="text"
                                  name="libelle"
                                  id="id_libelle"
