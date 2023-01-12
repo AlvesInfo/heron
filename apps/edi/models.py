@@ -189,30 +189,6 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         ]
 
 
-"""
-cct_uuid_identification
-valid
-
-multiples
-third_party_num
-supplier_ident
-valid
-
-uuid_identification
-invoice_number
-
-id
-valid
-
-third_party_num
-uuid_identification
-invoice_number
-is_multi_store
-valid
-
-"""
-
-
 class EdiImportTax(FlagsTable):
 
     # Identification

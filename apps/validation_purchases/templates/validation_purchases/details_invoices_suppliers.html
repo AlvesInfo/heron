@@ -13,7 +13,8 @@
 
             {% include "validation_purchases/details_invoices_suppliers_entete.html" %}
             {% include "validation_purchases/details_invoices_suppliers_table.html" %}
-            {% include "heron/change_cct_html.html" %}
+            {% include "heron/change_cct.html" %}
+            {% include "heron/change_category.html" %}
 
         <div class="ui equal width grid center"></div>
 
@@ -45,5 +46,6 @@
     </script>
 
     <script type="text/javascript" src="{% static 'changeCct.js' %}"></script>
+    <script type="text/javascript" src="{% static 'changeCategory.js' %}"></script>
 
 {% endblock script %}

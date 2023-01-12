@@ -3,24 +3,73 @@
 {% block table %}
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
-      <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Catégories</h3>
-        <div class="ui clearing divider"></div>
-        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h3 class="ui floated header" style="margin-bottom: 5px;">Catégories</h3>
+                <div class="ui clearing divider">
+                </div>
+                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields">
+                        <div class="one wide field">
+                            <label for="id_ranking" style="text-align: left;">Classement&nbsp;:</label>
+                                {{form.ranking}}
+                        </div>
+                        <div class="one wide field">
+                            <label for="id_name" style="text-align: left;">Code&nbsp;:</label>
+                            {{ form.code }}
+                        </div>
+                        <div class="six wide field">
+                            <label for="id_name" style="text-align: left;">Intitulé&nbsp;:</label>
+                            {{ form.name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-          <div class="fields">
-              <div class="two wide field">
-                <label for="id_ranking" style="text-align: left;">Classement&nbsp;:</label>
-                    {{form.ranking}}
-              </div>
-              <div class="eight wide field">
-                <label for="id_name" style="text-align: left;">Intitulé&nbsp;:</label>
-                {{ form.name }}
-              </div>
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h4 class="ui floated header" style="margin-bottom: 5px;">Rubriques Presta Associées</h4>
+                <div class="ui clearing divider">
+                {{ sub_category_formset.management_form }}
+                </div>
+                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                    {% for formset in sub_category_formset %}
+                        <input type="hidden" name="big_sub_category-{{ forloop.counter0 }}-id" id="id_big_sub_category-{{ forloop.counter0 }}-id" value="{{ formset.id.value }}">
+                        <input type="hidden" name="big_sub_category-{{ forloop.counter0 }}-big_category" id="id_big_sub_category-{{ forloop.counter0 }}-big_category" value="{{ formset.big_category.value }}">
+                        <div class="fields">
+                            <div class="one wide field"></div>
+                            <div class="two wide field">
+                                {% if forloop.counter0 == 0 %}
+                                    <label for="id_ranking" style="text-align: left;">Classement&nbsp;:</label>
+                                {% endif %}
+                                {{formset.ranking}}
+                            </div>
+                            <div class="one wide field">
+                                {% if forloop.counter0 == 0 %}
+                                    <label for="id_code" style="text-align: left;">Code&nbsp;:</label>
+                                {% endif %}
+                                    {{formset.code}}
+                            </div>
+                            <div class="six wide field">
+                                {% if forloop.counter0 == 0 %}
+                                    <label for="id_name" style="text-align: left;">Intitulé&nbsp;:</label>
+                                {% endif %}
+                                {{ formset.name }}
+                            </div>
 
-          </div>
+                            {% if sub_category_formset.can_delete %}
+                                <div class="one wide field">
+                                    {% if forloop.counter0 == 0 %}
+                                        <label for="id_big_sub_category-{{ forloop.counter0 }}-DELETE" style="text-align: center;">Supprimer</label>
+                                    {% endif %}
+                                    <input type="checkbox" name="big_sub_category-{{ forloop.counter0 }}-DELETE" id="id_big_sub_category-{{ forloop.counter0 }}-DELETE" style="font-weight: bold;width: 25px;height: 25px;margin-top: 3px;">
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
 {% endblock table %}

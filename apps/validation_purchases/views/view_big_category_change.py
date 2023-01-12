@@ -34,6 +34,10 @@ def big_category_change(request):
 
     if form.is_valid() and form.cleaned_data:
         data_dict = form.cleaned_data
+
+        if data_dict.get("id") == 0:
+            data_dict.pop("id")
+
         data_dict.pop("big_category_default")
         data_dict.pop("uuid_origin")
         new_big_category = data_dict.pop("big_category")

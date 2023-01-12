@@ -174,7 +174,11 @@
                                    value="{{ invoice.code_maison }}">
                         </div>
                         <div class="three wide field">
-                          <input type="text"
+                          <input class="category"
+                                 data-value="{{ invoice.pk }}|{{ invoice.big_category.uuid_identification }}|{{ invoice.big_category }}|{{ invoice.third_party_num }}|{{ invoice.invoice_month.isoformat }}"
+                                 data-category="{{ invoice.uuid_category }}"
+                                 data-url="{% url 'validation_purchases:big_category_change' %}"
+                                 type="text"
                                  name="big_category"
                                  id="id_big_category"
                                  readonly

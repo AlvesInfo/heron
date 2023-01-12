@@ -36,11 +36,13 @@ class ChangeBigCategoryForm(forms.ModelForm):
         self.fields["big_category_default"] = big_category_default
         self.fields["uuid_origin"] = forms.UUIDField()
 
+        self.fields["id"] = forms.IntegerField(initial=0, required=False)
+
     class Meta:
         """class Meta Django"""
 
         model = EdiImport
-        fields = ("big_category", "third_party_num", "invoice_month")
+        fields = ("id", "big_category", "third_party_num", "invoice_month")
 
 
 class ChangeCttForm(forms.ModelForm):

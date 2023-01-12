@@ -36,7 +36,7 @@ select
         || 'false' ||
         '"}'
     ) as str_json,
-    case when min(cct_error) = 0 then 1 else 0 end as cct_error
+    sum(cct_error) as cct_error
 from (
     select
         supplier,
