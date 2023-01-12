@@ -20,7 +20,14 @@ post_phonak_dict = {
         set 
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-            "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
+            "discount_price_01" = case 
+                                    when "discount_price_01" >= 10000 then 1 
+                                    else("discount_price_01" / 10000)::numeric
+                                  end,
+            "net_unit_price" = case 
+                                    when "discount_price_01" >= 10000 then 0
+                                    else ("net_amount"::numeric / "qty"::numeric)::numeric
+                               end,
             "purchase_invoice" = true,
             "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
@@ -32,6 +39,7 @@ post_phonak_dict = {
         update "edi_ediimport" edi
         set
             "net_amount" = case
+                                when "discount_price_01" = 1 then 0
                                 when ("invoice_type" = '381' and "qty" < 0) 
                                   or ("invoice_type" = '380' and "qty" < 0) 
                                 then -abs("net_amount")::numeric
