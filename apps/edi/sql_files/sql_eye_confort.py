@@ -51,4 +51,12 @@ post_eye_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_familles": sql.SQL(
+        """
+        update edi_ediimport ei
+        set "famille" = "reference_article"
+        where ei."uuid_identification" = %(uuid_identification)s
+        and (ei."valid" = false or ei."valid" isnull)
+        """
+    ),
 }

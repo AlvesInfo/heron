@@ -346,11 +346,13 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
     """
     sql_update = post_eye_dict.get("sql_update")
     sql_update_units = post_eye_dict.get("sql_update_units")
+    sql_familles = post_eye_dict.get("sql_familles")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
 
 
 def generique_post_insert(uuid_identification: AnyStr):

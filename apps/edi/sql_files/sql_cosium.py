@@ -67,5 +67,5 @@ post_cosium_dict = {
         where ei."uuid_identification" = %(uuid_identification)s
         and (ei."valid" = false or ei."valid" isnull)
         """
-    )
+    ),
 }
