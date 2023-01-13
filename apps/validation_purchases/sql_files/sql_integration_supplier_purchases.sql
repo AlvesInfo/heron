@@ -76,6 +76,7 @@ where ee.third_party_num = %(third_party_num)s
   and supplier = %(supplier)s
   and date_trunc('month', invoice_date)::date = %(invoice_month)s
   and (ee."delete" = false or ee."delete" isnull)
+  and ee."valid" = true
 group by supplier,
          invoice_number,
          invoice_date,

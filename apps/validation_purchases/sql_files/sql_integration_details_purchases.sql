@@ -51,4 +51,5 @@ where third_party_num = %(third_party_num)s
   and invoice_month = %(invoice_month)s
   and invoice_number = %(invoice_number)s
   and ee."delete" = False
+  and ee."valid" = true
 order by ee."id"

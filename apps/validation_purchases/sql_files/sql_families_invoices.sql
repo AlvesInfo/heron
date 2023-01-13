@@ -25,6 +25,7 @@ with families as (
 	on (edi."axe_pro_uuid" = ac."uuid_identification")
 	where not (edi."delete" AND edi."delete" IS NOT NULL)
 	and edi.invoice_month >= (date_trunc('month', now())- interval '3 month')::date
+	and edi."valid" = true
 
 	union all
 

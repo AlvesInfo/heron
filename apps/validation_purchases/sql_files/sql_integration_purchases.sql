@@ -66,6 +66,7 @@ from (
     ) as cc
     on ee.id = cc.id
     where (ee."delete" = false or ee."delete" isnull)
+      and ee."valid" = true
     group by supplier,
              invoice_number,
              invoice_amount_without_tax,

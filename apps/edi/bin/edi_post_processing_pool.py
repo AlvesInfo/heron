@@ -153,7 +153,7 @@ def post_common():
         sleep(1)
 
         print("Début : sql_alls_381")
-        cursor.execute(sql_precilens)
+        cursor.execute(sql_alls_381)
         print("Fin : sql_alls_381")
 
         sleep(1)
