@@ -313,30 +313,6 @@ class SubCategory(FlagsTable):
         ordering = ["ranking"]
 
 
-# class UnionCategories(FlagsTable):
-#     """Many to Many pour unir les Catégories aux Sous-Catégories"""
-#     big_category = models.ForeignKey(
-#         Category,
-#         on_delete=models.PROTECT,
-#         null=True,
-#         to_field="uuid_identification",
-#         related_name="big_sub_category",
-#         db_column="uuid_big_category",
-#     )
-#     sub_category = models.ForeignKey(
-#         SubCategory,
-#         on_delete=models.PROTECT,
-#         null=True,
-#         to_field="uuid_identification",
-#         related_name="sub_sub_category",
-#         db_column="uuid_sub_big_category",
-#     )
-#
-#     def __str__(self):
-#         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-#         return f"{self.big_category.name} - {self.sub_category.name}"
-
-
 class Periodicity(FlagsTable):
     """
     Périodicité
