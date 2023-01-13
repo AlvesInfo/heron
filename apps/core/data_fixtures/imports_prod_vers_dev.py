@@ -17,9 +17,7 @@ from apps.accountancy.models.sage import (
 )
 from apps.accountancy.models.sage_axes_sections import (
     AxeSage,
-    FamilleAxePro,
     SectionSage,
-    SupplierArticleAxePro,
 )
 from apps.articles.models import (
     Article,
@@ -29,7 +27,16 @@ from apps.articles.models import (
     Subscription,
     SubscriptionArticle,
 )
-from apps.book.models import Address, Contact, Nature, Society, SocietyBank, SupplierCct
+from apps.book.models import (
+    Address,
+    Contact,
+    Nature,
+    Society,
+    SocietyBank,
+    SupplierCct,
+    SupplierArticleAxePro,
+    FamilleAxePro,
+)
 from apps.centers_clients.models import (
     Maison,
     MaisonBi,
@@ -92,7 +99,16 @@ MODELS_ARTICLES = (
     SubscriptionArticle,
 )
 
-MODELS_BOOK = (Society, Address, Contact, Nature, SocietyBank, SupplierCct)
+MODELS_BOOK = (
+    Society,
+    Address,
+    Contact,
+    Nature,
+    SocietyBank,
+    SupplierCct,
+    SupplierArticleAxePro,
+    FamilleAxePro,
+)
 MODELS_CENTER_CLIENTS = (
     Maison,
     MaisonBi,

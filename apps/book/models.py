@@ -20,7 +20,7 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
-from apps.accountancy.models import CategorySage, PaymentCondition, SupplierArticleAxePro, CctSage
+from apps.accountancy.models import CategorySage, PaymentCondition,  SectionSage, CctSage
 from apps.countries.models import Country
 from apps.parameters.models import Category
 
@@ -59,6 +59,77 @@ class Nature(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["name"]
+
+
+class SupplierArticleAxePro(FlagsTable):
+    """
+    Nommage des familles à appliquer pour les fournisseurs
+    """
+
+    name = models.CharField(unique=True, max_length=80)
+
+    axe_pro_default = models.ForeignKey(
+        SectionSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="famille_axe_pro_default",
+        db_column="axe_pro_default_uuid",
+        null=True,
+    )
+    regex = models.CharField(null=True, blank=True, max_length=150)
+    # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
+    invoice_column = models.CharField(default="famille", max_length=150)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return self.name
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["name"]
+
+
+class FamilleAxePro(FlagsTable):
+    """
+    Table des statistiques liées à l'axe pro
+    """
+
+    supplier_article_axe_pro = models.ForeignKey(
+        SupplierArticleAxePro,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="famille_axe_pro_section",
+        db_column="supplier_article_axe_pro_uuid",
+    )
+    supplier_familly = models.CharField(max_length=1080)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="famille_axe_pro_section",
+        db_column="axe_pro_uuid",
+    )
+    comment = models.CharField(null=True, blank=True, max_length=150)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return (
+            f"{self.supplier_article_axe_pro.name} - {self.supplier_familly} / {self.axe_pro.name}"
+        )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        unique_together = (("supplier_article_axe_pro", "supplier_familly"),)
 
 
 class Society(FlagsTable):
@@ -270,7 +341,7 @@ class Society(FlagsTable):
     )
 
     # Champ pour afficher les tiers courants,
-    # si il vient par les import le tiers est automatiquement mis en courant
+    # si il vient par les imports le tiers est automatiquement mis en courant
     in_use = models.BooleanField(null=True, default=False, verbose_name="utilisé")
 
     # Grande catégorie courante pour le tiers

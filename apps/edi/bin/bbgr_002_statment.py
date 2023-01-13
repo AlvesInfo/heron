@@ -137,7 +137,11 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                         then right("article_facturation", length("article_facturation")-14) 
                         else "article_facturation" 
                     end as "libelle",
-                   "famille" as "famille",
+                   case 
+                        when "famille" is null or "famille" = '' 
+                        then "article" 
+                        else "famille" 
+                   end as "famille",
                    "qte_facturee" as "qty",
                    "prix_unitaire" as "gross_unit_price",
                    "prix_unitaire" as "net_unit_price",
