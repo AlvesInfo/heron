@@ -36,7 +36,8 @@ select
         || 'false' ||
         '"}'
     ) as str_json,
-    sum(cct_error) as cct_error
+    sum(cct_error) as cct_error,
+    case when uuid_control isnull then 0 else 1 end have_control
 from (
     select
         supplier,
@@ -55,7 +56,8 @@ from (
         sum(cct_error) as cct_error,
         "purchase_invoice",
         "sale_invoice",
-        case when "is_multi_store" then 0 else 1 end as "is_multi_store"
+        case when "is_multi_store" then 0 else 1 end as "is_multi_store",
+        ee.uuid_control
     from edi_ediimport ee
     left join edi_ediimportcontrol ec
     on ee.uuid_control = ec.uuid_identification
@@ -80,7 +82,8 @@ from (
              ec."id",
             "purchase_invoice",
             "sale_invoice",
-            is_multi_store
+            is_multi_store,
+            ee.uuid_control
 ) edi
 group by supplier,
          invoice_month,
@@ -91,7 +94,8 @@ group by supplier,
          uuid_identification,
          pk,
         "purchase_invoice",
-        "sale_invoice"
+        "sale_invoice",
+        uuid_control
 order by third_party_num,
          supplier,
          invoice_month

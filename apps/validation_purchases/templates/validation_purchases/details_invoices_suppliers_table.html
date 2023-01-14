@@ -162,7 +162,7 @@
                                    name="cct_uuid_identification"
                                    id="id_cct_uuid_identification"
                                    readonly
-                                   style="background-color: lavender;text-align: center;"
+                                   style="background-color: {% if not invoice.cct_uuid_identification.cct %}lightpink{% else %}lavender{% endif %};text-align: center;"
                                    value="{{ invoice.cct_uuid_identification.cct }}">
                         </div>
                         <div class="two wide field">
