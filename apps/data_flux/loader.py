@@ -95,7 +95,7 @@ class TemplateDataLoader:
         :param read_methode: Data pour un flux texte et data_dict pour un flux de dictionnaire
         :param all_lines:    Si dans le flux il y a des lignes vides :
                                 all_lines = False -> shorcut l'itération des lignes vides
-                                all_lines = True -> iterre même sur des lignes des lignes vides
+                                all_lines = True -> iterre même sur des lignes vides
         """
         self.open(self.params_dict)
 
@@ -332,7 +332,7 @@ class FileLoader(TemplateDataLoader):
     @staticmethod
     def _get_sanitaze(header_lit):
         """
-        :param header_lit: list des entêtes du fichier
+        :param header_lit: List des entêtes du fichier
         :return: liste des entêtes du fichier cleannées
         """
         sanitaze = [
@@ -415,7 +415,7 @@ class FileLoader(TemplateDataLoader):
         Méthode de lecture du flux de donées au format io.StringIO
         :param all_lines: Si dans le fichier il y a des lignes vides :
                             all_lines = False -> shorcut l'itération des lignes vides
-                            all_lines = True -> iterre même sur des lignes des lignes vides
+                            all_lines = True -> iterre même sur des lignes vides
         """
         postion_list = self.get_header()
 
@@ -461,7 +461,7 @@ class FileLoader(TemplateDataLoader):
         :param csv_io: Fichier de type io.StringIO
         :param all_lines: Si dans le fichier il y a des lignes vides :
                             all_lines = False -> shorcut l'itération des lignes vides
-                            all_lines = True -> iterre même sur des lignes des lignes vides
+                            all_lines = True -> iterre même sur des lignes vides
         """
         for line in self.read(all_lines):
             csv_io.write(line + "\n")
@@ -473,7 +473,7 @@ class FileLoader(TemplateDataLoader):
         Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
         :param all_lines: Si dans le fichier il y a des lignes vides :
                             all_lines = False -> shorcut l'itération des lignes vides
-                            all_lines = True -> iterre même sur des lignes des lignes vides
+                            all_lines = True -> iterre même sur des lignes vides
         """
         postion_list = self.get_header()
 
@@ -511,7 +511,7 @@ class FileLoader(TemplateDataLoader):
         Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
         :param all_lines: Si dans le fichier il y a des lignes vides
                             all_lines=False, shorcut l'itération des lignes vides
-                            all_lines=True, iterre même sur des lignes des lignes vides
+                            all_lines=True, iterre même sur des lignes vides
         :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
         """
         postion_list = self.get_header()
@@ -787,7 +787,7 @@ class ApiJsonLoader(TemplateDataLoader):
         Méthode de lecture du flux de donées au format io.StringIO
         :param all_lines:       Si dans le fichier il y a des lignes vides :
                                     all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes des lignes vides
+                                    all_lines = True -> iterre même sur des lignes vides
         """
         yield "ApiLodaer non finalisée"
 
@@ -796,7 +796,7 @@ class ApiJsonLoader(TemplateDataLoader):
         Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
         :param all_lines:       Si dans le fichier il y a des lignes vides :
                                     all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes des lignes vides
+                                    all_lines = True -> iterre même sur des lignes vides
         """
         yield "ApiLodaer non finalisée"
 
@@ -805,7 +805,7 @@ class ApiJsonLoader(TemplateDataLoader):
         Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
         :param all_lines: si dans le fichier il y a des lignes vides
                             all_lines=False, shorcut l'itération des lignes vides
-                            all_lines=True, iterre même sur des lignes des lignes vides
+                            all_lines=True, iterre même sur des lignes vides
         :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
         """
         yield {"message": "ApiLodaer non finalisée"}
@@ -874,7 +874,7 @@ class ApiXmlLoader(TemplateDataLoader):
         Méthode de lecture du flux de donées au format io.StringIO
         :param all_lines:       Si dans le fichier il y a des lignes vides :
                                     all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes des lignes vides
+                                    all_lines = True -> iterre même sur des lignes vides
         """
         yield "ApiLodaer non finalisée"
 
@@ -883,7 +883,7 @@ class ApiXmlLoader(TemplateDataLoader):
         Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
         :param all_lines:       Si dans le fichier il y a des lignes vides :
                                     all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes des lignes vides
+                                    all_lines = True -> iterre même sur des lignes vides
         """
         yield "ApiLodaer non finalisée"
 
@@ -892,7 +892,7 @@ class ApiXmlLoader(TemplateDataLoader):
         Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
         :param all_lines: si dans le fichier il y a des lignes vides
                             all_lines=False, shorcut l'itération des lignes vides
-                            all_lines=True, iterre même sur des lignes des lignes vides
+                            all_lines=True, iterre même sur des lignes vides
         :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
         """
         yield {"message": "ApiLodaer non finalisée"}

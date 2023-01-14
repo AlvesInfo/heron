@@ -20,13 +20,18 @@ from psycopg2 import sql
 
 from apps.core.functions.functions_setups import settings, connection
 from apps.edi.loggers import EDI_LOGGER
-from apps.edi.bin.edi_pre_processing_pool import bulk_translate_file, interson_translate_file
+from apps.edi.bin.edi_pre_processing_pool import (
+    bulk_translate_file,
+    interson_translate_file,
+    transferts_cosium_file,
+)
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
     bbgr_statment_post_insert,
     bbgr_monthly_post_insert,
     bbgr_retours_post_insert,
     cosium_post_insert,
+    tansferts_cosium_post_insert,
     edi_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
@@ -53,6 +58,7 @@ from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
 from apps.edi.forms.forms_djantic.forms_invoices import (
     BbgrBulkSchema,
     CosiumSchema,
+    CosiumTransfertSchema,
     EdiSchema,
     EyeConfortSchema,
     GeneriqueSchema,
@@ -231,6 +237,8 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
             error_lines = validation.validate()
 
             if error_lines:
+                for row in file_load.read_dict():
+                    print(row)
                 to_print += f"\nLignes en erreur : {error_lines}\n"
                 raise ValidationError(
                     f"Le fichier comporte des erreurs: {flow_name} - {str(source)!r}"
@@ -548,6 +556,36 @@ def cosium(file_path: Path):
     return trace, to_print
 
 
+def transfert_cosium(file_path: Path):
+    """
+    Import du fichier des factures Cosium
+    :param file_path: Path du fichier à traiter
+    """
+    model = EdiImport
+    validator = CosiumTransfertSchema
+    file_name = file_path.name
+    trace_name = "Import Transferts Cosium"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "Transfert"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    new_file_path = transferts_cosium_file(file_path)
+    to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
+    tansferts_cosium_post_insert(trace.uuid_identification)
+
+    return trace, to_print
+
+
 def edi(file_path: Path):
     """
     Import du fichier des factures EDI au format opto33
@@ -676,7 +714,6 @@ def interson(file_path: Path):
     application_name = "edi_imports_imports_suppliers_incoices"
     flow_name = "Interson"
     comment = ""
-    new_file_path = interson_translate_file(file_path)
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -689,6 +726,7 @@ def interson(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
+    new_file_path = interson_translate_file(file_path)
     to_print = make_insert(model, flow_name, new_file_path, trace, validator, params_dict_loader)
     interson_post_insert(trace.uuid_identification)
 

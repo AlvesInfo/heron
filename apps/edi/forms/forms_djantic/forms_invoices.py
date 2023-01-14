@@ -77,6 +77,35 @@ class CosiumSchema(
         ]
 
 
+class CosiumTransfertSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+):
+    """Schema Djantic pour validation du modèle BbrgVerre"""
+    acuitis_order_date: datetime.datetime
+    uuid_identification: uuid.UUID
+
+    @validator('acuitis_order_date', pre=True)
+    def check_acuitis_order_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
+
+    class Config:
+        """Config"""
+
+        model = EdiImport
+        include = list(get_columns(ColumnDefinition, "Transfert")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "created_at",
+            "modified_at",
+        ]
+
+
 class EdiSchema(
     ModelSchema,
     ValidateFieldsBase,

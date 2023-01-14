@@ -28,6 +28,15 @@ FileLoader._get_sanitaze(l):
    - unique : Si le champ est unique seule ou par compoistion
 ---
 4. Création d'un Schema (Djantic ou Pydantic), d'un formulaire Django ou d'un serializer DRF, dans le fichier apps.edi.forms.forms_djantic.invoices. Il faut prendre pour modèle ceux qui sont déjà éxistants. Veillez à ce que les champs ne doivent pas être mappés ou validés par un validateur spécifique. Si c'est le cas alors il faut créer le validateur, dans le fichier apps.core.validations.pydantic_validators_base.
+Attention si vous avez un chanmps date vide il faut le mettre par défaut à 1900-01-01, en ajoutant un check pydantic de type:
+
+    @validator('acuitis_order_date', pre=True)
+    def check_acuitis_order_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 ---
 5. Vérifier les formats de type dates, tva, nombres, etc..., dans le fichier pour création d'un pré-validateur éventuel.
 ---

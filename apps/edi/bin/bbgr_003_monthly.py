@@ -137,7 +137,11 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                    "article" as "reference_article",
                    "article" as "ean_code",
                    "description" as "libelle",
-                   "famille" as "famille",
+                   case 
+                        when "famille" is null or "famille" = '' 
+                        then "article" 
+                        else "famille" 
+                   end as "famille",
                    "qte_expediee" as "qty",
                    "prix_unitaire" as "gross_unit_price",
                    "prix_unitaire" as "net_unit_price",

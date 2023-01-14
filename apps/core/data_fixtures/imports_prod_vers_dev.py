@@ -146,12 +146,13 @@ MODELS_PARAMETERS = (
 )
 
 
-def make_insert(cursor_from, cursor_to, table, fields):
+def make_insert(cursor_from, cursor_to, table, fields, printing=None):
     """Fonction qui réalise l'insertion en base d'un cursor sur l'autre avec on conflict do nothing
     :param cursor_from: cursor bdd de prod
     :param cursor_to: cursor bdd de dev
     :param table: table à mettre à jour
     :param fields: champs de la table à importer
+    :param printing: si on veut voir les lignes s'afficher
     :return: None
     """
     table_temp = f"temp_{table}"
@@ -168,7 +169,7 @@ def make_insert(cursor_from, cursor_to, table, fields):
     """.replace(
         "\n", " "
     )
-    fields_without_id = [field for field in fields if field != "id"]
+    fields_without_id = [field for field in fields if field != '"id"']
     sql_insert_table = f"""
     INSERT INTO {table} 
     ({', '.join(fields_without_id)})
@@ -190,6 +191,8 @@ def make_insert(cursor_from, cursor_to, table, fields):
 
     for line in cursor_from.fetchall():
         writer.writerow(line)
+        if printing is not None:
+            print(line)
 
     stream.seek(0)
     print(f"Create table temp : {table_temp}, in DEV")
@@ -225,14 +228,21 @@ def main(model_list):
                 f'"{field.name}"' if field.db_column is None else f'"{field.db_column}"'
                 for field in model._meta.fields
             ]
-            make_insert(cursor_from=cursor_prod, cursor_to=cursor_dev, table=table, fields=fields)
+            printing = None
+            make_insert(
+                cursor_from=cursor_prod,
+                cursor_to=cursor_dev,
+                table=table,
+                fields=fields,
+                printing=printing,
+            )
 
 
 if __name__ == "__main__":
-    # main(MODELS_ACCOUNTANCY)
-    # main(MODELS_ARTICLES)
-    # main(MODELS_BOOK)
-    # main(MODELS_CENTER_CLIENTS)
-    # main(MODELS_CENTER_PURCHASING)
-    # main(MODELS_EDI)
+    main(MODELS_ACCOUNTANCY)
+    main(MODELS_ARTICLES)
+    main(MODELS_BOOK)
+    main(MODELS_CENTER_CLIENTS)
+    main(MODELS_CENTER_PURCHASING)
+    main(MODELS_EDI)
     main(MODELS_PARAMETERS)

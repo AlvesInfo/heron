@@ -43,6 +43,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_retours,
     bbgr_receptions,
     cosium,
+    transfert_cosium,
     edi,
     eye_confort,
     generique,
@@ -85,6 +86,7 @@ processing_dict = {
     "SIGNIA": signia,
     "STARKEY": starkey,
     "TECHNIDIS": technidis,
+    "TRANSFERTS": transfert_cosium,
     "UNITRON": unitron,
     "WIDEX": widex,
     "WIDEX_GA": widex_ga,
@@ -376,8 +378,10 @@ def proc_files(process_object):
         if trace is not None:
             trace.save()
 
-        if file.is_file():
+        if file.is_file() and not backup_file.is_file():
             shutil.move(file.resolve(), backup_file.resolve())
+        elif file.is_file():
+            file.unlink()
 
         # TODO : faire une fonction d'envoie de mails
 
