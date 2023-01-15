@@ -77,37 +77,21 @@ def insert_bbgr_003_articles():
                 -- px_cession_ht_eur pour BBGR003 et BBGR004
                 hba."px_cession_ht_eur" as "catalog_price",
                 gen_random_uuid() as uuid_identification,
-                '71c82478-affe-45d5-8113-13f745bab0e1'::uuid as "axe_bu",
-                '522e0110-35e6-4f31-8588-1d4dcc5ae378'::uuid as "axe_prj",
-                'fe60f32f-c879-484d-9aa4-200cc222cdbd'::uuid as "axe_pys",
-                null as "axe_rfa",
-                case 
-                    when hba."famille" = 'ACCESS AUDIO' 
-                        then '402ea144-43f1-4e99-8719-b62e3fcf7d66'::uuid 
-                    when hba."famille" = 'ACCESS OPTIQUE' 
-                        then '6cb598af-288f-4ac5-bee0-12c7a3315078'::uuid 
-                    when hba."famille" = 'ACCESSOIRES' 
-                        then '6cb598af-288f-4ac5-bee0-12c7a3315078'::uuid 
-                    when hba."famille" = 'AIDES AUDITIVES' 
-                        then '9a3e9ef1-e462-4330-b5e2-54d993c70af9'::uuid
-                    when hba."famille" = 'CONSOMMABLE' 
-                        then '68fe5983-33ef-4eff-8e31-502108ebfd80'::uuid
-                    when hba."famille" = 'CONTACTO SOL' and hba."code_rayon" = 'SOLUTIONS' 
-                        then '672b9f6e-5212-4c07-8729-e6dd3e5bda05'::uuid
-                    when hba."famille" = 'CONTACTO SOL' 
-                        then 'b8508869-39a1-4b2a-a9b3-2224bccda573'::uuid
-                    when hba."famille" = 'MONTURE OPT' 
-                        then 'a3e93cfb-503c-45db-9144-b18aea6807b3'::uuid
-                    when hba."famille" = 'MONTURE SOL' 
-                        then '40336fdc-ab66-4039-b7a5-2cfbcff9930d'::uuid
-                    when hba."famille" = 'PILES' 
-                        then 'acf1be0d-54ac-4dcd-8b04-aa61f9942e2d'::uuid
-                    when hba."famille" = 'SAV' 
-                        then '6cb598af-288f-4ac5-bee0-12c7a3315078'::uuid
-                    when hba."famille" = 'VERRES' 
-                        then 'e009ed01-e2c8-4caa-85b4-6b66c3d08394'::uuid
-                    else 'bdb926d6-5ffd-4a6c-973d-8de57e2be71b'::uuid
-                end as "axe_pro",
+                (select "axe_bu" from "accountancy_defaultaxearticle" ad limit 1) as "axe_bu",
+                (select "axe_prj" from "accountancy_defaultaxearticle" ad limit 1) as "axe_prj",
+                (select "axe_pys" from "accountancy_defaultaxearticle" ad limit 1) as "axe_pys",
+                (select "axe_rfa" from "accountancy_defaultaxearticle" ad limit 1) as "axe_rfa",
+                (
+                    select 
+                        "axe_pro" 
+                     from accountancy_defaultaxeproaricleacuitis adf 
+                    where adf."famille_acuitis" = hba."famille"
+                      and adf."code_rayon_acuitis" = case 
+                                                        when hba."code_rayon" isnull 
+                                                        then '' 
+                                                        else hba."code_rayon" 
+                                                    end
+                ) as "axe_pro",
                 case
                     when hba."made_in" ilike 'Allemagne' then 'DE'
                     when hba."made_in" ilike 'CE' then 'CE'

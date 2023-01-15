@@ -274,3 +274,70 @@ class SectionSage(FlagsTable):
         index_together = [
             ["axe", "section"],
         ]
+
+
+class DefaultAxeArticle(FlagsTable):
+    """Table des axes par défaut du catalogue article à part sur l'axe Pro"""
+
+    axe_bu = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "BU"},
+        related_name="default_bu_section",
+        db_column="axe_bu",
+    )
+    axe_prj = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRJ"},
+        related_name="default_prj_section",
+        db_column="axe_prj",
+    )
+    axe_pys = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PYS"},
+        related_name="default_pys_section",
+        db_column="axe_pys",
+    )
+    axe_rfa = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "RFA"},
+        related_name="default_rfa_section",
+        db_column="axe_rfa",
+    )
+
+
+class DefaultAxeProAricleAcuitis(FlagsTable):
+    """Tables des axes por par défaut pour les familles de produits Acuitis"""
+
+    famille_acuitis = models.CharField(max_length=35)
+    code_rayon_acuitis = models.CharField(blank=True, null=True, max_length=35)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="default_acuitis_pro_section",
+        db_column="axe_pro",
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        unique_together = (("famille_acuitis", "code_rayon_acuitis"),)

@@ -18,6 +18,8 @@ from apps.accountancy.models.sage import (
 from apps.accountancy.models.sage_axes_sections import (
     AxeSage,
     SectionSage,
+    DefaultAxeArticle,
+    DefaultAxeProAricleAcuitis,
 )
 from apps.articles.models import (
     Article,
@@ -88,6 +90,8 @@ MODELS_ACCOUNTANCY = (
     CctSage,
     SectionSage,
     SupplierArticleAxePro,
+    DefaultAxeArticle,
+    DefaultAxeProAricleAcuitis,
 )
 
 MODELS_ARTICLES = (
@@ -240,9 +244,9 @@ def main(model_list):
 
 if __name__ == "__main__":
     main(MODELS_ACCOUNTANCY)
-    main(MODELS_ARTICLES)
-    main(MODELS_BOOK)
-    main(MODELS_CENTER_CLIENTS)
-    main(MODELS_CENTER_PURCHASING)
-    main(MODELS_EDI)
-    main(MODELS_PARAMETERS)
+    # main(MODELS_ARTICLES)
+    # main(MODELS_BOOK)
+    # main(MODELS_CENTER_CLIENTS)
+    # main(MODELS_CENTER_PURCHASING)
+    # main(MODELS_EDI)
+    # main(MODELS_PARAMETERS)
