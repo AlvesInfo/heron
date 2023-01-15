@@ -11,21 +11,8 @@
     <br>
     <br>
     <br>
-    <div class="ui equal width grid center">
-        <div class="three wide column" style="text-align: center;vertical-align: middle">
-      </div>
+    {% include "heron/logo_entete.html" %}
 
-        <div class="ten wide column" style="text-align: center;margin-top: 100px;">
-            <div class="ui image">
-{#                <img src="{% static 'heron612x612.jpg' %}" alt="jpg pris sur site: https://www.istockphoto.com/fr/search/2/image?excludenudity=false&phrase=h%C3%A9ron&page=2">#}
-{#                <img src="{% static 'super_heron.jpg' %}" alt="jpg pris sur site: https://www.istockphoto.com/fr/search/2/image?excludenudity=false&phrase=h%C3%A9ron&page=2">#}
-                <img src="{% static 'logo_heron_01.png' %}" alt="logo-heron" style="width: 50%;margin: auto;display: block;">
-            </div>
-        </div>
-
-        <div class="three wide column" style="text-align: center;vertical-align: middle">
-        </div>
-    </div>
     {% if not user.is_authenticated %}
 
         <br>
