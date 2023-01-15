@@ -57,7 +57,7 @@ post_transfert_cosium_dict = {
                       and adf."type_famille" = edi."axe_pro_supplier"
                 ) as "axe_pro"
             from "edi_ediimport" edi
-            where edi."uuid_identification" = 'c0077744-a2ee-4e6b-b45a-26e5362e429b'::uuid
+            where edi."uuid_identification" = %(uuid_identification)s
               and (edi."valid" = false or edi."valid" isnull)
         ) maj
         where edi."uuid_identification" = %(uuid_identification)s
