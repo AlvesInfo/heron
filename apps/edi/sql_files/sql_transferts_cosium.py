@@ -40,8 +40,8 @@ post_transfert_cosium_dict = {
             "axe_prj_uuid" = maj."axe_prj",
             "axe_pro_uuid" = maj."axe_pro",
             "axe_pys_uuid"  = maj."axe_pys",
-            "axe_rfa_uuid" = maj."axe_rfa"
-        
+            "axe_rfa_uuid" = maj."axe_rfa",
+            "uuid_big_category" = maj."uuid_big_category"
         from (
             select			
                 edi."id",
@@ -55,7 +55,13 @@ post_transfert_cosium_dict = {
                      from accountancy_defaultaxeproariclecosium adf 
                     where adf."famille" = edi."famille"
                       and adf."type_famille" = edi."axe_pro_supplier"
-                ) as "axe_pro"
+                ) as "axe_pro",
+                (
+                    select 
+                        uuid_identification 
+                      from parameters_category 
+                     where slug_name = 'marchandises'
+                ) as "uuid_big_category"
             from "edi_ediimport" edi
             where edi."uuid_identification" = %(uuid_identification)s
               and (edi."valid" = false or edi."valid" isnull)
