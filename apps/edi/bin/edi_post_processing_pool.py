@@ -289,9 +289,11 @@ def tansferts_cosium_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_amounts = post_transfert_cosium_dict.get("sql_amounts")
+    sql_update_articles = post_transfert_cosium_dict.get("sql_update_articles")
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_amounts, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_articles, {"uuid_identification": uuid_identification})
 
 
 def edi_post_insert(uuid_identification: AnyStr):

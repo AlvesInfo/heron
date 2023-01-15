@@ -49,16 +49,17 @@ post_transfert_cosium_dict = {
                 aa."axe_pro", 
                 aa."axe_pys", 
                 aa."axe_rfa" 
-            from "edi_ediimport" ee 
-            join "articles_article" aa 
-            on ee."reference_article" = aa."reference" 
-            and ee."third_party_num" = aa."third_party_num"
-            where (ee."valid" = false or ee."valid" isnull)
-            and ee."axe_pro_uuid" isnull
-            and aa."axe_pro" is not null
+             from "edi_ediimport" ee 
+             join "articles_article" aa 
+               on ee."reference_article" = aa."reference" 
+              and ee."third_party_num" in (aa."third_party_num", 'BBGR002')
+            where ee."uuid_identification" = %(uuid_identification)s
+              and (ee."valid" = false or ee."valid" isnull)
+              and aa."axe_pro" is not null
         ) maj
-        where edi."id" = maj."id" 
-        and (edi."valid" = false or edi."valid" isnull)
+        where edi."uuid_identification" = %(uuid_identification)s
+          and  edi."id" = maj."id" 
+          and (edi."valid" = false or edi."valid" isnull)
     """
     ),
 }
