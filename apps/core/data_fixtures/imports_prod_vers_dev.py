@@ -20,6 +20,7 @@ from apps.accountancy.models.sage_axes_sections import (
     SectionSage,
     DefaultAxeArticle,
     DefaultAxeProAricleAcuitis,
+    DefaultAxeProAricleCosium,
 )
 from apps.articles.models import (
     Article,
@@ -92,6 +93,7 @@ MODELS_ACCOUNTANCY = (
     SupplierArticleAxePro,
     DefaultAxeArticle,
     DefaultAxeProAricleAcuitis,
+    DefaultAxeProAricleCosium,
 )
 
 MODELS_ARTICLES = (

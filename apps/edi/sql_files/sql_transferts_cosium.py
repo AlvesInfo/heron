@@ -41,25 +41,28 @@ post_transfert_cosium_dict = {
             "axe_pro_uuid" = maj."axe_pro",
             "axe_pys_uuid"  = maj."axe_pys",
             "axe_rfa_uuid" = maj."axe_rfa"
+        
         from (
-            select 
-                ee."id", 
-                aa."axe_bu", 
-                aa."axe_prj", 
-                aa."axe_pro", 
-                aa."axe_pys", 
-                aa."axe_rfa" 
-             from "edi_ediimport" ee 
-             join "articles_article" aa 
-               on ee."reference_article" = aa."reference" 
-              and ee."third_party_num" in (aa."third_party_num", 'BBGR002')
-            where ee."uuid_identification" = %(uuid_identification)s
-              and (ee."valid" = false or ee."valid" isnull)
-              and aa."axe_pro" is not null
+            select			
+                edi."id",
+                (select "axe_bu" from "accountancy_defaultaxearticle" ad limit 1) as "axe_bu",
+                (select "axe_prj" from "accountancy_defaultaxearticle" ad limit 1) as "axe_prj",
+                (select "axe_pys" from "accountancy_defaultaxearticle" ad limit 1) as "axe_pys",
+                (select "axe_rfa" from "accountancy_defaultaxearticle" ad limit 1) as "axe_rfa",
+                (
+                    select distinct
+                        "axe_pro" 
+                     from accountancy_defaultaxeproariclecosium adf 
+                    where adf."famille" = edi."famille"
+                      and adf."type_famille" = edi."axe_pro_supplier"
+                ) as "axe_pro"
+            from "edi_ediimport" edi
+            where edi."uuid_identification" = 'c0077744-a2ee-4e6b-b45a-26e5362e429b'::uuid
+              and (edi."valid" = false or edi."valid" isnull)
         ) maj
         where edi."uuid_identification" = %(uuid_identification)s
-          and  edi."id" = maj."id" 
           and (edi."valid" = false or edi."valid" isnull)
+          and  edi."id" = maj."id" 
     """
     ),
 }

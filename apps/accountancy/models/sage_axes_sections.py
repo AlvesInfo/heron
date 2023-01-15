@@ -341,3 +341,25 @@ class DefaultAxeProAricleAcuitis(FlagsTable):
         """class Meta du modèle django"""
 
         unique_together = (("famille_acuitis", "code_rayon_acuitis"),)
+
+
+class DefaultAxeProAricleCosium(FlagsTable):
+    """Tables des axes por par défaut pour les familles de produits Cosium"""
+
+    famille = models.CharField(max_length=35)
+    type_famille = models.CharField(max_length=35)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="default_cosium_pro_section",
+        db_column="axe_pro",
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        unique_together = (("famille", "type_famille"),)
