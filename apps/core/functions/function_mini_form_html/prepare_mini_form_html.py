@@ -69,7 +69,7 @@ def get_html_field(
                            required=""
                            id="id_{champ}"
                            readonly
-                           style="background-color: lavender;font-weight: bold;">"""
+                           style="background-color: #efefff;font-weight: bold;">"""
         )
 
         if if_create == "o":

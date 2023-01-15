@@ -12,9 +12,9 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th colspan="9" style="background-color: lavender;font-weight: bold;">INTEGRATIONS</th>
-                    <th colspan="3" style="background-color: lavender;border: 1px solid darkgray;">RELEVES</th>
-                    <th colspan="4" style="background-color: lavender;font-weight: bold;">CONTROLES</th>
+                    <th colspan="9" style="background-color: hwb(240deg 94% 3%);font-weight: bold;">INTEGRATIONS</th>
+                    <th colspan="3" style="background-color: hwb(240deg 94% 3%);border: 1px solid darkgray;">RELEVES</th>
+                    <th colspan="4" style="background-color: hwb(240deg 94% 3%);font-weight: bold;">CONTROLES</th>
                 </tr>
                 <tr>
                     <th class="no-sort" style="width: 2px;"></th>
@@ -38,18 +38,18 @@
             </thead>
             <thead>
                 <tr>
-                    <th colspan="5" style="text-align: right;background-color: lavender;font-weight: bold">TOTAL GENERAL</th>
-                    <th id="supplierHt" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
-                    <th id="SupplierTtc" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
-                    <th id="nbreFac" style="text-align: right;background-color: lavender;font-weight: 900;">0</th>
-                    <th style="background-color: lavender;"></th>
-                    <th style="background-color: lavender;border-left: 1px solid darkgray;border-bottom: 1px solid darkgray;"></th>
-                    <th id="statementHt" style="text-align: right;background-color: lavender;font-weight: 900;border-bottom: 1px solid darkgray;">0</th>
-                    <th id="statementTtc" style="text-align: right;background-color: lavender;font-weight: 900;border-right: 1px solid darkgray;border-bottom: 1px solid darkgray;">0</th>
-                    <th id="deltaHt" style="text-align: right;background-color: lavender;font-weight: 900;color: darkgray;"></th>
-                    <th id="deltaTtc" style="text-align: right;background-color: lavender;font-weight: 900;color: darkgray;"></th>
-                    <th style="background-color: lavender;"></th>
-                    <th style="background-color: lavender;"></th>
+                    <th colspan="5" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: bold">TOTAL GENERAL</th>
+                    <th id="supplierHt" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;">0</th>
+                    <th id="SupplierTtc" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;">0</th>
+                    <th id="nbreFac" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;">0</th>
+                    <th style="background-color: hwb(240deg 94% 3%);"></th>
+                    <th style="background-color: hwb(240deg 94% 3%);border-left: 1px solid darkgray;border-bottom: 1px solid darkgray;"></th>
+                    <th id="statementHt" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;border-bottom: 1px solid darkgray;">0</th>
+                    <th id="statementTtc" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;border-right: 1px solid darkgray;border-bottom: 1px solid darkgray;">0</th>
+                    <th id="deltaHt" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;color: darkgray;"></th>
+                    <th id="deltaTtc" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;color: darkgray;"></th>
+                    <th style="background-color: hwb(240deg 94% 3%);"></th>
+                    <th style="background-color: hwb(240deg 94% 3%);"></th>
                 </tr>
             </thead>
             <tbody>
@@ -63,15 +63,15 @@
                     <td class="category"
                         data-value="{{ supplier_purchase.uuid_category }}|{{ supplier_purchase.big_category }}|{{ supplier_purchase.third_party_num }}|{{ supplier_purchase.invoice_month.isoformat }}"
                         data-category="{{ supplier_purchase.uuid_category }}"
-                        style="background-color: {% if supplier_purchase.error %}lightpink{% else %}lavender{% endif %};display: none;">{{ supplier_purchase.big_category }}</td>
-                    <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: lightpink;color: lightpink;{% else %}color: white;{% endif %};">{{ supplier_purchase.cct_error }}</td>
-                    <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
-                    <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.achat_vente }}</td>
-                    <td style="text-align: left;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.supplier }}</td>
-                    <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>
-                    <td id="SupplierTtc{{ forloop.counter0 }}" class="SupplierTtc" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_amount_with_tax|numbers_format:2 }}</td>
-                    <td id="nbreFac{{ forloop.counter0 }}" class="nbreFac" style="text-align: right;{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.qty_invoices|int_formats }}</td>
-                    <td style="{% if supplier_purchase.error %}background-color: lightpink;{% endif %}">{{ supplier_purchase.invoice_month|date:"F Y" }}</td>
+                        style="background-color: {% if supplier_purchase.error %}#ffdae0{% else %}#efefff{% endif %};display: none;">{{ supplier_purchase.big_category }}</td>
+                    <td style="{% if supplier_purchase.cct_error or supplier_purchase.error %}background-color: #ffdae0;color: #ffdae0;{% else %}color: white;{% endif %};">{{ supplier_purchase.cct_error }}</td>
+                    <td style="{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.third_party_num }}</td>
+                    <td style="{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.achat_vente }}</td>
+                    <td style="text-align: left;{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.supplier }}</td>
+                    <td id="supplierHt{{ forloop.counter0 }}" class="supplierHt" style="text-align: right;{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.invoice_amount_without_tax|numbers_format:2 }}</td>
+                    <td id="SupplierTtc{{ forloop.counter0 }}" class="SupplierTtc" style="text-align: right;{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.invoice_amount_with_tax|numbers_format:2 }}</td>
+                    <td id="nbreFac{{ forloop.counter0 }}" class="nbreFac" style="text-align: right;{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.qty_invoices|int_formats }}</td>
+                    <td style="{% if supplier_purchase.error %}background-color: #ffdae0;{% endif %}">{{ supplier_purchase.invoice_month|date:"F Y" }}</td>
                     <td style="text-align: center;border-left: 1px solid darkgray;{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}">
                         {% if supplier_purchase.uuid_identification is None %}
                             <a href="{% url 'validation_purchases:create_control' supplier_purchase.enc_param|encode_b64_str %}">
@@ -81,8 +81,8 @@
                             <i class="edit icon modification"></i>
                         </a>
                     </td>
-                    <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}{% if supplier_purchase.have_control == 0 %}background-color: lightpink;{% endif %}">{% if supplier_purchase.amount_invoice_ht != 0 %}{{ supplier_purchase.amount_invoice_ht|numbers_format:2 }}{% endif %}</td>
-                    <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid darkgray;{% if supplier_purchase.have_control == 0 %}background-color: lightpink;{% endif %}{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}">{% if supplier_purchase.amount_invoice_ttc != 0 %}{{ supplier_purchase.amount_invoice_ttc|numbers_format:2 }}{% endif %}</td>
+                    <td id="statementHt{{ forloop.counter0 }}" class="statementHt" style="text-align: right;{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}{% if supplier_purchase.have_control == 0 %}background-color: #ffdae0;{% endif %}">{% if supplier_purchase.amount_invoice_ht != 0 %}{{ supplier_purchase.amount_invoice_ht|numbers_format:2 }}{% endif %}</td>
+                    <td id="statementTtc{{ forloop.counter0 }}" class="statementTtc" style="text-align: right;border-right: 1px solid darkgray;{% if supplier_purchase.have_control == 0 %}background-color: #ffdae0;{% endif %}{% if forloop.last %}border-bottom: 1px solid darkgray;{% endif %}">{% if supplier_purchase.amount_invoice_ttc != 0 %}{{ supplier_purchase.amount_invoice_ttc|numbers_format:2 }}{% endif %}</td>
                     <td id="deltaHt{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ht != 0 %}{{ supplier_purchase.delta_ht|numbers_format:2 }}{% endif %}</td>
                     <td id="deltaTtc{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ttc != 0 %}{{ supplier_purchase.delta_ttc|numbers_format:2 }}{% endif %}</td>
                     <td style="text-align: left;">{{ supplier_purchase.comment|default_if_none:'' }}</td>

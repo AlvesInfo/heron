@@ -38,7 +38,7 @@
                     data-value="{{ invoice.uuid_identification }}|{{ invoice.third_party_num }}|{{ invoice.invoice_number }}|{{ invoice.invoice_year }}|{{ invoice.code_maison }}|{{ invoice.maison }}"
                     data-cct="{{ invoice.axe_cct }}"
                     data-clickable="{% if not export.clickable %}yes{% else %}no{% endif %}"
-                    style="background-color: lavender;">{{ invoice.axe_cct }}</td>
+                    style="background-color: #efefff;">{{ invoice.axe_cct }}</td>
                 <td>{{ invoice.code_maison|default_if_none:'' }}</td>
                 <td style="text-align: left;">{{ invoice.maison|default_if_none:'' }}</td>
                 <td>{{ invoice.invoice_number }}</td>

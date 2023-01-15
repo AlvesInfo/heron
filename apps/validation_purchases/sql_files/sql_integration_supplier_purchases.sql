@@ -54,7 +54,7 @@ select
     case
     	when ee."is_multi_store" and sum(cct_error) = count("ee"."id") then 'lightskyblue'
     	when ee."is_multi_store" and sum(cct_error) != count("ee"."id") then 'tan'
-	    when not ee."is_multi_store" and sum(cct_error) = count("ee"."id") then 'lavender'
+	    when not ee."is_multi_store" and sum(cct_error) = count("ee"."id") then '#efefff'
     	else 'lightpink'
     end as cct_color,
     case

@@ -16,7 +16,7 @@
                                  name="third_party_num"
                                  id="id_third_party_num"
                                  readonly
-                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
+                                 style="background-color: #efefff;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.third_party_num }}">
                       </div>
                       <div class="seven wide field">
@@ -25,7 +25,7 @@
                                  name="supplier"
                                  id="id_supplier"
                                  readonly
-                                 style="background-color: lavender;"
+                                 style="background-color: #efefff;"
                                  value="{{ invoices.0.supplier }}">
                       </div>
 
@@ -35,7 +35,7 @@
                                  name="invoice_type"
                                  id="id_invoice_type"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: #efefff;text-align: center;"
                                  value="{% if invoices.0.invoice_type == '380' %}FAF{% else %}AVO{% endif %}">
                       </div>
                       <div class="five wide field">
@@ -45,7 +45,7 @@
                                  id="id_invoice_number"
                                  maxlength="35"
                                  readonly
-                                 style="background-color: lavender;"
+                                 style="background-color: #efefff;"
                                  value="{{ invoices.0.invoice_number }}">
                       </div>
                       <div class="two wide field">
@@ -54,7 +54,7 @@
                                  name="invoice_date"
                                  id="id_invoice_date"
                                  readonly
-                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
+                                 style="background-color: #efefff;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.invoice_date|date:"d/m/Y" }}">
                       </div>
                       <div class="three wide field">
@@ -64,7 +64,7 @@
                                  maxlength="80"
                                  id="id_manual_entry"
                                  readonly
-                                 style="background-color: lavender;"
+                                 style="background-color: #efefff;"
                                  value="{% if invoices.0.manual_entry %}Facture Saisie{% else %}Facture Intégrée{% endif %}">
                       </div>
                       <div class="two wide field">
@@ -74,7 +74,7 @@
                                  maxlength="15"
                                  id="id_achat_vente"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: #efefff;text-align: center;"
                                  value="{% if invoices.0.purchase_invoice and invoices.0.purchase_invoice %}AC/VE{% elif invoices.0.purchase_invoice %}AC{% else %}VE{% endif %}">
                       </div>
                       <div class="three wide field">
@@ -84,7 +84,7 @@
                                  maxlength="15"
                                  id="id_invoice_amount_without_tax"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
+                                 style="background-color: #efefff;text-align: right;"
                                  value="{{ invoices.0.invoice_amount_without_tax|numbers_format:2 }}">
                       </div>
                       <div class="three wide field">
@@ -94,7 +94,7 @@
                                  maxlength="15"
                                  id="id_invoice_amount_tax"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
+                                 style="background-color: #efefff;text-align: right;"
                                  value="{{ invoices.0.invoice_amount_tax|numbers_format:2 }}">
                       </div>
                       <div class="three wide field">
@@ -104,7 +104,7 @@
                                  maxlength="15"
                                  id="id_invoice_amount_with_tax"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
+                                 style="background-color: #efefff;text-align: right;"
                                  value="{{ invoices.0.invoice_amount_with_tax|numbers_format:2 }}">
                       </div>
                     </div>
@@ -162,7 +162,7 @@
                                    name="cct_uuid_identification"
                                    id="id_cct_uuid_identification"
                                    readonly
-                                   style="background-color: {% if not invoice.cct_uuid_identification.cct %}lightpink{% else %}lavender{% endif %};text-align: center;"
+                                   style="background-color: {% if not invoice.cct_uuid_identification.cct %}#ffdae0{% else %}#efefff{% endif %};text-align: center;"
                                    value="{{ invoice.cct_uuid_identification.cct }}">
                         </div>
                         <div class="two wide field">
@@ -170,7 +170,7 @@
                                    name="code_maision"
                                    id="id_code_maision"
                                    readonly
-                                   style="background-color: lavender;text-align: center;"
+                                   style="background-color: #efefff;text-align: center;"
                                    value="{{ invoice.code_maison }}">
                         </div>
                         <div class="three wide field">
@@ -182,7 +182,7 @@
                                  name="big_category"
                                  id="id_big_category"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: #efefff;text-align: center;"
                                  value="{{ invoice.big_category.name }}">
                       </div>
                         <div class="two wide field">
@@ -190,7 +190,7 @@
                                  name="sub_category"
                                  id="id_sub_category"
                                  readonly
-                                 style="background-color: lavender;text-align: center;"
+                                 style="background-color: #efefff;text-align: center;"
                                  value="{{ invoice.sub_category.name }}">
                         </div>
                         <div class="four wide field">
@@ -198,7 +198,7 @@
                                  name="reference_article"
                                  id="id_reference_article"
                                  readonly
-                                 style="background-color: lavender;padding-left: 4px;padding-right: 4px;"
+                                 style="background-color: #efefff;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.reference_article }}">
                         </div>
                         <div class="eleven wide field">
@@ -206,7 +206,7 @@
                                  name="libelle"
                                  id="id_libelle"
                                  readonly
-                                 style="background-color: lavender;padding-left: 4px;padding-right: 4px;"
+                                 style="background-color: #efefff;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.libelle }}">
                         </div>
                         <div class="one wide field">
@@ -215,7 +215,7 @@
                                  maxlength="6"
                                  id="id_qty"
                                  readonly
-                                 style="background-color: lavender;text-align: right;padding-left: 4px;padding-right: 4px;"
+                                 style="background-color: #efefff;text-align: right;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.qty|numbers:0 }}">
                         </div>
                         <div class="two wide field">
@@ -224,7 +224,7 @@
                                  maxlength="20"
                                  id="id_net_unit_price"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
+                                 style="background-color: #efefff;text-align: right;"
                                  value="{{ invoice.net_unit_price|numbers_format:2 }}">
                         </div>
                         <div class="three wide field">
@@ -233,7 +233,7 @@
                                  maxlength="20"
                                  id="id_net_amount"
                                  readonly
-                                 style="background-color: lavender;text-align: right;"
+                                 style="background-color: #efefff;text-align: right;"
                                  value="{{ invoice.net_amount|numbers_format:2 }}">
                         </div>
                         <div class="one wide field">
@@ -242,7 +242,7 @@
                                  maxlength="15"
                                  id="id_vat"
                                  readonly
-                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
+                                 style="background-color: #efefff;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoice.vat.vat }}">
                         </div>
                         <div class="one wide field">
@@ -251,7 +251,7 @@
                                    maxlength="15"
                                  id="id_vat_rate"
                                  readonly
-                                 style="background-color: lavender;text-align: center;padding-left: 2px;padding-right: 2px;"
+                                 style="background-color: #efefff;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoice.vat_rate|percentage }}">
                         </div>
                     </div>

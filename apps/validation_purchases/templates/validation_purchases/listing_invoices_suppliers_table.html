@@ -45,9 +45,9 @@
                     data-url="{% url 'validation_purchases:cct_change' %}"
                     style="background-color: {{ export.cct_color }};">{{ export.axe_cct }}</td>
                 <td style="background-color: {{ export.cct_color }};">{{ export.code_maison }}</td>
-                <td style="text-align: left;{% if export.code_maison == '' or export.is_multi_store %}background-color: lightpink;{% endif %}">{{ export.maison|default_if_none:'' }}</td>
+                <td style="text-align: left;{% if export.code_maison == '' or export.is_multi_store %}background-color: #ffdae0;{% endif %}">{{ export.maison|default_if_none:'' }}</td>
                 <td style="text-align: right;">{{ export.net_amount|numbers_format:2 }}</td>
-                <td style="text-align: right;{% if export.delta %}background-color: lightpink;{% endif %}">{% if export.delta %}{{ export.delta }}{% endif %}</td>
+                <td style="text-align: right;{% if export.delta %}background-color: #ffdae0;{% endif %}">{% if export.delta %}{{ export.delta }}{% endif %}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_without_tax|numbers_format:2 }}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_tax|numbers_format:2 }}</td>
                 <td style="text-align: right;">{{ export.invoice_amount_with_tax|numbers_format:2 }}</td>
