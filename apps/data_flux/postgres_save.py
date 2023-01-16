@@ -193,7 +193,7 @@ class PostgresDjangoUpsert:
 
     def get_column_properties(self, field_key: AnyStr):
         """
-        :param field_key: champ du model django à retouner
+        :param field_key: Champ du model django à retouner
         :return: Le Sql des paramètres de création de la table temporaire
         """
         try:
@@ -628,7 +628,7 @@ class PostgresDjangoUpsert:
         """
         :param cursor:       Cursor de connexion psycopg2 à Postgresql
         :param table:        Table en BDD à tester
-        :param uniques_list: Liste des champs uniques dans la tables y compris groupe d'unicité
+        :param uniques_list: Liste des champs uniques dans la table y compris groupe d'unicité
         :return: Check des combinaisons  clefs uniques dans la table
         """
         base_sql = """

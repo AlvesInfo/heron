@@ -61,7 +61,8 @@ def insert_bbgr_003_articles():
                 "famille_acuitis",
                 "uuid_big_category",
                 "created_by",
-                "packaging_qty"
+                "packaging_qty",
+                "new_article"
             )
             select 
                 now() as "created_at",
@@ -110,7 +111,8 @@ def insert_bbgr_003_articles():
                 hba.famille as "famille_acuitis",
                 'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid as "uuid_big_category",
                 'd3888b89-0847-4dc2-ae8f-f1da36bde2b7'::uuid as "created_by",
-                1 as "packaging_qty"
+                1 as "packaging_qty",
+                true as "new_article"
             from "heron_bi_articles" hba 
             where (hba."code_rayon" != 'SAV' and hba."famille" != 'SAV')
             on conflict do nothing
