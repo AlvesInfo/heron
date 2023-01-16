@@ -118,7 +118,7 @@ class CreateInvoiceForm(forms.ModelForm):
 
         # ==========================================================================================
         self.fields["big_category"] = forms.UUIDField(
-            initial=Category.objects.get(slug_name="marchandises").uuid_identification
+            initial=Category.objects.get(slug_name="marchandises")
         )
         self.fields["manual_entry"] = forms.BooleanField(initial=True)
 

@@ -42,10 +42,12 @@ class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         count_elements = 50
+        category = Category.objects.get(slug_name='marchandises')
         context = {
             **super().get_context_data(**kwargs),
             **{
-                "titre_table": f"Facture de {Category.objects.get(slug_name='marchandises').name}",
+                "titre_table": f"Facture de {category.name}",
+                "category" : category,
                 "nb_elements": range(count_elements),
                 "count_elements": count_elements,
                 "nb_display": 5,
@@ -89,6 +91,7 @@ class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
         formset = CreateInvoiceForm(request.POST)
         if formset.is_valid():
+
             return self.form_valid(formset)
         else:
             print(formset.errors)
