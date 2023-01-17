@@ -33,7 +33,6 @@ from apps.articles.models import (
 from apps.book.models import (
     Address,
     Contact,
-    Nature,
     Society,
     SocietyBank,
     SupplierCct,
@@ -63,6 +62,7 @@ from apps.centers_purchasing.models import (
 from apps.edi.models import SupplierDefinition, ColumnDefinition
 from apps.parameters.models import (
     Category,
+    Nature,
     CategoryModelInvoice,
     SubCategory,
     SubFamilly,
@@ -109,7 +109,6 @@ MODELS_BOOK = (
     Society,
     Address,
     Contact,
-    Nature,
     SocietyBank,
     SupplierCct,
     SupplierArticleAxePro,
@@ -137,6 +136,7 @@ MODELS_CENTER_PURCHASING = (
 )
 MODELS_EDI = (SupplierDefinition, ColumnDefinition)
 MODELS_PARAMETERS = (
+    Nature,
     Category,
     CategoryModelInvoice,
     SubCategory,
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     main(MODELS_ACCOUNTANCY)
     main(MODELS_ARTICLES)
     main(MODELS_BOOK)
-    # main(MODELS_CENTER_CLIENTS)
-    # main(MODELS_CENTER_PURCHASING)
-    # main(MODELS_EDI)
+    main(MODELS_CENTER_CLIENTS)
+    main(MODELS_CENTER_PURCHASING)
+    main(MODELS_EDI)
     # main(MODELS_PARAMETERS)

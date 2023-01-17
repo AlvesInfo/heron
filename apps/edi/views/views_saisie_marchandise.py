@@ -26,7 +26,9 @@ from apps.parameters.models import Category
 from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
 
 # 1. MARCHANDISES
-InvoiceMarchandiseFormset = modelformset_factory(EdiImport, fields=INVOICES_CREATE_FIELDS)
+InvoiceMarchandiseFormset = modelformset_factory(
+    EdiImport, form=CreateInvoiceForm, fields=INVOICES_CREATE_FIELDS
+)
 
 
 class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -41,16 +43,17 @@ class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
-        count_elements = 50
-        category = Category.objects.get(slug_name='marchandises')
+        count_elements = 100
+        nb_display = 1
+        category = Category.objects.get(slug_name="marchandises")
         context = {
             **super().get_context_data(**kwargs),
             **{
-                "titre_table": f"Facture de {category.name}",
-                "category" : category,
+                "titre_table": f"Saisie de facture / Avoir",
+                "category": category,
                 "nb_elements": range(count_elements),
                 "count_elements": count_elements,
-                "nb_display": 5,
+                "nb_display": nb_display,
                 "chevron_retour": reverse("home"),
                 "formset": InvoiceMarchandiseFormset(queryset=EdiImport.objects.none()),
             },
@@ -71,7 +74,7 @@ class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
             "invoice_number": request_dict.get("invoice_number"),
             "invoice_type": request_dict.get("invoice_type"),
             "invoice_date": request_dict.get("invoice_date"),
-            "devise_choices": request_dict.get("devise_choices")
+            "devise_choices": request_dict.get("devise_choices"),
         }
         sens = request_dict.get("sens")
 

@@ -21,9 +21,9 @@ from django.utils.translation import gettext_lazy as _
 from heron.models import FlagsTable
 
 from apps.accountancy.models import AccountSage, CctSage, CodePlanSage, VatSage, TabDivSage
-from apps.book.models import Nature, Society
+from apps.book.models import Society
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
-from apps.parameters.models import SalePriceCategory
+from apps.parameters.models import SalePriceCategory, Nature
 from apps.countries.models import Country, Language, Currency
 
 CHOICES_LANGUE = (

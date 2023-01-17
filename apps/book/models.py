@@ -22,43 +22,10 @@ from django.utils.translation import gettext_lazy as _
 from heron.models import FlagsTable
 from apps.accountancy.models import CategorySage, PaymentCondition,  SectionSage, CctSage
 from apps.countries.models import Country
-from apps.parameters.models import Category
+from apps.parameters.models import Category, Nature
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
-
-
-class Nature(FlagsTable):
-    """
-    Table des natures. Ex. : Mr, Mme, SARL, ...
-    FR : Table des natures
-    EN : Nature table
-    """
-
-    name = models.CharField(unique=True, blank=True, max_length=80)
-    to_display = models.CharField(null=True, blank=True, max_length=35)
-    for_contact = models.BooleanField(null=True, default=None)
-
-    def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
-        """
-        self.name = self.name.capitalize()
-
-        if not self.to_display:
-            self.to_display = self.name
-
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.to_display
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["name"]
 
 
 class SupplierArticleAxePro(FlagsTable):

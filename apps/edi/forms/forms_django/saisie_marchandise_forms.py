@@ -14,32 +14,27 @@ modified by: Paulo ALVES
 from django import forms
 
 from apps.book.models import Society
-from apps.centers_clients.models import Maison
 from apps.accountancy.models import VatSage
 from apps.countries.models import Currency
+from apps.centers_clients.models import Maison
 from apps.edi.models import EdiImport
-from apps.parameters.models import Category
 
 INVOICES_CREATE_FIELDS = (
+    "big_category",
+    "sub_category",
     "third_party_num",
+    "cct_uuid_identification",
     "invoice_number",
     "invoice_date",
     "invoice_type",
     "devise",
     "reference_article",
-    "libelle",
     "qty",
     "net_unit_price",
     "client_name",
     "serial_number",
-    "big_category",
-    "created_by",
     "vat",
-    "cct_uuid_identification",
     "unity",
-    "manual_entry",
-    "purchase_invoice",
-    "sale_invoice",
 )
 
 
@@ -49,6 +44,7 @@ class CreateInvoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
         super().__init__(*args, **kwargs)
+
         # TIERS X3 =================================================================================
         self.third_party_num_choices = [("", "")] + [
             (
@@ -59,6 +55,7 @@ class CreateInvoiceForm(forms.ModelForm):
         ]
         third_party_num = forms.ChoiceField(
             choices=self.third_party_num_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
             label="Tiers X3",
             required=True,
         )
@@ -68,12 +65,13 @@ class CreateInvoiceForm(forms.ModelForm):
         self.cct_choices = [("", "")] + [
             (
                 maison.uuid_identification,
-                f"{maison.cct}-" f"{maison.intitule}-" f"{maison.adresse[:50]}-" f"{maison.ville}",
+                f"{maison.cct}-" f"{maison.intitule}",
             )
             for maison in Maison.objects.all()
         ]
         cct_uuid_identification = forms.ChoiceField(
             choices=self.cct_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
             label="CCT X3",
             required=True,
         )
@@ -83,6 +81,7 @@ class CreateInvoiceForm(forms.ModelForm):
         self.invoice_type_choices = [("380", "FAF"), ("381", "AVO")]
         invoice_type = forms.ChoiceField(
             choices=self.invoice_type_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
             label="Type de Facture",
             required=True,
         )
@@ -93,37 +92,42 @@ class CreateInvoiceForm(forms.ModelForm):
             (currency.code, currency.code) for currency in Currency.objects.all().order_by("code")
         ]
         devise = forms.ChoiceField(
-            choices=self.devise_choices, label="Devise", required=True, initial="EUR"
+            choices=self.devise_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            label="Devise",
+            required=True,
+            initial="EUR",
         )
         self.fields["devise"] = devise
 
         # SENS ACHAT ou VENTE ou ACHAT/VENT ========================================================
         self.sens_choices = [(0, "AC"), (1, "VE"), (2, "AC/VE")]
         sens = forms.ChoiceField(
-            choices=self.sens_choices, label="Sens", required=True, initial="AC/VE"
-        )
-        self.fields["sens"] = sens
-
-        # ARTICLE FOURNISSEUR ======================================================================
-        self.sens_choices = [(0, "AC"), (1, "VE"), (2, "AC/VE")]
-        sens = forms.ChoiceField(
-            choices=self.sens_choices, label="Sens", required=True, initial="AC/VE"
+            choices=self.sens_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            label="Sens",
+            required=True,
+            initial="AC/VE",
         )
         self.fields["sens"] = sens
 
         # TVA ======================================================================================
         self.vat_choices = [(vat.vat, vat.vat) for vat in VatSage.objects.all()]
-        vat = forms.ChoiceField(choices=self.vat_choices, label="TVA", required=True, initial="001")
-        self.fields["vat"] = vat
-
-        # ==========================================================================================
-        self.fields["big_category"] = forms.UUIDField(
-            initial=Category.objects.get(slug_name="marchandises")
+        vat = forms.ChoiceField(
+            choices=self.vat_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            label="TVA X3",
+            required=True,
+            initial="001",
         )
-        self.fields["manual_entry"] = forms.BooleanField(initial=True)
+        self.fields["vat"] = vat
 
     class Meta:
         """class Meta"""
 
         model = EdiImport
         fields = INVOICES_CREATE_FIELDS
+        widgets = {
+            "big_category": forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            "cct_uuid_identification": forms.Select(attrs={"class": "ui fluid search dropdown"}),
+        }

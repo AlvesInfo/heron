@@ -14,8 +14,8 @@ import csv
 from django.db.utils import IntegrityError
 
 from apps.core.functions.functions_setups import settings
-from apps.book.models import Nature, Society
-
+from apps.book.models import Society
+from apps.parameters.models import Nature
 
 def fixtures_nature():
     """Fonction d'ajout de fixtures pour la table Nature"""

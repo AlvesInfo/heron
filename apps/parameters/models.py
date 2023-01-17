@@ -81,6 +81,7 @@ class Counter(FlagsTable):
     class DateType(models.TextChoices):
         """DateType choices"""
 
+        PON = 0, _("Ponctuel")
         FDM = 1, _("Fin de mois")
         DDM = 2, _("Début de mois")
         QDM = 3, _("Quinzaine")
@@ -97,6 +98,7 @@ class Counter(FlagsTable):
     )
     num = models.IntegerField(default=1)
     suffix = models.CharField(max_length=35, verbose_name="suffix")
+    fonction = models.CharField(null=True, blank=True, max_length=255)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -109,6 +111,12 @@ class Counter(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["name"]
+
+
+class CounterNums:
+    """
+    Table de la numérotation des compteurs
+    """
 
 
 class SendFiles(FlagsTable):
@@ -209,6 +217,7 @@ class Category(FlagsTable):
     FR : Grandes Catégories
     EN : Categories
     """
+
     code = models.CharField(unique=True, max_length=15)
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
@@ -283,6 +292,7 @@ class SubCategory(FlagsTable):
     FR : Sous Grandes Catégories
     EN : Sub-Categories
     """
+
     code = models.CharField(unique=True, max_length=15)
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
@@ -378,6 +388,41 @@ class ActionPermission(FlagsTable):
         ordering = ["name"]
 
 
+class Nature(FlagsTable):
+    """
+    Table des natures. Ex. : Mr, Mme, SARL, ...
+    FR : Table des natures
+    EN : Nature table
+    """
+
+    name = models.CharField(unique=True, blank=True, max_length=80)
+    to_display = models.CharField(null=True, blank=True, max_length=35)
+    for_contact = models.BooleanField(default=False)
+    for_personnel = models.BooleanField(default=False)
+    for_formation = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        """
+        FR : Avant la sauvegarde on clean les données
+        EN : Before the backup we clean the data
+        """
+        self.name = self.name.capitalize()
+
+        if not self.to_display:
+            self.to_display = self.name
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return self.to_display
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["name"]
+
+
 class BaseInvoiceTable(models.Model):
     """
     Table Abstraite de base pour les Factures
@@ -391,6 +436,12 @@ class BaseInvoiceTable(models.Model):
         FOUR = 0, "Fournisseur"
         CLI = 1, "Client"
 
+    class InvoiceTypeChoice(models.TextChoices):
+        """invoice_type choices"""
+
+        FA = "380", "FAF"
+        AV = "381", "AVO"
+
     uuid_file = models.UUIDField(null=True)
 
     invoice_number = models.CharField(max_length=35)
@@ -398,7 +449,12 @@ class BaseInvoiceTable(models.Model):
     invoice_month = models.DateField(null=True, blank=True)
     invoice_year = models.IntegerField(null=True, blank=True)
     invoice_type = models.CharField(
-        null=True, blank=True, max_length=3, verbose_name="BGM FA:380, AV:381"
+        null=True,
+        blank=True,
+        max_length=3,
+        choices=InvoiceTypeChoice.choices,
+        default=InvoiceTypeChoice.FA,
+        verbose_name="BGM FA:380, AV:381",
     )
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
 
@@ -452,11 +508,12 @@ class BaseInvoiceDetailsTable(models.Model):
         null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
     )
     delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
-
     # Formation
+    initial_home = models.CharField(null=True, blank=True, max_length=15)
+    initial_date = models.DateField(null=True, verbose_name="date initiale")
     final_date = models.DateField(null=True, verbose_name="date finale")
-    first_name = models.CharField(null=True, max_length=80, verbose_name="prenom")
-    last_name = models.CharField(null=True, max_length=80, verbose_name="nom")
+    first_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="prenom")
+    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="nom")
     heures_formation = models.DecimalField(
         null=True,
         max_digits=20,
@@ -464,7 +521,17 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="nombre heures formation",
     )
-
+    personnel_type = models.ForeignKey(
+        Nature,
+        on_delete=models.PROTECT,
+        to_field="name",
+        related_name="+",
+        null=True,
+        limit_choices_to={"for_personnel": True},
+        db_column="personnel_type",
+        verbose_name="type de personnel",
+    )
+    formation_month = models.DateField(null=True, verbose_name="Mois concerné")
     # Article
     reference_article = models.CharField(
         null=True, blank=True, max_length=150, verbose_name="LIN avec 21 et autre chose que EN"
