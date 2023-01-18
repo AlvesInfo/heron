@@ -51,8 +51,60 @@
                     alert("Vous avez atteind le nombre maximal de lignes")
                 }
             })
+
+            $(".button.submit").click(function (event) {
+                const third_party_num = $(`#id_form-0-third_party_num`).dropdown('get value');
+                const invoice_number = $(`#id_form-0-invoice_number`).val();
+                const invoice_date = $(`#id_form-0-invoice_date`).val();
+                const invoice_type = $(`#id_form-0-invoice_type`).dropdown('get value');
+                const devise = $(`#id_form-0-devise`).dropdown('get value');
+
+                let formData = {
+                    'csrfmiddlewaretoken' : $(`input[name*='csrfmiddlewaretoken']`).val(),
+                };
+
+                for (let i = 0; i < nbDisplay; i++) {
+                    let cct_uuid_identification = $(`#id_form-${i}-cct_uuid_identification`).dropdown('get value');
+                    let big_category =  $(`#id_form-${i}-big_category`).dropdown('get value');
+                    let sub_category =  $(`#id_form-${i}-sub_category`).val();
+                    let client_name =  $(`#id_form-${i}-client_name`).val();
+                    let serial_number =  $(`#d_form-${i}-serial_number`).val();
+                    let reference_article =  $(`#id_form-${i}-reference_article`).val();
+                    let libelle =  $(`#id_form-${i}-libelle`).val();
+                    let qty =  $(`#id_form-${i}-qty`).val();
+                    let unity =  $(`#id_form-${i}-unity`).dropdown('get value');
+                    let net_unit_price =  $(`#id_form-${i}-net_unit_price`).val();
+                    let j = i.toString();
+
+                    let data = {
+
+                        [`id_form-${j}-third_party_num`]: third_party_num,
+                        [`id_form-${j}-invoice_number`]: invoice_number,
+                        [`id_form-${j}-invoice_date`]: invoice_date,
+                        [`id_form-${j}-invoice_type`]: invoice_type,
+                        [`id_form-${j}-devise`]: devise,
+                        [`id_form-${j}-cct_uuid_identification`]: cct_uuid_identification,
+                        [`id_form-${j}-big_category`]: big_category,
+                        [`id_form-${j}-sub_category`]: sub_category,
+                        [`id_form-${j}-client_name`]: client_name,
+                        [`id_form-${j}-serial_number`]: serial_number,
+                        [`id_form-${j}-reference_article`]: reference_article,
+                        [`id_form-${j}-libelle`]: libelle,
+                        [`id_form-${j}-qty`]: qty,
+                        [`id_form-${j}-unity`]: unity,
+                        [`id_form-${j}-net_unit_price`]: net_unit_price,
+                    };
+                    console.log(data)
+                     Object.assign(formData, data)
+                }
+                console.log(formData)
+                event.preventDefault();
+
+            });
+
         });
 
     </script>
 
 {% endblock script %}
+

@@ -12,22 +12,11 @@ modified at: 2023-01-04
 modified by: Paulo ALVES
 """
 from typing import Dict
-from copy import deepcopy
-import html
 
-from django.shortcuts import render, redirect, reverse
-from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
-from django.db import transaction
-from django.forms import formset_factory, modelformset_factory
-from django.views.generic import CreateView, UpdateView
-
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.assembly_formset import get_request_formset, get_request_formset_to_form
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
+from django.shortcuts import render, reverse
+from django.forms import modelformset_factory
 from apps.edi.bin.edi_tools import get_sens
 from apps.edi.models import EdiImport
-from apps.parameters.models import Category
 from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
 
 # 1. MARCHANDISES
@@ -40,7 +29,7 @@ def get_edi_import_elements(requect_dict: Dict) -> Dict:
 def create_invoice_marchandises(request):
     """Fonction de création de factures manuelle par saisie"""
     count_elements = 100
-    nb_display = 1
+    nb_display = 2
     InvoiceMarchandiseFormset = modelformset_factory(
         EdiImport, form=CreateInvoiceForm, fields=INVOICES_CREATE_FIELDS, extra=nb_display
     )
@@ -76,21 +65,9 @@ def create_invoice_marchandises(request):
         # data_dict = get_request_formset_to_form(request_dict, base_data)
         #
         # print("formset data_dict : ", data_dict)
-        # # print("request.POST : ", request.POST.dict())
-        # # formset = CreateInvoiceForm(data_dict)
-        # # print("formset.is_valid() : ", formset.is_valid())
-        #
-        # for _, values_dict in data_dict.items():
-        #     values_dict["vat"] = [html.unescape(values_dict["vat"])]
-        #     print(values_dict["cct_uuid_identification"], type(values_dict["cct_uuid_identification"]))
-        #     values_dict["cct_uuid_identification"] = [values_dict["cct_uuid_identification"].replace("&#x27;", "")]
-        #     print(values_dict)
-        #     form = CreateInvoiceForm(values_dict)
-        #     if form.is_valid():
-        #         print(form.cleaned_data)
-        #     else:
-        #         print(form.errors)
-        #     print("form.is_valid() : ", form.is_valid())
+        # print("request.POST : ", request.POST.dict())
+        # formset = CreateInvoiceForm(data_dict)
+        # print("formset.is_valid() : ", formset.is_valid())
 
         formset = InvoiceMarchandiseFormset(request.POST)
         if formset.is_valid():

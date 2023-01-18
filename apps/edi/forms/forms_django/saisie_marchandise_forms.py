@@ -15,9 +15,7 @@ from django import forms
 
 from apps.parameters.forms import NumberInput
 from apps.book.models import Society
-from apps.accountancy.models import VatSage
 from apps.countries.models import Currency
-from apps.centers_clients.models import Maison
 from apps.edi.models import EdiImport
 
 INVOICES_CREATE_FIELDS = (
@@ -65,22 +63,6 @@ class CreateInvoiceForm(forms.ModelForm):
         )
         self.fields["third_party_num"] = third_party_num
 
-        # CCT X3 ===================================================================================
-        # self.cct_choices = [("", "")] + [
-        #     (
-        #         maison.get("uuid_identification"),
-        #         f"{maison.get('cct')}-" f"{maison.get('intitule')}",
-        #     )
-        #     for maison in Maison.objects.all().values("uuid_identification", "cct", "intitule")
-        # ]
-        # cct_uuid_identification = forms.ChoiceField(
-        #     choices=self.cct_choices,
-        #     widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-        #     label="CCT X3",
-        #     required=True,
-        # )
-        # self.fields["cct_uuid_identification"] = cct_uuid_identification
-
         # TYPE FACTURE FAF / AVO ===================================================================
         self.invoice_type_choices = [("380", "FAF"), ("381", "AVO")]
         invoice_type = forms.ChoiceField(
@@ -116,22 +98,10 @@ class CreateInvoiceForm(forms.ModelForm):
         )
         self.fields["sens"] = sens
 
-        # TVA ======================================================================================
-        # self.vat_choices = [
-        #     (vat.get("vat"), vat.get("vat")) for vat in VatSage.objects.all().values("vat")
-        # ]
-        # vat = forms.ChoiceField(
-        #     choices=self.vat_choices,
-        #     widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-        #     label="TVA X3",
-        #     required=True,
-        #     initial="001",
-        # )
-        # self.fields["vat"] = vat
-
         # AUTRE ====================================================================================
         self.fields["serial_number"] = forms.CharField(max_length=1000, required=False)
         self.fields["sub_category"].required = False
+        self.fields["vat"].initial = "001"
 
     class Meta:
         """class Meta"""

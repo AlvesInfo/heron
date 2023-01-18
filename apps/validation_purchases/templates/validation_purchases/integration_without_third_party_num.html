@@ -82,7 +82,6 @@
 
 
 
-            });
 
             $(`#thirdPartyNumFormChange`).submit(function (event) {
                 let formData = {
@@ -91,24 +90,26 @@
                   supplier: $("#id_supplier").val(),
                   supplier_ident: $("#id_supplier_ident").val(),
                   third_party_num: $("#id_third_party_num").val(),
-            };
+                };
 
-            $.ajax({
-              type: "POST",
-              url: "{% url 'validation_purchases:purchase_without_suppliers_update' %}",
-              data: formData,
-              encode: true,
-            }).done(function (data) {
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'validation_purchases:purchase_without_suppliers_update' %}",
+                  data: formData,
+                  encode: true,
+                }).done(function (data) {
 
-                if (data.success === "success") {
-                    window.location.reload()
-                } else {
-                    window.location.href = data.success;
-                }
+                    if (data.success === "success") {
+                        window.location.reload()
+                    } else {
+                        window.location.href = data.success;
+                    }
+
+                });
+
+                event.preventDefault();
 
             });
-
-            event.preventDefault();
 
         });
 

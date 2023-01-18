@@ -24,32 +24,32 @@
                     <div class="fields" style="">
                         <div class="five wide field">
                             <label for="id_form-__prefix__-third_party_num" style="text-align: left;">Fournisseur</label>
-                            {{ formset.empty_form.third_party_num }}
+                            {{ formset.0.third_party_num }}
                         </div>
                         <div class="four wide field">
                             <label for="id_form-__prefix__-invoice_number" style="text-align: left;">N° Facture</label>
-                            <input type="text" name="form-__prefix__-invoice_number" maxlength="35" required="" id="id_form-__prefix__-invoice_number">
+                            <input type="text" name="form-0-invoice_number" maxlength="35" required="" id="id_form-0-invoice_number">
                         </div>
                         <div class="two wide field">
-                            <label for="id_form-__prefix__-invoice_date"
+                            <label for="id_form-0-invoice_date"
                                    style="text-align: left;">Date Facture</label>
                             <input type="date"
-                                 name="form-__prefix__-invoice_date"
-                                 id="id_form-__prefix__-invoice_date"
+                                 name="form-0-invoice_date"
+                                 id="id_form-0-invoice_date"
                                  required=""
                                  value="{{ date_du_jour.isoformat }}">
                         </div>
                         <div class="one wide field">
                             <label for="id_form-__prefix__-invoice_type" style="text-align: left;">Type</label>
-                            {{ formset.empty_form.invoice_type }}
+                            {{ formset.0.invoice_type }}
                         </div>
                         <div class="one wide field">
                             <label for="id_form-__prefix__-devise" style="text-align: left;">{{ formset.empty_form.devise.label }}</label>
-                            {{ formset.empty_form.devise }}
+                            {{ formset.0.devise }}
                         </div>
                         <div class="one wide field">
                             <label for="id_form-__prefix__-sens" style="text-align: left;">{{ formset.empty_form.sens.label }}</label>
-                            {{ formset.empty_form.sens }}
+                            {{ formset.0.sens }}
                         </div>
                         <div class="two wide field" style="text-align: left;">
                             <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER LIGNE</button>
@@ -66,33 +66,6 @@
             {% for formlines in formset %}
                 <div class="ui segment" style="border-color: {{ border_color }};">
                     <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-                        <div class="fields primary" style="display: none;">
-                            <div class="five wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-third_party_num" style="text-align: left;">Fournisseur</label>
-                                <input type="text" name="form-{{ forloop.counter0 }}-third_party_num" maxlength="35" id="id_form-{{ forloop.counter0 }}-third_party_num">
-                            </div>
-                            <div class="four wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-invoice_number" style="text-align: left;">N° Facture</label>
-                                <input type="text" name="form-{{ forloop.counter0 }}-invoice_number" maxlength="35" id="id_form-{{ forloop.counter0 }}-invoice_number">
-                            </div>
-                            <div class="two wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-invoice_date"
-                                       style="text-align: left;">Date Facture</label>
-                                <input type="date" name="form-{{ forloop.counter0 }}-invoice_date" maxlength="35" id="id_form-{{ forloop.counter0 }}-invoice_date">
-                            </div>
-                            <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-invoice_type" style="text-align: left;">Type</label>
-                                <input type="text" name="form-{{ forloop.counter0 }}-invoice_type" maxlength="35" id="id_form-{{ forloop.counter0 }}-invoice_type">
-                            </div>
-                            <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-devise" style="text-align: left;">{{ formset.empty_form.devise.label }}</label>
-                                <input type="text" name="form-{{ forloop.counter0 }}-devise" maxlength="35" id="id_form-{{ forloop.counter0 }}-devise">
-                            </div>
-                            <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-sens" style="text-align: left;">{{ formset.empty_form.sens.label }}</label>
-                                <input type="text" name="form-{{ forloop.counter0 }}-sens" maxlength="35" id="id_form-{{ forloop.counter0 }}-sens">
-                            </div>
-                        </div>
                         <div class="fields formset" style="">
                             <div class="four wide field">
                                 <label for="id_form-{{ forloop.counter0 }}-cct_uuid_identification">CCT X3</label>

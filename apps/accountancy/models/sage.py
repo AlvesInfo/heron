@@ -319,7 +319,7 @@ class VatSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.vat} - {self.short_name}"
+        return f"{self.vat}"
 
     class Meta:
         """class Meta du modèle django"""
