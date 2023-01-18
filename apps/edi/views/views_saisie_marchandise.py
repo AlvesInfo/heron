@@ -29,9 +29,13 @@ def get_edi_import_elements(requect_dict: Dict) -> Dict:
 def create_invoice_marchandises(request):
     """Fonction de création de factures manuelle par saisie"""
     count_elements = 100
-    nb_display = 2
+    nb_display = 1
     InvoiceMarchandiseFormset = modelformset_factory(
-        EdiImport, form=CreateInvoiceForm, fields=INVOICES_CREATE_FIELDS, extra=nb_display
+        EdiImport,
+        form=CreateInvoiceForm,
+        fields=INVOICES_CREATE_FIELDS,
+        extra=nb_display,
+        localized_fields="__all__",
     )
     context = {
         "titre_table": f"Saisie de Facture / Avoir",
@@ -41,44 +45,29 @@ def create_invoice_marchandises(request):
         "chevron_retour": reverse("home"),
         "formset": InvoiceMarchandiseFormset(queryset=EdiImport.objects.none()),
         "border_color": "darkgray",
+        "url_saisie": reverse("edi:create_invoice_marchandise"),
     }
 
     if request.method == "POST":
-        print(request.POST)
-        # request_dict = deepcopy(request.POST.dict())
-        # sens_dict = get_sens(request_dict.pop("form-__prefix__-sens"))
-        # base_data = {
-        #     **{
-        #         "third_party_num": request_dict.pop("form-__prefix__-third_party_num"),
-        #         "invoice_number": request_dict.pop("form-__prefix__-invoice_number"),
-        #         "invoice_date": request_dict.pop("form-__prefix__-invoice_date"),
-        #         "invoice_type": request_dict.pop("form-__prefix__-invoice_type"),
-        #         "devise": request_dict.pop("form-__prefix__-devise"),
-        #     },
-        #     **sens_dict,
-        # }
-        #
-        # for i in range(int(request_dict.get("form-TOTAL_FORMS"))):
-        #     request_dict.pop(f"form-{i}-sens")
-        #
-        # print("base_data : ", base_data)
-        # data_dict = get_request_formset_to_form(request_dict, base_data)
-        #
-        # print("formset data_dict : ", data_dict)
-        # print("request.POST : ", request.POST.dict())
-        # formset = CreateInvoiceForm(data_dict)
-        # print("formset.is_valid() : ", formset.is_valid())
-
+        print("request.POST : ", request.POST)
         formset = InvoiceMarchandiseFormset(request.POST)
-        if formset.is_valid():
-            print(formset.data)
-        else:
-            print(formset.errors)
-        # for i, form in enumerate(formset):
-        #     print(f"form ({i}) is valid : ", form.is_valid())
-        #     if form.is_valid():
-        #         print(form.cleaned_data)
+        instances = formset.save(commit=False)
+        print("instances : ", instances)
 
+        for instance in instances:
+            print(instance)
+        # if formset.is_valid():
+        #     print("in formset valid")
+        #     print("formset.is_valid() : ", formset.is_valid())
+        #     formset.save(commit=False)
+        #
+        #     for form in formset.instance:
+        #         print(form)
+        #
+        # else:
+        #     print("in formset errors")
+        #     print(formset.errors)
+    print("to render")
     return render(request, "edi/invoice_marchandise_update.html", context=context)
 
 
