@@ -11,7 +11,10 @@ created by: Paulo ALVES
 modified at: 2023-01-04
 modified by: Paulo ALVES
 """
+from typing import Dict
 from copy import deepcopy
+import html
+
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -20,8 +23,9 @@ from django.forms import formset_factory, modelformset_factory
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.assembly_formset import get_request_formset, get_sens, get_request_formset_to_form
+from apps.core.bin.assembly_formset import get_request_formset, get_request_formset_to_form
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
+from apps.edi.bin.edi_tools import get_sens
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
 from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
@@ -29,10 +33,14 @@ from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
 # 1. MARCHANDISES
 
 
+def get_edi_import_elements(requect_dict: Dict) -> Dict:
+    """Ajoute les éléments manquants du formulaire"""
+
+
 def create_invoice_marchandises(request):
     """Fonction de création de factures manuelle par saisie"""
     count_elements = 100
-    nb_display = 2
+    nb_display = 1
     InvoiceMarchandiseFormset = modelformset_factory(
         EdiImport, form=CreateInvoiceForm, fields=INVOICES_CREATE_FIELDS, extra=nb_display
     )
@@ -47,40 +55,48 @@ def create_invoice_marchandises(request):
     }
 
     if request.method == "POST":
-        request_dict = deepcopy(request.POST.dict())
-        sens_dict = get_sens(request_dict.pop("form-__prefix__-sens"))
-        base_data = {
-            **{
-                "third_party_num": request_dict.pop("form-__prefix__-third_party_num"),
-                "invoice_number": request_dict.pop("form-__prefix__-invoice_number"),
-                "invoice_date": request_dict.pop("form-__prefix__-invoice_date"),
-                "invoice_type": request_dict.pop("form-__prefix__-invoice_type"),
-                "devise": request_dict.pop("form-__prefix__-devise"),
-            },
-            **sens_dict,
-        }
+        print(request.POST)
+        # request_dict = deepcopy(request.POST.dict())
+        # sens_dict = get_sens(request_dict.pop("form-__prefix__-sens"))
+        # base_data = {
+        #     **{
+        #         "third_party_num": request_dict.pop("form-__prefix__-third_party_num"),
+        #         "invoice_number": request_dict.pop("form-__prefix__-invoice_number"),
+        #         "invoice_date": request_dict.pop("form-__prefix__-invoice_date"),
+        #         "invoice_type": request_dict.pop("form-__prefix__-invoice_type"),
+        #         "devise": request_dict.pop("form-__prefix__-devise"),
+        #     },
+        #     **sens_dict,
+        # }
+        #
+        # for i in range(int(request_dict.get("form-TOTAL_FORMS"))):
+        #     request_dict.pop(f"form-{i}-sens")
+        #
+        # print("base_data : ", base_data)
+        # data_dict = get_request_formset_to_form(request_dict, base_data)
+        #
+        # print("formset data_dict : ", data_dict)
+        # # print("request.POST : ", request.POST.dict())
+        # # formset = CreateInvoiceForm(data_dict)
+        # # print("formset.is_valid() : ", formset.is_valid())
+        #
+        # for _, values_dict in data_dict.items():
+        #     values_dict["vat"] = [html.unescape(values_dict["vat"])]
+        #     print(values_dict["cct_uuid_identification"], type(values_dict["cct_uuid_identification"]))
+        #     values_dict["cct_uuid_identification"] = [values_dict["cct_uuid_identification"].replace("&#x27;", "")]
+        #     print(values_dict)
+        #     form = CreateInvoiceForm(values_dict)
+        #     if form.is_valid():
+        #         print(form.cleaned_data)
+        #     else:
+        #         print(form.errors)
+        #     print("form.is_valid() : ", form.is_valid())
 
-        for i in range(int(request_dict.get("form-TOTAL_FORMS"))):
-            request_dict.pop(f"form-{i}-sens")
-
-        print("base_data : ", base_data)
-        data_dict = get_request_formset_to_form(request_dict, base_data)
-
-        print("formset data_dict : ", data_dict)
-        # print("request.POST : ", request.POST.dict())
-
-        # formset = CreateInvoiceForm(data_dict)
-        # print("formset.is_valid() : ", formset.is_valid())
-
-        for _, values_dict in data_dict.items():
-            print(values_dict)
-            form = CreateInvoiceForm(values_dict)
-            if form.is_valid():
-                print(form.cleaned_data)
-            else:
-                print(form.errors)
-            print("form.is_valid() : ", form.is_valid())
-
+        formset = InvoiceMarchandiseFormset(request.POST)
+        if formset.is_valid():
+            print(formset.data)
+        else:
+            print(formset.errors)
         # for i, form in enumerate(formset):
         #     print(f"form ({i}) is valid : ", form.is_valid())
         #     if form.is_valid():

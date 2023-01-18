@@ -311,7 +311,7 @@ class Maison(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.code_maison} - {self.intitule}"
+        return f"{self.cct} - {self.intitule}"
 
     @property
     def get_address(self):

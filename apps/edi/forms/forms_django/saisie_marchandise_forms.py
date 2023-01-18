@@ -66,20 +66,20 @@ class CreateInvoiceForm(forms.ModelForm):
         self.fields["third_party_num"] = third_party_num
 
         # CCT X3 ===================================================================================
-        self.cct_choices = [("", "")] + [
-            (
-                maison.get("uuid_identification"),
-                f"{maison.get('cct')}-" f"{maison.get('intitule')}",
-            )
-            for maison in Maison.objects.all().values("uuid_identification", "cct", "intitule")
-        ]
-        cct_uuid_identification = forms.ChoiceField(
-            choices=self.cct_choices,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-            label="CCT X3",
-            required=True,
-        )
-        self.fields["cct_uuid_identification"] = cct_uuid_identification
+        # self.cct_choices = [("", "")] + [
+        #     (
+        #         maison.get("uuid_identification"),
+        #         f"{maison.get('cct')}-" f"{maison.get('intitule')}",
+        #     )
+        #     for maison in Maison.objects.all().values("uuid_identification", "cct", "intitule")
+        # ]
+        # cct_uuid_identification = forms.ChoiceField(
+        #     choices=self.cct_choices,
+        #     widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+        #     label="CCT X3",
+        #     required=True,
+        # )
+        # self.fields["cct_uuid_identification"] = cct_uuid_identification
 
         # TYPE FACTURE FAF / AVO ===================================================================
         self.invoice_type_choices = [("380", "FAF"), ("381", "AVO")]
@@ -117,17 +117,17 @@ class CreateInvoiceForm(forms.ModelForm):
         self.fields["sens"] = sens
 
         # TVA ======================================================================================
-        self.vat_choices = [
-            (vat.get("vat"), vat.get("vat")) for vat in VatSage.objects.all().values("vat")
-        ]
-        vat = forms.ChoiceField(
-            choices=self.vat_choices,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-            label="TVA X3",
-            required=True,
-            initial="001",
-        )
-        self.fields["vat"] = vat
+        # self.vat_choices = [
+        #     (vat.get("vat"), vat.get("vat")) for vat in VatSage.objects.all().values("vat")
+        # ]
+        # vat = forms.ChoiceField(
+        #     choices=self.vat_choices,
+        #     widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+        #     label="TVA X3",
+        #     required=True,
+        #     initial="001",
+        # )
+        # self.fields["vat"] = vat
 
         # AUTRE ====================================================================================
         self.fields["serial_number"] = forms.CharField(max_length=1000, required=False)
@@ -147,4 +147,5 @@ class CreateInvoiceForm(forms.ModelForm):
                 attrs={"step": "0.01", "min": 0, "style": "text-align: right;"}
             ),
             "unity": forms.Select(attrs=select_fluid_dict),
+            "vat": forms.Select(attrs=select_fluid_dict),
         }
