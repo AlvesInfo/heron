@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-01-04
 modified by: Paulo ALVES
 """
+from copy import deepcopy
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -19,101 +20,73 @@ from django.forms import formset_factory, modelformset_factory
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.assembly_formset import get_request_formset
+from apps.core.bin.assembly_formset import get_request_formset, get_sens, get_request_formset_to_form
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_form_change
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
 from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
 
 # 1. MARCHANDISES
-InvoiceMarchandiseFormset = modelformset_factory(
-    EdiImport, form=CreateInvoiceForm, fields=INVOICES_CREATE_FIELDS
-)
 
 
-class InvoiceMarchandiseCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """View de création des factures de marchandises"""
+def create_invoice_marchandises(request):
+    """Fonction de création de factures manuelle par saisie"""
+    count_elements = 100
+    nb_display = 2
+    InvoiceMarchandiseFormset = modelformset_factory(
+        EdiImport, form=CreateInvoiceForm, fields=INVOICES_CREATE_FIELDS, extra=nb_display
+    )
+    context = {
+        "titre_table": f"Saisie de Facture / Avoir",
+        "nb_elements": range(count_elements),
+        "count_elements": count_elements,
+        "nb_display": nb_display,
+        "chevron_retour": reverse("home"),
+        "formset": InvoiceMarchandiseFormset(queryset=EdiImport.objects.none()),
+        "border_color": "darkgray",
+    }
 
-    model = EdiImport
-    form_class = CreateInvoiceForm
-    form_class.use_required_attribute = False
-    template_name = "edi/invoice_marchandise_update.html"
-    success_message = "La Facture N° %(invoice_number)s a été créé avec success"
-    error_message = "La facture %(invoice_number)s n'a pu être créé, une erreur c'est produite"
-
-    def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
-        count_elements = 100
-        nb_display = 1
-        category = Category.objects.get(slug_name="marchandises")
-        context = {
-            **super().get_context_data(**kwargs),
-            **{
-                "titre_table": f"Saisie de facture / Avoir",
-                "category": category,
-                "nb_elements": range(count_elements),
-                "count_elements": count_elements,
-                "nb_display": nb_display,
-                "chevron_retour": reverse("home"),
-                "formset": InvoiceMarchandiseFormset(queryset=EdiImport.objects.none()),
-            },
-        }
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        """On adapte la méthode post pour inclure les données générale telles que,
-        third_party_num, delivery_number, delivery_date, ...
-        """
-        request_dict = request.POST.dict()
+    if request.method == "POST":
+        request_dict = deepcopy(request.POST.dict())
+        sens_dict = get_sens(request_dict.pop("form-__prefix__-sens"))
         base_data = {
-            "big_category": request_dict.get("big_category"),
-            "manual_entry": request_dict.get("manual_entry"),
-            "cct_uuid_identification": request_dict.get("cct_uuid_identification"),
-            "third_party_num": request_dict.get("third_party_num"),
-            "invoice_number": request_dict.get("invoice_number"),
-            "invoice_type": request_dict.get("invoice_type"),
-            "invoice_date": request_dict.get("invoice_date"),
-            "devise_choices": request_dict.get("devise_choices"),
+            **{
+                "third_party_num": request_dict.pop("form-__prefix__-third_party_num"),
+                "invoice_number": request_dict.pop("form-__prefix__-invoice_number"),
+                "invoice_date": request_dict.pop("form-__prefix__-invoice_date"),
+                "invoice_type": request_dict.pop("form-__prefix__-invoice_type"),
+                "devise": request_dict.pop("form-__prefix__-devise"),
+            },
+            **sens_dict,
         }
-        sens = request_dict.get("sens")
 
-        if sens == "2":
-            base_data["purchase_invoice"] = "on"
-            base_data["sale_invoice"] = "on"
-        elif sens == "1":
-            base_data["purchase_invoice"] = "off"
-            base_data["sale_invoice"] = "on"
-        else:
-            base_data["purchase_invoice"] = "on"
-            base_data["sale_invoice"] = "off"
+        for i in range(int(request_dict.get("form-TOTAL_FORMS"))):
+            request_dict.pop(f"form-{i}-sens")
 
-        data_dict = get_request_formset(request_dict, base_data)
+        print("base_data : ", base_data)
+        data_dict = get_request_formset_to_form(request_dict, base_data)
 
-        print(data_dict)
+        print("formset data_dict : ", data_dict)
+        # print("request.POST : ", request.POST.dict())
 
-        formset = CreateInvoiceForm(request.POST)
-        if formset.is_valid():
+        # formset = CreateInvoiceForm(data_dict)
+        # print("formset.is_valid() : ", formset.is_valid())
 
-            return self.form_valid(formset)
-        else:
-            print(formset.errors)
+        for _, values_dict in data_dict.items():
+            print(values_dict)
+            form = CreateInvoiceForm(values_dict)
+            if form.is_valid():
+                print(form.cleaned_data)
+            else:
+                print(form.errors)
+            print("form.is_valid() : ", form.is_valid())
 
-    def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
-        return reverse("home")
+        # for i, form in enumerate(formset):
+        #     print(f"form ({i}) is valid : ", form.is_valid())
+        #     if form.is_valid():
+        #         print(form.cleaned_data)
 
-    @transaction.atomic
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        if not form.instance.libelle_heron:
-            form.instance.libelle_heron = form.instance.libelle
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
+    return render(request, "edi/invoice_marchandise_update.html", context=context)
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

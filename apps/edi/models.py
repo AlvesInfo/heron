@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 import uuid
 
+import pendulum
 from django.db import models
 
 from heron.models import DatesTable, FlagsTable
@@ -161,6 +162,19 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
 
     # pour vérifier si les factures sont multi magasins
     is_multi_store = models.BooleanField(null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        FR : Avant la sauvegarde on clean les données
+        EN : Before the backup we clean the data
+        """
+        if not self.invoice_month:
+            self.invoice_month = pendulum.parse(self.invoice_date.isoformat()).start_of("month")
+
+        if not self.invoice_year:
+            self.invoice_year = self.invoice_date.year
+
+        super().save(*args, **kwargs)
 
     class Meta:
         """Class Meta Django"""

@@ -10,12 +10,12 @@
 
 {% if user.is_authenticated %}
 
+        {% include 'edi/invoice_marchandise_empty_form.html' %}
+
         <form action="" method="post">
             {% csrf_token %}
-
             {% include "edi/invoice_marchandise_update_entete.html" %}
             {% include "edi/invoice_marchandise_update_table.html" %}
-
         </form>
 
     {% else %}

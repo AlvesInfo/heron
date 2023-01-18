@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 from django import forms
 
+from apps.parameters.forms import NumberInput
 from apps.book.models import Society
 from apps.accountancy.models import VatSage
 from apps.countries.models import Currency
@@ -29,12 +30,15 @@ INVOICES_CREATE_FIELDS = (
     "invoice_type",
     "devise",
     "reference_article",
+    "libelle",
     "qty",
     "net_unit_price",
     "client_name",
     "serial_number",
     "vat",
     "unity",
+    "purchase_invoice",
+    "sale_invoice",
 )
 
 
@@ -48,10 +52,10 @@ class CreateInvoiceForm(forms.ModelForm):
         # TIERS X3 =================================================================================
         self.third_party_num_choices = [("", "")] + [
             (
-                society.third_party_num,
-                f"{society.third_party_num} - {society.name}",
+                society.get("third_party_num"),
+                f"{society.get('third_party_num')} - {society.get('name')}",
             )
-            for society in Society.objects.filter(in_use=True)
+            for society in Society.objects.filter(in_use=True).values("third_party_num", "name")
         ]
         third_party_num = forms.ChoiceField(
             choices=self.third_party_num_choices,
@@ -64,10 +68,10 @@ class CreateInvoiceForm(forms.ModelForm):
         # CCT X3 ===================================================================================
         self.cct_choices = [("", "")] + [
             (
-                maison.uuid_identification,
-                f"{maison.cct}-" f"{maison.intitule}",
+                maison.get("uuid_identification"),
+                f"{maison.get('cct')}-" f"{maison.get('intitule')}",
             )
-            for maison in Maison.objects.all()
+            for maison in Maison.objects.all().values("uuid_identification", "cct", "intitule")
         ]
         cct_uuid_identification = forms.ChoiceField(
             choices=self.cct_choices,
@@ -89,7 +93,8 @@ class CreateInvoiceForm(forms.ModelForm):
 
         # DEVISE ===================================================================================
         self.devise_choices = [
-            (currency.code, currency.code) for currency in Currency.objects.all().order_by("code")
+            (currency.get("code"), currency.get("code"))
+            for currency in Currency.objects.all().order_by("code").values("code")
         ]
         devise = forms.ChoiceField(
             choices=self.devise_choices,
@@ -106,13 +111,15 @@ class CreateInvoiceForm(forms.ModelForm):
             choices=self.sens_choices,
             widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
             label="Sens",
-            required=True,
+            required=False,
             initial="AC/VE",
         )
         self.fields["sens"] = sens
 
         # TVA ======================================================================================
-        self.vat_choices = [(vat.vat, vat.vat) for vat in VatSage.objects.all()]
+        self.vat_choices = [
+            (vat.get("vat"), vat.get("vat")) for vat in VatSage.objects.all().values("vat")
+        ]
         vat = forms.ChoiceField(
             choices=self.vat_choices,
             widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
@@ -122,12 +129,22 @@ class CreateInvoiceForm(forms.ModelForm):
         )
         self.fields["vat"] = vat
 
+        # AUTRE ====================================================================================
+        self.fields["serial_number"] = forms.CharField(max_length=1000, required=False)
+        self.fields["sub_category"].required = False
+
     class Meta:
         """class Meta"""
 
         model = EdiImport
         fields = INVOICES_CREATE_FIELDS
+        select_fluid_dict = {"class": "ui fluid search dropdown"}
         widgets = {
-            "big_category": forms.Select(attrs={"class": "ui fluid search dropdown"}),
-            "cct_uuid_identification": forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            "big_category": forms.Select(attrs=select_fluid_dict),
+            "cct_uuid_identification": forms.Select(attrs=select_fluid_dict),
+            "qty": NumberInput(attrs={"step": "1", "style": "text-align: right;"}),
+            "net_unit_price": NumberInput(
+                attrs={"step": "0.01", "min": 0, "style": "text-align: right;"}
+            ),
+            "unity": forms.Select(attrs=select_fluid_dict),
         }
