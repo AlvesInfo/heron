@@ -11,13 +11,9 @@
 
 {% if user.is_authenticated %}
 
-        <form action="" method="post">
-            {% csrf_token %}
-
             {% include "parameters/category_update_entete.html" %}
             {% include "parameters/category_update_table.html" %}
 
-        </form>
 
     {% else %}
 

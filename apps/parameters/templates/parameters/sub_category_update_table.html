@@ -7,19 +7,24 @@
             <div class="ui segment" style="padding-bottom: 0;">
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields">
-                        <div class="three wide field">
-                            <label for="id_ranking" style="text-align: left;">Catégorie&nbsp;:</label>
-                                {{form.big_category}}
+                        <div class="three wide field" style="display: none;">
+                            <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
+                            <input type="text" name="big_category" id="id_big_category" value="{{ category.uuid_identification }}">
                         </div>
                         <div class="one wide field">
                             <label for="id_name" style="text-align: left;">Classement&nbsp;:</label>
-                            {{ form.ranking }}
+                            <input
+                                    type="number"
+                                    name="ranking"
+                                    id="id_ranking"
+                                    value="{{ category_new }}"
+                                    style="text-align: left;">
                         </div>
                         <div class="one wide field">
-                            <label for="id_name" style="text-align: left;">Code&nbsp;:</label>
+                            <label for="id_code" style="text-align: left;">Code&nbsp;:</label>
                             {{ form.code }}
                         </div>
-                        <div class="three wide field">
+                        <div class="four wide field">
                             <label for="id_name" style="text-align: left;">Intitulé&nbsp;:</label>
                             {{ form.name }}
                         </div>

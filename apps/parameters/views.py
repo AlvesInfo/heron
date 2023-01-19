@@ -69,39 +69,12 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Insert the form into the context dict."""
 
         context = super().get_context_data(**kwargs)
-
-        if self.request.POST:
-            context["sub_category_formset"] = InlineCategoryFormmset(
-                self.request.POST,
-                instance=self.object,
-                prefix="big_sub_category",
-            )
-            context["sub_category_formset"].clean()
-        else:
-            context["sub_category_formset"] = InlineCategoryFormmset(
-                instance=self.object, prefix="big_sub_category"
-            )
-
+        context["titre_table"] = "Mise à jour Catégorie"
+        context["chevron_retour"] = reverse("parameters:categories_list")
         return super().get_context_data(**context)
 
     @transaction.atomic
     def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context.get("sub_category_formset")
-        with transaction.atomic():
-            form.instance.created_by = self.request.user
-            self.object = form.save()
-            if formset.is_valid():
-                formset.instance = self.object
-                for form_s in formset:
-                    print(form_s.is_valid())
-                    if form_s.changed_data:
-                        print(form_s.changed_data)
-                        if "DELETE" in form_s.changed_data:
-                            print("DELETE : ", form_s.changed_data)
-                            print(dir(form_s))
-                            form_s.save()
-
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         return super().form_valid(form)
@@ -138,16 +111,26 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     form_class.use_required_attribute = False
     template_name = "parameters/sub_category_update.html"
     success_message = "La Rubrique Presta %(name)s a été créé avec success"
-    error_message = (
-        "La Rubrique Presta %(name)s n'a pu être créé, une erreur c'est produite"
-    )
+    error_message = "La Rubrique Presta %(name)s n'a pu être créé, une erreur c'est produite"
+
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form."""
+        try:
+            self.category = Category.objects.get(pk=kwargs.get("category_pk"))
+        except Category.DoesNotExist:
+            pass
+        return self.render_to_response(self.get_context_data())
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:categories_list")
-        context["titre_table"] = "Création d'une nouvelle Rubrique de Prestation"
+        context[
+            "titre_table"
+        ] = f"Création Rubrique de Prestation : {self.category}"
+        context["category"] = self.category
+        context["category_new"] = self.category.big_sub_category.all().count() + 1
         return context
 
 
@@ -159,9 +142,7 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     form_class.use_required_attribute = False
     template_name = "parameters/sub_category_update.html"
     success_message = "La Rubrique Presta %(name)s a été modifiée avec success"
-    error_message = (
-        "La Rubrique Presta %(name)s n'a pu être modifiée, une erreur c'est produite"
-    )
+    error_message = "La Rubrique Presta %(name)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
@@ -173,6 +154,7 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 # ECRANS DES AXES SUR LES ARTICLES PAR DEFAUT ======================================================
+
 
 class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = DefaultAxeArticle

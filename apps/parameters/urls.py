@@ -20,7 +20,11 @@ urlpatterns = [
     path("category_update/<int:pk>/", CategoryUpdate.as_view(), name="category_update"),
     path("categories_export_list/", categories_export_list, name="categories_export_list"),
     # Rubriques Presta
-    path("sub_category_create/", SubCategoryCreate.as_view(), name="sub_category_create"),
+    path(
+        "sub_category_create/<int:category_pk>/",
+        SubCategoryCreate.as_view(),
+        name="sub_category_create",
+    ),
     path(
         "sub_category_update/<int:category_pk>/<int:pk>/",
         SubCategoryUpdate.as_view(),
