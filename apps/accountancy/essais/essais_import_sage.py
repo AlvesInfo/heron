@@ -2,7 +2,7 @@ from pathlib import Path
 
 from apps.core.functions.function_imports import ModelFormInsertion, IterFileToInsert
 from apps.accountancy.models import CurrencySage
-from apps.accountancy.forms.forms_django.forms_sage import CurrencySageForm
+from apps.accountancy.forms.forms_django.sage_forms import CurrencySageForm
 
 
 def import_sage(file, model, model_form):

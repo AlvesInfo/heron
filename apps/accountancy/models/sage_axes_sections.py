@@ -77,7 +77,7 @@ class AxeSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.axe
+        return str(self.axe)
 
     class Meta:
         """class Meta du modèle django"""
@@ -264,7 +264,7 @@ class SectionSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.section
+        return str(self.section)
 
     class Meta:
         """class Meta du modèle django"""
@@ -276,53 +276,31 @@ class SectionSage(FlagsTable):
         ]
 
 
-class DefaultAxeArticle(FlagsTable):
-    """Table des axes par défaut du catalogue article à part sur l'axe Pro"""
+class GroupingGoods(FlagsTable):
+    """Table des regroupements de refacturation de marchandises"""
 
-    axe_bu = models.ForeignKey(
-        SectionSage,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "BU"},
-        related_name="default_bu_section",
-        db_column="axe_bu",
-    )
-    axe_prj = models.ForeignKey(
-        SectionSage,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRJ"},
-        related_name="default_prj_section",
-        db_column="axe_prj",
-    )
-    axe_pys = models.ForeignKey(
-        SectionSage,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PYS"},
-        related_name="default_pys_section",
-        db_column="axe_pys",
-    )
-    axe_rfa = models.ForeignKey(
-        SectionSage,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "RFA"},
-        related_name="default_rfa_section",
-        db_column="axe_rfa",
-    )
+    ranking = models.IntegerField(null=True)
+    base = models.CharField(unique=True, max_length=35, verbose_name="base refac")
+    grouping_goods = models.CharField(unique=True, max_length=35)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        unique_together = (("base", "grouping_goods"),)
+        indexes = [
+            models.Index(fields=["base"]),
+            models.Index(fields=["grouping_goods"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(fields=["base", "grouping_goods"]),
+            models.Index(fields=["uuid_identification", "base", "grouping_goods"]),
+        ]
 
 
 class DefaultAxeProAricleAcuitis(FlagsTable):
-    """Tables des axes por par défaut pour les familles de produits Acuitis"""
+    """Table des axes par défaut pour les familles de produits Acuitis"""
 
     famille_acuitis = models.CharField(max_length=35)
     code_rayon_acuitis = models.CharField(blank=True, null=True, max_length=35)
@@ -336,6 +314,15 @@ class DefaultAxeProAricleAcuitis(FlagsTable):
         related_name="default_acuitis_pro_section",
         db_column="axe_pro",
     )
+    grouping_goods = models.ForeignKey(
+        GroupingGoods,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="grouping_goods_acuitis",
+        db_column="grouping_goods",
+    )
 
     class Meta:
         """class Meta du modèle django"""
@@ -344,7 +331,7 @@ class DefaultAxeProAricleAcuitis(FlagsTable):
 
 
 class DefaultAxeProAricleCosium(FlagsTable):
-    """Tables des axes por par défaut pour les familles de produits Cosium"""
+    """Table des axes por par défaut pour les familles de produits Cosium"""
 
     famille = models.CharField(max_length=35)
     type_famille = models.CharField(max_length=35)
@@ -357,6 +344,15 @@ class DefaultAxeProAricleCosium(FlagsTable):
         limit_choices_to={"axe": "PRO"},
         related_name="default_cosium_pro_section",
         db_column="axe_pro",
+    )
+    grouping_goods = models.ForeignKey(
+        GroupingGoods,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="grouping_goods_cosium",
+        db_column="grouping_goods",
     )
 
     class Meta:

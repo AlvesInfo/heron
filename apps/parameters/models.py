@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import VatSage, VatRegimeSage, CctSage, SectionSage
+from apps.accountancy.models import SectionSage
 from apps.countries.models import Country
 
 
@@ -63,7 +63,7 @@ class Parameters(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -105,7 +105,7 @@ class Counter(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -136,7 +136,7 @@ class SendFiles(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -203,7 +203,7 @@ class SubFamilly(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -315,7 +315,7 @@ class SubCategory(FlagsTable):
     @staticmethod
     def get_absolute_url():
         """get absolute url in succes case"""
-        return reverse("parameters:sub_categories_list")
+        return reverse("parameters:categories_list")
 
     class Meta:
         """class Meta du modèle django"""
@@ -337,7 +337,7 @@ class Periodicity(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -362,7 +362,7 @@ class SalePriceCategory(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -710,3 +710,74 @@ class ActionInProgress(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["action"]
+
+
+class DefaultAxeArticle(FlagsTable):
+    """Table des axes par défaut du catalogue article à part sur l'axe Pro et les categories"""
+
+    slug_name = models.CharField(unique=True, max_length=15)
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="default_big_category",
+        db_column="uuid_big_category",
+    )
+    sub_category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="default_sub_category",
+        db_column="uuid_sub_big_category",
+    )
+    axe_bu = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "BU"},
+        related_name="default_bu_section",
+        db_column="axe_bu",
+    )
+    axe_prj = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRJ"},
+        related_name="default_prj_section",
+        db_column="axe_prj",
+    )
+    axe_pys = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PYS"},
+        related_name="default_pys_section",
+        db_column="axe_pys",
+    )
+    axe_rfa = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "RFA"},
+        related_name="default_rfa_section",
+        db_column="axe_rfa",
+    )
+
+    @staticmethod
+    def get_absolute_url():
+        return reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["id"]

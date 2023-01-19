@@ -87,7 +87,13 @@
                     <div class="column">
                         <h4 class="ui header" style="font-size: 1em;">FACTURATION</h4>
                         <div class="ui link list">
+                            <a href="{% url 'parameters:axes_articles_defaut' slug_name='axes_articles' %}" class="item">Axes Par Défaut</a>
+                        </div>
+                        <div class="ui link list">
                             <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:sub_category_create' %}" class="item">Rubriques Presta</a>
                         </div>
                     </div>
 

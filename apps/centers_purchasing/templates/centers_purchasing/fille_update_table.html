@@ -9,7 +9,7 @@
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
           <div class="fields">
-              <div class="two wide field">
+              <div class="one wide field">
                 <label for="id_code" style="text-align: left;">Code&nbsp;:</label>
                 {% if create %}
                     {{form.code}}
@@ -23,7 +23,7 @@
                            style="background-color: #efefff;font-weight: bold;">
                 {% endif %}
               </div>
-              <div class="four wide field">
+              <div class="three wide field">
                 <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
                 {{ form.name }}
               </div>
@@ -31,7 +31,7 @@
                 <label for="id_base_center" style="text-align: left;">Centrale mère&nbsp;:</label>
                 {{ form.base_center }}
               </div>
-              <div class="two wide field">
+              <div class="one wide field">
                 <label for="id_generic_coefficient" style="text-align: left;">Coef. centrale fille&nbsp;:</label>
                 {{ form.generic_coefficient }}
               </div>
@@ -39,19 +39,17 @@
           </div>
 
             <div class="fields">
-                <div class="two wide field">
+                <div class="four wide field">
                     <label for="id_name" style="text-align: left;">Email d'envoi&nbsp;:</label>
                     {{ form.sending_email }}
-                </div>
-            </div>
-            <div class="fields">
-                <div class="two wide field">
-                    <label for="id_name" style="text-align: left;">Swift&nbsp;:</label>
-                    {{ form.code_swift }}
                 </div>
                 <div class="four wide field">
                     <label for="id_base_center" style="text-align: left;">Iban&nbsp;:</label>
                     {{ form.iban }}
+                </div>
+                <div class="two wide field">
+                    <label for="id_name" style="text-align: left;">Swift&nbsp;:</label>
+                    {{ form.code_swift }}
                 </div>
             </div>
 

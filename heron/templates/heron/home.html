@@ -8,6 +8,14 @@
 {% endblock menu_principal %}
 
 {% block content %}
+
+    <!-- Messages ---------------------------------------------------------- -->
+    {% include 'heron/messages_delete.html' %}
+    {% include 'heron/messages_forms.html' %}
+    {% include 'heron/messages_imports.html' %}
+    {% include 'heron/messages_inline_forms.html' %}
+    {% include 'heron/messages_messages.html' %}
+    <!-- end --------------------------------------------------------------- -->
     <br>
     <br>
     <br>
@@ -26,3 +34,17 @@
     {% endif %}
 
 {% endblock content %}
+
+
+{% block script %}
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $(`.datatable-chargement`).hide();
+
+        });
+    </script>
+
+{% endblock script %}

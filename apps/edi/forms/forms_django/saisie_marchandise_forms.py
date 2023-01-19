@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 from django import forms
 
 from apps.parameters.forms import NumberInput
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society
 from apps.countries.models import Currency
 from apps.edi.models import EdiImport
@@ -108,14 +109,13 @@ class CreateInvoiceForm(forms.ModelForm):
 
         model = EdiImport
         fields = INVOICES_CREATE_FIELDS
-        select_fluid_dict = {"class": "ui fluid search dropdown"}
         widgets = {
-            "big_category": forms.Select(attrs=select_fluid_dict),
-            "cct_uuid_identification": forms.Select(attrs=select_fluid_dict),
+            "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "cct_uuid_identification": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "qty": NumberInput(attrs={"step": "1", "style": "text-align: right;"}),
             "net_unit_price": NumberInput(
                 attrs={"step": "0.01", "min": 0, "style": "text-align: right;"}
             ),
-            "unity": forms.Select(attrs=select_fluid_dict),
-            "vat": forms.Select(attrs=select_fluid_dict),
+            "unity": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }

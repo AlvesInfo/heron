@@ -18,7 +18,7 @@ from apps.accountancy.models.sage import (
 from apps.accountancy.models.sage_axes_sections import (
     AxeSage,
     SectionSage,
-    DefaultAxeArticle,
+    GroupingGoods,
     DefaultAxeProAricleAcuitis,
     DefaultAxeProAricleCosium,
 )
@@ -74,6 +74,7 @@ from apps.parameters.models import (
     SalePriceCategory,
     SendFiles,
     SendFilesMail,
+    DefaultAxeArticle,
 )
 
 MODELS_ACCOUNTANCY = (
@@ -91,7 +92,7 @@ MODELS_ACCOUNTANCY = (
     CctSage,
     SectionSage,
     SupplierArticleAxePro,
-    DefaultAxeArticle,
+    GroupingGoods,
     DefaultAxeProAricleAcuitis,
     DefaultAxeProAricleCosium,
 )
@@ -149,6 +150,7 @@ MODELS_PARAMETERS = (
     SalePriceCategory,
     SendFiles,
     SendFilesMail,
+    DefaultAxeArticle,
 )
 
 
@@ -251,4 +253,4 @@ if __name__ == "__main__":
     main(MODELS_CENTER_CLIENTS)
     main(MODELS_CENTER_PURCHASING)
     main(MODELS_EDI)
-    # main(MODELS_PARAMETERS)
+    main(MODELS_PARAMETERS)
