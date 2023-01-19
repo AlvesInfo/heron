@@ -484,7 +484,7 @@ class BaseInvoiceDetailsTable(models.Model):
     EN : Flags Abstract Table for Invoices details
     """
 
-    class DateType(models.TextChoices):
+    class UnitChoice(models.IntegerChoices):
         """DateType choices"""
 
         UNI = 1, _("U")
@@ -552,7 +552,7 @@ class BaseInvoiceDetailsTable(models.Model):
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
     unity = models.IntegerField(
-        null=True, blank=True, choices=DateType.choices, default=DateType.UNI
+        null=True, blank=True, choices=UnitChoice.choices, default=UnitChoice.UNI
     )
     gross_unit_price = models.DecimalField(
         null=True,

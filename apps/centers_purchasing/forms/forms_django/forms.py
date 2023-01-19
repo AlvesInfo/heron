@@ -35,6 +35,10 @@ class FillesForm(forms.ModelForm):
             "name",
             "generic_coefficient",
             "comment",
+            "legal_notice",
+            "iban",
+            "code_swift",
+            "sending_email",
         ]
 
 

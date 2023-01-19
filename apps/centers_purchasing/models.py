@@ -84,6 +84,11 @@ class ChildCenterPurchase(FlagsTable):
     )
     site_fcy_x3 = models.CharField(max_length=5, verbose_name="Site X3")
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
+    legal_notice = models.TextField(null=True, blank=True, verbose_name="mentions légales")
+    iban = models.CharField(null=True, blank=True, max_length=50)
+    code_swift = models.CharField(null=True, blank=True, max_length=27)
+    # email d'ou sont envoyés les documents, ou bien qui reçoivent les mails
+    sending_email = models.EmailField(null=True, blank=True, verbose_name="email d'envoi")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

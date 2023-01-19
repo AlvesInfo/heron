@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 from typing import Dict
 
 from django.shortcuts import render, reverse
+from django.http import JsonResponse
 from django.forms import modelformset_factory
 from apps.edi.bin.edi_tools import get_sens
 from apps.edi.models import EdiImport
@@ -29,7 +30,7 @@ def get_edi_import_elements(requect_dict: Dict) -> Dict:
 def create_invoice_marchandises(request):
     """Fonction de création de factures manuelle par saisie"""
     count_elements = 100
-    nb_display = 1
+    nb_display = 2
     InvoiceMarchandiseFormset = modelformset_factory(
         EdiImport,
         form=CreateInvoiceForm,
@@ -51,11 +52,20 @@ def create_invoice_marchandises(request):
     if request.method == "POST":
         print("request.POST : ", request.POST)
         formset = InvoiceMarchandiseFormset(request.POST)
-        instances = formset.save(commit=False)
-        print("instances : ", instances)
+        if formset.is_valid():
+            print("formset : ", formset.is_valid())
+            instances = formset.save(commit=False)
+            print("instances : ", instances)
 
-        for instance in instances:
-            print(instance)
+            for instance in instances:
+                print(dir(instance))
+                instance.save()
+
+        else:
+            print(formset.errors)
+
+        data = {"success": "ko"}
+        return JsonResponse(data)
         # if formset.is_valid():
         #     print("in formset valid")
         #     print("formset.is_valid() : ", formset.is_valid())

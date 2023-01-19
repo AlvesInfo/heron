@@ -38,6 +38,32 @@
 
           </div>
 
+            <div class="fields">
+                <div class="two wide field">
+                    <label for="id_name" style="text-align: left;">Email d'envoi&nbsp;:</label>
+                    {{ form.sending_email }}
+                </div>
+            </div>
+            <div class="fields">
+                <div class="two wide field">
+                    <label for="id_name" style="text-align: left;">Swift&nbsp;:</label>
+                    {{ form.code_swift }}
+                </div>
+                <div class="four wide field">
+                    <label for="id_base_center" style="text-align: left;">Iban&nbsp;:</label>
+                    {{ form.iban }}
+                </div>
+            </div>
+
+          <div class="fields">
+
+              <div class="sixteen wide field">
+                <label for="id_comment" style="text-align: left;">Mentions Légales&nbsp;:</label>
+                {{ form.legal_notice }}
+              </div>
+
+          </div>
+
           <div class="fields">
 
               <div class="sixteen wide field">
