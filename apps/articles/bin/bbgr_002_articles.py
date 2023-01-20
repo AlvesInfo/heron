@@ -78,10 +78,10 @@ def insert_bbgr_002_articles():
                 -- px_revient_aval pour BBGR002
                 hba."px_revient_aval" as "catalog_price",
                 gen_random_uuid() as uuid_identification,
-                (select "axe_bu" from "accountancy_defaultaxearticle" ad limit 1) as "axe_bu",
-                (select "axe_prj" from "accountancy_defaultaxearticle" ad limit 1) as "axe_prj",
-                (select "axe_pys" from "accountancy_defaultaxearticle" ad limit 1) as "axe_pys",
-                (select "axe_rfa" from "accountancy_defaultaxearticle" ad limit 1) as "axe_rfa",
+                d_axes."axe_bu",
+                d_axes."axe_prj",
+                d_axes."axe_pys",
+                d_axes."axe_rfa",
                 (
                     select 
                         "axe_pro" 
@@ -109,11 +109,22 @@ def insert_bbgr_002_articles():
                 end "made_in",
                 'BBGR002' as "third_party_num",
                 hba.famille as "famille_acuitis",
-                'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid as "uuid_big_category",
+                d_axes."uuid_big_category",
                 'd3888b89-0847-4dc2-ae8f-f1da36bde2b7'::uuid as "created_by",
                 1 as "packaging_qty",
                 true as "new_article"
-            from "heron_bi_articles" hba 
+            from "heron_bi_articles" hba, 
+            (
+                select
+                    "uuid_big_category",
+                    "axe_bu", 
+                    "axe_prj",
+                    "axe_pys",
+                    "axe_rfa"
+                from "parameters_defaultaxearticle" ad 
+                where "slug_name" = 'axes_articles'
+                limit 1
+            ) d_axes
             where (hba."code_rayon" != 'SAV' and hba."famille" != 'SAV')
             on conflict do nothing
             """
