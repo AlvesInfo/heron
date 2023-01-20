@@ -1,4 +1,4 @@
-# pylint: disable=W0702,W1203
+# pylint: disable=W0702,W1203,E1101
 """Module d'export du fichier excel pour les centrales Filles
 
 Commentaire:
@@ -28,7 +28,27 @@ from apps.parameters.excel_outputs.output_excel_filles_columns import columns_li
 def get_row():
     """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
 
-    yield from [(row.ranking, row.name) for row in Category.objects.all()]
+    yield from [
+        (
+            row.get("ranking"),
+            row.get("code"),
+            row.get("name"),
+            row.get("big_sub_category__ranking") or "",
+            row.get("big_sub_category__code") or "",
+            row.get("big_sub_category__name") or "",
+        )
+        for row in Category.objects.all()
+        .order_by("ranking", "big_sub_category__code")
+        .values(
+            "ranking",
+            "code",
+            "name",
+            "big_sub_category__ranking",
+            "big_sub_category__code",
+            "big_sub_category__name",
+        )
+        .order_by("ranking", "big_sub_category__ranking")
+    ]
 
 
 def excel_liste_categories(file_io: io.BytesIO, file_name: str) -> dict:
@@ -42,12 +62,14 @@ def excel_liste_categories(file_io: io.BytesIO, file_name: str) -> dict:
     try:
         titre_page_writer(excel, 1, 0, 0, columns, titre)
         output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, columns)
+        excel.write_merge_h(1, 3, 0, 2, "Grande Catégorie", columns[0].get("f_entete"))
+        excel.write_merge_h(1, 3, 3, 5, "Rubrique Prestation associée", columns[3].get("f_entete"))
+        columns_headers_writer(excel, 1, 4, 0, columns)
         f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
         f_lignes_odd = [
             {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
         ]
-        rows_writer(excel, 1, 4, 0, get_row(), f_lignes, f_lignes_odd)
+        rows_writer(excel, 1, 5, 0, get_row(), f_lignes, f_lignes_odd)
         sheet_formatting(
             excel, 1, columns, {"sens": "portrait", "repeat_row": (0, 5), "fit_page": (1, 0)}
         )

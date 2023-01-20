@@ -295,7 +295,7 @@ class SubCategory(FlagsTable):
 
     code = models.CharField(unique=True, max_length=15)
     name = models.CharField(unique=True, max_length=80)
-    ranking = models.IntegerField(unique=True)
+    ranking = models.IntegerField()
     big_category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -319,7 +319,7 @@ class SubCategory(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
-
+        unique_together = (("big_category", "ranking"),)
         ordering = ["ranking"]
 
 

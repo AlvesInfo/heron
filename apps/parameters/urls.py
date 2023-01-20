@@ -7,6 +7,7 @@ from apps.parameters.views import (
     categories_export_list,
     SubCategoryCreate,
     SubCategoryUpdate,
+    delete_sub_category,
     DefaultAxeAricleUpdate,
     axe_articles_defaut_export_list,
 )
@@ -29,6 +30,11 @@ urlpatterns = [
         "sub_category_update/<int:category_pk>/<int:pk>/",
         SubCategoryUpdate.as_view(),
         name="sub_category_update",
+    ),
+    path(
+        "delete_sub_category/",
+        delete_sub_category,
+        name="delete_sub_category",
     ),
     # Catégories et Axes par défaut pourl es articles
     path(

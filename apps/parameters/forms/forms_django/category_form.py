@@ -3,7 +3,6 @@
 Forms des Parameters
 """
 from django import forms
-from django.forms import inlineformset_factory
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.parameters.models import Category, SubCategory, DefaultAxeArticle
@@ -16,41 +15,40 @@ class CategoryForm(forms.ModelForm):
         """class Meta"""
 
         model = Category
-        fields = [
+        fields = (
             "ranking",
             "code",
             "name",
-        ]
+        )
 
 
 class SubCategoryForm(forms.ModelForm):
     """Form pour les 'Rubrique presta'"""
 
-    DELETE = forms.BooleanField(required=False)
-
     class Meta:
         """class Meta"""
 
         model = SubCategory
-        fields = [
+        fields = (
             "id",
             "big_category",
             "ranking",
             "code",
             "name",
-        ]
+        )
         widgets = {
             "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 
-InlineCategoryFormmset = inlineformset_factory(
-    Category,
-    SubCategory,
-    form=SubCategoryForm,
-    can_delete=True,
-    extra=0,
-)
+class DeleteSubCategoryForm(forms.ModelForm):
+    """Form pour la suppression des Rubriques Presta"""
+
+    class Meta:
+        """class Meta"""
+
+        model = SubCategory
+        fields = ("id", )
 
 
 class DefaultAxeArticleForm(forms.ModelForm):

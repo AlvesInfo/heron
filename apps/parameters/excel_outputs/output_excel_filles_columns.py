@@ -22,6 +22,69 @@ columns_list_categories = [
         "f_entete": {
             **f_entetes,
             **{
+                "bg_color": "#CCC0DA",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Code",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#CCC0DA",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Nom",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#CCC0DA",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 25,
+    },   {
+        "entete": "Classement",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Code",
+        "f_entete": {
+            **f_entetes,
+            **{
                 "bg_color": "#dce7f5",
             },
         },
@@ -44,9 +107,9 @@ columns_list_categories = [
         "f_ligne": {
             **f_ligne,
             **{
-                "align": "center",
+                "align": "left",
             },
         },
-        "width": 60,
+        "width": 25,
     },
 ]
