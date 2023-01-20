@@ -216,6 +216,7 @@ def delete_sub_category(request):
 
 class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification Axes et catégorie par défaut des articles"""
+
     model = DefaultAxeArticle
     form_class = DefaultAxeArticleForm
     form_class.use_required_attribute = False
@@ -229,10 +230,16 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Catégories et Axes par défaut pour les articles"
         context["chevron_retour"] = reverse("home")
+        context["big_sub_category"] = self.object.big_category.big_sub_category.all()
         return context
 
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
+        if (
+            form.instance.sub_category is None
+            or form.instance.sub_category not in form.instance.big_category.big_sub_category.all()
+        ):
+            form.instance.sub_category = None
         self.request.session["level"] = 20
         return super().form_valid(form)
 

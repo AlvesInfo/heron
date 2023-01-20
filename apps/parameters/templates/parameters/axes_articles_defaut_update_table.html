@@ -13,11 +13,13 @@
                             <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
                                 {{form.big_category}}
                         </div>
-                        <div class="one wide field">
-                            <label for="id_sub_category" style="text-align: left;">Rubrique&nbsp;:</label>
-                            <input type="text" id="id_sub_category" name="sub_category" value="{{ form.sub_category.value|default_if_none:'' }}">
+                        <div class="four wide field">
+                            {% if big_sub_category %}
+                                <label for="id_sub_category" style="text-align: left;">Rubrique presta&nbsp;:</label>
+                                {{form.sub_category}}
+                            {% endif %}
                         </div>
-                        <div class="twelve wide field" style="text-align: right;">
+                        <div class="nine wide field" style="text-align: right;">
 
                             <a class="item" href="">
                                 <button class="ui teal basic button" name="axe_articles_defaut" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
