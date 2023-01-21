@@ -12,6 +12,11 @@ from apps.centers_clients.views import (
     MaisonSupllierExclusionUpdate,
     exclusion_delete,
     exclusion_export_list,
+    CountryMaisonSupllierExclusionList,
+    CountryMaisonSupllierExclusionCreate,
+    CountryMaisonSupllierExclusionUpdate,
+    exclusion_country_delete,
+    exclusion_country_export_list,
 )
 
 app_name = "apps.centers_clients"
@@ -35,32 +40,32 @@ urlpatterns = [
             MaisonSupllierExclusionUpdate.as_view(),
             name="exclusion_update",
         ),
-        path("exclusion_delete/<int:pk>/", exclusion_delete, name="exclusion_update"),
+        path("exclusion_delete/", exclusion_delete, name="exclusion_delete"),
         path("exclusion_export_list/", exclusion_export_list, name="exclusion_export_list"),
     ],
     *[
         # EXCLUSIONS MAISONS / PAYS
         path(
             "exclusions_country_list/",
-            MaisonSupllierExclusionList.as_view(),
+            CountryMaisonSupllierExclusionList.as_view(),
             name="exclusions_country_list",
         ),
         path(
             "exclusion_country_create/",
-            MaisonSupllierExclusionCreate.as_view(),
+            CountryMaisonSupllierExclusionCreate.as_view(),
             name="exclusion_country_create",
         ),
         path(
             "exclusion_country_update/<int:pk>/",
-            MaisonSupllierExclusionUpdate.as_view(),
+            CountryMaisonSupllierExclusionUpdate.as_view(),
             name="exclusion_country_update",
         ),
         path(
-            "exclusion_country_delete/<int:pk>/", exclusion_delete, name="exclusion_country_update"
+            "exclusion_country_delete/", exclusion_country_delete, name="exclusion_country_delete"
         ),
         path(
             "exclusion_country_export_list/",
-            exclusion_export_list,
+            exclusion_country_export_list,
             name="exclusion_country_export_list",
         ),
     ],

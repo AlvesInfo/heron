@@ -7,7 +7,12 @@ from django import forms
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society
 from apps.accountancy.models import CctSage
-from apps.centers_clients.models import Maison, MaisonBi, MaisonSupllierExclusion
+from apps.centers_clients.models import (
+    Maison,
+    MaisonBi,
+    MaisonSupllierExclusion,
+    SupllierCountryExclusion,
+)
 
 
 class MaisonForm(forms.ModelForm):
@@ -130,7 +135,8 @@ class ImportMaisonBiForm(forms.Form):
 
 
 class MaisonSupllierExclusionForm(forms.ModelForm):
-    """Formulaires des couples Founisseurs/Maison à écarter"""
+    """Formulaires des couples Tiers X3/Clients à écarter"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
@@ -146,3 +152,43 @@ class MaisonSupllierExclusionForm(forms.ModelForm):
             "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "maison": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
+
+
+class MaisonSupllierExclusionDeleteForm(forms.ModelForm):
+    """Formulaires des couples Tiers X3/Clients à supprimer"""
+
+    class Meta:
+        model = MaisonSupllierExclusion
+        fields = [
+            "id",
+        ]
+
+
+class SupllierCountryExclusionForm(forms.ModelForm):
+    """Formulaires des couples Tiers X3/Pays Clients à écarter"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
+
+    class Meta:
+        model = SupllierCountryExclusion
+        fields = [
+            "third_party_num",
+            "country",
+        ]
+
+        widgets = {
+            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "country": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }
+
+
+class SupllierCountryExclusionDeleteForm(forms.ModelForm):
+    """Formulaires des couples Tiers X3/Pays Clients à supprimer"""
+
+    class Meta:
+        model = SupllierCountryExclusion
+        fields = [
+            "id",
+        ]

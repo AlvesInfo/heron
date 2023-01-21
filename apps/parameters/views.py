@@ -205,7 +205,6 @@ def delete_sub_category(request):
         data = {"success": "success"}
 
     else:
-        print(form.errors)
         LOGGER_VIEWS.exception(f"delete_invoice_purchase, form invalid : {form.errors!r}")
 
     return JsonResponse(data)

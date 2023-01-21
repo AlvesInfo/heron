@@ -13,7 +13,7 @@
                 <tr>
                     <th style="width: 8%">Edit</th>
                     <th style="width: 42%">Tiers X3</th>
-                    <th style="width: 42%">Pays</th>
+                    <th style="width: 42%">Client</th>
                     <th style="width: 8%">delete</th>
                 </tr>
             </thead>
@@ -26,7 +26,7 @@
                         </a>
                     </td>
                     <td>{{exclusion.third_party_num}}</td>
-                    <td>{{exclusion.pays}}</td>
+                    <td>{{exclusion.maison}}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
                           <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ exclusion.pk }}, `{{ exclusion.third_party_num }} - {{ exclusion.maison }}`, `{% url 'centers_clients:exclusion_delete' %}`, `Le Couple`)"></i>
