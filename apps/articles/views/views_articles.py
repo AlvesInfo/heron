@@ -181,10 +181,6 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         self.request.session["level"] = 20
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
@@ -227,18 +223,6 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                 self.object.big_category.slug_name,
             ),
         )
-
-    @transaction.atomic
-    def form_valid(self, form):
-        """Si le formulaire est valide"""
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        """On élève le niveau d'alerte en cas de formulaire invalide"""
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 def articles_export_list(_, third_party_num, category):

@@ -1,1 +1,1 @@
-from apps.centers_clients.forms.forms_django.forms import *
+from apps.centers_clients.forms.forms_django import *

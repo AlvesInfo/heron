@@ -21,8 +21,8 @@ from apps.centers_clients.views import (
 
 app_name = "apps.centers_clients"
 
-urlpatterns = [
-    *[
+urlpatterns = (
+    [
         # MAISONS
         path("maisons_list/", MaisonsList.as_view(), name="maisons_list"),
         path("import_bi/", import_bi, name="import_bi"),
@@ -30,8 +30,8 @@ urlpatterns = [
         path("maisons_create/<str:initials>/", MaisonCreate.as_view(), name="maisons_create"),
         path("maisons_update/<int:pk>/", MaisonUpdate.as_view(), name="maisons_update"),
         path("maisons_export_list/", maisons_export_list, name="maisons_export_list"),
-    ],
-    *[
+    ]
+    + [
         # EXCLUSIONS TIERS X3 / MAISONS
         path("exclusions_list/", MaisonSupllierExclusionList.as_view(), name="exclusions_list"),
         path("exclusion_create/", MaisonSupllierExclusionCreate.as_view(), name="exclusion_create"),
@@ -42,8 +42,8 @@ urlpatterns = [
         ),
         path("exclusion_delete/", exclusion_delete, name="exclusion_delete"),
         path("exclusion_export_list/", exclusion_export_list, name="exclusion_export_list"),
-    ],
-    *[
+    ]
+    + [
         # EXCLUSIONS MAISONS / PAYS
         path(
             "exclusions_country_list/",
@@ -68,5 +68,5 @@ urlpatterns = [
             exclusion_country_export_list,
             name="exclusion_country_export_list",
         ),
-    ],
-]
+    ]
+)

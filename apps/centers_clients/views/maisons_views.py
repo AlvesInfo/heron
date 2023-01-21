@@ -96,10 +96,6 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         self.pickler_object.delete()
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des identifiants pour les fournisseurs EDI"""

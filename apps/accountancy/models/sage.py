@@ -344,7 +344,7 @@ class VatRatSage(FlagsTable):
 
     vat = models.ForeignKey(
         VatSage,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         to_field="vat",
         db_column="vat",
     )

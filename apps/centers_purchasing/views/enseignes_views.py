@@ -95,10 +95,6 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 def enseignes_export_list(request):
     """

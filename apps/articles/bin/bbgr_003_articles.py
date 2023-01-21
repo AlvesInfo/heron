@@ -85,7 +85,7 @@ def insert_bbgr_003_articles():
                 (
                     select 
                         "axe_pro" 
-                     from accountancy_defaultaxeproaricleacuitis adf 
+                     from centers_purchasing_AxeProFamilleAcuitis adf 
                     where adf."famille_acuitis" = hba."famille"
                       and adf."code_rayon_acuitis" = case 
                                                         when hba."code_rayon" isnull 

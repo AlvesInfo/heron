@@ -138,11 +138,6 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         ).update(uuid_control=instance.uuid_identification)
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        """On élève le niveau d'alerte en cas de formulaire invalide"""
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des factures founisseurs"""
@@ -201,18 +196,6 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("validation_purchases:integration_purchases")
-
-    @transaction.atomic
-    def form_valid(self, form):
-        """Si le formulaire est valide"""
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        """On élève le niveau d'alerte en cas de formulaire invalide"""
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 @transaction.atomic

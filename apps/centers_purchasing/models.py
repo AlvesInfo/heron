@@ -17,8 +17,12 @@ from django.db import models
 from django.shortcuts import reverse
 
 from heron.models import FlagsTable
-from apps.countries.models import Country
-from apps.parameters.models import SalePriceCategory
+from apps.accountancy.models import (
+    AccountSage,
+    VatSage,
+    SectionSage,
+)
+from apps.parameters.models import SalePriceCategory, Category
 
 
 class Action(FlagsTable):
@@ -54,6 +58,7 @@ class PrincipalCenterPurchase(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:meres_list")
 
     class Meta:
@@ -87,7 +92,7 @@ class ChildCenterPurchase(FlagsTable):
     legal_notice = models.TextField(null=True, blank=True, verbose_name="mentions légales")
     iban = models.CharField(null=True, blank=True, max_length=50)
     code_swift = models.CharField(null=True, blank=True, max_length=27)
-    # email d'ou sont envoyés les documents, ou bien qui reçoivent les mails
+    # email d'où sont envoyés les documents, ou bien qui reçoivent les mails
     sending_email = models.EmailField(null=True, blank=True, verbose_name="email d'envoi")
 
     def __str__(self):
@@ -96,6 +101,7 @@ class ChildCenterPurchase(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:filles_list")
 
     class Meta:
@@ -130,6 +136,16 @@ class Signboard(FlagsTable):
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
     )
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
+    child_center = models.ForeignKey(
+        ChildCenterPurchase,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="code",
+        verbose_name="centrale fille",
+        related_name="enseigne_centrale_fille",
+        db_column="child_center",
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -137,6 +153,7 @@ class Signboard(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:enseignes_list")
 
     class Meta:
@@ -170,6 +187,7 @@ class SignboardModel(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:models_enseigne_list")
 
     class Meta:
@@ -217,10 +235,11 @@ class Translation(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:translate_list")
 
     class Meta:
@@ -262,6 +281,7 @@ class SignboardModelTranslate(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:translates_enseigne_list")
 
     class Meta:
@@ -296,6 +316,7 @@ class TranslationParamaters(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("centers_purchasing:translate_parameters_list")
 
     class Meta:
@@ -303,3 +324,204 @@ class TranslationParamaters(FlagsTable):
 
         ordering = ["translation", "code"]
         unique_together = (("code", "translation"),)
+
+
+class GroupingGoods(FlagsTable):
+    """Table des regroupements de refacturation de marchandises"""
+
+    ranking = models.IntegerField()
+    base = models.CharField(max_length=35, verbose_name="base refac")
+    grouping_goods = models.CharField(unique=True, max_length=35, verbose_name="regroupement")
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.ranking} - {self.base} - {self.grouping_goods}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["ranking"]
+        unique_together = (("base", "grouping_goods"),)
+        indexes = [
+            models.Index(fields=["base"]),
+            models.Index(fields=["grouping_goods"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(fields=["base", "grouping_goods"]),
+            models.Index(fields=["uuid_identification", "base", "grouping_goods"]),
+        ]
+
+
+class AxeProGroupingGoods(FlagsTable):
+    """Table associative Axe PRO/Regroupement de facturation"""
+
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        unique=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="axe_pro_grouping",
+        db_column="axe_pro",
+        verbose_name="axe pro",
+    )
+    grouping_goods = models.ForeignKey(
+        GroupingGoods,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="axe_grouping_goods",
+        db_column="grouping_goods",
+        verbose_name="regroupement",
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["axe_pro"]
+        indexes = [
+            models.Index(fields=["axe_pro"]),
+            models.Index(fields=["grouping_goods"]),
+            models.Index(fields=["axe_pro", "grouping_goods"]),
+        ]
+
+
+class AxeProFamilleAcuitis(FlagsTable):
+    """Table des axes par défaut pour les familles de produits Acuitis"""
+
+    code_famille_acuitis = models.CharField(max_length=35)
+    code_rayon_acuitis = models.CharField(max_length=35)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="default_acuitis_pro_section",
+        db_column="axe_pro",
+        verbose_name="axe pro",
+    )
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["code_famille_acuitis", "code_rayon_acuitis"]
+        unique_together = (("code_famille_acuitis", "code_rayon_acuitis"),)
+        indexes = [
+            models.Index(fields=["code_famille_acuitis"]),
+            models.Index(fields=["code_rayon_acuitis"]),
+            models.Index(fields=["axe_pro"]),
+            models.Index(
+                fields=["code_famille_acuitis", "code_rayon_acuitis", "axe_pro"]
+            ),
+        ]
+
+
+class AxeProFamilleCosium(FlagsTable):
+    """Table des axes por par défaut pour les familles de produits Cosium"""
+
+    code_famille_cosium = models.CharField(unique=True, max_length=35)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="default_cosium_pro_section",
+        db_column="axe_pro",
+        verbose_name="axe pro",
+    )
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["code_famille_cosium",]
+        indexes = [
+            models.Index(fields=["code_famille_cosium"]),
+            models.Index(fields=["axe_pro"]),
+            models.Index(fields=["code_famille_cosium", "axe_pro"]),
+        ]
+
+
+class AccountsAxeProCategory(FlagsTable):
+    """Tables des comptes comptables par defaut
+    en fonction de la centrale fille, la catégrorie, l'axe_pro et le taux de tva
+
+    """
+
+    child_center = models.ForeignKey(
+        ChildCenterPurchase,
+        on_delete=models.PROTECT,
+        to_field="code",
+        verbose_name="centrale fille",
+        related_name="account_centrale_fille",
+        db_column="child_center",
+    )
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="account_big_category",
+        db_column="uuid_big_category",
+    )
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="account_axe_pro",
+        db_column="axe_pro",
+        verbose_name="axe pro",
+    )
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.PROTECT,
+        to_field="vat",
+        related_name="account_vat",
+        verbose_name="tva X3",
+        db_column="vat",
+    )
+    purchase_account = models.ForeignKey(
+        AccountSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="account_purchase",
+        db_column="purchase_account_uuid",
+        verbose_name="compte d'achat",
+    )
+    sale_account = models.ForeignKey(
+        AccountSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="account_sale",
+        db_column="sale_account_uuid",
+        verbose_name="compte de vente",
+    )
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        unique_together = (("child_center", "big_category", "axe_pro", "vat"),)
+        indexes = [
+            models.Index(fields=["child_center"]),
+            models.Index(fields=["big_category"]),
+            models.Index(fields=["axe_pro"]),
+            models.Index(fields=["vat"]),
+            models.Index(
+                fields=[
+                    "child_center",
+                    "big_category",
+                    "axe_pro",
+                    "vat",
+                ]
+            ),
+        ]

@@ -64,18 +64,6 @@ class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_country_list")
 
-    def form_valid(self, form):
-        """
-        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
-        """
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView de création des couples Tiers X3/Pays Clients à exlucre de la facturation"""
@@ -102,18 +90,6 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_country_list")
-
-    def form_valid(self, form):
-        """
-        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
-        """
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 def exclusion_country_delete(request):

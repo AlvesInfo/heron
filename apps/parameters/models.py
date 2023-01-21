@@ -775,6 +775,7 @@ class DefaultAxeArticle(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour après create ou Update"""
         return reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
 
     class Meta:

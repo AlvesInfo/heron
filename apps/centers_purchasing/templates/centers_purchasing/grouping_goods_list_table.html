@@ -1,0 +1,43 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="three wide column"></div>
+
+<div class="ten wide column">
+
+    <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+                <tr>
+                    <th style="width: 8%">Edit</th>
+                    <th style="width: 10%">Ranking</th>
+                    <th style="width: 37%">Base</th>
+                    <th style="width: 37%">Regroupement</th>
+                    <th style="width: 8%">delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for grouping in grouping_goods %}
+                <tr id="id_{{ forloop.counter }}" class="hide_plans">
+                    <td>
+                        <a href="{% url 'centers_purchasing:grouping_goods_update' pk=grouping.pk%}">
+                            <i class="edit icon modification"></i>
+                        </a>
+                    </td>
+                    <td>{{grouping.ranking}}</td>
+                    <td>{{grouping.base}}</td>
+                    <td>{{grouping.grouping_goods}}</td>
+                    <td class="tdDelete" style="text-align: center;">
+                        <div style="cursor: pointer;">
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ grouping.pk }}, `{{ grouping.ranking }} - {{ grouping.base }} - {{ grouping.grouping_goods }}`, `{% url 'centers_purchasing:grouping_goods_delete' %}`, `Le Regroupement`)"></i>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</div>
+
+{% endblock table %}

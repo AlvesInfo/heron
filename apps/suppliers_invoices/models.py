@@ -127,7 +127,7 @@ class InvoiceTax(FlagsTable):
     vat_rank = models.IntegerField()
     vat = models.ForeignKey(
         VatSage,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         to_field="vat",
         db_column="vat",
     )
@@ -169,7 +169,7 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
 
     vat = models.ForeignKey(
         VatSage,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         to_field="vat",
         db_column="vat",
     )

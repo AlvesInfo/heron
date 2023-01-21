@@ -75,16 +75,6 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["chevron_retour"] = reverse("parameters:categories_list")
         return super().get_context_data(**context)
 
-    @transaction.atomic
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 def categories_export_list(_):
     """
@@ -241,10 +231,6 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             form.instance.sub_category = None
         self.request.session["level"] = 20
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
 
 
 def axe_articles_defaut_export_list(_):

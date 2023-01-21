@@ -197,6 +197,7 @@ class ChangeTraceMixin:
             model=self.object._meta.model,
             db_table=self.object._meta.db_table,
         )
+        self.request.session["level"] = 20
         return super().form_valid(form)
 
     def form_invalid(self, form):

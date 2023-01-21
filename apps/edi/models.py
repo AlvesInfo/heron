@@ -145,7 +145,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
     vat = models.ForeignKey(
         VatSage,
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         to_field="vat",
         db_column="vat",
     )
@@ -218,7 +218,7 @@ class EdiImportTax(FlagsTable):
     vat_rank = models.IntegerField()
     vat = models.ForeignKey(
         VatSage,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         to_field="vat",
         db_column="vat",
     )

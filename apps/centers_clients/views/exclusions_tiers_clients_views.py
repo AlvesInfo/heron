@@ -39,7 +39,7 @@ class MaisonSupllierExclusionList(ListView):
 
 
 class MaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des couples Tiers / Masions à exlucre de la facturation"""
+    """CreateView de création des couples Tiers X3/Clients à exlucre de la facturation"""
 
     model = MaisonSupllierExclusion
     form_class = MaisonSupllierExclusionForm
@@ -64,21 +64,9 @@ class MaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, Creat
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_list")
 
-    def form_valid(self, form):
-        """
-        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
-        """
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 class MaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView de création des couples Tiers / Masions à exlucre de la facturation"""
+    """UpdateView de création des couples Tiers X3/Clients à exlucre de la facturation"""
 
     model = MaisonSupllierExclusion
     form_class = MaisonSupllierExclusionForm
@@ -103,18 +91,6 @@ class MaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, Updat
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_list")
 
-    def form_valid(self, form):
-        """
-        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
-        """
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 def exclusion_delete(request):
 
@@ -135,7 +111,7 @@ def exclusion_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_invoice_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"exclusion_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -156,6 +132,6 @@ def exclusion_export_list(_):
         return response_file(excel_liste_exclusion, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_VIEWS.exception("view : export_list_societies")
+        LOGGER_VIEWS.exception("view : exclusion_export_list")
 
-    return redirect(reverse("book:societies_list"))
+    return redirect(reverse("centers_clients:exclusions_list"))

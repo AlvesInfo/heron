@@ -18,9 +18,6 @@ from apps.accountancy.models.sage import (
 from apps.accountancy.models.sage_axes_sections import (
     AxeSage,
     SectionSage,
-    GroupingGoods,
-    DefaultAxeProAricleAcuitis,
-    DefaultAxeProAricleCosium,
 )
 from apps.articles.models import (
     Article,
@@ -59,6 +56,10 @@ from apps.centers_purchasing.models import (
     SignboardModelTranslate,
     Translation,
     TranslationParamaters,
+    GroupingGoods,
+    AxeProFamilleAcuitis,
+    AxeProFamilleCosium,
+    AccountsAxeProCategory,
 )
 from apps.edi.models import SupplierDefinition, ColumnDefinition
 from apps.parameters.models import (
@@ -93,9 +94,6 @@ MODELS_ACCOUNTANCY = (
     CctSage,
     SectionSage,
     SupplierArticleAxePro,
-    GroupingGoods,
-    DefaultAxeProAricleAcuitis,
-    DefaultAxeProAricleCosium,
 )
 
 MODELS_ARTICLES = (
@@ -136,6 +134,10 @@ MODELS_CENTER_PURCHASING = (
     SignboardModelTranslate,
     Translation,
     TranslationParamaters,
+    GroupingGoods,
+    AxeProFamilleAcuitis,
+    AxeProFamilleCosium,
+    AccountsAxeProCategory,
 )
 MODELS_EDI = (SupplierDefinition, ColumnDefinition)
 MODELS_PARAMETERS = (

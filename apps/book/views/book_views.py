@@ -142,10 +142,6 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         form.save()
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        self.request.session["level"] = 50
-        return super().form_invalid(form)
-
 
 def export_list_societies(request, file_name: str):
     """
