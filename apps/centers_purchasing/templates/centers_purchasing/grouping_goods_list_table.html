@@ -26,9 +26,9 @@
                             <i class="edit icon modification"></i>
                         </a>
                     </td>
-                    <td>{{grouping.ranking}}</td>
-                    <td>{{grouping.base}}</td>
-                    <td>{{grouping.grouping_goods}}</td>
+                    <td>{{ grouping.ranking }}</td>
+                    <td>{{ grouping.base }}</td>
+                    <td>{{ grouping.grouping_goods }}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
                           <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ grouping.pk }}, `{{ grouping.ranking }} - {{ grouping.base }} - {{ grouping.grouping_goods }}`, `{% url 'centers_purchasing:grouping_goods_delete' %}`, `Le Regroupement`)"></i>

@@ -82,6 +82,7 @@ class GroupingGoodsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:grouping_goods_list")
         context["titre_table"] = "Mise à jour d'un regroupement de facturation"
+        context["ranking"] = self.object.ranking
         return context
 
     def get_success_url(self):
