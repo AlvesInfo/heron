@@ -5,7 +5,7 @@ def main():
     files_path = Path(r"C:\SitesWeb\heron\apps")
     nbre_lines = 0
     for file in files_path.rglob("*.*"):
-        if file.is_file() and str(file.name)[-3:] != "pyc":
+        if file.is_file() and str(file.name)[-3:] != "pyc" and str(file.name)[:2] != "00":
             print(file.name)
             with file.open("rb") as fil:
                 for _ in fil:
@@ -13,7 +13,7 @@ def main():
 
     files_path = Path(r"C:\SitesWeb\heron\heron")
     for file in files_path.rglob("*.*"):
-        if file.is_file() and str(file.name)[-3:] != "pyc":
+        if file.is_file() and str(file.name)[-3:] != "pyc" and str(file.name)[:2] != "00":
             print(file.name)
             with file.open("rb") as fil:
                 for _ in fil:
