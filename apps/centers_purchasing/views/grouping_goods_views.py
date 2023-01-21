@@ -124,7 +124,7 @@ def grouping_goods_export_list(_):
 
         today = pendulum.now()
         file_name = (
-            f"LISTING_DES_REGROUPEMENTS_DE_FACTURATION"
+            f"LISTING_DES_REGROUPEMENTS_DE_FACTURATION_"
             f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 

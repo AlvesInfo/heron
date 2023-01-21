@@ -125,7 +125,7 @@ def exclusion_country_export_list(_):
 
         today = pendulum.now()
         file_name = (
-            f"LISTING_DES_EXCLUSIONS_TIERS_PAYS_CLIENTS"
+            f"LISTING_DES_EXCLUSIONS_TIERS_PAYS_CLIENTS_"
             f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 

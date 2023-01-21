@@ -1,4 +1,4 @@
-# pylint: disable=W0702,W1203
+# pylint: disable=W0702,W1203,E1101
 """Module d'export du fichier excel du dictionnaire famille_acuitis - code_rayon_acuitis - axes_pro
 
 Commentaire:
@@ -14,44 +14,83 @@ import io
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
-from apps.core.functions.functions_setups import CNX_STRING
-from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.core.excel_outputs.excel_writer import (
     titre_page_writer,
     output_day_writer,
     columns_headers_writer,
     sheet_formatting,
     rows_writer,
+    f_entetes,
+    f_ligne,
 )
-from apps.centers_purchasing.models import PrincipalCenterPurchase
-from apps.centers_purchasing.excel_outputs.output_excel_meres_columns import columns_list_meres
+from apps.centers_purchasing.models import AxeProFamilleAcuitis
+
+columns = [
+    {
+        "entete": "Famille Acuitis",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 35,
+    },
+    {
+        "entete": "Code Rayon Acuitis",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 25,
+    },
+    {
+        "entete": "Axe PRO",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 20,
+    },
+]
 
 
-class GetRows:
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
+def get_clean_rows():
+    """Fonction qui renvoie les éléments pour le fichier Excel"""
 
-    def __init__(self, meres: PrincipalCenterPurchase.objects):
-        self.meres = meres
-
-        self.query = f"""
-        select
-            "code", 
-            "name", 
-            "generic_coefficient", 
-            "comment"
-        from {self.meres._meta.db_table}
-        """
-
-    def get_clean_rows(self) -> iter:
-        """Retourne les lignes à écrire"""
-        with cnx_postgresql(CNX_STRING).cursor() as cursor:
-            cursor.execute(self.query)
-            return cursor.fetchall()
+    return [
+        (
+            str(row.code_famille_acuitis),
+            str(row.code_rayon_acuitis),
+            str(row.axe_pro),
+        )
+        for row in AxeProFamilleAcuitis.objects.all()
+    ]
 
 
-def excel_liste_acuitis_axe(
-    file_io: io.BytesIO, file_name: str, meres: PrincipalCenterPurchase.objects
-) -> dict:
+def excel_liste_acuitis_axe(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier
     du dictionnaire famille_acuitis - code_rayon_acuitis - axes_pro
     """
@@ -59,8 +98,6 @@ def excel_liste_acuitis_axe(
     titre = " ".join(titre_list[:-4])
     list_excel = [file_io, ["FAMILLE COSIUM VS AXE PRO"]]
     excel = GenericExcel(list_excel)
-    columns = columns_list_meres
-    get_clean_rows = getattr(GetRows(meres), f"get_clean_rows")
 
     try:
         titre_page_writer(excel, 1, 0, 0, columns, titre)

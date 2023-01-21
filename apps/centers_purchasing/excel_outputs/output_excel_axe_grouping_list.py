@@ -1,4 +1,4 @@
-# pylint: disable=W0702,W1203
+# pylint: disable=W0702,W1203,E1101
 """Module d'export du fichier excel Dictionnaire Axe Pro/Regroupement de facturation
 
 Commentaire:
@@ -14,51 +14,71 @@ import io
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
-from apps.core.functions.functions_setups import CNX_STRING
-from apps.core.functions.functions_postgresql import cnx_postgresql
 from apps.core.excel_outputs.excel_writer import (
     titre_page_writer,
     output_day_writer,
     columns_headers_writer,
     sheet_formatting,
     rows_writer,
+    f_entetes,
+    f_ligne,
 )
-from apps.centers_purchasing.models import PrincipalCenterPurchase
-from apps.centers_purchasing.excel_outputs.output_excel_meres_columns import columns_list_meres
+from apps.centers_purchasing.models import AxeProGroupingGoods
+
+columns = [
+    {
+        "entete": "Axe PRO",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 35,
+    },
+    {
+        "entete": "Regroupement",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 65,
+    },
+]
 
 
-class GetRows:
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
+def get_clean_rows():
+    """Fonction qui renvoie les éléments pour le fichier Excel"""
 
-    def __init__(self, meres: PrincipalCenterPurchase.objects):
-        self.meres = meres
-
-        self.query = f"""
-        select
-            "code", 
-            "name", 
-            "generic_coefficient", 
-            "comment"
-        from {self.meres._meta.db_table}
-        """
-
-    def get_clean_rows(self) -> iter:
-        """Retourne les lignes à écrire"""
-        with cnx_postgresql(CNX_STRING).cursor() as cursor:
-            cursor.execute(self.query)
-            return cursor.fetchall()
+    return [
+        (
+            str(row.axe_pro),
+            str(row.grouping_goods),
+        )
+        for row in AxeProGroupingGoods.objects.all()
+    ]
 
 
-def excel_liste_axe_grouping(
-    file_io: io.BytesIO, file_name: str, meres: PrincipalCenterPurchase.objects
-) -> dict:
+def excel_liste_axe_grouping(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier Dictionnaire Axe Pro/Regroupement de facturation"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     list_excel = [file_io, ["AXE PRO VS REGROUPEMENT FAC"]]
     excel = GenericExcel(list_excel)
-    columns = columns_list_meres
-    get_clean_rows = getattr(GetRows(meres), f"get_clean_rows")
 
     try:
         titre_page_writer(excel, 1, 0, 0, columns, titre)
