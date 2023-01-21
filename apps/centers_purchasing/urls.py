@@ -35,7 +35,17 @@ from apps.centers_purchasing.views import (
     cosium_axe_delete,
     cosium_axe_export_list,
     # Axe Pro / regroupement facturation
+    AxeGroupingList,
+    AxeGroupingCreate,
+    AxeGroupingUpdate,
+    axe_grouping_delete,
+    axe_grouping_export_list,
     # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
+    AccountAxeList,
+    AccountAxeCreate,
+    AccountAxeUpdate,
+    account_axe_delete,
+    account_axe_export_list,
 )
 
 app_name = "apps.centers_purchasing"
@@ -112,8 +122,34 @@ urlpatterns = (
     ]
     + [
         # Axe Pro / regroupement facturation
+        path("axe_grouping_list/", AxeGroupingList.as_view(), name="axe_grouping_list"),
+        path("axe_grouping_create/", AxeGroupingCreate.as_view(), name="axe_grouping_create"),
+        path(
+            "axe_grouping_update/<int:pk>/",
+            AxeGroupingUpdate.as_view(),
+            name="axe_grouping_update",
+        ),
+        path("axe_grouping_delete/", axe_grouping_delete, name="axe_grouping_delete"),
+        path(
+            "axe_grouping_export_list/",
+            axe_grouping_export_list,
+            name="axe_grouping_export_list",
+        ),
     ]
     + [
         # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
+        path("account_axe_list/", AccountAxeList.as_view(), name="account_axe_list"),
+        path("account_axe_create/", AccountAxeCreate.as_view(), name="account_axe_create"),
+        path(
+            "account_axe_update/<int:pk>/",
+            AccountAxeUpdate.as_view(),
+            name="account_axe_update",
+        ),
+        path("account_axe_delete/", account_axe_delete, name="account_axe_delete"),
+        path(
+            "account_axe_export_list/",
+            account_axe_export_list,
+            name="account_axe_export_list",
+        ),
     ]
 )

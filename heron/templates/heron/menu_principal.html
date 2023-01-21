@@ -96,6 +96,12 @@
                             <a href="{% url 'centers_purchasing:grouping_goods_list' %}" class="item">Regroupements facturation</a>
                         </div>
                         <div class="ui link list">
+                            <a href="{% url 'centers_purchasing:account_axe_list' %}" class="item">Comptes Comptables</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'centers_purchasing:axe_grouping_list' %}" class="item">Axe PRO/Regroupements</a>
+                        </div>
+                        <div class="ui link list">
                             <a href="{% url 'centers_purchasing:acuitis_axe_list' %}" class="item">Axe PRO/Famille Acuitis</a>
                         </div>
                         <div class="ui link list">
@@ -220,11 +226,11 @@
             </div>
 
             <div class="ui popup" id="e">
-                <div class="ui five column relaxed equal divided grid" style="width: 80em;">
+                <div class="ui three column relaxed equal divided grid" style="width: 50em;">
 
 {#              1. Marchandises #}
                     <div class="column">
-                        <h4 class="ui header">01. Marchandises</h4>
+                        <h4 class="ui header">01. Factures</h4>
                         <div class="ui link list">
                             <a href="{% url 'edi:create_invoice_marchandise' %}" class="item">Saisie</a>
 {#                            <a href="" class="item">Import</a>#}
@@ -320,7 +326,7 @@
             </div>
 
             <div class="ui popup" id="f">
-                <div class="ui two column relaxed divided grid" style="width: 30em;">
+                <div class="ui one column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
                         <h4 class="ui header">Achats</h4>
