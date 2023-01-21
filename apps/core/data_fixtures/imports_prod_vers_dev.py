@@ -48,6 +48,7 @@ from apps.centers_clients.models import (
     DocumentsSubscription,
     MaisonSupllierExclusion,
     MaisonSupplierIdentifier,
+    SupllierCountryExclusion,
 )
 from apps.centers_purchasing.models import (
     PrincipalCenterPurchase,
@@ -124,6 +125,7 @@ MODELS_CENTER_CLIENTS = (
     DocumentsSubscription,
     MaisonSupllierExclusion,
     MaisonSupplierIdentifier,
+    SupllierCountryExclusion,
 )
 MODELS_CENTER_PURCHASING = (
     PrincipalCenterPurchase,
