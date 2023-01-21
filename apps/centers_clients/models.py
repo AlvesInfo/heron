@@ -328,6 +328,8 @@ class Maison(FlagsTable):
         return reverse("centers_clients:maisons_list")
 
     class Meta:
+        """class Meta du modèle django"""
+
         ordering = ["cct"]
         indexes = [
             models.Index(fields=["cct"]),
@@ -500,29 +502,45 @@ class MaisonSupllierExclusion(FlagsTable):
     EN : Shop/Suppliers Identifiers Table
     """
 
-    cct = models.ForeignKey(
-        CctSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="maison_supplier",
-        verbose_name="code maison",
-        db_column="cct",
-    )
     third_party_num = models.ForeignKey(
         Society,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         to_field="third_party_num",
-        related_name="supplier_maison",
-        verbose_name="Fournisseur",
+        related_name="supplier_to_discard",
         db_column="third_party_num",
+    )
+    maison = models.ForeignKey(
+        Maison,
+        on_delete=models.CASCADE,
+        to_field="cct",
+        related_name="cct_to_discard",
+        db_column="maison",
+        verbose_name="maison",
     )
 
     def __str__(self):
-        return f"{self.cct} - {self.third_party_num}"
+        return f"{self.third_party_num} - {self.maison}"
+
+    @staticmethod
+    def get_success_url():
+        """Surcharge de l'url en case de succes pour revenir à l'écran d'accueil'"""
+        return reverse("home")
 
     class Meta:
-        ordering = ["cct", "third_party_num__name"]
-        unique_together = (("cct", "third_party_num"),)
+        """class Meta du modèle django"""
+
+        ordering = ["third_party_num", "maison"]
+        unique_together = (("third_party_num", "maison"),)
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["maison"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "maison",
+                ]
+            ),
+        ]
 
 
 class MaisonSupplierIdentifier(FlagsTable):
@@ -532,28 +550,95 @@ class MaisonSupplierIdentifier(FlagsTable):
     EN : Shop/Suppliers Identifiers Table
     """
 
-    supplier = models.ForeignKey(
+    third_party_num = models.ForeignKey(
         Society,
         on_delete=models.CASCADE,
         to_field="third_party_num",
-        related_name="supplier_edi_maison",
+        related_name="third_party_identifier",
         verbose_name="tiers X3",
-        db_column="tiers",
+        db_column="third_party_num",
     )
-    cct = models.ForeignKey(
-        CctSage,
-        on_delete=models.PROTECT,
+    maison = models.ForeignKey(
+        Maison,
+        on_delete=models.CASCADE,
         to_field="cct",
-        related_name="supplier_edi_maison_cct",
-        verbose_name="cct x3",
-        db_column="cct",
+        related_name="cct_identifier",
+        db_column="maison",
+        verbose_name="maison",
     )
     identifiant = models.CharField(max_length=35, verbose_name="Identifiant Maison")
 
     def __str__(self):
-        return f"{self.supplier} - {self.cct}"
+        return f"{self.third_party_num} - {self.maison}"
 
     class Meta:
         """class Meta Django"""
 
-        unique_together = (("supplier", "cct", "identifiant"),)
+        unique_together = (("third_party_num", "maison"),)
+
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["maison"]),
+            models.Index(fields=["identifiant"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "maison",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "maison",
+                    "identifiant",
+                ]
+            ),
+        ]
+
+
+class SupllierCountryExclusion(FlagsTable):
+    """
+    Table des identifiants des Tiers X3/Pays ne devant pas donner lieu à facturation
+    FR : Table Identifiants Tiers X3/Pays
+    EN : Suppliers/Countries Identifiers Table
+    """
+
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="supplier_exclusion",
+        db_column="third_party_num",
+    )
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        to_field="country",
+        related_name="pys_exclusion",
+        db_column="country",
+        verbose_name="Pays",
+    )
+
+    def __str__(self):
+        return f"{self.third_party_num} - {self.country}"
+
+    @staticmethod
+    def get_success_url():
+        """Surcharge de l'url en case de succes pour revenir à l'écran d'accueil'"""
+        return reverse("home")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["third_party_num", "country"]
+        unique_together = (("third_party_num", "country"),)
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["country"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "country",
+                ]
+            ),
+        ]

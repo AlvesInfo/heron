@@ -4,9 +4,10 @@ Forms des Maisons
 """
 from django import forms
 
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society
 from apps.accountancy.models import CctSage
-from apps.centers_clients.models import Maison, MaisonBi
+from apps.centers_clients.models import Maison, MaisonBi, MaisonSupllierExclusion
 
 
 class MaisonForm(forms.ModelForm):
@@ -126,3 +127,22 @@ class ImportMaisonBiForm(forms.Form):
             required=True,
         )
         self.fields["tiers"] = tiers
+
+
+class MaisonSupllierExclusionForm(forms.ModelForm):
+    """Formulaires des couples Founisseurs/Maison à écarter"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
+
+    class Meta:
+        model = MaisonSupllierExclusion
+        fields = [
+            "third_party_num",
+            "maison",
+        ]
+
+        widgets = {
+            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "maison": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }

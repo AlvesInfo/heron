@@ -2,19 +2,19 @@
 
 {% block right_side %}
     <a class="item" href="{% url 'centers_clients:import_bi' %}">
-        <button class="ui blue button" name="create_centre_cout" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        <button class="ui blue basic button" name="create_centre_cout" style="padding: 7px 10px;margin: 10px;font-size: 11px">
             IMPORT DEPUIS B.I
         </button>
     </a>
 
     <a class="item" href="{% url 'centers_clients:maisons_create' initials='*' %}">
-        <button class="ui blue button" name="create_centre_cout" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        <button class="ui blue basic button" name="create_centre_cout" style="padding: 7px 10px;margin: 10px;font-size: 11px">
             CREATION
         </button>
     </a>
 
     <a class="item" href="{% url 'centers_clients:maisons_export_list' %}">
-       <button class="ui green button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+       <button class="ui green basic button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
           LISTING CLIENTS
        </button>
     </a>

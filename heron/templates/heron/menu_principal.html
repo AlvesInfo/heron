@@ -69,7 +69,7 @@
 
         {% if user.is_authenticated %}
             <div class="ui popup" id="a">
-                <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 70em;">
+                <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 80em;">
 
                     <div class="column">
                         <h4 class="ui header" style="font-size: 1em;">CENTRALES</h4>
@@ -98,6 +98,12 @@
                         <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'centers_clients:exclusions_list' %}" class="item">Exclusions Tiers/Clients</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'centers_clients:exclusions_list' %}" class="item">Exclusions Tiers/Pays Client</a>
                         </div>
                     </div>
 
@@ -205,7 +211,7 @@
             </div>
 
             <div class="ui popup" id="e">
-                <div class="ui five column relaxed equal divided grid" style="width: 70em;">
+                <div class="ui five column relaxed equal divided grid" style="width: 80em;">
 
 {#              1. Marchandises #}
                     <div class="column">

@@ -218,3 +218,5 @@ def filter_list_maisons_api(request):
 
     context = {}
     return render(request, "centers_clients/maisons_list_to_pick.html", context=context)
+
+

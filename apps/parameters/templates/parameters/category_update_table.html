@@ -36,6 +36,7 @@
                         </div>
                 </form>
             </div>
+            {% if not create %}
                 <div class="ui segment" style="padding-bottom: 0;">
                     <div class="ui header" style="text-align: left;">
                         <h4 style="margin-bottom: 5px;display: inline-block;">Rubriques Presta Associées</h4>
@@ -44,6 +45,8 @@
                         </a>
                     </div>
                     <div class="ui clearing divider"></div>
+
+            {% endif %}
 
                 {% if not create and object.big_sub_category.all %}
                     <div class="ui grid" style="margin: 10px">
