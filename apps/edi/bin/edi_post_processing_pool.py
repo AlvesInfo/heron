@@ -89,6 +89,7 @@ def post_common():
     sql_is_multi_store = post_common_dict.get("sql_is_multi_store")
     sql_update_articles = post_common_dict.get("sql_update_articles")
     sql_precilens = post_common_dict.get("sql_precilens")
+    sql_mg_developpemnt = post_common_dict.get("sql_mg_developpemnt")
     sql_alls_381 = post_common_dict.get("sql_alls_381")
     sql_validate = post_common_dict.get("sql_validate")
 
@@ -150,6 +151,12 @@ def post_common():
         print("Début : sql_precilens")
         cursor.execute(sql_precilens)
         print("Fin : sql_precilens")
+
+        sleep(1)
+
+        print("Début : sql_mg_developpemnt")
+        cursor.execute(sql_mg_developpemnt)
+        print("Fin : sql_mg_developpemnt")
 
         sleep(1)
 
@@ -321,10 +328,12 @@ def bbgr_statment_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_vat = bbgr_002_statment_dict.get("sql_vat")
+    sql_familles = bbgr_002_statment_dict.get("sql_familles")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
 
 
 def bbgr_monthly_post_insert(uuid_identification: AnyStr):
@@ -333,10 +342,12 @@ def bbgr_monthly_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_vat = bbgr_003_monthly_dict.get("sql_vat")
+    sql_familles = bbgr_002_statment_dict.get("sql_familles")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
 
 
 def bbgr_retours_post_insert(uuid_identification: AnyStr):

@@ -33,8 +33,7 @@ from apps.book.models import (
     Society,
     SocietyBank,
     SupplierCct,
-    SupplierArticleAxePro,
-    FamilleAxePro,
+    SupplierFamilyAxes,
 )
 from apps.centers_clients.models import (
     Maison,
@@ -79,12 +78,12 @@ from apps.parameters.models import (
     DefaultAxeArticle,
 )
 
+
 MODELS_ACCOUNTANCY = (
     AccountSage,
     CategorySage,
     CodePlanSage,
     CurrencySage,
-    FamilleAxePro,
     PaymentCondition,
     TabDivSage,
     VatRatSage,
@@ -93,7 +92,6 @@ MODELS_ACCOUNTANCY = (
     AxeSage,
     CctSage,
     SectionSage,
-    SupplierArticleAxePro,
 )
 
 MODELS_ARTICLES = (
@@ -111,9 +109,9 @@ MODELS_BOOK = (
     Contact,
     SocietyBank,
     SupplierCct,
-    SupplierArticleAxePro,
-    FamilleAxePro,
+    SupplierFamilyAxes,
 )
+
 MODELS_CENTER_CLIENTS = (
     Maison,
     MaisonBi,
@@ -125,6 +123,7 @@ MODELS_CENTER_CLIENTS = (
     MaisonSupplierIdentifier,
     SupllierCountryExclusion,
 )
+
 MODELS_CENTER_PURCHASING = (
     PrincipalCenterPurchase,
     ChildCenterPurchase,
@@ -139,7 +138,9 @@ MODELS_CENTER_PURCHASING = (
     AxeProFamilleCosium,
     AccountsAxeProCategory,
 )
+
 MODELS_EDI = (SupplierDefinition, ColumnDefinition)
+
 MODELS_PARAMETERS = (
     Nature,
     Category,

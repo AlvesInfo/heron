@@ -473,6 +473,15 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
     "sql_precilens": sql.SQL(
         """
         update "edi_ediimport" edi
+        set "famille" = 'PORT'
+        where "third_party_num" = 'MGDE001'
+        and "reference_article" ilike '%PORT%'
+        and ("valid" = false or "valid" isnull)
+    """
+    ),
+    "sql_mg_developpemnt": sql.SQL(
+        """
+        update "edi_ediimport" edi
         set "gross_amount" = case 
                                 when "qty" < 0 
                                 then abs("gross_amount") 

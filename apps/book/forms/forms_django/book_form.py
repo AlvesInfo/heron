@@ -145,7 +145,7 @@ class SocietyForm(forms.ModelForm):
             "integrable",
             "chargeable",
             "od_ana",
-            "stat_axe_pro",
+            "default_axe_pro",
             "in_use",
             "big_category_default",
         ]

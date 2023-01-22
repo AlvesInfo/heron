@@ -27,76 +27,37 @@ from apps.parameters.models import Category, Nature
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
 
-
-class SupplierArticleAxePro(FlagsTable):
-    """
-    Nommage des familles à appliquer pour les fournisseurs
-    """
-
-    name = models.CharField(unique=True, max_length=80)
-
-    axe_pro_default = models.ForeignKey(
-        SectionSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRO"},
-        related_name="famille_axe_pro_default",
-        db_column="axe_pro_default_uuid",
-        null=True,
-    )
-    regex = models.CharField(null=True, blank=True, max_length=150)
-    # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
-    invoice_column = models.CharField(default="famille", max_length=150)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["name"]
-
-
-class FamilleAxePro(FlagsTable):
-    """
-    Table des statistiques liées à l'axe pro
-    """
-
-    supplier_article_axe_pro = models.ForeignKey(
-        SupplierArticleAxePro,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="famille_axe_pro_section",
-        db_column="supplier_article_axe_pro_uuid",
-    )
-    supplier_familly = models.CharField(max_length=1080)
-    axe_pro = models.ForeignKey(
-        SectionSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRO"},
-        related_name="famille_axe_pro_section",
-        db_column="axe_pro_uuid",
-    )
-    comment = models.CharField(null=True, blank=True, max_length=150)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return (
-            f"{self.supplier_article_axe_pro.name} - {self.supplier_familly} / {self.axe_pro.name}"
-        )
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        unique_together = (("supplier_article_axe_pro", "supplier_familly"),)
+# class SupplierArticleAxePro(FlagsTable):
+#     """
+#     Nommage des familles à appliquer pour les fournisseurs
+#     """
+#
+#     name = models.CharField(unique=True, max_length=80)
+#
+#     axe_pro_default = models.ForeignKey(
+#         SectionSage,
+#         on_delete=models.PROTECT,
+#         to_field="uuid_identification",
+#         limit_choices_to={"axe": "PRO"},
+#         related_name="famille_axe_pro_default",
+#         db_column="axe_pro_default_uuid",
+#         null=True,
+#     )
+#     regex = models.CharField(null=True, blank=True, max_length=150)
+#     # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
+#     invoice_column = models.CharField(default="famille", max_length=150)
+#
+#     # Identification
+#     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+#
+#     def __str__(self):
+#         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+#         return self.name
+#
+#     class Meta:
+#         """class Meta du modèle django"""
+#
+#         ordering = ["name"]
 
 
 class Society(FlagsTable):
@@ -260,16 +221,15 @@ class Society(FlagsTable):
     chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
     od_ana = models.BooleanField(null=True, default=False, verbose_name="à refacturer")
 
-    # Modèle Statistique pour l'axe Pro
-    stat_axe_pro = models.ForeignKey(
-        SupplierArticleAxePro,
-        null=True,
-        blank=True,
+    # Axe Pro par défaut du fournisseur
+    default_axe_pro = models.ForeignKey(
+        SectionSage,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="famille_axe_pro_supplier",
-        verbose_name="Famille axe PRO",
-        db_column="stat_axe_pro_uuid",
+        limit_choices_to={"axe": "PRO"},
+        related_name="famille_axe_pro_section",
+        db_column="axe_pro_uuid",
+        null=True,
     )
 
     # Adresse pour la centrale d'achat
@@ -601,56 +561,6 @@ class SocietyBank(FlagsTable):
 
         ordering = ["society", "-is_default", "account_number"]
         unique_together = (("society", "account_number"),)
-
-
-class SupplierCct(FlagsTable):
-    """Identificant des CCT pour chaque Fournisseur
-    FR: Table de couples Fournisseur/Identifiant CCT
-    EN: Table of Supplier/CCT Identifier pairs
-    """
-
-    third_party_num = models.ForeignKey(
-        Society,
-        on_delete=models.CASCADE,
-        to_field="third_party_num",
-        related_name="book_supplier",
-        db_column="third_party_num",
-        verbose_name="Tiers",
-    )
-    cct_uuid_identification = models.ForeignKey(
-        CctSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="book_cct",
-        db_column="cct_uuid_identification",
-        verbose_name="CCT x3",
-    )
-    cct_identifier = models.CharField(
-        null=True, blank=True, max_length=150, verbose_name="identifiant cct"
-    )
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return (
-            f"{self.third_party_num} - {self.cct_uuid_identification.name} - {self.cct_identifier}"
-        )
-
-    def get_absolute_url(self):
-        """Retourne l'url en cas de success create, update ou delete"""
-        return reverse("book:society_update", args=[self.third_party_num.pk])
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["third_party_num", "cct_uuid_identification"]
-        unique_together = (("third_party_num", "cct_uuid_identification"),)
-        indexes = [
-            models.Index(fields=["third_party_num"]),
-            models.Index(fields=["cct_uuid_identification"]),
-            models.Index(fields=["cct_identifier"]),
-            models.Index(fields=["third_party_num", "cct_uuid_identification"]),
-            models.Index(fields=["third_party_num", "cct_uuid_identification", "cct_identifier"]),
-        ]
 
 
 class BprBookSage:

@@ -27,7 +27,20 @@ post_interson_dict = {
                                     else "reference_article"
                                   end,
             "purchase_invoice" = true,
-            "sale_invoice" = true
+            "sale_invoice" = true,
+            "famille" = case 
+                            when (
+                                    "reference_article" ilike 'Chronopost%' 
+                                    or 
+                                    "reference_article" ilike '%port%'
+                                )
+                                and
+                                (
+                                    "famille" is null or "famille" = ''
+                                )
+                            then 'PORT'
+                            else "famille"
+                        end
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

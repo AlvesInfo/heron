@@ -18,7 +18,7 @@ post_bulk_dict = {
         """
     update "edi_ediimport"
     set 
-        "famille" = case when "famille" is null then 'VERRE' else "famille" end,
+        "famille" = case when "famille" is null then 'VERRES' else "famille" end,
         "gross_unit_price" = "net_unit_price",
         "gross_amount" = "net_amount",
         "purchase_invoice" = true,

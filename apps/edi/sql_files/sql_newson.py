@@ -21,7 +21,7 @@ post_newson_dict = {
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
-            "famille" = left("reference_article", 2),
+            "famille" = left("reference_article", 80),
             "purchase_invoice" = true,
             "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
