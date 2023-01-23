@@ -47,7 +47,7 @@ class SupplierFamilyAxes(FlagsTable):
         db_column="axe_pro_uuid",
         null=True,
     )
-    description = models.CharField(max_length=80)
+    description = models.CharField(null=True, blank=True, max_length=80)
     norme = models.CharField(null=True, blank=True, max_length=80)
     comment = models.TextField(null=True, blank=True)
     big_category = models.ForeignKey(
