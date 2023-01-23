@@ -36,8 +36,8 @@ class SupplierFamilyAxes(FlagsTable):
     )
     # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
     invoice_column = models.CharField(default="famille", max_length=150)
-    regex_match = models.CharField(null=True, blank=True, max_length=150)
-    expected_result = ArrayField(models.CharField(max_length=80))
+    regex_match = models.CharField(max_length=150)
+    expected_result = models.CharField(max_length=150)
     axe_pro = models.ForeignKey(
         SectionSage,
         on_delete=models.PROTECT,
