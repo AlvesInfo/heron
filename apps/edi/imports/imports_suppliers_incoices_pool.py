@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 import io
 from pathlib import Path
+from functools import lru_cache
 
 import redis
 from django.utils import timezone
@@ -111,6 +112,7 @@ except redis.exceptions.ConnectionError:
 proccessing_dir = Path(settings.PROCESSING_SUPPLIERS_DIR)
 
 
+@lru_cache(maxsize=256)
 def get_suppliers(flow_name: str):
     """
     :param flow_name: Champ flow_name dans la table SupplierDefinition
@@ -131,6 +133,7 @@ def get_suppliers(flow_name: str):
     return (results[0][0], results[0][1]) if results else ("", "")
 
 
+@lru_cache(maxsize=256)
 def get_supplier_name(flow_name: str):
     """
     :param flow_name: Champ flow_name dans la table SupplierDefinition
@@ -148,6 +151,7 @@ def get_supplier_name(flow_name: str):
     return supplier
 
 
+@lru_cache(maxsize=256)
 def get_supplier_ident(flow_name: str):
     """
     :param flow_name: Champ flow_name dans la table SupplierDefinition
@@ -165,6 +169,7 @@ def get_supplier_ident(flow_name: str):
     return supplier_ident
 
 
+@lru_cache(maxsize=256)
 def get_supplier(flow_name):
     """Get supplier name in cache ou model SupplierDefinition"""
     return (
@@ -172,6 +177,7 @@ def get_supplier(flow_name):
     ) or get_supplier_name(flow_name)
 
 
+@lru_cache(maxsize=256)
 def get_ident(flow_name):
     """Get supplier ident in cache ou model SupplierDefinition"""
     return (

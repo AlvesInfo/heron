@@ -35,12 +35,12 @@ from apps.book.models import Society
 from apps.articles.models import Article, ArticleUpdate
 
 
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=256)
 def get_axe_pro(axe_pro_copie_de_acuitis):
     return SectionSage.objects.get(section=axe_pro_copie_de_acuitis, axe="PRO")
 
 
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=256)
 def get_society(supplier):
     return Society.objects.get(third_party_num=supplier)
 

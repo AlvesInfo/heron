@@ -15,8 +15,8 @@ modified by: Paulo ALVES
 """
 import uuid
 
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import reverse
 from apps.parameters.models import Category, SubCategory
 from apps.book.models.base_sage_models import FlagsTable, Society, SectionSage, CctSage
@@ -26,6 +26,15 @@ class SupplierFamilyAxes(FlagsTable):
     """
     Nommage des familles à appliquer pour les fournisseurs
     """
+
+    class Unit(models.TextChoices):
+        """Unit choices"""
+
+        GR = "Grammes", _("Grammes")
+        KG = "Kilo", _("Kilo")
+        U = "Unité", _("Unité")
+        BOITE = "Boite", _("Boite")
+        ML = "Mètre", _("Mètre")
 
     third_party_num = models.ForeignKey(
         Society,
@@ -54,7 +63,7 @@ class SupplierFamilyAxes(FlagsTable):
         Category,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="family_big_category",
+        related_name="supplier_family_big_category",
         db_column="uuid_big_category",
         null=True,
     )
@@ -62,10 +71,15 @@ class SupplierFamilyAxes(FlagsTable):
         SubCategory,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="family_sub_category",
+        related_name="supplier_family_sub_category",
         db_column="uuid_sub_big_category",
         null=True,
     )
+    item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    unit_weight = models.CharField(
+        null=True, blank=True, max_length=20, choices=Unit.choices, default=Unit.GR
+    )
+    customs_code = models.CharField(null=True, blank=True, max_length=35)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
