@@ -436,11 +436,12 @@ class BaseInvoiceTable(models.Model):
         FOUR = 0, "Fournisseur"
         CLI = 1, "Client"
 
-    class InvoiceTypeChoice(models.TextChoices):
-        """invoice_type choices"""
-
-        FA = "380", "FAF"
-        AV = "381", "AVO"
+    # SUPPRIMER CA A l'IMPORT EDI L'ENUM EST CONTROLE
+    # class InvoiceTypeChoice(models.TextChoices):
+    #     """invoice_type choices"""
+    #
+    #     FA = "380", "FAF"
+    #     AV = "381", "AVO"
 
     uuid_file = models.UUIDField(null=True)
 
@@ -451,9 +452,7 @@ class BaseInvoiceTable(models.Model):
     invoice_type = models.CharField(
         null=True,
         blank=True,
-        max_length=3,
-        choices=InvoiceTypeChoice.choices,
-        default=InvoiceTypeChoice.FA,
+        max_length=10,
         verbose_name="BGM FA:380, AV:381",
     )
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
