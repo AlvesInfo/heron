@@ -418,6 +418,7 @@ class PaymentCondition(FlagsTable):
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     auuid = models.CharField(unique=True, max_length=80, verbose_name="n° champ unique")
+    default = models.BooleanField(null=True)
 
     @staticmethod
     def file_import_sage():
