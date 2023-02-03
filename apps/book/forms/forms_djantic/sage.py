@@ -42,7 +42,11 @@ class BprBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
-    country: str = PaymentCondition.objects.filter(default=True)[0].auuid
+    country: str = (
+        PaymentCondition.objects.filter(default=False)[0].auuid
+        if PaymentCondition.objects.filter(default=False)
+        else None
+    )
 
     class Config:
         """class Config du models au sens django"""
@@ -64,7 +68,11 @@ class BpsBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
-    payment_condition_supplier: str = PaymentCondition.objects.filter(default=True)[0].auuid
+    payment_condition_supplier: str = (
+        PaymentCondition.objects.filter(default=False)[0].auuid
+        if PaymentCondition.objects.filter(default=False)
+        else None
+    )
 
     class Config:
         """class Config du models au sens django"""
@@ -86,7 +94,11 @@ class BpcBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
-    payment_condition_client: str = PaymentCondition.objects.filter(default=True)[0].auuid
+    payment_condition_client: str = (
+        PaymentCondition.objects.filter(default=False)[0].auuid
+        if PaymentCondition.objects.filter(default=False)
+        else None
+    )
 
     class Config:
         """class Config du models au sens django"""
