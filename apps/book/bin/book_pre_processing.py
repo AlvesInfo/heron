@@ -76,12 +76,15 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
             )
             code_dict_exists = dict(cursor.fetchall())
 
+        # instancie une condition de paiement si elle existe
+        comptant = code_dict_exists.get("COMPTANT")
+
         for row in csv_reader:
             (third_party_num, payment_condition_client, vat_sheme_client, account_client_code) = row
             csv_writer.writerow(
                 [
                     third_party_num,
-                    code_dict_exists.get(payment_condition_client),
+                    code_dict_exists.get(payment_condition_client, comptant),
                     vat_sheme_client,
                     account_client_code,
                 ]
