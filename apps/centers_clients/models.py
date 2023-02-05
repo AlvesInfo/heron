@@ -30,8 +30,9 @@ from apps.accountancy.models import (
 )
 from apps.book.models import Society
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
-from apps.parameters.models import SalePriceCategory, Nature
+from apps.parameters.models import SalePriceCategory, Nature, InvoiceFunctions
 from apps.countries.models import Country, Language, Currency
+from apps.articles.models import Article
 
 CHOICES_LANGUE = (
     ("FRA", "Français"),
@@ -649,3 +650,63 @@ class SupllierCountryExclusion(FlagsTable):
                 ]
             ),
         ]
+
+
+class MaisonSubcription(FlagsTable):
+    """
+    Table Abstraite de base pour les Détails de Factures
+    FR : Table Abstraite de Base pour les Détails de Factures
+    EN : Flags Abstract Table for Invoices details
+    """
+
+    class UnitChoice(models.IntegerChoices):
+        """DateType choices"""
+
+        UNI = 1, _("U")
+        GRA = 2, _("Grammes")
+        KIL = 3, _("Kg")
+        PIE = 4, _("Pièce")
+        BOI = 5, _("Boite")
+        CAR = 6, _("Carton")
+        JRS = 7, _("Jrs")
+        MOI = 8, _("Mois")
+        FOR = 9, _("Forfait")
+        HEU = 10, _("Heures")
+        ENS = 11, _("Ens")
+        POU = 12, _("%")
+
+    maison = models.ForeignKey(
+        Maison,
+        on_delete=models.CASCADE,
+        to_field="cct",
+        related_name="cct_subscription",
+        db_column="cct",
+        verbose_name="maison",
+    )
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="article_subscription",
+        db_column="uuid_article",
+    )
+    qty = models.DecimalField(
+        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="quantity"
+    )
+    unity = models.IntegerField(
+        null=True, blank=True, choices=UnitChoice.choices, default=UnitChoice.UNI
+    )
+    net_unit_price = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix unitaire",
+    )
+    function = models.ForeignKey(
+        InvoiceFunctions,
+        on_delete=models.PROTECT,
+        to_field="function_name",
+        related_name="function_subscription",
+        db_column="function_name",
+    )

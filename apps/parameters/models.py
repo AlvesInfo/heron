@@ -251,21 +251,48 @@ class Category(FlagsTable):
         ordering = ["ranking"]
 
 
+class InvoiceFunctions(FlagsTable):
+    """Table des fonctions qui génèrent les factures"""
+
+    function_name = models.CharField(unique=True, max_length=255)
+    function = models.TextField()
+    absolute_path = models.TextField(null=True, blank=True)
+    description = models.CharField(null=True, blank=True, max_length=255)
+
+    def __str__(self):
+        """Texte renvoyé dans les appels à la class"""
+        return f"{self.function_name}: {self.description[:50]}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["function_name"]
+        indexes = [
+            models.Index(fields=["function_name"]),
+        ]
+
+
 class CategoryModelInvoice(FlagsTable):
     """
     Modèle de refacturation des Grandes Catégories
     FR : Grandes Catégories
     EN : Categories
     """
-
-    function = models.CharField(unique=True, max_length=255)
     big_category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
         null=True,
         to_field="uuid_identification",
-        related_name="model_function_big_category",
+        related_name="invoice_category",
         db_column="uuid_big_category",
+    )
+    function = models.ForeignKey(
+        InvoiceFunctions,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="function_name",
+        related_name="invoice_function",
+        db_column="function_name",
     )
 
     # Identification
@@ -319,6 +346,7 @@ class SubCategory(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
+
         unique_together = (("big_category", "ranking"),)
         ordering = ["ranking"]
 
@@ -497,6 +525,7 @@ class BaseInvoiceDetailsTable(models.Model):
         FOR = 9, _("Forfait")
         HEU = 10, _("Heures")
         ENS = 11, _("Ens")
+        POU = 12, _("%")
 
     # Livraison
     acuitis_order_number = models.CharField(
