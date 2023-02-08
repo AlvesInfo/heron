@@ -211,6 +211,27 @@ class SubFamilly(FlagsTable):
         ordering = ["name"]
 
 
+class InvoiceFunctions(FlagsTable):
+    """Table des fonctions qui génèrent les factures"""
+
+    function_name = models.CharField(unique=True, max_length=255)
+    function = models.TextField()
+    absolute_path = models.TextField(null=True, blank=True)
+    description = models.CharField(null=True, blank=True, max_length=255)
+
+    def __str__(self):
+        """Texte renvoyé dans les appels à la class"""
+        return f"{self.function_name}: {self.description[:50]}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["function_name"]
+        indexes = [
+            models.Index(fields=["function_name"]),
+        ]
+
+
 class Category(FlagsTable):
     """
     Grandes Catégories
@@ -222,6 +243,14 @@ class Category(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
     slug_name = models.CharField(unique=True, max_length=120)
+    function = models.ForeignKey(
+        InvoiceFunctions,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="function_name",
+        related_name="invoice_function",
+        db_column="function_name",
+    )
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -249,68 +278,6 @@ class Category(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["ranking"]
-
-
-class InvoiceFunctions(FlagsTable):
-    """Table des fonctions qui génèrent les factures"""
-
-    function_name = models.CharField(unique=True, max_length=255)
-    function = models.TextField()
-    absolute_path = models.TextField(null=True, blank=True)
-    description = models.CharField(null=True, blank=True, max_length=255)
-
-    def __str__(self):
-        """Texte renvoyé dans les appels à la class"""
-        return f"{self.function_name}: {self.description[:50]}"
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["function_name"]
-        indexes = [
-            models.Index(fields=["function_name"]),
-        ]
-
-
-class CategoryModelInvoice(FlagsTable):
-    """
-    Modèle de refacturation des Grandes Catégories
-    FR : Grandes Catégories
-    EN : Categories
-    """
-    big_category = models.ForeignKey(
-        Category,
-        on_delete=models.PROTECT,
-        null=True,
-        to_field="uuid_identification",
-        related_name="invoice_category",
-        db_column="uuid_big_category",
-    )
-    function = models.ForeignKey(
-        InvoiceFunctions,
-        on_delete=models.PROTECT,
-        null=True,
-        to_field="function_name",
-        related_name="invoice_function",
-        db_column="function_name",
-    )
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.function}"
-
-    @staticmethod
-    def get_absolute_url():
-        """get absolute url in succes case"""
-        return reverse("parameters:categories_list")
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["big_category"]
 
 
 class SubCategory(FlagsTable):

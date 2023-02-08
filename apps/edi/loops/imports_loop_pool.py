@@ -409,6 +409,10 @@ def loop_pool_proc(proc_files_list):
         pool.map(proc_files, proc_files_list)
 
 
+def loop_celerey(proc_files_list):
+    """Lancement des processavec celery"""
+
+
 def main():
     """Main pour lancement de l'import"""
     import time

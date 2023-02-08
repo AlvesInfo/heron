@@ -358,7 +358,7 @@ class GroupingGoods(FlagsTable):
 class AxeProGroupingGoods(FlagsTable):
     """Table associative Axe PRO/Regroupement de facturation"""
 
-    axe_pro = models.ForeignKey(
+    axe_pro = models.OneToOneField(
         SectionSage,
         unique=True,
         on_delete=models.PROTECT,

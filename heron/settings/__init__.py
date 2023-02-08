@@ -10,5 +10,6 @@ else:
     # print("PRODUCTION_SETTINGS")
     from .production import *
 
-from .suppliers import *
 from .clients import *
+from .directories import *
+from .suppliers import *
