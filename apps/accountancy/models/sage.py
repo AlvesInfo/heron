@@ -15,6 +15,7 @@ modified by: Paulo ALVES
 """
 
 import uuid
+
 from django.db import models
 
 from heron.models import FlagsTable
@@ -144,7 +145,7 @@ class AccountSage(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["account"]
+        ordering = ["code_plan_sage", "account"]
         index_together = [
             ["code_plan_sage", "account"],
         ]
@@ -257,6 +258,7 @@ class VatRegimeSage(FlagsTable):
 
     class Meta:
         """class Meta du modèle django"""
+
         unique_together = (("vat_regime", "legislation"),)
         ordering = ["vat_regime", "name"]
 
@@ -402,21 +404,37 @@ class VatRatSage(FlagsTable):
 
 class PaymentCondition(FlagsTable):
     """
-    Table des conditions de Paiement Sage X3
+    Table des conditions de Paiement Sage X3, dans cette table il y a les détails, il faut donc
+    en prévalidation ne renvoyer que les différentes conditions de paiement
     FR : Conditions de Paiement au sens de Sage X3
     EN : Payment Terms as defined by Sage X3
-    =========================================================
-    champ          | model attr. | table SAGE    | Champ Sage
-    =========================================================
-    Condition      | code        | TABPAYTERM    | PTE
-    Intitulé       | name        | TABPAYTERM    | DESAXX
-    Intitulé court | short_name  | TABPAYTERM    | SHOAXX
-    =========================================================
+    =============================================================================
+    champ               | model attr.       | table SAGE    | Champ Sage
+    =============================================================================
+    Condition           | code              | TABPAYTERM    | PTE      (T: 15)
+    Intitulé            | name              | TABPAYTERM    | DESAXX
+    Intitulé court      | short_name        | TABPAYTERM    | SHOAXX
+    Mode (CHQ, VRT, ...)| mode              | TABPAYTERM    | PAM       (T: 5)
+    % Echéance          | due_date          | TABPAYTERM    | DUDPRC    (D: 3)
+    Type Règlement      | paiement_type     | TABPAYTERM    | PAMTYP    (T: 15)
+    Mois  (de décalage) | offset_month      | TABPAYTERM    | NBRMON    (I: 0)
+    Jours (de décalage) | offset_days       | TABPAYTERM    | NBRDAY    (I: 0)
+    Fin de mois         | end_month         | TABPAYTERM    | ENDMONFLG (T:20)
+    Mont. Min. échéance | mont_echeance_min | TABPAYTERM    | DUDMINAMT (D: 2)
+    Identifiant unique  | auuid             | TABPAYTERM    | AUUID     (T: 15)
+    =============================================================================
     """
 
     code = models.CharField(max_length=35)
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
+    mode = models.CharField(null=True, max_length=35)
+    due_date = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    paiement_type = models.CharField(null=True, max_length=35)
+    offset_month = models.IntegerField(null=True, default=0)
+    offset_days = models.IntegerField(null=True, default=0)
+    end_month = models.CharField(null=True, max_length=35)
+    mont_echeance_min = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     auuid = models.CharField(unique=True, max_length=80, verbose_name="n° champ unique")
     default = models.BooleanField(null=True)
 
@@ -438,7 +456,14 @@ class PaymentCondition(FlagsTable):
             "code": 0,
             "name": 1,
             "short_name": 2,
-            "auuid": 3,
+            "mode": 3,
+            "due_date": 4,
+            "paiement_type": 5,
+            "offset_month": 6,
+            "offset_days": 7,
+            "end_month": 8,
+            "mont_echeance_min": 9,
+            "auuid": 10,
         }
 
     @staticmethod

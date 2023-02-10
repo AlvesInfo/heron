@@ -63,6 +63,25 @@ class MaisonForm(forms.ModelForm):
             "od_ana",
         ]
 
+        widgets = {
+            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "center_purchase": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sign_board": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "client_familly": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "currency": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "language": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sage_vat_by_default": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sage_plan_code": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "rfa_frequence": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "rfa_remise": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sale_price_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "credit_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "debit_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "prov_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "extourne_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "budget_code": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }
+
 
 class MaisonImportForm(forms.ModelForm):
     class Meta:
