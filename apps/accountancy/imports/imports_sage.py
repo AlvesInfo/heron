@@ -18,6 +18,7 @@ from django.utils import timezone
 
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.make_inserts import make_insert
+from apps.accountancy.bin.sage_pre_processing import mode_reglement_file
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
@@ -25,6 +26,7 @@ from apps.accountancy.models import (
     VatRegimeSage,
     VatSage,
     VatRatSage,
+    ModeReglement,
     PaymentCondition,
     TabDivSage,
     CategorySage,
@@ -36,6 +38,7 @@ from apps.accountancy.forms.forms_djantic.sage import (
     VatRegimeSageSchema,
     VatSageSchema,
     VatRatSageSchema,
+    ModeReglementSchema,
     PaymentConditionSchema,
     TabDivSageSchema,
     CategorySageSchema,
@@ -194,6 +197,32 @@ def vat_rat_sage(file_path: Path):
         },
     }
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+
+    return trace, to_print
+
+
+def mode_reglement(file_path: Path):
+    """
+    Import du fichier des Conditions de paiements Sage X3
+    :param file_path: Path du fichier à traiter
+    """
+    model = ModeReglement
+    validator = ModeReglementSchema
+    file_name = file_path.name
+    trace_name = "Mise à jour Mode de règlement Sage"
+    application_name = "accountacy_imports_import_sage"
+    flow_name = "ModeReglement"
+    comment = f"import journalier {file_name} des Mode de règlement Sage"
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    file = mode_reglement_file(file_path)
+    to_print = make_insert(model, flow_name, file, trace, validator, params_dict_loader)
 
     return trace, to_print
 

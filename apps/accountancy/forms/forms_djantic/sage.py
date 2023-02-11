@@ -32,6 +32,7 @@ from apps.accountancy.models import (
     VatRegimeSage,
     VatSage,
     VatRatSage,
+    ModeReglement,
     PaymentCondition,
     TabDivSage,
     CategorySage,
@@ -124,6 +125,19 @@ class VatRatSageSchema(
     class Config:
         model = VatRatSage
         include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+
+
+class ModeReglementSchema(ModelSchema, SageTruncateStrFieldsBase):
+    now = timezone.now()
+    created_at: datetime.datetime = now
+    modified_at: datetime.datetime = now
+
+    class Config:
+        model = ModeReglement
+        include = list(model.get_columns_import()) + [
+            "created_at",
+            "modified_at",
+        ]
 
 
 class PaymentConditionSchema(ModelSchema, SageTruncateStrFieldsBase):

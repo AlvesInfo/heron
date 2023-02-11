@@ -23,6 +23,7 @@ from apps.accountancy.imports.imports_sage import (
     vat_regime_sage,
     vat_sage,
     vat_rat_sage,
+    mode_reglement,
     payement_condition,
     tab_div_sage,
     category_sage,
@@ -36,6 +37,7 @@ processing_dict = {
     "ZBIACCOUNT_journalier.heron": account_sage,
     "ZBIAXES_journalier.heron": axe_sage,
     "ZBICCE_journalier.heron": section_sage,
+    "ZBIMODREG_journalier.heron": mode_reglement,
     "ZBIREG_journalier.heron": vat_regime_sage,
     "ZBIPTE_journalier.heron": payement_condition,
     "ZBIDIV_journalier.heron": tab_div_sage,
@@ -69,6 +71,8 @@ def process():
 
         try:
             trace, to_print = processing_dict.get(file.name)(file)
+            # print("trace : ", trace.pk, trace)
+            # print("to_print : ", to_print)
             destination = Path(settings.BACKUP_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
 

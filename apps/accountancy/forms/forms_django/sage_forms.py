@@ -187,6 +187,14 @@ class PaymentConditionForm(forms.ModelForm):
             "code",
             "name",
             "short_name",
+            "mode",
+            "percent_at_term",
+            "paiement_type",
+            "offset_month",
+            "offset_days",
+            "end_month",
+            "mont_echeance_min",
+            "auuid",
         ]
 
 

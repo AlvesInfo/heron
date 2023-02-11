@@ -110,7 +110,7 @@ def transferts_cosium_file(file: Path):
     """
     Transformation du fichier en entrée des transferts, switcher en deux lignes.
     Une pour l'envoyeur, l'autre pour le receptionnaire.
-    :param file: fichir
+    :param file: fichier
     :return: Path(file)
     """
     while True:

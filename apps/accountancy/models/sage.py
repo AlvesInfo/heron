@@ -402,6 +402,76 @@ class VatRatSage(FlagsTable):
         ordering = ["vat", "-vat_start_date"]
 
 
+class ModeReglement(FlagsTable):
+    """Table des modes de règlements
+    FR : Table des modes de règlements au sens de Sage X3
+    EN : Table of payment methods as defined by Sage X3
+    =============================================================================
+    champ               | model attr.       | table SAGE    | Champ Sage
+    =============================================================================
+    Condition           | code              | TABPAM        | PAM      (T: 5)
+    Intitulé            | name              | TABPAM        | DESAXX
+    Intitulé court      | short_name        | TABPAM        | SHOAXX
+    Législation         | legislation       | TABPAM        | LEG       (T: 5)
+    =============================================================================
+    """
+
+    code = models.CharField(max_length=35)
+    name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
+    short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
+    legislation = models.CharField(null=True, max_length=35)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, editable=False)
+
+    @staticmethod
+    def file_import_sage():
+        """
+        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
+        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """
+        return "ZBIMODREG_journalier.heron"
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "code": 0,
+            "name": 1,
+            "short_name": 2,
+            "legislation": 3,
+            "uuid_identification": 4,
+        }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"uuid_identification"}
+
+    @property
+    def get_import(self):
+        """
+        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
+        EN : Returns the method to call to import from a csv file type
+        """
+        return "methode d'import à retourner"
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.code} - {self.name}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["code"]
+
+
 class PaymentCondition(FlagsTable):
     """
     Table des conditions de Paiement Sage X3, dans cette table il y a les détails, il faut donc
@@ -415,7 +485,7 @@ class PaymentCondition(FlagsTable):
     Intitulé            | name              | TABPAYTERM    | DESAXX
     Intitulé court      | short_name        | TABPAYTERM    | SHOAXX
     Mode (CHQ, VRT, ...)| mode              | TABPAYTERM    | PAM       (T: 5)
-    % Echéance          | due_date          | TABPAYTERM    | DUDPRC    (D: 3)
+    % Echéance          | percent_at_term   | TABPAYTERM    | DUDPRC    (D: 3)
     Type Règlement      | paiement_type     | TABPAYTERM    | PAMTYP    (T: 15)
     Mois  (de décalage) | offset_month      | TABPAYTERM    | NBRMON    (I: 0)
     Jours (de décalage) | offset_days       | TABPAYTERM    | NBRDAY    (I: 0)
@@ -423,13 +493,14 @@ class PaymentCondition(FlagsTable):
     Mont. Min. échéance | mont_echeance_min | TABPAYTERM    | DUDMINAMT (D: 2)
     Identifiant unique  | auuid             | TABPAYTERM    | AUUID     (T: 15)
     =============================================================================
+    end_month : 1 == non, 2 == fin de mois après, 3 == Fin de mois avant
     """
 
     code = models.CharField(max_length=35)
     name = models.CharField(null=True, max_length=30, verbose_name="intitulé")
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     mode = models.CharField(null=True, max_length=35)
-    due_date = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    percent_at_term = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     paiement_type = models.CharField(null=True, max_length=35)
     offset_month = models.IntegerField(null=True, default=0)
     offset_days = models.IntegerField(null=True, default=0)
@@ -457,7 +528,7 @@ class PaymentCondition(FlagsTable):
             "name": 1,
             "short_name": 2,
             "mode": 3,
-            "due_date": 4,
+            "percent_at_term": 4,
             "paiement_type": 5,
             "offset_month": 6,
             "offset_days": 7,
