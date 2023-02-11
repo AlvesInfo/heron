@@ -96,7 +96,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     @staticmethod
     def set_export():
         """
-        FR : Retourne la methode pour exporter le fihier destiné à l'intégration dans Sage X3
+        FR : Retourne la methode pour exporter le fichier destiné à l'intégration dans Sage X3
         EN : Returns the method to export the file intended for integration in Sage X3
         """
         return "methode d'export à retourner"

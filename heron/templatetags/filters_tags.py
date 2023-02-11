@@ -6,6 +6,7 @@ from django import template
 from django.template.defaultfilters import stringfilter
 
 from apps.core.bin.encoders import set_base_64_list, set_base_64_str
+from apps.accountancy.bin.utils import get_str_echeances
 
 register = template.Library()
 
@@ -19,7 +20,7 @@ def point(value):
 @register.filter(name="left_trunc")
 @stringfilter
 def left_trunc(value, num):
-    return value[int(num):]
+    return value[int(num) :]
 
 
 @register.filter(name="right_align")
@@ -264,3 +265,14 @@ def get_address(adresse):
 @register.filter
 def percentage(value):
     return f"{value:.1%}"
+
+
+@register.filter(name="due_dates")
+def due_dates(date_value, paiement_condition):
+    """Renvoie les dates d'échéance en fonction de la date de facture
+    et le nom de la condition de paiement
+    """
+    if not paiement_condition:
+        return ''
+
+    return get_str_echeances(date_value, paiement_condition)

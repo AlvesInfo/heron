@@ -78,27 +78,11 @@ class Counter(FlagsTable):
     EN : Counter
     """
 
-    class DateType(models.TextChoices):
-        """DateType choices"""
-
-        PON = 0, _("Ponctuel")
-        FDM = 1, _("Fin de mois")
-        DDM = 2, _("Début de mois")
-        QDM = 3, _("Quinzaine")
-        TDM = 4, _("Trimestriel")
-        SDM = 5, _("Semestriel")
-        ADA = 6, _("Début d'année")
-        AFA = 7, _("Fin d'année")
-
     name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
-    prefix = models.CharField(max_length=5, verbose_name="préfix")
-    iso_date = models.CharField(null=True, blank=True, max_length=10)
-    date_type = models.CharField(
-        null=True, blank=True, max_length=20, choices=DateType.choices, default=DateType.FDM
-    )
-    num = models.IntegerField(default=1)
-    suffix = models.CharField(max_length=35, verbose_name="suffix")
+    prefix = models.CharField(null=True, max_length=5, verbose_name="préfix")
+    suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
     fonction = models.CharField(null=True, blank=True, max_length=255)
+    lpad_num = models.IntegerField(null=True, default=0)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -113,10 +97,18 @@ class Counter(FlagsTable):
         ordering = ["name"]
 
 
-class CounterNums:
+class CounterNums(models.Model):
     """
     Table de la numérotation des compteurs
     """
+    counter = models.ForeignKey(
+        Counter,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="counter",
+        db_column="uuid_counter",
+    )
+    num = models.IntegerField()
 
 
 class SendFiles(FlagsTable):

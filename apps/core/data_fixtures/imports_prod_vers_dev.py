@@ -65,6 +65,7 @@ from apps.edi.models import SupplierDefinition, ColumnDefinition
 from apps.parameters.models import (
     Parameters,
     Counter,
+    CounterNums,
     SendFiles,
     SendFilesMail,
     SubFamilly,
@@ -152,6 +153,7 @@ MODELS_PARAMETERS = (
     ActionPermission,
     ActionInProgress,
     Counter,
+    CounterNums,
     Parameters,
     Periodicity,
     SalePriceCategory,
@@ -255,8 +257,8 @@ def main(model_list):
 
 if __name__ == "__main__":
     main(MODELS_ACCOUNTANCY)
-    main(MODELS_ARTICLES)
     main(MODELS_BOOK)
+    main(MODELS_ARTICLES)
     main(MODELS_CENTER_CLIENTS)
     main(MODELS_CENTER_PURCHASING)
     main(MODELS_EDI)

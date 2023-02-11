@@ -1,0 +1,331 @@
+{% load static %}
+{% load i18n %}
+{% load filters_tags %}
+
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="">
+        <title>Heron - achats</title>
+        <meta name="title" content="Heron - achats">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        {% block head_meta %}
+        {% endblock head_meta %}
+
+        <link rel="icon" type="image/png" href="{% static 'ico_heron.ico' %}"/>
+        <style>
+
+        @page {
+            size: 21cm 29.7cm;
+            margin: 10mm 10mm 10mm 10mm;
+        }
+
+
+        @font-face {
+        font-family: "ClanMedium";
+        src: url('/static/ClanMedium.otf');
+        }
+
+        @font-face {
+        font-family: "ClanBook";
+        src: url("/static/ClanBook.otf");
+        }
+
+        table, p {
+            border-collapse: collapse;
+            font-family:'ClanBook',sans-serif;
+            font-size:11px;
+            border-spacing: 0;
+        }
+
+        table {
+            width:100%;
+        }
+
+        .entete {
+            background-color:black;
+            color:white;
+            font-family:'ClanMedium', sans-serif;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+            print-color-adjust: exact;
+            border-spacing: 0;
+        }
+
+        .entete td:first-child {
+            border-left-style: solid;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            padding-left:5px;
+        }
+
+        .entete td:last-child {
+            border-right-style: solid;
+            border-bottom-right-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+
+        tr.bordures > td {
+            border:1px solid #dadada;
+        }
+
+        .tableauFacturation {
+            width:100%;
+        }
+
+        .merci {
+            text-align:center;
+        }
+
+        .mentionsLegales {
+            font-size:0.6em;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width:100%;
+        }
+
+        .fournisseur {
+            text-align: center;
+            font-size: 1.2em;
+            background-color:#dbdbdb;
+            color:black;
+            text-transform: uppercase;
+            font-family:'ClanMedium', sans-serif;
+            border:1px solid #d4d4d4;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .detailsFacture {
+            background-color:#ededed;
+            color:black;
+            font-family:'ClanMedium', sans-serif;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+            print-color-adjust: exact;
+            border-spacing: 0;
+        }
+
+        .detailsFacture > td {
+            border:1px solid #d4d4d4;
+        }
+
+        .sousEntete {
+            font-family:'ClanMedium', sans-serif;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+            print-color-adjust: exact;
+            border-spacing: 0;
+            text-align: center;
+        }
+
+        .sousEntete > td:nth-child(-n+3) {
+            text-align: left;
+        }
+
+        .sousEntete > td {
+            border:1px solid #d4d4d4;
+        }
+
+        .borduresBL {
+            background: #f5f5f5;
+            font-family:'ClanMedium', sans-serif;
+            -webkit-print-color-adjust: exact;
+            -moz-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        tr.borduresBL > td {
+            border:1px solid #dadada;
+        }
+
+        tr.bordures > td:nth-child(n+4), tr.borduresBL > td:nth-child(n+2), tr.sousTotaux > td, tr.totaux > td {
+            text-align: right;
+        }
+
+
+        tr.bordures > td:first-child{
+            width:12%;
+        }
+
+        tr.bordures > td:nth-child(2){
+            width:18%;
+        }
+
+        tr.bordures > td:nth-child(3){
+            width:35%;
+        }
+
+        tr.bordures > td:nth-child(4){
+            width:5%;
+        }
+
+        tr.bordures > td:nth-child(n+5){
+            width:10%;
+        }
+
+
+        </style>
+    </head>
+
+    <body>
+<table  class="tableauFacturation" style="margin:20px 0px 10px 0px;">
+	<tr>
+		<td><img src="{% static 'logo_heron_01.png' %}" alt="logo-heron" style="width:300px;height:auto;margin:0 10px 40px 0;"></td> <!-- Logo Héron fixe -->
+		<td><img src="{{ maison.0.cct_uuid_identification.sign_board.logo.url }}" alt="logo-enseigne" style="width:300px;height:auto;margin:0 10px 40px 0;"></td> <!-- Logo du facturé -->
+	</tr>
+	<tr style="	vertical-align: top;">
+		<td style="width:60%">Livré à :<br>
+		<strong>{{ maison.0.cct_uuid_identification.intitule|default_if_none:'' }}</strong><br>
+		{{ maison.0.cct_uuid_identification.immeuble|default_if_none:'' }}<br>
+		{{ maison.0.cct_uuid_identification.adresse|default_if_none:'' }}<br>
+		{{ maison.0.cct_uuid_identification.code_postal }} {{ maison.0.cct_uuid_identification.ville|default_if_none:'' }}<br>
+		{{ maison.0.cct_uuid_identification.pays.country_name|default_if_none:'' }}
+		</td>
+		<td style="width:40%">Facturé à :<br>
+		<strong>{{ maison.0.cct_uuid_identification.third_party_num.name|default_if_none:'' }}</strong><br>
+		{{ maison.0.cct_uuid_identification.third_party_num.immeuble|default_if_none:'' }}<br>
+		{{ maison.0.cct_uuid_identification.third_party_num.adresse|default_if_none:'' }}<br>
+		{{ maison.0.cct_uuid_identification.third_party_num.code_postal|default_if_none:'' }} {{ maison.0.cct_uuid_identification.third_party_num.ville|default_if_none:'' }}<br>
+		{{ maison.0.cct_uuid_identification.third_party_num.country.country_name|default_if_none:'' }}
+		</td>
+	</tr>
+	<tr>
+		<td style="padding-top:10px;">
+			<strong>Date de facture :</strong> {{ invoice_date|date:"d/m/Y" }}<br>
+            {% with maison.0.cct_uuid_identification.third_party_num.payment_condition_client as paiement_condition %}
+                <strong>Conditions de paiement :</strong> {{ paiement_condition.name}}<br>
+                <strong>Echéance :</strong> {%if paiement_condition %}{{ invoice_date|due_dates:paiement_condition.code }}{% endif %}<br>
+            {% endwith %}
+		</td>
+	</tr>
+
+</table>
+
+<table style="width:100%;margin-bottom:10px;"><tr class="entete"><td style="text-align: center;font-size: 1.1em;padding:3px;">Détails de la facture n°{n° facture}</td></tr></table>
+
+<table class="space">
+	<tr class="fournisseur">
+		<td colspan="8">{Fournisseur}
+		</td>
+	</tr>
+	<tr class="detailsFacture">
+		<td colspan="8">Facture n° : {Facture} - du {date}
+		</td>
+	</tr>
+
+	<tr class="sousEntete">
+		<td>Collection</td>
+		<td>Code Article</td>
+		<td>Libellé</td>
+		<td>Qté</td>
+		<td>PU</td>
+		<td>Montant net</td>
+		<td>Total TTC</td>
+	</tr>
+
+	<tr class="borduresBL">
+		<td colspan="3">{B.L N°}</td>
+		<td>{Qté}</td>
+		<td></td>
+		<td>{HT}</td>
+		<td>{TTC}</td>
+	</tr>
+
+	<tr class="bordures">
+		<td>{collection}</td>
+		<td>{code}</td>
+		<td>{libellé}</td>
+		<td>{0}</td>
+		<td>{0}</td>
+		<td>{total HT}</td>
+		<td>{total TTC}</td>
+	</tr>
+
+	<tr class="bordures">
+		<td>{collection}</td>
+		<td>{code}</td>
+		<td>{libellé}</td>
+		<td>{0}</td>
+		<td>{0}</td>
+		<td>{total HT}</td>
+		<td>{total TTC}</td>
+	</tr>
+
+	<tr class="bordures">
+		<td>{collection}</td>
+		<td>{code}</td>
+		<td>{libellé}</td>
+		<td>{0}</td>
+		<td>{0}</td>
+		<td>{total HT}</td>
+		<td>{total TTC}</td>
+	</tr>
+
+<!-- Duplication BL -->
+
+	<tr class="borduresBL">
+		<td colspan="3">{B.L N°}</td>
+		<td>{Qté}</td>
+		<td></td>
+		<td>{HT}</td>
+		<td>{TTC}</td>
+	</tr>
+
+	<tr class="bordures">
+		<td>{collection}</td>
+		<td>{code}</td>
+		<td>{libellé}</td>
+		<td>{0}</td>
+		<td>{0}</td>
+		<td>{total HT}</td>
+		<td>{total TTC}</td>
+	</tr>
+
+	<tr class="bordures">
+		<td>{collection}</td>
+		<td>{code}</td>
+		<td>{libellé}</td>
+		<td>{0}</td>
+		<td>{0}</td>
+		<td>{total HT}</td>
+		<td>{total TTC}</td>
+	</tr>
+
+	<tr class="bordures">
+		<td>{collection}</td>
+		<td>{code}</td>
+		<td>{libellé}</td>
+		<td>{0}</td>
+		<td>{0}</td>
+		<td>{total HT}</td>
+		<td>{total TTC}</td>
+	</tr>
+
+	<tr class="sousTotaux borduresBL">
+		<td colspan="5">Sous-total - Facture n° : {n° facture}</td>
+		<td>{Net}</td>
+		<td>{TTC}</td>
+	</tr>
+
+	<tr class="totaux borduresBL">
+		<td colspan="5">Total - {fournisseur}</td>
+		<td>{Net}</td>
+		<td>{TTC}</td>
+	</tr>
+</table>
+
+<div class="footer">
+<hr>
+<p style="text-align:center;font-size:0.5em;">SAS Acuitis France - SAS au Capital de 1.510.000 € - Siège Social : 55 Avenue Victor Hugo - 75116 Paris<br>
+Code APE 4778A - RCS PARIS 517 780 870 - N° Siret : 51778087000096 - N° Siren : 517780870 - N° Intracom : FR45517780870 - www.acuitis.com</p>
+<p style="text-align:center;">Email de contact pour tout renseignement sur cette facture : <strong>comptabilite@acuitis.com</strong></p>
+</div>
+    </body>
