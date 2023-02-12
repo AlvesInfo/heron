@@ -48,7 +48,7 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False):
                     union all
                     select 
                         "third_party_num"
-                    from "suppliers_invoices_invoice" sii 
+                    from "invoices_invoice" sii 
                     {force_select}
                 ) req 
                 group by "third_party_num"

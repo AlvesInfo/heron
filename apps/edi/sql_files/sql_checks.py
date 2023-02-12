@@ -176,7 +176,7 @@ sql_invoices_duplicates = sql.SQL(
                 "invoice_number", 
                 "invoice_year"
           ) ee 
-          join "suppliers_invoices_invoice" sii
+          join "invoices_invoice" sii
             on ee."third_party_num" = sii."third_party_num"
            and ee."invoice_number" = sii."invoice_number"
            and ee."invoice_year" = sii."invoice_year"
@@ -217,7 +217,7 @@ sql_invoices_duplicates_delete = sql.SQL(
                 "invoice_number", 
                 "invoice_year"
           ) ee 
-          join "suppliers_invoices_invoice" sii
+          join "invoices_invoice" sii
             on ee."third_party_num" = sii."third_party_num"
            and ee."invoice_number" = sii."invoice_number"
            and ee."invoice_year" = sii."invoice_year"

@@ -20,7 +20,7 @@ apps = [
     # "parameters",
     # "periods",
     # "permissions",
-    # "suppliers_invoices",
+    # "invoices",
     # "suppliers_validations",
     # "traces",
     # "users",

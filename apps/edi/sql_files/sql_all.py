@@ -44,7 +44,7 @@ post_all_dict = {
                 union all
                 select
                     "third_party_num" 
-                from "suppliers_invoices_invoice" sii 
+                from "invoices_invoice" sii 
             ) r
             group by "third_party_num"
         )

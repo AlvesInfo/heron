@@ -334,14 +334,15 @@ class VatRatSage(FlagsTable):
     Table des taux et nom de TVA Sage X3
     FR : TVA au sens de Sage X3
     EN : VAT as defined by Sage X3
-    ==========================================================
-    champ        | model attr.    | table SAGE    | Champ Sage
-    ==========================================================
-    Tva          | vat            | TABRATVAT     | VAT
-    Date début   | vat_start_date | TABRATVAT     | STRDAT
-    Taux         | rate           | TABRATVAT     | VATRAT
-    Régime       | vat_regime     | TABRATVAT     | VATEXEFLG
-    ==========================================================
+    =========================================================================
+    champ               | model attr.    | table SAGE    | Champ Sage
+    =========================================================================
+    Tva                 | vat            | TABRATVAT     | VAT
+    Date début          | vat_start_date | TABRATVAT     | STRDAT
+    Taux                | rate           | TABRATVAT     | VATRAT
+    Régime              | vat_regime     | TABRATVAT     | VATEXEFLG
+    Identifiant unique  | auuid          | TABPAYTERM    | AUUID     (T: 15)
+    =========================================================================
     """
 
     vat = models.ForeignKey(
@@ -353,6 +354,7 @@ class VatRatSage(FlagsTable):
     vat_start_date = models.DateField()
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     exoneration = models.BooleanField(null=True)
+    auuid = models.UUIDField(unique=True, editable=False, verbose_name="n° champ unique")
 
     @staticmethod
     def file_import_sage():
@@ -373,6 +375,7 @@ class VatRatSage(FlagsTable):
             "vat_start_date": 1,
             "rate": 2,
             "exoneration": 3,
+            "auuid": 4,
         }
 
     @staticmethod
@@ -381,7 +384,7 @@ class VatRatSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return {"vat", "vat_start_date", "rate"}
+        return {"auuid"}
 
     @property
     def get_import(self):
@@ -398,7 +401,6 @@ class VatRatSage(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        unique_together = (("vat", "vat_start_date", "rate"),)
         ordering = ["vat", "-vat_start_date"]
 
 

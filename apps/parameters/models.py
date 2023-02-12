@@ -657,7 +657,7 @@ class BaseAdressesTable(models.Model):
     FR : Table Abstraite de Base pour les Adresses
     EN : Flags Abstract Table for Adresses
     """
-
+    name = models.CharField(null=True, blank=True, max_length=80)
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
     adresse = models.CharField(max_length=200, verbose_name="adresse")
     code_postal = models.CharField(max_length=15, verbose_name="code postal")

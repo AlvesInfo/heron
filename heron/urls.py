@@ -67,12 +67,6 @@ urlpatterns = [
         ),
     ),
     path(
-        "clients_invoices/",
-        include(
-            ("apps.clients_invoices.urls", "apps.clients_invoices"), namespace="clients_invoices"
-        ),
-    ),
-    path(
         "core/",
         include(("apps.core.urls", "apps.core"), namespace="core"),
     ),
@@ -105,17 +99,10 @@ urlpatterns = [
         include(("apps.permissions.urls", "apps.permissions"), namespace="permissions"),
     ),
     path(
-        "suppliers_invoices/",
+        "invoices/",
         include(
-            ("apps.suppliers_invoices.urls", "apps.suppliers_invoices"),
-            namespace="suppliers_invoices",
-        ),
-    ),
-    path(
-        "suppliers_validations/",
-        include(
-            ("apps.suppliers_validations.urls", "apps.suppliers_validations"),
-            namespace="suppliers_validations",
+            ("apps.invoices.urls", "apps.invoices"),
+            namespace="invoices",
         ),
     ),
     path(

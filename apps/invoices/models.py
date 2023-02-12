@@ -30,7 +30,7 @@ from apps.centers_clients.models import Maison
 from apps.edi.models import EdiImportControl
 
 
-class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
+class Invoice(FlagsTable, BaseInvoiceTable):
     """
     FR : Factures fournisseurs
     EN : Suppliers Invoices
@@ -51,7 +51,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     supplier = models.CharField(null=True, blank=True, max_length=35)
 
     # Magasin Facturé
-    cct_uuid_identification = models.ForeignKey(
+    client_cct = models.ForeignKey(
         Maison,
         null=True,
         on_delete=models.PROTECT,
@@ -62,13 +62,7 @@ class Invoice(FlagsTable, BaseInvoiceTable, BaseAdressesTable):
     )
     periode = models.IntegerField()
     flag_sage = models.BooleanField(null=True, default=False)
-    big_category = models.CharField(max_length=80)
-    big_category_uuid = models.UUIDField(default=uuid.uuid4)
-    sub_category = models.CharField(max_length=80)
-    sub_category_uuid = models.UUIDField(default=uuid.uuid4)
-    function = models.CharField(unique=True, max_length=255)
-    function_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
-    function_created_at = models.DateTimeField()
+
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
     uuid_control = models.ForeignKey(
         EdiImportControl,
@@ -132,6 +126,11 @@ class InvoiceTax(FlagsTable):
         db_column="vat",
     )
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
+
+    big_category = models.CharField(null=True, max_length=80)
+    big_category_uuid = models.UUIDField(null=True, default=uuid.uuid4)
+    sub_category = models.CharField(null=True, max_length=80)
+    sub_category_uuid = models.UUIDField(null=True, default=uuid.uuid4)
 
 
 class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):

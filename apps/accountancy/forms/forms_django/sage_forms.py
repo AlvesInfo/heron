@@ -170,6 +170,7 @@ class VatRatSageForm(forms.ModelForm):
             "vat_start_date",
             "rate",
             "exoneration",
+            "auuid",
         ]
 
 

@@ -170,8 +170,8 @@ def get_have_statment():
                         union all 
                         select 
                             coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from suppliers_invoices_invoice sii 
-                        join suppliers_invoices_invoicedetail sii2 
+                        from invoices_invoice sii 
+                        join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
                         where sii.flow_name = 'BbgrStatment'
                     ) req
@@ -215,8 +215,8 @@ def get_have_monthly():
                         union all 
                         select 
                             coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from suppliers_invoices_invoice sii 
-                        join suppliers_invoices_invoicedetail sii2 
+                        from invoices_invoice sii 
+                        join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
                         where sii.flow_name = 'BbgrMonthly'
                     ) req
@@ -260,8 +260,8 @@ def get_have_retours():
                         union all 
                         select 
                             coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from suppliers_invoices_invoice sii 
-                        join suppliers_invoices_invoicedetail sii2 
+                        from invoices_invoice sii 
+                        join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
                         where sii.flow_name = 'BbgrRetours'
                     ) req
@@ -304,8 +304,8 @@ def get_have_receptions():
                         union all 
                         select 
                             coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from suppliers_invoices_invoice sii 
-                        join suppliers_invoices_invoicedetail sii2 
+                        from invoices_invoice sii 
+                        join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
                         where sii.flow_name = 'BbgrReceptions'
                     ) req

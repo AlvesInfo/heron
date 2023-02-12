@@ -121,6 +121,7 @@ class VatRatSageSchema(
     modified_at: datetime.datetime = now
     vat: str
     exoneration: bool = None
+    auuid: uuid.UUID
 
     class Config:
         model = VatRatSage

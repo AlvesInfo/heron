@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class SuppliersValidationsConfig(AppConfig):
+class SuppliersInvoicesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.suppliers_validations'
+    name = 'apps.invoices'
