@@ -54,6 +54,7 @@ class SignboardForm(forms.ModelForm):
             "logo",
             "generic_coefficient",
             "comment",
+            "message",
         ]
 
 
