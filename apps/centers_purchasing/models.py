@@ -91,6 +91,7 @@ class ChildCenterPurchase(FlagsTable):
     site_fcy_x3 = models.CharField(max_length=5, verbose_name="Site X3")
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
     legal_notice = models.TextField(null=True, blank=True, verbose_name="mentions légales")
+    bank = models.CharField(null=True, blank=True, max_length=50)
     iban = models.CharField(null=True, blank=True, max_length=50)
     code_swift = models.CharField(null=True, blank=True, max_length=27)
     # email d'où sont envoyés les documents, ou bien qui reçoivent les mails
@@ -137,6 +138,7 @@ class Signboard(FlagsTable):
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
     )
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
+    message = models.TextField(null=True, blank=True, verbose_name="message sur facture")
     child_center = models.ForeignKey(
         ChildCenterPurchase,
         on_delete=models.PROTECT,

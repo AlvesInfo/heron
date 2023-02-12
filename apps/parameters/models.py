@@ -417,19 +417,6 @@ class BaseInvoiceTable(models.Model):
     EN : Flags Abstract Table Flags
     """
 
-    class ForChoices(models.IntegerChoices):
-        """Frequence choices"""
-
-        FOUR = 0, "Fournisseur"
-        CLI = 1, "Client"
-
-    # SUPPRIMER CA A l'IMPORT EDI L'ENUM EST CONTROLE
-    # class InvoiceTypeChoice(models.TextChoices):
-    #     """invoice_type choices"""
-    #
-    #     FA = "380", "FAF"
-    #     AV = "381", "AVO"
-
     uuid_file = models.UUIDField(null=True)
 
     invoice_number = models.CharField(max_length=35)
@@ -440,7 +427,7 @@ class BaseInvoiceTable(models.Model):
         null=True,
         blank=True,
         max_length=10,
-        verbose_name="BGM FA:380, AV:381",
+        verbose_name="FA:380, AV:381",
     )
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
 

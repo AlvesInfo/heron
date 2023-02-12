@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 import uuid
 
+import pendulum
 from django.db import models
 
 from heron.models import FlagsTable
@@ -30,13 +31,27 @@ from apps.centers_clients.models import Maison
 from apps.edi.models import EdiImportControl
 
 
-class Invoice(FlagsTable, BaseInvoiceTable):
-    """
-    FR : Factures fournisseurs
-    EN : Suppliers Invoices
-    """
+class CentersInvoices(models.Model):
+    """Table pour stocker les éléments enseigne et centrale de la facture"""
+    # Elements Centrale fille
+    code_center = models.CharField(unique=True, max_length=15)
+    comment_center = models.TextField(null=True, blank=True)
+    legal_notice_center = models.TextField(null=True, blank=True)
+    bank_center = models.CharField(null=True, blank=True, max_length=50)
+    iban_center = models.CharField(null=True, blank=True, max_length=50)
+    code_swift_center = models.CharField(null=True, blank=True, max_length=27)
 
+    # Elements Enseigne
+    code_signboard = models.CharField(unique=True, max_length=15)
+    logo_signboard = models.ImageField(null=True, blank=True, upload_to="logos/")
+    message = models.TextField(null=True, blank=True)
+
+    # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+
+class ThirdPartyAdress(BaseAdressesTable):
+    """Table fixe des adresses du facturé"""
 
     third_party_num = models.ForeignKey(
         Society,
@@ -45,12 +60,21 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         related_name="detail_society",
         db_column="third_party_num",
     )
-    # Fournisseur
     flow_name = models.CharField(max_length=80)
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
     supplier = models.CharField(null=True, blank=True, max_length=35)
 
-    # Magasin Facturé
+    # uuid_identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.third_party_num} - {self.supplier_name}"
+
+
+class CctAdress(BaseAdressesTable):
+    """Table fixe des adresses de la maison facturée"""
+
     client_cct = models.ForeignKey(
         Maison,
         null=True,
@@ -60,8 +84,62 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
     )
+    intitule = models.CharField(max_length=50)
+    # uuid_identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.intitule}"
+
+
+class Invoice(FlagsTable, BaseInvoiceTable):
+    """
+    FR : Factures fournisseurs
+    EN : Suppliers Invoices
+    """
+
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    # Centrale/Enseigne
+    center_signboard = models.ForeignKey(
+        CentersInvoices,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="invoice_center_signboard",
+        verbose_name="Centrale / Enseigne",
+        db_column="center_signboard",
+    )
+
+    # Magasin Facturé
+    client_adress = models.ForeignKey(
+        CctAdress,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="cct_client_adress",
+        verbose_name="CCT x3",
+        db_column="cct_adress",
+    )
+
+    # Tiers Client Facturé
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="dinvoice_third_party_num",
+        db_column="third_party_num",
+    )
+    third_party_adress = models.ForeignKey(
+        ThirdPartyAdress,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="client_third_party_adress",
+        verbose_name="Tiers x3",
+        db_column="third_party_adress",
+    )
     periode = models.IntegerField()
-    flag_sage = models.BooleanField(null=True, default=False)
+    flag_sage_purchases = models.BooleanField(null=True, default=False)
+    flag_sage_sales = models.BooleanField(null=True, default=False)
 
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
     uuid_control = models.ForeignKey(
@@ -80,12 +158,13 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         EN : We set the year by default according to the date of the invoice
         """
         self.invoice_year = self.invoice_date.year
-
+        self.periode = self.invoice_date.month
+        self.invoice_month = pendulum.date(self.invoice_year, self.periode, 1)
         super().save(*args, **kwargs)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.third_party_num} - {self.invoice_number} - {self.invoice_date}"
+        return f"{self.third_party_adress} - {self.invoice_number} - {self.invoice_date}"
 
     @staticmethod
     def set_export():
@@ -104,33 +183,6 @@ class Invoice(FlagsTable, BaseInvoiceTable):
                 name="unique_invoice",
             )
         ]
-
-
-class InvoiceTax(FlagsTable):
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    uuid_edi_import = models.UUIDField()
-    third_party_num = models.CharField(max_length=15)
-    invoice_number = models.CharField(max_length=35)
-    total_without_tax = models.DecimalField(max_digits=20, decimal_places=5)
-    vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
-    total_tax = models.DecimalField(max_digits=20, decimal_places=5)
-    total_with_tax = models.DecimalField(max_digits=20, decimal_places=5)
-    vat_rank = models.IntegerField()
-    vat = models.ForeignKey(
-        VatSage,
-        on_delete=models.PROTECT,
-        to_field="vat",
-        db_column="vat",
-    )
-    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
-
-    big_category = models.CharField(null=True, max_length=80)
-    big_category_uuid = models.UUIDField(null=True, default=uuid.uuid4)
-    sub_category = models.CharField(null=True, max_length=80)
-    sub_category_uuid = models.UUIDField(null=True, default=uuid.uuid4)
 
 
 class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
