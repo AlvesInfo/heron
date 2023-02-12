@@ -354,7 +354,7 @@ class VatRatSage(FlagsTable):
     vat_start_date = models.DateField()
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     exoneration = models.BooleanField(null=True)
-    auuid = models.UUIDField(unique=True, editable=False, verbose_name="n° champ unique")
+    auuid = models.UUIDField(unique=True, verbose_name="n° champ unique")
 
     @staticmethod
     def file_import_sage():
