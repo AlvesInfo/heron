@@ -23,6 +23,20 @@ bbgr_004_retours_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_vat_amount": sql.SQL(
+        """
+        update "edi_ediimport"
+        set 
+            "vat_amount" = round("vat_rate" * "net_amount", 2)::numeric,
+            "amount_with_vat" = (
+                round("vat_rate" * "net_amount", 2)::numeric
+                +
+                "net_amount"
+            )::numeric
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        """
+    ),
     "sql_total_amount_by_invoices": sql.SQL(
         """
         update edi_ediimport ei 
