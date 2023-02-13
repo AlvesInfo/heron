@@ -363,11 +363,13 @@ def bbgr_retours_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_vat = bbgr_004_retours_dict.get("sql_vat")
+    sql_vat_amount = bbgr_004_retours_dict.get("sql_vat_amount")
     sql_total_amount_by_invoices = bbgr_004_retours_dict.get("sql_total_amount_by_invoices")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat_amount, {"uuid_identification": uuid_identification})
         cursor.execute(sql_total_amount_by_invoices, {"uuid_identification": uuid_identification})
 
 
