@@ -1,0 +1,21 @@
+BAR;Espèces;Espèces;GER;52d3c749-5e3a-4204-b6d1-a964ec75b0f4
+BOR;;;FRA;e079577b-05a9-4dfd-87a6-91194b2fdebd
+CB;Carte Bleue;CB;FRA;8a7fe5bf-2006-48c7-93ba-dcebb62c4fff
+CHQ;Chèque;Chèque;;51de8864-59ac-43de-843e-0a0bf671f532
+CHQ;Chèque;Chèque;FRA;f475ed29-da9b-410e-b0b4-1d2e61c3459c
+CPT;Comptant;Comptant;FRA;dbaa0b00-b5c4-40c8-adce-997f8d062584
+ESP;Espèces;Espèces;FRA;341ccd14-7578-440a-9560-b710731718e3
+LAS;Prélèvement;Prélèvement;GER;63c15c61-0416-417b-9ebc-468e81d9a127
+LCR;Lettre de change relevé;LCR;FRA;defbe870-0cd2-4f61-84c8-76e4f8128b58
+PRE;Prélèvement;Prélèvement;FRA;27b018d8-15a5-4979-946a-a2fdc5b3963e
+SCT;SEPA Credit Transfer;SCT;;6d044cad-d59a-4dea-96af-6bd81149b0f6
+SCT;SEPA Credit Transfer;SCT;FRA;8790ca4b-1869-4800-aa3d-4f4101feb2d9
+SDD;SEPA Direct Debit;SDD;;f575e116-4dc4-410d-878e-04c9eff7a45c
+SDD;SEPA Direct Debit;SDD;FRA;2decae15-9238-49a3-970a-655834b70d71
+TAC;Traite acceptée;Trt ac;FRA;ac33deeb-625a-441f-ba9f-8e2939e6950d
+TIP;Titre interbancaire paiement;TIP;FRA;6ee2b854-e756-417f-b394-cf3567c9fc2f
+TNA;Traite non acceptée;Trt non ac;FRA;e4c7da7d-465b-45e5-95e3-e6baa1c377ce
+UEB;Transfert;Transfert;GER;bbe39d36-089d-4504-9e47-d8b0a8553f3c
+VII;Virement international;Vir inter;FRA;438375ba-d8c1-4c63-9a36-9bdf44d28c1e
+VIR;Virement;Virement;FRA;662ea493-932e-4a1e-9af2-6caf417327f8
+VIR;Virement;Virement;GER;5b27c7f5-9a05-4de6-af11-3472796032ac
