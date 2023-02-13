@@ -105,6 +105,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         default=0,
         verbose_name="prix assurance",
     )
+    serial_number = models.TextField(null=True, blank=True)
     active = models.BooleanField(null=True, default=False)
     to_delete = models.BooleanField(null=True, default=False)
     to_export = models.BooleanField(null=True, default=False)

@@ -528,6 +528,62 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         where ei."id" = r."id"
     """
     ),
+    "sql_delta_vat": sql.SQL(
+        """
+        with "alls" as (
+            select 
+                "uuid_identification", 
+                "third_party_num", 
+                "invoice_number", 
+                sum("amount_with_vat") as "sum_amount_with_vat",
+                "invoice_amount_with_tax",
+                ("invoice_amount_with_tax" - sum("amount_with_vat")) as "delta",
+                count(*) as nb_lignes,
+                string_agg("id"::varchar, '|' order by vat_rate desc, net_amount desc) as alls_id,
+                abs(("invoice_amount_with_tax" - sum("amount_with_vat")) * 100)::int as nb_iterate
+             from "edi_ediimport" ee
+             where ("valid" = false or "valid" isnull)
+             group by "uuid_identification", 
+                      "third_party_num", 
+                      "invoice_number",
+                      "invoice_amount_with_tax" 
+            having sum("amount_with_vat") <> "invoice_amount_with_tax" 
+    ),
+    rows_filter as (
+        select
+            ee."id", 
+            ee."vat_amount",
+            ee."amount_with_vat",
+            aa."nb_iterate",
+            ROW_NUMBER() over(
+                partition by ee."uuid_identification", 
+                             ee."third_party_num", 
+                             ee."invoice_number" 
+                order by ee."vat_rate" desc, 
+                         ee."net_amount" desc, ee."id"
+            ) as row_id,
+            case when aa."delta" > 0 then 0.01 else -0.01 end as "vat_amount_addition"
+        from "edi_ediimport" ee 
+        join "alls" aa
+        on ee."uuid_identification" = aa."uuid_identification"
+        and ee."third_party_num" = aa."third_party_num"
+        and ee."invoice_number" = aa."invoice_number" 
+        where ee."vat_rate" != 0
+    )
+    update "edi_ediimport" eei
+    set "vat_amount" = rq."vat_amount_add",
+        "amount_with_vat" = rq."amount_with_vat_add"
+    from (
+        select 
+                "id", 
+                ("vat_amount" + "vat_amount_addition")::numeric as "vat_amount_add",
+                ("amount_with_vat" + "vat_amount_addition") as "amount_with_vat_add"
+        from rows_filter
+        where "row_id" <= "nb_iterate"
+    ) rq
+    where eei."id" = rq."id"
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi

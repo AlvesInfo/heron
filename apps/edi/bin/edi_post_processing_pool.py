@@ -92,6 +92,7 @@ def post_common():
     sql_mg_developpemnt = post_common_dict.get("sql_mg_developpemnt")
     sql_alls_381 = post_common_dict.get("sql_alls_381")
     vat_per_line = post_common_dict.get("vat_per_line")
+    sql_delta_vat = post_common_dict.get("sql_delta_vat")
     sql_validate = post_common_dict.get("sql_validate")
 
     with connection.cursor() as cursor:
@@ -176,6 +177,12 @@ def post_common():
         print("Début : vat_per_line")
         cursor.execute(vat_per_line, {"created_by": get_user_automate()})
         print("Fin : vat_per_line")
+
+        sleep(1)
+
+        print("Début : sql_delta_vat")
+        cursor.execute(sql_delta_vat, {"created_by": get_user_automate()})
+        print("Fin : sql_delta_vat")
 
         sleep(1)
 

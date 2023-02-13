@@ -257,4 +257,4 @@ class InvoiceSerials(models.Model):
         related_name="serial_invoice",
         db_column="uuid_invoice",
     )
-    serial = models.CharField(max_length=255)
+    serial = models.CharField(max_length=50)
