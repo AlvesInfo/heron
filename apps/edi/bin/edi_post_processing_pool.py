@@ -83,8 +83,8 @@ def post_common():
     sql_supplier_update = post_common_dict.get("sql_supplier_update")
     sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")
     sql_reference = post_common_dict.get("sql_reference")
+    sql_vat_regime = post_common_dict.get("sql_vat_regime")
     sql_vat = post_common_dict.get("sql_vat")
-    # sql_vat_rate = post_common_dict.get("sql_vat_rate")
     sql_cct = post_common_dict.get("sql_cct")
     sql_is_multi_store = post_common_dict.get("sql_is_multi_store")
     sql_update_articles = post_common_dict.get("sql_update_articles")
@@ -120,15 +120,15 @@ def post_common():
 
         sleep(1)
 
+        print("Début : sql_vat_regime")
+        cursor.execute(sql_vat_regime, {"automat_user": get_user_automate()})
+        print("Fin : sql_vat_regime")
+
+        sleep(1)
+
         print("Début : sql_vat")
         cursor.execute(sql_vat)
         print("Fin : sql_vat")
-
-        # sleep(1)
-        #
-        # print("Début : sql_vat_rate")
-        # cursor.execute(sql_vat_rate, {"automat_user": get_user_automate()})
-        # print("Fin : sql_vat_rate")
 
         sleep(1)
 

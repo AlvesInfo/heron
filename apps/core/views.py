@@ -1,7 +1,9 @@
-import pendulum
+from pathlib import Path
 
+import pendulum
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.conf import settings
 
 from apps.edi.models import EdiImport
 
@@ -15,9 +17,9 @@ def pdf_view(request):
     }
     content = render_to_string("core/marchandises.html", context)
 
-    with open(
-        "C:\\SitesWeb\\heron\\your-template-static.html", "w", encoding="utf8"
-    ) as static_file:
+    media_file = Path(settings.MEDIA_DIR) / "files/your-template-static.html"
+
+    with media_file.open("w", encoding="utf8") as static_file:
         static_file.write(content)
 
     return render(request, "core/marchandises.html", context)
