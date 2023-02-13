@@ -101,6 +101,8 @@ class Invoice(FlagsTable, BaseInvoiceTable):
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
+    sales_invoice_number = models.CharField(null=True, blank=True, max_length=20)
+
     # Centrale/Enseigne
     center_signboard = models.ForeignKey(
         CentersInvoices,
