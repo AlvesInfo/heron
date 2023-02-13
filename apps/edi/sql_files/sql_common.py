@@ -512,6 +512,23 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         and ("valid" = false or "valid" isnull)
     """
     ),
+    "vat_per_line": sql.SQL(
+        """
+        update "edi_ediimport" ei 
+        set "vat_amount" = r."vat_amount",
+            "amount_with_vat" = r."amount_with_vat"
+        from (
+            select 
+                "id", 
+                round("net_amount" * "vat_rate", 2)::numeric as "vat_amount", 
+                ("net_amount" + round("net_amount" * "vat_rate", 2)::numeric)::numeric as "amount_with_vat" 
+             from "edi_ediimport" ee
+            where ("valid" = false or "valid" isnull)
+            and "third_party_num" != "BBGR004"
+        ) r 
+        where ei."id" = r."id"
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
