@@ -173,8 +173,8 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                        sum("montant_ht") as "gross_amount",
                        sum("montant_ht") as "net_amount",
                        "taux_tva" as "vat_rate",
-                       sum("montant_tva") as "vat_amount",
-                       sum("montant_ttc") as "amount_with_vat",
+                       0 as "vat_amount",
+                       0 as "amount_with_vat",
                        "statistique" as "axe_pro_supplier",
                        max("id") as "bi_id"
                     from "heron_bi_factures_monthlydelivery"
@@ -228,8 +228,8 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                    "montant_ht" as "gross_amount",
                    "montant_ht" as "net_amount",
                    "taux_tva" as "vat_rate",
-                   "montant_tva" as "vat_amount",
-                   "montant_ttc" as "amount_with_vat",
+                   0 as "vat_amount",
+                   0 as "amount_with_vat",
                    "statistique" as "axe_pro_supplier",
                    "id" as "bi_id"
                 from "heron_bi_factures_monthlydelivery"

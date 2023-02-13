@@ -524,7 +524,6 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                 ("net_amount" + round("net_amount" * "vat_rate", 2)::numeric)::numeric as "amount_with_vat" 
              from "edi_ediimport" ee
             where ("valid" = false or "valid" isnull)
-            and "third_party_num" != "BBGR004"
         ) r 
         where ei."id" = r."id"
     """
