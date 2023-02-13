@@ -517,7 +517,6 @@ class BaseInvoiceDetailsTable(models.Model):
         null=True, blank=True, max_length=150, verbose_name="IMD avec F dernière position"
     )
     client_name = models.CharField(null=True, blank=True, max_length=80)
-    serial_number = models.TextField(null=True, blank=True, max_length=1000)
     comment = models.CharField(null=True, blank=True, max_length=120)
     command_reference = models.CharField(null=True, blank=True, max_length=120)
 
