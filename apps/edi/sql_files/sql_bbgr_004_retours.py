@@ -29,9 +29,7 @@ bbgr_004_retours_dict = {
         set 
             "vat_amount" = round("vat_rate" * "net_amount", 2)::numeric,
             "amount_with_vat" = (
-                round("vat_rate" * "net_amount", 2)::numeric
-                +
-                "net_amount"
+                round("vat_rate" * "net_amount", 2)::numeric + "net_amount"
             )::numeric
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
