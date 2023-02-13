@@ -83,14 +83,14 @@ def post_common():
     sql_supplier_update = post_common_dict.get("sql_supplier_update")
     sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")
     sql_reference = post_common_dict.get("sql_reference")
-    sql_vat_regime = post_common_dict.get("sql_vat_regime")
-    sql_vat = post_common_dict.get("sql_vat")
     sql_cct = post_common_dict.get("sql_cct")
     sql_is_multi_store = post_common_dict.get("sql_is_multi_store")
     sql_update_articles = post_common_dict.get("sql_update_articles")
     sql_precilens = post_common_dict.get("sql_precilens")
     sql_mg_developpemnt = post_common_dict.get("sql_mg_developpemnt")
     sql_alls_381 = post_common_dict.get("sql_alls_381")
+    sql_vat_regime = post_common_dict.get("sql_vat_regime")
+    sql_vat = post_common_dict.get("sql_vat")
     vat_per_line = post_common_dict.get("vat_per_line")
     sql_delta_vat = post_common_dict.get("sql_delta_vat")
     sql_validate = post_common_dict.get("sql_validate")
@@ -98,97 +98,97 @@ def post_common():
     with connection.cursor() as cursor:
         print("Début : sql_round_amount")
         cursor.execute(sql_round_amount)
-        print("Fin : sql_round_amount")
+        print("Fin   : sql_round_amount")
 
         sleep(1)
 
         print("Début : sql_supplier_update")
         cursor.execute(sql_supplier_update)
-        print("Fin : sql_supplier_update")
+        print("Fin   : sql_supplier_update")
 
         sleep(1)
 
         print("Début : sql_fac_update_except_edi")
         cursor.execute(sql_fac_update_except_edi)
-        print("Fin : sql_fac_update_except_edi")
+        print("Fin   : sql_fac_update_except_edi")
 
         sleep(1)
 
         print("Début : sql_reference")
         cursor.execute(sql_reference)
-        print("Fin : sql_reference")
-
-        sleep(1)
-
-        print("Début : sql_vat_regime")
-        cursor.execute(sql_vat_regime, {"automat_user": get_user_automate()})
-        print("Fin : sql_vat_regime")
-
-        sleep(1)
-
-        print("Début : sql_vat")
-        cursor.execute(sql_vat)
-        print("Fin : sql_vat")
+        print("Fin   : sql_reference")
 
         sleep(1)
 
         print("Début : sql_cct")
         cursor.execute(sql_cct)
-        print("Fin : sql_cct")
+        print("Fin   : sql_cct")
 
         sleep(1)
 
         print("Début : sql_is_multi_store")
         cursor.execute(sql_is_multi_store)
-        print("Fin : sql_is_multi_store")
+        print("Fin   : sql_is_multi_store")
 
         sleep(1)
 
         print("Début : sql_update_articles")
         cursor.execute(sql_update_articles)
-        print("Fin : sql_update_articles")
+        print("Fin   : sql_update_articles")
 
         sleep(1)
 
         print("Début : sql_precilens")
         cursor.execute(sql_precilens)
-        print("Fin : sql_precilens")
+        print("Fin   : sql_precilens")
 
         sleep(1)
 
         print("Début : sql_mg_developpemnt")
         cursor.execute(sql_mg_developpemnt)
-        print("Fin : sql_mg_developpemnt")
+        print("Fin   : sql_mg_developpemnt")
 
         sleep(1)
 
         print("Début : sql_alls_381")
         cursor.execute(sql_alls_381)
-        print("Fin : sql_alls_381")
+        print("Fin   : sql_alls_381")
 
         sleep(1)
 
-        print("Début : sql_validate")
-        cursor.execute(sql_validate, {"created_by": get_user_automate()})
-        print("Fin : sql_validate")
+        print("Début : sql_vat_regime")
+        cursor.execute(sql_vat_regime, {"automat_user": get_user_automate()})
+        print("Fin   : sql_vat_regime")
+
+        sleep(1)
+
+        print("Début : sql_vat")
+        cursor.execute(sql_vat)
+        print("Fin   : sql_vat")
 
         sleep(1)
 
         print("Début : vat_per_line")
         cursor.execute(vat_per_line, {"created_by": get_user_automate()})
-        print("Fin : vat_per_line")
+        print("Fin   : vat_per_line")
 
         sleep(1)
 
         print("Début : sql_delta_vat")
         cursor.execute(sql_delta_vat, {"created_by": get_user_automate()})
-        print("Fin : sql_delta_vat")
+        print("Fin   : sql_delta_vat")
+
+        sleep(1)
+
+        print("Début : sql_validate")
+        cursor.execute(sql_validate, {"created_by": get_user_automate()})
+        print("Fin   : sql_validate")
 
         sleep(1)
 
         print("Début : VACUUM")
         cursor.execute("VACUUM (full)")
-        print("Fin : VACUUM")
+        print("Fin   : VACUUM")
         sleep(1)
 
 
