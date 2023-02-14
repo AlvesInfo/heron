@@ -243,7 +243,7 @@ def johnson_file(file: Path):
 
         for i, line in enumerate(csv_reader, 1):
             if not line[1] == "*" and (i >= first_line and line[2]):
-                print(line)
+                print(i, line)
                 csv_writer.writerow(line)
 
     csv_io.close()
