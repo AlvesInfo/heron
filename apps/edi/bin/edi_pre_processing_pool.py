@@ -245,6 +245,7 @@ def johnson_file(file: Path):
             if not line[1] == "*" or (i >= first_line and line[2]):
                 csv_writer.writerow(line)
 
+    csv_io.close()
     file.unlink()
 
     return new_csv_file

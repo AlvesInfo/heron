@@ -768,7 +768,7 @@ def johnson(file_path: Path):
     new_file = johnson_file(file_path)
     to_print = make_insert(model, flow_name, new_file, trace, validator, params_dict_loader)
     johnson_post_insert(trace.uuid_identification)
-
+    new_file.unlink()
     return trace, to_print
 
 
