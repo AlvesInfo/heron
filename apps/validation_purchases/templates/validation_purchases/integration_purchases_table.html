@@ -12,12 +12,13 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th colspan="9" style="background-color: hwb(240deg 94% 3%);font-weight: bold;">INTEGRATIONS</th>
+                    <th colspan="10" style="background-color: hwb(240deg 94% 3%);font-weight: bold;">INTEGRATIONS</th>
                     <th colspan="3" style="background-color: hwb(240deg 94% 3%);border: 1px solid darkgray;">RELEVES</th>
                     <th colspan="4" style="background-color: hwb(240deg 94% 3%);font-weight: bold;">CONTROLES</th>
                 </tr>
                 <tr>
                     <th class="no-sort" style="width: 2px;"></th>
+                    <th style="width: 7px;-webkit-writing-mode: vertical-rl;">Source</th>
                     <th style="width: 15px;display: none;">Categorie</th>
                     <th style="width: 15px;">CCT</th>
                     <th style="width: 20px;">Tiers X3</th>
@@ -38,7 +39,7 @@
             </thead>
             <thead>
                 <tr>
-                    <th colspan="5" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: bold">TOTAL GENERAL</th>
+                    <th colspan="6" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: bold">TOTAL GENERAL</th>
                     <th id="supplierHt" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;">0</th>
                     <th id="SupplierTtc" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;">0</th>
                     <th id="nbreFac" style="text-align: right;background-color: hwb(240deg 94% 3%);font-weight: 900;">0</th>
@@ -60,6 +61,7 @@
                             <i class="eye icon modification"></i>
                         </a>
                     </td>
+                    <td style="text-align: center;">{% if manual_entry %}<i class="hand paper outline icon"></i>{% else %}<i class="share alternate square icon"></i{% endif %}</td>
                     <td class="category"
                         data-value="{{ supplier_purchase.uuid_category }}|{{ supplier_purchase.big_category }}|{{ supplier_purchase.third_party_num }}|{{ supplier_purchase.invoice_month.isoformat }}"
                         data-category="{{ supplier_purchase.uuid_category }}"
