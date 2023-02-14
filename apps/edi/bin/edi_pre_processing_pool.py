@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-01-01
 modified by: Paulo ALVES
 """
+import io
 import csv
 from pathlib import Path
 from operator import itemgetter
@@ -19,6 +20,7 @@ from decimal import Decimal
 import pendulum
 
 from apps.core.functions.functions_setups import settings
+from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.data_flux.postgres_save import get_random_name
 from apps.data_flux.utilities import encoding_detect
 
@@ -211,6 +213,38 @@ def transferts_cosium_file(file: Path):
     new_file.unlink()
 
     return file
+
+
+def johnson_file(file: Path):
+    """
+    Transformation du fichier jonhson pour supprimer les sous totaux (en deuxième position *)
+    Une pour l'envoyeur, l'autre pour le receptionnaire.
+    :param file: fichier
+    :return: Path(file)
+    """
+    new_csv_file = file.parents[0] / f"{file.name}.csv"
+    csv_io = io.StringIO()
+    excel_file_to_csv_string_io(file, csv_io)
+
+    with new_csv_file.open("w", encoding="utf8", newline="") as file_to_write:
+        csv_reader = csv.reader(
+            csv_io,
+            delimiter=";",
+            quotechar='"',
+            lineterminator="\n",
+            quoting=csv.QUOTE_MINIMAL,
+        )
+        csv_writer = csv.writer(
+            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+
+        for line in csv_reader:
+            if not line[1] == "*":
+                csv_writer.writerow(line)
+
+    file.unlink()
+
+    return new_csv_file
 
 
 if __name__ == "__main__":

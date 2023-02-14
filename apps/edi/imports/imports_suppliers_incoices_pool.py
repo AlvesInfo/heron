@@ -25,6 +25,7 @@ from apps.edi.bin.edi_pre_processing_pool import (
     bulk_translate_file,
     interson_translate_file,
     transferts_cosium_file,
+    johnson_file,
 )
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
@@ -764,7 +765,8 @@ def johnson(file_path: Path):
         },
         "exclude_rows_dict": {1: "Total"},
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    new_file = johnson_file(file_path)
+    to_print = make_insert(model, flow_name, new_file, trace, validator, params_dict_loader)
     johnson_post_insert(trace.uuid_identification)
 
     return trace, to_print
