@@ -242,9 +242,12 @@ def johnson_file(file: Path):
         )
 
         for i, line in enumerate(csv_reader, 1):
-            if not line[1] == "*" and (i >= first_line and line[2]):
-                print(i, line)
-                csv_writer.writerow(line)
+            if not line[1] == "*":
+                if i >= first_line and not line[2]:
+                    pass
+                else:
+                    print(i, line)
+                    csv_writer.writerow(line)
 
     csv_io.close()
     file.unlink()
