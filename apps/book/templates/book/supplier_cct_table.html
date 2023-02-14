@@ -16,9 +16,10 @@
             <thead>
                 <tr>
                     <th class="no-sort" style="width: 0;display: none;">pk</th>
-                    <th style="width: 17%;text-align: left;">Maison</th>
-                    <th style="width: 40%;text-align: left;">Adresse</th>
-                    <th style="width: 6%;">CCT</th>
+                    <th style="width: 15%;text-align: left;">Maison</th>
+                    <th style="width: 41%;text-align: left;">Adresse</th>
+                    <th style="width: 4%;">CCT</th>
+                    <th style="width: 4%;">Client</th>
                     <th style="width: 30%;text-align: left;">Indentifiants&nbsp;<span>(à séparer par | , sans espaces)</span></th>
                     <th style="width: 6%;"></th>
 
@@ -44,6 +45,9 @@
                     </td>
                     <td style="padding: 0 9px;">
                         {{ identifier.cct_uuid_identification__cct }}
+                    </td>
+                    <td style="padding: 0 9px;{% if not identifier.cct_uuid_identification__maison_cct__cct %}background-color: #ffdae0;{% endif %}">
+                        {{ identifier.cct_uuid_identification__maison_cct__cct|default_if_none:'' }}
                     </td>
                     <td style="padding: 4px 4px;">
                         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">

@@ -48,6 +48,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                 "third_party_num",
                 "cct_uuid_identification",
                 "cct_uuid_identification__cct",
+                "cct_uuid_identification__maison_cct__cct",
                 "cct_uuid_identification__name",
                 "cct_identifier",
                 "cct_uuid_identification__maison_cct__immeuble",
