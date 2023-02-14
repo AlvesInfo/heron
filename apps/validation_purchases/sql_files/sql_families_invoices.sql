@@ -50,8 +50,8 @@ with families as (
 			then siid."net_amount"
 			else 0
 		end as "m_02"
-    from suppliers_invoices_invoice sii
-    join suppliers_invoices_invoicedetail siid
+    from invoices_invoice sii
+    join invoices_invoicedetail siid
     on sii.uuid_identification  = siid.uuid_invoice
     left join "accountancy_sectionsage" ac
 	ON (siid."axe_pro_uuid" = ac."uuid_identification")

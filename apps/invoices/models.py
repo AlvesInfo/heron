@@ -140,6 +140,7 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         verbose_name="Tiers x3",
         db_column="third_party_adress",
     )
+    supplier = models.CharField(null=True, blank=True, max_length=35)
     periode = models.IntegerField()
     flag_sage_purchases = models.BooleanField(null=True, default=False)
     flag_sage_sales = models.BooleanField(null=True, default=False)
