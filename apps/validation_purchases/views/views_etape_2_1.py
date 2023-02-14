@@ -56,7 +56,8 @@ def integration_purchases(request):
             "traces": Trace.objects.filter(
                 modified_at__gte=pendulum.now().start_of("month"),
             ).exclude(file_name__istartswith="ZBI"),
-            "margin_table": 10,
+            "margin_table": 50,
+            "margin_rep": 50,
             "nb_paging": 100,
         }
 

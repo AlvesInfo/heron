@@ -14,14 +14,14 @@
             {% include "validation_purchases/integration_purchases_entete.html" %}
 
             {% if not en_cours %}
-                <div style="padding: 5px;margin: 20px 10px;">
+                <div style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_rep %}{{ margin_rep }}{% else %}50{% endif %}px;margin-right: {% if margin_rep %}{{ margin_rep }}{% else %}50{% endif %}px;">
                     <div class="ui top attached tabular menu">
                       <a class="active item" data-tab="integration">Intégrations/Relevés</a>
                       <a class="item" data-tab="trace">Trace des Imports</a>
                     </div>
                     <div class="ui bottom attached active tab segment"
                          data-tab="integration"
-                         style="padding: 5px 0 10px 0;">
+                         style="">
                         {% include "validation_purchases/integration_purchases_table.html" %}
                     </div>
                     <div class="ui bottom attached tab segment" data-tab="trace">
@@ -40,6 +40,7 @@
         <br>
         <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
             site</p>
+
 
 {% endif %}
 

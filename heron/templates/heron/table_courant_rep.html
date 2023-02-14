@@ -1,0 +1,30 @@
+<div class="ui grid" style="padding: 0;margin: 0;">
+    <div class="sixteen wide column" style="padding: 0;">
+
+            {% if tabulation %}
+
+                <div class="ui top attached tabular menu">
+                    {% for titre in tabulation  %}
+                      <a class="{% if forloop.counter == 1 %}active {% endif %}item" data-tab="tab-{{ forloop.counter }}">{{ titre }}</a>
+                    {% endfor %}
+                </div>
+
+                {% block multiple_table %}
+                {% endblock multiple_table %}
+
+            {% else %}
+                <div class="ui segment" style="margin: 0;padding: 10px;text-align: center">
+                    <div class="ui equal width grid center">
+                        <div class="ui datatable-chargement active inverted dimmer">
+                            <div class="ui medium text loader">Chargement</div>
+                        </div>
+
+                        {% block table %}
+                        {% endblock table %}
+
+                    </div>
+                </div>
+
+            {% endif %}
+    </div>
+</div>
