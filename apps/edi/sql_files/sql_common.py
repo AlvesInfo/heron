@@ -306,7 +306,7 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         update "edi_ediimport" edi
         set 
             "is_multi_store" = false
-        and edi."is_multi_store" isnull
+        where edi."is_multi_store" isnull
         and ("valid" = false or "valid" isnull)
     """
     ),
