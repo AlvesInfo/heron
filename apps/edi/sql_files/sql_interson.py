@@ -30,9 +30,9 @@ post_interson_dict = {
             "sale_invoice" = true,
             "famille" = case 
                             when (
-                                    "reference_article" ilike 'Chronopost%' 
+                                    "reference_article" ilike 'Chronopost%%' 
                                     or 
-                                    "reference_article" ilike '%port%'
+                                    "reference_article" ilike '%%port%%'
                                 )
                                 and
                                 (
