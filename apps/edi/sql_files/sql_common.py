@@ -361,7 +361,11 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             select 
                 "id", 
                 round("net_amount" * "vat_rate", 2)::numeric as "vat_amount", 
-                ("net_amount" + round("net_amount" * "vat_rate", 2)::numeric)::numeric as "amount_with_vat" 
+                (
+                    "net_amount" 
+                    + 
+                    round("net_amount" * "vat_rate", 2)::numeric
+                )::numeric as "amount_with_vat" 
              from "edi_ediimport" ee
             where ("valid" = false or "valid" isnull)
         ) r 
