@@ -64,7 +64,7 @@ post_generic_dict = {
         set "famille" = 'PORT'
         where "third_party_num" = 'MGDE001'
           and edi."uuid_identification" = %(uuid_identification)s
-          and "reference_article" ilike '%PORT%'
+          and "reference_article" ilike '%%PORT%%'
           and ("valid" = false or "valid" isnull)
     """
     ),
