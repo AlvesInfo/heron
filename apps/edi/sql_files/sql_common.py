@@ -71,8 +71,7 @@ BASE_SQL_CCT = sql.SQL(
             on ac."cct" = ccm."cct"
         ) bs
         on ee."third_party_num" = bs."third_party_num"
-        where ee."uuid_identification" = %(uuid_identification)s
-        and ee."third_party_num" = bs."third_party_num"
+        where ee."third_party_num" = bs."third_party_num"
         and ee."code_maison" = bs."cct_identifier"
         and ee."cct_uuid_identification" is null
     ) cc
