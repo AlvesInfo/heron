@@ -79,6 +79,16 @@ def post_processing_all():
 
 def post_common():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+    with connection.cursor() as cursor:
+        sleep(3)
+
+        print("sql : VACUUM")
+        cursor.execute("VACUUM (full)")
+        print("Fin   : VACUUM")
+
+
+def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
+    """Mise à jour générales pour tous les founrnisseurs"""
     sql_round_amount = post_common_dict.get("sql_round_amount")
     sql_supplier_update = post_common_dict.get("sql_supplier_update")
     sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")
@@ -87,8 +97,6 @@ def post_common():
     sql_is_multi_store_true = post_common_dict.get("sql_is_multi_store_true")
     sql_is_multi_store_false = post_common_dict.get("sql_is_multi_store_false")
     sql_update_articles = post_common_dict.get("sql_update_articles")
-    sql_precilens = post_common_dict.get("sql_precilens")
-    sql_mg_developpemnt = post_common_dict.get("sql_mg_developpemnt")
     sql_alls_381 = post_common_dict.get("sql_alls_381")
     sql_vat_regime = post_common_dict.get("sql_vat_regime")
     sql_vat = post_common_dict.get("sql_vat")
@@ -96,106 +104,50 @@ def post_common():
     sql_delta_vat = post_common_dict.get("sql_delta_vat")
     sql_validate = post_common_dict.get("sql_validate")
 
-    with connection.cursor() as cursor:
-        print("Début : sql_round_amount")
-        cursor.execute(sql_round_amount)
-        print("Fin   : sql_round_amount")
+    print("sql : sql_round_amount")
+    cursor.execute(sql_round_amount, {"uuid_identification": uuid_identification})
 
-        sleep(3)
+    print("sql : sql_supplier_update")
+    cursor.execute(sql_supplier_update, {"uuid_identification": uuid_identification})
 
-        print("Début : sql_supplier_update")
-        cursor.execute(sql_supplier_update)
-        print("Fin   : sql_supplier_update")
+    print("sql : sql_fac_update_except_edi")
+    cursor.execute(sql_fac_update_except_edi, {"uuid_identification": uuid_identification})
 
-        sleep(3)
+    print("sql : sql_reference")
+    cursor.execute(sql_reference, {"uuid_identification": uuid_identification})
 
-        print("Début : sql_fac_update_except_edi")
-        cursor.execute(sql_fac_update_except_edi)
-        print("Fin   : sql_fac_update_except_edi")
+    print("sql : sql_cct")
+    cursor.execute(sql_cct, {"uuid_identification": uuid_identification})
 
-        sleep(3)
+    print("sql : sql_is_multi_store_true")
+    cursor.execute(sql_is_multi_store_true, {"uuid_identification": uuid_identification})
 
-        print("Début : sql_reference")
-        cursor.execute(sql_reference)
-        print("Fin   : sql_reference")
+    print("sql : sql_is_multi_store_false")
+    cursor.execute(sql_is_multi_store_false, {"uuid_identification": uuid_identification})
 
-        sleep(3)
+    print("sql : sql_update_articles")
+    cursor.execute(sql_update_articles, {"uuid_identification": uuid_identification})
 
-        print("Début : sql_cct")
-        cursor.execute(sql_cct)
-        print("Fin   : sql_cct")
+    print("sql : sql_alls_381")
+    cursor.execute(sql_alls_381, {"uuid_identification": uuid_identification})
 
-        sleep(3)
+    print("sql : sql_vat_regime")
+    cursor.execute(sql_vat_regime, {"uuid_identification": uuid_identification})
 
-        print("Début : sql_is_multi_store_true")
-        cursor.execute(sql_is_multi_store_true)
-        print("Fin   : sql_is_multi_store_true")
+    print("sql : sql_vat")
+    cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
 
-        sleep(3)
+    print("sql : vat_per_line")
+    cursor.execute(vat_per_line, {"uuid_identification": uuid_identification})
 
-        print("Début : sql_is_multi_store_false")
-        cursor.execute(sql_is_multi_store_false)
-        print("Fin   : sql_is_multi_store_false")
+    print("sql : sql_delta_vat")
+    cursor.execute(sql_delta_vat, {"uuid_identification": uuid_identification})
 
-        sleep(3)
-
-        print("Début : sql_update_articles")
-        cursor.execute(sql_update_articles)
-        print("Fin   : sql_update_articles")
-
-        sleep(3)
-
-        print("Début : sql_precilens")
-        cursor.execute(sql_precilens)
-        print("Fin   : sql_precilens")
-
-        sleep(3)
-
-        print("Début : sql_mg_developpemnt")
-        cursor.execute(sql_mg_developpemnt)
-        print("Fin   : sql_mg_developpemnt")
-
-        sleep(3)
-
-        print("Début : sql_alls_381")
-        cursor.execute(sql_alls_381)
-        print("Fin   : sql_alls_381")
-
-        sleep(3)
-
-        print("Début : sql_vat_regime")
-        cursor.execute(sql_vat_regime, {"automat_user": get_user_automate()})
-        print("Fin   : sql_vat_regime")
-
-        sleep(3)
-
-        print("Début : sql_vat")
-        cursor.execute(sql_vat)
-        print("Fin   : sql_vat")
-
-        sleep(3)
-
-        print("Début : vat_per_line")
-        cursor.execute(vat_per_line, {"created_by": get_user_automate()})
-        print("Fin   : vat_per_line")
-
-        sleep(3)
-
-        print("Début : sql_delta_vat")
-        cursor.execute(sql_delta_vat, {"created_by": get_user_automate()})
-        print("Fin   : sql_delta_vat")
-
-        sleep(3)
-
-        print("Début : sql_validate")
-        cursor.execute(sql_validate, {"created_by": get_user_automate()})
-        print("Fin   : sql_validate")
-
-        sleep(3)
-
-        print("Début : VACUUM")
-        cursor.execute("VACUUM (full)")
-        print("Fin   : VACUUM")
+    print("sql : sql_validate")
+    cursor.execute(
+        sql_validate,
+        {"uuid_identification": uuid_identification, "created_by": get_user_automate()},
+    )
 
 
 def bulk_post_insert(uuid_identification: AnyStr):
@@ -292,6 +244,7 @@ def bulk_post_insert(uuid_identification: AnyStr):
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def cosium_post_insert(uuid_identification: AnyStr):
@@ -308,6 +261,7 @@ def cosium_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})
         cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
         cursor.execute(sql_totaux, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def tansferts_cosium_post_insert(uuid_identification: AnyStr):
@@ -321,6 +275,7 @@ def tansferts_cosium_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_amounts, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_articles, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def edi_post_insert(uuid_identification: AnyStr):
@@ -331,6 +286,7 @@ def edi_post_insert(uuid_identification: AnyStr):
 
     sql_col_essilor = post_edi_dict.get("sql_col_essilor")
     sql_tva = post_edi_dict.get("sql_tva")
+    sql_precilens = post_edi_dict.get("sql_precilens")
     sql_fac_update_edi = post_edi_dict.get("sql_fac_update_edi")
     sql_edi_generique = post_edi_dict.get("sql_edi_generique")
 
@@ -338,8 +294,10 @@ def edi_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_col_essilor, {"uuid_identification": uuid_identification})
         cursor.execute(sql_tva, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_precilens, {"uuid_identification": uuid_identification})
         cursor.execute(sql_fac_update_edi, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def bbgr_statment_post_insert(uuid_identification: AnyStr):
@@ -354,6 +312,7 @@ def bbgr_statment_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def bbgr_monthly_post_insert(uuid_identification: AnyStr):
@@ -368,6 +327,7 @@ def bbgr_monthly_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def bbgr_retours_post_insert(uuid_identification: AnyStr):
@@ -384,6 +344,7 @@ def bbgr_retours_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat_amount, {"uuid_identification": uuid_identification})
         cursor.execute(sql_total_amount_by_invoices, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def eye_confort_post_insert(uuid_identification: AnyStr):
@@ -400,6 +361,7 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def generique_post_insert(uuid_identification: AnyStr):
@@ -410,6 +372,7 @@ def generique_post_insert(uuid_identification: AnyStr):
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
     sql_maison = post_generic_dict.get("sql_maison")
+    sql_mg_developpemnt = post_generic_dict.get("sql_mg_developpemnt")
     sql_edi_generique = post_generic_dict.get("sql_edi_generique")
 
     with connection.cursor() as cursor:
@@ -417,7 +380,9 @@ def generique_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
         cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_mg_developpemnt, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def hearing_post_insert(uuid_identification: AnyStr):
@@ -430,6 +395,7 @@ def hearing_post_insert(uuid_identification: AnyStr):
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def interson_post_insert(uuid_identification: AnyStr):
@@ -444,6 +410,7 @@ def interson_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_bl_date, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def johnson_post_insert(uuid_identification: AnyStr):
@@ -460,6 +427,7 @@ def johnson_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_vat_rate, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def lmc_post_insert(uuid_identification: AnyStr):
@@ -472,6 +440,7 @@ def lmc_post_insert(uuid_identification: AnyStr):
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def newson_post_insert(uuid_identification: AnyStr):
@@ -488,6 +457,7 @@ def newson_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_round_net_amount, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def phonak_post_insert(uuid_identification: AnyStr):
@@ -504,6 +474,7 @@ def phonak_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mulitiple_dates, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def prodition_post_insert(uuid_identification: AnyStr):
@@ -518,6 +489,7 @@ def prodition_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_libele, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def signia_post_insert(uuid_identification: AnyStr):
@@ -534,6 +506,7 @@ def signia_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_bl, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def starkey_post_insert(uuid_identification: AnyStr):
@@ -548,6 +521,7 @@ def starkey_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def technidis_post_insert(uuid_identification: AnyStr):
@@ -562,6 +536,7 @@ def technidis_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def unitron_post_insert(uuid_identification: AnyStr):
@@ -576,6 +551,7 @@ def unitron_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mulitiple_dates, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def widex_post_insert(uuid_identification: AnyStr):
@@ -592,6 +568,7 @@ def widex_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_invoices_amounts, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def widexga_post_insert(uuid_identification: AnyStr):

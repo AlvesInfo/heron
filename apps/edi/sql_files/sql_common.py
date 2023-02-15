@@ -71,7 +71,8 @@ BASE_SQL_CCT = sql.SQL(
             on ac."cct" = ccm."cct"
         ) bs
         on ee."third_party_num" = bs."third_party_num"
-        where ee."third_party_num" = bs."third_party_num"
+        where ee."uuid_identification" = %(uuid_identification)s
+        and ee."third_party_num" = bs."third_party_num"
         and ee."code_maison" = bs."cct_identifier"
         and ee."cct_uuid_identification" is null
     ) cc
@@ -101,7 +102,8 @@ post_common_dict = {
                                 end
                             else "code_maison"    
                         end
-    where ("valid" = false or "valid" isnull)
+    where "uuid_identification" = %(uuid_identification)s
+    and ("valid" = false or "valid" isnull)
     """
     ),
     "sql_supplier_update": sql.SQL(
@@ -127,74 +129,78 @@ post_common_dict = {
             unnest(string_to_array("centers_suppliers_indentifier", '|')) as "identifier"
             from "book_society" bs
     ) "tiers"
-    where ("edi"."third_party_num" is null or "edi"."third_party_num" = '')
+    where "uuid_identification" = %(uuid_identification)s
+    and ("edi"."third_party_num" is null or "edi"."third_party_num" = '')
     and "edi"."supplier_ident" = "tiers"."identifier"
     and ("edi"."valid" = false or "edi"."valid" isnull)
     """
     ),
     "sql_fac_update_except_edi": sql.SQL(
         """
-update "edi_ediimport" edi
-set
-    "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
-    "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
-    "invoice_amount_tax" = (
-                                edi_fac."invoice_amount_with_tax" 
-                                - 
-                                edi_fac."invoice_amount_without_tax"
-                            ),
-    "reference_article" = case 
-                            when "reference_article" isnull or "reference_article" = '' 
-                            then "ean_code"
-                            else "reference_article"
-                          end
-from (
-    select 
-        "uuid_identification", 
-        "invoice_number",
-        case 
-            when invoice_type = '381' 
-            then -abs(sum("mont_HT"))::numeric
-            else abs(sum("mont_HT"))::numeric
-        end as "invoice_amount_without_tax",
-        case 
-            when invoice_type = '381'
-            then -abs(sum("mont_TTC"))::numeric 
-            else abs(sum("mont_TTC"))::numeric    
-        end as "invoice_amount_with_tax"
-    from (
-        select 
-            "uuid_identification", 
-            "invoice_number", 
-            "invoice_type",
-            round(sum("net_amount")::numeric, 2) as "mont_HT",
-            (
-                round(sum("net_amount")::numeric, 2) +
-                round(round(sum("net_amount")::numeric, 2) * "vat_rate"::numeric, 2)
-            ) as "mont_TTC",
-            "vat_rate"
-        from "edi_ediimport"                
-        where (
-            flow_name not in ('Edi', 'Widex', 'WidexGa', 'BbgrRetours') 
-            -- Spécifique pour ophtalmic qui n'additionnent pas le port avec le total 
-            -- comme spécifié dans la norme edi
-            or third_party_num = 'OPHT001'
-        )
-        and ("valid" = false or "valid" isnull)
-        group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
-    ) as "tot_amount"
-    group by "uuid_identification", "invoice_number", "invoice_type"
-) edi_fac
-where edi."uuid_identification" = edi_fac."uuid_identification"
-  and edi."invoice_number" = edi_fac."invoice_number"
-"""
+        update "edi_ediimport" edi
+        set
+            "invoice_amount_without_tax" = edi_fac."invoice_amount_without_tax",
+            "invoice_amount_with_tax" = edi_fac."invoice_amount_with_tax",
+            "invoice_amount_tax" = (
+                                        edi_fac."invoice_amount_with_tax" 
+                                        - 
+                                        edi_fac."invoice_amount_without_tax"
+                                    ),
+            "reference_article" = case 
+                                    when "reference_article" isnull or "reference_article" = '' 
+                                    then "ean_code"
+                                    else "reference_article"
+                                  end
+        from (
+            select 
+                "uuid_identification", 
+                "invoice_number",
+                case 
+                    when invoice_type = '381' 
+                    then -abs(sum("mont_HT"))::numeric
+                    else abs(sum("mont_HT"))::numeric
+                end as "invoice_amount_without_tax",
+                case 
+                    when invoice_type = '381'
+                    then -abs(sum("mont_TTC"))::numeric 
+                    else abs(sum("mont_TTC"))::numeric    
+                end as "invoice_amount_with_tax"
+            from (
+                select 
+                    "uuid_identification", 
+                    "invoice_number", 
+                    "invoice_type",
+                    round(sum("net_amount")::numeric, 2) as "mont_HT",
+                    (
+                        round(sum("net_amount")::numeric, 2) +
+                        round(round(sum("net_amount")::numeric, 2) * "vat_rate"::numeric, 2)
+                    ) as "mont_TTC",
+                    "vat_rate"
+                from "edi_ediimport"                
+                where "uuid_identification" = %(uuid_identification)s
+                  and (
+                    flow_name not in ('Edi', 'Widex', 'WidexGa', 'BbgrRetours') 
+                    -- Spécifique pour ophtalmic qui n'additionnent pas le port avec le total 
+                    -- comme spécifié dans la norme edi
+                    or third_party_num = 'OPHT001'
+                  )
+                  and ("valid" = false or "valid" isnull)
+                group by "uuid_identification", "invoice_number", "vat_rate", "invoice_type"
+            ) as "tot_amount"
+            group by "uuid_identification", "invoice_number", "invoice_type"
+        ) edi_fac
+        where edi."uuid_identification" = %(uuid_identification)s
+        and edi."uuid_identification" = edi_fac."uuid_identification"
+        and edi."invoice_number" = edi_fac."invoice_number"
+        """
     ),
     "sql_reference": sql.SQL(
         """
-    update edi_ediimport 
-    set reference_article = libelle 
-    where (reference_article isnull or reference_article = '')
-      and ("valid" = false or "valid" isnull)
+        update edi_ediimport 
+        set reference_article = libelle 
+        where "uuid_identification" = %(uuid_identification)s
+          and (reference_article isnull or reference_article = '')
+          and ("valid" = false or "valid" isnull)
     """
     ),
     "sql_vat_regime": sql.SQL(
@@ -211,9 +217,10 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                 end
             from "book_society" bs 
         ) rvat
-        where edi."third_party_num" =rvat."third_party_num"
-        and (edi."vat_regime" isnull or edi."vat_regime" = '')
-        and (edi."valid" = false or edi."valid" isnull)
+        where edi."uuid_identification" = %(uuid_identification)s
+          and edi."third_party_num" =rvat."third_party_num"
+          and (edi."vat_regime" isnull or edi."vat_regime" = '')
+          and (edi."valid" = false or edi."valid" isnull)
         """
     ),
     "sql_vat": sql.SQL(
@@ -236,15 +243,17 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                      vs."vat_regime", 
                      vsr."rate"
         ) rvat
-        where edi."vat_rate" = rvat."vat_rate" 
-        and edi."vat_regime" = rvat."vat_regime"
-        and rvat."vat_index" = 1
-        and (edi."valid" = false or edi."valid" isnull)
+        where edi."uuid_identification" = %(uuid_identification)s
+          and edi."vat_rate" = rvat."vat_rate" 
+          and edi."vat_regime" = rvat."vat_regime"
+          and rvat."vat_index" = 1
+          and (edi."valid" = false or edi."valid" isnull)
     """
     ),
     "sql_cct": sql.SQL(
         """
         {}
+          and edi."uuid_identification" = %(uuid_identification)s
           and ("valid" = false or "valid" isnull)
     """
     ).format(BASE_SQL_CCT),
@@ -288,17 +297,19 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                     "uuid_identification",
                     "invoice_number"
                 from "edi_ediimport"
-                where "is_multi_store" isnull
+                where "uuid_identification" = %(uuid_identification)s
+                  and "is_multi_store" isnull
                 group by 
                     "third_party_num",
                     "uuid_identification",
                     "invoice_number"
                having count("code_fournisseur") >1
         ) ms 
-        where edi."third_party_num" = ms."third_party_num"
-        and edi."uuid_identification" = ms."uuid_identification"
-        and edi."invoice_number" = ms."invoice_number"
-        and ("valid" = false or "valid" isnull)
+        where edi."uuid_identification" = %(uuid_identification)s
+          and edi."third_party_num" = ms."third_party_num"
+          and edi."uuid_identification" = ms."uuid_identification"
+          and edi."invoice_number" = ms."invoice_number"
+          and ("valid" = false or "valid" isnull)
     """
     ),
     "sql_is_multi_store_false": sql.SQL(
@@ -306,36 +317,9 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
         update "edi_ediimport" edi
         set 
             "is_multi_store" = false
-        where edi."is_multi_store" isnull
-        and ("valid" = false or "valid" isnull)
-    """
-    ),
-    "sql_precilens": sql.SQL(
-        """
-        update "edi_ediimport" edi
-        set "famille" = 'PORT'
-        where "third_party_num" = 'MGDE001'
-        and "reference_article" ilike '%PORT%'
-        and ("valid" = false or "valid" isnull)
-    """
-    ),
-    "sql_mg_developpemnt": sql.SQL(
-        """
-        update "edi_ediimport" edi
-        set "gross_amount" = case 
-                                when "qty" < 0 
-                                then abs("gross_amount") 
-                                else -abs("gross_amount") 
-                            end,
-            "net_amount" = case 
-                                when "qty" < 0 
-                                then abs("net_amount") 
-                                else -abs("net_amount") 
-                            end,
-            "qty" = -qty
-        where "third_party_num" = 'PREC001'
-        and "invoice_type" = '381'
-        and ("valid" = false or "valid" isnull)
+        where edi."uuid_identification" = %(uuid_identification)s
+          and edi."is_multi_store" isnull
+          and ("valid" = false or "valid" isnull)
     """
     ),
     "sql_alls_381": sql.SQL(
@@ -347,9 +331,10 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                                 then -abs("gross_amount") 
                                 else abs("gross_amount") 
                             end
-        where "third_party_num" <> 'PREC001'
-        and "invoice_type" = '381'
-        and ("valid" = false or "valid" isnull)
+        where "uuid_identification" = %(uuid_identification)s
+          and "third_party_num" <> 'PREC001'
+          and "invoice_type" = '381'
+          and ("valid" = false or "valid" isnull)
     """
     ),
     "vat_per_line": sql.SQL(
@@ -367,9 +352,12 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                     round("net_amount" * "vat_rate", 2)::numeric
                 )::numeric as "amount_with_vat" 
              from "edi_ediimport" ee
-            where ("valid" = false or "valid" isnull)
+            where "uuid_identification" = %(uuid_identification)s
+              and ("valid" = false or "valid" isnull)
         ) r 
         where ei."id" = r."id"
+          and ei."uuid_identification" = %(uuid_identification)s
+          and (ei."valid" = false or ei."valid" isnull)
     """
     ),
     "sql_delta_vat": sql.SQL(
@@ -386,46 +374,51 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
                 string_agg("id"::varchar, '|' order by vat_rate desc, net_amount desc) as alls_id,
                 abs(("invoice_amount_with_tax" - sum("amount_with_vat")) * 100)::int as nb_iterate
              from "edi_ediimport" ee
-             where ("valid" = false or "valid" isnull)
+             where "uuid_identification" = %(uuid_identification)s
+              and ("valid" = false or "valid" isnull)
              group by "uuid_identification", 
                       "third_party_num", 
                       "invoice_number",
                       "invoice_amount_with_tax" 
             having sum("amount_with_vat") <> "invoice_amount_with_tax" 
-    ),
-    rows_filter as (
-        select
-            ee."id", 
-            ee."vat_amount",
-            ee."amount_with_vat",
-            aa."nb_iterate",
-            ROW_NUMBER() over(
-                partition by ee."uuid_identification", 
-                             ee."third_party_num", 
-                             ee."invoice_number" 
-                order by ee."vat_rate" desc, 
-                         ee."net_amount" desc, ee."id"
-            ) as row_id,
-            case when aa."delta" > 0 then 0.01 else -0.01 end as "vat_amount_addition"
-        from "edi_ediimport" ee 
-        join "alls" aa
-        on ee."uuid_identification" = aa."uuid_identification"
-        and ee."third_party_num" = aa."third_party_num"
-        and ee."invoice_number" = aa."invoice_number" 
-        where ee."vat_rate" != 0
-    )
-    update "edi_ediimport" eei
-    set "vat_amount" = rq."vat_amount_add",
-        "amount_with_vat" = rq."amount_with_vat_add"
-    from (
-        select 
-                "id", 
-                ("vat_amount" + "vat_amount_addition")::numeric as "vat_amount_add",
-                ("amount_with_vat" + "vat_amount_addition") as "amount_with_vat_add"
-        from rows_filter
-        where "row_id" <= "nb_iterate"
-    ) rq
-    where eei."id" = rq."id"
+        ),
+        rows_filter as (
+            select
+                ee."id", 
+                ee."vat_amount",
+                ee."amount_with_vat",
+                aa."nb_iterate",
+                ROW_NUMBER() over(
+                    partition by ee."uuid_identification", 
+                                 ee."third_party_num", 
+                                 ee."invoice_number" 
+                    order by ee."vat_rate" desc, 
+                             ee."net_amount" desc, ee."id"
+                ) as row_id,
+                case when aa."delta" > 0 then 0.01 else -0.01 end as "vat_amount_addition"
+            from "edi_ediimport" ee 
+            join "alls" aa
+            on ee."uuid_identification" = aa."uuid_identification"
+            and ee."third_party_num" = aa."third_party_num"
+            and ee."invoice_number" = aa."invoice_number" 
+            where ee."uuid_identification" = %(uuid_identification)s
+              and ee."vat_rate" != 0
+              and (ee."valid" = false or ee."valid" isnull)
+        )
+        update "edi_ediimport" eei
+        set "vat_amount" = rq."vat_amount_add",
+            "amount_with_vat" = rq."amount_with_vat_add"
+        from (
+            select 
+                    "id", 
+                    ("vat_amount" + "vat_amount_addition")::numeric as "vat_amount_add",
+                    ("amount_with_vat" + "vat_amount_addition") as "amount_with_vat_add"
+            from rows_filter
+            where "row_id" <= "nb_iterate"
+        ) rq
+        where eei."id" = rq."id"
+          and eei."uuid_identification" = %(uuid_identification)s
+          and (eei."valid" = false or eei."valid" isnull)
     """
     ),
     "sql_validate": sql.SQL(
@@ -459,7 +452,8 @@ where edi."uuid_identification" = edi_fac."uuid_identification"
             "fees_amount" = abs("fees_amount"),
             "manual_entry" = false,
             "created_by" = %(created_by)s
-        where ("valid" = false or "valid" isnull)
+        where "uuid_identification" = %(uuid_identification)s
+          and ("valid" = false or "valid" isnull)
     """
     ),
 }

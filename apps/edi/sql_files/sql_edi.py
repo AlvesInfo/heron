@@ -43,6 +43,26 @@ post_edi_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_precilens": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "gross_amount" = case 
+                                when "qty" < 0 
+                                then abs("gross_amount") 
+                                else -abs("gross_amount") 
+                            end,
+            "net_amount" = case 
+                                when "qty" < 0 
+                                then abs("net_amount") 
+                                else -abs("net_amount") 
+                            end,
+            "qty" = -qty
+        where "third_party_num" = 'PREC001'
+          and edi."uuid_identification" = %(uuid_identification)s
+          and "invoice_type" = '381'
+          and ("valid" = false or "valid" isnull)
+    """
+    ),
     "sql_fac_update_edi": sql.SQL(
         """
         update "edi_ediimport"

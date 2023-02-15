@@ -58,6 +58,16 @@ post_generic_dict = {
         and (edi."valid" = false or edi."valid" isnull)
         """
     ),
+    "sql_mg_developpemnt": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "famille" = 'PORT'
+        where "third_party_num" = 'MGDE001'
+          and edi."uuid_identification" = %(uuid_identification)s
+          and "reference_article" ilike '%PORT%'
+          and ("valid" = false or "valid" isnull)
+    """
+    ),
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 
