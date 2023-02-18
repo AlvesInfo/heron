@@ -545,7 +545,9 @@ def celery_import_launch():
 
                 for row_args in get_files():
                     tasks_list.append(
-                        celery_app.signature("launch_import", kwargs={"process_objects": row_args})
+                        celery_app.signature(
+                            "launch_suppliers_import", kwargs={"process_objects": row_args}
+                        )
                     )
 
             if elements_to_insert:
