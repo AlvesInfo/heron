@@ -20,7 +20,8 @@ import shutil
 
 from psycopg2 import sql
 from django.db import connection
-from celery import group, signature
+from celery import group
+from heron import celery_app
 import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -544,7 +545,7 @@ def celery_import_launch():
 
                 for row_args in get_files():
                     tasks_list.append(
-                        signature("launch_import", kwargs={"process_objects": row_args})
+                        celery_app.signature("launch_import", kwargs={"process_objects": row_args})
                     )
 
             if elements_to_insert:
