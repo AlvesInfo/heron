@@ -102,6 +102,7 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     sql_vat = post_common_dict.get("sql_vat")
     vat_per_line = post_common_dict.get("vat_per_line")
     sql_delta_vat = post_common_dict.get("sql_delta_vat")
+    sql_none = post_common_dict.get("sql_none")
     sql_validate = post_common_dict.get("sql_validate")
 
     print("sql : sql_round_amount")
@@ -142,6 +143,9 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
 
     print("sql : sql_delta_vat")
     cursor.execute(sql_delta_vat, {"uuid_identification": uuid_identification})
+
+    print("sql : sql_none")
+    cursor.execute(sql_none, {"uuid_identification": uuid_identification})
 
     print("sql : sql_validate")
     cursor.execute(

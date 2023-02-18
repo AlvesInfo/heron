@@ -277,11 +277,13 @@ post_common_dict = {
             join "articles_article" aa 
             on ee."reference_article" = aa."reference" 
             and ee."third_party_num" = aa."third_party_num"
-            where (ee."valid" = false or ee."valid" isnull)
+            where edi."uuid_identification" = %(uuid_identification)s
+            and (ee."valid" = false or ee."valid" isnull)
             and ee."axe_pro_uuid" isnull
             and aa."axe_pro" is not null
         ) maj
         where edi."id" = maj."id" 
+        and edi."uuid_identification" = %(uuid_identification)s
         and (edi."valid" = false or edi."valid" isnull)
     """
     ),
@@ -418,6 +420,23 @@ post_common_dict = {
         where eei."id" = rq."id"
           and eei."uuid_identification" = %(uuid_identification)s
           and (eei."valid" = false or eei."valid" isnull)
+    """
+    ),
+    "sql_none": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "acuitis_order_date" = case 
+                                        when "acuitis_order_date" = '1900-01-01'
+                                        then null 
+                                        else "acuitis_order_date"
+                                    end,
+            "delivery_number" = case
+                                     when "delivery_number" = 'None'
+                                        then null 
+                                        else "delivery_number"
+                                    end
+        where "uuid_identification" = %(uuid_identification)s
+          and ("valid" = false or "valid" isnull)
     """
     ),
     "sql_validate": sql.SQL(
