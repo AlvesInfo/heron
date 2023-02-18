@@ -42,10 +42,6 @@ from apps.data_flux.postgres_save import get_random_name
 # from apps.edi.tasks import launch_suppliers_import
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
-    bbgr_statment,
-    bbgr_monthly,
-    bbgr_retours,
-    bbgr_receptions,
     cosium,
     transfert_cosium,
     edi,
@@ -328,7 +324,7 @@ def get_have_receptions():
 
 
 def have_files():
-    """Verification qu'il y a des import à faire"""
+    """Verification qu'il y a des imports à faire"""
     if get_have_statment():
         return True
 
@@ -444,22 +440,22 @@ def main():
             # On insert BBGR STATMENT
             if get_have_statment():
                 elements_to_insert = True
-                bbgr_statment()
+                celery_app.signature("apps.edi.tasks.bbgr_statment").delay()
 
             # On insert BBGR MONTHLY
             if get_have_monthly():
                 elements_to_insert = True
-                bbgr_monthly()
+                celery_app.signature("apps.edi.tasks.bbgr_monthly").delay()
 
             # On insert BBGR RETOURS
             if get_have_retours():
                 elements_to_insert = True
-                bbgr_retours()
+                celery_app.signature("apps.edi.tasks.bbgr_retours").delay()
 
             # On insert BBGR RECEPTIONS
             if get_have_receptions():
                 elements_to_insert = True
-                bbgr_receptions()
+                celery_app.signature("apps.edi.tasks.bbgr_receptions").delay()
 
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
@@ -520,22 +516,22 @@ def celery_import_launch():
             # On insert BBGR STATMENT
             if get_have_statment():
                 elements_to_insert = True
-                tasks_list.append(bbgr_statment)
+                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_statment"))
 
             # On insert BBGR MONTHLY
             if get_have_monthly():
                 elements_to_insert = True
-                tasks_list.append(bbgr_monthly)
+                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_monthly"))
 
             # On insert BBGR RETOURS
             if get_have_retours():
                 elements_to_insert = True
-                tasks_list.append(bbgr_retours)
+                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_retours"))
 
             # On insert BBGR RECEPTIONS
             if get_have_receptions():
                 elements_to_insert = True
-                tasks_list.append(bbgr_receptions)
+                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_receptions"))
 
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files()
@@ -546,7 +542,8 @@ def celery_import_launch():
                 for row_args in get_files():
                     tasks_list.append(
                         celery_app.signature(
-                            "launch_suppliers_import", kwargs={"process_objects": row_args}
+                            "apps.edi.tasks.launch_suppliers_import",
+                            kwargs={"process_objects": row_args},
                         )
                     )
 
@@ -563,8 +560,11 @@ def celery_import_launch():
                 print(f"Rien à Insérer : {time.time() - start_all} s")
                 EDI_LOGGER.warning(f"Rien à Insérer : {time.time() - start_all} s")
 
-    except:
-        EDI_LOGGER.exception("Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
+    except Exception as error:
+        print("Error : ", error)
+        EDI_LOGGER.exception(
+            "Erreur détectée dans apps.edi.loops.imports_loop_pool.celery_import_launch()"
+        )
 
     finally:
         # On remet l'action en cours à False, après l'execution

@@ -16,11 +16,20 @@ import shutil
 
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+from django.utils import timezone
 
-
-from heron.celery import app
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.loops.imports_loop_pool import main as edi_main
+from apps.data_flux.trace import get_trace
+from apps.edi.bin.edi_post_processing_pool import (
+    bbgr_statment_post_insert,
+    bbgr_monthly_post_insert,
+    bbgr_retours_post_insert,
+)
+from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
+from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
+from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
+from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
 
 
 @shared_task
@@ -82,3 +91,158 @@ def launch_suppliers_import(process_objects):
         + "\n\n======================================================================="
         "======================================================================="
     )
+    return {f"launch_suppliers_import - {str(function)} : ": to_print}
+
+
+@shared_task
+def bbgr_statment():
+    """
+    Insertion depuis B.I des factures BBGR Statment
+    """
+    trace_name = "Import BBGR Statment"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "BbgrStatment"
+    comment = ""
+    trace = get_trace(
+        trace_name,
+        "insert into (...) selec ... from heron_bi_factures_billstatement",
+        application_name,
+        flow_name,
+        comment,
+    )
+    error = False
+
+    try:
+        insert_bbgr_stament_file(uuid_identification=trace.uuid_identification)
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    to_print = f"Import : {flow_name}\n"
+    bbgr_statment_post_insert(trace.uuid_identification)
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.final_at = timezone.now()
+    trace.save()
+
+    return {"to_print": to_print}
+
+
+@shared_task
+def bbgr_monthly():
+    """
+    Insertion depuis B.I des factures BBGR Monthly
+    """
+    trace_name = "Import BBGR Monthly"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "BbgrMonthly"
+    comment = ""
+    trace = get_trace(
+        trace_name,
+        (
+            "insert into (...) selec ... from heron_bi_factures_monthlydelivery "
+            "where type_article not in ('FRAIS_RETOUR', 'DECOTE')"
+        ),
+        application_name,
+        flow_name,
+        comment,
+    )
+    error = False
+
+    try:
+        insert_bbgr_monthly_file(uuid_identification=trace.uuid_identification)
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    to_print = f"Import : {flow_name}\n"
+    bbgr_monthly_post_insert(trace.uuid_identification)
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.final_at = timezone.now()
+    trace.save()
+
+    return {"bbgr_monthly : ": to_print}
+
+
+@shared_task
+def bbgr_retours():
+    """
+    Insertion depuis B.I des factures Monthly Retours
+    """
+    trace_name = "Import BBGR Retours"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "BbgrRetours"
+    comment = ""
+    trace = get_trace(
+        trace_name,
+        (
+            "insert into (...) selec ... from heron_bi_factures_monthlydelivery "
+            "where type_article in ('FRAIS_RETOUR', 'DECOTE')"
+        ),
+        application_name,
+        flow_name,
+        comment,
+    )
+    error = False
+
+    try:
+        insert_bbgr_retours_file(uuid_identification=trace.uuid_identification)
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    to_print = f"Import : {flow_name}\n"
+    bbgr_retours_post_insert(trace.uuid_identification)
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.final_at = timezone.now()
+    trace.save()
+
+    return {"bbgr_retours: ": to_print}
+
+
+@shared_task
+def bbgr_receptions():
+    """
+    Insertion depuis B.I des factures BBGR Monthly
+    """
+    trace_name = "Import BBGR Receptions"
+    application_name = "edi_imports_imports_suppliers_incoices"
+    flow_name = "BbgrReceptions"
+    comment = ""
+    trace = get_trace(
+        trace_name,
+        "insert into (...) selec ... from heron_bi_receptions_bbgr ",
+        application_name,
+        flow_name,
+        comment,
+    )
+    error = False
+
+    try:
+        insert_bbgr_receptions_file(uuid_identification=trace.uuid_identification)
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    to_print = f"Import : {flow_name}\n"
+    bbgr_retours_post_insert(trace.uuid_identification)
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.final_at = timezone.now()
+    trace.save()
+
+    return {"to_print": to_print}
