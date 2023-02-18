@@ -17,6 +17,8 @@ import shutil
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 
+
+from heron.celery import app
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.loops.imports_loop_pool import main as edi_main
 
@@ -31,7 +33,7 @@ def start_edi_import():
         raise Exception from error
 
 
-@shared_task(name="launch_import", bind=True)
+@app.task(name="launch_import", bind=True)
 def launch_suppliers_import(process_objects):
     """
     Intégration des factures fournisseurs présentes
