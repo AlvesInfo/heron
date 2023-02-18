@@ -31,7 +31,7 @@ def start_edi_import():
         raise Exception from error
 
 
-@shared_task
+@shared_task(name="launch_suppliers_import")
 def launch_suppliers_import(process_objects):
     """
     Intégration des factures fournisseurs présentes
