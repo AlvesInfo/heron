@@ -277,7 +277,7 @@ post_common_dict = {
             join "articles_article" aa 
             on ee."reference_article" = aa."reference" 
             and ee."third_party_num" = aa."third_party_num"
-            where edi."uuid_identification" = %(uuid_identification)s
+            where ee."uuid_identification" = %(uuid_identification)s
             and (ee."valid" = false or ee."valid" isnull)
             and ee."axe_pro_uuid" isnull
             and aa."axe_pro" is not null
