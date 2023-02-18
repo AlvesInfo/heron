@@ -19,7 +19,7 @@ from django.db import connection, transaction
 # from apps.core.functions.functions_setups import settings
 
 
-HISTORIC_STATMENT_ID = 1968994
+HISTORIC_STATMENT_ID = 1993598
 
 
 @transaction.atomic

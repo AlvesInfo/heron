@@ -18,7 +18,7 @@ from django.db import connection, transaction
 
 from apps.core.functions.functions_setups import settings
 
-HISTORIC_RECEPTIONS_ID = 17898
+HISTORIC_RECEPTIONS_ID = 17964
 
 
 @transaction.atomic

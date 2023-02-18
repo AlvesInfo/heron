@@ -20,6 +20,29 @@ from django.utils import timezone
 from psycopg2 import sql
 
 from apps.core.functions.functions_setups import settings, connection
+from apps.edi.models import SupplierDefinition, ColumnDefinition
+from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
+from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
+from apps.data_flux.loader import (
+    GetAddDictError,
+    IterFileToInsertError,
+    ExcelToCsvError,
+    FileToCsvError,
+    FileLoader,
+    Opto33Loader,
+)
+from apps.data_flux.exceptions import (
+    ValidationError,
+    OptoDateError,
+    OptoLinesError,
+    OptoQualifierError,
+    OptoIdError,
+    OptoNumberError,
+    OptoParserError,
+    PathTypeError,
+    PathFileError,
+)
+from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
 from apps.edi.loggers import EDI_LOGGER
 from apps.edi.bin.edi_pre_processing_pool import (
     bulk_translate_file,
@@ -51,8 +74,7 @@ from apps.edi.bin.edi_post_processing_pool import (
     widex_post_insert,
     widexga_post_insert,
 )
-from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport
-from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
+from apps.edi.models import EdiImport
 from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
 from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
 from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
@@ -78,28 +100,8 @@ from apps.edi.forms.forms_djantic.forms_invoices import (
     WidexSchema,
     WidexGaSchema,
 )
-from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
 from apps.data_flux.trace import get_trace
-from apps.data_flux.loader import (
-    GetAddDictError,
-    IterFileToInsertError,
-    ExcelToCsvError,
-    FileToCsvError,
-    FileLoader,
-    Opto33Loader,
-)
-from apps.data_flux.exceptions import (
-    ValidationError,
-    OptoDateError,
-    OptoLinesError,
-    OptoQualifierError,
-    OptoIdError,
-    OptoNumberError,
-    OptoParserError,
-    PathTypeError,
-    PathFileError,
-)
-from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
+
 
 try:
     cache = redis.StrictRedis(
@@ -251,8 +253,7 @@ def make_insert(model, flow_name, source, trace, validator, params_dict_loader):
                     f"Le fichier comporte des erreurs: {flow_name} - {str(source)!r}"
                 )
 
-            else:
-                to_print += "\nPas d'erreurs\n"
+            to_print += "\nPas d'erreurs\n"
 
             postgres_upsert = PostgresDjangoUpsert(
                 model=model,

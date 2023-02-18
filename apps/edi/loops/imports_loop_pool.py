@@ -1,4 +1,4 @@
-# pylint: disable=E0401,W0703,W1203,C0413,C0303,W1201,E1101,C0415
+# pylint: disable=E0401,W0703,W1203,C0413,C0303,W1201,E1101,C0415,E0611,W0511
 """
 FR : Module d'import en boucle des fichiers de factures fournisseurs
 EN : Loop import module for invoices suppliers files
@@ -20,6 +20,7 @@ import shutil
 
 from psycopg2 import sql
 from django.db import connection
+from celery import group
 import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -36,6 +37,7 @@ from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
+from apps.edi.tasks import launch_suppliers_import
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     bbgr_statment,
@@ -324,6 +326,7 @@ def get_have_receptions():
 
 
 def have_files():
+    """Verification qu'il y a des import à faire"""
     if get_have_statment():
         return True
 
@@ -342,7 +345,7 @@ def have_files():
     return False
 
 
-def proc_files(process_object):
+def proc_files(process_objects):
     """
     Intégration des factures fournisseurs présentes
     dans le répertoire de processing/suppliers_invoices_files
@@ -354,7 +357,7 @@ def proc_files(process_object):
     error = False
     trace = None
     to_print = ""
-    file, backup_file, function = process_object
+    file, backup_file, function = process_objects
 
     try:
         trace, to_print = function(file)
@@ -407,10 +410,6 @@ def loop_pool_proc(proc_files_list):
 
     with Pool(8) as pool:
         pool.map(proc_files, proc_files_list)
-
-
-def loop_celerey(proc_files_list):
-    """Lancement des processavec celery"""
 
 
 def main():
@@ -468,6 +467,86 @@ def main():
                 loop_proc(proc_files_l)
 
             if elements_to_insert:
+                post_common()
+                post_processing_all()
+
+                print(f"All validations : {time.time() - start_all} s")
+                EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+
+            else:
+                print(f"Rien à Insérer : {time.time() - start_all} s")
+                EDI_LOGGER.warning(f"Rien à Insérer : {time.time() - start_all} s")
+
+    except:
+        EDI_LOGGER.exception("Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
+
+    finally:
+        # On remet l'action en cours à False, après l'execution
+        action.in_progress = False
+        action.save()
+
+
+def celery_import_launch():
+    """Main pour lancement de l'import"""
+    import time
+
+    # Si l'action n'existe pas on la créée
+    try:
+        action = ActionInProgress.objects.get(action="import_edi_invoices")
+        print("GET ACTION")
+    except ActionInProgress.DoesNotExist:
+        action = ActionInProgress(
+            action="import_edi_invoices",
+            comment="Executable pour l'import des fichiers edi des factures founisseurs",
+        )
+        action.save()
+        print("EXCEPT")
+
+    try:
+
+        tasks_list = []
+
+        # Si l'action est déjà en cours, on ne fait rien
+        if not action.in_progress:
+            print("ACTION")
+            # On initialise l'action comme en cours
+            action.in_progress = True
+            action.save()
+            start_all = time.time()
+            elements_to_insert = False
+
+            # On insert BBGR STATMENT
+            if get_have_statment():
+                elements_to_insert = True
+                tasks_list.append(bbgr_statment)
+
+            # On insert BBGR MONTHLY
+            if get_have_monthly():
+                elements_to_insert = True
+                tasks_list.append(bbgr_monthly)
+
+            # On insert BBGR RETOURS
+            if get_have_retours():
+                elements_to_insert = True
+                tasks_list.append(bbgr_retours)
+
+            # On insert BBGR RECEPTIONS
+            if get_have_receptions():
+                elements_to_insert = True
+                tasks_list.append(bbgr_receptions)
+
+            # On boucle sur les fichiers à insérer
+            proc_files_l = get_files()
+
+            if bool(proc_files_l):
+                elements_to_insert = True
+
+                for row_args in get_files():
+                    tasks_list.append(launch_suppliers_import(row_args))
+
+            if elements_to_insert:
+                result = group(*tasks_list)()
+                print(result.get(timeout=3600))
                 post_common()
                 post_processing_all()
 

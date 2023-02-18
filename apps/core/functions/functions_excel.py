@@ -94,7 +94,7 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
                 sep=";",
                 header=header,
                 index=False,
-                line_terminator="\n",
+                lineterminator="\n",
                 quoting=csv.QUOTE_ALL,
             )
             success = [fichier_csv]
@@ -111,7 +111,7 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
                     sep=";",
                     header=header,
                     index=False,
-                    line_terminator="\n",
+                    lineterminator="\n",
                     quoting=csv.QUOTE_ALL,
                 )
 
@@ -142,7 +142,7 @@ def excel_excel_to_csv_string_io(excel_string_io, csv_string_io, header=True, sh
             sep=";",
             header=header,
             index=False,
-            line_terminator="\n",
+            lineterminator="\n",
             quoting=csv.QUOTE_ALL,
         )
         csv_string_io.seek(0)

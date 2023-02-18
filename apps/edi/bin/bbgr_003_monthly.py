@@ -18,7 +18,7 @@ from django.db import connection, transaction
 
 # from apps.core.functions.functions_setups import settings
 
-HISTORIC_MONTHLY_ID = 2036156
+HISTORIC_MONTHLY_ID = 2074484
 
 
 @transaction.atomic

@@ -16,6 +16,7 @@ from django.contrib import messages
 
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.tasks import start_edi_import
+from apps.edi.loops.imports_loop_pool import celery_import_launch
 from apps.edi.loops.imports_loop_pool import have_files
 
 
@@ -34,7 +35,8 @@ def import_edi_invoices(request):
 
             # On vérifie qu'il y ai des fichiers
             if bool_files:
-                start_edi_import.delay()
+                # start_edi_import.delay()
+                celery_import_launch()
                 in_action = True
 
             else:

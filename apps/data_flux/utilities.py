@@ -65,7 +65,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
             sep=";",
             header=header,
             index=False,
-            line_terminator="\n",
+            lineterminator="\n",
             quoting=csv.QUOTE_ALL,
             encoding="utf8",
         )
