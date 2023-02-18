@@ -20,7 +20,7 @@ import shutil
 
 from psycopg2 import sql
 from django.db import connection
-from celery import group
+from celery import group, signature
 import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -37,7 +37,8 @@ from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
-from apps.edi.tasks import launch_suppliers_import
+
+# from apps.edi.tasks import launch_suppliers_import
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     bbgr_statment,
@@ -542,7 +543,9 @@ def celery_import_launch():
                 elements_to_insert = True
 
                 for row_args in get_files():
-                    tasks_list.append(launch_suppliers_import(row_args))
+                    tasks_list.append(
+                        signature("launch_suppliers_import", kwargs={"process_objects": row_args})
+                    )
 
             if elements_to_insert:
                 result = group(*tasks_list)()
