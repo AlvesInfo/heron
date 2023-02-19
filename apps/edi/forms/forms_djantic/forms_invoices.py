@@ -569,6 +569,7 @@ class ZBuRefacSageSchema(
     flow_name: str = "SageYoozRefac"
     supplier: str = "SAGE_YOOZ_REFAC"
     supplier_ident: str = "Zburefac"
+    unity: int
 
     class Config:
         """Config"""
