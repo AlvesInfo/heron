@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=E0401,E1101,C0103,R0914
 """
 FR : Module de pré-traitement avant import des fichiers de factures fournisseur
 EN : Pre-processing module before importing supplier invoice files
@@ -20,11 +20,12 @@ from decimal import Decimal
 import pendulum
 
 from apps.core.functions.functions_setups import settings
-from apps.core.bin.get_axes import (get_uuid_pys,
-get_uuid_pro,
-get_uuid_cct,
-get_uuid_prj,
-get_uuid_bu
+from apps.core.bin.get_axes import (
+    get_uuid_pys,
+    get_uuid_pro,
+    get_uuid_cct,
+    get_uuid_prj,
+    get_uuid_bu,
 )
 from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.data_flux.postgres_save import get_random_name
@@ -266,13 +267,17 @@ def z_bu_refac_file(file: Path) -> Path:
     :param file: fichier
     :return: Path(file)
     """
-    new_csv_file = file.parents[0] / f"{file.name}.csv"
-    csv_io = io.StringIO()
-    excel_file_to_csv_string_io(file, csv_io)
+    while True:
+        new_file = Path(settings.PRE_PROCESSING) / f"{get_random_name()}.csv"
 
-    with new_csv_file.open("w", encoding="utf8", newline="") as file_to_write:
+        if not new_file.is_file():
+            break
+
+    with file.open("r", encoding="utf8") as file_to_parse, new_file.open(
+        "w", encoding="utf8", newline=""
+    ) as file_to_write:
         csv_reader = csv.reader(
-            csv_io,
+            file_to_parse,
             delimiter=";",
             quotechar='"',
             lineterminator="\n",
@@ -300,7 +305,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     sens,
                     montant,
                     tva,
-                    libelle,
+                    *libelle,
                 ) = line
                 list_to_write = [
                     third_party_num,
@@ -316,18 +321,24 @@ def z_bu_refac_file(file: Path) -> Path:
                     str(sens).strip(),
                     montant,
                     tva,
-                    libelle,
+                    " ".join([str(value) for value in libelle]).strip(),
+                    "11",
                 ]
-
                 csv_writer.writerow(list_to_write)
 
-    csv_io.close()
     file.unlink()
 
-    return new_csv_file
+    return new_file
 
 
 if __name__ == "__main__":
-    transferts_cosium_file(
-        Path(r"C:\SitesWeb\heron\files\backup\suppliers_invoices_files\TRANSFERTS\liste (2).csv")
+    # transferts_cosium_file(
+    #     Path(r"C:\SitesWeb\heron\files\backup\suppliers_invoices_files\TRANSFERTS\liste (2).csv")
+    # )
+
+    z_bu_refac_file(
+        Path(
+            r"C:\SitesWeb\heron\files\backup\suppliers_invoices_files"
+            r"SAGE_YOOZ_REFAC0\F1676837974236_ZBUREFAC - Copie.csv"
+        )
     )
