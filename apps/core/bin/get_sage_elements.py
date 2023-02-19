@@ -65,7 +65,7 @@ def get_uuid_bu(bu: str) -> Union[None, UUID]:
 
 @lru_cache(maxsize=256)
 def get_uuid_account(account: str, code_plan_sage: str = "FRA") -> Union[None, UUID]:
-    """Retourne l'UUID de l'axe bu passé en paramètre"""
+    """Retourne l'UUID du compte comptable passé en paramètre"""
 
     account_dict = dict(
         AccountSage.objects.filter(code_plan_sage=code_plan_sage, account=account).values_list(
