@@ -2,26 +2,101 @@
 
 {% block table %}
 
-<div class="two wide column"></div>
+<div class="five wide column"></div>
 
-<div class="sixteen wide column">
+<div class="six wide column">
 
 {% if not en_cours %}
 
         <form id="import_edi_invoices_form" action="" method="post">
             {% csrf_token %}
-            <button class="ui teal basic button"
-                    type="submit"
-                    name="import_edi_invoices_button"
-                    id="import_edi_invoices_button">
-                Importer
-            </button>
+              <div class="ui segment" style="padding-bottom: 10px;">
+                <h3 class="ui floated header" style="margin-bottom: 10px;text-align: center;">FICHIERS EDI</h3>
+
+                <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
+                    {% if files_celery %}
+                        <button class="ui teal basic button"
+                                type="submit"
+                                name="import_edi_invoices_button"
+                                id="import_edi_invoices_button">
+                            IMPORT FICHIERS EDI
+                        </button>
+                    {% else %}
+                        <h5>Il n'y a pas de fichiers EDI, à traiter</h5>
+                    {% endif %}
+              </div>
+              <div class="ui segment" style="padding-bottom: 10px;">
+                <h3 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR STATMENT</h3>
+
+                <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
+                    {% if have_statment %}
+                        <button class="ui teal basic button"
+                                type="submit"
+                                name="bbgr_statment"
+                                id="bbgr_statment">
+                            IMPORT BBGR STATMENT
+                        </button>
+                    {% else %}
+                        <h5>Il n'y a pas de données BBGR Statment, à traiter</h5>
+                    {% endif %}
+              </div>
+              <div class="ui segment" style="padding-bottom: 10px;">
+                <h3 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR MONTHLY</h3>
+
+                <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
+                    {% if have_monthly %}
+                        <button class="ui teal basic button"
+                                type="submit"
+                                name="bbgr_monthly"
+                                id="bbgr_monthly">
+                            IMPORT BBGR MONTHLY
+                        </button>
+                    {% else %}
+                        <h5>Il n'y a pas de données BBGR Monthly, à traiter</h5>
+                    {% endif %}
+              </div>
+              <div class="ui segment" style="padding-bottom: 10px;">
+                <h3 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR RETOURS</h3>
+
+                <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
+                    {% if have_retours %}
+                        <button class="ui teal basic button"
+                                type="submit"
+                                name="bbgr_retours"
+                                id="bbgr_retours">
+                            IMPORT BBGR RETOURS
+                        </button>
+                    {% else %}
+                        <h5>Il n'y a pas de données BBGR Retours, à traiter</h5>
+                    {% endif %}
+              </div>
+              <div class="ui segment" style="padding-bottom: 10px;">
+                <h3 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR RECEPTIONS</h3>
+
+                <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
+                    {% if have_receptions %}
+                        <button class="ui teal basic button"
+                                type="submit"
+                                name="bbgr_receptions"
+                                id="bbgr_receptions">
+                            IMPORT BBGR RECEPTIONS
+                        </button>
+                    {% else %}
+                        <h5>Il n'y a pas de données BBGR Receptions, à traiter</h5>
+                    {% endif %}
+              </div>
         </form>
 
 {% endif %}
 
 </div>
 
-<div class="two wide column"></div>
 
 {% endblock table %}
+
+
+
+
+
+
+

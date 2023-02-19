@@ -16,7 +16,6 @@ import platform
 import re
 import sys
 from pathlib import Path
-import shutil
 import time
 
 from psycopg2 import sql
@@ -127,22 +126,6 @@ def separate_edi():
 
         if una_test:
             file.unlink()
-
-
-def get_files():
-    """Retourne la liste des tuples (fichier, process) à traiter"""
-    separate_edi()
-    files_list = []
-
-    for directory, function in processing_dict.items():
-        files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / directory
-        backup_dir = Path(settings.BACKUP_SUPPLIERS_DIR) / directory
-
-        for file in files_directory.glob("*"):
-            backup_file = backup_dir / file.name
-            files_list.append((file, backup_file, function))
-
-    return files_list
 
 
 def get_files_celery():
@@ -353,79 +336,14 @@ def have_files():
     if get_have_receptions():
         return True
 
-    if bool(get_files()):
+    if bool(get_files_celery()):
         return True
 
     return False
 
 
-def proc_files(process_objects):
-    """
-    Intégration des factures fournisseurs présentes
-    dans le répertoire de processing/suppliers_invoices_files
-    """
-    start_initial = time.time()
-
-    error = False
-    trace = None
-    to_print = ""
-    file, backup_file, function = process_objects
-
-    try:
-        trace, to_print = function(file)
-
-    except TypeError as except_error:
-        error = True
-        to_print += f"TypeError : {except_error}\n"
-        EDI_LOGGER.exception(f"TypeError : {except_error!r}")
-
-    except Exception as except_error:
-        error = True
-        EDI_LOGGER.exception(f"Exception Générale: {file.name}\n{except_error!r}")
-
-    finally:
-        if error and trace:
-            trace.errors = True
-            trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
-
-        if trace is not None:
-            trace.save()
-
-        if file.is_file() and not backup_file.is_file():
-            shutil.move(file.resolve(), backup_file.resolve())
-        elif file.is_file():
-            file.unlink()
-
-        # TODO : faire une fonction d'envoie de mails
-
-    EDI_LOGGER.warning(
-        to_print
-        + f"Validation {file.name} in : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
-    )
-
-
-def loop_proc(proc_files_list):
-    """Lancement des process en Thread pool"""
-    from concurrent.futures import ThreadPoolExecutor
-
-    with ThreadPoolExecutor() as executor:
-        executor.map(proc_files, proc_files_list)
-
-
-def loop_pool_proc(proc_files_list):
-    """Lancement des process en Multiprocessing pool"""
-    from multiprocessing import Pool
-
-    with Pool(8) as pool:
-        pool.map(proc_files, proc_files_list)
-
-
-def main():
-    """Main pour lancement de l'import"""
+def get_action():
+    """Récupération de l'état d'action"""
 
     # Si l'action n'existe pas on la créée
     try:
@@ -439,81 +357,16 @@ def main():
         action.save()
         print("EXCEPT")
 
-    try:
-
-        # Si l'action est déjà en cours, on ne fait rien
-        if not action.in_progress:
-            print("ACTION")
-            # On initialise l'action comme en cours
-            action.in_progress = True
-            action.save()
-            start_all = time.time()
-            elements_to_insert = False
-
-            # On insert BBGR STATMENT
-            if get_have_statment():
-                elements_to_insert = True
-                celery_app.signature("apps.edi.tasks.bbgr_statment").delay()
-
-            # On insert BBGR MONTHLY
-            if get_have_monthly():
-                elements_to_insert = True
-                celery_app.signature("apps.edi.tasks.bbgr_monthly").delay()
-
-            # On insert BBGR RETOURS
-            if get_have_retours():
-                elements_to_insert = True
-                celery_app.signature("apps.edi.tasks.bbgr_retours").delay()
-
-            # On insert BBGR RECEPTIONS
-            if get_have_receptions():
-                elements_to_insert = True
-                celery_app.signature("apps.edi.tasks.bbgr_receptions").delay()
-
-            # On boucle sur les fichiers à insérer
-            proc_files_l = get_files()
-
-            if bool(proc_files_l):
-                elements_to_insert = True
-                loop_proc(proc_files_l)
-
-            if elements_to_insert:
-                post_common()
-                post_processing_all()
-
-                print(f"All validations : {time.time() - start_all} s")
-                EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
-
-            else:
-                print(f"Rien à Insérer : {time.time() - start_all} s")
-                EDI_LOGGER.warning(f"Rien à Insérer : {time.time() - start_all} s")
-
-    except:
-        EDI_LOGGER.exception("Erreur détectée dans apps.edi.loops.imports_loop_pool.main()")
-
-    finally:
-        # On remet l'action en cours à False, après l'execution
-        action.in_progress = False
-        action.save()
+    return action
 
 
 def celery_import_launch():
-    """Main pour lancement de l'import"""
+    """Main pour lancement de l'import avec Celery"""
 
     # Si l'action n'existe pas on la créée
-    try:
-        action = ActionInProgress.objects.get(action="import_edi_invoices")
-        print("GET ACTION")
-    except ActionInProgress.DoesNotExist:
-        action = ActionInProgress(
-            action="import_edi_invoices",
-            comment="Executable pour l'import des fichiers edi des factures founisseurs",
-        )
-        action.save()
-        print("EXCEPT")
+    action = get_action()
 
     try:
-
         tasks_list = []
 
         # Si l'action est déjà en cours, on ne fait rien
@@ -523,58 +376,29 @@ def celery_import_launch():
             action.in_progress = True
             action.save()
             start_all = time.time()
-            elements_to_insert = False
-
-            # On insert BBGR STATMENT
-            if get_have_statment():
-                elements_to_insert = True
-                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_statment"))
-
-            # On insert BBGR MONTHLY
-            if get_have_monthly():
-                elements_to_insert = True
-                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_monthly"))
-
-            # On insert BBGR RETOURS
-            if get_have_retours():
-                elements_to_insert = True
-                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_retours"))
-
-            # On insert BBGR RECEPTIONS
-            if get_have_receptions():
-                elements_to_insert = True
-                tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_receptions"))
 
             # On boucle sur les fichiers à insérer
             proc_files_l = get_files_celery()
 
-            if bool(proc_files_l):
-                elements_to_insert = True
+            for row_args in proc_files_l:
+                tasks_list.append(
+                    celery_app.signature("suppliers_import", kwargs={"process_objects": row_args})
+                )
 
-                for row_args in proc_files_l:
-                    tasks_list.append(
-                        celery_app.signature(
-                            "suppliers_import", kwargs={"process_objects": row_args}
-                        )
-                    )
+            result = group(*tasks_list)().get(3600)
+            print("result : ", result)
+            EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-            if elements_to_insert:
-                result = group(*tasks_list)().get(3600)
-                print("result : ", result)
-                EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
-                post_common()
-                print("post_common terminé")
-                EDI_LOGGER.warning("post_common terminé")
-                post_processing_all()
-                print("post_processing_all terminé")
-                EDI_LOGGER.warning("post_processing_all terminé")
+            post_common()
+            print("post_common terminé")
+            EDI_LOGGER.warning("post_common terminé")
 
-                print(f"All validations : {time.time() - start_all} s")
-                EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+            post_processing_all()
+            print("post_processing_all terminé")
+            EDI_LOGGER.warning("post_processing_all terminé")
 
-            else:
-                print(f"Rien à Insérer : {time.time() - start_all} s")
-                EDI_LOGGER.warning(f"Rien à Insérer : {time.time() - start_all} s")
+            print(f"All validations : {time.time() - start_all} s")
+            EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
@@ -588,41 +412,48 @@ def celery_import_launch():
         action.save()
 
 
-def main_pool():
-    """main pool"""
-    # Si l'action n'existe pas on la créée
-    try:
-        action = ActionInProgress.objects.get(action="import_edi_invoices")
-        print("GET ACTION")
-    except ActionInProgress.DoesNotExist:
-        action = ActionInProgress(
-            action="import_edi_invoices",
-            comment="Executable pour l'import des fichiers edi des factures founisseurs",
-        )
-        action.save()
-        print("EXCEPT")
+def import_launch_bbgr(function_name):
+    """Main pour lancement de l'import"""
 
-    # Si l'action est déjà en cours, on ne fait rien
-    if not action.in_progress:
-        print("ACTION")
+    # Si l'action n'existe pas on la créée
+    action = get_action()
+
+    try:
+        start_all = time.time()
+
         # On initialise l'action comme en cours
         action.in_progress = True
         action.save()
+        result = group(
+            *[celery_app.signature("bbgr_bi", kwargs={"function_name": function_name})]
+        )().get(3600)
+        print("result : ", result)
+        EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-        start_all = time.time()
+        post_common()
+        print("post_common terminé")
+        EDI_LOGGER.warning("post_common terminé")
 
-        proc_files_l = get_files()
-        loop_pool_proc(proc_files_l)
-        print(f"All validations : {time.time() - start_all} s")
-        EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+        post_processing_all()
+        print("post_processing_all terminé")
+        EDI_LOGGER.warning("post_processing_all terminé")
 
+        print(f"All validations for {function_name} : {time.time() - start_all} s")
+        EDI_LOGGER.warning(f"All validations for {function_name} : {time.time() - start_all} s")
+
+    except Exception as error:
+        print("Error : ", error)
+        EDI_LOGGER.exception(
+            "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_bbgr()"
+        )
+
+    finally:
         # On remet l'action en cours à False, après l'execution
         action.in_progress = False
         action.save()
 
 
 if __name__ == "__main__":
-    main()
     # post_processing_all()
     # get_files()
-    # separate_edi()
+    separate_edi()

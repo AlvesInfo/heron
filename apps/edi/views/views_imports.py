@@ -15,9 +15,14 @@ from django.shortcuts import render
 from django.contrib import messages
 
 from apps.parameters.bin.core import get_in_progress
-from apps.edi.tasks import start_edi_import
-from apps.edi.loops.imports_loop_pool import celery_import_launch
-from apps.edi.loops.imports_loop_pool import have_files
+from apps.edi.loops.imports_loop_pool import celery_import_launch, import_launch_bbgr
+from apps.edi.loops.imports_loop_pool import (
+    get_have_statment,
+    get_have_monthly,
+    get_have_retours,
+    get_have_receptions,
+    get_files_celery,
+)
 
 
 def import_edi_invoices(request):
@@ -25,18 +30,35 @@ def import_edi_invoices(request):
 
     request.session["level"] = 20
     in_action = get_in_progress()
+    have_statment = get_have_statment()
+    have_monthly = get_have_monthly()
+    have_retours = get_have_retours()
+    have_receptions = get_have_receptions()
+    files_celery = get_files_celery()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if request.method == "POST":
 
         # On vérifie qu'il n'y a pas un import en cours
         if not in_action:
-            bool_files = have_files()
+            bool_files = any(
+                [have_statment, have_monthly, have_retours, have_receptions, files_celery]
+            )
 
-            # On vérifie qu'il y ai des fichiers
+            # On vérifie qu'il y ait des fichiers
             if bool_files:
-                # start_edi_import.delay()
-                celery_import_launch()
+
+                if "bbgr_statment" in request.POST:
+                    import_launch_bbgr("bbgr_statment")
+                elif "bbgr_monthly" in request.POST:
+                    import_launch_bbgr("bbgr_monthly")
+                elif "bbgr_retours" in request.POST:
+                    import_launch_bbgr("bbgr_retours")
+                elif "bbgr_receptions" in request.POST:
+                    import_launch_bbgr("bbgr_receptions")
+                else:
+                    celery_import_launch()
+
                 in_action = True
 
             else:
@@ -51,6 +73,11 @@ def import_edi_invoices(request):
             if in_action
             else "Import des factures founisseurs EDI"
         ),
+        "have_statment": have_statment,
+        "have_monthly": have_monthly,
+        "have_retours": have_retours,
+        "have_receptions": have_receptions,
+        "files_celery": files_celery,
     }
 
     return render(request, "edi/edi_import.html", context=context)
