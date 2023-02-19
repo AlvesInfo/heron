@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 import time
 import shutil
+from pathlib import Path
 
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
@@ -30,6 +31,50 @@ from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
 from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
 from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
 from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
+from apps.edi.imports.imports_suppliers_incoices_pool import (
+    bbgr_bulk,
+    cosium,
+    transfert_cosium,
+    edi,
+    eye_confort,
+    generique,
+    hearing,
+    interson,
+    johnson,
+    lmc,
+    newson,
+    phonak,
+    prodition,
+    signia,
+    starkey,
+    technidis,
+    unitron,
+    widex,
+    widex_ga,
+)
+
+
+processing_dict = {
+    "BBGR_BULK": bbgr_bulk,
+    "COSIUM": cosium,
+    "EDI": edi,
+    "EYE_CONFORT": eye_confort,
+    "GENERIQUE": generique,
+    "HEARING": hearing,
+    "INTERSON": interson,
+    "JOHNSON": johnson,
+    "LMC": lmc,
+    "NEWSON": newson,
+    "PHONAK": phonak,
+    "PRODITION": prodition,
+    "SIGNIA": signia,
+    "STARKEY": starkey,
+    "TECHNIDIS": technidis,
+    "TRANSFERTS": transfert_cosium,
+    "UNITRON": unitron,
+    "WIDEX": widex,
+    "WIDEX_GA": widex_ga,
+}
 
 
 @shared_task
@@ -42,7 +87,7 @@ def start_edi_import():
         raise Exception from error
 
 
-@shared_task
+@shared_task(name="suppliers_import")
 def launch_suppliers_import(process_objects):
     """
     Intégration des factures fournisseurs présentes
@@ -54,8 +99,12 @@ def launch_suppliers_import(process_objects):
     error = False
     trace = None
     to_print = ""
-    file, backup_file, function = process_objects
-
+    str_file, str_backup_file, processing_key = process_objects
+    print(str_file, str_backup_file, processing_key)
+    file = Path(str_file)
+    backup_file = Path(str_backup_file)
+    function = processing_dict.get(processing_key)
+    print(file.is_file(), file, str_file)
     try:
         trace, to_print = function(file)
 
@@ -91,7 +140,8 @@ def launch_suppliers_import(process_objects):
         + "\n\n======================================================================="
         "======================================================================="
     )
-    return {f"launch_suppliers_import - {str(function)} : ": to_print}
+
+    return {"import : ": to_print}
 
 
 @shared_task
@@ -128,7 +178,7 @@ def bbgr_statment():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"to_print": to_print}
+    return {"import : ": to_print}
 
 
 @shared_task
@@ -168,7 +218,7 @@ def bbgr_monthly():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"bbgr_monthly : ": to_print}
+    return {"import : ": to_print}
 
 
 @shared_task
@@ -208,7 +258,7 @@ def bbgr_retours():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"bbgr_retours: ": to_print}
+    return {"import : ": to_print}
 
 
 @shared_task
@@ -245,4 +295,4 @@ def bbgr_receptions():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"to_print": to_print}
+    return {"import : ": to_print}

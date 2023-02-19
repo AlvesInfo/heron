@@ -38,8 +38,6 @@ from apps.core.functions.functions_setups import settings
 from apps.edi.loggers import EDI_LOGGER
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
-
-# from apps.edi.tasks import launch_suppliers_import
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     cosium,
@@ -143,6 +141,24 @@ def get_files():
             backup_file = backup_dir / file.name
             files_list.append((file, backup_file, function))
 
+    return files_list
+
+
+def get_files_celery():
+    """Retourne la liste des tuples (fichier, process) à traiter par celery,
+    ne pouvant serializer des fonctions ou objets python
+    """
+    separate_edi()
+    files_list = []
+
+    for directory, _ in processing_dict.items():
+        files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / directory
+        backup_dir = Path(settings.BACKUP_SUPPLIERS_DIR) / directory
+
+        for file in files_directory.glob("*"):
+            backup_file = backup_dir / file.name
+            files_list.append((str(file), str(backup_file), directory))
+    print(files_list)
     return files_list
 
 
@@ -538,12 +554,13 @@ def celery_import_launch():
 
             if bool(proc_files_l):
                 elements_to_insert = True
+                import pickle
 
-                for row_args in get_files():
+                for row_args in get_files_celery():
+                    print("row_args : ", row_args)
                     tasks_list.append(
                         celery_app.signature(
-                            "apps.edi.tasks.launch_suppliers_import",
-                            kwargs={"process_objects": row_args},
+                            "suppliers_import", kwargs={"process_objects": row_args}
                         )
                     )
 
