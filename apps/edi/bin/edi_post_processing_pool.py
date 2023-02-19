@@ -80,11 +80,7 @@ def post_processing_all():
 def post_common():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
     with connection.cursor() as cursor:
-        sleep(3)
-
-        print("sql : VACUUM")
         cursor.execute("VACUUM (full)")
-        print("Fin   : VACUUM")
 
 
 def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
@@ -105,49 +101,20 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     sql_none = post_common_dict.get("sql_none")
     sql_validate = post_common_dict.get("sql_validate")
 
-    print("sql : sql_round_amount")
     cursor.execute(sql_round_amount, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_supplier_update")
     cursor.execute(sql_supplier_update, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_fac_update_except_edi")
     cursor.execute(sql_fac_update_except_edi, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_reference")
     cursor.execute(sql_reference, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_cct")
     cursor.execute(sql_cct, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_is_multi_store_true")
     cursor.execute(sql_is_multi_store_true, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_is_multi_store_false")
     cursor.execute(sql_is_multi_store_false, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_update_articles")
     cursor.execute(sql_update_articles, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_alls_381")
     cursor.execute(sql_alls_381, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_vat_regime")
     cursor.execute(sql_vat_regime, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_vat")
     cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
-
-    print("sql : vat_per_line")
     cursor.execute(vat_per_line, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_delta_vat")
     cursor.execute(sql_delta_vat, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_none")
     cursor.execute(sql_none, {"uuid_identification": uuid_identification})
-
-    print("sql : sql_validate")
     cursor.execute(
         sql_validate,
         {"uuid_identification": uuid_identification, "created_by": get_user_automate()},

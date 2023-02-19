@@ -100,11 +100,10 @@ def launch_suppliers_import(process_objects):
     trace = None
     to_print = ""
     str_file, str_backup_file, processing_key = process_objects
-    print(str_file, str_backup_file, processing_key)
     file = Path(str_file)
     backup_file = Path(str_backup_file)
     function = processing_dict.get(processing_key)
-    print(file.is_file(), file, str_file)
+
     try:
         trace, to_print = function(file)
 
@@ -141,7 +140,7 @@ def launch_suppliers_import(process_objects):
         "======================================================================="
     )
 
-    return {"import : ": to_print}
+    return {"import : ": f"edi - {processing_key} - {trace.time_to_process} s"}
 
 
 @shared_task
@@ -178,7 +177,7 @@ def bbgr_statment():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"import : ": to_print}
+    return {"import : ": f"{flow_name} - {trace.time_to_process} s"}
 
 
 @shared_task
@@ -218,7 +217,7 @@ def bbgr_monthly():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"import : ": to_print}
+    return {"import : ": f"{flow_name} - {trace.time_to_process} s"}
 
 
 @shared_task
@@ -258,7 +257,7 @@ def bbgr_retours():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"import : ": to_print}
+    return {"import : ": f"{flow_name} - {trace.time_to_process} s"}
 
 
 @shared_task
@@ -295,4 +294,4 @@ def bbgr_receptions():
     trace.final_at = timezone.now()
     trace.save()
 
-    return {"import : ": to_print}
+    return {"import : ": f"{flow_name} - {trace.time_to_process} s"}
