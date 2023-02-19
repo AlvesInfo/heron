@@ -26,7 +26,6 @@ from apps.core.bin.get_sage_elements import (
     get_uuid_cct,
     get_uuid_prj,
     get_uuid_bu,
-get_uuid_account,
 )
 from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.data_flux.postgres_save import get_random_name
@@ -313,7 +312,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     bl,
                     n_piece,
                     date_compta,
-                    get_uuid_account(compte),
+                    compte,
                     get_uuid_pys(pys),
                     get_uuid_pro(col),
                     get_uuid_cct(cct),

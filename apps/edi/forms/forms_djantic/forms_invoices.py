@@ -570,7 +570,6 @@ class ZBuRefacSageSchema(
     supplier: str = "SAGE_YOOZ_REFAC"
     supplier_ident: str = "Zburefac"
     unity: int
-    purchase_account_sage: uuid.UUID
 
     class Config:
         """Config"""
