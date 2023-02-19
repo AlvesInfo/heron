@@ -292,7 +292,7 @@ def z_bu_refac_file(file: Path) -> Path:
                 csv_writer.writerow(list(line) + ["unity"])
             else:
                 (
-                    third_party_num,
+                    tiers,
                     bl,
                     n_piece,
                     date_compta,
@@ -308,7 +308,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     *libelle,
                 ) = line
                 list_to_write = [
-                    third_party_num,
+                    tiers,
                     bl,
                     n_piece,
                     date_compta,
