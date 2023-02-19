@@ -315,7 +315,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     compte,
                     get_uuid_pys(pys),
                     get_uuid_pro(col),
-                    get_uuid_cct(cct),
+                    cct,
                     get_uuid_prj(prj),
                     get_uuid_bu(bu),
                     str(sens).strip(),
