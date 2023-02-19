@@ -313,7 +313,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     get_uuid_cct(cct),
                     get_uuid_prj(prj),
                     get_uuid_bu(bu),
-                    sens,
+                    str(sens).strip(),
                     montant,
                     tva,
                     libelle,
