@@ -4,6 +4,4 @@ from apps.centers_purchasing.views.enseignes_views import *
 from apps.centers_purchasing.views.invoices_accounts_views import *
 from apps.centers_purchasing.views.grouping_goods_views import *
 from apps.centers_purchasing.views.account_axe_pro import *
-from apps.centers_purchasing.views.acuitis_axe_views import *
 from apps.centers_purchasing.views.axe_grouping_views import *
-from apps.centers_purchasing.views.cosium_axe_views import *

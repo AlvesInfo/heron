@@ -22,18 +22,6 @@ from apps.centers_purchasing.views import (
     GroupingGoodsUpdate,
     grouping_goods_delete,
     grouping_goods_export_list,
-    # Regroupement axe pro familles Acuitis
-    AcuitisAxeList,
-    AcuitisAxeCreate,
-    AcuitisAxeUpdate,
-    acuitis_axe_delete,
-    acuitis_axe_export_list,
-    # Regroupement axe pro familles Cosium
-    CosiumAxeList,
-    CosiumAxeCreate,
-    CosiumAxeUpdate,
-    cosium_axe_delete,
-    cosium_axe_export_list,
     # Axe Pro / regroupement facturation
     AxeGroupingList,
     AxeGroupingCreate,
@@ -86,38 +74,6 @@ urlpatterns = (
             "grouping_goods_export_list/",
             grouping_goods_export_list,
             name="grouping_goods_export_list",
-        ),
-    ]
-    + [
-        # Regroupement axe pro familles Acuitis
-        path("acuitis_axe_list/", AcuitisAxeList.as_view(), name="acuitis_axe_list"),
-        path("acuitis_axe_create/", AcuitisAxeCreate.as_view(), name="acuitis_axe_create"),
-        path(
-            "acuitis_axe_update/<int:pk>/",
-            AcuitisAxeUpdate.as_view(),
-            name="acuitis_axe_update",
-        ),
-        path("acuitis_axe_delete/", acuitis_axe_delete, name="acuitis_axe_delete"),
-        path(
-            "acuitis_axe_export_list/",
-            acuitis_axe_export_list,
-            name="acuitis_axe_export_list",
-        ),
-    ]
-    + [
-        # Regroupement axe pro familles Cosium
-        path("cosium_axe_list/", CosiumAxeList.as_view(), name="cosium_axe_list"),
-        path("cosium_axe_create/", CosiumAxeCreate.as_view(), name="cosium_axe_create"),
-        path(
-            "cosium_axe_update/<int:pk>/",
-            CosiumAxeUpdate.as_view(),
-            name="cosium_axe_update",
-        ),
-        path("cosium_axe_delete/", cosium_axe_delete, name="cosium_axe_delete"),
-        path(
-            "cosium_axe_export_list/",
-            cosium_axe_export_list,
-            name="cosium_axe_export_list",
         ),
     ]
     + [

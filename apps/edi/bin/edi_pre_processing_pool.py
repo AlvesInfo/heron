@@ -20,6 +20,12 @@ from decimal import Decimal
 import pendulum
 
 from apps.core.functions.functions_setups import settings
+from apps.core.bin.get_axes import (get_uuid_pys,
+get_uuid_pro,
+get_uuid_cct,
+get_uuid_prj,
+get_uuid_bu
+)
 from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.data_flux.postgres_save import get_random_name
 from apps.data_flux.utilities import encoding_detect
@@ -246,6 +252,74 @@ def johnson_file(file: Path):
                 continue
 
             csv_writer.writerow(line)
+
+    csv_io.close()
+    file.unlink()
+
+    return new_csv_file
+
+
+def z_bu_refac_file(file: Path) -> Path:
+    """
+    Transformation du fichier jonhson pour supprimer les sous totaux (en deuxième position *)
+    Une pour l'envoyeur, l'autre pour le receptionnaire.
+    :param file: fichier
+    :return: Path(file)
+    """
+    new_csv_file = file.parents[0] / f"{file.name}.csv"
+    csv_io = io.StringIO()
+    excel_file_to_csv_string_io(file, csv_io)
+
+    with new_csv_file.open("w", encoding="utf8", newline="") as file_to_write:
+        csv_reader = csv.reader(
+            csv_io,
+            delimiter=";",
+            quotechar='"',
+            lineterminator="\n",
+            quoting=csv.QUOTE_MINIMAL,
+        )
+        csv_writer = csv.writer(
+            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+
+        for i, line in enumerate(csv_reader, 1):
+            if i == 1:
+                csv_writer.writerow(list(line) + ["unity"])
+            else:
+                (
+                    third_party_num,
+                    bl,
+                    n_piece,
+                    date_compta,
+                    compte,
+                    pys,
+                    col,
+                    cct,
+                    prj,
+                    bu,
+                    sens,
+                    montant,
+                    tva,
+                    libelle,
+                ) = line
+                list_to_write = [
+                    third_party_num,
+                    bl,
+                    n_piece,
+                    date_compta,
+                    compte,
+                    get_uuid_pys(pys),
+                    get_uuid_pro(col),
+                    get_uuid_cct(cct),
+                    get_uuid_prj(prj),
+                    get_uuid_bu(bu),
+                    sens,
+                    montant,
+                    tva,
+                    libelle,
+                ]
+
+                csv_writer.writerow(list_to_write)
 
     csv_io.close()
     file.unlink()

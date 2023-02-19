@@ -16,6 +16,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import connection
 
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society, SupplierCct
 
 
@@ -99,6 +100,7 @@ class SocietyForm(forms.ModelForm):
             required=False,
             widget=forms.CheckboxInput,
         )
+        self.fields["default_axe_pro"].required = False
 
     class Meta:
         model = Society
@@ -149,6 +151,13 @@ class SocietyForm(forms.ModelForm):
             "in_use",
             "big_category_default",
         ]
+
+        widgets = {
+            "rfa_frequence": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "rfa_remise": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "default_axe_pro": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "big_category_default": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }
 
 
 class SupplierCctForm(forms.ModelForm):

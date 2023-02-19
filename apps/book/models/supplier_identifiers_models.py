@@ -23,8 +23,8 @@ from apps.book.models.base_sage_models import FlagsTable, Society, SectionSage, 
 
 
 class SupplierFamilyAxes(FlagsTable):
-    """
-    Nommage des familles à appliquer pour les fournisseurs
+    """Statistiques EDI, pour mettre par défaut les axes_pro, grandes cétagories, rubriques presta,
+    poids, unités et code douaniers quand un nouvel article se présente
     """
 
     class Unit(models.TextChoices):

@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import SectionSage
+from apps.accountancy.models import AccountSage, SectionSage
 from apps.countries.models import Country
 
 
@@ -628,6 +628,22 @@ class BaseInvoiceDetailsTable(models.Model):
         limit_choices_to={"axe": "RFA"},
         related_name="+",
         db_column="axe_rfa_uuid",
+    )
+    account_purchase = models.ForeignKey(
+        AccountSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        db_column="purchase_account_sage",
+    )
+    account_sale = models.ForeignKey(
+        AccountSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        db_column="sale_account_sage",
     )
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
 

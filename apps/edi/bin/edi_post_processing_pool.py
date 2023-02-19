@@ -527,7 +527,7 @@ def unitron_post_insert(uuid_identification: AnyStr):
 
 def widex_post_insert(uuid_identification: AnyStr):
     """
-    Mise à jour des champs vides à l'import du fichier NEWSON
+    Mise à jour des champs vides à l'import du fichier WIDEX
     :param uuid_identification: uuid_identification
     """
     sql_update = post_widex_dict.get("sql_update")
@@ -544,7 +544,15 @@ def widex_post_insert(uuid_identification: AnyStr):
 
 def widexga_post_insert(uuid_identification: AnyStr):
     """
-    Mise à jour des champs vides à l'import du fichier NEWSON
+    Mise à jour des champs vides à l'import du fichier WIDEX GA
     :param uuid_identification: uuid_identification
     """
     widex_post_insert(uuid_identification)
+
+
+def z_bu_refac_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier issu de la requête Sage pour la BU REFAC0
+    :param uuid_identification: uuid_identification
+    """
+

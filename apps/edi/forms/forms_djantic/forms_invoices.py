@@ -559,6 +559,31 @@ class WidexGaSchema(
         ]
 
 
+class ZBuRefacSageSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+):
+    """Schema Djantic pour validation du modèle WidexGa"""
+
+    uuid_identification: uuid.UUID
+    flow_name: str = "SageYoozRefac"
+    supplier: str = "SAGE_YOOZ_REFAC"
+    supplier_ident: str = "Zburefac"
+
+    class Config:
+        """Config"""
+
+        model = EdiImport
+        include = list(get_columns(ColumnDefinition, "Zburefac")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+            "created_at",
+            "modified_at",
+        ]
+
+
 def main():
     class EdiEssais(ModelSchema):
         class Config:

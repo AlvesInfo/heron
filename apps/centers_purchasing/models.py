@@ -330,7 +330,8 @@ class TranslationParamaters(FlagsTable):
 
 
 class GroupingGoods(FlagsTable):
-    """Table des regroupements de refacturation de marchandises"""
+    """Table des regroupements de refacturation sur la premiere page du type de facture Marchandise
+    """
 
     ranking = models.IntegerField()
     base = models.CharField(max_length=35, verbose_name="base refac")
@@ -358,7 +359,7 @@ class GroupingGoods(FlagsTable):
 
 
 class AxeProGroupingGoods(FlagsTable):
-    """Table associative Axe PRO/Regroupement de facturation"""
+    """Table associative des Axes PRO/Regroupement de facturation"""
 
     axe_pro = models.OneToOneField(
         SectionSage,
@@ -372,6 +373,7 @@ class AxeProGroupingGoods(FlagsTable):
     )
     grouping_goods = models.ForeignKey(
         GroupingGoods,
+        null=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="axe_grouping_goods",
@@ -387,129 +389,6 @@ class AxeProGroupingGoods(FlagsTable):
             models.Index(fields=["axe_pro"]),
             models.Index(fields=["grouping_goods"]),
             models.Index(fields=["axe_pro", "grouping_goods"]),
-        ]
-
-
-class AxeProFamilleAcuitis(FlagsTable):
-    """Table des axes par défaut pour les familles de produits Acuitis"""
-
-    class Unit(models.TextChoices):
-        """Unit choices"""
-
-        GR = "Grammes", _("Grammes")
-        KG = "Kilo", _("Kilo")
-        U = "Unité", _("Unité")
-        BOITE = "Boite", _("Boite")
-        ML = "Mètre", _("Mètre")
-
-    code_famille_acuitis = models.CharField(max_length=35)
-    code_rayon_acuitis = models.CharField(max_length=35)
-    axe_pro = models.ForeignKey(
-        SectionSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRO"},
-        related_name="default_acuitis_pro_section",
-        db_column="axe_pro",
-        verbose_name="axe pro",
-    )
-    comment = models.TextField(null=True, blank=True)
-    big_category = models.ForeignKey(
-        Category,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="acuitis_family_big_category",
-        db_column="uuid_big_category",
-        null=True,
-    )
-    sub_category = models.ForeignKey(
-        SubCategory,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="acuitis_family_sub_category",
-        db_column="uuid_sub_big_category",
-        null=True,
-    )
-    item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
-    unit_weight = models.CharField(
-        null=True, blank=True, max_length=20, choices=Unit.choices, default=Unit.GR
-    )
-    customs_code = models.CharField(null=True, blank=True, max_length=35)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["code_famille_acuitis", "code_rayon_acuitis"]
-        unique_together = (("code_famille_acuitis", "code_rayon_acuitis"),)
-        indexes = [
-            models.Index(fields=["code_famille_acuitis"]),
-            models.Index(fields=["code_rayon_acuitis"]),
-            models.Index(fields=["axe_pro"]),
-            models.Index(
-                fields=["code_famille_acuitis", "code_rayon_acuitis", "axe_pro"]
-            ),
-        ]
-
-
-class AxeProFamilleCosium(FlagsTable):
-    """Table des axes por par défaut pour les familles de produits Cosium"""
-
-    class Unit(models.TextChoices):
-        """Unit choices"""
-
-        GR = "Grammes", _("Grammes")
-        KG = "Kilo", _("Kilo")
-        U = "Unité", _("Unité")
-        BOITE = "Boite", _("Boite")
-        ML = "Mètre", _("Mètre")
-
-    code_famille_cosium = models.CharField(unique=True, max_length=35)
-    axe_pro = models.ForeignKey(
-        SectionSage,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRO"},
-        related_name="default_cosium_pro_section",
-        db_column="axe_pro",
-        verbose_name="axe pro",
-    )
-    comment = models.TextField(null=True, blank=True)
-    big_category = models.ForeignKey(
-        Category,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="cosium_family_big_category",
-        db_column="uuid_big_category",
-        null=True,
-    )
-    sub_category = models.ForeignKey(
-        SubCategory,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="cosium_family_sub_category",
-        db_column="uuid_sub_big_category",
-        null=True,
-    )
-    item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
-    unit_weight = models.CharField(
-        null=True, blank=True, max_length=20, choices=Unit.choices, default=Unit.GR
-    )
-    customs_code = models.CharField(null=True, blank=True, max_length=35)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["code_famille_cosium"]
-        indexes = [
-            models.Index(fields=["code_famille_cosium"]),
-            models.Index(fields=["axe_pro"]),
-            models.Index(fields=["code_famille_cosium", "axe_pro"]),
         ]
 
 

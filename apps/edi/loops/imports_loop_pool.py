@@ -58,6 +58,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     unitron,
     widex,
     widex_ga,
+    z_bu_refac,
 )
 from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
@@ -88,6 +89,7 @@ processing_dict = {
     "UNITRON": unitron,
     "WIDEX": widex,
     "WIDEX_GA": widex_ga,
+    "SAGE_YOOZ_REFAC0": z_bu_refac,
 }
 
 
