@@ -15,7 +15,7 @@ from uuid import UUID
 from typing import Union
 from functools import lru_cache
 
-from apps.accountancy.models import SectionSage
+from apps.accountancy.models import SectionSage, AccountSage
 
 
 @lru_cache(maxsize=256)
@@ -61,3 +61,16 @@ def get_uuid_bu(bu: str) -> Union[None, UUID]:
     bu_dict = dict(SectionSage.objects.bu_section().values_list("section", "uuid_identification"))
 
     return bu_dict.get(bu)
+
+
+@lru_cache(maxsize=256)
+def get_uuid_account(account: str, code_plan_sage: str = "FRA") -> Union[None, UUID]:
+    """Retourne l'UUID de l'axe bu passé en paramètre"""
+
+    account_dict = dict(
+        AccountSage.objects.filter(code_plan_sage=code_plan_sage, account=account).values_list(
+            "account", "uuid_identification"
+        )
+    )
+
+    return account_dict.get(account)
