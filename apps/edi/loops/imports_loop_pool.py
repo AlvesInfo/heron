@@ -20,7 +20,7 @@ import time
 
 from psycopg2 import sql
 import django
-from django.db import connection
+from django.db import connection, connections
 from celery import group
 from heron import celery_app
 
@@ -276,6 +276,20 @@ def get_have_retours():
             return True
 
     return False
+
+
+def get_retours_valid():
+    """Vérifie que tous les retours sont validés avant import"""
+    with connections["bi_bdd"].cursor() as cursor:
+        sql_valid = """
+            SELECT count(*) 
+            FROM "factures_monthlyretours" 
+            WHERE "factures_monthlyretours"."validation" = False
+        """
+        cursor.execute(sql_valid)
+        result = cursor.fetchone()[0]
+
+        return not bool(result)
 
 
 def get_have_receptions():

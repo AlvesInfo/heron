@@ -22,6 +22,7 @@ from apps.edi.loops.imports_loop_pool import (
     get_have_retours,
     get_have_receptions,
     get_files_celery,
+    get_retours_valid,
 )
 
 
@@ -35,6 +36,7 @@ def import_edi_invoices(request):
     have_retours = get_have_retours()
     have_receptions = get_have_receptions()
     files_celery = get_files_celery()
+    retours_valid = get_retours_valid()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if request.method == "POST":
@@ -78,6 +80,7 @@ def import_edi_invoices(request):
         "have_retours": have_retours,
         "have_receptions": have_receptions,
         "files_celery": files_celery,
+        "retours_valid": retours_valid,
     }
 
     return render(request, "edi/edi_import.html", context=context)
