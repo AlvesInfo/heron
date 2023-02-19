@@ -529,7 +529,9 @@ class PostgresDjangoUpsert:
 
             except psycopg2.errors.InvalidTextRepresentation as except_error:
                 file.seek(0)
-                POSTGRES_SAVE_LOGGER.exception(f"{except_error}\n{file.read()!r}")
+                POSTGRES_SAVE_LOGGER.exception(
+                    f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
+                )
                 raise PostgresTypeError("Erreur de type") from except_error
 
             except psycopg2.errors.UniqueViolation as except_error:
