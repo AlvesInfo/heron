@@ -273,7 +273,7 @@ def z_bu_refac_file(file: Path) -> Path:
         if not new_file.is_file():
             break
 
-    with file.open("r", encoding="utf8") as file_to_parse, new_file.open(
+    with file.open("r", encoding="utf-8-sig") as file_to_parse, new_file.open(
         "w", encoding="utf8", newline=""
     ) as file_to_write:
         csv_reader = csv.reader(
