@@ -43,6 +43,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     unitron,
     widex,
     widex_ga,
+    z_bu_refac,
 )
 
 
@@ -66,6 +67,7 @@ processing_dict = {
     "UNITRON": unitron,
     "WIDEX": widex,
     "WIDEX_GA": widex_ga,
+    "SAGE_YOOZ_REFAC0": z_bu_refac,
 }
 
 bbgr_dict = {
