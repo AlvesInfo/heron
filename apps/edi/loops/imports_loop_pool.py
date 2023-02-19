@@ -17,12 +17,13 @@ import re
 import sys
 from pathlib import Path
 import shutil
+import time
 
 from psycopg2 import sql
+import django
 from django.db import connection
 from celery import group
 from heron import celery_app
-import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -158,7 +159,6 @@ def get_files_celery():
         for file in files_directory.glob("*"):
             backup_file = backup_dir / file.name
             files_list.append((str(file), str(backup_file), directory))
-    print(files_list)
     return files_list
 
 
@@ -364,8 +364,6 @@ def proc_files(process_objects):
     Intégration des factures fournisseurs présentes
     dans le répertoire de processing/suppliers_invoices_files
     """
-    import time
-
     start_initial = time.time()
 
     error = False
@@ -428,7 +426,6 @@ def loop_pool_proc(proc_files_list):
 
 def main():
     """Main pour lancement de l'import"""
-    import time
 
     # Si l'action n'existe pas on la créée
     try:
@@ -502,7 +499,6 @@ def main():
 
 def celery_import_launch():
     """Main pour lancement de l'import"""
-    import time
 
     # Si l'action n'existe pas on la créée
     try:
@@ -550,14 +546,12 @@ def celery_import_launch():
                 tasks_list.append(celery_app.signature("apps.edi.tasks.bbgr_receptions"))
 
             # On boucle sur les fichiers à insérer
-            proc_files_l = get_files()
+            proc_files_l = get_files_celery()
 
             if bool(proc_files_l):
                 elements_to_insert = True
-                import pickle
 
-                for row_args in get_files_celery():
-                    print("row_args : ", row_args)
+                for row_args in proc_files_l:
                     tasks_list.append(
                         celery_app.signature(
                             "suppliers_import", kwargs={"process_objects": row_args}
@@ -565,10 +559,15 @@ def celery_import_launch():
                     )
 
             if elements_to_insert:
-                result = group(*tasks_list)()
-                print(result.get(timeout=3600))
+                result = group(*tasks_list)().get(3600)
+                print("result : ", result)
+                EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
                 post_common()
+                print("post_common terminé")
+                EDI_LOGGER.warning("post_common terminé")
                 post_processing_all()
+                print("post_processing_all terminé")
+                EDI_LOGGER.warning("post_processing_all terminé")
 
                 print(f"All validations : {time.time() - start_all} s")
                 EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
@@ -591,8 +590,6 @@ def celery_import_launch():
 
 def main_pool():
     """main pool"""
-    import time
-
     # Si l'action n'existe pas on la créée
     try:
         action = ActionInProgress.objects.get(action="import_edi_invoices")
