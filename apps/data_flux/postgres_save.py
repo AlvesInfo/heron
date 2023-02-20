@@ -538,6 +538,10 @@ class PostgresDjangoUpsert:
                 raise PostgresUniqueError("Erreur sur clé dupliquée") from except_error
 
             except Exception as except_error:
+                file.seek(0)
+                POSTGRES_SAVE_LOGGER.exception(
+                    f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
+                )
                 raise PostgresDjangoError("Erreur inconnue") from except_error
 
         return True
