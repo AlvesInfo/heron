@@ -284,7 +284,7 @@ def z_bu_refac_file(file: Path) -> Path:
             quoting=csv.QUOTE_MINIMAL,
         )
         csv_writer = csv.writer(
-            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
         )
 
         for i, line in enumerate(csv_reader, 1):
@@ -320,7 +320,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     get_uuid_bu(bu),
                     str(sens).strip(),
                     montant,
-                    tva,
+                    ("000" + str(tva))[-3:],
                     " ".join([str(value) for value in libelle]).strip(),
                     "11",
                 ]
