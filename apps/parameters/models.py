@@ -591,7 +591,7 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="uuid_identification",
         limit_choices_to={"axe": "BU"},
         related_name="+",
-        db_column="axe_bu_uuid",
+        db_column="axe_bu",
     )
     axe_prj = models.ForeignKey(
         SectionSage,
@@ -600,7 +600,7 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRJ"},
         related_name="+",
-        db_column="axe_prj_uuid",
+        db_column="axe_prj",
     )
     axe_pro = models.ForeignKey(
         SectionSage,
@@ -609,7 +609,7 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
         related_name="+",
-        db_column="axe_pro_uuid",
+        db_column="axe_pro",
     )
     axe_pys = models.ForeignKey(
         SectionSage,
@@ -618,7 +618,7 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PYS"},
         related_name="+",
-        db_column="axe_pys_uuid",
+        db_column="axe_pys",
     )
     axe_rfa = models.ForeignKey(
         SectionSage,
@@ -627,7 +627,7 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="uuid_identification",
         limit_choices_to={"axe": "RFA"},
         related_name="+",
-        db_column="axe_rfa_uuid",
+        db_column="axe_rfa",
     )
     account_purchase = models.ForeignKey(
         AccountSage,

@@ -228,7 +228,7 @@ class Society(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
         related_name="famille_axe_pro_section",
-        db_column="axe_pro_uuid",
+        db_column="axe_pro",
         null=True,
     )
 

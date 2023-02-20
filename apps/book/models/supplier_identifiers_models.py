@@ -53,7 +53,7 @@ class SupplierFamilyAxes(FlagsTable):
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
         related_name="family_axe_pro",
-        db_column="axe_pro_uuid",
+        db_column="axe_pro",
         null=True,
     )
     description = models.CharField(null=True, blank=True, max_length=80)

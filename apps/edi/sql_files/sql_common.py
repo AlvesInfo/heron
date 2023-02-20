@@ -260,11 +260,11 @@ post_common_dict = {
         """
         update "edi_ediimport" edi 
         set 
-            "axe_bu_uuid" = maj."axe_bu",
-            "axe_prj_uuid" = maj."axe_prj",
-            "axe_pro_uuid" = maj."axe_pro",
-            "axe_pys_uuid"  = maj."axe_pys",
-            "axe_rfa_uuid" = maj."axe_rfa"
+            "axe_bu" = maj."axe_bu",
+            "axe_prj" = maj."axe_prj",
+            "axe_pro" = maj."axe_pro",
+            "axe_pys"  = maj."axe_pys",
+            "axe_rfa" = maj."axe_rfa"
         from (
             select 
                 ee."id", 
@@ -279,7 +279,7 @@ post_common_dict = {
             and ee."third_party_num" = aa."third_party_num"
             where ee."uuid_identification" = %(uuid_identification)s
             and (ee."valid" = false or ee."valid" isnull)
-            and ee."axe_pro_uuid" isnull
+            and ee."axe_pro" isnull
             and aa."axe_pro" is not null
         ) maj
         where edi."id" = maj."id" 
