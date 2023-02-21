@@ -12,7 +12,6 @@ modified at: 2022-04-10
 modified by: Paulo ALVES
 """
 from typing import AnyStr
-from time import sleep
 
 from django.db import connection
 from django.db.models import Q, Count
@@ -46,6 +45,7 @@ from apps.edi.sql_files.sql_starkey import post_starkey_dict
 from apps.edi.sql_files.sql_technidis import post_technidis_dict
 from apps.edi.sql_files.sql_unitron import post_unitron_dict
 from apps.edi.sql_files.sql_widex import post_widex_dict
+from apps.edi.sql_files.sql_z_bu_refac import post_z_bu_refac
 
 from apps.users.models import User
 
@@ -555,4 +555,11 @@ def z_bu_refac_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier issu de la requête Sage pour la BU REFAC0
     :param uuid_identification: uuid_identification
     """
+    sql_update = post_z_bu_refac.get("sql_update")
+    sql_vat = post_z_bu_refac.get("sql_vat")
 
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
