@@ -1,4 +1,4 @@
-# pylint: disable=E0401,C0303,E1101,R0915
+# pylint: disable=E0401,C0303,E1101,R0915,R0914
 """
 FR : Module de post-traitement avant import des fichiers de factures fournisseur
 EN : Post-processing module before importing supplier invoice files
