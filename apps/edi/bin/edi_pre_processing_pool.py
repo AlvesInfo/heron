@@ -290,7 +290,7 @@ def z_bu_refac_file(file: Path) -> Path:
 
         for i, line in enumerate(csv_reader, 1):
             if i == 1:
-                csv_writer.writerow(list(line)[:14] + ["unity"])
+                csv_writer.writerow(list(line)[:16])
             else:
                 (
                     tiers,
@@ -327,7 +327,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     str(sens).strip(),
                     montant,
                     ("000" + str(tva))[-3:],
-                    " ".join([str(value) for value in libelle]).strip(),
+                    libelle,
                     " ".join([str(value) for value in unity]).strip(),
                 ]
                 csv_writer.writerow(list_to_write)
@@ -345,6 +345,6 @@ if __name__ == "__main__":
     z_bu_refac_file(
         Path(
             r"C:\SitesWeb\heron\files\backup\suppliers_invoices_files"
-            r"\SAGE_YOOZ_REFAC0\F1676840164243_ZBUREFAC - Copie.csv"
+            r"\SAGE_YOOZ_REFAC0\F1677059198463_ZBUREFAC - Copie.csv"
         )
     )
