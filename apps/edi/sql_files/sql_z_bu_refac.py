@@ -34,7 +34,7 @@ post_z_bu_refac = {
         """
         update "edi_ediimport" edi
         set "supplier" = req."short_name",
-            "supplier_ident" = "third_party_num",
+            "supplier_ident" = edi."third_party_num",
             "supplier_name" = req."short_name"
         from (
             select 
