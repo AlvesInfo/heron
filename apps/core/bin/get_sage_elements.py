@@ -64,6 +64,15 @@ def get_uuid_bu(bu: str) -> Union[None, UUID]:
 
 
 @lru_cache(maxsize=256)
+def get_uuid_rfa(rfa: str) -> Union[None, UUID]:
+    """Retourne l'UUID de l'axe rfa passé en paramètre"""
+
+    rfa_dict = dict(SectionSage.objects.rfa_section().values_list("section", "uuid_identification"))
+
+    return rfa_dict.get(rfa) or rfa_dict.get("NAF")
+
+
+@lru_cache(maxsize=256)
 def get_uuid_account(account: str, code_plan_sage: str = "FRA") -> Union[None, UUID]:
     """Retourne l'UUID du compte comptable passé en paramètre"""
 
