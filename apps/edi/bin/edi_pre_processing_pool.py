@@ -307,7 +307,8 @@ def z_bu_refac_file(file: Path) -> Path:
                     sens,
                     montant,
                     tva,
-                    *libelle,
+                    libelle,
+                    unity
                 ) = line
                 list_to_write = [
                     tiers,
@@ -326,7 +327,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     montant,
                     ("000" + str(tva))[-3:],
                     " ".join([str(value) for value in libelle]).strip(),
-                    "11",
+                    unity,
                 ]
                 csv_writer.writerow(list_to_write)
 
