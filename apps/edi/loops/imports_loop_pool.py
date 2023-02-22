@@ -64,8 +64,6 @@ from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
 from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
-from apps.edi.bin.edi_post_processing_pool import post_common
-from apps.edi.bin.edi_post_processing_pool import post_processing_all
 from apps.parameters.models import ActionInProgress
 
 
@@ -405,16 +403,12 @@ def celery_import_launch():
             print("result : ", result)
             EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-            post_common()
-            print("post_common terminé")
-            EDI_LOGGER.warning("post_common terminé")
+            result_clean = group(*[
+                celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})
+            ])().get(3600)
 
-            post_processing_all()
-            print("post_processing_all terminé")
-            EDI_LOGGER.warning("post_processing_all terminé")
-
-            print(f"All validations : {time.time() - start_all} s")
-            EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+            print("result_clean : ", result_clean)
+            EDI_LOGGER.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
@@ -446,16 +440,12 @@ def import_launch_bbgr(function_name):
         print("result : ", result)
         EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-        post_common()
-        print("post_common terminé")
-        EDI_LOGGER.warning("post_common terminé")
+        result_clean = group(*[
+            celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})
+        ])().get(3600)
 
-        post_processing_all()
-        print("post_processing_all terminé")
-        EDI_LOGGER.warning("post_processing_all terminé")
-
-        print(f"All validations for {function_name} : {time.time() - start_all} s")
-        EDI_LOGGER.warning(f"All validations for {function_name} : {time.time() - start_all} s")
+        print("result_clean : ", result_clean)
+        EDI_LOGGER.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)

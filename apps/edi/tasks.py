@@ -45,7 +45,8 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex_ga,
     z_bu_refac,
 )
-
+from apps.edi.bin.edi_post_processing_pool import post_common
+from apps.edi.bin.edi_post_processing_pool import post_processing_all
 
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
@@ -180,3 +181,31 @@ def launch_bbgr_bi_import(function_name):
     )
 
     return {"import : ": f"BBGR BI - {function_name} - {trace.time_to_process} s"}
+
+
+@shared_task(name="sql_clean_general")
+def launch_sql_clean_general(start_all):
+    """Realise les requêtes sql générale, pour le néttoyages des imports"""
+    start_initial = time.time()
+
+    try:
+        post_common()
+        print("post_common terminé")
+        EDI_LOGGER.warning("post_common terminé")
+
+        post_processing_all()
+        print("post_processing_all terminé")
+        EDI_LOGGER.warning("post_processing_all terminé")
+
+        print(f"All validations : {time.time() - start_all} s")
+        EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+
+    except Exception as except_error:
+        EDI_LOGGER.exception(
+            f"Exception Générale: sur tâche launch_sql_clean_general\n{except_error!r}"
+        )
+
+    return {
+        "Clean Sql Général : ": f"{time.time() - start_initial} s",
+        "Ensemble": f"All validations : {time.time() - start_all} s",
+    }
