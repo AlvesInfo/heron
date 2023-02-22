@@ -6,7 +6,7 @@
         </div>
         <div class="ui segments">
           <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
-                <h3 class="ui floated header" style="margin-bottom: 5px;">{% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %}</h3>
+                <h3 class="ui floated header" style="margin-bottom: 5px;">{% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %} - (Provenance : {% if invoices.0.manual_entry %}Facture Saisie{% else %}Facture Intégrée{% endif %})</h3>
                 <div class="ui clearing divider" style="margin: 3px 0;"></div>
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="">
@@ -38,7 +38,7 @@
                                  style="background-color: #efefff;text-align: center;"
                                  value="{% if invoices.0.invoice_type == '380' %}FAF{% else %}AVO{% endif %}">
                       </div>
-                      <div class="five wide field">
+                      <div class="four wide field">
                           <label for="id_invoice_number" style="text-align: left;">N° {% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %}</label>
                           <input type="text"
                                  name="invoice_number"
@@ -57,15 +57,15 @@
                                  style="background-color: #efefff;text-align: center;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoices.0.invoice_date|date:"d/m/Y" }}">
                       </div>
-                      <div class="three wide field">
-                          <label for="id_manual_entry" style="text-align: left;">Provenance</label>
+                      <div class="five wide field">
+                          <label for="id_manual_entry" style="text-align: left;">N° Origin / BL</label>
                           <input type="text"
                                  name="manual_entry"
                                  maxlength="80"
                                  id="id_manual_entry"
                                  readonly
                                  style="background-color: #efefff;"
-                                 value="{% if invoices.0.manual_entry %}Facture Saisie{% else %}Facture Intégrée{% endif %}">
+                                 value="{{ invoices.0.delivery_number }}">
                       </div>
                       <div class="two wide field">
                           <label for="id_achat_vente" style="text-align: center;">Sens</label>
@@ -87,7 +87,7 @@
                                  style="background-color: #efefff;text-align: right;"
                                  value="{{ invoices.0.invoice_amount_without_tax|numbers_format:2 }}">
                       </div>
-                      <div class="three wide field">
+                      <div class="two wide field">
                           <label for="id_invoice_amount_tax" style="text-align: right;padding-right: 14px;">Total TVA</label>
                           <input type="text"
                                  name="invoice_amount_tax"
