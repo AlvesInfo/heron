@@ -15,6 +15,8 @@ from uuid import UUID
 from typing import Union
 from functools import lru_cache
 
+from django.db import connection
+
 from apps.accountancy.models import SectionSage, AccountSage
 
 
@@ -73,7 +75,7 @@ def get_uuid_rfa(rfa: str) -> Union[None, UUID]:
 
 
 @lru_cache(maxsize=256)
-def get_uuid_account(account: str, code_plan_sage: str = "FRA") -> Union[None, UUID]:
+def get_uuid_account_with_plan(account: str, code_plan_sage: str = "FRA") -> Union[None, UUID]:
     """Retourne l'UUID du compte comptable passé en paramètre"""
 
     account_dict = dict(
@@ -83,3 +85,23 @@ def get_uuid_account(account: str, code_plan_sage: str = "FRA") -> Union[None, U
     )
 
     return account_dict.get(account)
+
+
+@lru_cache(maxsize=256)
+def get_uuid_account_with_vat(account: str, vat: str = "001") -> Union[None, UUID]:
+    """Retourne l'UUID du compte comptable passé en paramètre"""
+
+    with connection.cursor() as cursor:
+        sql_account = """
+        select 
+            "account", "uuid_identification"
+        from "accountancy_accountsage" "aa" 
+        left join "accountancy_vatsage" "av" 
+        on "aa"."code_plan_sage" = "av"."vat_regime"
+        where "av"."vat" = %(vat)s
+        """
+        cursor.execute(sql_account, {"vat": vat})
+
+        account_dict = {key: value for key, value in cursor.fetchall()}
+
+        return account_dict.get(account)

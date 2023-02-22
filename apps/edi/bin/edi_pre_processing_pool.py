@@ -25,7 +25,7 @@ from apps.core.bin.get_sage_elements import (
     get_uuid_pro,
     get_uuid_prj,
     get_uuid_bu,
-    get_uuid_account,
+    get_uuid_account_with_vat,
     get_uuid_rfa,
 )
 from apps.data_flux.utilities import excel_file_to_csv_string_io
@@ -311,6 +311,8 @@ def z_bu_refac_file(file: Path) -> Path:
                     *unity
                 ) = line
 
+                vat_sage = ("000" + str(tva))[-3:]
+
                 list_to_write = [
                     tiers,
                     bl,
@@ -325,10 +327,10 @@ def z_bu_refac_file(file: Path) -> Path:
                     get_uuid_rfa(rfa),
                     str(sens).strip(),
                     montant,
-                    ("000" + str(tva))[-3:],
+                    vat_sage,
                     libelle,
                     " ".join([str(value) for value in unity]).strip(),
-                    get_uuid_account(compte, "FRA"),
+                    get_uuid_account_with_vat(compte, vat_sage),
                 ]
                 csv_writer.writerow(list_to_write)
 

@@ -191,7 +191,7 @@ def cnx_postgresql(string_of_connexion):
 def query_select(cnx, sql_requete=None):
     """
     Fonction qui retourne le resultat d'une requête sql Postgresql.
-        :param cnx: connexion à la base postgresql psycopg2
+        :param cnx: Connexion à la base postgresql psycopg2
         :param sql_requete: requête selection souhaitée
                                 ex: "SELECT * FROM table"
         :return: La liste des éléments de la requête
@@ -211,18 +211,25 @@ def query_select(cnx, sql_requete=None):
     return None
 
 
-def query_real_dict_cursor(cnx, sql_requete=None):
+def query_real_dict_cursor(cnx, sql_requete=None, params=None):
     """
     Fonction qui retourne le resultat d'une requête sql Postgresql, comme un dictionnaire
         :param cnx: connexion à la base postgresql psycopg2
         :param sql_requete: requête selection souhaitée
                                 ex: "SELECT * FROM table"
+        :param params: dictionnaire des paramètes à passer
         :return: La liste des dictionnaires de la requête
     """
+    if params is None:
+        params = dict()
+
     if sql_requete:
         try:
             with cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute(sql_requete)
+                if params:
+                    cur.execute(sql_requete, params)
+                else:
+                    cur.execute(sql_requete)
                 list_rows = cur.fetchall()
             return list_rows
 
@@ -238,7 +245,7 @@ def query_real_dict_cursor(cnx, sql_requete=None):
 def query_execute(cnx, sql_requete=None):
     """
     Fonction qui exécute une requête sql Postgresql.
-        :param cnx: connexion à la base postgresql psycopg2
+        :param cnx: Connexion à la base postgresql psycopg2
         :param sql_requete: requête selection souhaitée
                                 ex: "UPDATE table SET champ=1"
                                     "UPDATE table SET champ=1 WHERE x = 0"
@@ -261,20 +268,28 @@ def query_execute(cnx, sql_requete=None):
     return None
 
 
-def query_dict(cnx, sql_requete=None):
+def query_dict(cnx, sql_requete=None, params=None):
     """
     Fonction qui retourne le resultat d'une requête sql Postgresql, comme un dictionnaire
         :param cnx: connexion à la base postgresql psycopg2
         :param sql_requete: requête selection souhaitée
                                 ex: "SELECT * FROM table"
+        :param params: dictionnaire des paramètes à passer
         :return: La liste des dictionnaires de la requête
     """
+    if params is None:
+        params = dict()
 
     if sql_requete:
         try:
             with cnx.cursor() as cur:
-                cur.execute(sql_requete)
+                if params:
+                    cur.execute(sql_requete, params)
+                else:
+                    cur.execute(sql_requete)
+
                 columns = [col[0] for col in cur.description]
+
                 return [dict(zip(columns, row)) for row in cur.fetchall()]
 
         except psycopg2.Error as except_error:
@@ -556,7 +571,7 @@ class PostresDjangoUpsert:
 
     def get_column_properties(self, field_key: AnyStr):
         """
-        :param field_key: champ du model django à retouner
+        :param field_key: Champ du model django à retouner
         :return: Le Sql des paramètres de création de la table temporaire
         """
         field_attr = self.meta.get_field(field_key)
@@ -583,7 +598,7 @@ class PostresDjangoUpsert:
     @property
     def get_colmuns_table(self):
         """
-        :return: le SQL des champs de la table pour l'insert
+        :return: Le SQL des champs de la table pour l'insert
         """
         return ", ".join(f'"{column}"' for column in self.fields_dict)
 
