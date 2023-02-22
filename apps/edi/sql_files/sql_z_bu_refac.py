@@ -75,7 +75,6 @@ post_z_bu_refac = {
         where edi."uuid_identification" = %(uuid_identification)s
           and edi."vat" = rvat."vat" 
           and edi."vat_regime" = rvat."vat_regime"
-          and rvat."vat_index" = 1
           and (edi."valid" = false or edi."valid" isnull)
     """
     ),
