@@ -556,10 +556,12 @@ def z_bu_refac_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_z_bu_refac.get("sql_update")
+    sql_name = post_z_bu_refac.get("sql_name")
     sql_vat = post_z_bu_refac.get("sql_vat")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_name, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)

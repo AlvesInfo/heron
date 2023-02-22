@@ -30,25 +30,47 @@ post_z_bu_refac = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_name": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "supplier" = req."short_name",
+            "supplier_ident" = "third_party_num",
+            "supplier_name" = req."short_name"
+        from (
+            select 
+                "third_party_num",
+                "short_name"
+            from book_society bs 
+        ) req
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        and edi."third_party_num" = req."third_party_num"
+        """
+    ),
     "sql_vat": sql.SQL(
         """
         update edi_ediimport edi 
         set "vat_rate" =  rvat."vat_rate"
         from (
             select 
-                vs."vat", 
-                vs."vat_regime", 
-                (vsr."rate" / 100)::numeric as "vat_rate",
-                ROW_NUMBER() OVER(
-                    partition by vs."vat_regime", vsr."rate" 
-                    order by vs."vat"
-                ) as "vat_index"
-            from "accountancy_vatsage" vs
-            join "accountancy_vatratsage" vsr 
-            on vs."vat" = vsr."vat" 
-            group by vs."vat", 
-                     vs."vat_regime", 
-                     vsr."rate"
+                "vat",
+                "vat_regime",
+                "vat_rate"
+            from (
+                select 
+                    vs."vat", 
+                    vs."vat_regime", 
+                    (vsr."rate" / 100)::numeric as "vat_rate",
+                    ROW_NUMBER() OVER(
+                        partition by vs."vat", vs."vat_regime"
+                        order by vs."vat", vsr."vat_start_date" desc
+                    ) as "vat_index",
+                    vsr."vat_start_date"
+                from "accountancy_vatsage" vs
+                join "accountancy_vatratsage" vsr 
+                on vs."vat" = vsr."vat" 
+            ) req
+            where "vat_index" = 1
         ) rvat
         where edi."uuid_identification" = %(uuid_identification)s
           and edi."vat" = rvat."vat" 
