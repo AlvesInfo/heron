@@ -30,6 +30,41 @@ post_z_bu_refac = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_piece": sql.SQL(
+        """
+        update "edi_ediimport" "edi" 
+        set "invoice_type" = "tp"."type_piece"
+        from (
+            select 
+                "third_party_num", 
+                "invoice_number", 
+                "invoice_year", 
+                "type_piece"
+            from (
+                select
+                    "third_party_num"", 
+                    "invoice_number", 
+                    date_part('year', "invoice_date") as "invoice_year", 
+                    case 
+                        when ("qty" * "net_unit_price")::numeric >= 0 
+                        then '380' 
+                        else '381' 
+                    end as "type_piece"
+                from "edi_ediimport"
+                where "uuid_identification" = %(uuid_identification)s
+            ) "req""
+            group by "third_party_num", 
+                     "invoice_number", 
+                     "invoice_year",
+                     "type_piece"
+        ) as "tp" 
+        where "edi"."uuid_identification" = %(uuid_identification)s
+        and "edi"."third_party_num" = "tp"."third_party_num"
+        and "edi"."invoice_number" = "tp"."invoice_number"
+        and date_part('year', "edi"."invoice_date") = "tp"."invoice_year"
+        and ("edi"."valid" = false or "edi"."valid" isnull)
+        """
+    ),
     "sql_name": sql.SQL(
         """
         update "edi_ediimport" edi
