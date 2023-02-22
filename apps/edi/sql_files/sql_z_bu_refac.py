@@ -42,7 +42,7 @@ post_z_bu_refac = {
                 "type_piece"
             from (
                 select
-                    "third_party_num"", 
+                    "third_party_num", 
                     "invoice_number", 
                     date_part('year', "invoice_date") as "invoice_year", 
                     case 
@@ -52,7 +52,7 @@ post_z_bu_refac = {
                     end as "type_piece"
                 from "edi_ediimport"
                 where "uuid_identification" = %(uuid_identification)s
-            ) "req""
+            ) "req"
             group by "third_party_num", 
                      "invoice_number", 
                      "invoice_year",
