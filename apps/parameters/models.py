@@ -635,7 +635,7 @@ class BaseInvoiceDetailsTable(models.Model):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="+",
-        db_column="purchase_account_sage",
+        db_column="account_purchase",
     )
     account_sale = models.ForeignKey(
         AccountSage,
@@ -643,7 +643,7 @@ class BaseInvoiceDetailsTable(models.Model):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="+",
-        db_column="sale_account_sage",
+        db_column="account_sale",
     )
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
 
