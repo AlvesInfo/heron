@@ -290,7 +290,7 @@ def z_bu_refac_file(file: Path) -> Path:
 
         for i, line in enumerate(csv_reader, 1):
             if i == 1:
-                csv_writer.writerow(list(line)[:16])
+                csv_writer.writerow(list(line)[:16] + ["account"])
             else:
                 (
                     tiers,
@@ -323,12 +323,12 @@ def z_bu_refac_file(file: Path) -> Path:
                     get_uuid_prj(prj),
                     get_uuid_bu(bu),
                     get_uuid_rfa(rfa),
-                    get_uuid_account(compte, "FRA"),
                     str(sens).strip(),
                     montant,
                     ("000" + str(tva))[-3:],
                     libelle,
                     " ".join([str(value) for value in unity]).strip(),
+                    get_uuid_account(compte, "FRA"),
                 ]
                 csv_writer.writerow(list_to_write)
 

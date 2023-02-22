@@ -575,6 +575,7 @@ class ZBuRefacSageSchema(
     axe_pro: uuid.UUID
     axe_pys: uuid.UUID
     axe_rfa: uuid.UUID
+    account_purchase: uuid.UUID
     vat: str
 
     class Config:
