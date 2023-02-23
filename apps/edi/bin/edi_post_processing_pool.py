@@ -28,6 +28,7 @@ from apps.edi.sql_files.sql_bulk import post_bulk_dict
 from apps.edi.sql_files.sql_bbgr_002_statment import bbgr_002_statment_dict
 from apps.edi.sql_files.sql_bbgr_003_monthly import bbgr_003_monthly_dict
 from apps.edi.sql_files.sql_bbgr_004_retours import bbgr_004_retours_dict
+from apps.edi.sql_files.sql_bbgr_005_receptions import bbgr_005_receptions_dict
 from apps.edi.sql_files.sql_cosium import post_cosium_dict
 from apps.edi.sql_files.sql_transferts_cosium import post_transfert_cosium_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
@@ -311,6 +312,23 @@ def bbgr_retours_post_insert(uuid_identification: AnyStr):
     sql_vat = bbgr_004_retours_dict.get("sql_vat")
     sql_vat_amount = bbgr_004_retours_dict.get("sql_vat_amount")
     sql_total_amount_by_invoices = bbgr_004_retours_dict.get("sql_total_amount_by_invoices")
+
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat_amount, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_total_amount_by_invoices, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
+
+
+def bbgr_reception_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier BBGR Statment
+    :param uuid_identification: uuid_identification
+    """
+    sql_vat = bbgr_005_receptions_dict.get("sql_vat")
+    sql_vat_amount = bbgr_005_receptions_dict.get("sql_vat_amount")
+    sql_total_amount_by_invoices = bbgr_005_receptions_dict.get("sql_total_amount_by_invoices")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})

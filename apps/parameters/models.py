@@ -473,6 +473,16 @@ class BaseInvoiceDetailsTable(models.Model):
         ENS = 11, _("Ens")
         POU = 12, _("%")
 
+    class OriginChoice(models.IntegerChoices):
+        """DateType choices"""
+
+        EDI = 1, _("EDI")
+        SAGE = 2, _("SAGE")
+        BI = 3, _("BI ACUITIS")
+        MAN = 4, _("SAISIE MANUELLE")
+        FOR = 5, _("FORMATION")
+        PER = 6, _("PERSONNEL")
+
     # Livraison
     acuitis_order_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
@@ -526,6 +536,9 @@ class BaseInvoiceDetailsTable(models.Model):
     )
     unity = models.IntegerField(
         null=True, blank=True, choices=UnitChoice.choices, default=UnitChoice.UNI
+    )
+    origin = models.IntegerField(
+        null=True, blank=True, choices=OriginChoice.choices
     )
     gross_unit_price = models.DecimalField(
         null=True,

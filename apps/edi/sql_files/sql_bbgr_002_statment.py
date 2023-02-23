@@ -17,8 +17,8 @@ bbgr_002_statment_dict = {
     "sql_vat": sql.SQL(
         """
         update "edi_ediimport"
-        set 
-            "vat_rate" = ("vat_rate"::numeric / 100::numeric)::numeric
+        set "vat_rate" = ("vat_rate"::numeric / 100::numeric)::numeric,
+            "origin" = 3
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

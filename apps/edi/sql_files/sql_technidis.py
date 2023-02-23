@@ -63,7 +63,8 @@ post_technidis_dict = {
                                         when "famille" is null or "famille" = ''
                                         then split_part("reference_article", '-', 1)
                                         else "famille"
-                                    end
+                                    end,
+            "origin" = 1
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

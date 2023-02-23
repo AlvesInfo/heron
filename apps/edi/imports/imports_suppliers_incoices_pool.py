@@ -78,6 +78,7 @@ from apps.edi.bin.edi_post_processing_pool import (
     bbgr_statment_post_insert,
     bbgr_monthly_post_insert,
     bbgr_retours_post_insert,
+    bbgr_reception_post_insert,
 )
 from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
 from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
@@ -258,7 +259,7 @@ def bbgr_receptions():
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
-    bbgr_retours_post_insert(trace.uuid_identification)
+    bbgr_reception_post_insert(trace.uuid_identification)
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.save()

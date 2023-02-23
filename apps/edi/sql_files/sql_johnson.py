@@ -23,7 +23,8 @@ post_johnson_dict = {
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "gross_amount" = "net_amount"::numeric,
             "purchase_invoice" = true,
-            "sale_invoice" = true
+            "sale_invoice" = true,
+            "origin" = 1
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

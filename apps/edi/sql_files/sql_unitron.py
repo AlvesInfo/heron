@@ -22,7 +22,8 @@ post_unitron_dict = {
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "purchase_invoice" = true,
-            "sale_invoice" = true
+            "sale_invoice" = true,
+            "origin" = 1
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

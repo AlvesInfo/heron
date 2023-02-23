@@ -19,7 +19,8 @@ post_cosium_dict = {
     update "edi_ediimport" "edi"
     set "net_amount" = 0,
         "gross_amount" = 0,
-        "discount_price_01" = -abs("qty" * "net_unit_price")::numeric
+        "discount_price_01" = -abs("qty" * "net_unit_price")::numeric,
+        "origin" = 1
     where "uuid_identification" = %(uuid_identification)s
       and ("valid" = false or "valid" isnull)
       and "amount_with_vat" = 0

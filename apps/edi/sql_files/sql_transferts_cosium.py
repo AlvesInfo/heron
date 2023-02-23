@@ -41,7 +41,8 @@ post_transfert_cosium_dict = {
                       from parameters_category 
                      where slug_name = 'marchandises'
                      limit 1
-                )
+                ),
+            "origin" = 1
         where edi."uuid_identification" = %(uuid_identification)s
           and (edi."valid" = false or edi."valid" isnull)
     """

@@ -38,7 +38,8 @@ post_edi_dict = {
                                         when acuitis_order_number = 'UNKNOWN' 
                                         then '' 
                                         else acuitis_order_number
-                                    end
+                                    end,
+            "origin" = 1
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

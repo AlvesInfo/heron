@@ -17,8 +17,8 @@ bbgr_004_retours_dict = {
     "sql_vat": sql.SQL(
         """
         update "edi_ediimport"
-        set 
-            "vat_rate" = ("vat_rate"::numeric / 100::numeric)::numeric
+        set "vat_rate" = ("vat_rate"::numeric / 100::numeric)::numeric,
+            "origin" = 3
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
@@ -26,8 +26,7 @@ bbgr_004_retours_dict = {
     "sql_vat_amount": sql.SQL(
         """
         update "edi_ediimport"
-        set 
-            "vat_amount" = round("vat_rate" * "net_amount", 2)::numeric,
+        set "vat_amount" = round("vat_rate" * "net_amount", 2)::numeric,
             "amount_with_vat" = (
                 round("vat_rate" * "net_amount", 2)::numeric + "net_amount"
             )::numeric
@@ -38,8 +37,7 @@ bbgr_004_retours_dict = {
     "sql_total_amount_by_invoices": sql.SQL(
         """
         update edi_ediimport ei 
-        set 
-            "invoice_amount_without_tax" = rec."invoice_amount_without_tax",
+        set "invoice_amount_without_tax" = rec."invoice_amount_without_tax",
             "invoice_amount_tax" = rec."invoice_amount_tax",
             "invoice_amount_with_tax" = rec."invoice_amount_with_tax"
         from (

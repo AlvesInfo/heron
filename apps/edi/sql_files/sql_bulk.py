@@ -22,7 +22,8 @@ post_bulk_dict = {
         "gross_unit_price" = "net_unit_price",
         "gross_amount" = "net_amount",
         "purchase_invoice" = true,
-        "sale_invoice" = true
+        "sale_invoice" = true,
+        "origin" = 1
     where "uuid_identification" = %(uuid_identification)s
     and ("valid" = false or "valid" isnull)
     """

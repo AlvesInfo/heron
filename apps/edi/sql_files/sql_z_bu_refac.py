@@ -25,7 +25,8 @@ post_z_bu_refac = {
             "sale_invoice" = true,
             "purchase_invoice" = false,
             "manual_entry" = false,
-            "famille" = "reference_article"
+            "famille" = "reference_article",
+            "origin" = 2
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
