@@ -6,7 +6,7 @@
         </div>
         <div class="ui segments">
           <div class="ui segment" style="padding-top: 10px;padding-bottom: 5px;">
-                <h3 class="ui floated header" style="margin-bottom: 5px;">{% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %} - <span style="font-size: 14px;">(Provenance : {% if invoices.0.manual_entry %}Saisie{% else %}EDI{% endif %})</span></h3>
+                <h3 class="ui floated header" style="margin-bottom: 5px;">{% if invoices.0.invoice_type == '380' %}Facture{% else %}Avoir{% endif %} - <span style="font-size: 14px;">(Provenance : {{ invoices.0.origin.origin_name }})</span></h3>
                 <div class="ui clearing divider" style="margin: 3px 0;"></div>
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="">
