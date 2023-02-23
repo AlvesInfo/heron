@@ -38,7 +38,8 @@ select
     ) as str_json,
     sum(cct_error) as cct_error,
     case when uuid_control isnull then 0 else 1 end have_control,
-    "origin"
+    "origin",
+    "icon"
 from (
     select
         supplier,
@@ -59,7 +60,8 @@ from (
         "sale_invoice",
         case when "is_multi_store" then 0 else 1 end as "is_multi_store",
         ee.uuid_control,
-        case when ee."origin" isnull then 'question circle' else pic.icon end as "origin"
+        case when ee."origin" isnull then 'question circle' else pic."icon" end as "icon",
+        case when ee."origin" isnull then 0 else ee."origin" end as "origin"
     from edi_ediimport ee
     left join edi_ediimportcontrol ec
     on ee.uuid_control = ec.uuid_identification
@@ -89,7 +91,7 @@ from (
             is_multi_store,
             ee.uuid_control,
             ee."origin",
-            pic.icon
+            pic."icon"
 ) edi
 group by supplier,
          invoice_month,
@@ -102,7 +104,8 @@ group by supplier,
         "purchase_invoice",
         "sale_invoice",
         uuid_control,
-        "origin"
+        "origin",
+        "icon"
 order by third_party_num,
          supplier,
          invoice_month
