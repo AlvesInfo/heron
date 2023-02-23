@@ -273,6 +273,20 @@ def due_dates(date_value, paiement_condition):
     et le nom de la condition de paiement
     """
     if not paiement_condition:
-        return ''
+        return ""
 
     return get_str_echeances(date_value, paiement_condition)
+
+
+@register.filter(name="string_agg")
+def string_agg(value_list, deliminter=","):
+    """Renvoie du texte séparé par une virgule, à partir d'une liste, tuple, ... génératoeur,
+    comme un string_agg postgresql"""
+    return f"{deliminter} ".join([str(value) for value in value_list])
+
+
+@register.filter(name="string_agg_uniques")
+def string_agg_uniques(value_list, deliminter=","):
+    """Renvoie du texte séparé par une virgule, à partir d'une liste, tuple, ... génératoeur,
+    comme un string_agg postgresql"""
+    return f"{deliminter} ".join([str(value) for value in set(value_list)])

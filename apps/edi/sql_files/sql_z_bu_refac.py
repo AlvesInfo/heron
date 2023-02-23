@@ -84,7 +84,7 @@ post_z_bu_refac = {
     ),
     "sql_vat": sql.SQL(
         """
-        update edi_ediimport edi 
+        update "edi_ediimport" "edi" 
         set "vat_rate" =  rvat."vat_rate"
         from (
             select 

@@ -26,15 +26,16 @@ def details_purchase(request, enc_param):
     :return: view
     """
     third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
+    invoices = EdiImport.objects.filter(
+        third_party_num=third_party_num,
+        supplier=supplier,
+        invoice_month=invoice_month,
+        invoice_number=invoice_number,
+    ).order_by("pk")
 
     context = {
         "titre_table": f"Contrôle : {supplier} - INVOICE N° {invoice_number}",
-        "invoices": EdiImport.objects.filter(
-            third_party_num=third_party_num,
-            supplier=supplier,
-            invoice_month=invoice_month,
-            invoice_number=invoice_number,
-        ).order_by("pk"),
+        "invoices": invoices,
         "chevron_retour": reverse(
             "validation_purchases:integration_supplier_purchases",
             kwargs={
@@ -44,6 +45,9 @@ def details_purchase(request, enc_param):
         "form": ChangeBigCategoryForm(),
         "cct_form": ChangeCttForm(),
         "nb_paging": 50,
+        "delivery_numbers": (
+            bl_num.delivery_number for bl_num in invoices if bl_num.delivery_number
+        ),
     }
 
     return render(request, "validation_purchases/details_invoices_suppliers.html", context=context)
