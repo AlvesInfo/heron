@@ -450,6 +450,13 @@ class BaseInvoiceTable(models.Model):
         abstract = True
 
 
+class IconOriginChoice(models.Model):
+    """Table des icônes pour la représentation des Origines des invoices"""
+    origin = models.IntegerField(unique=True)
+    origin_name = models.CharField(max_length=35)
+    icon = models.CharField(max_length=50)
+
+
 class BaseInvoiceDetailsTable(models.Model):
     """
     Table Abstraite de base pour les Détails de Factures
@@ -472,16 +479,6 @@ class BaseInvoiceDetailsTable(models.Model):
         HEU = 10, _("Heures")
         ENS = 11, _("Ens")
         POU = 12, _("%")
-
-    class OriginChoice(models.IntegerChoices):
-        """DateType choices"""
-
-        EDI = 1, _("EDI")
-        SAGE = 2, _("SAGE")
-        BI = 3, _("BI ACUITIS")
-        MAN = 4, _("SAISIE MANUELLE")
-        FOR = 5, _("FORMATION")
-        PER = 6, _("PERSONNEL")
 
     # Livraison
     acuitis_order_number = models.CharField(
@@ -536,9 +533,6 @@ class BaseInvoiceDetailsTable(models.Model):
     )
     unity = models.IntegerField(
         null=True, blank=True, choices=UnitChoice.choices, default=UnitChoice.UNI
-    )
-    origin = models.IntegerField(
-        null=True, blank=True, choices=OriginChoice.choices
     )
     gross_unit_price = models.DecimalField(
         null=True,
@@ -657,6 +651,14 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="uuid_identification",
         related_name="+",
         db_column="account_sale",
+    )
+    origin = models.ForeignKey(
+        IconOriginChoice,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="origin",
+        related_name="+",
+        db_column="origin",
     )
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
 

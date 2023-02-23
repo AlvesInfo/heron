@@ -61,7 +61,7 @@
                             <i class="eye icon modification"></i>
                         </a>
                     </td>
-                    <td style="text-align: center;">{% if manual_entry %}<i class="hand paper outline icon"></i>{% else %}<i class="share alternate square icon"></i{% endif %}</td>
+                    <td style="text-align: center;"><i class="{{ supplier_purchase.origin }} icon"></i></td>
                     <td class="category"
                         data-value="{{ supplier_purchase.uuid_category }}|{{ supplier_purchase.big_category }}|{{ supplier_purchase.third_party_num }}|{{ supplier_purchase.invoice_month.isoformat }}"
                         data-category="{{ supplier_purchase.uuid_category }}"
