@@ -460,6 +460,35 @@ post_common_dict = {
           and ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_delivery_number": sql.SQL(
+        """
+        update "edi_ediimport" "edi"
+        set "delivery_number" = "req"."delivery_number",
+            "comment" = "edi"."comment" || ' ' || "req"."commentaire"
+        
+        from (
+            select 
+                "id", 
+                array_to_string(
+                    (string_to_array("delivery_number", ' '))[1:1], ' '
+                ) as "delivery_number",
+                array_to_string(
+                    (
+                        string_to_array("delivery_number", ' ')
+                    )[3:array_length(string_to_array("delivery_number", ' '), 1)], 
+                    ' '
+                ) as "commentaire"
+             from "edi_ediimport" "ee" 
+            where "delivery_number" is not null and "delivery_number" !=''
+              and array_length(string_to_array("delivery_number", ' '), 1) > 1
+              and "uuid_identification" = %(uuid_identification)s
+              and ("valid" = false or "valid" isnull)
+        ) "req" 
+        where "edi"."id" = "req"."id"
+          and "edi"."uuid_identification" = %(uuid_identification)s
+          and ("edi"."valid" = false or "edi"."valid" isnull)
+    """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
