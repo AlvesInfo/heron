@@ -10,7 +10,6 @@ from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     EdiImportValidationForm,
     ChangeBigCategoryForm,
-    UpdateSupplierPurchasesForm,
     DeletePkForm,
     ChangeCttForm,
 )
