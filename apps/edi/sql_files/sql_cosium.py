@@ -19,8 +19,7 @@ post_cosium_dict = {
     update "edi_ediimport" "edi"
     set "net_amount" = 0,
         "gross_amount" = 0,
-        "discount_price_01" = -abs("qty" * "net_unit_price")::numeric,
-        "origin" = 1
+        "discount_price_01" = -abs("qty" * "net_unit_price")::numeric
     where "uuid_identification" = %(uuid_identification)s
       and ("valid" = false or "valid" isnull)
       and "amount_with_vat" = 0
@@ -59,6 +58,14 @@ post_cosium_dict = {
         and req."invoice_date" = ei."invoice_date"
         and ei."uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
+        """
+    ),
+    "sql_origin": sql.SQL(
+        """
+        update edi_ediimport ei
+        set "origin" = 1
+        where ei."uuid_identification" = %(uuid_identification)s
+        and (ei."valid" = false or ei."valid" isnull)
         """
     ),
     "sql_familles": sql.SQL(

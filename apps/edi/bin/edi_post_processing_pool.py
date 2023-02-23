@@ -230,10 +230,12 @@ def cosium_post_insert(uuid_identification: AnyStr):
     sql_ttc_a_zero = post_cosium_dict.get("sql_ttc_a_zero")
     sql_totaux = post_cosium_dict.get("sql_totaux")
     sql_familles = post_cosium_dict.get("sql_familles")
+    sql_origin = post_cosium_dict.get("sql_origin")
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})
         cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_origin, {"uuid_identification": uuid_identification})
         cursor.execute(sql_totaux, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
 
