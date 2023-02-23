@@ -66,7 +66,6 @@ from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
 from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
 from apps.parameters.models import ActionInProgress
 
-
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
     "COSIUM": cosium,
@@ -374,7 +373,7 @@ def get_action():
     return action
 
 
-def celery_import_launch():
+def celery_import_launch(user_pk: int):
     """Main pour lancement de l'import avec Celery"""
 
     # Si l'action n'existe pas on la créée
@@ -396,16 +395,18 @@ def celery_import_launch():
 
             for row_args in proc_files_l:
                 tasks_list.append(
-                    celery_app.signature("suppliers_import", kwargs={"process_objects": row_args})
+                    celery_app.signature(
+                        "suppliers_import", kwargs={"process_objects": row_args, "user_pk": user_pk}
+                    )
                 )
 
             result = group(*tasks_list)().get(3600)
             print("result : ", result)
             EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-            result_clean = group(*[
-                celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})
-            ])().get(3600)
+            result_clean = group(
+                *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
+            )().get(3600)
 
             print("result_clean : ", result_clean)
             EDI_LOGGER.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
@@ -422,7 +423,7 @@ def celery_import_launch():
         action.save()
 
 
-def import_launch_bbgr(function_name):
+def import_launch_bbgr(function_name: str, user_pk: int):
     """Main pour lancement de l'import"""
 
     # Si l'action n'existe pas on la créée
@@ -435,14 +436,18 @@ def import_launch_bbgr(function_name):
         action.in_progress = True
         action.save()
         result = group(
-            *[celery_app.signature("bbgr_bi", kwargs={"function_name": function_name})]
+            *[
+                celery_app.signature(
+                    "bbgr_bi", kwargs={"function_name": function_name, "user_pk": user_pk}
+                )
+            ]
         )().get(3600)
         print("result : ", result)
         EDI_LOGGER.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-        result_clean = group(*[
-            celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})
-        ])().get(3600)
+        result_clean = group(
+            *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
+        )().get(3600)
 
         print("result_clean : ", result_clean)
         EDI_LOGGER.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")

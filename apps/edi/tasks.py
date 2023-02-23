@@ -47,6 +47,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
 )
 from apps.edi.bin.edi_post_processing_pool import post_common
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
+from apps.users.models import User
 
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
@@ -80,7 +81,7 @@ bbgr_dict = {
 
 
 @shared_task(name="suppliers_import")
-def launch_suppliers_import(process_objects):
+def launch_suppliers_import(process_objects, user_pk):
     """
     Intégration des factures fournisseurs présentes
     dans le répertoire de processing/suppliers_invoices_files
@@ -97,8 +98,9 @@ def launch_suppliers_import(process_objects):
     function = processing_dict.get(processing_key)
 
     try:
+        user = User.objects.get(pk=user_pk)
         trace, to_print = function(file)
-
+        trace.created_by = user
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
@@ -136,7 +138,7 @@ def launch_suppliers_import(process_objects):
 
 
 @shared_task(name="bbgr_bi")
-def launch_bbgr_bi_import(function_name):
+def launch_bbgr_bi_import(function_name, user_pk):
     """
     Intégration des factures fournisseurs présentes
     dans le répertoire de processing/suppliers_invoices_files
@@ -150,7 +152,9 @@ def launch_bbgr_bi_import(function_name):
     function = bbgr_dict.get(function_name)
 
     try:
+        user = User.objects.get(pk=user_pk)
         trace, to_print = function()
+        trace.created_by = user
 
     except TypeError as except_error:
         error = True

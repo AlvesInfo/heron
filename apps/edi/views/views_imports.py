@@ -49,17 +49,18 @@ def import_edi_invoices(request):
 
             # On vérifie qu'il y ait des fichiers
             if bool_files:
+                user_pk = request.user.id
 
                 if "bbgr_statment" in request.POST:
-                    import_launch_bbgr("bbgr_statment")
+                    import_launch_bbgr("bbgr_statment", user_pk)
                 elif "bbgr_monthly" in request.POST:
-                    import_launch_bbgr("bbgr_monthly")
+                    import_launch_bbgr("bbgr_monthly", user_pk)
                 elif "bbgr_retours" in request.POST:
-                    import_launch_bbgr("bbgr_retours")
+                    import_launch_bbgr("bbgr_retours", user_pk)
                 elif "bbgr_receptions" in request.POST:
-                    import_launch_bbgr("bbgr_receptions")
+                    import_launch_bbgr("bbgr_receptions", user_pk)
                 else:
-                    celery_import_launch()
+                    celery_import_launch(user_pk)
 
                 in_action = True
 
