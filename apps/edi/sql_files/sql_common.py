@@ -293,14 +293,35 @@ post_common_dict = {
         set 
             "is_multi_store" = true
         from (
+             select  
+                "third_party_num",
+                "uuid_identification",
+                "invoice_number"
+            from (
                 select 
                     "third_party_num",
                     "uuid_identification",
-                    "invoice_number"
+                    "invoice_number",
+                    case 
+                        when "code_fournisseur" = '' or "code_fournisseur" is null 
+                        then "code_maison"
+                        else "code_fournisseur"
+                    end as "code_fournisseur"
+                    
                 from "edi_ediimport"
                 where "uuid_identification" = %(uuid_identification)s
                   and "is_multi_store" isnull
                 group by 
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    case 
+                        when "code_fournisseur" = '' or "code_fournisseur" is null 
+                        then "code_maison"
+                        else "code_fournisseur"
+                    end 
+             ) req 
+             group by 
                     "third_party_num",
                     "uuid_identification",
                     "invoice_number"
