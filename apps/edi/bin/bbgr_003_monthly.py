@@ -120,7 +120,7 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                    "boutique_acuitis" as "code_maison",
                    "nom_boutique" as "maison",
                    "customer_po_number" as "acuitis_order_number",
-                   "livraison" as "delivery_number",
+                   case when "livraison" = '0' then '' else "livraison" end as "delivery_number",
                    "date_livraison" as "delivery_date",
                    coalesce(
                         case when "livraison" = '' then null else "livraison" end,

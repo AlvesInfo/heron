@@ -1,3 +1,5 @@
+import re
+
 import pendulum
 import lxml.html as html
 from lxml.etree import ParserError
@@ -286,7 +288,22 @@ def string_agg(value_list, deliminter=","):
 
 
 @register.filter(name="string_agg_uniques")
-def string_agg_uniques(value_list, deliminter=","):
+def string_agg_uniques(value_list, delimiter=","):
     """Renvoie du texte séparé par une virgule, à partir d'une liste, tuple, ... génératoeur,
     comme un string_agg postgresql"""
-    return f"{deliminter} ".join([str(value) for value in set(value_list)])
+    # Pour en limiter le nombre en fin de texte du delimiter on peut mettre un chiffre
+    digits_list = list(re.finditer(r"\d*$", delimiter))
+    digits = digits_list[0].group() if digits_list else ""
+    values = sorted(set(value_list))
+
+    if digits:
+        delimiter = delimiter.replace(digits, "")
+        string_return = f"{delimiter} ".join([str(value) for value in values[: int(digits)]])
+        values_nb = len(values)
+
+        if string_return and values_nb > 1 and values_nb > int(digits):
+            return string_return + f"{delimiter} ..."
+        else:
+            return string_return
+
+    return f"{delimiter} ".join([str(value) for value in values])
