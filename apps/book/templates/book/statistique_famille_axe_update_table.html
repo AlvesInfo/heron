@@ -1,0 +1,78 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields">
+                        <div class="three wide field" style="display: none;">
+                            <label for="id_stat_name" style="text-align: left;">Familles Statistiques/Axes&nbsp;:</label>
+                            <input type="text" name="stat_name" id="id_stat_name" value="{{ statistique.name }}">
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="four wide field">
+                            <label for="id_invoice_column" style="text-align: left;">Colonne&nbsp;:</label>
+                            {{ form.invoice_column }}
+                        </div>
+                        <div class="four wide field">
+                            <label for="id_regex_match" style="text-align: left;">Regex Match&nbsp;:</label>
+                            {{ form.regex_match }}
+                        </div>
+                        <div class="four wide field">
+                            <label for="id_expected_result" style="text-align: left;">Expected Result&nbsp;:</label>
+                            {{ form.expected_result }}
+                        </div>
+                        <div class="four wide field">
+                            <label for="id_axe_pro" style="text-align: left;">Axe Pro&nbsp;:</label>
+                            {{ form.axe_pro }}
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="eight wide field">
+                            <label for="id_description" style="text-align: left;">Description&nbsp;:</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="four wide field">
+                            <label for="id_norme" style="text-align: left;">Norme&nbsp;:</label>
+                            {{ form.norme }}
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="four wide field">
+                            <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
+                            {{ form.big_category }}
+                        </div>
+                        <div class="four wide field">
+                            <label for="id_sub_category" style="text-align: left;">Rubrique Presta&nbsp;:</label>
+                            {{ form.sub_category }}
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="two wide field">
+                            <label for="id_item_weight" style="text-align: left;">Poids&nbsp;:</label>
+                            {{ form.item_weight }}
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight" style="text-align: left;">Quantité&nbsp;:</label>
+                            {{ form.unit_weight }}
+                        </div>
+                        <div class="four wide field">
+                            <label for="id_customs_code" style="text-align: left;">Code Douanier&nbsp;:</label>
+                            {{ form.customs_code }}
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="sixteen wide field">
+                            <label for="id_comment" style="text-align: left;">Commentaire&nbsp;:</label>
+                            {{ form.comment }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock table %}

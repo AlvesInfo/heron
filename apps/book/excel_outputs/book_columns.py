@@ -1211,3 +1211,233 @@ class SocietiesColumns:
             "width": 12,
         },
     ]
+
+
+columns_list_statistiques = [
+    {
+        "entete": "Nom",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#CCC0DA",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Description",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#CCC0DA",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"text_wrap": True},
+        },
+        "width": 30,
+    },
+    {
+        "entete": "Regex",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#CCC0DA",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "bold": True},
+        },
+        "width": 6,
+    },
+    {
+        "entete": "Colonne",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 15,
+    },
+    {
+        "entete": "regex_match",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 30,
+    },
+    {
+        "entete": "expected_result",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 30,
+    },
+    {
+        "entete": "Axe Pro",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Description",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"text_wrap": True},
+        },
+        "width": 38,
+    },
+    {
+        "entete": "Norme",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 18,
+    },
+    {
+        "entete": "Commentaire",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 50,
+    },
+    {
+        "entete": "Grande Catégorie",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Rubrique Presta",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 15,
+    },
+    {
+        "entete": "Poids",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 8,
+    },
+    {
+        "entete": "Unité",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Code douannier",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
+]

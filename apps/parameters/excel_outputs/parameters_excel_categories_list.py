@@ -1,5 +1,5 @@
 # pylint: disable=W0702,W1203,E1101
-"""Module d'export du fichier excel pour les centrales Filles
+"""Module d'export du fichier excel pour les Céatégories
 
 Commentaire:
 

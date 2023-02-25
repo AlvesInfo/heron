@@ -1,13 +1,16 @@
 from django.urls import path
 
 from apps.parameters.views import (
+    # Catégories
     CategoriesList,
     CategoryCreate,
     CategoryUpdate,
     categories_export_list,
+    # Rubriques Presta
     SubCategoryCreate,
     SubCategoryUpdate,
     delete_sub_category,
+    # Catégories et Axes par défaut pour les articles
     DefaultAxeAricleUpdate,
     axe_articles_defaut_export_list,
 )
@@ -36,7 +39,7 @@ urlpatterns = [
         delete_sub_category,
         name="delete_sub_category",
     ),
-    # Catégories et Axes par défaut pourl es articles
+    # Catégories et Axes par défaut pour les articles
     path(
         "axes_articles_defaut/<str:slug_name>/",
         DefaultAxeAricleUpdate.as_view(),

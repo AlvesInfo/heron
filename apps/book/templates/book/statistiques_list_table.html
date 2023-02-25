@@ -1,0 +1,52 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="twelve wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 6%">Edit</th>
+                <th style="width: 20%">Nom</th>
+                <th style="width: 6%">Regex</th>
+                <th style="width: 68%">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for statistique in statistiques %}
+            <tr id="id_{{ statistique.pk }}" class="hide_plans">
+
+                <td data-value="{{ statistique.name }}"
+                    style="text-align: center;">
+                    <a href="{% url 'book:statistique_update' name=statistique.name %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                  {% if statistique.name %}
+                    {{ statistique.name }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if statistique.regex_bool %}X{% endif %}
+                </td>
+                <td>
+                  {% if statistique.description %}
+                    {{ statistique.description }}
+                  {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

@@ -1,0 +1,103 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h3 class="ui floated header" style="margin-bottom: 5px;">Famille Statistiques/Axes</h3>
+                <div class="ui clearing divider">
+                </div>
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                            <div class="fields">
+                                <div class="three wide field">
+                                    <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
+                                    {{ form.name }}
+                                </div>
+                                <div class="one wide field">
+                                    <label for="id_regex_bool" style="text-align: center;">Regex</label>
+                                    <input type="checkbox"
+                                           name="regex_bool"
+                                           id="id_regex_bool"
+                                           style="font-weight: bold;width: 20px;height: 20px;margin-left: 0;margin-top: 7px;"
+                                           {% if form.regex_bool.value %}checked{% endif %}>
+                                </div>
+                                <div class="six wide field">
+                                    <label for="id_description" style="text-align: left;">Description&nbsp;:</label>
+                                    {{ form.description }}
+                                </div>
+                                <div class="eight wide field" style="text-align: right;">
+                                    <a class="item" href="">
+                                        <button class="ui teal basic button" name="update_statistique" type="submit" style="padding: 7px 10px;margin: 30px 10px 0;font-size: 11px">
+                                            VALIDEZ
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                </form>
+            </div>
+            {% if not create %}
+                <div class="ui segment" style="padding-bottom: 0;">
+                    <div class="ui header" style="text-align: left;">
+                        <h4 style="margin-bottom: 5px;display: inline-block;">Définitions</h4>
+                        <a class="item" href="{% url 'book:familly_axes_create' statistique_pk=object.pk %}" style="display: inline-block">
+                            <input class="ui teal basic button" name="create_familly_axes" type="button" style="padding: 7px 10px;margin: 0 10px 0 50px;font-size: 11px" value="Ajouter">
+                        </a>
+                    </div>
+                    <div class="ui clearing divider"></div>
+
+            {% endif %}
+
+                {% if not create and object.stat_axes.all %}
+                    <div class="ui grid" style="margin: 10px">
+                        <div class="sixteen wide column">
+                            <table id="table_document"
+                                   class="ui celled table"
+                                   style="font-size: 12px !important;text-align: center;font-weight: 900;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 3%">Edit</th>
+                                            <th style="width: 6%">Colonne</th>
+                                            <th style="width: 31%">Regex_match</th>
+                                            <th style="width: 31%">Expected_result</th>
+                                            <th style="width: 7%">Axe PRO</th>
+                                            <th style="width: 9%">Catégorie</th>
+                                            <th style="width: 8%">Code Dounanier</th>
+                                            <th style="width: 5%">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for sub in object.stat_axes.all %}
+                                        <tr id="id_{{ forloop.counter }}" class="hide_plans">
+                                            <td>
+                                                <a href="{% url 'book:familly_axes_update' statistique_pk=object.pk pk=sub.pk%}">
+                                                    <i class="edit icon modification"></i>
+                                                </a>
+                                            </td>
+                                            <td>{{ sub.invoice_column}}</td>
+                                            <td>{{ sub.regex_match}}</td>
+                                            <td>{{ sub.expected_result }}</td>
+                                            <td>{{ sub.axe_pro }}</td>
+                                            <td>{{ sub.big_category }}</td>
+                                            <td>{{ sub.customs_code|default_if_none:'' }}</td>
+                                            <td class="tdDelete" style="text-align: center;">
+                                                <div style="cursor: pointer;">
+                                                  <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ sub.pk }}, `{{ sub.invoice_column }} - {{ sub.regex_match }} - {{ sub.expected_result }}`, `{% url 'book:delete_familly_axes' %}`, `la statistique familles/axes`)"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock table %}

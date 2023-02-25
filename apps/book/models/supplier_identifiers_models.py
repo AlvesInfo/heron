@@ -25,14 +25,19 @@ from apps.accountancy.models import SectionSage, CctSage
 class StatFamillyAxes(FlagsTable):
     """Nommage des statistiques pour réemploi éventuel"""
 
-    name = models.CharField(unique=True, max_length=35)
-    description = models.CharField(null=True, blank=True, max_length=80)
+    name = models.CharField(unique=True, max_length=35, verbose_name="nom")
+    description = models.CharField(null=True, blank=True, max_length=80, verbose_name="description")
+    regex_bool = models.BooleanField(default=False)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"{self.name}"
+
+    def get_absolute_url(self):
+        """Retourne l'url en cas de success create, update ou delete"""
+        return reverse("book:statistique_update", args=[self.name])
 
     class Meta:
         """class Meta du modèle django"""
@@ -67,8 +72,7 @@ class SupplierFamilyAxes(FlagsTable):
         db_column="stat_name",
     )
     # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
-    invoice_column = models.CharField(default="famille", max_length=150)
-    regex_bool = models.BooleanField(default=False)
+    invoice_column = models.CharField(default="famille", max_length=150, verbose_name="colonne")
     regex_match = models.CharField(max_length=150)
     expected_result = models.CharField(max_length=150)
     axe_pro = models.ForeignKey(
@@ -78,18 +82,18 @@ class SupplierFamilyAxes(FlagsTable):
         limit_choices_to={"axe": "PRO"},
         related_name="family_axe_pro",
         db_column="axe_pro",
-        null=True,
+        verbose_name="axe pro",
     )
     description = models.CharField(null=True, blank=True, max_length=80)
     norme = models.CharField(null=True, blank=True, max_length=80)
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
     big_category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="supplier_family_big_category",
         db_column="uuid_big_category",
-        null=True,
+        verbose_name="catégorie",
     )
     sub_category = models.ForeignKey(
         SubCategory,
@@ -98,12 +102,22 @@ class SupplierFamilyAxes(FlagsTable):
         related_name="supplier_family_sub_category",
         db_column="uuid_sub_big_category",
         null=True,
+        verbose_name="rubrique Presta",
     )
-    item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    item_weight = models.DecimalField(
+        max_digits=20, decimal_places=5, default=0, verbose_name="quantité"
+    )
     unit_weight = models.CharField(
-        null=True, blank=True, max_length=20, choices=Unit.choices, default=Unit.GR
+        null=True,
+        blank=True,
+        max_length=20,
+        choices=Unit.choices,
+        default=Unit.GR,
+        verbose_name="unité",
     )
-    customs_code = models.CharField(null=True, blank=True, max_length=35)
+    customs_code = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="code douanier"
+    )
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -115,7 +129,7 @@ class SupplierFamilyAxes(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["stat_name", "invoice_column", "regex_match"]
+        ordering = ["stat_name", "invoice_column", "regex_match", "expected_result"]
         unique_together = (("stat_name", "invoice_column", "regex_match", "expected_result"),)
         indexes = [
             models.Index(fields=["stat_name"]),
