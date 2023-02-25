@@ -83,13 +83,9 @@ def insert_bbgr_002_articles():
                 (
                     select 
                         "axe_pro" 
-                     from centers_purchasing_axeprofamilleacuitis adf 
-                    where adf."code_famille_acuitis" = hba."famille"
-                      and adf."code_rayon_acuitis" = case 
-                                                        when hba."code_rayon" isnull 
-                                                        then '' 
-                                                        else hba."code_rayon" 
-                                                    end
+                     from book_supplierfamilyaxes adf 
+                    where adf."stat_name" = 'ACUITIS'
+                      and adf."regex_match" = hba."famille"
                 ) as "axe_pro",
                 case
                     when hba."made_in" ilike 'Allemagne' then 'DE'
@@ -128,6 +124,30 @@ def insert_bbgr_002_articles():
             """
         )
         cursor.execute(sql_articles)
+
+        sql_axes = """
+            update "articles_article" "aaa"
+            set "new_article" = true
+            from (
+                select 
+                    "id"
+                from "articles_article" "aa" 
+                where 	(
+                        (case when "axe_bu" isnull then 0 else 1 end) 
+                        +
+                        (case when "axe_prj" isnull then 0 else 1 end)
+                        +
+                        (case when "axe_pro" isnull then 0 else 1 end)
+                        +
+                        (case when "axe_pys" isnull then 0 else 1 end)
+                        +
+                        (case when "axe_rfa" isnull then 0 else 1 end)
+                    ) != 5
+                and "third_party_num" = 'BBGR002'
+            ) "req"
+            where "aaa"."id" = "req"."id"
+        """
+        cursor.execute(sql_axes)
 
 
 if __name__ == "__main__":

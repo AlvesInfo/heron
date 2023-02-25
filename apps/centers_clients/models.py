@@ -653,9 +653,8 @@ class SupllierCountryExclusion(FlagsTable):
 
 
 class MaisonSubcription(FlagsTable):
-    """
-    Table Abstraite de base pour les Détails de Factures
-    FR : Table Abstraite de Base pour les Détails de Factures
+    """Table des souscriptions des abonnnements par maisons
+    FR : Table des souscriptions des abonnnements par maisonss
     EN : Flags Abstract Table for Invoices details
     """
 
@@ -709,4 +708,12 @@ class MaisonSubcription(FlagsTable):
         to_field="function_name",
         related_name="function_subscription",
         db_column="function_name",
+    )
+    for_signboard = models.ForeignKey(
+        Signboard,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="code",
+        related_name="signborad_subscription",
+        db_column="for_signboard",
     )

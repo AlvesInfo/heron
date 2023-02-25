@@ -101,6 +101,7 @@ class SocietyForm(forms.ModelForm):
             widget=forms.CheckboxInput,
         )
         self.fields["default_axe_pro"].required = False
+        self.fields["stat_name"].required = False
 
     class Meta:
         model = Society
@@ -150,6 +151,7 @@ class SocietyForm(forms.ModelForm):
             "default_axe_pro",
             "in_use",
             "big_category_default",
+            "stat_name",
         ]
 
         widgets = {
@@ -157,6 +159,7 @@ class SocietyForm(forms.ModelForm):
             "rfa_remise": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "default_axe_pro": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "big_category_default": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "stat_name": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 

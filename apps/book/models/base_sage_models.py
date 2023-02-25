@@ -20,44 +20,13 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
-from apps.accountancy.models import CategorySage, PaymentCondition,  SectionSage, CctSage
+from apps.accountancy.models import CategorySage, PaymentCondition, SectionSage
 from apps.countries.models import Country
 from apps.parameters.models import Category, Nature
+from apps.book.models.supplier_identifiers_models import StatFamillyAxes
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
-
-# class SupplierArticleAxePro(FlagsTable):
-#     """
-#     Nommage des familles à appliquer pour les fournisseurs
-#     """
-#
-#     name = models.CharField(unique=True, max_length=80)
-#
-#     axe_pro_default = models.ForeignKey(
-#         SectionSage,
-#         on_delete=models.PROTECT,
-#         to_field="uuid_identification",
-#         limit_choices_to={"axe": "PRO"},
-#         related_name="famille_axe_pro_default",
-#         db_column="axe_pro_default_uuid",
-#         null=True,
-#     )
-#     regex = models.CharField(null=True, blank=True, max_length=150)
-#     # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
-#     invoice_column = models.CharField(default="famille", max_length=150)
-#
-#     # Identification
-#     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-#
-#     def __str__(self):
-#         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-#         return self.name
-#
-#     class Meta:
-#         """class Meta du modèle django"""
-#
-#         ordering = ["name"]
 
 
 class Society(FlagsTable):
@@ -281,6 +250,17 @@ class Society(FlagsTable):
         related_name="big_category_definition",
         db_column="uuid_big_category",
         verbose_name="grande catégorie par défaut",
+    )
+
+    # Statistique edi pour le tiers (fournisseurs de nouveaux articles)
+    stat_name = models.ForeignKey(
+        StatFamillyAxes,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="name",
+        related_name="stat_name_book",
+        db_column="stat_name",
+        verbose_name="Statistique EDI",
     )
 
     def __str__(self):

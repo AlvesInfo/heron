@@ -101,6 +101,7 @@ class CounterNums(models.Model):
     """
     Table de la numérotation des compteurs
     """
+
     counter = models.ForeignKey(
         Counter,
         on_delete=models.PROTECT,
@@ -410,6 +411,14 @@ class Nature(FlagsTable):
         ordering = ["name"]
 
 
+class IconOriginChoice(models.Model):
+    """Table des icônes pour la représentation des Origines des invoices"""
+
+    origin = models.IntegerField(unique=True)
+    origin_name = models.CharField(max_length=35)
+    icon = models.CharField(max_length=50)
+
+
 class BaseInvoiceTable(models.Model):
     """
     Table Abstraite de base pour les Factures
@@ -448,13 +457,6 @@ class BaseInvoiceTable(models.Model):
         """class Meta du modèle django"""
 
         abstract = True
-
-
-class IconOriginChoice(models.Model):
-    """Table des icônes pour la représentation des Origines des invoices"""
-    origin = models.IntegerField(unique=True)
-    origin_name = models.CharField(max_length=35)
-    icon = models.CharField(max_length=50)
 
 
 class BaseInvoiceDetailsTable(models.Model):
@@ -674,6 +676,7 @@ class BaseAdressesTable(models.Model):
     FR : Table Abstraite de Base pour les Adresses
     EN : Flags Abstract Table for Adresses
     """
+
     name = models.CharField(null=True, blank=True, max_length=80)
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
     adresse = models.CharField(max_length=200, verbose_name="adresse")

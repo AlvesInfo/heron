@@ -34,6 +34,7 @@ from apps.book.models import (
     Society,
     SocietyBank,
     SupplierCct,
+    StatFamillyAxes,
     SupplierFamilyAxes,
 )
 from apps.centers_clients.models import (
@@ -46,6 +47,7 @@ from apps.centers_clients.models import (
     MaisonSupllierExclusion,
     MaisonSupplierIdentifier,
     SupllierCountryExclusion,
+    MaisonSubcription,
 )
 from apps.centers_purchasing.models import (
     PrincipalCenterPurchase,
@@ -57,8 +59,6 @@ from apps.centers_purchasing.models import (
     Translation,
     TranslationParamaters,
     GroupingGoods,
-    AxeProFamilleAcuitis,
-    AxeProFamilleCosium,
     AccountsAxeProCategory,
 )
 from apps.edi.models import SupplierDefinition, ColumnDefinition
@@ -76,6 +76,7 @@ from apps.parameters.models import (
     SalePriceCategory,
     ActionPermission,
     Nature,
+    IconOriginChoice,
     ActionInProgress,
     DefaultAxeArticle,
 )
@@ -112,7 +113,6 @@ MODELS_BOOK = (
     Contact,
     SocietyBank,
     SupplierCct,
-    SupplierFamilyAxes,
 )
 
 MODELS_CENTER_CLIENTS = (
@@ -125,6 +125,7 @@ MODELS_CENTER_CLIENTS = (
     MaisonSupllierExclusion,
     MaisonSupplierIdentifier,
     SupllierCountryExclusion,
+    MaisonSubcription,
 )
 
 MODELS_CENTER_PURCHASING = (
@@ -137,8 +138,6 @@ MODELS_CENTER_PURCHASING = (
     Translation,
     TranslationParamaters,
     GroupingGoods,
-    AxeProFamilleAcuitis,
-    AxeProFamilleCosium,
     AccountsAxeProCategory,
 )
 
@@ -159,7 +158,10 @@ MODELS_PARAMETERS = (
     SalePriceCategory,
     SendFiles,
     SendFilesMail,
+    IconOriginChoice,
     DefaultAxeArticle,
+    StatFamillyAxes,
+    SupplierFamilyAxes,
 )
 
 
@@ -258,8 +260,8 @@ def main(model_list):
 if __name__ == "__main__":
     main(MODELS_ACCOUNTANCY)
     main(MODELS_BOOK)
-    main(MODELS_ARTICLES)
-    main(MODELS_CENTER_CLIENTS)
-    main(MODELS_CENTER_PURCHASING)
-    main(MODELS_EDI)
     main(MODELS_PARAMETERS)
+    main(MODELS_ARTICLES)
+    main(MODELS_CENTER_PURCHASING)
+    main(MODELS_CENTER_CLIENTS)
+    main(MODELS_EDI)

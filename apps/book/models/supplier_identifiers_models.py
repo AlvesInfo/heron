@@ -18,8 +18,18 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import reverse
-from apps.parameters.models import Category, SubCategory
-from apps.book.models.base_sage_models import FlagsTable, Society, SectionSage, CctSage
+from apps.parameters.models import FlagsTable, Category, SubCategory
+from apps.accountancy.models import SectionSage, CctSage
+
+
+class StatFamillyAxes(FlagsTable):
+    """Nommage des statistiques pour réemploi éventuel"""
+
+    name = models.CharField(unique=True, max_length=35)
+    description = models.CharField(null=True, blank=True, max_length=80)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
 
 class SupplierFamilyAxes(FlagsTable):
@@ -31,20 +41,21 @@ class SupplierFamilyAxes(FlagsTable):
         """Unit choices"""
 
         GR = "Grammes", _("Grammes")
-        KG = "Kilo", _("Kilo")
-        U = "Unité", _("Unité")
-        BOITE = "Boite", _("Boite")
-        ML = "Mètre", _("Mètre")
+        KG = "Kg", _("Kilo")
+        U = "U", _("Unité")
+        BOITE = "Bte", _("Boite")
+        ML = "M", _("Mètre")
 
-    third_party_num = models.ForeignKey(
-        Society,
+    stat_name = models.ForeignKey(
+        StatFamillyAxes,
         on_delete=models.PROTECT,
-        to_field="third_party_num",
-        related_name="family_supplier",
-        db_column="third_party_num",
+        to_field="name",
+        related_name="stat_axes",
+        db_column="stat_name",
     )
     # Colonne de la table (edi_ediimport) d'intégration des factures à prende en compte
     invoice_column = models.CharField(default="famille", max_length=150)
+    regex_bool = models.BooleanField(default=False)
     regex_match = models.CharField(max_length=150)
     expected_result = models.CharField(max_length=150)
     axe_pro = models.ForeignKey(
@@ -86,12 +97,21 @@ class SupplierFamilyAxes(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.third_party_num} - {self.invoice_column} - {self.regex_match}"
+        return f"{self.stat_name} - {self.invoice_column} - {self.regex_match}"
 
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["third_party_num", "invoice_column", "regex_match"]
+        ordering = ["stat_name", "invoice_column", "regex_match"]
+        unique_together = (("stat_name", "invoice_column", "regex_match", "expected_result"),)
+        indexes = [
+            models.Index(fields=["stat_name"]),
+            models.Index(fields=["invoice_column"]),
+            models.Index(fields=["regex_match"]),
+            models.Index(fields=["customs_code"]),
+            models.Index(fields=["expected_result"]),
+            models.Index(fields=["stat_name", "invoice_column", "regex_match", "expected_result"]),
+        ]
 
 
 class SupplierCct(FlagsTable):
@@ -101,7 +121,7 @@ class SupplierCct(FlagsTable):
     """
 
     third_party_num = models.ForeignKey(
-        Society,
+        "Society",
         on_delete=models.CASCADE,
         to_field="third_party_num",
         related_name="book_supplier",

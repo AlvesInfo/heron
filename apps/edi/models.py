@@ -220,7 +220,9 @@ class SupplierDefinition(DatesTable):
 
 
 class ColumnDefinition(models.Model):
-    """Table de définition des entêtes de l'ordre et du formatage"""
+    """Table de définition des entêtes de l'ordre et du formatage,
+    dans les fichiers fournissuers à importer
+    """
 
     flow_name = models.ForeignKey(
         SupplierDefinition,
