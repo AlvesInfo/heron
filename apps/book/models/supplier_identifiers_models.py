@@ -31,6 +31,19 @@ class StatFamillyAxes(FlagsTable):
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["name"]
+        indexes = [
+            models.Index(fields=["name"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(fields=["name", "uuid_identification"]),
+        ]
+
 
 class SupplierFamilyAxes(FlagsTable):
     """Statistiques EDI, pour mettre par défaut les axes_pro, grandes cétagories, rubriques presta,
