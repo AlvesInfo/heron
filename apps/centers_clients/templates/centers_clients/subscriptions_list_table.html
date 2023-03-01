@@ -68,7 +68,7 @@
                 </td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ subscription.pk }}, `{{ axe.function_name }} - {{ axe.subscription }}`, `{% url 'parameters:function_delete' %}`, `la fonction `)"></i>
+                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ subscription.pk }}, `{{ subscription.maison }} - {{ subscription.article__reference }}`, `{% url 'centers_clients:subscription_delete' %}`, `l'abonnement `)"></i>
                     </div>
                 </td>
             </tr>

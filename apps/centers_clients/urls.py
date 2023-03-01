@@ -101,7 +101,7 @@ urlpatterns = (
             name="subscriptions_export_list",
         ),
         path(
-            "subscription_delete/<int:pk>/", subscription_delete, name="subscription_delete"
+            "subscription_delete/", subscription_delete, name="subscription_delete"
         ),
     ]
 )
