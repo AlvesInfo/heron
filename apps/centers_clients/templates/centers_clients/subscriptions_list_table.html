@@ -11,11 +11,11 @@
         <thead>
             <tr>
                 <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
-                <th style="width: 26%">Client</th>
+                <th style="width: 24%">Client</th>
                 <th style="width: 13%">Article</th>
                 <th style="width: 5%">Qty</th>
                 <th style="width: 5%">Unité</th>
-                <th style="width: 5%">Prix Net</th>
+                <th style="width: 7%">Prix Net</th>
                 <th style="width: 18%">Fonction</th>
                 <th style="width: 18%">Enseigne</th>
                 <th style="width: 5%;">delete</th>
@@ -33,25 +33,25 @@
                 </td>
                 <td style="text-align: left;">
                   {% if subscription.maison %}
-                    {{ subscription.maison }}}
+                    {{ subscription.maison }} - {{ subscription.maison__intitule }}
                   {% endif %}
                 </td>
                 <td>
-                  {% if subscription.article %}
-                    {{ subscription.article.reference }}
+                  {% if subscription.article__reference %}
+                    {{ subscription.article__reference }}
                   {% endif %}
                 </td>
-                <td>
+                <td style="text-align: right;">
                   {% if subscription.qty %}
-                    {{ subscription.qty|numbers_format:2 }}
+                    {{ subscription.qty|numbers:0 }}
                   {% endif %}
                 </td>
                 <td>
-                  {% if subscription.unity %}
-                    {{ subscription.unity }}
+                  {% if subscription.unity__unity %}
+                    {{ subscription.unity__unity }}
                   {% endif %}
                 </td>
-                <td>
+                <td style="text-align: right;">
                   {% if subscription.net_unit_price %}
                     {{ subscription.net_unit_price|numbers_format:2 }}
                   {% endif %}

@@ -31,9 +31,10 @@ class MaisonSubcriptionList(ListView):
     queryset = MaisonSubcription.objects.all().values(
         "pk",
         "maison",
-        "article",
+        "maison__intitule",
+        "article__reference",
         "qty",
-        "unity__unity_subscription__unity__unity",
+        "unity__unity",
         "net_unit_price",
         "function",
         "for_signboard",

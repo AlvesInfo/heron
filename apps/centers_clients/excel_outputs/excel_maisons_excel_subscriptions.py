@@ -36,11 +36,9 @@ columns = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 50,
+        "width": 40,
     },
     {
         "entete": "ARTICLE",
@@ -52,11 +50,9 @@ columns = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            **{},
         },
-        "width": 50,
+        "width": 25,
     },
     {
         "entete": "QTY",
@@ -69,10 +65,10 @@ columns = [
         "f_ligne": {
             **f_ligne,
             **{
-                "align": "center",
+                "num_format": "#,##0",
             },
         },
-        "width": 50,
+        "width": 8,
     },
     {
         "entete": "UNITE",
@@ -88,7 +84,7 @@ columns = [
                 "align": "center",
             },
         },
-        "width": 50,
+        "width": 7,
     },
     {
         "entete": "PRIX NET",
@@ -101,10 +97,10 @@ columns = [
         "f_ligne": {
             **f_ligne,
             **{
-                "align": "center",
+                "num_format": "#,##0.00",
             },
         },
-        "width": 50,
+        "width": 9,
     },
     {
         "entete": "FONCTION",
@@ -120,7 +116,7 @@ columns = [
                 "align": "center",
             },
         },
-        "width": 50,
+        "width": 12,
     },
     {
         "entete": "ENSEIGNE",
@@ -136,7 +132,7 @@ columns = [
                 "align": "center",
             },
         },
-        "width": 50,
+        "width": 12,
     },
 ]
 
@@ -146,15 +142,24 @@ def get_clean_rows():
 
     return [
         (
-            row.maison,
-            row.article,
-            row.qty,
-            row.unity,
-            row.net_unit_price,
-            row.function,
-            row.for_signboard
+            row_dict.get("maison", "") + " - " + row_dict.get("maison__intitule", ""),
+            row_dict.get("article__reference", ""),
+            row_dict.get("qty", ""),
+            row_dict.get("unity__unity", ""),
+            row_dict.get("net_unit_price", ""),
+            row_dict.get("function", ""),
+            row_dict.get("for_signboard", ""),
         )
-        for row in MaisonSubcription.objects.all()
+        for row_dict in MaisonSubcription.objects.all().values(
+            "maison",
+            "maison__intitule",
+            "article__reference",
+            "qty",
+            "unity__unity",
+            "net_unit_price",
+            "function",
+            "for_signboard",
+        )
     ]
 
 
