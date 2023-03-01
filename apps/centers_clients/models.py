@@ -30,7 +30,7 @@ from apps.accountancy.models import (
 )
 from apps.book.models import Society
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
-from apps.parameters.models import SalePriceCategory, Nature, InvoiceFunctions
+from apps.parameters.models import SalePriceCategory, Nature, InvoiceFunctions, UnitChoices
 from apps.countries.models import Country, Language, Currency
 from apps.articles.models import Article
 
@@ -658,22 +658,6 @@ class MaisonSubcription(FlagsTable):
     EN : Flags Abstract Table for Invoices details
     """
 
-    class UnitChoice(models.IntegerChoices):
-        """DateType choices"""
-
-        UNI = 1, _("U")
-        GRA = 2, _("Grammes")
-        KIL = 3, _("Kg")
-        PIE = 4, _("Pièce")
-        BOI = 5, _("Boite")
-        CAR = 6, _("Carton")
-        JRS = 7, _("Jrs")
-        MOI = 8, _("Mois")
-        FOR = 9, _("Forfait")
-        HEU = 10, _("Heures")
-        ENS = 11, _("Ens")
-        POU = 12, _("%")
-
     maison = models.ForeignKey(
         Maison,
         on_delete=models.CASCADE,
@@ -692,7 +676,13 @@ class MaisonSubcription(FlagsTable):
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="quantity"
     )
-    unity = models.IntegerField(choices=UnitChoice.choices, default=UnitChoice.FOR)
+    unity = models.ForeignKey(
+        UnitChoices,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="unity_subscription",
+        db_column="unity",
+    )
     net_unit_price = models.DecimalField(
         null=True,
         max_digits=20,
@@ -722,7 +712,8 @@ class MaisonSubcription(FlagsTable):
         """get absolute url in succes case"""
         return reverse("centers_clients:subscriptions_list")
 
-    def get_success_url(self):
+    @staticmethod
+    def get_success_url():
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:subscriptions_list")
 

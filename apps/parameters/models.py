@@ -71,6 +71,28 @@ class Parameters(FlagsTable):
         ordering = ["name"]
 
 
+class UnitChoices(FlagsTable):
+    """
+    Table de paramétrage des unités
+    FR : Unités
+    EN : Unities
+    """
+    num = models.IntegerField(unique=True)
+    unity = models.CharField(unique=True, max_length=80, verbose_name="unité")
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.unity}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["unity"]
+
+
 class SendFiles(FlagsTable):
     """
     Table de paramétrage de l'envoi de fichier
@@ -174,7 +196,7 @@ class InvoiceFunctions(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les appels à la class"""
-        return f"{self.function_name}: {self.description[:50]}"
+        return f"{self.function_name}"
 
     @staticmethod
     def get_success_url():
@@ -483,22 +505,6 @@ class BaseInvoiceDetailsTable(models.Model):
     EN : Flags Abstract Table for Invoices details
     """
 
-    class UnitChoice(models.IntegerChoices):
-        """DateType choices"""
-
-        UNI = 1, _("U")
-        GRA = 2, _("Grammes")
-        KIL = 3, _("Kilos")
-        PIE = 4, _("Pièce")
-        BOI = 5, _("Boite")
-        CAR = 6, _("Carton")
-        JRS = 7, _("Jrs")
-        MOI = 8, _("Mois")
-        FOR = 9, _("Forfait")
-        HEU = 10, _("Heures")
-        ENS = 11, _("Ens")
-        POU = 12, _("%")
-
     # Livraison
     acuitis_order_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
@@ -550,8 +556,12 @@ class BaseInvoiceDetailsTable(models.Model):
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
-    unity = models.IntegerField(
-        null=True, blank=True, choices=UnitChoice.choices, default=UnitChoice.UNI
+    unity = models.ForeignKey(
+        UnitChoices,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="+",
+        db_column="unity",
     )
     gross_unit_price = models.DecimalField(
         null=True,

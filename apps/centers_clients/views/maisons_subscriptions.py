@@ -28,9 +28,19 @@ class MaisonSubcriptionList(ListView):
     """View de la liste des Abonnements"""
 
     model = MaisonSubcription
+    queryset = MaisonSubcription.objects.all().values(
+        "pk",
+        "maison",
+        "article",
+        "qty",
+        "unity__unity_subscription__unity__unity",
+        "net_unit_price",
+        "function",
+        "for_signboard",
+    )
     context_object_name = "subscriptions"
     template_name = "centers_clients/subscriptions_list.html"
-    extra_context = {"titre_table": "Abonnement"}
+    extra_context = {"titre_table": "Abonnements"}
 
 
 class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -50,7 +60,7 @@ class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView)
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_clients:subscriptions_list")
-        context["titre_table"] = "Création d'une nouvelle Abonnement"
+        context["titre_table"] = "Création d'un nouvel Abonnement"
         return context
 
 
@@ -70,7 +80,7 @@ class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView)
         """Insert the form into the context dict."""
 
         context = super().get_context_data(**kwargs)
-        context["titre_table"] = "Mise à jour Abonnement"
+        context["titre_table"] = "Mise à jour d'un Abonnement"
         context["chevron_retour"] = reverse("centers_clients:subscriptions_list")
         return super().get_context_data(**context)
 

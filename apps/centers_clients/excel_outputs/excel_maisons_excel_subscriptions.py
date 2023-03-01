@@ -23,11 +23,11 @@ from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.centers_clients.models import MaisonSupllierExclusion
+from apps.centers_clients.models import MaisonSubcription
 
 columns = [
     {
-        "entete": "TIERS X3",
+        "entete": "MAISON",
         "f_entete": {
             **f_entetes,
             **{
@@ -43,7 +43,87 @@ columns = [
         "width": 50,
     },
     {
-        "entete": "CLIENT",
+        "entete": "ARTICLE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 50,
+    },
+    {
+        "entete": "QTY",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 50,
+    },
+    {
+        "entete": "UNITE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 50,
+    },
+    {
+        "entete": "PRIX NET",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 50,
+    },
+    {
+        "entete": "FONCTION",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 50,
+    },
+    {
+        "entete": "ENSEIGNE",
         "f_entete": {
             **f_entetes,
             **{
@@ -65,17 +145,26 @@ def get_clean_rows():
     """Retourne les lignes à écrire"""
 
     return [
-        (str(row.third_party_num), str(row.maison)) for row in MaisonSupllierExclusion.objects.all()
+        (
+            row.maison,
+            row.article,
+            row.qty,
+            row.unity,
+            row.net_unit_price,
+            row.function,
+            row.for_signboard
+        )
+        for row in MaisonSubcription.objects.all()
     ]
 
 
 def excel_liste_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de la liste des abonnements par maisons"""
-    list_excel = [file_io, ["LISTE DES EXCLUSIONS"]]
+    """Fonction de génération du fichier de la liste des Abonnements par maisons"""
+    list_excel = [file_io, ["LISTE DES ABONNEMENTS"]]
     excel = GenericExcel(list_excel)
 
     try:
-        titre_page_writer(excel, 1, 0, 0, columns, "LISTE DES EXCLUSIONS TIERS X3/CLIENTS")
+        titre_page_writer(excel, 1, 0, 0, columns, "LISTE DES ABBONNEMENTS / CLIENTS")
         output_day_writer(excel, 1, 1, 0)
         columns_headers_writer(excel, 1, 3, 0, columns)
         f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
