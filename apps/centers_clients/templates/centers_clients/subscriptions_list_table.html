@@ -1,0 +1,79 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="sixteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
+                <th style="width: 15%">Nom</th>
+                <th style="width: 30%">Fonction</th>
+                <th style="width: 55%">Description</th>
+                <th style="width: 55%">Description</th>
+                <th style="width: 55%">Description</th>
+                <th style="width: 55%">Description</th>
+                <th style="width: 55%">Description</th>
+                <th style="width: 5%;">delete</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for subscription in subscriptions %}
+            <tr id="id_{{ subscription.pk }}" class="hide_plans">
+
+                <td data-value="{{ subscription.pk }}"
+                    style="text-align: center;">
+                    <a href="{% url 'centers_clients:subscription_update' pk=subscription.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                  {% if subscription.maison %}
+                    {{ subscription.maison }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if subscription.article %}
+                    {{ subscription.article }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if subscription.qty %}
+                    {{ subscription.qty }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if subscription.unity %}
+                    {{ subscription.unity }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if subscription.net_unit_price %}
+                    {{ subscription.net_unit_price }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if subscription.function %}
+                    {{ subscription.function }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if subscription.for_signboard %}
+                    {{ subscription.for_signboard }}
+                  {% endif %}
+                </td>
+                <td class="tdDelete" style="text-align: center;">
+                    <div style="cursor: pointer;">
+                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ subscription.pk }}, `{{ axe.function_name }} - {{ axe.subscription }}`, `{% url 'parameters:function_delete' %}`, `la fonction `)"></i>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock table %}

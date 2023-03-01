@@ -1,12 +1,12 @@
 # pylint: disable=W0702,W1203
-"""Module d'export du fichier de la liste des couples Tiers / Masions à exlucre de la facturation
+"""Module d'export des Abonnement par maisons
 
 Commentaire:
 
-created at: 2023-01-21
+created at: 2023-03-01
 created by: Paulo ALVES
 
-modified at: 2023-01-21
+modified at: 2023-03-01
 modified by: Paulo ALVES
 """
 
@@ -69,8 +69,8 @@ def get_clean_rows():
     ]
 
 
-def excel_liste_exclusion(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste exclusions Tiers X3/Clients"""
+def excel_liste_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
+    """Fonction de génération du fichier de la liste des abonnements par maisons"""
     list_excel = [file_io, ["LISTE DES EXCLUSIONS"]]
     excel = GenericExcel(list_excel)
 

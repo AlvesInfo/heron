@@ -692,9 +692,7 @@ class MaisonSubcription(FlagsTable):
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="quantity"
     )
-    unity = models.IntegerField(
-        choices=UnitChoice.choices, default=UnitChoice.UNI
-    )
+    unity = models.IntegerField(choices=UnitChoice.choices, default=UnitChoice.FOR)
     net_unit_price = models.DecimalField(
         null=True,
         max_digits=20,
@@ -716,4 +714,39 @@ class MaisonSubcription(FlagsTable):
         to_field="code",
         related_name="signborad_subscription",
         db_column="for_signboard",
+        default="ACF",
     )
+
+    @staticmethod
+    def get_absolute_url():
+        """get absolute url in succes case"""
+        return reverse("centers_clients:subscriptions_list")
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("centers_clients:subscriptions_list")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["maison", "function", "article"]
+        indexes = [
+            models.Index(fields=["maison"]),
+            models.Index(fields=["function"]),
+            models.Index(fields=["article"]),
+            models.Index(fields=["for_signboard"]),
+            models.Index(
+                fields=[
+                    "maison",
+                    "function",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "maison",
+                    "function",
+                    "article",
+                    "for_signboard",
+                ]
+            ),
+        ]
