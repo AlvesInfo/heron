@@ -1,4 +1,5 @@
 {% extends "heron/update_create_courant.html" %}
+{% load filters_tags %}
 
 {% block table %}
     <div class="one wide column"></div>
@@ -6,40 +7,48 @@
       <div class="ui segment" style="padding-bottom: 0;">
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
-          <div class="fields">
+            <div class="fields">
               <div class="six wide computer wide field">
-                <label for="id_function_name" style="text-align: left;">Nom&nbsp;:</label>
-                <input type="text"
-                       name="function_name"
-                       value="{{ form.function_name.value|default_if_none:'' }}"
-                       maxlength="255"
-                       {% if not create %}
-                            readonly
-                            style="background-color: #efefff;font-weight: bold;"
-                       {% endif %}
-                       id="id_function_name">
+                <label for="id_maison" style="text-align: left;">Client&nbsp;:</label>
+                {{ form.maison }}
               </div>
-              <div class="ten wide field">
-                <label for="id_function" style="text-align: left;">Fonction&nbsp;:</label>
-                <input type="text" name="function" maxlength="1000" id="id_function" value="{{ form.function.value|default_if_none:'' }}">
-              </div>
-          </div>
-          <div class="fields">
-              <div class="eight wide field">
-                <label for="id_absolute_path_windows" style="text-align: left;">Dir Windows&nbsp;:</label>
-                <input type="text" name="absolute_path_windows" maxlength="1000" id="id_absolute_path_windows" value="{{ form.absolute_path_windows.value|default_if_none:'' }}">
-              </div>
-              <div class="eight wide field">
-                <label for="id_absolute_path_linux" style="text-align: left;">Dir Linux&nbsp;:</label>
-                <input type="text" name="absolute_path_linux" maxlength="1000" id="id_absolute_path_linux" value="{{ form.absolute_path_linux.value|default_if_none:'' }}">
+              <div class="six wide field">
+                <label for="id_article" style="text-align: left;">Article&nbsp;:</label>
+                {{ form.article }}
               </div>
             </div>
             <div class="fields">
-              <div class="sixteen wide field">
-                <label for="id_description" style="text-align: left;">Description&nbsp;:</label>
-                {{ form.description }}
+              <div class="two wide field">
+                <label for="id_qty" style="text-align: left;">Qty&nbsp;:</label>
+                <input type="number"
+                     name="qty"
+                     value="{{ form.qty.value|numbers:0 }}"
+                     step="1"
+                     id="id_qty"
+                     style="text-align: right;">
               </div>
-          </div>
+              <div class="two wide field">
+                <label for="id_unity" style="text-align: left;">Unité&nbsp;:</label>
+                {{ form.unity }}
+              </div>
+              <div class="two wide field">
+                <label for="id_net_unit_price" style="text-align: left;">Prix Net&nbsp;:</label>
+                <input type="number"
+                     name="net_unit_price"
+                     value="{{ form.net_unit_price.value|numbers:2 }}"
+                     step="1"
+                     id="id_net_unit_price"
+                     style="text-align: right;">
+              </div>
+              <div class="three wide field">
+                <label for="id_function" style="text-align: left;">Fonction&nbsp;:</label>
+                {{ form.function }}
+              </div>
+              <div class="three wide field">
+                <label for="id_for_signboard" style="text-align: left;">Enseigne&nbsp;:</label>
+                {{ form.for_signboard }}
+              </div>
+            </div>
         </div>
       </div>
     </div>

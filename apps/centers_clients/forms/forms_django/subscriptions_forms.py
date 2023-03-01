@@ -6,11 +6,23 @@ from django import forms
 
 from apps.parameters.forms import NumberInput
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
+from apps.articles.models import Article
 from apps.centers_clients.models import MaisonSubcription
 
 
 class MaisonSubcriptionForm(forms.ModelForm):
     """Form pour les MaisonSubcription"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["article"].queryset = Article.objects.filter(
+            big_category__slug_name__in={
+                "redevances",
+                "redevances-de-publicite",
+                "prestation",
+                "abonnements",
+            }
+        )
 
     class Meta:
         """class Meta"""
