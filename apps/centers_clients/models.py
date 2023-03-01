@@ -687,13 +687,13 @@ class MaisonSubcription(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="article_subscription",
-        db_column="uuid_article",
+        db_column="article",
     )
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="quantity"
     )
     unity = models.IntegerField(
-        null=True, blank=True, choices=UnitChoice.choices, default=UnitChoice.UNI
+        choices=UnitChoice.choices, default=UnitChoice.UNI
     )
     net_unit_price = models.DecimalField(
         null=True,
@@ -707,7 +707,7 @@ class MaisonSubcription(FlagsTable):
         on_delete=models.PROTECT,
         to_field="function_name",
         related_name="function_subscription",
-        db_column="function_name",
+        db_column="function",
     )
     for_signboard = models.ForeignKey(
         Signboard,

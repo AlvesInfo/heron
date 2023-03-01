@@ -101,6 +101,11 @@
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:account_axe_list' %}" class="item">Axe PRO/Comptes</a>
                         </div>
+                        {% if user.email == "paulo@alves.ovh" %}
+                            <div class="ui link list">
+                                <a href="{% url 'parameters:functions_list' %}" class="item">Fonctions</a>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="column">

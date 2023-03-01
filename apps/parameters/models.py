@@ -71,47 +71,6 @@ class Parameters(FlagsTable):
         ordering = ["name"]
 
 
-class Counter(FlagsTable):
-    """
-    Table des compteurs de l'application
-    FR : Compteur
-    EN : Counter
-    """
-
-    name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
-    prefix = models.CharField(null=True, max_length=5, verbose_name="préfix")
-    suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
-    fonction = models.CharField(null=True, blank=True, max_length=255)
-    lpad_num = models.IntegerField(null=True, default=0)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.name}"
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        ordering = ["name"]
-
-
-class CounterNums(models.Model):
-    """
-    Table de la numérotation des compteurs
-    """
-
-    counter = models.ForeignKey(
-        Counter,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="counter",
-        db_column="uuid_counter",
-    )
-    num = models.IntegerField()
-
-
 class SendFiles(FlagsTable):
     """
     Table de paramétrage de l'envoi de fichier
@@ -207,14 +166,25 @@ class SubFamilly(FlagsTable):
 class InvoiceFunctions(FlagsTable):
     """Table des fonctions qui génèrent les factures"""
 
-    function_name = models.CharField(unique=True, max_length=255)
-    function = models.TextField()
-    absolute_path = models.TextField(null=True, blank=True)
+    function_name = models.CharField(unique=True, max_length=255, verbose_name="nom")
+    function = models.TextField(verbose_name="fonction")
+    absolute_path_windows = models.TextField(null=True, blank=True, verbose_name="dir windows")
+    absolute_path_linux = models.TextField(null=True, blank=True, verbose_name="dir linux")
     description = models.CharField(null=True, blank=True, max_length=255)
 
     def __str__(self):
         """Texte renvoyé dans les appels à la class"""
         return f"{self.function_name}: {self.description[:50]}"
+
+    @staticmethod
+    def get_success_url():
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("parameters:functions_list")
+
+    @staticmethod
+    def get_absolute_url():
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("parameters:functions_list")
 
     class Meta:
         """class Meta du modèle django"""
@@ -223,6 +193,53 @@ class InvoiceFunctions(FlagsTable):
         indexes = [
             models.Index(fields=["function_name"]),
         ]
+
+
+class Counter(FlagsTable):
+    """
+    Table des compteurs de l'application
+    FR : Compteur
+    EN : Counter
+    """
+
+    name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
+    prefix = models.CharField(null=True, max_length=5, verbose_name="préfix")
+    suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
+    fonction = models.ForeignKey(
+        InvoiceFunctions,
+        on_delete=models.PROTECT,
+        to_field="function_name",
+        related_name="counter_invoice_functions",
+        db_column="function",
+    )
+    lpad_num = models.IntegerField(null=True, default=0)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.name}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["name"]
+
+
+class CounterNums(models.Model):
+    """
+    Table de la numérotation des compteurs
+    """
+
+    counter = models.ForeignKey(
+        Counter,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="counter",
+        db_column="uuid_counter",
+    )
+    num = models.IntegerField()
 
 
 class Category(FlagsTable):

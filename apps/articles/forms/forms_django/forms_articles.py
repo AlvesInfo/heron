@@ -13,6 +13,10 @@ from apps.articles.models import (
 class ArticleForm(forms.ModelForm):
     """Form de gestion des articles"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["sub_category"].required = False
+
     class Meta:
         """class Meta django"""
 

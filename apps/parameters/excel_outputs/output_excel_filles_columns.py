@@ -64,7 +64,8 @@ columns_list_categories = [
             },
         },
         "width": 25,
-    },   {
+    },
+    {
         "entete": "Classement",
         "f_entete": {
             **f_entetes,
@@ -111,5 +112,81 @@ columns_list_categories = [
             },
         },
         "width": 25,
+    },
+]
+
+
+columns_list_functions = [
+    {
+        "entete": "function_name",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 25,
+    },
+    {
+        "entete": "function",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 50,
+    },
+    {
+        "entete": "Dir Windows",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 60,
+    },
+    {
+        "entete": "Dir Linux",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 60,
+    },
+    {
+        "entete": "description",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 80,
     },
 ]

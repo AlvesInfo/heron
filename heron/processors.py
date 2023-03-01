@@ -130,3 +130,8 @@ def domain_debug(request):
         :return: context dict
     """
     return {"domain_debug": "http://127.0.0.1:8000"}
+
+
+def user_paulo(request):
+    """Retourne si l'user est paulo"""
+    return request.user.email == "paulo@alves.ovh"
