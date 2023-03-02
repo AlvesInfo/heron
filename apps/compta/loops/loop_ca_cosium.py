@@ -15,7 +15,6 @@ import time
 
 import pendulum
 
-from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.models import Trace
 from apps.compta.imports.import_ca_cosium import insert_ventes_cosium
