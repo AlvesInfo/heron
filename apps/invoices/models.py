@@ -213,13 +213,14 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
     )
 
     # Maison
-    cct = models.ForeignKey(
+    cct_uuid_identification = models.ForeignKey(
         Maison,
         null=True,
         on_delete=models.PROTECT,
-        to_field="cct",
-        related_name="invoices_details_cct",
-        db_column="cct",
+        to_field="uuid_identification",
+        related_name="invoices_maison",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
     )
 
     vat = models.ForeignKey(

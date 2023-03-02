@@ -156,7 +156,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         null=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="+",
+        related_name="edi_maison",
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
     )

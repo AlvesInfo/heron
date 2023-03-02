@@ -525,24 +525,32 @@ class PostgresDjangoUpsert:
                 psycopg2.errors.CardinalityViolation,
                 django.db.utils.ProgrammingError,
             ) as except_error:
-                raise PostgresCardinalityViolationError("Conflit à l'insertion") from except_error
+                raise PostgresCardinalityViolationError(
+                    f"Conflit à l'insertion, trace N° : {kwargs_prepared.get('trace')}"
+                ) from except_error
 
             except psycopg2.errors.InvalidTextRepresentation as except_error:
                 file.seek(0)
                 POSTGRES_SAVE_LOGGER.exception(
                     f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
                 )
-                raise PostgresTypeError("Erreur de type") from except_error
+                raise PostgresTypeError(
+                    f"Erreur de type, trace N° : {kwargs_prepared.get('trace')}"
+                ) from except_error
 
             except psycopg2.errors.UniqueViolation as except_error:
-                raise PostgresUniqueError("Erreur sur clé dupliquée") from except_error
+                raise PostgresUniqueError(
+                    f"Erreur sur clé dupliquée, trace N° : {kwargs_prepared.get('trace')}"
+                ) from except_error
 
             except Exception as except_error:
                 file.seek(0)
                 POSTGRES_SAVE_LOGGER.exception(
                     f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
                 )
-                raise PostgresDjangoError("Erreur inconnue") from except_error
+                raise PostgresDjangoError(
+                    f"Erreur inconnue, trace N° : {kwargs_prepared.get('trace')}"
+                ) from except_error
 
         return True
 

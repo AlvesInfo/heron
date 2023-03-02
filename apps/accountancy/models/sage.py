@@ -268,13 +268,14 @@ class VatSage(FlagsTable):
     Table des taux et nom de TVA Sage X3
     FR : TVA au sens de Sage X3
     EN : VAT as defined by Sage X3
-    ====================================================
-    champ        | model attr. | table SAGE | Champ Sage
-    ====================================================
-    Tva          | vat         | TABVAT     | VAT
-    Intitulé     | name        | TABVAT     | VATDES
-    Régime       | vat_regime  | TABVAT     | VATVAC
-    ====================================================
+    ========================================================
+    champ           | model attr. | table SAGE | Champ Sage
+    ========================================================
+    Tva             | vat         | TABVAT     | VAT
+    Intitulé        | name        | TABVAT     | VATDES
+    Intitulé court  | short name  | TABVAT     | VATSHO
+    Régime          | vat_regime  | TABVAT     | VATVAC
+    ========================================================
     """
 
     vat = models.CharField(unique=True, max_length=5)
@@ -286,7 +287,7 @@ class VatSage(FlagsTable):
     def file_import_sage():
         """
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        EN : Returns the name of the file in the directory of the Sage X3 server
         """
         return "ZBIVAT_journalier.heron"
 
@@ -309,7 +310,7 @@ class VatSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return {"vat"}
+        return {"vat", "vat_regime"}
 
     @property
     def get_import(self):
@@ -327,6 +328,16 @@ class VatSage(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["vat"]
+        indexes = [
+            models.Index(fields=["vat"]),
+            models.Index(fields=["vat_regime"]),
+            models.Index(
+                fields=[
+                    "vat",
+                    "vat_regime",
+                ]
+            ),
+        ]
 
 
 class VatRatSage(FlagsTable):
