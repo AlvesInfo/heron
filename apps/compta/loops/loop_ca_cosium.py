@@ -11,7 +11,22 @@ created by: Paulo ALVES
 modified at: 2023-03-02
 modified by: Paulo ALVES
 """
+import os
+import platform
+import sys
 import time
+
+import django
+
+BASE_DIR = r"/"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.append(BASE_DIR)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+django.setup()
 
 import pendulum
 
