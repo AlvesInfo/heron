@@ -113,6 +113,9 @@ def bbgr_bulk(file_path: Path):
     )
     new_file_path.unlink()
     bulk_post_insert(trace.uuid_identification)
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.final_at = timezone.now()
+    trace.save()
 
     return trace, to_print
 

@@ -207,6 +207,7 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
                 insert_mode="insert",
                 delimiter=";",
                 quote_character='"',
+                kwargs_prepared={"trace": trace},
             )
 
     # Exceptions FileLoader ========================================================================

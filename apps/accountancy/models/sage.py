@@ -328,6 +328,7 @@ class VatSage(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["vat"]
+        unique_together = (("vat", "vat_regime"),)
         indexes = [
             models.Index(fields=["vat"]),
             models.Index(fields=["vat_regime"]),

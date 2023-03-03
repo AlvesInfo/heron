@@ -110,6 +110,7 @@ def make_insert(
                 insert_mode="upsert",
                 delimiter=";",
                 quote_character='"',
+                kwargs_prepared={"trace": trace},
             )
 
             if error_lines:

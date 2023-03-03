@@ -278,6 +278,7 @@ if __name__ == "__main__":
                 insert_mode="upsert",
                 delimiter=";",
                 quote_character='"',
+                kwargs_prepared={"trace": trace},
             )
 
     # Exceptions FileLoader ========================================================================

@@ -79,6 +79,7 @@ def process():
 
         if trace is not None:
             trace.time_to_process = time.time() - start
+            trace.final_at = pendulum.now()
             trace.save()
 
 

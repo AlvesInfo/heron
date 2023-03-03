@@ -425,6 +425,7 @@ class PostgresDjangoUpsert:
             "prepared": "",
             "pre_validation": "",
         }
+        trace_prepared = kwargs_prepared.get("trace", {})
 
         if insert_mode not in insert_mode_dict:
             raise PostgresInsertMethodError(
@@ -496,7 +497,7 @@ class PostgresDjangoUpsert:
                         file,
                         delimiter=delimiter,
                         quote_character=quote_character,
-                        trace=kwargs_prepared.get("trace"),
+                        trace=trace_prepared,
                     )
 
                 else:
@@ -526,7 +527,7 @@ class PostgresDjangoUpsert:
                 django.db.utils.ProgrammingError,
             ) as except_error:
                 raise PostgresCardinalityViolationError(
-                    f"Conflit à l'insertion, trace N° : {kwargs_prepared.get('trace')}"
+                    f"Conflit à l'insertion, trace N° : {trace_prepared!r}"
                 ) from except_error
 
             except psycopg2.errors.InvalidTextRepresentation as except_error:
@@ -535,12 +536,12 @@ class PostgresDjangoUpsert:
                     f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
                 )
                 raise PostgresTypeError(
-                    f"Erreur de type, trace N° : {kwargs_prepared.get('trace')}"
+                    f"Erreur de type, trace N° : {trace_prepared!r}"
                 ) from except_error
 
             except psycopg2.errors.UniqueViolation as except_error:
                 raise PostgresUniqueError(
-                    f"Erreur sur clé dupliquée, trace N° : {kwargs_prepared.get('trace')}"
+                    f"Erreur sur clé dupliquée, trace N° : {trace_prepared!r}"
                 ) from except_error
 
             except Exception as except_error:
@@ -549,7 +550,7 @@ class PostgresDjangoUpsert:
                     f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
                 )
                 raise PostgresDjangoError(
-                    f"Erreur inconnue, trace N° : {kwargs_prepared.get('trace')}"
+                    f"Erreur inconnue, trace N° : {trace_prepared!r}"
                 ) from except_error
 
         return True
