@@ -6,3 +6,8 @@
 
 class HeronError(Exception):
     """Exception niveau module"""
+
+
+class LaunchDoesNotExistsError(Exception):
+    """Exception niveau module"""
+

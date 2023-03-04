@@ -46,7 +46,6 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
 
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
     third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
-    flow_name = models.CharField(max_length=80, default="Saisie")
     supplier = models.CharField(null=True, blank=True, max_length=35)
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
     supplier_ident = models.CharField(null=True, blank=True, max_length=20)

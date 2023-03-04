@@ -21,37 +21,37 @@
             </a>
 
             <a class="browse item bold" data-target="#b" id="bmenu">
-                Imports
-                <i class="dropdown icon"></i>
-            </a>
-
-            <a class="browse item bold" data-target="#c" id="cmenu">
                 Articles
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#d" id="dmenu">
-                Factures
+            <a class="browse item bold" data-target="#c" id="cmenu">
+                Imports
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#e" id="emenu">
+            <a class="browse item bold" data-target="#d" id="dmenu">
                 Saisies
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#f" id="fmenu">
+            <a class="browse item bold" data-target="#e" id="emenu">
                 Contôles Achats
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#g" id="gmenu">
+            <a class="browse item bold" data-target="#f" id="fmenu">
                 Contôles Ventes
                 <i class="dropdown icon"></i>
             </a>
 
-            <a class="browse item bold" data-target="#h" id="hmenu">
+            <a class="browse item bold" data-target="#g" id="gmenu">
                 Contôles Sage
+                <i class="dropdown icon"></i>
+            </a>
+
+            <a class="browse item bold" data-target="#h" id="hmenu">
+                Factures
                 <i class="dropdown icon"></i>
             </a>
 
@@ -155,29 +155,6 @@
 
                     <div class="column">
                         <div class="ui link list">
-                            <a href="{% url 'edi:import_edi_invoices' %}" class="item">0. Factures EDI</a>
-{#                            <a href="/" class="item">1. Marchandises</a>#}
-{#                            <a href="/" class="item">2. RFA</a>#}
-{#                            <a href="/" class="item">3. Redevances</a>#}
-{#                            <a href="/" class="item">4. Publicité</a>#}
-{#                            <a href="/" class="item">5. Formations</a>#}
-{#                            <a href="/" class="item">6. Personnel</a>#}
-{#                            <a href="/" class="item">7. Matériel</a>#}
-{#                            <a href="/" class="item">8. Prestations</a>#}
-{#                            <a href="/" class="item">9. Abonnements</a>#}
-{#                            <a href="/" class="item">10. Divers</a>#}
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="ui popup" id="c">
-                <div class="ui two column relaxed divided grid" style="width: 24em;">
-
-                    <div class="column">
-                        <div class="ui link list">
                             <a href="/" class="item">0. Recherches</a>
                         </div>
                         <div class="ui link list">
@@ -215,23 +192,32 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="d">
+            <div class="ui popup" id="c">
                 <div class="ui two column relaxed divided grid" style="width: 24em;">
 
                     <div class="column">
                         <div class="ui link list">
-                            <a href="/" class="item">01. Achats</a>
+                            <a href="{% url 'edi:import_edi_invoices' %}" class="item">01. Factures EDI</a>
+{#                            <a href="/" class="item">1. Marchandises</a>#}
+{#                            <a href="/" class="item">2. RFA</a>#}
+{#                            <a href="/" class="item">3. Redevances</a>#}
+{#                            <a href="/" class="item">4. Publicité</a>#}
+{#                            <a href="/" class="item">5. Formations</a>#}
+{#                            <a href="/" class="item">6. Personnel</a>#}
+{#                            <a href="/" class="item">7. Matériel</a>#}
+{#                            <a href="/" class="item">8. Prestations</a>#}
+{#                            <a href="/" class="item">9. Abonnements</a>#}
+{#                            <a href="/" class="item">10. Divers</a>#}
+                            <a href="{% url 'compta:royalties_launch' %}" class="item">02. Royalties</a>
+                            <a href="{% url 'compta:meuleuse_launch' %}" class="item">03. Meuleuses</a>
+                            <a href="{% url 'compta:publicity_launch' %}" class="item">04. Publicité</a>
+                            <a href="{% url 'compta:services_launch' %}" class="item">05. Prestations</a>
                         </div>
-                        <div class="ui link list">
-                            <a href="/" class="item">02. Ventes</a>
-                        </div>
-
                     </div>
-
                 </div>
             </div>
 
-            <div class="ui popup" id="e">
+            <div class="ui popup" id="d">
                 <div class="ui three column relaxed equal divided grid" style="width: 50em;">
 
 {#              1. Marchandises #}
@@ -277,7 +263,7 @@
                         <div class="ui link list">
                             <a href="" class="item">Saisie</a>
 {#                            <a href="" class="item">Import</a>#}
-                            <a href="" class="item">Visualisation</a>
+{#                            <a href="" class="item">Visualisation</a>#}
                         </div>
                     </div>
 
@@ -287,7 +273,7 @@
                         <div class="ui link list">
                             <a href="" class="item">Saisie</a>
 {#                            <a href="" class="item">Import</a>#}
-                            <a href="" class="item">Visualisation</a>
+{#                            <a href="" class="item">Visualisation</a>#}
                         </div>
                     </div>
 
@@ -311,13 +297,15 @@
 {##}
 {#              9. Abonnements#}
 {#                    <div class="column">#}
-{#                        <h4 class="ui header">9. Abonnements</h4>#}
+{#                        <h4 class="ui header">04. Abo./Presta.</h4>#}
 {#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Saisie</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
+{#                            <a href="{% url 'compta:royalties_launch' %}" class="item">Royalties</a>#}
+{#                            <a href="{% url 'compta:meuleuse_launch' %}" class="item">meuleuses</a>#}
+{#                            <a href="{% url 'compta:publicity_launch' %}" class="item">Publicité</a>#}
+{#                            <a href="{% url 'compta:services_launch' %}" class="item">Prestations</a>#}
 {#                        </div>#}
 {#                    </div>#}
-{##}
+
 {#              10. Divers#}
 {#                    <div class="column">#}
 {#                        <h4 class="ui header">10. Divers</h4>#}
@@ -331,7 +319,7 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="f">
+            <div class="ui popup" id="e">
                 <div class="ui one column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
@@ -350,7 +338,7 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="g">
+            <div class="ui popup" id="f">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
@@ -364,7 +352,7 @@
                 </div>
             </div>
 
-            <div class="ui popup" id="h">
+            <div class="ui popup" id="g">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
                     <div class="column">
                         <h4 class="ui header">Sage</h4>
@@ -374,6 +362,22 @@
                             <a href="{% url 'validation_sales:sage_controls_globals_sales' %}" class="item">5.5.C Ventes Sage</a>
                             <a href="{% url 'validation_sales:sage_controls_familles_sales' %}" class="item">5.5.D Ventes Famille</a>
                         </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ui popup" id="h">
+                <div class="ui two column relaxed divided grid" style="width: 24em;">
+
+                    <div class="column">
+                        <div class="ui link list">
+                            <a href="/" class="item">01. Achats</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="/" class="item">02. Ventes</a>
+                        </div>
+
                     </div>
 
                 </div>

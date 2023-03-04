@@ -1,0 +1,53 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+
+            {% include "compta/subscriptions_launch_entete.html" %}
+            {% include "compta/subscriptions_launch_table.html" %}
+
+        </form>
+    {% else %}
+
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+
+            // FRAMEWORK DATA-TABLE POUR AVOIR UN SCROLL VERTICAL
+            $('#table_document').DataTable({
+                "info": false,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"
+                },
+                "lengthMenu": [[20, 50, -1], [20, 50, "Tous"]]
+            });
+            $(`.datatable-chargement`).hide();
+
+        });
+
+    </script>
+
+{% endblock script %}

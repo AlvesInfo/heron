@@ -60,6 +60,13 @@ urlpatterns = [
         ),
     ),
     path(
+        "compta/",
+        include(
+            ("apps.compta.urls", "apps.compta"),
+            namespace="compta",
+        ),
+    ),
+    path(
         "centers_purchasing/",
         include(
             ("apps.centers_purchasing.urls", "apps.centers_purchasing"),

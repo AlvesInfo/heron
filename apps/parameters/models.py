@@ -689,6 +689,7 @@ class BaseInvoiceDetailsTable(models.Model):
         db_column="origin",
     )
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
+    flow_name = models.CharField(max_length=80, default="Saisie")
 
     class Meta:
         """class Meta du modèle django"""

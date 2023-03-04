@@ -14,7 +14,8 @@ from chardet.universaldetector import UniversalDetector
 from decimal import Decimal
 from pathlib import Path
 import lxml.html
-
+from typing import AnyStr
+import importlib
 
 import pendulum
 from pendulum.exceptions import ParserError
@@ -781,3 +782,15 @@ def get_zero_decimal(value):
         return test_value.replace(to_delete, "").replace(to_replace, ".")
 
     return test_value.replace(",", ".") or "0"
+
+
+def get_module_object(function_path_point: AnyStr):
+    """Retourne l'objet au sens python
+    :param function_path_point: path de la fonction pointée (ex. home.file_func.function)
+    :return: l'objet au sens python
+    """
+    module_path, function_name = function_path_point.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    function = getattr(module, function_name)
+
+    return function

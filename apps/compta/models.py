@@ -13,10 +13,14 @@ modified by: Paulo ALVES
 """
 from django.db import models
 
+from heron.models import FlagsTable
+from apps.accountancy.models import SectionSage
 from apps.centers_clients.models import Maison
 
 
 class VentesCosium(models.Model):
+    """Modèle des Ventes Cosium issues de la B.I"""
+
     id_bi = models.IntegerField()
     id_vente = models.CharField(blank=True, null=True, max_length=90)
     code_ean = models.CharField(max_length=50)
@@ -24,7 +28,7 @@ class VentesCosium(models.Model):
     code_cosium = models.CharField(blank=True, null=True, max_length=30)
     famille_cosium = models.CharField(blank=True, null=True, max_length=30)
     rayon_cosium = models.CharField(blank=True, null=True, max_length=30)
-    date_vente = models.DateField(auto_now=True)
+    date_vente = models.DateField()
     qte_vente = models.DecimalField(default=0, decimal_places=5, max_digits=20)
     remise = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
     taux_tva = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
@@ -119,3 +123,58 @@ class VentesCosium(models.Model):
             ["code_ean", "code_maison", "date_vente"],
         ]
         unique_together = (("code_cosium", "id_bi"),)
+
+
+class CaClients(FlagsTable):
+    """Modèle du chiffre d'affaires par clients et AXE_PRO, issues des ventes Cosium"""
+
+    date_ca = models.DateField()
+    code_maison = models.CharField(blank=True, null=True, max_length=30)
+    cct_uuid_identification = models.ForeignKey(
+        Maison,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="ca_client_maison",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
+    )
+    famille_cosium = models.CharField(blank=True, null=True, max_length=30)
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="pro_section",
+        db_column="axe_pro",
+    )
+    ca_ht_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    ca_ht_devise = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+
+    def __str__(self):
+        return (
+            f"{self.date_ca.isoformat()} - "
+            f"{self.cct_uuid_identification.cct} - "
+            f"{self.axe_pro.section}"
+        )
+
+    class Meta:
+        """class Meta Model DJango"""
+
+        indexes = [
+            models.Index(
+                fields=[
+                    "date_ca",
+                    "code_maison",
+                    "cct_uuid_identification",
+                    "famille_cosium",
+                    "axe_pro",
+                ]
+            )
+        ]
+        index_together = [
+            ["date_ca", "cct_uuid_identification", "axe_pro"],
+        ]
+        unique_together = (("date_ca", "cct_uuid_identification", "axe_pro"),)
