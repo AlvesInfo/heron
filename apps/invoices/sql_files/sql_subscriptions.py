@@ -85,11 +85,11 @@ SQL_SUBSCRIPTIONS = sql.SQL(
     )
     select
         %(uuid_identification)s as "uuid_identification",
-        %(invoice_number)s as "invoice_number",
+        (%(flow_name)s||'_'||"ccm"."cct"||'_'||%(dte_f)s) as "invoice_number",
         "aa"."third_party_num",
         %(flow_name)s as "flow_name",
-        "aa"."third_party_num" as "supplier",
-        "aa"."third_party_num" as "supplier_ident",
+        ("aa"."third_party_num"||'_'||%(flow_name)s) as "supplier",
+        ("aa"."third_party_num"||'_'||%(flow_name)s) as "supplier_ident",
         "code_cosium" as "code_fournisseur",
         "ccm"."cct" as code_maison,
         "intitule" as "maison",
@@ -233,7 +233,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         true as "maison_exists",
         true as "article_exists",
         false "axe_pro_supplier_exists",
-        "aa".third_party_num as "supplier_name",
+        ("aa"."third_party_num"||'_'||%(flow_name)s) as "supplier_name",
         "aa"."axe_bu",
         "aa"."axe_prj",
         "aa"."axe_pro",

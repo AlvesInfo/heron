@@ -18,7 +18,7 @@ from uuid import UUID, uuid4
 from django.utils import timezone
 
 from apps.core.functions.functions_setups import connection
-from apps.core.functions.functions_postgresql import query_execute, query_select
+from apps.core.functions.functions_postgresql import query_execute
 from apps.data_flux.trace import get_trace
 from apps.edi.loggers import EDI_LOGGER
 from apps.users.models import User
@@ -43,8 +43,7 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
             "dte_f": dte_f,
             "flow_name": flow_name,
             "uuid_identification": uuid4(),
-            "invoice_number": "inv",
-            "created_by": user_uuid
+            "created_by": user_uuid,
         },
     )
 
@@ -76,7 +75,6 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = "Génération des royalties"
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
@@ -98,9 +96,20 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     flow_name = "MEULEUSE"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    error = False
+
+    try:
+        set_data(dte_d, dte_f, user_uuid, flow_name)
+
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = "Génération des redevances meuleuses"
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()
@@ -122,9 +131,20 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     flow_name = "PUBLICITE"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    error = False
+
+    try:
+        set_data(dte_d, dte_f, user_uuid, flow_name)
+
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = "Génération des redevances de publicité"
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()
@@ -146,9 +166,20 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     flow_name = "PRESTATIONS"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    error = False
+
+    try:
+        set_data(dte_d, dte_f, user_uuid, flow_name)
+
+    except Exception as except_error:
+        error = True
+        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = "Génération des prestations"
-
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()

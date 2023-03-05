@@ -265,6 +265,8 @@ def query_execute(cnx, sql_requete=None, params=None):
                     cur.execute(sql_requete, params)
                 else:
                     cur.execute(sql_requete)
+
+                # print(cur.mogrify(sql_requete, params).decode())
             return True
 
         except psycopg2.Error as except_error:
