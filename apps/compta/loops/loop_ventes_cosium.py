@@ -32,7 +32,7 @@ import pendulum
 
 from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.models import Trace
-from apps.compta.imports.import_ca_cosium import insert_ventes_cosium
+from apps.compta.imports.import_ventes_cosium import insert_ventes_cosium
 
 
 def process():

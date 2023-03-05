@@ -12,11 +12,11 @@ created by: Paulo ALVES
 modified at: 2023-03-04
 modified by: Paulo ALVES
 """
+from uuid import UUID
 from typing import AnyStr
 
 from psycopg2 import sql
 from django.db import connection
-from apps.users.models import User
 
 
 def delete_ca(dte_d: AnyStr, dte_f: AnyStr):
@@ -35,11 +35,11 @@ def delete_ca(dte_d: AnyStr, dte_f: AnyStr):
         cursor.execute(sql_delete, {"dte_d": dte_d, "dte_f": dte_f})
 
 
-def set_ca(dte_d: AnyStr, dte_f: AnyStr, user: User):
+def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     """Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
-    :param user: Utilisateur lançant la génération
+    :param user_uuid: Utilisateur lançant la génération
     :return:
     """
     with connection.cursor() as cursor:
@@ -106,8 +106,9 @@ def set_ca(dte_d: AnyStr, dte_f: AnyStr, user: User):
             order by 
                 "code_maison",
                 "bs"."axe_pro"
+            on conflict do nothing
             """
         )
         cursor.execute(
-            sql_insert_statment, {"dte_d": dte_d, "dte_f": dte_f, "user": user.uuid_identification}
+            sql_insert_statment, {"dte_d": dte_d, "dte_f": dte_f, "user": user_uuid}
         )

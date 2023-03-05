@@ -44,7 +44,10 @@ def royalties_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions("ROYALTIES", dte_d, dte_f, request.user)
+
+                import_launch_subscriptions(
+                    "ROYALTIES", dte_d, dte_f, request.user.uuid_identification
+                )
         else:
             LOGGER_VIEWS.exception(f"erreur form royalties_launch : {str(form.data)!r}")
 
@@ -88,7 +91,9 @@ def meuleuse_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions("MEULEUSE", dte_d, dte_f, request.user)
+                import_launch_subscriptions(
+                    "MEULEUSE", dte_d, dte_f, request.user.uuid_identification
+                )
 
         else:
             LOGGER_VIEWS.exception(f"erreur form meuleuse_launch : {str(form.data)!r}")
@@ -133,7 +138,9 @@ def publicity_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions("PUBLICITE", dte_d, dte_f, request.user)
+                import_launch_subscriptions(
+                    "PUBLICITE", dte_d, dte_f, request.user.uuid_identification
+                )
 
         else:
             LOGGER_VIEWS.exception(f"erreur form publicity_launch : {str(form.data)!r}")
@@ -178,7 +185,9 @@ def services_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions("PRESTATIONS", dte_d, dte_f, request.user)
+                import_launch_subscriptions(
+                    "PRESTATIONS", dte_d, dte_f, request.user.uuid_identification
+                )
 
         else:
             LOGGER_VIEWS.exception(f"erreur form services_launch : {str(form.data)!r}")

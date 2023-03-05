@@ -61,6 +61,7 @@ from apps.centers_purchasing.models import (
     GroupingGoods,
     AccountsAxeProCategory,
 )
+from apps.compta.models import VentesCosium, CaClients
 from apps.edi.models import SupplierDefinition, ColumnDefinition
 from apps.parameters.models import (
     Parameters,
@@ -90,9 +91,9 @@ MODELS_ACCOUNTANCY = (
     ModeReglement,
     PaymentCondition,
     TabDivSage,
+    VatSage,
     VatRatSage,
     VatRegimeSage,
-    VatSage,
     AxeSage,
     CctSage,
     SectionSage,
@@ -162,6 +163,11 @@ MODELS_PARAMETERS = (
     DefaultAxeArticle,
     StatFamillyAxes,
     SupplierFamilyAxes,
+)
+
+MODELS_COMPTA = (
+    VentesCosium,
+    CaClients,
 )
 
 
@@ -258,10 +264,11 @@ def main(model_list):
 
 
 if __name__ == "__main__":
-    # main(MODELS_ACCOUNTANCY)
-    # main(MODELS_BOOK)
-    # main(MODELS_PARAMETERS)
-    # main(MODELS_ARTICLES)
-    # main(MODELS_CENTER_PURCHASING)
+    main(MODELS_ACCOUNTANCY)
+    main(MODELS_BOOK)
+    main(MODELS_PARAMETERS)
+    main(MODELS_ARTICLES)
+    main(MODELS_CENTER_PURCHASING)
     main(MODELS_CENTER_CLIENTS)
-    # main(MODELS_EDI)
+    main(MODELS_EDI)
+    main(MODELS_COMPTA)

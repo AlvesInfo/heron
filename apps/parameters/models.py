@@ -561,6 +561,7 @@ class BaseInvoiceDetailsTable(models.Model):
         to_field="num",
         related_name="+",
         db_column="unity",
+        null=True,
     )
     gross_unit_price = models.DecimalField(
         null=True,
