@@ -250,7 +250,9 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n"
+                if trace.comment
+                else "" + "{Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -263,4 +265,10 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
         "======================================================================="
     )
 
-    return {"Génération des abonnement : ": f" {task_to_launch} - {trace.time_to_process} s"}
+    return {
+        "Génération des abonnement : ": (
+            f"{to_print} réalisé avec sucess, en {trace.time_to_process} s"
+            if not error
+            else f"erreur - {to_print} : {trace.comment!r}"
+        )
+    }

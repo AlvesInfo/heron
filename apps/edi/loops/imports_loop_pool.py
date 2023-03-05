@@ -471,6 +471,7 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
 
     # Si l'action n'existe pas on la créée
     action = get_action()
+    result = ""
 
     try:
         start_all = time.time()
@@ -486,7 +487,7 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
                         "task_to_launch": task_to_launch,
                         "dte_d": dte_d,
                         "dte_f": dte_f,
-                        "user": user
+                        "user": user,
                     },
                 )
             ]
@@ -505,6 +506,13 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
         # On remet l'action en cours à False, après l'execution
         action.in_progress = False
         action.save()
+
+    if isinstance(result, (list,)) and result:
+        result = result[0]
+
+    info = result if isinstance(result, (str,)) else ". ".join([value for value in result.values()])
+
+    return "erreur" in info, info
 
 
 if __name__ == "__main__":

@@ -45,9 +45,12 @@ def royalties_launch(request):
 
             else:
 
-                import_launch_subscriptions(
+                erreur, info = import_launch_subscriptions(
                     "ROYALTIES", dte_d, dte_f, request.user.uuid_identification
                 )
+                level = 50 if erreur else 20
+                request.session["level"] = level
+                messages.add_message(request, level, info)
         else:
             LOGGER_VIEWS.exception(f"erreur form royalties_launch : {str(form.data)!r}")
 
@@ -91,9 +94,12 @@ def meuleuse_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions(
+                erreur, info = import_launch_subscriptions(
                     "MEULEUSE", dte_d, dte_f, request.user.uuid_identification
                 )
+                level = 50 if erreur else 20
+                request.session["level"] = level
+                messages.add_message(request, level, info)
 
         else:
             LOGGER_VIEWS.exception(f"erreur form meuleuse_launch : {str(form.data)!r}")
@@ -138,9 +144,12 @@ def publicity_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions(
+                erreur, info = import_launch_subscriptions(
                     "PUBLICITE", dte_d, dte_f, request.user.uuid_identification
                 )
+                level = 50 if erreur else 20
+                request.session["level"] = level
+                messages.add_message(request, level, info)
 
         else:
             LOGGER_VIEWS.exception(f"erreur form publicity_launch : {str(form.data)!r}")
@@ -185,9 +194,12 @@ def services_launch(request):
                 messages.add_message(request, 50, message)
 
             else:
-                import_launch_subscriptions(
+                erreur, info = import_launch_subscriptions(
                     "PRESTATIONS", dte_d, dte_f, request.user.uuid_identification
                 )
+                level = 50 if erreur else 20
+                request.session["level"] = level
+                messages.add_message(request, level, info)
 
         else:
             LOGGER_VIEWS.exception(f"erreur form services_launch : {str(form.data)!r}")
