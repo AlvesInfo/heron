@@ -312,7 +312,7 @@ class VatSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return {"auuid"}
+        return {"vat", "auuid"}
 
     @property
     def get_import(self):
@@ -353,7 +353,7 @@ class VatRatSage(FlagsTable):
     Tva                 | vat            | TABRATVAT     | VAT
     Date début          | vat_start_date | TABRATVAT     | STRDAT
     Taux                | rate           | TABRATVAT     | VATRAT
-    Régime              | vat_regime     | TABRATVAT     | VATEXEFLG
+    Législation         | vat_regime     | TABRATVAT     | LEG
     Identifiant unique  | auuid          | TABPAYTERM    | AUUID     (T: 15)
     =========================================================================
     """
@@ -367,6 +367,7 @@ class VatRatSage(FlagsTable):
     vat_start_date = models.DateField()
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     exoneration = models.BooleanField(null=True)
+    vat_regime = models.CharField(null=True, max_length=20)
     auuid = models.UUIDField(unique=True, verbose_name="n° champ unique")
 
     @staticmethod
@@ -389,6 +390,7 @@ class VatRatSage(FlagsTable):
             "rate": 2,
             "exoneration": 3,
             "auuid": 4,
+            "vat_regime": 5,
         }
 
     @staticmethod
