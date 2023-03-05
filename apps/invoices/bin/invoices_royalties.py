@@ -17,16 +17,14 @@ from typing import AnyStr
 from django.utils import timezone
 
 from apps.data_flux.trace import get_trace
+from apps.users.models import User
 
 
-def set_ca():
-    """"""
-
-
-def royalties(dte_d: AnyStr, dte_f: AnyStr):
+def royalties(dte_d: AnyStr, dte_f: AnyStr, user: User):
     """Génération de factures de Royalties
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
+    :param user: Utilisateur lançant la génération
     :return:
     """
     file_name = "royalties"
@@ -40,6 +38,7 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr):
 
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
+    trace.created_by = user
     trace.save()
 
     return trace, to_print

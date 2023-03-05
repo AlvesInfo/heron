@@ -103,6 +103,7 @@ class VatSageSchema(ModelSchema, SageTruncateStrFieldsBase):
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
+    auuid: uuid.UUID
 
     class Config:
         model = VatSage

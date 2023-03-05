@@ -152,6 +152,7 @@ class VatSageForm(forms.ModelForm):
             "name",
             "short_name",
             "vat_regime",
+            "auuid",
         ]
 
 

@@ -130,6 +130,7 @@ class CaClients(FlagsTable):
 
     date_ca = models.DateField()
     code_maison = models.CharField(blank=True, null=True, max_length=30)
+    code_cosium = models.CharField(blank=True, null=True, max_length=30)
     cct_uuid_identification = models.ForeignKey(
         Maison,
         null=True,
@@ -139,7 +140,7 @@ class CaClients(FlagsTable):
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
     )
-    famille_cosium = models.CharField(blank=True, null=True, max_length=30)
+    famille_cosium = models.CharField(blank=True, null=True, max_length=255)
     axe_pro = models.ForeignKey(
         SectionSage,
         null=True,
@@ -147,7 +148,7 @@ class CaClients(FlagsTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
-        related_name="pro_section",
+        related_name="ca_client_axe_pro",
         db_column="axe_pro",
     )
     ca_ht_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)

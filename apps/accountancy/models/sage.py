@@ -282,6 +282,7 @@ class VatSage(FlagsTable):
     name = models.CharField(null=True, blank=True, max_length=30)
     short_name = models.CharField(null=True, max_length=20, verbose_name="intitulé court")
     vat_regime = models.CharField(null=True, blank=True, max_length=5)
+    auuid = models.UUIDField(unique=True, verbose_name="n° champ unique")
 
     @staticmethod
     def file_import_sage():
@@ -302,6 +303,7 @@ class VatSage(FlagsTable):
             "name": 1,
             "short_name": 2,
             "vat_regime": 3,
+            "auuid": 4,
         }
 
     @staticmethod
@@ -310,7 +312,7 @@ class VatSage(FlagsTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return {"vat", "vat_regime"}
+        return {"auuid"}
 
     @property
     def get_import(self):
@@ -322,13 +324,12 @@ class VatSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.vat}"
+        return f"{self.vat} - {self.vat_regime}"
 
     class Meta:
         """class Meta du modèle django"""
 
         ordering = ["vat"]
-        unique_together = (("vat", "vat_regime"),)
         indexes = [
             models.Index(fields=["vat"]),
             models.Index(fields=["vat_regime"]),

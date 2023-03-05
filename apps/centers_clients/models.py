@@ -235,10 +235,11 @@ class Maison(FlagsTable):
     sage_vat_by_default = models.ForeignKey(
         VatSage,
         on_delete=models.PROTECT,
-        to_field="vat",
+        to_field="auuid",
         related_name="vat_sage_maison",
         verbose_name="tva X3 par défaut",
         db_column="sage_vat_by_default",
+        null=True
     )
     sage_plan_code = models.ForeignKey(
         CodePlanSage,
@@ -721,6 +722,14 @@ class MaisonSubcription(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["maison", "function", "article"]
+        unique_together = (
+            (
+                "maison",
+                "function",
+                "article",
+                "for_signboard",
+            ),
+        )
         indexes = [
             models.Index(fields=["maison"]),
             models.Index(fields=["function"]),

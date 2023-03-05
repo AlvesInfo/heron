@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=E0401,C0303
 """
 Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
 FR : Module de génération du chiffre d'affaire par clients, issus des ventes Cosium
@@ -13,110 +13,101 @@ modified at: 2023-03-04
 modified by: Paulo ALVES
 """
 from typing import AnyStr
-from uuid import UUID
 
 from psycopg2 import sql
-from django.db import connection, transaction
+from django.db import connection
+from apps.users.models import User
 
 
-def set_ca(dte_d: AnyStr, dte_f: AnyStr):
-    """Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
+def delete_ca(dte_d: AnyStr, dte_f: AnyStr):
+    """Suppression du CA Client pour une période donnée
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :return:
     """
     with connection.cursor() as cursor:
+        sql_delete = sql.SQL(
+            """
+            delete from "compta_caclients" 
+            where "date_ca" between %(dte_d)s and %(dte_f)s 
+            """
+        )
+        cursor.execute(sql_delete, {"dte_d": dte_d, "dte_f": dte_f})
+
+
+def set_ca(dte_d: AnyStr, dte_f: AnyStr, user: User):
+    """Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
+    :param dte_d: Date de début de période au format texte isoformat
+    :param dte_f: Date de fin de période au format texte isoformat
+    :param user: Utilisateur lançant la génération
+    :return:
+    """
+    with connection.cursor() as cursor:
+
         sql_insert_statment = sql.SQL(
             """
-            insert into edi_ediimport 
+            insert into "compta_caclients" 
             (
-                "uuid_identification",
                 "created_at",
                 "modified_at",
-                "flow_name",
-                "supplier_ident",
-                "siret_payeur",
-                "code_fournisseur",
+                "active",
+                "delete",
+                "export",
+                "valid",
+                "acquitted",
+                "flag_to_active",
+                "flag_to_delete",
+                "flag_to_export",
+                "flag_to_valid",
+                "flag_to_acquitted",
+                "date_ca",
                 "code_maison",
-                "maison",
-                "acuitis_order_number",
-                "delivery_number",
-                "delivery_date",
-                "invoice_number",
-                "invoice_date",
-                "invoice_type",
-                "devise",
-                "reference_article",
-                "ean_code",
-                "libelle",
-                "famille",
-                "qty",
-                "gross_unit_price",
-                "net_unit_price",
-                "gross_amount",
-                "net_amount",
-                "vat_rate",
-                "vat_amount",
-                "amount_with_vat",
-                "axe_pro_supplier",
-                "supplier_name",
-                "bi_id",
-                "unity",
-                "purchase_invoice",
-                "sale_invoice"
+                "code_cosium",
+                "cct_uuid_identification",
+                "famille_cosium",
+                "axe_pro",
+                "ca_ht_eur",
+                "ca_ht_devise",
+                "created_by"
             )
-            select
-                %(uuid_identification)s as "uuid_identification",
+            select 
                 now() as "created_at",
                 now() as "modified_at",
-               'BbgrStatment' as "flow_name",
-               'BbgrStatment' as "supplier_ident",
-               '9524514' as "siret_payeur",
-               "boutique_bbgr" as "code_fournisseur",
-               "boutique_acuitis" as "code_maison",
-               "nom_boutique" as "maison",
-               "ref_cde_acuitis" as "acuitis_order_number",
-               case when "livraison" = '0' then '' else "livraison" end as "delivery_number",
-               "date_livraison" as "delivery_date",
-               "transaction" as "invoice_number",
-               "date_transaction" as "invoice_date",
-               case 
-                    when "type_transaction" = 'INV' 
-                    then '380' 
-                    else '381' 
-                end as "invoice_type",
-               'EUR' as "devise",
-               "article" as "reference_article",
-               "article" as "ean_code",
-               case 
-                    when left("article_facturation", 1) = ANY('{1,2,3,4,5,6,7,8,9}') 
-                    then right("article_facturation", length("article_facturation")-14) 
-                    else "article_facturation" 
-                end as "libelle",
-               case 
-                    when "famille" is null or "famille" = '' 
-                    then "article" 
-                    else "famille" 
-               end as "famille",
-               "qte_facturee" as "qty",
-               "prix_unitaire" as "gross_unit_price",
-               "prix_unitaire" as "net_unit_price",
-               "montant_ht" as "gross_amount",
-               "montant_ht" as "net_amount",
-               "code_tva" as "vat_rate",
-               "montant_tva" as "vat_amount",
-               "montant_ttc" as "amount_with_vat",
-               "statistique" as "axe_pro_supplier",
-               'BBGR STATMENT' as "supplier_name",
-               "id" as "bi_id",
-               1 as "unity",
-               true as "purchase_invoice",
-               false as "sale_invoice"
-            from "heron_bi_factures_billstatement"
-            where "id" > %(min_id)s
-            order by "id"
+                false as "active",
+                false as "delete",
+                false as "export",
+                false as "valid",
+                false as "acquitted",
+                false as "flag_to_active",
+                false as "flag_to_delete",
+                false as "flag_to_export",
+                false as "flag_to_valid",
+                false as "flag_to_acquitted",
+                %(dte_d)s as "date_ca",
+                "code_maison",
+                "code_cosium",
+                "cct_uuid_identification",
+                string_agg(
+                    distinct "famille_cosium", '|' order by "famille_cosium"
+                ) as "famille_cosium",
+                "bs"."axe_pro" as "axe_pro",
+                sum("ca_ht_ap_remise_eur")::numeric as "ca_ht_eur",
+                sum("ca_ht_ap_remise")::numeric as "ca_ht_devise",
+                %(user)s as "created_by"
+            from "compta_ventescosium" "cv" 
+            left join "book_supplierfamilyaxes" "bs" 
+            on "cv"."famille_cosium" = "bs"."regex_match" 
+            where "cv"."date_vente" between %(dte_d)s and %(dte_f)s
+            group by 	
+                "code_maison",
+                "code_cosium",
+                "cct_uuid_identification",
+                "bs"."axe_pro"
+            order by 
+                "code_maison",
+                "bs"."axe_pro"
             """
         )
         cursor.execute(
-            sql_insert_statment, {"min_id": min_id, "uuid_identification": uuid_identification}
+            sql_insert_statment, {"dte_d": dte_d, "dte_f": dte_f, "user": user.uuid_identification}
         )

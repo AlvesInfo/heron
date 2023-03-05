@@ -8,7 +8,10 @@ from django.contrib import messages
 
 from heron.loggers import LOGGER_VIEWS
 from apps.periods.forms import MonthForm
-from apps.compta.bin.have_subscriptions import get_have_subscriptions
+from apps.compta.bin.validations_subscriptions import (
+    get_have_subscriptions,
+    get_missing_cosium_familly,
+)
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.loops.imports_loop_pool import import_launch_subscriptions
 
@@ -25,8 +28,13 @@ def royalties_launch(request):
 
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
 
-            if get_have_subscriptions("ROYALTIES", dte_d, dte_f):
+            if text_error_familly:
+                request.session["level"] = 50
+                messages.add_message(request, 50, text_error_familly)
+
+            elif get_have_subscriptions("ROYALTIES", dte_d, dte_f):
                 message = (
                     "Les Royalties pour cette période ont déjà été générées!. "
                     "Si vous souhaitez en ajouter, "
@@ -64,8 +72,13 @@ def meuleuse_launch(request):
 
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
 
-            if get_have_subscriptions("MEULEUSE", dte_d, dte_f):
+            if text_error_familly:
+                request.session["level"] = 50
+                messages.add_message(request, 50, text_error_familly)
+
+            elif get_have_subscriptions("MEULEUSE", dte_d, dte_f):
                 message = (
                     "Les redevances Meuleuses pour cette période ont déjà été générées!. "
                     "Si vous souhaitez en ajouter, "
@@ -104,8 +117,13 @@ def publicity_launch(request):
 
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
 
-            if get_have_subscriptions("PUBLICITE", dte_d, dte_f):
+            if text_error_familly:
+                request.session["level"] = 50
+                messages.add_message(request, 50, text_error_familly)
+
+            elif get_have_subscriptions("PUBLICITE", dte_d, dte_f):
                 message = (
                     "Les redevances de Publicité pour cette période ont déjà été générées!. "
                     "Si vous souhaitez en ajouter, "
@@ -144,8 +162,13 @@ def services_launch(request):
 
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
 
-            if get_have_subscriptions("PRESTATIONS", dte_d, dte_f):
+            if text_error_familly:
+                request.session["level"] = 50
+                messages.add_message(request, 50, text_error_familly)
+
+            elif get_have_subscriptions("PRESTATIONS", dte_d, dte_f):
                 message = (
                     "Les Abonnements de Prestations pour cette période ont déjà été générés!. "
                     "Si vous souhaitez en ajouter, "

@@ -258,10 +258,10 @@ def main(model_list):
 
 
 if __name__ == "__main__":
-    main(MODELS_ACCOUNTANCY)
-    main(MODELS_BOOK)
-    main(MODELS_PARAMETERS)
-    main(MODELS_ARTICLES)
-    main(MODELS_CENTER_PURCHASING)
+    # main(MODELS_ACCOUNTANCY)
+    # main(MODELS_BOOK)
+    # main(MODELS_PARAMETERS)
+    # main(MODELS_ARTICLES)
+    # main(MODELS_CENTER_PURCHASING)
     main(MODELS_CENTER_CLIENTS)
-    main(MODELS_EDI)
+    # main(MODELS_EDI)
