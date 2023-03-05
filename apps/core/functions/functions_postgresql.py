@@ -188,19 +188,24 @@ def cnx_postgresql(string_of_connexion):
     return connexion
 
 
-def query_select(cnx, sql_requete=None):
+def query_select(cnx, sql_requete=None, params=None):
     """
     Fonction qui retourne le resultat d'une requête sql Postgresql.
         :param cnx: Connexion à la base postgresql psycopg2
         :param sql_requete: requête selection souhaitée
                                 ex: "SELECT * FROM table"
+        :param params: dictionnaire des paramètes à passer
         :return: La liste des éléments de la requête
     """
     if sql_requete:
         try:
             with cnx.cursor() as cur:
-                cur.execute(sql_requete)
+                if params:
+                    cur.execute(sql_requete, params)
+                else:
+                    cur.execute(sql_requete)
                 list_rows = cur.fetchall()
+                # print(cur.mogrify(sql_requete, params).decode())
             return list_rows
 
         except psycopg2.Error as except_error:
@@ -242,7 +247,7 @@ def query_real_dict_cursor(cnx, sql_requete=None, params=None):
     return None
 
 
-def query_execute(cnx, sql_requete=None):
+def query_execute(cnx, sql_requete=None, params=None):
     """
     Fonction qui exécute une requête sql Postgresql.
         :param cnx: Connexion à la base postgresql psycopg2
@@ -250,13 +255,16 @@ def query_execute(cnx, sql_requete=None):
                                 ex: "UPDATE table SET champ=1"
                                     "UPDATE table SET champ=1 WHERE x = 0"
                                     "DELETE FROM table"
+        :param params: dictionnaire des paramètes à passer
         :return: True ou None si exception
     """
     if sql_requete:
         try:
             with cnx.cursor() as cur:
-                cur.execute(sql_requete)
-                cnx.commit()
+                if params:
+                    cur.execute(sql_requete, params)
+                else:
+                    cur.execute(sql_requete)
             return True
 
         except psycopg2.Error as except_error:

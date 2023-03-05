@@ -62,7 +62,7 @@ from apps.centers_purchasing.models import (
     AccountsAxeProCategory,
 )
 from apps.compta.models import VentesCosium, CaClients
-from apps.edi.models import SupplierDefinition, ColumnDefinition
+from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport, EdiImportControl
 from apps.parameters.models import (
     Parameters,
     Counter,
@@ -142,7 +142,7 @@ MODELS_CENTER_PURCHASING = (
     AccountsAxeProCategory,
 )
 
-MODELS_EDI = (SupplierDefinition, ColumnDefinition)
+MODELS_EDI = (SupplierDefinition, ColumnDefinition, EdiImport, EdiImportControl)
 
 MODELS_PARAMETERS = (
     Nature,
@@ -264,11 +264,11 @@ def main(model_list):
 
 
 if __name__ == "__main__":
-    main(MODELS_ACCOUNTANCY)
-    main(MODELS_BOOK)
-    main(MODELS_PARAMETERS)
-    main(MODELS_ARTICLES)
-    main(MODELS_CENTER_PURCHASING)
-    main(MODELS_CENTER_CLIENTS)
+    # main(MODELS_ACCOUNTANCY)
+    # main(MODELS_BOOK)
+    # main(MODELS_PARAMETERS)
+    # main(MODELS_ARTICLES)
+    # main(MODELS_CENTER_PURCHASING)
+    # main(MODELS_CENTER_CLIENTS)
     main(MODELS_EDI)
-    main(MODELS_COMPTA)
+    # main(MODELS_COMPTA)

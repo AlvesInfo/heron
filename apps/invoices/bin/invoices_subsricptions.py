@@ -14,47 +14,16 @@ modified by: Paulo ALVES
 """
 from typing import AnyStr, Dict
 from uuid import UUID, uuid4
-from functools import lru_cache
 
 from django.utils import timezone
 
 from apps.core.functions.functions_setups import connection
-from apps.core.functions.functions_postgresql import query_dict
-from apps.accountancy.models import SectionSage
+from apps.core.functions.functions_postgresql import query_execute, query_select
 from apps.data_flux.trace import get_trace
 from apps.edi.loggers import EDI_LOGGER
-from apps.edi.models import EdiImport
-from apps.parameters.models import UnitChoices, IconOriginChoice
 from apps.users.models import User
 from apps.compta.bin.generate_ca import set_ca
 from apps.invoices.sql_files.sql_subscriptions import SQL_SUBSCRIPTIONS
-
-
-@lru_cache(maxsize=256)
-def get_unity(unity: int) -> UnitChoices:
-    """Retourne l'instance de UnitChoices, en lui fournissant son N°
-    :param unity: num de UnitChoices
-    :return: UnitChoices.instance
-    """
-    return UnitChoices.objects.get(num=unity)
-
-
-@lru_cache(maxsize=256)
-def get_icon(origin: int) -> IconOriginChoice:
-    """Retourne l'instance de IconOriginChoice, en lui fournissant son N°
-    :param origin: origin de IconOriginChoice
-    :return: IconOriginChoice.instance
-    """
-    return IconOriginChoice.objects.get(origin=origin)
-
-
-@lru_cache(maxsize=512)
-def get_axes(uuid_axe: UUID) -> SectionSage:
-    """Retourne l'instance de UnitChoices, en lui fournissant son N°
-    :param uuid_axe: uuid_identification de l'instance l'axe à retourner
-    :return: SectionSage.instance
-    """
-    return SectionSage.objects.get(uuid_identification=uuid_axe)
 
 
 def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
@@ -66,38 +35,17 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
     :return:
     """
     set_ca(dte_d, dte_f, user_uuid)
-    subscriptions_list = query_dict(
+    query_execute(
         connection,
         SQL_SUBSCRIPTIONS,
         {
             "dte_d": dte_d,
             "dte_f": dte_f,
             "flow_name": flow_name,
+            "uuid_identification": uuid4(),
+            "invoice_number": "inv",
+            "created_by": user_uuid
         },
-    )
-    uuid_identification = uuid4()
-    user = User.objects.get(uuid_identification=user_uuid)
-    EdiImport.objects.bulk_create(
-        [
-            EdiImport(
-                **{
-                    **line_dict,
-                    **{
-                        "uuid_identification": uuid_identification,
-                        "invoice_number": "inv",
-                        "created_by": user,
-                        "axe_bu": get_axes(line_dict.get("axe_bu")),
-                        "axe_prj": get_axes(line_dict.get("axe_prj")),
-                        "axe_pro": get_axes(line_dict.get("axe_pro")),
-                        "axe_pys": get_axes(line_dict.get("axe_pys")),
-                        "axe_rfa": get_axes(line_dict.get("axe_rfa")),
-                        "origin": get_icon(line_dict.get("origin")),
-                        "unity": get_unity(line_dict.get("unity")),
-                    },
-                }
-            )
-            for line_dict in subscriptions_list
-        ]
     )
 
 

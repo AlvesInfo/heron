@@ -83,7 +83,7 @@ def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
                 false as "flag_to_export",
                 false as "flag_to_valid",
                 false as "flag_to_acquitted",
-                %(dte_d)s as "date_ca",
+                %(dte_f)s as "date_ca",
                 "code_maison",
                 "code_cosium",
                 "cct_uuid_identification",

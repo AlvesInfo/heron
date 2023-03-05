@@ -130,11 +130,14 @@
                         <div class="four wide field">
                             <label for="id_reference_article">Référence</label>
                         </div>
-                        <div class="eleven wide field">
+                        <div class="ten wide field">
                             <label for="id_libelle">Libellé</label>
                         </div>
                         <div class="one wide field">
                             <label for="id_qty" style="text-align: right;">Qté</label>
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unity" style="text-align: right;">Unité</label>
                         </div>
                         <div class="two wide field">
                             <label for="id_net_unit_price" style="text-align: right;padding-right: 8px;">P.U Net HT</label>
@@ -201,7 +204,7 @@
                                  style="background-color: #efefff;padding-left: 4px;padding-right: 4px;"
                                  value="{{ invoice.reference_article }}">
                         </div>
-                        <div class="eleven wide field">
+                        <div class="ten wide field">
                             <input type="text"
                                  name="libelle"
                                  id="id_libelle"
@@ -216,7 +219,15 @@
                                  id="id_qty"
                                  readonly
                                  style="background-color: #efefff;text-align: right;padding-left: 4px;padding-right: 4px;"
-                                 value="{{ invoice.qty|numbers:0 }}">
+                                 value="{% if invoice.unity.num == 12 %}{% widthratio invoice.qty 1 100 %}{% else %}{{ invoice.qty|numbers:0 }}{% endif %}">
+                        </div>
+                        <div class="two wide field">
+                            <input type="text"
+                                 name="unity"
+                                 id="id_unity"
+                                 readonly
+                                 style="background-color: #efefff;text-align: center;padding-left: 4px;padding-right: 4px;"
+                                 value="{{ invoice.unity }}">
                         </div>
                         <div class="two wide field">
                             <input type="text"
@@ -251,7 +262,7 @@
                                    maxlength="15"
                                  id="id_vat_rate"
                                  readonly
-                                 style="background-color: #efefff;text-align: center;padding-left: 2px;padding-right: 2px;"
+                                 style="background-color: #efefff;text-align: right;padding-left: 2px;padding-right: 2px;"
                                  value="{{ invoice.vat_rate|percentage }}">
                         </div>
                     </div>
