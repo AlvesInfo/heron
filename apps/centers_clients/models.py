@@ -235,11 +235,10 @@ class Maison(FlagsTable):
     sage_vat_by_default = models.ForeignKey(
         VatSage,
         on_delete=models.PROTECT,
-        to_field="auuid",
+        to_field="vat",
         related_name="vat_sage_maison",
         verbose_name="tva X3 par défaut",
         db_column="sage_vat_by_default",
-        null=True
     )
     sage_plan_code = models.ForeignKey(
         CodePlanSage,
