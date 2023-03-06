@@ -267,8 +267,11 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
 
     return {
         "Génération des abonnement : ": (
-            f"{to_print} réalisé avec sucess, en {trace.time_to_process} s"
-            if not error
-            else f"erreur - {to_print} : {trace.comment!r}"
+            f"{to_print}, réalisée avec sucess, en {trace.time_to_process} s"
+            if not error and "Erreur" not in to_print
+            else (
+                f"Erreur - {to_print.replace('Erreur', '')} "
+                f"{':' if trace.comment else ''} {trace.comment!r}"
+            )
         )
     }

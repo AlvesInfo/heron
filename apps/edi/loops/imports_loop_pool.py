@@ -512,7 +512,7 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
 
     info = result if isinstance(result, (str,)) else ". ".join([value for value in result.values()])
 
-    return "erreur" in info, info
+    return "Erreur" in info, info
 
 
 if __name__ == "__main__":

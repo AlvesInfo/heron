@@ -35,7 +35,7 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
     :return:
     """
     set_ca(dte_d, dte_f, user_uuid)
-    query_execute(
+    rows = query_execute(
         connection,
         SQL_SUBSCRIPTIONS,
         {
@@ -46,6 +46,8 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
             "created_by": user_uuid,
         },
     )
+
+    return rows
 
 
 def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
@@ -62,9 +64,10 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
+    rows = 0
 
     try:
-        set_data(dte_d, dte_f, user_uuid, flow_name)
+        rows = set_data(dte_d, dte_f, user_uuid, flow_name)
 
     except Exception as except_error:
         error = True
@@ -74,7 +77,11 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         trace.errors = True
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
-    to_print = "Génération des royalties"
+    to_print = (
+        "Génération des royalties "
+        if rows
+        else f"Erreur Génération des royalties, pas d'abonnements '{flow_name}' à générer"
+    )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.final_at = timezone.now()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
@@ -97,9 +104,10 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
+    rows = 0
 
     try:
-        set_data(dte_d, dte_f, user_uuid, flow_name)
+        rows = set_data(dte_d, dte_f, user_uuid, flow_name)
 
     except Exception as except_error:
         error = True
@@ -109,7 +117,13 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         trace.errors = True
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
-    to_print = "Génération des redevances meuleuses"
+    to_print = (
+        "Génération des redevances meuleuses "
+        if rows
+        else (
+            f"Erreur Génération des redevances meuleuses, pas d'abonnements '{flow_name}' à générer"
+        )
+    )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()
@@ -132,9 +146,10 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
+    rows = 0
 
     try:
-        set_data(dte_d, dte_f, user_uuid, flow_name)
+        rows = set_data(dte_d, dte_f, user_uuid, flow_name)
 
     except Exception as except_error:
         error = True
@@ -144,7 +159,13 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         trace.errors = True
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
-    to_print = "Génération des redevances de publicité"
+    to_print = (
+        "Génération des redevances de publicité "
+        if rows
+        else (
+            f"Erreur Génération des redevances de publicité, pas d'abonnements '{flow_name}' à générer"
+        )
+    )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()
@@ -167,9 +188,10 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
+    rows = 0
 
     try:
-        set_data(dte_d, dte_f, user_uuid, flow_name)
+        rows = set_data(dte_d, dte_f, user_uuid, flow_name)
 
     except Exception as except_error:
         error = True
@@ -179,7 +201,11 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         trace.errors = True
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
-    to_print = "Génération des prestations"
+    to_print = (
+        "Génération des prestations "
+        if rows
+        else f"Erreur Génération des prestations, pas d'abonnements '{flow_name}' à générer"
+    )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()

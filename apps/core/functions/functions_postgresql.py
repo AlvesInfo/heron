@@ -266,8 +266,10 @@ def query_execute(cnx, sql_requete=None, params=None):
                 else:
                     cur.execute(sql_requete)
 
+                rows = cur.rowcount
+
                 # print(cur.mogrify(sql_requete, params).decode())
-            return True
+            return rows
 
         except psycopg2.Error as except_error:
             log_line = f"query_execute error: {except_error}\n"
@@ -275,7 +277,7 @@ def query_execute(cnx, sql_requete=None, params=None):
             # write_log(self.log_file, log_line)
             # envoi_mail_erreur(log_line)
 
-    return None
+    return 0
 
 
 def query_dict(cnx, sql_requete=None, params=None):
