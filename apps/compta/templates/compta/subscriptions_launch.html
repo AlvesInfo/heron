@@ -10,7 +10,7 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-        <form method="post">
+        <form method="post" id="id_form_post">
             {% csrf_token %}
 
             {% include "compta/subscriptions_launch_entete.html" %}
@@ -45,6 +45,13 @@
                 "lengthMenu": [[20, 50, -1], [20, 50, "Tous"]]
             });
             $(`.datatable-chargement`).hide();
+
+            let form = document.getElementById('id_form_post');
+
+            form.addEventListener("submit", (event) => {
+                $(`#chargement`).text("Génération en cours ...")
+                $(`.datatable-chargement`).show()
+            });
 
         });
 

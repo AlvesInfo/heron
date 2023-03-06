@@ -53,7 +53,6 @@ def royalties_launch(request):
                 messages.add_message(request, level, info)
         else:
             LOGGER_VIEWS.exception(f"erreur form royalties_launch : {str(form.data)!r}")
-
     context = {
         "en_cours": in_action,
         "titre_table": (
@@ -63,6 +62,7 @@ def royalties_launch(request):
         ),
         "form": form,
     }
+
     return render(request, "compta/subscriptions_launch.html", context=context)
 
 
@@ -113,6 +113,7 @@ def meuleuse_launch(request):
         ),
         "form": form,
     }
+
     return render(request, "compta/subscriptions_launch.html", context=context)
 
 
@@ -163,6 +164,7 @@ def publicity_launch(request):
         ),
         "form": form,
     }
+
     return render(request, "compta/subscriptions_launch.html", context=context)
 
 
@@ -213,4 +215,5 @@ def services_launch(request):
         ),
         "form": form,
     }
+
     return render(request, "compta/subscriptions_launch.html", context=context)

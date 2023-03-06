@@ -24,6 +24,7 @@ from apps.validation_purchases.forms import (
     EdiImportControlForm,
 )
 from apps.edi.models import EdiImportControl
+from apps.parameters.models import IconOriginChoice
 
 # CONTROLES ETAPE 2.1 - CONTROLE INTEGRATION
 
@@ -59,6 +60,7 @@ def integration_purchases(request):
             "margin_table": 50,
             "margin_rep": 50,
             "nb_paging": 100,
+            "legende": IconOriginChoice.objects.all()
         }
 
     if get_in_progress():
