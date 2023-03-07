@@ -186,7 +186,7 @@ def excel_ca_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str)
         sheet = 1
         write_board(excel, sheet, get_clean_rows(date_debut, date_fin), f_lignes, f_lignes_odd)
         sheet_formatting(
-            excel, 1, columns, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
+            excel, 1, columns, {"sens": "portrait", "repeat_row": (0, 5), "fit_page": (1, 0)}
         )
 
     except:
