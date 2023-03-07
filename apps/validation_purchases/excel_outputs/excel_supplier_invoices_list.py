@@ -275,12 +275,11 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
 
 def excel_supplier_purchases(file_io: io.BytesIO, file_name: str, attr_dict: dict) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    big_category = attr_dict.get("big_category")
     third_party_num = attr_dict.get("third_party_num")
     supplier = attr_dict.get("supplier")
     invoice_month = attr_dict.get("invoice_month")
     month = pendulum.parse(invoice_month).format("MMMM YYYY", locale="fr")
-    titre = f"Factures : {big_category} - {third_party_num} - {supplier} - pour {month}"
+    titre = f"Factures : {third_party_num} - {supplier} - pour {month}"
 
     list_excel = [file_io, [f"{third_party_num}_{month}"]]
     excel = GenericExcel(list_excel)
