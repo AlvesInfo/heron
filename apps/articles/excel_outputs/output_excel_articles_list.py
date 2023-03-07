@@ -1,5 +1,5 @@
 # pylint: disable=W0702,W1203,E0401
-"""Module d'export du fichier excel pour les centrales Mères
+"""Module d'export de la liste des articles excel
 
 Commentaire:
 
@@ -92,7 +92,7 @@ def get_clean_rows(third_party_num: str, category: str) -> iter:
 def excel_liste_articles(
     file_io: io.BytesIO, file_name: str, third_party_num: str, category: str
 ) -> dict:
-    """Fonction de génération du fichier de liste des Centrales Mère"""
+    """Fonction de génération du fichier de la liste des articles excel"""
     categorie_name = Category.objects.get(slug_name=category)
     titre_list = file_name.split("_")
     titre = (

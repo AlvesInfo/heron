@@ -9,7 +9,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.db import transaction
 from django.db.models import Count
 
-from heron.loggers import LOGGER_VIEWS
+from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 
@@ -243,7 +243,7 @@ def articles_export_list(_, third_party_num, category):
         )
 
     except:
-        LOGGER_VIEWS.exception("view : articles_export_list")
+        LOGGER_EXPORT_EXCEL.exception("view : articles_export_list")
 
     return redirect(
         reverse(

@@ -9,7 +9,7 @@ from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
-from heron.loggers import LOGGER_VIEWS
+from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -93,7 +93,7 @@ def categories_export_list(_):
         return response_file(excel_liste_categories, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_VIEWS.exception("view : categories_export_list")
+        LOGGER_EXPORT_EXCEL.exception("view : categories_export_list")
 
     return redirect(reverse("parameters:categories_list"))
 
@@ -248,7 +248,7 @@ def axe_articles_defaut_export_list(_):
         return response_file(excel_list_axe_article_defaut, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_VIEWS.exception("view : export_list_societies")
+        LOGGER_EXPORT_EXCEL.exception("view : export_list_societies")
 
     return redirect(reverse("book:societies_list"))
 
@@ -315,7 +315,7 @@ def functions_export_list(_):
         return response_file(excel_liste_functions, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_VIEWS.exception("view : functions_export_list")
+        LOGGER_EXPORT_EXCEL.exception("view : functions_export_list")
 
     return redirect(reverse("parameters:functions_list"))
 

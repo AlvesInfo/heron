@@ -1,6 +1,6 @@
-# pylint: disable=E0401,R0903,W0201,W0702,W0613,W1203
+# pylint: disable=E0401,W1203
 """
-Views des Clients/Maisons
+Views des Abonnements
 """
 
 from django.shortcuts import render
@@ -19,7 +19,7 @@ from apps.edi.loops.imports_loop_pool import import_launch_subscriptions
 def royalties_launch(request):
     """Lancement de la génération des Royalties
     :param request: Request Django
-    :return: response_file
+    :return:
     """
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
@@ -53,6 +53,7 @@ def royalties_launch(request):
                 messages.add_message(request, level, info)
         else:
             LOGGER_VIEWS.exception(f"erreur form royalties_launch : {str(form.data)!r}")
+
     context = {
         "en_cours": in_action,
         "titre_table": (
@@ -69,7 +70,7 @@ def royalties_launch(request):
 def meuleuse_launch(request):
     """Lancement de la génération des Meuleuses
     :param request: Request Django
-    :return: response_file
+    :return:
     """
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
@@ -120,7 +121,7 @@ def meuleuse_launch(request):
 def publicity_launch(request):
     """Lancement de la génération des Publicités
     :param request: Request Django
-    :return: response_file
+    :return:
     """
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
@@ -171,7 +172,7 @@ def publicity_launch(request):
 def services_launch(request):
     """Lancement de la génération des Prestations
     :param request: Request Django
-    :return: response_file
+    :return:
     """
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()

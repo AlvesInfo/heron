@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 from psycopg2 import sql
 from django.db import connection, transaction
 
-# from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_setups import settings
 
 
 HISTORIC_VENTES_ID = 24_673_943

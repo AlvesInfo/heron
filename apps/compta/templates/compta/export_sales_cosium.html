@@ -13,8 +13,8 @@
         <form method="post" id="id_form_post">
             {% csrf_token %}
 
-            {% include "compta/subscriptions_launch_entete.html" %}
-            {% include "compta/subscriptions_launch_table.html" %}
+            {% include "compta/export_sales_cosium_entete.html" %}
+            {% include "compta/export_sales_cosium_table.html" %}
 
         </form>
     {% else %}
@@ -45,14 +45,6 @@
                 "lengthMenu": [[20, 50, -1], [20, 50, "Tous"]]
             });
             $(`.datatable-chargement`).hide();
-
-            let form = document.getElementById('id_form_post');
-
-            form.addEventListener("submit", (event) => {
-                console.log($(``))
-                $(`#chargement`).text("Génération en cours ...")
-                $(`.datatable-chargement`).show()
-            });
 
         });
 

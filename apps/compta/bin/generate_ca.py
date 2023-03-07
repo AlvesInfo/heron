@@ -98,6 +98,7 @@ def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
             left join "book_supplierfamilyaxes" "bs" 
             on "cv"."famille_cosium" = "bs"."regex_match" 
             where "cv"."date_vente" between %(dte_d)s and %(dte_f)s
+            and "bs"."stat_name" = 'COSI001'
             group by 	
                 "code_maison",
                 "code_cosium",

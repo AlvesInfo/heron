@@ -342,7 +342,15 @@
                 <div class="ui two column relaxed divided grid" style="width: 30em;">
 
                     <div class="column">
-                        <h4 class="ui header">Ventes</h4>
+                        <h4 class="ui header">COSIUM</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'compta:export_sales_cosium' %}" class="item">Ventes Cosium</a>
+                            <a href="{% url 'compta:export_sales_cosium' %}" class="item">CA Cosium</a>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <h4 class="ui header">HERON</h4>
                         <div class="ui link list">
                             <a href="{% url 'validation_sales:compare_turnover_sales' %}" class="item">Ventes vs CA</a>
                             <a href="{% url 'validation_sales:controls_cct_sales' %}" class="item">Ventes par CCT</a>

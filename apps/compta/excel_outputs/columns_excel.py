@@ -1,5 +1,5 @@
 # pylint: disable=C0302,R0903
-"""Module pour la définition des colonnes excel pour le module Articles
+"""Module pour la définition des colonnes excel pour le module compta
 
 Commentaire:
 
@@ -16,9 +16,9 @@ from apps.core.excel_outputs.excel_writer import (
 )
 
 
-columns_list_articles = [
+columns_sales_cosium = [
     {
-        "entete": "Référence",
+        "entete": "ID VENTE",
         "f_entete": {
             **f_entetes,
             **{
@@ -28,217 +28,14 @@ columns_list_articles = [
         "f_ligne": {
             **f_ligne,
             **{
-                "align": "center",
-            },
-        },
-        "width": 30,
-    },
-    {
-        "entete": "Libellé",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{},
-        },
-        "width": 35,
-    },
-    {
-        "entete": "Libellé Heron",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{},
-        },
-        "width": 35,
-    },
-    {
-        "entete": "Marque",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 14,
-    },
-    {
-        "entete": "Fabricant",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 14,
-    },
-    {
-        "entete": "Catégorie",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 22,
-    },
-    {
-        "entete": "Sous famille",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
+                "align": "right",
+                "num_format": "#,##0",
             },
         },
         "width": 11,
     },
     {
-        "entete": "Code budget",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Famille du fournisseur",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 14,
-    },
-    {
-        "entete": "Axe BU",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Axe PRJ",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Axe PRO",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Axe PYS",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Axe RFA",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 11,
-    },
-    {
-        "entete": "Made IN",
+        "entete": "CODE\nCOSIUM",
         "f_entete": {
             **f_entetes,
             **{
@@ -254,7 +51,23 @@ columns_list_articles = [
         "width": 8,
     },
     {
-        "entete": "Code douanier",
+        "entete": "CCT X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 30,
+    },
+    {
+        "entete": "FAMILLE\nCOSIUM",
         "f_entete": {
             **f_entetes,
             **{
@@ -265,12 +78,61 @@ columns_list_articles = [
             **f_ligne,
             **{
                 "align": "center",
+            },
+        },
+        "width": 8,
+    },
+    {
+        "entete": "RAYON\nCOSIUM",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 22,
+    },
+    {
+        "entete": "DATE\nVENTE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+                "num_format": "dd/mm/yyyy",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "QTY",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0",
             },
         },
         "width": 9,
     },
     {
-        "entete": "Nouvel article",
+        "entete": "PRIX\nUNITAIRE\nNET",
         "f_entete": {
             **f_entetes,
             **{
@@ -280,13 +142,13 @@ columns_list_articles = [
         "f_ligne": {
             **f_ligne,
             **{
-                "align": "center",
+                "num_format": "#,##0.00",
             },
         },
-        "width": 7,
+        "width": 9,
     },
     {
-        "entete": "Commentaire",
+        "entete": "CA HT DEVISE\nAVANT REMSIE",
         "f_entete": {
             **f_entetes,
             **{
@@ -295,8 +157,90 @@ columns_list_articles = [
         },
         "f_ligne": {
             **f_ligne,
-            **{},
+            **{
+                "num_format": "#,##0.00",
+            },
         },
-        "width": 50,
+        "width": 14,
+    },
+    {
+        "entete": "CA HT DEVISE\nAPRES REMSIE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 14,
+    },
+    {
+        "entete": "Taux de\nChange",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.000",
+            },
+        },
+        "width": 9,
+    },
+    {
+        "entete": "CA HT EUR\nAVANT REMSIE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 14,
+    },
+    {
+        "entete": "CA HT EUR\nAPRES REMSIE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 14,
+    },
+    {
+        "entete": "Mise à jour\nStock",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0",
+            },
+        },
+        "width": 10,
     },
 ]

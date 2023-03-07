@@ -32,7 +32,7 @@ import pendulum
 
 from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.models import Trace
-from apps.compta.imports.import_ventes_cosium import insert_ventes_cosium
+from apps.compta.imports.import_ventes_cosium import insert_ventes_cosium, mise_a_jour_ventes_cosium
 
 
 def process():
@@ -58,9 +58,8 @@ def process():
 
         day = pendulum.now().day
 
-        if day == 2:
-            pass
-            # mise_a_jour_ventes_cosium()
+        if day in {1, 2, 3, 4, 5, 6}:
+            mise_a_jour_ventes_cosium()
 
     except TypeError as except_error:
         error = True
