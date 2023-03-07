@@ -1,4 +1,4 @@
-# pylint: disable=W0702,W1203,E0401,E1101
+# pylint: disable=W0702,W1203,E0401,E1101,C0103,W0603
 """Module d'export du fichier excel du CA des Maisons par Familles
 
 Commentaire:
@@ -21,7 +21,6 @@ from apps.core.excel_outputs.excel_writer import (
     output_day_writer,
     columns_headers_writer,
     sheet_formatting,
-    rows_writer,
 )
 from apps.compta.models import CaClients
 from apps.compta.excel_outputs.columns_excel import columns_ca_cosium
@@ -90,11 +89,11 @@ def write_sum(excel, feuille, debut, titre):
         "top": 1,
     }
 
-    for c, dict_row in enumerate(columns_ca_cosium):
-        if c < 6:
-            if c == 0:
+    for j, _ in enumerate(columns_ca_cosium):
+        if j < 6:
+            if j == 0:
                 left_right_dict = {"left": 1}
-            elif c == 5:
+            elif j == 5:
                 left_right_dict = {"right": 1, "align": "right"}
             else:
                 left_right_dict = {}
@@ -102,7 +101,7 @@ def write_sum(excel, feuille, debut, titre):
             f_totaux.append({**common_dict, **left_right_dict, **color_dict})
 
         else:
-            f_totaux.append({**columns_ca_cosium[c].get("f_ligne").copy(), **color_dict})
+            f_totaux.append({**columns_ca_cosium[j].get("f_ligne").copy(), **color_dict})
 
     totaux = ["", "", "", "", "", titre]
 
