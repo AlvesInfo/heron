@@ -1,7 +1,16 @@
 {% extends "heron/update_create_courant.html" %}
 
 {% block table %}
-    <div style="margin: auto;padding: 20px;">
-        {% include "heron/models_html/month_period.html" %}
+    <div class="ui centered grid" style="margin: auto;padding: 20px;">
+        <div class="row">
+            {% include "heron/models_html/month_period.html" %}
+        </div>
+        <div class="row">
+            {% if avertissement %}
+                <div class="ui segment">
+                    <h5 style="text-align: center;color: red;font-weight: bold;">{{ avertissement }}</h5>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock table %}

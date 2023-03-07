@@ -18,6 +18,22 @@ from apps.core.excel_outputs.excel_writer import (
 
 columns_sales_cosium = [
     {
+        "entete": "PAYS",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 6,
+    },
+    {
         "entete": "ID VENTE",
         "f_entete": {
             **f_entetes,
@@ -64,7 +80,7 @@ columns_sales_cosium = [
                 "align": "left",
             },
         },
-        "width": 30,
+        "width": 40,
     },
     {
         "entete": "FAMILLE\nCOSIUM",
@@ -242,5 +258,138 @@ columns_sales_cosium = [
             },
         },
         "width": 10,
+    },
+]
+
+
+columns_ca_cosium = [
+    {
+        "entete": "DATE\nCA",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+                "num_format": "dd/mm/yyyy",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "PAYS",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 6,
+    },
+    {
+        "entete": "CODE\nCOSIUM",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 8,
+    },
+    {
+        "entete": "CCT X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 40,
+    },
+    {
+        "entete": "FAMILLE\nCOSIUM",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 40,
+    },
+    {
+        "entete": "AXE PRO",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "CA HT\nEUR",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 11,
+    },
+    {
+        "entete": "CA HT\nDEVISE",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 11,
     },
 ]
