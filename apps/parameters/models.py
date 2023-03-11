@@ -224,7 +224,7 @@ class Counter(FlagsTable):
     """
 
     name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
-    prefix = models.CharField(null=True, max_length=5, verbose_name="préfix")
+    prefix = models.CharField(null=True, max_length=35, verbose_name="préfix")
     suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
     fonction = models.ForeignKey(
         InvoiceFunctions,
@@ -234,6 +234,8 @@ class Counter(FlagsTable):
         db_column="function",
     )
     lpad_num = models.IntegerField(null=True, default=0)
+    description = models.CharField(null=True, max_length=255, verbose_name="description")
+    separateur = models.CharField(null=True, max_length=1, verbose_name="séparateur")
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -241,6 +243,11 @@ class Counter(FlagsTable):
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.name}"
+
+    @staticmethod
+    def get_absolute_url():
+        """Url de retour après create ou Update"""
+        return reverse("parameters:numberings_list")
 
     class Meta:
         """class Meta du modèle django"""

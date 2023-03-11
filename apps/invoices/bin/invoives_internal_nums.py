@@ -15,10 +15,9 @@ modified by: Paulo ALVES
 from typing import AnyStr
 
 
-def internal_nums(dte_d: AnyStr, dte_f: AnyStr):
+def internal_nums(dte_d: AnyStr):
     """Génération d'un numéro de facture interne
-    :param dte_d: Date de début de période au format texte isoformat
-    :param dte_f: Date de fin de période au format texte isoformat
+    :param dte_d: Date facture
     :return:
     """
-    flow_name = "INVOICES_INTERNAL_NUMS"
+

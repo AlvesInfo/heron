@@ -23,7 +23,7 @@ class CategoryForm(forms.ModelForm):
 
 
 class SubCategoryForm(forms.ModelForm):
-    """Form pour les 'Rubrique presta'"""
+    """Form pour les Rubriques presta'"""
 
     class Meta:
         """class Meta"""

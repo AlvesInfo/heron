@@ -69,6 +69,12 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:account_axe_list")
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView d'update du Dictionnaire des Comptes debit crédit pour la facturation"""
@@ -97,6 +103,12 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:account_axe_list")
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 def account_axe_delete(request):

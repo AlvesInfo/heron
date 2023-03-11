@@ -1,0 +1,61 @@
+{% extends "heron/table_courant.html" %}
+{% load filters_tags %}
+
+{% block table %}
+
+<div class="one wide column"></div>
+
+<div class="fourteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
+                <th style="width: 20%">Nom</th>
+                <th style="width: 20%">Fonction</th>
+                <th style="width: 50%">Description</th>
+                <th style="width: 5%;">delete</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for numbering in numberings %}
+            <tr id="id_{{ numbering.pk }}" class="hide_plans">
+
+                <td data-value="{{ numbering.pk }}"
+                    style="text-align: center;">
+                    <a href="{% url 'parameters:numbering_update' pk=numbering.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                  {% if numbering.name %}
+                    {{ numbering.name }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if numbering.fonction %}
+                    {{ numbering.fonction }}
+                  {% endif %}
+                </td>
+                <td style="text-align: left;">
+                  {% if numbering.description %}
+                    {{ numbering.description }}
+                  {% endif %}
+                </td>
+                <td class="tdDelete" style="text-align: center;">
+                    <div style="cursor: pointer;">
+                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ numbering.pk }}, `{{ numbering.name }} - {{ numbering.fonction }}`, `{% url 'parameters:numbering_delete' %}`, `la Numérotation `)"></i>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

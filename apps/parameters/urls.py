@@ -19,6 +19,12 @@ from apps.parameters.views import (
     FunctionUpdate,
     functions_export_list,
     function_delete,
+    # Numérotation
+    NumberingsList,
+    NumberingCreate,
+    NumberingUpdate,
+    numberings_export_list,
+    numbering_delete,
 )
 
 app_name = "apps.parameters"
@@ -76,10 +82,14 @@ urlpatterns = [
             name="function_update",
         ),
         path("functions_export_list/", functions_export_list, name="functions_export_list"),
-        path(
-            "function_delete/",
-            function_delete,
-            name="function_delete",
-        ),
+        path("function_delete/", function_delete, name="function_delete"),
+    ],
+    # Numérotation
+    *[
+        path("numberings_list/", NumberingsList.as_view(), name="numberings_list"),
+        path("numbering_create/", NumberingCreate.as_view(), name="numbering_create"),
+        path("numbering_update/<int:pk>/", NumberingUpdate.as_view(), name="numbering_update"),
+        path("numberings_export_list/", numberings_export_list, name="numberings_export_list"),
+        path("numbering_delete/", numbering_delete, name="numbering_delete"),
     ],
 ]

@@ -64,6 +64,12 @@ class MaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, Creat
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_list")
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class MaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView de création des couples Tiers X3/Clients à exlucre de la facturation"""
@@ -90,6 +96,12 @@ class MaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, Updat
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_list")
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 def exclusion_delete(request):

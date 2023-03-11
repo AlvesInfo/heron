@@ -65,6 +65,12 @@ class AxeGroupingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:axe_grouping_list")
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView d'update du Dictionnaire Axe Pro/Regroupement de facturation"""
@@ -91,6 +97,12 @@ class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:axe_grouping_list")
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 def axe_grouping_delete(request):

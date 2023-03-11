@@ -47,6 +47,12 @@ class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["titre_table"] = "Création d'une nouvelle Enseigne"
         return context
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Enseignes"""

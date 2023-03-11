@@ -64,6 +64,12 @@ class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView)
         context["titre_table"] = "Création d'un nouvel Abonnement"
         return context
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Abonnements"""
@@ -84,6 +90,12 @@ class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView)
         context["titre_table"] = "Mise à jour d'un Abonnement"
         context["chevron_retour"] = reverse("centers_clients:subscriptions_list")
         return super().get_context_data(**context)
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 def subscriptions_export_list(_):

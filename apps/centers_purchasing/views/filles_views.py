@@ -45,6 +45,12 @@ class FilleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["titre_table"] = "Création d'une nouvelle Centrale Fille"
         return context
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class FilleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Centrales Filles"""
@@ -66,6 +72,12 @@ class FilleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             f"{context.get('object').name}"
         )
         return context
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 def filles_export_list(request):

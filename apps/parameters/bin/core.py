@@ -54,3 +54,5 @@ def get_object(task_to_launch: AnyStr):
         ) from error
 
     return func
+
+

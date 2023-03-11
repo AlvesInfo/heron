@@ -224,6 +224,12 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             ),
         )
 
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 def articles_export_list(_, third_party_num, category):
     """

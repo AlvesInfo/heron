@@ -102,3 +102,9 @@ class UpdateDetaisPurchase(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = (
         "La facture N° %(invoice_number)s n'a pu être modifiée, une erreur c'est produite"
     )
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)

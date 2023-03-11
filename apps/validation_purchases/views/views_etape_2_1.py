@@ -200,6 +200,12 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         """Return the URL to redirect to after processing a valid form."""
         return reverse("validation_purchases:integration_purchases")
 
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 @transaction.atomic
 def delete_supplier_edi_import(request):

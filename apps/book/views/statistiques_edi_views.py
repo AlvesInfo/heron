@@ -52,6 +52,12 @@ class StatistiqueCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["titre_table"] = "Création d'une nouvelle Famille Statistiques/Axes"
         return context
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class StatistiqueUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
@@ -74,6 +80,12 @@ class StatistiqueUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["titre_table"] = "Mise à jour Famille Statistiques/Axes"
         context["chevron_retour"] = reverse("book:statistiques_list")
         return context
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 def statistiques_export_list(_):
@@ -151,6 +163,12 @@ class FamillyAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
         return reverse("book:statistique_update", kwargs={"name": self.statistique.name})
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
+
 
 class FamillyAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des définitions des Statistiques Familles/Axes"""
@@ -182,6 +200,12 @@ class FamillyAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
 
         return reverse("book:statistique_update", kwargs={"name": self.object.stat_name})
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+        return super().form_valid(form)
 
 
 @transaction.atomic
