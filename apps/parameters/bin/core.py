@@ -11,13 +11,14 @@ created by: Paulo ALVES
 modified at: 2022-12-27
 modified by: Paulo ALVES
 """
-from typing import AnyStr
+from typing import AnyStr, Dict
 
 from django_celery_results.models import TaskResult
 
 from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.core.functions.functions_utilitaires import get_module_object
-from apps.parameters.models import ActionInProgress, InvoiceFunctions
+from apps.parameters.models import ActionInProgress, InvoiceFunctions, Counter, CounterNums
+from apps.parameters.parameters.counters_parameters import get_pre_suf
 
 
 def get_in_progress():
@@ -56,3 +57,50 @@ def get_object(task_to_launch: AnyStr):
     return func
 
 
+def initial_counter_nums(model_instance: Counter):
+    """Initialise un compteur si il n'existe pas
+    :param model_instance: instance du model Counter
+    :return: None
+    """
+    obj = None
+    try:
+        obj = CounterNums.objects.get(counter=model_instance)
+    except CounterNums.DoesNotExist:
+        obj = CounterNums(counter=model_instance)
+        obj.save()
+
+    finally:
+        return obj
+
+
+def get_counter_num(model_instance: Counter, attr_object_dict: Dict = None) -> str:
+    """Retourne la numérotation
+    :param model_instance: instance du compteur à appliquer
+    :param attr_object_dict: dictonaire des valeurs des attr_object à appliquer
+    :return: la numérotation demandée
+    """
+    if attr_object_dict is None:
+        attr_object_dict = {}
+
+    counter_num_obj = initial_counter_nums(model_instance)
+    str_num = ""
+    name = model_instance.name
+    prefix = model_instance.prefix or ""
+    attr_prefix = attr_object_dict.get("prefix")
+    suffix = model_instance.prefix or ""
+    attr_suffix = attr_object_dict.get("suffix")
+    ldap_num = model_instance.lpad_num
+    separateur = model_instance.separateur or ""
+
+    if prefix:
+        str_num += get_pre_suf(name=name, attr_object=attr_prefix) + separateur
+
+    str_num += str(counter_num_obj.num).zfill(ldap_num) + separateur
+
+    if suffix:
+        str_num += get_pre_suf(name=name, attr_object=attr_suffix) + separateur
+
+    counter_num_obj.num += 1
+    counter_num_obj.save()
+
+    return str_num

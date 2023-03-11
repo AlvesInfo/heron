@@ -38,18 +38,18 @@
                 {{ form.fonction }}
               </div>
               <div class="one wide field">
-                <label for="id_ldap_num" style="text-align: left;">LDAP&nbsp;:</label>
+                <label for="id_lpad_num" style="text-align: left;">LPAD&nbsp;:</label>
                 <input type="number"
-                     name="ldap_num"
-                     value="{{ form.ldap_num.value|numbers:0 }}"
+                     name="lpad_num"
+                     value="{{ form.lpad_num.value|numbers:0 }}"
                      step="1"
-                     id="id_ldap_num"
+                     id="id_lpad_num"
                      style="text-align: right;">
               </div>
 
               <div class="one wide field">
                 <label for="id_separateur" style="text-align: left;">Séparateur&nbsp;:</label>
-                <input type="text" name="separateur" maxlength="1" id="id_separateur" value="{{ form.separateur.value|default_if_none:'' }}">
+                <input type="text" name="separateur" maxlength="1" id="id_separateur" value="{{ form.separateur.value|default_if_none:'' }}" min="1" max="35">
               </div>
           </div>
         </div>
@@ -57,7 +57,7 @@
     </div>
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
         <div class="ui segment">
-            <h4 class="ui floated header">Préfix/Suffixes avec automatimse</h4>
+            <h4 class="ui floated header">Préfix/Suffixes avec automatisme</h4>
             <div class="ui clearing divider"></div>
             <div class="ui list">
                 <div class="item" style="text-align: left">
@@ -82,6 +82,9 @@
                     {{ sep_li }}TIERS : TIERS X3
                 </div>
                 <div class="item" style="text-align: left">
+                    {{ sep_li }}TEXTE_TIERS  : Texte libre et TIERS X3
+                </div>
+                <div class="item" style="text-align: left">
                     {{ sep_li }}CCT : CCT X3
                 </div>
                 <div class="item" style="text-align: left">
@@ -94,7 +97,15 @@
             <div class="ui clearing divider"></div>
             <div class="ui list">
                 <div class="item" style="text-align: left;">
-                    {{ sep_li }}LDAP : Formatage de la numérotation automatique, si 0 pas de numérotation. Si lpad > 0, alors cela remplira avec autant de 0 que de nombres de caractères que demandé dans LPAD. Ex. : LDAP = 5 et la numérotation automatique en est à 14 : 00014
+                    {{ sep_li }}<span>LDAP : Formatage de la numérotation automatique.</span>
+                    <br>
+                    <span style="margin-left: 52px;">Doit être > 0 et inférieur à 35.</span>
+                    <br>
+                    <span style="margin-left: 52px;">Si 0 pas de numérotation.</span>
+                    <br>
+                    <span style="margin-left: 52px;">Si lpad > 0, alors cela remplira avec autant de 0 que de nombres de caractères que demandé dans LPAD.</span>
+                    <br>
+                    <span style="margin-left: 52px;">Ex. : LDAP = 5 et la numérotation automatique en est à 14 : 00014</span>
                 </div>
                 <div class="item" style="text-align: left;">
                     {{ sep_li }}Le séparateur ne prend qu'un seul caractère

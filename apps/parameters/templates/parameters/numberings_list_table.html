@@ -21,7 +21,7 @@
         </thead>
         <tbody>
         {% for numbering in numberings %}
-            <tr id="id_{{ numbering.pk }}" class="hide_plans">
+            <tr id="id_{{ forloop.counter }}" class="hide_plans">
 
                 <td data-value="{{ numbering.pk }}"
                     style="text-align: center;">
@@ -45,9 +45,11 @@
                   {% endif %}
                 </td>
                 <td class="tdDelete" style="text-align: center;">
-                    <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ numbering.pk }}, `{{ numbering.name }} - {{ numbering.fonction }}`, `{% url 'parameters:numbering_delete' %}`, `la Numérotation `)"></i>
-                    </div>
+                    {% if numbering.name != 'generic'%}
+                        <div style="cursor: pointer;">
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ numbering.pk }}, `{{ numbering.name }} {% if numbering.fonction %}-{% endif %} {{ numbering.fonction|default_if_none:'' }}`, `{% url 'parameters:numbering_delete' %}`, `la Numérotation `)"></i>
+                        </div>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

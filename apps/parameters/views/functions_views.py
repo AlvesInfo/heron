@@ -15,10 +15,7 @@ from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.parameters.excel_outputs.parameters_excel_functions import excel_liste_functions
 from apps.parameters.models import InvoiceFunctions
-from apps.parameters.forms import (
-    InvoiceFunctionsForm,
-    DeleteInvoiceFunctionsForm,
-)
+from apps.parameters.forms import InvoiceFunctionsForm
 
 
 # ECRANS DES FUNCTIONS =============================================================================
@@ -110,20 +107,22 @@ def function_delete(request):
     if not request.is_ajax() and request.method != "POST":
         return redirect("home")
 
-    data = {"success": "ko"}
-    id_pk = request.POST.get("pk")
-    form = DeleteInvoiceFunctionsForm({"id": id_pk})
-
-    if form.is_valid():
+    try:
+        invoice = InvoiceFunctions.objects.get(pk=request.POST.get("pk"))
         trace_mark_delete(
             request=request,
             django_model=InvoiceFunctions,
-            data_dict={"id": id_pk},
+            data_dict={"id": invoice.pk},
             force_delete=True,
         )
         data = {"success": "success"}
 
-    else:
-        LOGGER_VIEWS.exception(f"function_delete, form invalid : {form.errors!r}")
+    except (InvoiceFunctions.DoesNotExist, Exception) as error:
+        data = {"success": "ko"}
+        LOGGER_VIEWS.exception(
+            f"views - function_delete, l'user : {request.user.email!r} "
+            f"a tenter de supprimer une Fonction inexistante"
+            f"\n{error!r}"
+        )
 
     return JsonResponse(data)

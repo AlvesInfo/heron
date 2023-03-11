@@ -5,10 +5,10 @@ EN : Forms module for the numbering object (internal, external, etc.)
 
 Commentaire:
 
-created at: 2023-03-23
+created at: 2023-03-11
 created by: Paulo ALVES
 
-modified at: 2023-03-23
+modified at: 2023-03-11
 modified by: Paulo ALVES
 """
 from django import forms
@@ -27,6 +27,7 @@ class CounterForm(forms.ModelForm):
         self.fields["lpad_num"].required = False
         self.fields["prefix"].required = False
         self.fields["suffix"].required = False
+        self.fields["fonction"].required = False
         self.fields["description"].required = False
         self.fields["separateur"].required = False
 
@@ -47,13 +48,3 @@ class CounterForm(forms.ModelForm):
         widgets = {
             "fonction": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
-
-
-class DeleteCounterForm(forms.ModelForm):
-    """Form pour la suppression des InvoiceFunctions"""
-
-    class Meta:
-        """class Meta"""
-
-        model = Counter
-        fields = ("id",)

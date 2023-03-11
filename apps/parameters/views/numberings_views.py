@@ -15,10 +15,7 @@ from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.parameters.excel_outputs.parameters_excel_numberings import excel_liste_numberings
 from apps.parameters.models import Counter
-from apps.parameters.forms import (
-    CounterForm,
-    DeleteCounterForm,
-)
+from apps.parameters.forms import CounterForm
 
 
 # ECRANS DES FUNCTIONS =============================================================================
@@ -77,6 +74,7 @@ class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
+        print("form.cleaned_data : ", form.cleaned_data)
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
         return super().form_valid(form)
@@ -113,18 +111,30 @@ def numbering_delete(request):
 
     data = {"success": "ko"}
     id_pk = request.POST.get("pk")
-    form = DeleteCounterForm({"id": id_pk})
 
-    if form.is_valid():
-        trace_mark_delete(
-            request=request,
-            django_model=Counter,
-            data_dict={"id": id_pk},
-            force_delete=True,
+    try:
+        numbering = Counter.objects.get(pk=id_pk)
+
+        if not numbering.name == 'generic':
+            trace_mark_delete(
+                request=request,
+                django_model=Counter,
+                data_dict={"id": numbering.pk},
+                force_delete=True,
+            )
+            data = {"success": "success"}
+
+        else:
+            LOGGER_VIEWS.exception(
+                f"numbering_delete, l'user : {request.user.email!r} "
+                f"a tenter de supprimer la Numérotation générique"
+            )
+
+    except (Counter.DoesNotExist, Exception) as error:
+        LOGGER_VIEWS.exception(
+            f"views - numbering_delete, l'user : {request.user.email!r} "
+            f"a tenter de supprimer une Numérotation inexistante"
+            f"\n{error!r}"
         )
-        data = {"success": "success"}
-
-    else:
-        LOGGER_VIEWS.exception(f"numbering_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)

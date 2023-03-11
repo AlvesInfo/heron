@@ -17,6 +17,8 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import reverse
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import AccountSage, SectionSage
@@ -232,6 +234,7 @@ class Counter(FlagsTable):
         to_field="function_name",
         related_name="counter_invoice_functions",
         db_column="function",
+        null=True,
     )
     lpad_num = models.IntegerField(null=True, default=0)
     description = models.CharField(null=True, max_length=255, verbose_name="description")
@@ -253,6 +256,18 @@ class Counter(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["name"]
+        constraints = [
+            # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
+            models.CheckConstraint(
+                check=models.Q(lpad_num__gte=0), name='lpad_num_gte_0'
+            ),
+        ]
+
+    def clean(self):
+        # Ensures constraint on model level, raises ValidationError
+        if self.lpad_num < 0:
+            # raise error for field
+            raise ValidationError({'lpad_num': _('LPAD doit être > 0.')})
 
 
 class CounterNums(models.Model):
@@ -267,7 +282,7 @@ class CounterNums(models.Model):
         related_name="counter",
         db_column="uuid_counter",
     )
-    num = models.IntegerField()
+    num = models.IntegerField(default=1)
 
 
 class Category(FlagsTable):
