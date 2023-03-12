@@ -1,12 +1,12 @@
 # pylint: disable=W0702,W1203,E1101
-"""Module d'export du fichier excel pour les Functions
+"""Module d'export du fichier excel pour les Numérotations
 
 Commentaire:
 
-created at: 2023-03-11
+created at: 2023-03-12
 created by: Paulo ALVES
 
-modified at: 2023-03-11
+modified at: 2023-03-12
 modified by: Paulo ALVES
 """
 
@@ -21,8 +21,8 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
-from apps.parameters.models import InvoiceFunctions
-from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_functions
+from apps.parameters.models import Counter
+from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_numberings
 
 
 def get_row():
@@ -30,31 +30,35 @@ def get_row():
 
     yield from [
         (
-            row.get("function_name"),
-            row.get("function"),
-            row.get("absolute_path_windows") or "",
-            row.get("absolute_path_linux") or "",
-            row.get("description") or "",
+            row.get("name"),
+            row.get("function", ""),
+            row.get("prefix", ""),
+            row.get("suffix", ""),
+            row.get("lpad_num", ""),
+            row.get("separateur", ""),
+            row.get("description", ""),
         )
-        for row in InvoiceFunctions.objects.all()
+        for row in Counter.objects.all()
         .values(
-            "function_name",
+            "name",
             "function",
-            "absolute_path_windows",
-            "absolute_path_linux",
+            "prefix",
+            "suffix",
+            "lpad_num",
+            "separateur",
             "description",
         )
-        .order_by("function_name")
+        .order_by("name")
     ]
 
 
 def excel_liste_numberings(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Functions"""
+    """Fonction de génération du fichier de liste des Numérotation"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     list_excel = [file_io, [titre[:30]]]
     excel = GenericExcel(list_excel)
-    columns = columns_list_functions
+    columns = columns_list_numberings
 
     try:
         titre_page_writer(excel, 1, 0, 0, columns, titre)

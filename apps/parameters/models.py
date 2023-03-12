@@ -15,6 +15,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -78,6 +79,7 @@ class UnitChoices(FlagsTable):
     FR : Unités
     EN : Unities
     """
+
     num = models.IntegerField(unique=True)
     unity = models.CharField(unique=True, max_length=80, verbose_name="unité")
 
@@ -228,7 +230,7 @@ class Counter(FlagsTable):
     name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
     prefix = models.CharField(null=True, max_length=35, verbose_name="préfix")
     suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
-    fonction = models.ForeignKey(
+    function = models.ForeignKey(
         InvoiceFunctions,
         on_delete=models.PROTECT,
         to_field="function_name",
@@ -258,16 +260,32 @@ class Counter(FlagsTable):
         ordering = ["name"]
         constraints = [
             # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
-            models.CheckConstraint(
-                check=models.Q(lpad_num__gte=0), name='lpad_num_gte_0'
-            ),
+            models.CheckConstraint(check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
         ]
+
+    @staticmethod
+    def bool_function(function):
+        if function is None:
+            return False
+
+        counters = set(
+            Counter.objects.exclude(Q(function="") | Q(function__isnull=True)).values_list(
+                "function", flat=True
+            )
+        )
+        return function.function_name in counters
 
     def clean(self):
         # Ensures constraint on model level, raises ValidationError
         if self.lpad_num < 0:
             # raise error for field
-            raise ValidationError({'lpad_num': _('LPAD doit être > 0.')})
+            raise ValidationError({"lpad_num": _("LPAD doit être > 0.")})
+
+        if self.bool_function(self.function):
+            # Controle des doublonction sur les fonctions
+            raise ValidationError(
+                {"function": _(f"La fonction {self.function} a déjà été utilisée")}
+            )
 
 
 class CounterNums(models.Model):

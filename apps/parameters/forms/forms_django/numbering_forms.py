@@ -27,7 +27,7 @@ class CounterForm(forms.ModelForm):
         self.fields["lpad_num"].required = False
         self.fields["prefix"].required = False
         self.fields["suffix"].required = False
-        self.fields["fonction"].required = False
+        self.fields["function"].required = False
         self.fields["description"].required = False
         self.fields["separateur"].required = False
 
@@ -40,11 +40,11 @@ class CounterForm(forms.ModelForm):
             "name",
             "prefix",
             "suffix",
-            "fonction",
+            "function",
             "lpad_num",
             "description",
             "separateur",
         )
         widgets = {
-            "fonction": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "function": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }

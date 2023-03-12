@@ -35,8 +35,8 @@
                   {% endif %}
                 </td>
                 <td style="text-align: center;">
-                  {% if numbering.fonction %}
-                    {{ numbering.fonction }}
+                  {% if numbering.function %}
+                    {{ numbering.function }}
                   {% endif %}
                 </td>
                 <td style="text-align: left;">
@@ -47,7 +47,7 @@
                 <td class="tdDelete" style="text-align: center;">
                     {% if numbering.name != 'generic'%}
                         <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ numbering.pk }}, `{{ numbering.name }} {% if numbering.fonction %}-{% endif %} {{ numbering.fonction|default_if_none:'' }}`, `{% url 'parameters:numbering_delete' %}`, `la Numérotation `)"></i>
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ numbering.pk }}, `{{ numbering.name }} {% if numbering.function %}-{% endif %} {{ numbering.function|default_if_none:'' }}`, `{% url 'parameters:numbering_delete' %}`, `la Numérotation `)"></i>
                         </div>
                     {% endif %}
                 </td>
