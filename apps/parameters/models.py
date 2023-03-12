@@ -263,8 +263,7 @@ class Counter(FlagsTable):
             models.CheckConstraint(check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
         ]
 
-    @staticmethod
-    def bool_function(function):
+    def bool_function(self, function):
         if function is None:
             return False
 
@@ -281,7 +280,7 @@ class Counter(FlagsTable):
             # raise error for field
             raise ValidationError({"lpad_num": _("LPAD doit être > 0.")})
 
-        if self.bool_function(self.function):
+        if self.pk is None and self.bool_function(self.function):
             # Controle des doublonction sur les fonctions
             raise ValidationError(
                 {"function": _(f"La fonction {self.function} a déjà été utilisée")}
