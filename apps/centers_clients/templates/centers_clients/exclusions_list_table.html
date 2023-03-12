@@ -26,7 +26,7 @@
                         </a>
                     </td>
                     <td>{{exclusion.third_party_num}}</td>
-                    <td>{{exclusion.maison}}</td>
+                    <td>{{exclusion.cct_uuid_identification}}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
                           <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ exclusion.pk }}, `{{ exclusion.third_party_num }} - {{ exclusion.maison }}`, `{% url 'centers_clients:exclusion_delete' %}`, `Le Couple`)"></i>

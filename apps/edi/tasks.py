@@ -49,6 +49,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
 )
 from apps.edi.bin.edi_post_processing_pool import post_common
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
+from apps.edi.bin.exclusions import set_exclusions
 from apps.users.models import User
 from apps.parameters.bin.core import get_object
 
@@ -196,12 +197,15 @@ def launch_sql_clean_general(start_all):
     start_initial = time.time()
 
     try:
+        post_processing_all()
+        print("post_processing_all terminé")
+
+        set_exclusions()
+        print("exclusions terminées")
+
         post_common()
         print("post_common terminé")
         EDI_LOGGER.warning("post_common terminé")
-
-        post_processing_all()
-        print("post_processing_all terminé")
         EDI_LOGGER.warning("post_processing_all terminé")
 
         print(f"All validations : {time.time() - start_all} s")

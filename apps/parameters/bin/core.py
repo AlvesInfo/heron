@@ -11,14 +11,143 @@ created by: Paulo ALVES
 modified at: 2022-12-27
 modified by: Paulo ALVES
 """
-from typing import AnyStr, Dict
+from typing import Any, AnyStr, Dict
 
+import pendulum
 from django_celery_results.models import TaskResult
 
 from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.core.functions.functions_utilitaires import get_module_object
+from apps.book.models import Society
+from apps.centers_clients.models import Maison
 from apps.parameters.models import ActionInProgress, InvoiceFunctions, Counter, CounterNums
-from apps.parameters.parameters.counters_parameters import get_pre_suf
+
+
+def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
+    """Retourne le texte de la attr_instance souhaitée dans le préfix ou le suffix
+    :param name: nom du préfix ou du suffix
+    :param attr_instance: attr_instance à retrouver, soit une date, soit un tiers, soit un cct
+    :return: le texte du préfix ou du suffix
+    """
+    if name == "AAAAMM":
+        return (
+            attr_instance.format("YYYYMM", locale="fr")
+            if attr_instance
+            else pendulum.now().format("YYYYMM", locale="fr")
+        )
+
+    if name == "AAAA-MM":
+        return (
+            attr_instance.format("YYYY-MM", locale="fr")
+            if attr_instance
+            else pendulum.now().format("YYYY-MM", locale="fr")
+        )
+
+    if name == "AAAA_MM":
+        return (
+            attr_instance.format("YYYY_MM", locale="fr")
+            if attr_instance
+            else pendulum.now().format("YYYY_MM", locale="fr")
+        )
+
+    if name == "AAAAMMDD":
+        return (
+            attr_instance.format("YYYYMMDD", locale="fr")
+            if attr_instance
+            else pendulum.now().format("YYYYMMDD", locale="fr")
+        )
+
+    if name == "AAAA-MM-DD":
+        return (
+            attr_instance.format("YYYY-MM-DD", locale="fr")
+            if attr_instance
+            else pendulum.now().format("YYYY-MM-DD", locale="fr")
+        )
+
+    if name == "AAAA_MM_DD":
+        return (
+            attr_instance.format("YYYY_MM_DD", locale="fr")
+            if attr_instance
+            else pendulum.now().format("YYYY_MM_DD", locale="fr")
+        )
+
+    if name == "TIERS":
+        try:
+            if not attr_instance:
+                return ""
+            else:
+                return str(
+                    Society.objects.get(third_party_num=attr_instance).third_party_num
+                ).replace(" ", "")
+        except Society.DoesNotExist:
+            return ""
+
+    if name.startswith("TIERS_"):
+        try:
+            if not attr_instance:
+                return "_".join(name.split("_")[1:])
+            else:
+                return (
+                    str(Society.objects.get(third_party_num=attr_instance).third_party_num).replace(
+                        " ", ""
+                    )
+                    + "_"
+                    + "_".join(name.split("_")[1:])
+                )
+        except Society.DoesNotExist:
+            return name.split("_")[0]
+
+    if "_TIERS" in name:
+        try:
+            if not attr_instance:
+                return "_".join(name.split("_")[:-1])
+            else:
+                return (
+                    "_".join(name.split("_")[:-1])
+                    + "_"
+                    + str(Society.objects.get(third_party_num=attr_instance).third_party_num).replace(
+                        " ", ""
+                    )
+                )
+        except Society.DoesNotExist:
+            return name.split("_")[0]
+
+    if name == "CCT":
+        try:
+            if not attr_instance:
+                return ""
+            else:
+                return str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(" ", "")
+        except Maison.DoesNotExist:
+            return ""
+
+    if name.startswith("CCT_"):
+        try:
+            if not attr_instance:
+                return "_".join(name.split("_")[1:])
+            else:
+                return (
+                    str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(" ", "")
+                    + "_"
+                    + "_".join(name.split("_")[1:])
+                )
+        except Maison.DoesNotExist:
+            return name.split("_")[0]
+
+    if "_CCT" in name:
+        try:
+            if not attr_instance:
+                return "_".join(name.split("_")[:-1])
+            else:
+                return (
+                    "_".join(name.split("_")[:-1])
+                    + "_"
+                    + str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(" ", "")
+                )
+        except Maison.DoesNotExist:
+            return name.split("_")[0]
+
+    return name or ""
 
 
 def get_in_progress():
@@ -57,48 +186,48 @@ def get_object(task_to_launch: AnyStr):
     return func
 
 
-def initial_counter_nums(model_instance: Counter):
+def initial_counter_nums(counter_instance: Counter):
     """Initialise un compteur si il n'existe pas
-    :param model_instance: instance du model Counter
+    :param counter_instance: instance du model Counter
     :return: None
     """
     obj = None
     try:
-        obj = CounterNums.objects.get(counter=model_instance)
+        obj = CounterNums.objects.get(counter=counter_instance)
     except CounterNums.DoesNotExist:
-        obj = CounterNums(counter=model_instance)
+        obj = CounterNums(counter=counter_instance)
         obj.save()
 
     finally:
         return obj
 
 
-def get_counter_num(model_instance: Counter, attr_object_dict: Dict = None) -> str:
+def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) -> str:
     """Retourne la numérotation
-    :param model_instance: instance du compteur à appliquer
-    :param attr_object_dict: dictonaire des valeurs des attr_object à appliquer
+    :param counter_instance: instance du compteur à appliquer
+    :param attr_instance_dict: dictonaire des valeurs des attr_instance à appliquer
     :return: la numérotation demandée
     """
-    if attr_object_dict is None:
-        attr_object_dict = {}
+    if attr_instance_dict is None:
+        attr_instance_dict = {}
 
-    counter_num_obj = initial_counter_nums(model_instance)
+    counter_num_obj = initial_counter_nums(counter_instance)
     str_num = ""
-    name = model_instance.name
-    prefix = model_instance.prefix or ""
-    attr_prefix = attr_object_dict.get("prefix")
-    suffix = model_instance.prefix or ""
-    attr_suffix = attr_object_dict.get("suffix")
-    ldap_num = model_instance.lpad_num
-    separateur = model_instance.separateur or ""
+    name = counter_instance.name
+    prefix = counter_instance.prefix or ""
+    attr_instance_prefix = attr_instance_dict.get("prefix")
+    suffix = counter_instance.prefix or ""
+    attr_instance_suffix = attr_instance_dict.get("suffix")
+    ldap_num = counter_instance.lpad_num
+    separateur = counter_instance.separateur or ""
 
     if prefix:
-        str_num += get_pre_suf(name=name, attr_object=attr_prefix) + separateur
+        str_num += get_pre_suf(name=name, attr_instance=attr_instance_prefix) + separateur
 
     str_num += str(counter_num_obj.num).zfill(ldap_num) + separateur
 
     if suffix:
-        str_num += get_pre_suf(name=name, attr_object=attr_suffix) + separateur
+        str_num += get_pre_suf(name=name, attr_instance=attr_instance_suffix) + separateur
 
     counter_num_obj.num += 1
     counter_num_obj.save()

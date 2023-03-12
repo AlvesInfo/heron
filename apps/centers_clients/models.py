@@ -517,17 +517,17 @@ class MaisonSupllierExclusion(FlagsTable):
         related_name="supplier_to_discard",
         db_column="third_party_num",
     )
-    maison = models.ForeignKey(
+    cct_uuid_identification = models.ForeignKey(
         Maison,
         on_delete=models.CASCADE,
-        to_field="cct",
+        to_field="uuid_identification",
         related_name="cct_to_discard",
-        db_column="maison",
-        verbose_name="maison",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
     )
 
     def __str__(self):
-        return f"{self.third_party_num} - {self.maison}"
+        return f"{self.third_party_num} - {self.cct_uuid_identification.cct.cct}"
 
     @staticmethod
     def get_success_url():
@@ -537,15 +537,15 @@ class MaisonSupllierExclusion(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["third_party_num", "maison"]
-        unique_together = (("third_party_num", "maison"),)
+        ordering = ["third_party_num", "cct_uuid_identification"]
+        unique_together = (("third_party_num", "cct_uuid_identification"),)
         indexes = [
             models.Index(fields=["third_party_num"]),
-            models.Index(fields=["maison"]),
+            models.Index(fields=["cct_uuid_identification"]),
             models.Index(
                 fields=[
                     "third_party_num",
-                    "maison",
+                    "cct_uuid_identification",
                 ]
             ),
         ]
@@ -618,17 +618,17 @@ class SupllierCountryExclusion(FlagsTable):
         related_name="supplier_exclusion",
         db_column="third_party_num",
     )
-    country = models.ForeignKey(
+    pays = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
         to_field="country",
-        related_name="pys_exclusion",
-        db_column="country",
-        verbose_name="Pays",
+        related_name="country_tiers",
+        verbose_name="pays",
+        db_column="pays",
     )
 
     def __str__(self):
-        return f"{self.third_party_num} - {self.country}"
+        return f"{self.third_party_num} - {self.pays}"
 
     @staticmethod
     def get_success_url():
@@ -638,15 +638,15 @@ class SupllierCountryExclusion(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["third_party_num", "country"]
-        unique_together = (("third_party_num", "country"),)
+        ordering = ["third_party_num", "pays"]
+        unique_together = (("third_party_num", "pays"),)
         indexes = [
             models.Index(fields=["third_party_num"]),
-            models.Index(fields=["country"]),
+            models.Index(fields=["pays"]),
             models.Index(
                 fields=[
                     "third_party_num",
-                    "country",
+                    "pays",
                 ]
             ),
         ]

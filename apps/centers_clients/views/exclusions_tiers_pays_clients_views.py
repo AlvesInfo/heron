@@ -46,10 +46,10 @@ class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin
     form_class.use_required_attribute = False
     template_name = "centers_clients/exclusion_pays_update.html"
     success_message = (
-        "Le couple d'exclusion, %(third_party_num)s - %(country)s a été créé avec success"
+        "Le couple d'exclusion, %(third_party_num)s - %(pays)s a été créé avec success"
     )
     error_message = (
-        "Le couple d'exclusion, %(third_party_num)s - %(country)s n'a pu être créé, "
+        "Le couple d'exclusion, %(third_party_num)s - %(pays)s n'a pu être créé, "
         "une erreur c'est produite"
     )
 
@@ -79,10 +79,10 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
     form_class.use_required_attribute = False
     template_name = "centers_clients/exclusion_pays_update.html"
     success_message = (
-        "Le couple d'exclusion, %(third_party_num)s - %(country)s a été modifié avec success"
+        "Le couple d'exclusion, %(third_party_num)s - %(pays)s a été modifié avec success"
     )
     error_message = (
-        "Le couple d'exclusion, %(third_party_num)s - %(country)s n'a pu être modifié, "
+        "Le couple d'exclusion, %(third_party_num)s - %(pays)s n'a pu être modifié, "
         "une erreur c'est produite"
     )
 

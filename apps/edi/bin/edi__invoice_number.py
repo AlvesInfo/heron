@@ -20,12 +20,12 @@ import pendulum
 from apps.parameters.models import Counter
 
 
-def get_invoice_number(dte_d: AnyStr):
+def get_invoice_number(dte_d: pendulum):
     """Génération d'un numéro de facture interne
     :param dte_d: Date facture
     :return:
     """
     try:
-        num_model = Counter.objects.get(name="")
+        num_model = Counter.objects.get(function="INVOICES_NUMS")
     except:
         ...

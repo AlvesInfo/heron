@@ -164,12 +164,12 @@ class MaisonSupllierExclusionForm(forms.ModelForm):
         model = MaisonSupllierExclusion
         fields = [
             "third_party_num",
-            "maison",
+            "cct_uuid_identification",
         ]
 
         widgets = {
             "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "maison": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "cct_uuid_identification": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 
@@ -194,12 +194,12 @@ class SupllierCountryExclusionForm(forms.ModelForm):
         model = SupllierCountryExclusion
         fields = [
             "third_party_num",
-            "country",
+            "pays",
         ]
 
         widgets = {
             "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "country": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "pays": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 

@@ -156,6 +156,17 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         db_column="uuid_control",
     )
 
+    # Maison
+    cct_uuid_identification = models.ForeignKey(
+        Maison,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="invoices_maison",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
+    )
+
     def save(self, *args, **kwargs):
         """
         FR : On met l'année par défaut suivant la date de la facture
@@ -210,17 +221,6 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
         to_field="uuid_identification",
         related_name="invoices_detail_article",
         db_column="uuid_article",
-    )
-
-    # Maison
-    cct_uuid_identification = models.ForeignKey(
-        Maison,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="invoices_maison",
-        verbose_name="CCT x3",
-        db_column="cct_uuid_identification",
     )
 
     vat = models.ForeignKey(

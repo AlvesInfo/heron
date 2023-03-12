@@ -11,13 +11,12 @@ created by: Paulo ALVES
 modified at: 2023-03-11
 modified by: Paulo ALVES
 """
-from typing import AnyStr
 import os
 import platform
 import sys
 import django
 
-BASE_DIR = r"C:\SitesWeb\heron"
+BASE_DIR = r"/"
 
 if platform.uname().node not in ["PauloMSI", "MSI"]:
     BASE_DIR = "/home/paulo/heron"
@@ -30,7 +29,7 @@ django.setup()
 import pytest
 import pendulum
 
-from apps.parameters.parameters.counters_parameters import get_pre_suf
+from apps.parameters.bin.core import get_pre_suf
 
 
 def test_get_pre_suf():
@@ -64,12 +63,12 @@ def test_get_pre_suf():
     ]
 
     for row in test_list:
-        name, attr_object, expected_result = row
+        name, attr_instance, expected_result = row
         # print(
         #     name,
-        #     attr_object,
+        #     attr_instance,
         #     expected_result,
         #     " --- ",
-        #     get_pre_suf(name=name, attr_object=attr_object),
+        #     get_pre_suf(name=name, attr_instance=attr_instance),
         # )
-        assert get_pre_suf(name=name, attr_object=attr_object) == expected_result
+        assert get_pre_suf(name=name, attr_instance=attr_instance) == expected_result
