@@ -78,13 +78,28 @@ def get_pre_suf(name: AnyStr, attr_object: Any = None) -> str:
         except Society.DoesNotExist:
             return ""
 
+    if name.startswith("TIERS_"):
+        try:
+            if not attr_object:
+                return "_".join(name.split("_")[1:])
+            else:
+                return (
+                    str(Society.objects.get(third_party_num=attr_object).third_party_num).replace(
+                        " ", ""
+                    )
+                    + "_"
+                    + "_".join(name.split("_")[1:])
+                )
+        except Society.DoesNotExist:
+            return name.split("_")[0]
+
     if "_TIERS" in name:
         try:
             if not attr_object:
-                return name.split("_")[0]
+                return "_".join(name.split("_")[:-1])
             else:
                 return (
-                    name.split("_")[0]
+                    "_".join(name.split("_")[:-1])
                     + "_"
                     + str(Society.objects.get(third_party_num=attr_object).third_party_num).replace(
                         " ", ""
@@ -102,13 +117,26 @@ def get_pre_suf(name: AnyStr, attr_object: Any = None) -> str:
         except Maison.DoesNotExist:
             return ""
 
+    if name.startswith("CCT_"):
+        try:
+            if not attr_object:
+                return "_".join(name.split("_")[1:])
+            else:
+                return (
+                    str(Maison.objects.get(third_party_num=attr_object).cct.cct).replace(" ", "")
+                    + "_"
+                    + "_".join(name.split("_")[1:])
+                )
+        except Maison.DoesNotExist:
+            return name.split("_")[0]
+
     if "_CCT" in name:
         try:
             if not attr_object:
-                return name.split("_")[0]
+                return "_".join(name.split("_")[:-1])
             else:
                 return (
-                    name.split("_")[0]
+                    "_".join(name.split("_")[:-1])
                     + "_"
                     + str(Maison.objects.get(third_party_num=attr_object).cct.cct).replace(" ", "")
                 )
