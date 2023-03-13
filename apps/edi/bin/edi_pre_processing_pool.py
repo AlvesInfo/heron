@@ -177,40 +177,42 @@ def transferts_cosium_file(file: Path):
                     csv_writer.writerow(entetes_list)
                 else:
                     date_cosium = pendulum.from_format(rows[0][0], "DD/MM/YYYY")
-                    invoice_date = date_cosium.end_of("month").date()
-                    invoice_number = f"TS-{invoice_date.isoformat()}"
+                    invoice_date = date_cosium.end_of("month")
+                    invoice_number = f"TS-{invoice_date.date().isoformat()}"
                     qty = Decimal(rows[3][0])
-                    rows[4][1] = str(rows[4][1]).replace("\r", "").replace("\n", " ")
-                    csv_writer.writerow(
-                        [
-                            "COSI001",
-                            invoice_number,
-                            invoice_date.format("DD/MM/YYYY"),
-                            "380",
-                            "EUR",
-                            ".2",
-                        ]
-                        + rows[0]
-                        + rows[1]
-                        + rows[1]
-                        + [-qty]
-                        + rows[4]
-                    )
-                    csv_writer.writerow(
-                        [
-                            "COSI001",
-                            invoice_number,
-                            invoice_date.format("DD/MM/YYYY"),
-                            "380",
-                            "EUR",
-                            ".2",
-                        ]
-                        + rows[0]
-                        + rows[2]
-                        + rows[2]
-                        + [qty]
-                        + rows[4]
-                    )
+
+                    if qty:
+                        rows[4][1] = str(rows[4][1]).replace("\r", "").replace("\n", " ")
+                        csv_writer.writerow(
+                            [
+                                "COSI001",
+                                invoice_number,
+                                invoice_date.format("DD/MM/YYYY"),
+                                "380",
+                                "EUR",
+                                ".2",
+                            ]
+                            + rows[0]
+                            + rows[1]
+                            + rows[1]
+                            + [-qty]
+                            + rows[4]
+                        )
+                        csv_writer.writerow(
+                            [
+                                "COSI001",
+                                invoice_number,
+                                invoice_date.format("DD/MM/YYYY"),
+                                "380",
+                                "EUR",
+                                ".2",
+                            ]
+                            + rows[0]
+                            + rows[2]
+                            + rows[2]
+                            + [qty]
+                            + rows[4]
+                        )
 
     file.unlink()
 

@@ -18,7 +18,7 @@ from apps.parameters.models import Counter
 from apps.parameters.forms import CounterForm
 
 
-# ECRANS DES FUNCTIONS =============================================================================
+# ECRANS DES NUMEROTATIONS =========================================================================
 class NumberingsList(ListView):
     """View de la liste des Numérotations"""
 

@@ -1,0 +1,59 @@
+{% extends "heron/update_create_courant.html" %}
+{% load filters_tags %}
+
+{% block table %}
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="four wide computer wide field">
+                <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
+                <input type="text"
+                       name="name"
+                       value="{{ form.name.value|default_if_none:'' }}"
+                       maxlength="255"
+                       {% if not create %}
+                            readonly
+                            style="background-color: #efefff;font-weight: bold;"
+                       {% endif %}
+                       id="id_name">
+              </div>
+              <div class="two wide field">
+                <label for="id_prefix" style="text-align: left;">Préfix&nbsp;:</label>
+                <input type="text" name="prefix" maxlength="35" id="id_prefix" value="{{ form.prefix.value|default_if_none:'' }}">
+              </div>
+              <div class="two wide field">
+                <label for="id_suffix" style="text-align: left;">Suffixe&nbsp;:</label>
+                <input type="text" name="suffix" maxlength="35" id="id_suffix" value="{{ form.suffix.value|default_if_none:'' }}">
+              </div>
+              <div class="eight wide field">
+                <label for="id_description" style="text-align: left;">Description&nbsp;:</label>
+                <input type="text" name="description" maxlength="255" id="id_description" value="{{ form.description.value|default_if_none:'' }}">
+              </div>
+          </div>
+            <div class="fields">
+              <div class="four wide field">
+                <label for="id_descriptionfunction" style="text-align: left;">Fonction&nbsp;:</label>
+                {{ form.function }}
+              </div>
+              <div class="one wide field">
+                <label for="id_lpad_num" style="text-align: left;">LPAD&nbsp;:</label>
+                <input type="number"
+                     name="lpad_num"
+                     value="{{ form.lpad_num.value|numbers:0 }}"
+                     step="1"
+                     id="id_lpad_num"
+                     style="text-align: right;">
+              </div>
+
+              <div class="one wide field">
+                <label for="id_separateur" style="text-align: left;">Séparateur&nbsp;:</label>
+                <input type="text" name="separateur" maxlength="1" id="id_separateur" value="{{ form.separateur.value|default_if_none:'' }}" min="1" max="35">
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock table %}

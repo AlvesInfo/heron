@@ -25,6 +25,12 @@ from apps.parameters.views import (
     NumberingUpdate,
     numberings_export_list,
     numbering_delete,
+    # NATURE/GENRE
+    NaturesList,
+    NatureCreate,
+    NatureUpdate,
+    natures_export_list,
+    nature_delete,
 )
 
 app_name = "apps.parameters"
@@ -91,5 +97,13 @@ urlpatterns = [
         path("numbering_update/<int:pk>/", NumberingUpdate.as_view(), name="numbering_update"),
         path("numberings_export_list/", numberings_export_list, name="numberings_export_list"),
         path("numbering_delete/", numbering_delete, name="numbering_delete"),
+    ],
+    # NATURE/GENRE
+    *[
+        path("natures_list/", NaturesList.as_view(), name="natures_list"),
+        path("nature_create/", NatureCreate.as_view(), name="nature_create"),
+        path("nature_update/<int:pk>/", NatureUpdate.as_view(), name="nature_update"),
+        path("natures_export_list/", natures_export_list, name="natures_export_list"),
+        path("nature_delete/", nature_delete, name="nature_delete"),
     ],
 ]
