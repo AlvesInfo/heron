@@ -482,6 +482,11 @@ class Nature(FlagsTable):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return self.to_display
 
+    @staticmethod
+    def get_absolute_url():
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("parameters:natures_list")
+
     class Meta:
         """class Meta du modèle django"""
 

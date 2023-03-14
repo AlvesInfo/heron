@@ -324,7 +324,7 @@ columns_list_nature = [
         "width": 30,
     },
     {
-        "entete": "Display",
+        "entete": "Affichage",
         "f_entete": {
             **f_entetes,
             **{
