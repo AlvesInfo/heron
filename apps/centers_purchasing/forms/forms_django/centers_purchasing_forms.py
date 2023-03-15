@@ -13,6 +13,7 @@ from apps.centers_purchasing.models import (
     SignboardModelTranslate,
     TranslationParamaters,
 )
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class MeresForm(forms.ModelForm):
@@ -48,6 +49,7 @@ class SignboardForm(forms.ModelForm):
     class Meta:
         model = Signboard
         fields = [
+            "child_center",
             "code",
             "sale_price_category",
             "name",
@@ -55,7 +57,14 @@ class SignboardForm(forms.ModelForm):
             "generic_coefficient",
             "comment",
             "message",
+            "email_object",
+            "email_template",
+            "email_corp",
         ]
+        widgets = {
+            "child_center": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sale_price_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }
 
 
 class SignboardModelForm(forms.ModelForm):

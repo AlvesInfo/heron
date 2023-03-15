@@ -6,7 +6,7 @@
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Centrale Fille</h3>
+        <h3 class="ui floated header" style="margin-bottom: 5px;">Enseigne</h3>
         <div class="ui clearing divider"></div>
         <div class="ui form" style="font-size: 12px;font-weight:bold;">
 
@@ -29,6 +29,10 @@
                 <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
                 {{ form.name }}
               </div>
+              <div class="two wide field">
+                <label for="id_name" style="text-align: left;">Centrale Fille de ratachement&nbsp;:</label>
+                {{ form.child_center }}
+              </div>
               <div class="three wide field">
                 <label for="id_sale_price_category" style="text-align: left;">Catégorie de prix générique&nbsp;:</label>
                 {{ form.sale_price_category }}
@@ -37,7 +41,6 @@
                 <label for="id_generic_coefficient" style="text-align: left;">Coef. générique&nbsp;:</label>
                 {{ form.generic_coefficient }}
               </div>
-
           </div>
 
           <div class="fields">
@@ -81,6 +84,33 @@
               <div class="sixteen wide field">
                 <label for="id_comment" style="text-align: left;">Message à mettre sur facture&nbsp;:</label>
                 {{ form.message }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="sixteen wide field">
+                <label for="id_email_object" style="text-align: left;">Objet email&nbsp;:</label>
+                {{ form.email_object }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="sixteen wide field">
+                <label for="id_email_template" style="text-align: left;">Template début de l'email&nbsp;:</label>
+                {{ form.email_template }}
+              </div>
+
+          </div>
+
+          <div class="fields">
+
+              <div class="sixteen wide field">
+                <label for="id_email_corp" style="text-align: left;">Corps de l'email&nbsp;:</label>
+                {{ form.email_corp }}
               </div>
 
           </div>

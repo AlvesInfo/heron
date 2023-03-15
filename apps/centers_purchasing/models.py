@@ -149,6 +149,9 @@ class Signboard(FlagsTable):
         related_name="enseigne_centrale_fille",
         db_column="child_center",
     )
+    email_object = models.CharField(null=True, blank=True, max_length=255, verbose_name="objet")
+    email_template = models.TextField(null=True, blank=True, verbose_name="entete template")
+    email_corp = models.TextField(null=True, blank=True, verbose_name="corp de mail")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
