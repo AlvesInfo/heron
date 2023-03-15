@@ -105,9 +105,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
                 return (
                     "_".join(name.split("_")[:-1])
                     + "_"
-                    + str(Society.objects.get(third_party_num=attr_instance).third_party_num).replace(
-                        " ", ""
-                    )
+                    + str(
+                        Society.objects.get(third_party_num=attr_instance).third_party_num
+                    ).replace(" ", "")
                 )
         except Society.DoesNotExist:
             return name.split("_")[0]
@@ -117,7 +117,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
             if not attr_instance:
                 return ""
             else:
-                return str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(" ", "")
+                return str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(
+                    " ", ""
+                )
         except Maison.DoesNotExist:
             return ""
 
@@ -142,7 +144,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
                 return (
                     "_".join(name.split("_")[:-1])
                     + "_"
-                    + str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(" ", "")
+                    + str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(
+                        " ", ""
+                    )
                 )
         except Maison.DoesNotExist:
             return name.split("_")[0]
