@@ -85,13 +85,13 @@ class CosiumTransfertSchema(
     acuitis_order_date: datetime.datetime
     uuid_identification: uuid.UUID
 
-    # @validator('acuitis_order_date', pre=True)
-    # def check_acuitis_order_date(cls, value):
-    #
-    #     if not value or value == "None":
-    #         return datetime.datetime(1900, 1, 1)
-    #
-    #     return value
+    @validator('acuitis_order_date', pre=True)
+    def check_acuitis_order_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
 
     class Config:
         """Config"""

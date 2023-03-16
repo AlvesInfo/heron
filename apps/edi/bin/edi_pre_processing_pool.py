@@ -20,6 +20,7 @@ from decimal import Decimal
 import pendulum
 
 from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_dates import validate_date
 from apps.core.bin.get_sage_elements import (
     get_uuid_pys,
     get_uuid_pro,
@@ -176,7 +177,7 @@ def transferts_cosium_file(file: Path):
                     )
                     csv_writer.writerow(entetes_list)
                 else:
-                    date_cosium = pendulum.from_format(rows[0][0], "DD/MM/YYYY")
+                    date_cosium = pendulum.from_format(validate_date(rows[0][0]).date().isoformat(), "YYYY-MM-DD")
                     invoice_date = date_cosium.end_of("month")
                     invoice_number = f"TS-{invoice_date.date().isoformat()}"
                     qty = Decimal(rows[3][0])

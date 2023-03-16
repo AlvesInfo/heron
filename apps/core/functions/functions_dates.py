@@ -1,6 +1,7 @@
 """
 Module d'itilisation des dates
 """
+from typing import AnyStr
 import datetime
 import calendar
 from datetime import timedelta
@@ -888,3 +889,54 @@ def date_today():
     :return: Date du jour
     """
     return datetime.date.today()
+
+
+def validate_date(value: AnyStr):
+    """
+    Fonction de validation et renvoie de la date au format datetime date
+    :param value: valeur à transformer
+    :return:
+    """
+    value = str(value).strip()
+    dte_value = None
+
+    try:
+        dte_value = datetime.datetime.strptime(value, "%Y-%m-%d")
+        return dte_value
+    except ValueError:
+        pass
+
+    try:
+        dte_value = datetime.datetime.strptime(value, "%d/%m/%Y")
+        return dte_value
+    except ValueError:
+        pass
+
+    try:
+        dte_value = datetime.datetime.strptime(value, "%d.%m.%Y")
+        return dte_value
+    except ValueError:
+        pass
+
+    try:
+        dte_value = datetime.datetime.strptime(value, "%d-%m-%Y")
+        return dte_value
+    except ValueError:
+        pass
+
+    try:
+        dte_value = datetime.datetime.strptime(value, "%Y%m%d")
+        return dte_value
+    except ValueError:
+        pass
+
+    try:
+        dte_value = datetime.datetime.strptime(value, "%d/%m/%y")
+        return dte_value
+    except ValueError:
+        pass
+
+    if dte_value is None:
+        raise ValueError("Erreur de date : core.functions.functions_dates.validate_date")
+
+    return dte_value
