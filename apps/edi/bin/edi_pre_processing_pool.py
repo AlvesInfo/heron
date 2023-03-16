@@ -173,7 +173,7 @@ def transferts_cosium_file(file: Path):
                         + rows[0]
                         + ["code_fournisseur", "code_maison"]
                         + rows[3]
-                        + rows[4]
+                        + rows[5]
                     )
                     csv_writer.writerow(entetes_list)
                 else:
@@ -199,7 +199,7 @@ def transferts_cosium_file(file: Path):
                             + rows[1]
                             + rows[1]
                             + [-qty]
-                            + rows[4]
+                            + rows[5]
                         )
                         csv_writer.writerow(
                             [
@@ -214,7 +214,7 @@ def transferts_cosium_file(file: Path):
                             + rows[2]
                             + rows[2]
                             + [qty]
-                            + rows[4]
+                            + rows[5]
                         )
 
     file.unlink()
