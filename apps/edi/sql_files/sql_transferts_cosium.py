@@ -35,16 +35,37 @@ post_transfert_cosium_dict = {
     "sql_update_articles": sql.SQL(
         """
         update "edi_ediimport" edi 
-        set "uuid_big_category" = (
-                    select 
-                        uuid_identification 
-                      from parameters_category 
-                     where slug_name = 'marchandises'
-                     limit 1
-                ),
+        set 
+            "axe_bu" = maj."axe_bu",
+            "axe_prj" = maj."axe_prj",
+            "axe_pro" = maj."axe_pro",
+            "axe_pys"  = maj."axe_pys",
+            "axe_rfa" = maj."axe_rfa",
+            "uuid_big_category" = maj."uuid_big_category",
+            "uuid_sub_big_category" = maj."uuid_sub_big_category",
             "origin" = 1
-        where edi."uuid_identification" = %(uuid_identification)s
-          and (edi."valid" = false or edi."valid" isnull)
+        from (
+            select 
+                ee."id", 
+                aa."axe_bu", 
+                aa."axe_prj", 
+                aa."axe_pro", 
+                aa."axe_pys", 
+                aa."axe_rfa",
+                aa."uuid_big_category",
+                aa."uuid_sub_big_category"
+            from "edi_ediimport" ee 
+            join "articles_article" aa 
+            on ee."reference_article" = aa."reference" 
+            and ee."third_party_num" = 'BBGR002'
+            where ee."uuid_identification" = %(uuid_identification)s
+            and (ee."valid" = false or ee."valid" isnull)
+            and ee."axe_pro" isnull
+            and aa."axe_pro" is not null
+        ) maj
+        where edi."id" = maj."id" 
+        and edi."uuid_identification" = %(uuid_identification)s
+        and (edi."valid" = false or edi."valid" isnull)
     """
     ),
 }
