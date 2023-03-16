@@ -57,11 +57,9 @@ post_transfert_cosium_dict = {
             from "edi_ediimport" ee 
             join "articles_article" aa 
             on ee."reference_article" = aa."reference" 
-            and ee."third_party_num" = 'BBGR002'
+            and aa."third_party_num" = 'BBGR002'
             where ee."uuid_identification" = %(uuid_identification)s
             and (ee."valid" = false or ee."valid" isnull)
-            and ee."axe_pro" isnull
-            and aa."axe_pro" is not null
         ) maj
         where edi."id" = maj."id" 
         and edi."uuid_identification" = %(uuid_identification)s

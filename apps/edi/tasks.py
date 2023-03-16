@@ -198,17 +198,14 @@ def launch_sql_clean_general(start_all):
 
     try:
         post_processing_all()
-        print("post_processing_all terminé")
-
-        set_exclusions()
-        print("exclusions terminées")
-
-        post_common()
-        print("post_common terminé")
-        EDI_LOGGER.warning("post_common terminé")
         EDI_LOGGER.warning("post_processing_all terminé")
 
-        print(f"All validations : {time.time() - start_all} s")
+        post_common()
+        EDI_LOGGER.warning("post_common terminé")
+
+        set_exclusions()
+        EDI_LOGGER.warning("exclusions terminées")
+
         EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
 
     except Exception as except_error:
