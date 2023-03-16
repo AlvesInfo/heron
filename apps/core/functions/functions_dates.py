@@ -937,6 +937,9 @@ def validate_date(value: AnyStr):
         pass
 
     if dte_value is None:
-        raise ValueError("Erreur de date : core.functions.functions_dates.validate_date")
+        raise ValueError(
+            f"Erreur de date : core.functions.functions_dates.validate_date, "
+            f"value passée à la fonction : {value!r}"
+        )
 
     return dte_value
