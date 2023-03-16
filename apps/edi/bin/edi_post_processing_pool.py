@@ -246,11 +246,15 @@ def tansferts_cosium_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_amounts = post_transfert_cosium_dict.get("sql_amounts")
-    sql_update_articles = post_transfert_cosium_dict.get("sql_update_articles")
+    sql_articles_cosium = post_transfert_cosium_dict.get("sql_articles_cosium")
+    sql_articles_cosium_acuitis = post_transfert_cosium_dict.get("sql_articles_cosium_acuitis")
+    sql_articles_base_cosium = post_transfert_cosium_dict.get("sql_articles_base_cosium")
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_amounts, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_update_articles, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_articles_cosium, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_articles_cosium_acuitis, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_articles_base_cosium, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
 
 
