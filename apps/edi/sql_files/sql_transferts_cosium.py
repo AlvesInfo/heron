@@ -115,7 +115,7 @@ post_transfert_cosium_dict = {
                 ee.reference_article,
                 (select axe_bu from parameters_defaultaxearticle pd limit 1) as axe_bu,
                 (select axe_prj from parameters_defaultaxearticle pd limit 1) as axe_prj,
-                (select axe_pys  from parameters_defaultaxearticle pd limit 1) as axe_pro,
+                (select axe_pys  from parameters_defaultaxearticle pd limit 1) as axe_pys,
                 bs.axe_pro,
                 (select axe_rfa  from parameters_defaultaxearticle pd limit 1) as axe_rfa,
                 bs.uuid_big_category,
