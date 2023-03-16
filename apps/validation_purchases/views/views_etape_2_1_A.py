@@ -9,7 +9,7 @@ from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs import (
-    excel_supplier_purchases,
+    excel_supplier_purchases, excel_transfers_cosium
 )
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
@@ -115,7 +115,7 @@ def integration_supplier_purchases_export(request, enc_param):
                 "invoice_month": invoice_month,
             }
             return response_file(
-                excel_supplier_purchases,
+                excel_transfers_cosium if supplier == "COSIUM TRANSFERTS" else excel_supplier_purchases,
                 file_name,
                 CONTENT_TYPE_EXCEL,
                 attr_dict,
