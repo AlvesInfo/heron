@@ -7,6 +7,7 @@ import pickle
 
 import pendulum
 from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.core.files import File
@@ -232,3 +233,28 @@ def filter_list_maisons_api(request):
     context = {}
 
     return render(request, "centers_clients/maisons_list_to_pick.html", context=context)
+
+
+def emails_rest_api_query(request, query):
+    """Views pour ramener les emails en cas de changement de tiers X3"""
+    if request.is_ajax() and request.method == "GET":
+        dic = {"success": "ko", "message": ""}
+
+        try:
+            if len(query) == 14:
+                query = query[:13]
+
+            articles = Maison.objects.annotate().values("id", "cct")
+
+            if articles.count() > 30:
+                dic = {"success": []}
+            else:
+                dic = {"success": [{**dic} for dic in articles]}
+
+        except:
+            LOGGER_VIEWS.exception("emails_rest_api_query")
+
+        response = JsonResponse(dic)
+        return HttpResponse(response)
+
+    return redirect("home")
