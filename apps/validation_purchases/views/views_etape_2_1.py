@@ -18,6 +18,9 @@ from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
+from apps.validation_purchases.excel_outputs import (
+    excel_supplier_purchases,
+)
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
