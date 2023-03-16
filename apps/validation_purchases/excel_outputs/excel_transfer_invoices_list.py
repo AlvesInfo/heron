@@ -220,20 +220,6 @@ def get_rows(parmas_dict: Dict = None):
           and date_trunc('month', invoice_date)::date = %(invoice_month)s
           and (ee."delete" = false or ee."delete" isnull)
           and ee."valid" = true
-        group by supplier,
-                 invoice_number,
-                 invoice_date,
-                 invoice_amount_without_tax,
-                 invoice_amount_tax,
-                 invoice_amount_with_tax,
-                 invoice_month,
-                 ee.third_party_num,
-                 ee.uuid_identification,
-                 ee.invoice_year,
-                 ee."invoice_type",
-                 ee."is_multi_store"
-        order by ee."invoice_type" desc,
-                 "invoice_number"
         group by ee.third_party_num, 
             bs."name", 
             ccm.cct, 
@@ -245,7 +231,7 @@ def get_rows(parmas_dict: Dict = None):
         order by hbm.reference_cosium, 
             invoice_date 
         """
-        # print(cursor.mogrify(query).decode())
+        # print(cursor.mogrify(query, parmas_dict).decode())
         # print(query)
         cursor.execute(query, parmas_dict)
         return cursor.fetchall()
