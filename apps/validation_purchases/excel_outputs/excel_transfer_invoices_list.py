@@ -202,8 +202,13 @@ def get_rows(parmas_dict: Dict = None):
             ee.third_party_num, 
             bs."name", 
             ccm.cct, 
-            ccm.intitule, 
             hbm.reference_cosium, 
+            ccm.intitule, 
+            case 
+                when ee.invoice_type = '380' 
+                then 'FAF'
+                else 'AVO'
+            end as type_piece,
             ee.invoice_number, 
             invoice_date, 
             sum(net_amount) as montant, 
@@ -227,7 +232,8 @@ def get_rows(parmas_dict: Dict = None):
             hbm.reference_cosium, 
             ee.invoice_number, 
             invoice_date, 
-            invoice_month
+            invoice_month,
+            ee.invoice_type
         order by hbm.reference_cosium, 
             invoice_date 
         """
