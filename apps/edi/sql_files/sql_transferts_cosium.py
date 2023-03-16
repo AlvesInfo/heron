@@ -27,7 +27,8 @@ post_transfert_cosium_dict = {
             round(("qty"*"net_unit_price")::numeric, 2)::numeric
         ),
         "purchase_invoice" = false,
-        "sale_invoice" = true
+        "sale_invoice" = true,
+        "origin" = 1
     where "uuid_identification" = %(uuid_identification)s
       and ("valid" = false or "valid" isnull)
     """
@@ -42,8 +43,7 @@ post_transfert_cosium_dict = {
             "axe_pys"  = maj."axe_pys",
             "axe_rfa" = maj."axe_rfa",
             "uuid_big_category" = maj."uuid_big_category",
-            "uuid_sub_big_category" = maj."uuid_sub_big_category",
-            "origin" = 1
+            "uuid_sub_big_category" = maj."uuid_sub_big_category"
         from (
             select 
                 ee."id", 
