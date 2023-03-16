@@ -17,6 +17,7 @@ import uuid
 from django.db import models
 from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from heron.models import FlagsTable
 
@@ -304,9 +305,30 @@ class Maison(FlagsTable):
     integrable = models.BooleanField(null=True, default=True, verbose_name="à intégrer X3")
     chargeable = models.BooleanField(null=True, default=True, verbose_name="à refacturer")
     od_ana = models.BooleanField(null=True, default=False, verbose_name="OD Analytique")
+    axe_bu = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "BU"},
+        related_name="cct_bu",
+        db_column="axe_bu",
+    )
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    def clean(self):
+        # Ensures constraint on model level, raises ValidationError
+        if self.od_ana and not self.axe_bu:
+            # raise error for field
+            raise ValidationError(
+                {"axe_bu": _("Si vous avez sélectionné ODANA, Alors l'axe BU est obligatoire!")}
+            )
+
+        if not self.od_ana:
+            self.axe_bu = None
 
     def save(self, *args, **kwargs):
         """

@@ -263,7 +263,8 @@ class Counter(FlagsTable):
             models.CheckConstraint(check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
         ]
 
-    def bool_function(self, function):
+    @staticmethod
+    def bool_function(function):
         if function is None:
             return False
 

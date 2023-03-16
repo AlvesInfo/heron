@@ -3,8 +3,8 @@
 Forms des Maisons
 """
 from django import forms
-
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
+from django.forms import CheckboxInput
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT, CHECK_BOX_DICT
 from apps.book.models import Society
 from apps.accountancy.models import CctSage
 from apps.centers_clients.models import (
@@ -58,9 +58,10 @@ class MaisonForm(forms.ModelForm):
             "prov_account",
             "extourne_account",
             "budget_code",
-            "integrable",
-            "chargeable",
+            # "integrable",
+            # "chargeable",
             "od_ana",
+            "axe_bu",
         ]
 
         widgets = {
@@ -80,6 +81,8 @@ class MaisonForm(forms.ModelForm):
             "prov_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "extourne_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "budget_code": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "axe_bu": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "od_ana": CheckboxInput(attrs=CHECK_BOX_DICT)
         }
 
 
