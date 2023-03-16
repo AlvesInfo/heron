@@ -137,7 +137,7 @@ post_transfert_cosium_dict = {
                     or 
                     uuid_big_category  is null 
                 )
-                and edi."uuid_identification" = %(uuid_identification)s
+                and "uuid_identification" = %(uuid_identification)s
                 group by reference_article, famille
             ) ee 
             join (
