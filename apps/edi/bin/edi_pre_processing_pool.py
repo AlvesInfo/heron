@@ -177,7 +177,9 @@ def transferts_cosium_file(file: Path):
                     )
                     csv_writer.writerow(entetes_list)
                 else:
-                    date_cosium = pendulum.from_format(validate_date(rows[0][0]).date().isoformat(), "YYYY-MM-DD")
+                    date_cosium = pendulum.from_format(
+                        validate_date(rows[0][0]).date().isoformat(), "YYYY-MM-DD"
+                    )
                     invoice_date = date_cosium.end_of("month")
                     invoice_number = f"TS-{invoice_date.date().isoformat()}"
                     qty = Decimal(rows[3][0])
@@ -287,9 +289,7 @@ def z_bu_refac_file(file: Path) -> Path:
             lineterminator="\n",
             quoting=csv.QUOTE_MINIMAL,
         )
-        csv_writer = csv.writer(
-            file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
-        )
+        csv_writer = csv.writer(file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
 
         for i, line in enumerate(csv_reader, 1):
             if i == 1:
@@ -311,7 +311,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     montant,
                     tva,
                     libelle,
-                    *unity
+                    *unity,
                 ) = line
 
                 vat_sage = ("000" + str(tva))[-3:]
