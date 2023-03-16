@@ -43,7 +43,6 @@ from apps.users.models import User
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     cosium,
-    transfert_cosium,
     edi,
     eye_confort,
     generique,
@@ -57,6 +56,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     signia,
     starkey,
     technidis,
+    transfert_cosium,
     unitron,
     widex,
     widex_ga,
