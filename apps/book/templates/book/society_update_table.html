@@ -4,7 +4,7 @@
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Tiers X3 <span style="font-size: 11px;">(Données issues de Sage)</span></h3>
+        <h4 class="ui floated header" style="margin-bottom: 5px;">Tiers X3 <span style="font-size: 11px;">(Données issues de Sage)</span></h4>
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
@@ -141,6 +141,27 @@
                            style="background-color: #efefff;font-weight: bold;">
               </div>
 
+              <div class="two wide field">
+                <label for="id_phone_number_01" style="text-align: left;">Téléphone&nbsp;:</label>
+                    <input type="text"
+                           name="phone_number_01"
+                           value="{{ adresse_principale_sage.phone_number_01|default_if_none:'' }}"
+                           required=""
+                           id="id_phone_number_01"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+              </div>
+              <div class="two wide field">
+                <label for="id_mobile_number" style="text-align: left;">Mobile&nbsp;:</label>
+                    <input type="text"
+                           name="mobile_number"
+                           value="{{ adresse_principale_sage.mobile_number|default_if_none:'' }}"
+                           required=""
+                           id="id_mobile_number"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+              </div>
+
           </div>
 
           <div class="fields">
@@ -251,79 +272,79 @@
         </div>
 
 {#      <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
-      <h3 class="ui floated header" style="margin-bottom: 5px;">Compte Bancaire <span style="font-size: 11px;">(Données issues de Sage)</span></h3>
-        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
-        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-
-          <div class="fields">
-              <div class="one wide field">
-                <label for="id_currency" style="text-align: left;">Devise&nbsp;:</label>
-                    <input type="text"
-                           name="currency"
-                           value="{{ compte_banque.currency }}"
-                           required=""
-                           id="id_currency"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-              <div class="one wide field">
-                <label for="id_iban_prefix" style="text-align: left;">Iban&nbsp;:</label>
-                    <input type="text"
-                           name="iban_prefix"
-                           value="{{ compte_banque.iban_prefix }}"
-                           required=""
-                           id="id_iban_prefix"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-              <div class="three wide field">
-                <label for="id_account_number" style="text-align: left;">N° Compte&nbsp;:</label>
-                    <input type="text"
-                           name="account_number"
-                           value="{{ compte_banque.account_number }}"
-                           required=""
-                           id="id_account_number"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-              <div class="three wide field">
-                <label for="id_domiciliation_01" style="text-align: left;">Domiciliation&nbsp;:</label>
-                    <input type="text"
-                           name="domiciliation_01"
-                           value="{{ compte_banque.domiciliation_01 }}"
-                           required=""
-                           id="id_domiciliation_01"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-              <div class="three wide field">
-                <label for="id_payee" style="text-align: left;">Bénéficiaire&nbsp;:</label>
-                    <input type="text"
-                           name="payee"
-                           value="{{ compte_banque.payee }}"
-                           required=""
-                           id="id_payee"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-              <div class="two wide field">
-                <label for="id_bic_code" style="text-align: left;">BIC/SWIFT&nbsp;:</label>
-                    <input type="text"
-                           name="bic_code"
-                           value="{{ compte_banque.bic_code }}"
-                           required=""
-                           id="id_bic_code"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-
-          </div>
-        </div>
+{#      <h4 class="ui floated header" style="margin-bottom: 5px;">Compte Bancaire <span style="font-size: 11px;">(Données issues de Sage)</span></h4>#}
+{#        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
+{#        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">#}
+{##}
+{#          <div class="fields">#}
+{#              <div class="one wide field">#}
+{#                <label for="id_currency" style="text-align: left;">Devise&nbsp;:</label>#}
+{#                    <input type="text"#}
+{#                           name="currency"#}
+{#                           value="{{ compte_banque.currency }}"#}
+{#                           required=""#}
+{#                           id="id_currency"#}
+{#                           readonly#}
+{#                           style="background-color: #efefff;font-weight: bold;">#}
+{#              </div>#}
+{#              <div class="one wide field">#}
+{#                <label for="id_iban_prefix" style="text-align: left;">Iban&nbsp;:</label>#}
+{#                    <input type="text"#}
+{#                           name="iban_prefix"#}
+{#                           value="{{ compte_banque.iban_prefix }}"#}
+{#                           required=""#}
+{#                           id="id_iban_prefix"#}
+{#                           readonly#}
+{#                           style="background-color: #efefff;font-weight: bold;">#}
+{#              </div>#}
+{#              <div class="three wide field">#}
+{#                <label for="id_account_number" style="text-align: left;">N° Compte&nbsp;:</label>#}
+{#                    <input type="text"#}
+{#                           name="account_number"#}
+{#                           value="{{ compte_banque.account_number }}"#}
+{#                           required=""#}
+{#                           id="id_account_number"#}
+{#                           readonly#}
+{#                           style="background-color: #efefff;font-weight: bold;">#}
+{#              </div>#}
+{#              <div class="three wide field">#}
+{#                <label for="id_domiciliation_01" style="text-align: left;">Domiciliation&nbsp;:</label>#}
+{#                    <input type="text"#}
+{#                           name="domiciliation_01"#}
+{#                           value="{{ compte_banque.domiciliation_01 }}"#}
+{#                           required=""#}
+{#                           id="id_domiciliation_01"#}
+{#                           readonly#}
+{#                           style="background-color: #efefff;font-weight: bold;">#}
+{#              </div>#}
+{#              <div class="three wide field">#}
+{#                <label for="id_payee" style="text-align: left;">Bénéficiaire&nbsp;:</label>#}
+{#                    <input type="text"#}
+{#                           name="payee"#}
+{#                           value="{{ compte_banque.payee }}"#}
+{#                           required=""#}
+{#                           id="id_payee"#}
+{#                           readonly#}
+{#                           style="background-color: #efefff;font-weight: bold;">#}
+{#              </div>#}
+{#              <div class="two wide field">#}
+{#                <label for="id_bic_code" style="text-align: left;">BIC/SWIFT&nbsp;:</label>#}
+{#                    <input type="text"#}
+{#                           name="bic_code"#}
+{#                           value="{{ compte_banque.bic_code }}"#}
+{#                           required=""#}
+{#                           id="id_bic_code"#}
+{#                           readonly#}
+{#                           style="background-color: #efefff;font-weight: bold;">#}
+{#              </div>#}
+{##}
+{#          </div>#}
+{#        </div>#}
 
 
 {#        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
 
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Adresse Sage X3 <span style="font-size: 11px;">(Adresse par défaut, dans Sage)</span></h3>
+        <h4 class="ui floated header" style="margin-bottom: 5px;">Adresse Sage X3 <span style="font-size: 11px;">(Adresse par défaut, dans Sage)</span></h4>
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
@@ -338,7 +359,7 @@
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
               </div>
-              <div class="five wide field">
+              <div class="four wide field">
                 <label for="id_line_01" style="text-align: left;">Immeuble&nbsp;:</label>
                     <input type="text"
                            name="line_01"
@@ -348,7 +369,7 @@
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
               </div>
-              <div class="six wide field">
+              <div class="four wide field">
                 <label for="id_line_02" style="text-align: left;">Adresse&nbsp;:</label>
                     <input type="text"
                            name="line_02"
@@ -358,10 +379,6 @@
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
               </div>
-
-          </div>
-
-          <div class="fields">
 
               <div class="one wide field">
                 <label for="id_postal_code" style="text-align: left;">Code Postal&nbsp;:</label>
@@ -373,7 +390,7 @@
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
               </div>
-              <div class="five wide field">
+              <div class="four wide field">
                 <label for="id_city" style="text-align: left;">Ville&nbsp;:</label>
                     <input type="text"
                            name="city"
@@ -392,28 +409,10 @@
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
               </div>
-              <div class="two wide field">
-                <label for="id_phone_number_01" style="text-align: left;">Téléphone&nbsp;:</label>
-                    <input type="text"
-                           name="phone_number_01"
-                           value="{{ adresse_principale_sage.phone_number_01|default_if_none:'' }}"
-                           required=""
-                           id="id_phone_number_01"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
-              <div class="two wide field">
-                <label for="id_mobile_number" style="text-align: left;">e-mail&nbsp;:</label>
-                    <input type="text"
-                           name="mobile_number"
-                           value="{{ adresse_principale_sage.mobile_number|default_if_none:'' }}"
-                           required=""
-                           id="id_mobile_number"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-              </div>
+          </div>
+            <div class="fields">
               <div class="four wide field">
-                <label for="id_email_01" style="text-align: left;">Mobile&nbsp;:</label>
+                <label for="id_email_01" style="text-align: left;">EMAIL 01&nbsp;:</label>
                     <input type="text"
                            name="email_01"
                            value="{{ adresse_principale_sage.email_01|default_if_none:''}}"
@@ -422,14 +421,54 @@
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
               </div>
-          </div>
+              <div class="four wide field">
+                <label for="id_email_02" style="text-align: left;">EMAIL 02&nbsp;:</label>
+                    <input type="text"
+                           name="email_02"
+                           value="{{ adresse_principale_sage.email_02|default_if_none:''}}"
+                           required=""
+                           id="id_email_02"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+              </div>
+              <div class="four wide field">
+                <label for="id_email_03" style="text-align: left;">EMAIL 03&nbsp;:</label>
+                    <input type="text"
+                           name="email_03"
+                           value="{{ adresse_principale_sage.email_03|default_if_none:''}}"
+                           required=""
+                           id="id_email_03"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+              </div>
+              <div class="four wide field">
+                <label for="id_email_04" style="text-align: left;">EMAIL 04&nbsp;:</label>
+                    <input type="text"
+                           name="email_04"
+                           value="{{ adresse_principale_sage.email_04|default_if_none:''}}"
+                           required=""
+                           id="id_email_04"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+              </div>
+              <div class="four wide field">
+                <label for="id_email_05" style="text-align: left;">EMAIL 05&nbsp;:</label>
+                    <input type="text"
+                           name="email_05"
+                           value="{{ adresse_principale_sage.email_05|default_if_none:''}}"
+                           required=""
+                           id="id_email_05"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+              </div>
+            </div>
         </div>
       </div>
     </div>
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
       <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Identifiants et RFA</h3>
+        <h4 class="ui floated header" style="margin-bottom: 5px;">Identifiants et RFA</h4>
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 
@@ -498,7 +537,7 @@
         </div>
 {#          <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
 
-        <h3 class="ui floated header" style="margin-bottom: 5px;">Adresse pour la Centrale d'achat</h3>
+        <h4 class="ui floated header" style="margin-bottom: 5px;">Adresse pour la Centrale d'achat</h4>
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
 

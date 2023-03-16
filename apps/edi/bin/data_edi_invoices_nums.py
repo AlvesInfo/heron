@@ -14,8 +14,8 @@ modified by: Paulo ALVES
 from typing import AnyStr
 
 
-def invoices_manual_entries_nums(third_: AnyStr):
+def invoices_manual_entries_nums(third_party_num: AnyStr):
     """Génération d'un numéro de facture, pour celles saisies manuellement
-    :param attr:
+    :param third_party_num: N° Tiers
     :return: invoice_num
     """

@@ -772,8 +772,8 @@ class BookAdressesSage:
             "email_02": 18,
             "email_03": 19,
             "email_04": 20,
-            "email_05": 20,
-            "web_site": 21,
+            "email_05": 21,
+            "web_site": 22,
         }
 
     @staticmethod
