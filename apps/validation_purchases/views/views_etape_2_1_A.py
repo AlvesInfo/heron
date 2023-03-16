@@ -100,7 +100,6 @@ def integration_supplier_purchases_export(request, enc_param):
     """
     try:
         if request.method == "GET":
-            LOGGER_VIEWS.exception(f"{str(get_base_64(enc_param))!r}")
             third_party_num, supplier, invoice_month, *_ = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (
