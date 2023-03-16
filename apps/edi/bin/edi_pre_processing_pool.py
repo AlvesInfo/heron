@@ -173,8 +173,9 @@ def transferts_cosium_file(file: Path):
                         + rows[0]
                         + ["code_fournisseur", "code_maison"]
                         + rows[3]
-                        + rows[5]
+                        + rows[4]
                     )
+                    print(entetes_list)
                     csv_writer.writerow(entetes_list)
                 else:
                     date_cosium = pendulum.from_format(
@@ -186,6 +187,21 @@ def transferts_cosium_file(file: Path):
 
                     if qty:
                         rows[4][1] = str(rows[4][1]).replace("\r", "").replace("\n", " ")
+                        print(
+                            [
+                                "COSI001",
+                                invoice_number,
+                                invoice_date.format("DD/MM/YYYY"),
+                                "380",
+                                "EUR",
+                                ".2",
+                            ]
+                            + rows[0]
+                            + rows[1]
+                            + rows[1]
+                            + [-qty]
+                            + rows[4]
+                        )
                         csv_writer.writerow(
                             [
                                 "COSI001",
@@ -199,7 +215,7 @@ def transferts_cosium_file(file: Path):
                             + rows[1]
                             + rows[1]
                             + [-qty]
-                            + rows[5]
+                            + rows[4]
                         )
                         csv_writer.writerow(
                             [
@@ -214,7 +230,7 @@ def transferts_cosium_file(file: Path):
                             + rows[2]
                             + rows[2]
                             + [qty]
-                            + rows[5]
+                            + rows[4]
                         )
 
     file.unlink()
