@@ -43,7 +43,7 @@ class MaisonsList(ListView):
         "language",
         "pays__country_name",
         "od_ana",
-        "axe_bu__name",
+        "axe_bu__section",
     )
     context_object_name = "maisons"
     template_name = "centers_clients/clients_list.html"
