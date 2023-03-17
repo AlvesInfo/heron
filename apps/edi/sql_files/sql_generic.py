@@ -39,6 +39,7 @@ post_generic_dict = {
                                 then -abs("net_amount")::numeric
                             end
         where "uuid_identification" = %(uuid_identification)s
+        and "third_party_num" = 'MGDE001' 
         and ("valid" = false or "valid" isnull)
         """
     ),
