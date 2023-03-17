@@ -245,16 +245,16 @@
                 {{ form.sage_vat_by_default }}
               </div>
               <div class="two wide field">
-                <label for="id_sage_plan_code" style="text-align: left;">Plan Compte X3&nbsp;:</label>
-                {{ form.sage_plan_code }}
-              </div>
-              <div class="two wide field">
                 <label for="id_rfa_frequence" style="text-align: left;">Fréquence RFA&nbsp;:</label>
                 {{ form.rfa_frequence }}
               </div>
               <div class="two wide field">
                 <label for="id_rfa_remise" style="text-align: left;">Remise RFA&nbsp;:</label>
                 {{ form.rfa_remise }}
+              </div>
+              <div class="one wide field">
+                <label for="id_sage_plan_code" style="text-align: left;">Plan Compte X3&nbsp;:</label>
+                {{ form.sage_plan_code }}
               </div>
 {#              <div class="one wide field">#}
 {#                <label for="id_integrable" style="text-align: left;">INTEGRABLE X3&nbsp;:</label>#}
@@ -276,9 +276,13 @@
                 <label for="id_od_ana" style="text-align: center;padding-right: 17px;">ODANA</label>
                 {{ form.od_ana }}
               </div>
-              <div class="one wide field">
+              <div class="two wide field">
                   <label for="id_axe_bu" style="text-align: left;">AXE BU&nbsp;:</label>
                   {{ form.axe_bu }}
+              </div>
+              <div class="two wide field">
+                  <label for="id_reference_cosium" style="text-align: left;">Référence Cosium&nbsp;:</label>
+                  {{ form.reference_cosium }}
               </div>
           </div>
         </div>
