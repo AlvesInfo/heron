@@ -512,11 +512,15 @@ def starkey_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_update = post_starkey_dict.get("sql_update")
+    sql_copie_envoi_depot = post_starkey_dict.get("sql_copie_envoi_depot")
+    sql_delete_envoi_depot = post_starkey_dict.get("sql_delete_envoi_depot")
     sql_update_units = post_starkey_dict.get("sql_update_units")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_copie_envoi_depot, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_delete_envoi_depot, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
 

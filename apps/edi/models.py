@@ -203,6 +203,172 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         ]
 
 
+class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
+    """
+    Table de dépôts STARKEY
+    FR : Table Import EDI
+    EN : Edi Import table
+    """
+
+    uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
+    third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
+    supplier = models.CharField(null=True, blank=True, max_length=35)
+    supplier_name = models.CharField(null=True, blank=True, max_length=80)
+    supplier_ident = models.CharField(null=True, blank=True, max_length=20)
+    siret_payeur = models.CharField(null=True, blank=True, max_length=20)
+    code_fournisseur = models.CharField(null=True, blank=True, max_length=30)
+    code_maison = models.CharField(null=True, blank=True, max_length=30)
+    maison = models.CharField(null=True, blank=True, max_length=80, verbose_name="libellé maison")
+
+    famille = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="IMD avec F 1ère position"
+    )
+    unit_weight = models.CharField(null=True, blank=True, max_length=20)
+    packaging_qty = models.DecimalField(
+        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 52"
+    )
+
+    vat_rate = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="taux de tva TAX avec 7 quand ALC avec Y",
+    )
+    packaging_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix emballage MOA avec 8 quand ALC avec M et PC",
+    )
+    transport_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix transport MOA avec 8 quand ALC avec M et FC",
+    )
+    insurance_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix assurance",
+    )
+    fob_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix transport MOA avec 8 quand ALC avec M et FC",
+    )
+    fees_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="prix assurance",
+    )
+    serial_number = models.TextField(null=True, blank=True)
+    active = models.BooleanField(null=True, default=False)
+    to_delete = models.BooleanField(null=True, default=False)
+    to_export = models.BooleanField(null=True, default=False)
+    valid = models.BooleanField(null=True, default=False)
+    vat_rate_exists = models.BooleanField(null=True, default=False)
+    supplier_exists = models.BooleanField(null=True, default=False)
+    maison_exists = models.BooleanField(null=True, default=False)
+    article_exists = models.BooleanField(null=True, default=False)
+    axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
+    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
+    # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
+
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="+",
+        db_column="uuid_big_category",
+    )
+    sub_category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="+",
+        db_column="uuid_sub_big_category",
+    )
+    uuid_control = models.ForeignKey(
+        EdiImportControl,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="+",
+        db_column="uuid_control",
+    )
+    vat = models.ForeignKey(
+        VatSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="vat",
+        db_column="vat",
+    )
+    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
+    cct_uuid_identification = models.ForeignKey(
+        Maison,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        verbose_name="CCT x3",
+        db_column="cct_uuid_identification",
+    )
+
+    # pour vérifier si les factures sont multi magasins
+    is_multi_store = models.BooleanField(null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        FR : Avant la sauvegarde on clean les données
+        EN : Before the backup we clean the data
+        """
+        if not self.invoice_month:
+            self.invoice_month = pendulum.parse(self.invoice_date.isoformat()).start_of("month")
+
+        if not self.invoice_year:
+            self.invoice_year = self.invoice_date.year
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        """Class Meta Django"""
+
+        indexes = [
+            models.Index(fields=["cct_uuid_identification"]),
+            models.Index(fields=["valid"]),
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["supplier_ident"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(fields=["invoice_number"]),
+            models.Index(fields=["id"]),
+            models.Index(fields=["is_multi_store"]),
+            models.Index(fields=["third_party_num", "supplier_ident", "valid"]),
+            models.Index(fields=["uuid_identification", "invoice_number"]),
+            models.Index(fields=["id", "valid"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "uuid_identification",
+                    "invoice_number",
+                    "is_multi_store",
+                    "valid",
+                ]
+            ),
+        ]
+
+
 class SupplierDefinition(DatesTable):
     """Table de définition des entêtes des fichiers fournisseurs"""
 

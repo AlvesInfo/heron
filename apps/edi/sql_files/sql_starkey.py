@@ -55,4 +55,22 @@ post_starkey_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_copie_envoi_depot": sql.SQL(
+        """
+        insert into "edi_starkeydepot"
+        select * from "edi_ediimport" ee
+        where ee."uuid_identification" = %(uuid_identification)s
+        and ee."comment" = 'ENVOI_DEPOT'
+        and (ee."valid" = false or ee."valid" isnull)
+        on conlict do nothing
+        """
+    ),
+    "sql_delete_envoi_depot": sql.SQL(
+        """
+        delete from "edi_ediimport"
+        where "uuid_identification" = %(uuid_identification)s
+        and "comment" = 'ENVOI_DEPOT'
+        and ("valid" = false or "valid" isnull)
+        """
+    ),
 }
