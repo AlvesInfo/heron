@@ -66,6 +66,7 @@ class MaisonForm(forms.ModelForm):
         ]
 
         widgets = {
+            "cct": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "center_purchase": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "sign_board": forms.Select(attrs=SELECT_FLUIDE_DICT),
