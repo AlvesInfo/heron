@@ -18,6 +18,7 @@ post_johnson_dict = {
         """
         update "edi_ediimport"
         set 
+            "invoice_number" = split_part("invoice_number", '.', 1),
             "invoice_type" = case when "qty" >= 0 then '380' else '381' end,
             "gross_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
