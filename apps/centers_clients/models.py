@@ -337,7 +337,7 @@ class Maison(FlagsTable):
             exist_list = Maison.objects.filter(reference_cosium=self.reference_cosium).values_list(
                 "cct", flat=True
             )
-            if self.cct.cct not in set(exist_list):
+            if exist_list and self.cct.cct not in set(exist_list):
                 raise ValidationError(
                     {
                         "reference_cosium": _(

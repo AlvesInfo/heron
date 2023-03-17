@@ -16,7 +16,6 @@ from apps.centers_clients.models import (
 
 
 class MaisonForm(forms.ModelForm):
-
     class Meta:
         model = Maison
         fields = [
@@ -86,7 +85,7 @@ class MaisonForm(forms.ModelForm):
             "extourne_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "budget_code": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "axe_bu": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "od_ana": CheckboxInput(attrs=CHECK_BOX_DICT)
+            "od_ana": CheckboxInput(attrs=CHECK_BOX_DICT),
         }
 
 
