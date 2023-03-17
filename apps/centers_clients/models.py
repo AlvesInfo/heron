@@ -333,6 +333,19 @@ class Maison(FlagsTable):
         if not self.od_ana:
             self.axe_bu = None
 
+        if self.reference_cosium:
+            exist_list = Maison.objects.filter(reference_cosium=self.reference_cosium).values_list(
+                "cct", flat=True
+            )
+            if self.cct.cct not in set(exist_list):
+                raise ValidationError(
+                    {
+                        "reference_cosium": _(
+                            f"La référence Cosium existe déjà dans le Client {exist_list[0]}"
+                        )
+                    }
+                )
+
     def save(self, *args, **kwargs):
         """
         FR : Avant la sauvegarde on clean les données
@@ -506,7 +519,9 @@ class MaisonBi(models.Model):
     intitule = models.CharField(null=True, blank=True, max_length=50)
     intitule_court = models.CharField(null=True, blank=True, max_length=20)
     code_cosium = models.CharField(null=True, blank=True, max_length=30, verbose_name="code cosium")
-    reference_cosium = models.CharField(null=True, blank=True, max_length=30, verbose_name="code cosium")
+    reference_cosium = models.CharField(
+        null=True, blank=True, max_length=30, verbose_name="code cosium"
+    )
     code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
     opening_date = models.DateField(null=True, verbose_name="date d'ouveture")
     closing_date = models.DateField(null=True, verbose_name="date de fermeture")

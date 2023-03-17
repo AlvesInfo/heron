@@ -26,6 +26,8 @@ from apps.book.models import Society
 from apps.centers_clients.models import Maison, MaisonBi
 from apps.centers_clients.forms import MaisonForm, ImportMaisonBiForm
 
+from apps.centers_clients.bin.gestion_cct import update_supplier_cct_reference_coisium
+
 
 # ECRANS DES MAISONS ===============================================================================
 class MaisonsList(ListView):
@@ -105,6 +107,8 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             # Création sans passer par import BI
             pass
 
+        update_supplier_cct_reference_coisium()
+
         return super().form_valid(form)
 
 
@@ -139,6 +143,7 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+        update_supplier_cct_reference_coisium()
 
         return super().form_valid(form)
 
