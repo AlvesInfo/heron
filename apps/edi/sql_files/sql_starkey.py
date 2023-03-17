@@ -62,7 +62,7 @@ post_starkey_dict = {
         where ee."uuid_identification" = %(uuid_identification)s
         and ee."comment" = 'ENVOI_DEPOT'
         and (ee."valid" = false or ee."valid" isnull)
-        on conlict do nothing
+        on conflict do nothing
         """
     ),
     "sql_delete_envoi_depot": sql.SQL(
