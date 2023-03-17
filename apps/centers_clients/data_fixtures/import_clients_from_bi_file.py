@@ -94,6 +94,7 @@ def import_file(file_path: Path):
                                 "intitule_court": maison_bi.intitule_court
                                 or maison_bi.intitule[:12],
                                 "code_cosium": maison_bi.code_cosium,
+                                "reference_cosium": maison_bi.reference_cosium,
                                 "code_bbgr": maison_bi.code_bbgr,
                                 "opening_date": maison_bi.opening_date,
                                 "closing_date": maison_bi.closing_date,
@@ -131,6 +132,7 @@ def import_file(file_path: Path):
                             "intitule": intitule,
                             "intitule_court": intitule_court[:20] or intitule[:20],
                             "code_cosium": None,
+                            "reference_cosium": None,
                             "code_bbgr": None,
                             "opening_date": opening_date,
                             "closing_date": None,

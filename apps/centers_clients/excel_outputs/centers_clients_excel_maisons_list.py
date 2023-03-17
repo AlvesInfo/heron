@@ -42,6 +42,7 @@ def get_clean_rows():
 
             row.get("code_maison", ""),
             row.get("code_cosium", ""),
+            row.get("refrence_cosium", ""),
             row.get("code_bbgr", ""),
             row.get("opening_date", ""),
             row.get("closing_date", ""),
@@ -98,6 +99,7 @@ def get_clean_rows():
             "client_familly",
             "code_maison",
             "code_cosium",
+            "reference_cosium",
             "code_bbgr",
             "opening_date",
             "closing_date",

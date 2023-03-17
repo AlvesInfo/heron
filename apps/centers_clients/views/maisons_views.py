@@ -188,6 +188,7 @@ def import_bi(request):
                     "intitule": maison_bi.intitule,
                     "intitule_court": maison_bi.intitule_court,
                     "code_cosium": maison_bi.code_cosium,
+                    "reference_cosium": maison_bi.reference_cosium,
                     "code_bbgr": maison_bi.code_bbgr,
                     "opening_date": maison_bi.opening_date,
                     "closing_date": maison_bi.closing_date,

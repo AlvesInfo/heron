@@ -41,14 +41,15 @@ def import_maisons_bi():
     with connection.cursor() as cursor:
         sql_maisons = """
         select
-            left("code_maison", 15) as "code_maison",
+            left("code_maison", 30) as "code_maison",
             left("intitule", 50) as "intitule",
             case 
                 when "affaire"='' or "affaire" isnull 
                 then left("intitule_court", 20)
                 else left("affaire", 20) 
             end as "intitule_court",
-            left("code_cosium", 15) as "code_cosium",
+            left("code_cosium", 30) as "code_cosium",
+            left("reference_cosium", 30) as "reference_cosium",
             left("compte_bbgr", 15) as "compte_bbgr",
             "date_ouverture",
             "date_fermeture",
@@ -66,8 +67,8 @@ def import_maisons_bi():
         select
             case 
                 when left(code_maison, 2) = 'DO' 
-                then left("code_maison", 15)
-                else 'DO'||left("code_maison", 13)
+                then left("code_maison", 30)
+                else 'DO'||left("code_maison", 28)
             end  as "code_maison",
             left("intitule", 50) as "intitule",
             case 
@@ -75,7 +76,8 @@ def import_maisons_bi():
                 then left("intitule_court", 20)
                 else left("affaire", 20) 
             end as "intitule_court",
-            left("code_cosium", 15) as "code_cosium",
+            left("code_cosium", 30) as "code_cosium",
+            '' as "reference_cosium",
             left("compte_bbgr", 15) as "compte_bbgr",
             "date_ouverture" as "opening_date",
             "date_fermeture" as "closing_date",
@@ -95,6 +97,7 @@ def import_maisons_bi():
             "intitule",
             "intitule_court",
             "code_cosium",
+            "reference_cosium",
             "code_bbgr",
             "opening_date",
             "closing_date",
@@ -128,6 +131,7 @@ def import_maisons_bi():
                         "intitule",
                         "intitule_court",
                         "code_cosium",
+                        "reference_cosium",
                         "code_bbgr",
                         "opening_date",
                         "closing_date",
