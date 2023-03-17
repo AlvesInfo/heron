@@ -340,7 +340,7 @@ class Maison(FlagsTable):
         """
 
         if not self.code_maison:
-            self.code_maison = self.cct
+            self.code_maison = self.cct.cct
         super().save(*args, **kwargs)
 
     def __str__(self):

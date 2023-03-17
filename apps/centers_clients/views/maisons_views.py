@@ -95,10 +95,15 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
-        Path(self.pickler_object.pickle_file.path).unlink()
-        pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
-        pickle_file.unlink()
-        self.pickler_object.delete()
+
+        try:
+            Path(self.pickler_object.pickle_file.path).unlink()
+            pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
+            pickle_file.unlink()
+            self.pickler_object.delete()
+        except AttributeError:
+            # Création sans passer par import BI
+            pass
 
         return super().form_valid(form)
 

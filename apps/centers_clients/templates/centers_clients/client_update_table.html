@@ -38,7 +38,7 @@
                 {% else %}
                     <input type="text"
                            name="code_maison"
-                           value="{{ form.code_maison.value }}"
+                           value="{{ form.code_maison.value|default_if_none:'' }}"
                            required=""
                            id="id_code_maison"
                            readonly
@@ -52,7 +52,7 @@
                 {% else %}
                     <input type="text"
                            name="code_cosium"
-                           value="{{ form.code_cosium.value }}"
+                           value="{{ form.code_cosium.value|default_if_none:'' }}"
                            required=""
                            id="id_code_cosium"
                            readonly
@@ -66,7 +66,7 @@
                 {% else %}
                     <input type="text"
                            name="code_bbgr"
-                           value="{{ form.code_bbgr.value }}"
+                           value="{{ form.code_bbgr.value|default_if_none:'' }}"
                            required=""
                            id="id_code_bbgr"
                            readonly
