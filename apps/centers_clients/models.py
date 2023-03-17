@@ -140,8 +140,11 @@ class Maison(FlagsTable):
         db_column="client_familly",
     )
 
-    code_maison = models.CharField(null=True, blank=True, max_length=15, verbose_name="code maison")
-    code_cosium = models.CharField(null=True, blank=True, max_length=15, verbose_name="code cosium")
+    code_maison = models.CharField(null=True, blank=True, max_length=30, verbose_name="code maison")
+    code_cosium = models.CharField(null=True, blank=True, max_length=30, verbose_name="code cosium")
+    reference_cosium = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="référence cosium"
+    )
     code_bbgr = models.CharField(null=True, blank=True, max_length=15, verbose_name="code BBGR")
     opening_date = models.DateField(verbose_name="date d'ouveture")
     closing_date = models.DateField(null=True, blank=True, verbose_name="date de fermeture")
