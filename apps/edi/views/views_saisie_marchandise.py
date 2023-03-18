@@ -16,7 +16,7 @@ from typing import Dict
 from django.shortcuts import render, reverse
 from django.http import JsonResponse
 from django.forms import modelformset_factory
-from apps.edi.bin.edi_tools import get_sens
+from apps.edi.bin.edi_utilites import get_sens
 from apps.edi.models import EdiImport
 from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
 
