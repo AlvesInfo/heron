@@ -35,7 +35,7 @@ INVOICES_CREATE_FIELDS = (
     "client_name",
     "serial_number",
     "vat",
-    "unity",
+    "unit_weight",
     "purchase_invoice",
     "sale_invoice",
 )
@@ -116,6 +116,6 @@ class CreateInvoiceForm(forms.ModelForm):
             "net_unit_price": NumberInput(
                 attrs={"step": "0.01", "min": 0, "style": "text-align: right;"}
             ),
-            "unity": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "unit_weight": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }

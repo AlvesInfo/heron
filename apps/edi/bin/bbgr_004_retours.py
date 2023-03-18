@@ -105,7 +105,7 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     "axe_pro_supplier",
                     "supplier_name",
                     "bi_id",
-                    "unity",
+                    "unit_weight",
                     "purchase_invoice",
                     "sale_invoice"
                 )
@@ -141,7 +141,7 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                    "axe_pro_supplier",
                    'BBGR RETOURS' as "supplier_name",
                    "bi_id",
-                   1 as "unity",
+                   1 as "unit_weight",
                    false as "purchase_invoice",
                    true as "sale_invoice"
                 from (

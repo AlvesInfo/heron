@@ -600,12 +600,13 @@ class BaseInvoiceDetailsTable(models.Model):
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
-    unity = models.ForeignKey(
+    item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    unit_weight = models.ForeignKey(
         UnitChoices,
         on_delete=models.PROTECT,
         to_field="num",
         related_name="+",
-        db_column="unity",
+        db_column="unit_weight",
         null=True,
     )
     gross_unit_price = models.DecimalField(
@@ -736,6 +737,7 @@ class BaseInvoiceDetailsTable(models.Model):
     )
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
     flow_name = models.CharField(max_length=80, default="Saisie")
+    customs_code = models.CharField(null=True, blank=True, max_length=35)
 
     class Meta:
         """class Meta du modèle django"""

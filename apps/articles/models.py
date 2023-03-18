@@ -14,12 +14,11 @@ modified by: Paulo ALVES
 import uuid
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import TabDivSage, SectionSage
 from apps.countries.models import Country
-from apps.parameters.models import SubFamilly, Category, SubCategory, SalePriceCategory
+from apps.parameters.models import SubFamilly, Category, SubCategory, SalePriceCategory, UnitChoices
 from apps.book.models import Society
 
 
@@ -29,15 +28,6 @@ class Article(FlagsTable):
     FR : Articles
     EN : Items
     """
-
-    class Unit(models.TextChoices):
-        """Unit choices"""
-
-        GR = "Grammes", _("Grammes")
-        KG = "Kilo", _("Kilo")
-        U = "Unité", _("Unité")
-        BOITE = "Boite", _("Boite")
-        ML = "Mètre", _("Mètre")
 
     third_party_num = models.ForeignKey(
         Society,
@@ -151,14 +141,24 @@ class Article(FlagsTable):
         db_column="made_in",
     )
     item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
-    unit_weight = models.CharField(
-        null=True, blank=True, max_length=20, choices=Unit.choices, default=Unit.GR
+    unit_weight = models.ForeignKey(
+        UnitChoices,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="+",
+        db_column="unit_weight",
+        null=True,
     )
     packaging_qty = models.DecimalField(max_digits=20, decimal_places=5, default=1)
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     catalog_price = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     comment = models.TextField(null=True, blank=True)
     new_article = models.BooleanField(null=True, default=False)
+
+    # Statistique utilisée
+    stat_name = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="stat_name used"
+    )
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -293,7 +293,7 @@ class Subscription(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return f"{self.name}"
 
     class Meta:
         """class Meta du modèle django"""

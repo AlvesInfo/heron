@@ -23,6 +23,7 @@ from apps.centers_clients.models import Maison
 from apps.articles.models import (
     Article,
     Category,
+    SubCategory,
     SubFamilly,
     TabDivSage,
 )
@@ -166,6 +167,14 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
     )
+    big_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="big_category_invoice",
+        db_column="uuid_big_category",
+    )
 
     def save(self, *args, **kwargs):
         """
@@ -233,6 +242,14 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
 
     brand = models.CharField(null=True, blank=True, max_length=80)
     manufacturer = models.CharField(null=True, blank=True, max_length=80)
+    sub_category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="sub_category_invoice_details",
+        db_column="uuid_sub_big_category",
+    )
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

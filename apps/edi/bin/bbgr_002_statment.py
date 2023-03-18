@@ -105,7 +105,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                     "axe_pro_supplier",
                     "supplier_name",
                     "bi_id",
-                    "unity",
+                    "unit_weight",
                     "purchase_invoice",
                     "sale_invoice"
                 )
@@ -153,7 +153,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                    "statistique" as "axe_pro_supplier",
                    'BBGR STATMENT' as "supplier_name",
                    "id" as "bi_id",
-                   1 as "unity",
+                   1 as "unit_weight",
                    true as "purchase_invoice",
                    false as "sale_invoice"
                 from "heron_bi_factures_billstatement"

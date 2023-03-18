@@ -68,6 +68,8 @@ def get_user_automate():
 
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+
+    # Mise à jour dans la fiche tiers, du champ courant, pour l'affichage plus rapide des tiers
     sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
 
     with connection.cursor() as cursor:
@@ -85,7 +87,7 @@ def post_common():
 
 
 def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
-    """Mise à jour générales pour tous les founrnisseurs"""
+    """Mise à jour générale pour tous les founrnisseurs"""
     sql_round_amount = post_common_dict.get("sql_round_amount")
     sql_supplier_update = post_common_dict.get("sql_supplier_update")
     sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")

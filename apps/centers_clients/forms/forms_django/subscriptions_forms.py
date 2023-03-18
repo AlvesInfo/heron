@@ -32,7 +32,7 @@ class MaisonSubcriptionForm(forms.ModelForm):
             "maison",
             "article",
             "qty",
-            "unity",
+            "unit_weight",
             "net_unit_price",
             "function",
             "for_signboard",
@@ -41,7 +41,7 @@ class MaisonSubcriptionForm(forms.ModelForm):
             "maison": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "article": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "qty": NumberInput(attrs={"step": "1", "style": "text-align: right;"}),
-            "unity": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "unit_weight": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "net_unit_price": NumberInput(
                 attrs={"step": "0.01", "min": 0, "style": "text-align: right;"}
             ),

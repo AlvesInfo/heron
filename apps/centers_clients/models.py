@@ -717,12 +717,12 @@ class MaisonSubcription(FlagsTable):
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="quantity"
     )
-    unity = models.ForeignKey(
+    unit_weight = models.ForeignKey(
         UnitChoices,
         on_delete=models.PROTECT,
         to_field="num",
         related_name="unity_subscription",
-        db_column="unity",
+        db_column="unit_weight",
     )
     net_unit_price = models.DecimalField(
         null=True,

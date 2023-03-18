@@ -104,7 +104,13 @@ def insert_bbgr_003_articles():
                 'BBGR003' as "third_party_num",
                 hba.famille as "famille_acuitis",
                 d_axes."uuid_big_category",
-                'd3888b89-0847-4dc2-ae8f-f1da36bde2b7'::uuid as "created_by",
+                (
+                    select 
+                    uuid_identification 
+                    from auth_user 
+                    where email='automate@acuitis.com' 
+                    limit 1
+                ) as "created_by",
                 1 as "packaging_qty",
                 true as "new_article"
             from "heron_bi_articles" hba, 

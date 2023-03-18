@@ -115,12 +115,7 @@ post_common_dict = {
                         when "supplier" = '' or "supplier" isnull 
                         then "tiers"."name" 
                         else "supplier" 
-                     end,
-        "uuid_big_category" = case 
-                                when "uuid_big_category" is null
-                                then'f2dda460-20db-4b05-8bb8-fa80a1ff146b'::uuid
-                                else "uuid_big_category"
-                              end
+                     end
     from (
         select 
             left("name", 35) as "name",
@@ -266,7 +261,10 @@ post_common_dict = {
             "axe_pys"  = maj."axe_pys",
             "axe_rfa" = maj."axe_rfa",
             "uuid_big_category" = maj."uuid_big_category",
-            "uuid_sub_big_category" = maj."uuid_sub_big_category"
+            "uuid_sub_big_category" = maj."uuid_sub_big_category",
+            "unit_weight" = maj."unit_weight",
+            "item_weight" = maj."item_weight",
+            "customs_code" = maj."customs_code"
         from (
             select 
                 ee."id", 
@@ -276,7 +274,10 @@ post_common_dict = {
                 aa."axe_pys", 
                 aa."axe_rfa",
                 aa."uuid_big_category",
-                aa."uuid_sub_big_category"
+                aa."uuid_sub_big_category",
+                aa."unit_weight",
+                aa."item_weight",
+                aa."customs_code"
             from "edi_ediimport" ee 
             join "articles_article" aa 
             on ee."reference_article" = aa."reference" 
@@ -511,8 +512,8 @@ post_common_dict = {
             "invoice_month" = date_trunc('month', invoice_date)::date,
             "invoice_year" = date_part('year', invoice_date),
             "delete" = false,
-            "unity" =  case
-                            when "unity" isnull then 1 else "unity" 
+            "unit_weight" =  case
+                            when "unit_weight" isnull then 1 else "unit_weight" 
                        end,
             "packaging_qty" = abs("packaging_qty"),
             "gross_unit_price" = abs("gross_unit_price"),

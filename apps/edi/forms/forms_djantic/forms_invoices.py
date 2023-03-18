@@ -569,7 +569,7 @@ class ZBuRefacSageSchema(
     flow_name: str = "SageYoozRefac"
     supplier: str = "SAGE_YOOZ_REFAC"
     supplier_ident: str = "Zburefac"
-    unity: int
+    unit_weight: int
     axe_bu: uuid.UUID
     axe_prj: uuid.UUID
     axe_pro: uuid.UUID

@@ -115,7 +115,7 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                     "axe_pro_supplier",
                     "supplier_name",
                     "bi_id",
-                    "unity",
+                    "unit_weight",
                     "purchase_invoice",
                     "sale_invoice"
                 )
@@ -162,7 +162,7 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                    "type_article" as "axe_pro_supplier",
                    'BBGR RECEPTIONS' as "supplier_name",
                    max("id") as "bi_id",
-                   11 as "unity",
+                   11 as "unit_weight",
                    false as "purchase_invoice",
                    true as "sale_invoice"
                 from "heron_bi_receptions_bbgr"

@@ -105,9 +105,9 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                     "axe_pro_supplier",
                     "supplier_name",
                     "bi_id",
-                     "unity",
-                     "purchase_invoice",
-                     "sale_invoice"
+                    "unit_weight",
+                    "purchase_invoice",
+                    "sale_invoice"
                 )
                 select
                     %(uuid_identification)s as "uuid_identification",
@@ -153,7 +153,7 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                    "statistique" as "axe_pro_supplier",
                    'BBGR MONTHLY' as "supplier_name",
                    "id" as "bi_id",
-                   1 as "unity",
+                   1 as "unit_weight",
                    false as "purchase_invoice",
                    true as "sale_invoice"
                 from "heron_bi_factures_monthlydelivery"

@@ -160,7 +160,7 @@ post_starkey_dict = {
             "origin",
             "personnel_type",
             "uuid_sub_big_category",
-            "unity",
+            "unit_weight",
             "uuid_control",
             "vat"
         )
@@ -266,7 +266,7 @@ post_starkey_dict = {
             "origin",
             "personnel_type",
             "uuid_sub_big_category",
-            "unity",
+            "unit_weight",
             "uuid_control",
             "vat"
         from "edi_ediimport" ee

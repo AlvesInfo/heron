@@ -312,7 +312,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     montant,
                     tva,
                     libelle,
-                    *unity,
+                    *unit_weight,
                 ) = line
 
                 vat_sage = ("000" + str(tva))[-3:]
@@ -333,7 +333,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     montant,
                     vat_sage,
                     libelle,
-                    " ".join([str(value) for value in unity]).strip(),
+                    " ".join([str(value) for value in unit_weight]).strip(),
                     get_uuid_account_with_vat(compte, vat_sage),
                 ]
                 csv_writer.writerow(list_to_write)
