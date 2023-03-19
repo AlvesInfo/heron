@@ -159,6 +159,7 @@ class Article(FlagsTable):
     stat_name = models.CharField(
         null=True, blank=True, max_length=35, verbose_name="stat_name used"
     )
+    famille = models.CharField(null=True, blank=True, max_length=80)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

@@ -29,8 +29,6 @@ django.setup()
 
 from django.db import connection
 
-from apps.parameters.models import DefaultAxeArticle
-
 
 def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     """Renvoie le nom des statitsiques à appliquer aux artciles importés
@@ -65,92 +63,266 @@ def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     return cursor.fetchall()
 
 
-def get_axes_default():
-    """
-    Retourne les axes et la grande catégorie par défaut
-    :return: ("axe_bu", "axe_prj", "axe_pys", "axe_rfa", "big_category")
-    """
-    axes_default = (
-        DefaultAxeArticle.objects.all()
-        .values("axe_bu", "axe_prj", "axe_pys", "axe_rfa", "big_category")
-        .first()
-    )
-    if axes_default:
-        return axes_default
-
-    return {"axe_bu": None, "axe_prj": None, "axe_pys": None, "axe_rfa": None, "big_category": None}
-
-
-def set_stat_definitions(third_party_num: AnyStr, stat_name: AnyStr):
+def set_stat_definitions(
+    third_party_num: AnyStr, stat_name: AnyStr, cursor: connection.cursor
+):
     """
     Set les stats à appliquer pour les articles non présents dans la table articles
     :param third_party_num: Tiers X3
     :param stat_name: nom de la stat
+    :param cursor: cursor de connection psycopg2 django
     :return:
     """
-    sql_get_stat = """
-    select 
-        third_party_num, 
-        reference_article, 
-        axe_pro,
-        uuid_big_category,
-        uuid_sub_big_category,
-        customs_code,
-        item_weight,
-        unit_weight
+    sql_set_stat = """
+    update edi_ediimport edi
+    set 
+        "axe_bu" = "req_stat"."axe_bu",
+        "axe_prj" = "req_stat"."axe_prj",
+        "axe_pro" = "req_stat"."axe_pro",
+        "axe_pys" = "req_stat"."axe_pys",
+        "axe_rfa" = "req_stat"."axe_rfa",
+        "uuid_big_category" = "req_stat"."uuid_big_category",
+        "uuid_sub_big_category" = "req_stat"."uuid_sub_big_category",
+        "customs_code" = "req_stat"."customs_code",
+        "item_weight" = "req_stat"."item_weight",
+        "unit_weight" = "req_stat"."unit_weight"
     from (
-        select 
-            third_party_num , 
-            reference_article, 
-            famille,
-            stat.regex_match as regex_match,
-            stat.expected_result as expected_result,
-            REGEXP_MATCHES(famille, stat.regex_match)::text[] as re_match,
-            REGEXP_MATCHES(famille, stat.regex_match)::text[] = string_to_array(stat.expected_result, ',') as test_stat,
-            axe_pro,
-            stat.uuid_big_category,
-            stat.uuid_sub_big_category,
-            stat.customs_code,
-            stat.item_weight,
-            stat.unit_weight
+        select distinct
+            "third_party_num", 
+            "reference_article", 
+            (select "axe_bu" from "parameters_defaultaxearticle" "pd" limit 1) as "axe_bu",
+            (select "axe_prj" from "parameters_defaultaxearticle" "pd" limit 1) as "axe_prj",
+            (select "axe_pys"  from "parameters_defaultaxearticle" "pd" limit 1) as "axe_pys",
+            (select "axe_rfa"  from "parameters_defaultaxearticle" "pd" limit 1) as "axe_rfa",
+            "axe_pro",
+            "uuid_big_category",
+            "uuid_sub_big_category",
+            "customs_code",
+            "item_weight",
+            "unit_weight",
+            "bool_stat"
         from (
-           select 
-            ee.third_party_num, 
-            ee.reference_article, 
-            ee.famille 
-           from edi_ediimport ee 
-           left join articles_article aa 
-           on ee.reference_article = aa.reference 
-           where aa.reference is null
-           and ee.third_party_num = 'ALCO001'
-           group by ee.third_party_num , ee.reference_article, famille
-        ) edi,
+            select 
+                "third_party_num", 
+                "reference_article", 
+                "famille",
+                "stat"."regex_match" as "regex_match",
+                "stat"."expected_result" as "expected_result",
+                REGEXP_MATCHES("famille", "stat"."regex_match")::text[] as "re_match",
+                (
+                    REGEXP_MATCHES("famille", "stat"."regex_match")::text[] 
+                    = 
+                    string_to_array("stat"."expected_result", ',')
+                ) as "bool_stat",
+                "axe_pro",
+                "stat"."uuid_big_category",
+                "stat"."uuid_sub_big_category",
+                "stat"."customs_code",
+                "stat"."item_weight",
+                "stat"."unit_weight"
+            from (
+                select 
+                    "ee"."third_party_num", 
+                    "ee"."reference_article", 
+                    "ee"."famille" 
+                from "edi_ediimport" "ee" 
+                left join "articles_article" "aa" 
+                on "ee"."reference_article" = "aa"."reference" 
+                and "ee"."third_party_num" = "aa"."third_party_num"
+                where "aa"."reference" is null
+                and "ee"."third_party_num" = %(third_party_num)s
+                group by "ee"."third_party_num" , 
+                         "ee"."reference_article", 
+                         "ee"."famille"
+            ) "edi",
+            (
+                select 
+                    "regex_match",
+                    "expected_result",
+                    "axe_pro",
+                    "uuid_big_category",
+                    "uuid_sub_big_category",
+                    "customs_code",
+                    "item_weight",
+                    "unit_weight"
+                from "book_supplierfamilyaxes" "bs" 
+                where "stat_name" = %(stat_name)s
+            ) "stat"
+         ) "req_match"
+         group by     
+            "third_party_num", 
+            "reference_article", 
+            "axe_pro",
+            "uuid_big_category",
+            "uuid_sub_big_category",
+            "customs_code",
+            "item_weight",
+            "unit_weight",
+            "bool_stat"
+         having "bool_stat" = true
+    ) req_stat
+    where "edi"."third_party_num" = "req_stat"."third_party_num"
+      and "edi"."reference_article" = "req_stat"."reference_article"
+    """
+    cursor.execute(sql_set_stat, {"third_party_num": third_party_num, "stat_name": stat_name})
+    print(f"fin stat_definitions : {third_party_num} - {stat_name} : {cursor.rowcount}")
+
+
+def insert_new_articles(cursor: connection.cursor):
+    """
+    Insertion en base des nouveaux articles, flagués new articles
+    :param cursor: cursor de connection psycopg2 django
+    """
+    sql_insert = """
+    insert into "articles_article"
+        (
+            "created_at",
+            "modified_at",
+            "reference",
+            "ean_code",
+            "libelle",
+            "item_weight",
+            "customs_code",
+            "catalog_price",
+            "uuid_identification",
+            "axe_bu",
+            "axe_prj",
+            "axe_pys",
+            "axe_rfa",
+            "axe_pro",
+            "third_party_num",
+            "famille",
+            "uuid_big_category",
+            "uuid_sub_big_category",
+            "created_by",
+            "packaging_qty",
+            "new_article"
+        )
+   select 
+        now() as "created_at",
+        now() as "modified_at",
+        "reference_article" as "reference", 
+        "ee"."ean_code", 
+        max("ee"."libelle") as "libelle", 
+        max("ee"."item_weight") as "item_weight",
+        max("ee"."customs_code") as "customs_code",
+        max(coalesce("net_unit_price", 0)) as "catalog_price",
+        gen_random_uuid() as "uuid_identification",
+        case 
+            when "ee"."axe_bu" isnull 
+            then (select "axe_bu" from "parameters_defaultaxearticle" "pd" limit 1) 
+            else "ee"."axe_bu"
+        end as "axe_bu",
+        case 
+            when "ee"."axe_prj" isnull 
+            then (select "axe_prj" from "parameters_defaultaxearticle" "pd" limit 1) 
+            else "ee"."axe_prj"
+        end as "axe_prj",
+        case 
+            when "ee"."axe_pys" isnull 
+            then (select "axe_pys"  from "parameters_defaultaxearticle" "pd" limit 1)
+            else "ee"."axe_pys"
+        end as "axe_pys",
+        case 
+            when "ee"."axe_rfa" isnull 
+            then (select "axe_rfa"  from "parameters_defaultaxearticle" "pd" limit 1)
+            else "ee"."axe_rfa"
+        end as "axe_rfa",
+        "ee"."axe_pro",
+        "ee"."third_party_num",
+        "ee"."famille",
+        case 
+            when "ee"."uuid_big_category" isnull 
+            then (select "uuid_big_category" from "parameters_defaultaxearticle" "pd" limit 1) 
+            else "ee"."uuid_big_category"
+        end as "uuid_big_category",
+        "ee"."uuid_sub_big_category",
         (
             select 
-                regex_match,
-                expected_result,
-                axe_pro,
-                uuid_big_category,
-                uuid_sub_big_category,
-                customs_code,
-                item_weight,
-                unit_weight
-            from book_supplierfamilyaxes bs 
-            where stat_name = 'ALCO001'
-        ) stat
-     ) req_match
-     where test_stat
-     group by     
-        third_party_num, 
-        reference_article, 
-        axe_pro,
-        uuid_big_category,
-        uuid_sub_big_category,
-        customs_code,
-        item_weight,
-        unit_weight
-    having count(reference_article) = 1
+            uuid_identification 
+            from auth_user 
+            where email='automate@acuitis.com' 
+            limit 1
+        ) as "created_by",
+        1 as "packaging_qty",
+        true as "new_article"
+    from "edi_ediimport" "ee"
+    left join "articles_article" "aa" 
+    on "ee"."third_party_num" = "aa"."third_party_num"
+    and "ee"."reference_article" = "aa"."reference"
+    where "aa"."reference" isnull
+    group by "reference_article",
+            "ee"."ean_code",
+            "ee"."axe_bu",
+            "ee"."axe_prj",
+            "ee"."axe_pys",
+            "ee"."axe_rfa",
+            "ee"."axe_pro",
+            "ee"."third_party_num",
+            "ee"."famille",
+            "ee"."uuid_big_category",
+            "ee"."uuid_sub_big_category"
+    on conflict do nothing   
     """
+    cursor.execute(sql_insert)
+    print(f"fin insertion des nouveaux articles : {cursor.rowcount}")
+
+
+def set_edi_ediimport_articles(cursor: connection.cursor):
+    """
+    Insertion en base des nouveaux articles, flagués new articles
+    :param cursor: cursor de connection psycopg2 django
+    """
+    sql_update = """
+    update "edi_ediimport" "edi" 
+    set 
+        "axe_bu" = "maj"."axe_bu",
+        "axe_prj" = "maj"."axe_prj",
+        "axe_pro" = "maj"."axe_pro",
+        "axe_pys"  = "maj"."axe_pys",
+        "axe_rfa" = "maj"."axe_rfa",
+        "uuid_big_category" = "maj"."uuid_big_category",
+        "uuid_sub_big_category" = "maj"."uuid_sub_big_category",
+        "unit_weight" = "maj"."unit_weight",
+        "item_weight" = "maj"."item_weight",
+        "customs_code" = "maj"."customs_code"
+    from (
+        select 
+            "aa"."third_party_num",
+            "aa"."reference" as "reference_article", 
+            "aa"."axe_bu", 
+            "aa"."axe_prj", 
+            "aa"."axe_pro", 
+            "aa"."axe_pys", 
+            "aa"."axe_rfa",
+            "aa"."uuid_big_category",
+            "aa"."uuid_sub_big_category",
+            "aa"."unit_weight",
+            "aa"."item_weight",
+            "aa"."customs_code"
+        from "edi_ediimport" "ee" 
+        join "articles_article" "aa" 
+        on "ee"."reference_article" = "aa"."reference" 
+        and "ee"."third_party_num" = "aa"."third_party_num"
+        where (
+            "ee"."axe_bu" isnull
+            or 
+            "ee"."axe_prj" isnull
+            or 
+            "ee"."axe_pro" isnull
+            or 
+            "ee"."axe_pys" isnull
+            or 
+            "ee"."axe_rfa" isnull
+            or 
+            "ee"."uuid_big_category" isnull
+        )
+    ) "maj"
+    where "edi"."third_party_num" = "maj"."third_party_num"
+      and "edi"."reference_article" = "maj"."reference_article"
+    """
+    cursor.execute(sql_update)
+    print(f"fin update des articles : {cursor.rowcount}")
 
 
 def set_axes_with_regex() -> None:
@@ -161,9 +333,11 @@ def set_axes_with_regex() -> None:
     with connection.cursor() as cursor:
         get_families = get_famillly_edi_ediimport_new_articles(cursor)
 
-        for row in get_families:
-            third, stat = row
-            print(third, stat)
+        for third, stat in get_families:
+            set_stat_definitions(third, stat, cursor)
+
+        insert_new_articles(cursor)
+        set_edi_ediimport_articles(cursor)
 
 
 if __name__ == "__main__":

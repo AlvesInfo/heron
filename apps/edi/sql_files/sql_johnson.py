@@ -71,7 +71,12 @@ post_johnson_dict = {
                                     abs("gross_amount")::numeric * -1::numeric
                                 )
                                 when "net_amount" > 0 then abs("gross_amount")::numeric
-                            end
+                            end,
+            "reference_article" = case
+                                    when right("reference_article", 2) = '.0' 
+                                    then left("reference_article", length("reference_article") - 2)
+                                    else "reference_article"
+                                  end 
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
