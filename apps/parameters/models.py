@@ -735,6 +735,25 @@ class BaseInvoiceDetailsTable(models.Model):
         related_name="+",
         db_column="origin",
     )
+    saisie = models.BooleanField(null=True)
+    saisie_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        to_field="uuid_identification",
+        db_column="saisie_by",
+    )
+    modified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        to_field="uuid_identification",
+        db_column="modified_by",
+    )
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
     flow_name = models.CharField(max_length=80, default="Saisie")
     customs_code = models.CharField(null=True, blank=True, max_length=35)
