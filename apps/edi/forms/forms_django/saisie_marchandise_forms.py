@@ -115,6 +115,7 @@ class CreateInvoiceForm(forms.ModelForm):
         # AUTRE ====================================================================================
         self.fields["serial_number"] = forms.CharField(max_length=1000, required=False)
         self.fields["vat"].initial = "001"
+        self.fields["invoice_number"].required = False
 
     class Meta:
         """class Meta"""
