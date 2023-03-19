@@ -10,15 +10,16 @@
             <thead>
 
                 <tr>
-                    <th class="no-sort" style="width: 2.6%">Edit</th>
+                    <th class="no-sort" style="width: 3%">Edit</th>
                     <th style="width: 11%">Référence</th>
-                    <th style="width: 31.22%">Libelle Héron</th>
-                    <th style="width: 7.14%">Axe PRO</th>
-                    <th style="width: 7.14%">Axe BU</th>
-                    <th style="width: 7.14%">Axe PRJ</th>
-                    <th style="width: 7.14%">Axe PYS</th>
-                    <th style="width: 7.14%">Axe RFA</th>
-                    <th style="width: 19.48%">Commentaire</th>
+                    <th style="width: 23%">Libelle</th>
+                    <th style="width: 22%">Libelle Héron</th>
+                    <th style="width: 5%">Axe PRO</th>
+                    <th style="width: 5%">Axe BU</th>
+                    <th style="width: 5%">Axe PRJ</th>
+                    <th style="width: 5%">Axe PYS</th>
+                    <th style="width: 5%">Axe RFA</th>
+                    <th style="width: 16%">Commentaire</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,6 +34,9 @@
                     </td>
                     <td>
                         {{ article.reference|default_if_none:'' }}
+                    </td>
+                    <td style="text-align: left;">
+                        {{ article.libelle|default_if_none:'' }}
                     </td>
                     <td style="text-align: left;">
                         {{ article.libelle_heron|default_if_none:'' }}

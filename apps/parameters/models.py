@@ -93,7 +93,7 @@ class UnitChoices(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["unity"]
+        ordering = ["num"]
 
 
 class SendFiles(FlagsTable):

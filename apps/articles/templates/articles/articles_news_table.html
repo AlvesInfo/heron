@@ -1,0 +1,84 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column">
+        <div class="ui segment">
+            <div class="ui grid">
+                <div class="twelve wide column" style="text-align: left;">
+                        {% if articles.has_other_pages %}
+                          <div id="pagination" class="ui small #efefff buttons">
+                            {{ pagination|safe }}
+                          </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+
+                <tr>
+                    <th class="no-sort" style="width: 2%">Edit</th>
+                    <th style="width: 9%">Tiers</th>
+                    <th style="width: 13%">Référence</th>
+                    <th style="width: 34%">Libelle</th>
+                    <th style="width: 6%">Axe BU</th>
+                    <th style="width: 6%">Axe PRJ</th>
+                    <th style="width: 6%">Axe PRO</th>
+                    <th style="width: 6%">Axe PYS</th>
+                    <th style="width: 6%">Axe RFA</th>
+                    <th style="width: 6%">Grande Cétégorie</th>
+                    <th style="width: 6%">Rubrique Presta</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for article in articles %}
+                <tr id="id_{{ third_party_num }}" class="hide_plans">
+
+                    <td data-value="{{ third_party_num }}"
+                        style="text-align: center;">
+                        <a href="{% url 'articles:article_update' third_party_num=article.third_party_num pk=article.pk %}">
+                            <i class="edit icon modification"></i>
+                        </a>
+                    </td>
+                    <td style="text-align: left;">
+                        {{ article.third_party_num|default_if_none:'' }} - {{ article.third_party_num__short_name }}
+                    </td>
+                    <td>
+                        {{ article.reference|default_if_none:'' }}
+                    </td>
+                    <td style="text-align: left;">
+                        {{ article.libelle|default_if_none:'' }}
+                    </td>
+                    <td style="{% if not article.axe_bu__section %}background-color: #ffdae0;{% endif %}">
+                        {{ article.axe_bu__section|default_if_none:'' }}
+                    </td>
+                    <td style="{% if not article.axe_prj__section %}background-color: #ffdae0;{% endif %}">
+                        {{ article.axe_prj__section|default_if_none:'' }}
+                    </td>
+                    <td style="{% if not article.axe_pro__section %}background-color: #ffdae0;{% endif %}">
+                        {{ article.axe_pro__section|default_if_none:'' }}
+                    </td>
+                    <td style="{% if not article.axe_pys__section %}background-color: #ffdae0;{% endif %}">
+                        {{ article.axe_pys__section|default_if_none:'' }}
+                    </td>
+                    <td style="{% if not article.axe_rfa__section %}background-color: #ffdae0;{% endif %}">
+                        {{ article.axe_rfa__section|default_if_none:'' }}
+                    </td>
+                    <td style="{% if not article.big_category__name %}background-color: #ffdae0;{% endif %}">
+                          {{ article.big_category__name|default_if_none:'' }}
+                    </td>
+                    <td style="">
+                          {{ article.sub_category__name|default_if_none:'' }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock table %} %}

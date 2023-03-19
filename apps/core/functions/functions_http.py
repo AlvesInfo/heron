@@ -29,8 +29,8 @@ def get_button(
     :param actual_page: page actuelle du paginator
     :param page: page à écrire
     :param texte: icon à insérer
-    :param base_color: couleur des bouton des changement de page de base
-    :param position_color: couleur des bouton des changement de page de la page affichée
+    :param base_color: couleur des boutons du changement de page de base
+    :param position_color: couleur des boutons du changement de page de la page affichée
     :return: retourne la balise html d'un bouton de pagination
     """
     color = position_color if page == actual_page else base_color
@@ -54,8 +54,8 @@ def get_buttons(
     :param nbre_pages: nombre de pages totales dans le paginator
     :param nbre_boutons: nombre de boutons souhaités
     :param nbre: nombre de boutons de chaque côté de l'actuelle page
-    :param base_color: couleur des bouton des changement de page de base
-    :param position_color: couleur des bouton des changement de page de la page affichée
+    :param base_color: couleur des boutons de changement de page de base
+    :param position_color: couleur des boutons de changement de page de la page affichée
     :return: les balises html à envoyer au template
     """
     balises = ""
@@ -111,8 +111,8 @@ def get_pagination_buttons(
     :param acutal_page: page actuelle du paginator
     :param nbre_pages: nombre de pages totales dans le paginator
     :param nbre_boutons: nombre de boutons souhaités
-    :param base_color: couleur des bouton des changement de page de base
-    :param position_color: couleur des bouton des changement de page de la page affichée
+    :param base_color: couleur des boutons de changement de page de base
+    :param position_color: couleur des boutons de changement de page de la page affichée
     :param icon_left: icone vers la gauche
     :param icon_right: icone vers la droite
     :return: les balises html à envoyer au template

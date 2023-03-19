@@ -34,13 +34,13 @@
                     </a>
                 </td>
                 <td style="text-align: left;">
-                  {% if supplier.third_party_num %}
-                    {{ supplier.third_party_num }} - {{ supplier.name }}
+                  {% if supplier.third_party_num__name %}
+                    {{ supplier.third_party_num }} - {{ supplier.third_party_num__name }}
                   {% endif %}
                 </td>
                 <td style="text-align: center;">
-                  {% if supplier.third_party_num %}
-                    {{ supplier.supplier_society.count }}
+                  {% if supplier.nb_articles %}
+                    {{ supplier.nb_articles }}
                   {% endif %}
                 </td>
             </tr>

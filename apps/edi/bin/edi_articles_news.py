@@ -296,7 +296,7 @@ def set_edi_ediimport_articles(cursor: connection.cursor):
             "aa"."uuid_big_category",
             "aa"."uuid_sub_big_category",
             "aa"."unit_weight",
-            "aa"."item_weight",
+            3 as "item_weight",
             "aa"."customs_code"
         from "edi_ediimport" "ee" 
         join "articles_article" "aa" 

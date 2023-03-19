@@ -1,6 +1,6 @@
 # pylint: disable=E0401,R0903,W0702,W0613
 """
-Views des Paramètres
+Views des Articles
 """
 import pendulum
 from django.shortcuts import redirect, reverse
@@ -17,6 +17,7 @@ from apps.articles.excel_outputs.output_excel_articles_list import (
     excel_liste_articles,
 )
 from apps.book.models import Society
+from apps.parameters.models import Category
 from apps.articles.models import Article
 from apps.articles.forms import ArticleForm
 
@@ -28,10 +29,12 @@ class SuppliersArticlesList(ListView):
     model = Society
     context_object_name = "suppliers"
     template_name = "articles/suppliers_articles_list.html"
-    extra_context = {"titre_table": "Fournisseurs - Articles"}
+    extra_context = {}
 
     def get(self, request, *args, **kwargs):
         self.extra_context.update(kwargs)
+        categorie = Category.objects.get(slug_name=self.kwargs.get("category")).name
+        self.extra_context["titre_table"] = f"Articles : {categorie}"
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -40,14 +43,11 @@ class SuppliersArticlesList(ListView):
         The return value must be an iterable and may be an instance of
         `QuerySet` in which case `QuerySet` specific behavior will be enabled.
         """
-        queryset = Society.objects.filter(
-            third_party_num__in=Article.objects.filter(
-                big_category__slug_name=self.kwargs.get("category")
-            )
-            .values("third_party_num")
-            .annotate(nb_plan=Count("third_party_num"))
+        queryset = (
+            Article.objects.filter(big_category__slug_name=self.kwargs.get("category"))
+            .values("third_party_num", "third_party_num__name")
+            .annotate(nb_articles=Count("third_party_num"))
             .order_by("third_party_num")
-            .values_list("third_party_num", flat=True)
         )
         ordering = self.get_ordering()
 
@@ -70,19 +70,22 @@ class ArticlesList(ListView):
     def get(self, request, *args, **kwargs):
         self.extra_context.update(kwargs)
         self.third_party_num = self.extra_context.get("third_party_num")
-        self.category = self.extra_context.get("category")
+        self.category = Category.objects.get(slug_name=self.extra_context.get("category"))
+        self.extra_context[
+            "titre_table"
+        ] = f"Articles : {self.category.name} du Tiers {self.third_party_num}"
         self.extra_context["chevron_retour"] = reverse(
-            "articles:suppliers_articles_list", args=(self.category,)
+            "articles:suppliers_articles_list", args=(self.category.slug_name,)
         )
-        self.extra_context["titre_table"] = f"Articles Marchandises du Tiers {self.third_party_num}"
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, **kwargs):
         queryset = Article.objects.filter(
-            third_party_num=self.third_party_num, big_category__slug_name=self.category
+            third_party_num=self.third_party_num, big_category__slug_name=self.category.slug_name
         ).values(
             "pk",
             "reference",
+            "libelle",
             "libelle_heron",
             "axe_pro__section",
             "axe_bu__section",
@@ -90,7 +93,9 @@ class ArticlesList(ListView):
             "axe_pys__section",
             "axe_rfa__section",
             "comment",
-        )[:1000]
+        )[
+            :1000
+        ]
         ordering = self.get_ordering()
 
         if ordering:
@@ -233,7 +238,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 def articles_export_list(_, third_party_num, category):
     """
-    Export Excel de la liste des Sociétés
+    Export Excel de la liste des Articles par Fournisseurs et Catégories
     :param _: Request Django
     :param third_party_num: N° de tiers X3
     :param category: slug_name de la catégorie
