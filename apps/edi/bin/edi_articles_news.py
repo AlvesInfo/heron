@@ -63,9 +63,7 @@ def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     return cursor.fetchall()
 
 
-def set_stat_definitions(
-    third_party_num: AnyStr, stat_name: AnyStr, cursor: connection.cursor
-):
+def set_stat_definitions(third_party_num: AnyStr, stat_name: AnyStr, cursor: connection.cursor):
     """
     Set les stats à appliquer pour les articles non présents dans la table articles
     :param third_party_num: Tiers X3

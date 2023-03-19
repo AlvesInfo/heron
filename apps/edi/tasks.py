@@ -47,7 +47,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex_ga,
     z_bu_refac,
 )
-from apps.edi.bin.edi_post_processing_pool import post_common
+from apps.edi.bin.edi_post_processing_pool import post_vacuum
 from apps.edi.bin.edi_post_processing_pool import post_processing_all
 from apps.edi.bin.exclusions import set_exclusions
 from apps.users.models import User
@@ -200,8 +200,8 @@ def launch_sql_clean_general(start_all):
         post_processing_all()
         EDI_LOGGER.warning("post_processing_all terminé")
 
-        post_common()
-        EDI_LOGGER.warning("post_common terminé")
+        post_vacuum()
+        EDI_LOGGER.warning("post_vacuum terminé")
 
         set_exclusions()
         EDI_LOGGER.warning("exclusions terminées")

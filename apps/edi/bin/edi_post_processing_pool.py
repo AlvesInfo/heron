@@ -21,6 +21,7 @@ from apps.edi.bin.duplicates_check import (
     edi_import_duplicate_check,
     suppliers_invoices_duplicate_check,
 )
+from apps.edi.bin.edi_articles_news import set_axes_with_regex
 from apps.edi.bin.set_suppliers_cct import add_news_cct_sage
 from apps.edi.sql_files.sql_common import post_common_dict
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
@@ -69,7 +70,7 @@ def get_user_automate():
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
 
-    # Mise à jour dans la fiche tiers, du champ courant, pour l'affichage plus rapide des tiers
+    # Mise à jour sur la fiche tiers, du champ courant, pour l'affichage plus rapide des tiers
     sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
 
     with connection.cursor() as cursor:
@@ -78,9 +79,10 @@ def post_processing_all():
     edi_import_duplicate_check()
     suppliers_invoices_duplicate_check()
     add_news_cct_sage()
+    set_axes_with_regex()
 
 
-def post_common():
+def post_vacuum():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
     with connection.cursor() as cursor:
         cursor.execute("VACUUM (full)")
