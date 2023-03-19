@@ -71,16 +71,6 @@
                                 <label for="id_form-{{ forloop.counter0 }}-cct_uuid_identification">CCT X3</label>
                                 {{ formlines.cct_uuid_identification }}
                             </div>
-                            <div class="three wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-big_category">Catégorie</label>
-                                {{ formlines.big_category }}
-                            </div>
-                            <div class="two wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-sub_category">Rubriques Presta</label>
-                                <input type="text"
-                                       id="id_form-{{ forloop.counter0 }}-sub_category"
-                                       name="form-{{ forloop.counter0 }}-sub_category" value="">
-                            </div>
                             <div class="two wide field">
                                 <label for="id_form-{{ forloop.counter0 }}-client_name">Client</label>
                                 {{ formlines.client_name }}
@@ -109,8 +99,8 @@
                                 {{ formlines.qty }}
                             </div>
                             <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-unity">Unité</label>
-                                {{ formlines.unity }}
+                                <label for="id_form-{{ forloop.counter0 }}-unit_weight">Unité</label>
+                                {{ formlines.unit_weight }}
                             </div>
                             <div class="two wide field">
                                 <label for="id_form-{{ forloop.counter0 }}-net_unit_price" style="text-align: right;margin-right: 14px">PU Net</label>

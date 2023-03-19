@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 from django import forms
 
+from apps.parameters.models import UnitChoices
 from apps.parameters.forms import NumberInput
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society
@@ -20,8 +21,6 @@ from apps.countries.models import Currency
 from apps.edi.models import EdiImport
 
 INVOICES_CREATE_FIELDS = (
-    "big_category",
-    "sub_category",
     "third_party_num",
     "cct_uuid_identification",
     "invoice_number",
@@ -88,7 +87,7 @@ class CreateInvoiceForm(forms.ModelForm):
         )
         self.fields["devise"] = devise
 
-        # SENS ACHAT ou VENTE ou ACHAT/VENT ========================================================
+        # SENS ACHAT ou VENTE ou ACHAT/VENTE =======================================================
         self.sens_choices = [(0, "AC"), (1, "VE"), (2, "AC/VE")]
         sens = forms.ChoiceField(
             choices=self.sens_choices,
@@ -99,9 +98,22 @@ class CreateInvoiceForm(forms.ModelForm):
         )
         self.fields["sens"] = sens
 
+        # UNITE DE MESURE ==========================================================================
+        self.unit_weight_choices = [
+            (row.num, row.unity)
+            for row in UnitChoices.objects.all()
+        ]
+        unit_weight = forms.ChoiceField(
+            choices=self.unit_weight_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            label="unité",
+            required=False,
+            initial=1,
+        )
+        self.fields["unit_weight"] = unit_weight
+
         # AUTRE ====================================================================================
         self.fields["serial_number"] = forms.CharField(max_length=1000, required=False)
-        self.fields["sub_category"].required = False
         self.fields["vat"].initial = "001"
 
     class Meta:
@@ -110,7 +122,6 @@ class CreateInvoiceForm(forms.ModelForm):
         model = EdiImport
         fields = INVOICES_CREATE_FIELDS
         widgets = {
-            "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "cct_uuid_identification": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "qty": NumberInput(attrs={"step": "1", "style": "text-align: right;"}),
             "net_unit_price": NumberInput(
