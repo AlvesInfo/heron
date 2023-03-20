@@ -13,12 +13,14 @@ modified by: Paulo ALVES
 """
 from typing import Dict
 
-from django.shortcuts import render, reverse
+from django.shortcuts import render, reverse, redirect
 from django.http import JsonResponse
 from django.forms import modelformset_factory
+
+from heron.loggers import LOGGER_VIEWS
 from apps.edi.bin.edi_utilites import get_sens
 from apps.edi.models import EdiImport
-from apps.edi.forms import INVOICES_CREATE_FIELDS, CreateInvoiceForm
+from apps.edi.forms import CreateBaseInvoiceForm, CreateDetailsInvoiceForm
 
 # 1. MARCHANDISES
 
@@ -27,58 +29,67 @@ def get_edi_import_elements(requect_dict: Dict) -> Dict:
     """Ajoute les éléments manquants du formulaire"""
 
 
+from django.shortcuts import render
+
+
 def create_invoice_marchandises(request):
     """Fonction de création de factures manuelle par saisie"""
     count_elements = 100
     nb_display = 2
-    InvoiceMarchandiseFormset = modelformset_factory(
-        EdiImport,
-        form=CreateInvoiceForm,
-        fields=INVOICES_CREATE_FIELDS,
-        extra=nb_display,
-        localized_fields="__all__",
-    )
+
     context = {
         "titre_table": f"Saisie de Facture / Avoir",
         "nb_elements": range(count_elements),
         "count_elements": count_elements,
         "nb_display": nb_display,
         "chevron_retour": reverse("home"),
-        "formset": InvoiceMarchandiseFormset(queryset=EdiImport.objects.none()),
-        "border_color": "darkgray",
+        "form_base": CreateBaseInvoiceForm(),
+        "form_details": CreateDetailsInvoiceForm(),
         "url_saisie": reverse("edi:create_invoice_marchandise"),
     }
 
-    if request.method == "POST":
-        print("request.POST : ", request.POST)
-        formset = InvoiceMarchandiseFormset(request.POST)
-        if formset.is_valid():
-            print("formset : ", formset.is_valid())
-            instances = formset.save(commit=False)
-            print("instances : ", instances)
+    # if request.method == "POST":
+    #     print("request.POST : ", request.POST)
+    #     formset = InvoiceMarchandiseFormset(request.POST)
+    #
+    #     if formset.is_valid():
+    #         print("formset : ", formset.is_valid())
+    #         instances = formset.save(commit=False)
+    #         print("instances : ", instances)
+    #
+    #         for instance in instances:
+    #             print(dir(instance))
+    #             instance.save()
+    #
+    #         return JsonResponse({"success": "ok"})
+    #
+    #     else:
+    #         print(formset.errors)
 
-            for instance in instances:
-                print(dir(instance))
-                instance.save()
-
-        else:
-            print(formset.errors)
-
-        data = {"success": "ko"}
-        return JsonResponse(data)
-        # if formset.is_valid():
-        #     print("in formset valid")
-        #     print("formset.is_valid() : ", formset.is_valid())
-        #     formset.save(commit=False)
-        #
-        #     for form in formset.instance:
-        #         print(form)
-        #
-        # else:
-        #     print("in formset errors")
-        #     print(formset.errors)
     print("to render")
     return render(request, "edi/invoice_marchandise_update.html", context=context)
+
+
+def create_post_invoices(request):
+    """View de validation et création des factures"""
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {"success": "ko"}
+    id_pk = request.POST.get("pk")
+    # form = DeleteSupplierFamilyAxesForm({"id": id_pk})
+    if id_pk == 1:
+        s = 1
+        # if form.is_valid():
+        #
+        #     data = {"success": "success"}
+
+    else:
+        LOGGER_VIEWS.exception(f"create_post_invoices, form invalid : ")
+
+    return JsonResponse(data)
+
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

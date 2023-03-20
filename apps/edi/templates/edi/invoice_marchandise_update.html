@@ -71,10 +71,8 @@
                 for (let i = 0; i < nbDisplay; i++) {
 
                     let cct_uuid_identification = $(`#id_form-${i}-cct_uuid_identification`).dropdown('get value');
-                    let big_category =  $(`#id_form-${i}-big_category`).dropdown('get value');
-                    let sub_category =  $(`#id_form-${i}-sub_category`).val();
                     let client_name =  $(`#id_form-${i}-client_name`).val();
-                    let serial_number =  $(`#d_form-${i}-serial_number`).val();
+                    let serial_number =  $(`#id_form-${i}-serial_number`).val();
                     let reference_article =  $(`#id_form-${i}-reference_article`).val();
                     let libelle =  $(`#id_form-${i}-libelle`).val();
                     let qty =  $(`#id_form-${i}-qty`).val();
@@ -90,8 +88,6 @@
                         [`form-${j}-invoice_type`]: invoice_type,
                         [`form-${j}-devise`]: devise,
                         [`form-${j}-cct_uuid_identification`]: cct_uuid_identification,
-                        [`form-${j}-big_category`]: big_category,
-                        [`form-${j}-sub_category`]: sub_category,
                         [`form-${j}-client_name`]: client_name,
                         [`form-${j}-serial_number`]: serial_number,
                         [`form-${j}-reference_article`]: reference_article,
@@ -101,7 +97,8 @@
                         [`form-${j}-net_unit_price`]: net_unit_price,
                         [`form-${j}-vat`]: vat,
                     };
-                     Object.assign(formData, data)
+                     Object.assign(formData, data);
+                     console.log(data);
                 }
 
                 $.ajax({

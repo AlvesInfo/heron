@@ -7,49 +7,48 @@
         <div class="ui medium text loader">Chargement</div>
     </div>
     <div class="sixteen wide column" style="padding: 0;">
-{#      ENTETES DU FORMSET ====================================================================== #}
+{#      ENTETES DU FORMSET ======================================================================#}
         <input type="hidden" name="form-TOTAL_FORMS" value="{{ nb_display }}" id="id_form-TOTAL_FORMS">
         <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS">
         <input type="hidden" name="form-MIN_NUM_FORMS" value="1" id="id_form-MIN_NUM_FORMS">
         <input type="hidden" name="form-MAX_NUM_FORMS" value="{{ count_elements }}" id="id_form-MAX_NUM_FORMS">
 
-        <div class="ui segments" style="margin: 0;">
             <div class="ui segment" style="padding: 10px 14px 5px 14px;">
                 <h4 id="headerTiers">Invoice</h4>
             </div>
 
-{#        ENETETE =============================================================================== #}
-            <div class="ui segment"style="border-color: {{ border_color }};">
+{#        ENETETE ===============================================================================#}
+            <div class="ui segment" style="">
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="">
                         <div class="five wide field">
-                            <label for="id_form-__prefix__-third_party_num" style="text-align: left;">Fournisseur</label>
-                            {{ formset.0.third_party_num }}
+                            <label for="id_third_party_num" style="text-align: left;">Fournisseur</label>
+                            {{ form_base.third_party_num }}
                         </div>
                         <div class="four wide field">
-                            <label for="id_form-__prefix__-invoice_number" style="text-align: left;">N° Facture</label>
-                            <input type="text" name="form-0-invoice_number" maxlength="35" required="" id="id_form-0-invoice_number">
+                            <label for="id_invoice_number" style="text-align: left;">N° Facture</label>
+                            <input type="text" name="invoice_number" maxlength="35" required="" id="id_invoice_number">
                         </div>
                         <div class="two wide field">
-                            <label for="id_form-0-invoice_date"
+                            <label for="id_invoice_date"
                                    style="text-align: left;">Date Facture</label>
                             <input type="date"
-                                 name="form-0-invoice_date"
-                                 id="id_form-0-invoice_date"
+                                 name="invoice_date"
+                                 id="id_invoice_date"
                                  required=""
                                  value="{{ date_du_jour.isoformat }}">
                         </div>
                         <div class="one wide field">
-                            <label for="id_form-__prefix__-invoice_type" style="text-align: left;">Type</label>
-                            {{ formset.0.invoice_type }}
+                            <label for="id_invoice_type" style="text-align: left;">Type</label>
+                            {{ form_base.invoice_type }}
                         </div>
                         <div class="one wide field">
-                            <label for="id_form-__prefix__-devise" style="text-align: left;">{{ formset.empty_form.devise.label }}</label>
-                            {{ formset.0.devise }}
+                            <label for="id_devise" style="text-align: left;">Devise</label>
+                            {{ form_base.devise }}
                         </div>
                         <div class="one wide field">
-                            <label for="id_form-__prefix__-sens" style="text-align: left;">{{ formset.empty_form.sens.label }}</label>
-                            {{ formset.0.sens }}
+                            <label for="id_sens" style="text-align: left;">Sens</label>
+                            {{ form_base.sens }}
                         </div>
                         <div class="two wide field" style="text-align: left;">
                             <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER LIGNE</button>
@@ -57,73 +56,80 @@
                     </div>
                 </div>
             </div>
+        <div class="ui segments" style="margin: 0;">
 
-{#        ENETETE LIGNES ======================================================================== #}
-            <div class="ui segment" style="padding: 10px 14px 5px 14px;border-color: {{ border_color }};">
+{#        ENETETE LIGNES ========================================================================#}
+            <div class="ui segment" style="padding: 10px 14px 5px 14px;">
                 <h4 id="headerTiers">Détails</h4>
             </div>
-{#        DEBUT FORMSET ========================================================================= #}
-            {% for formlines in formset %}
-                <div class="ui segment" style="border-color: {{ border_color }};">
-                    <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-                        <div class="fields formset" style="">
-                            <div class="four wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-cct_uuid_identification">CCT X3</label>
-                                {{ formlines.cct_uuid_identification }}
-                            </div>
-                            <div class="two wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-client_name">Client</label>
-                                {{ formlines.client_name }}
-                            </div>
-                            <div class="five wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-serial_number">N° Série</label>
-                                {{ formlines.serial_number }}
-                            </div>
+{#        DEBUT FORMSET =========================================================================#}
+            <div class="ui segment" style="">
+                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="">
+                        <div class="four wide field">
+                            <label for="id_cct_uuid_identification">CCT X3</label>
+                            <select id="id_cct_uuid_identification"
+                                    class="ui search fluid dropdown artilce"
+                                    data-id="{{ forloop.counter0 }}"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
                         </div>
-                        <div class="fields formset" data-max="{{ nb_display }}" id="formset{{ forloop.counter }}" style="margin-bottom: 5px;{% if forloop.counter > nb_display %}display: none;{% endif %}">
-                            <div class="four wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-reference_article">Référence Article</label>
-                                <select id="id_form-{{ forloop.counter0 }}-reference_article"
-                                        class="ui search fluid dropdown artilce"
-                                        data-id="{{ forloop.counter0 }}"
-                                        name="form-{{ forloop.counter0 }}-reference_article">
-                                        <option value=""></option>
-                                </select>
-                            </div>
-                            <div class="five wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-libelle">Libellé</label>
-                                {{ formlines.libelle }}
-                            </div>
-                            <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-qty" style="text-align: right;margin-right: 14px">Qté</label>
-                                {{ formlines.qty }}
-                            </div>
-                            <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-unit_weight">Unité</label>
-                                {{ formlines.unit_weight }}
-                            </div>
-                            <div class="two wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-net_unit_price" style="text-align: right;margin-right: 14px">PU Net</label>
-                                {{ formlines.net_unit_price }}
-                            </div>
-                            <div class="one wide field">
-                                <label for="id_form-{{ forloop.counter0 }}-vat">TVA X3</label>
-                                {{ formlines.vat }}
-                            </div>
-                            <div class="two wide field">
-                                <label for="id_net_amount" style="text-align: right;margin-right: 14px">Montant Net</label>
-                                <input type="text"
-                                     name="net_amount"
-                                     maxlength="20"
-                                     id="id_net_amount"
-                                     readonly
-                                     style="background-color: #efefff;text-align: right;"
-                                     value="0">
-                            </div>
+                        <div class="three wide field">
+                            <label for="id_client_name">Client</label>
+                            {{ form_details.client_name }}
+                        </div>
+                        <div class="five wide field">
+                            <label for="id_serial_number">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number"
+                                 value="">
+                        </div>
+                    </div>
+                    <div class="fields formset" data-max="{{ nb_display }}" id="formset{{ forloop.counter }}" style="margin-bottom: 5px;{% if forloop.counter > nb_display %}display: none;{% endif %}">
+                        <div class="four wide field">
+                            <label for="id_reference_article">Référence Article</label>
+                            <select id="id_reference_article"
+                                    class="ui search fluid dropdown artilce"
+                                    data-id="{{ forloop.counter0 }}"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="five wide field">
+                            <label for="id_libelle">Libellé</label>
+                            {{ form_details.libelle }}
+                        </div>
+                        <div class="one wide field">
+                            <label for="id_qty" style="text-align: right;margin-right: 14px">Qté</label>
+                            {{ form_details.qty }}
+                        </div>
+                        <div class="one wide field">
+                            <label for="id_unit_weight">Unité</label>
+                            {{ form_details.unit_weight }}
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_net_unit_price" style="text-align: right;margin-right: 14px">PU Net</label>
+                            {{ form_details.net_unit_price }}
+                        </div>
+                        <div class="one wide field">
+                            <label for="id_vat">TVA X3</label>
+                            {{ form_details.vat }}
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_net_amount" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount"
+                                 readonly
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
 </div>

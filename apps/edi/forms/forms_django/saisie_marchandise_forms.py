@@ -40,7 +40,7 @@ INVOICES_CREATE_FIELDS = (
 )
 
 
-class CreateInvoiceForm(forms.ModelForm):
+class CreateBaseInvoiceForm(forms.ModelForm):
     """Changer le Tiers X3 d'une intégration"""
 
     def __init__(self, *args, **kwargs):
@@ -98,30 +98,47 @@ class CreateInvoiceForm(forms.ModelForm):
         )
         self.fields["sens"] = sens
 
-        # UNITE DE MESURE ==========================================================================
-        self.unit_weight_choices = [
-            (row.num, row.unity)
-            for row in UnitChoices.objects.all()
-        ]
-        unit_weight = forms.ChoiceField(
-            choices=self.unit_weight_choices,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-            label="unité",
-            required=False,
-            initial=1,
-        )
-        self.fields["unit_weight"] = unit_weight
-
         # AUTRE ====================================================================================
-        self.fields["serial_number"] = forms.CharField(max_length=1000, required=False)
-        self.fields["vat"].initial = "001"
         self.fields["invoice_number"].required = False
 
     class Meta:
         """class Meta"""
 
         model = EdiImport
-        fields = INVOICES_CREATE_FIELDS
+        fields = [
+            "third_party_num",
+            "invoice_number",
+            "invoice_date",
+            "invoice_type",
+            "devise",
+        ]
+
+
+class CreateDetailsInvoiceForm(forms.ModelForm):
+    """Changer le Tiers X3 d'une intégration"""
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["vat"].initial = "001"
+        self.fields["unit_weight"].initial = 1
+
+    class Meta:
+        """class Meta"""
+
+        model = EdiImport
+        fields = [
+            "cct_uuid_identification",
+            "reference_article",
+            "libelle",
+            "qty",
+            "net_unit_price",
+            "client_name",
+            "serial_number",
+            "vat",
+            "unit_weight",
+        ]
         widgets = {
             "cct_uuid_identification": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "qty": NumberInput(attrs={"step": "1", "style": "text-align: right;"}),
