@@ -1,11 +1,22 @@
 from pathlib import Path
 
 import pendulum
+from django.core import serializers
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.http import JsonResponse
+from django.shortcuts import redirect, HttpResponse
 from django.conf import settings
 
+from heron.loggers import LOGGER_VIEWS
 from apps.edi.models import EdiImport
+from apps.core.bin.api_get_models import get_articles, get_societies, get_maisons
+
+MODEL_DICT = {
+    "articles": get_articles,
+    "societies": get_societies,
+    "maisons": get_maisons,
+}
 
 
 def pdf_view(request):
@@ -23,3 +34,25 @@ def pdf_view(request):
         static_file.write(content)
 
     return render(request, "core/marchandises.html", context)
+
+
+def api_models_query(request, models, query):
+    """View pour les api dans les dropdown semantic"""
+    if request.is_ajax() and request.method == "GET":
+        dic = {"success": "ko"}
+
+        try:
+            str_query = str(query).replace("%", r"\%").replace("'", "").lower()
+            results_func = MODEL_DICT.get(str(models))
+
+            if results_func is not None:
+                results = results_func(str_query)
+                dic = {"success": list(results)}
+
+        except:
+            LOGGER_VIEWS.exception("view : article_rest_api_query")
+
+        response = JsonResponse(dic)
+        return HttpResponse(response)
+
+    return redirect("home")

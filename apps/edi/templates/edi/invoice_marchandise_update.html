@@ -12,11 +12,11 @@
 
         {% include 'edi/invoice_marchandise_empty_form.html' %}
 
-        <form action="" method="post">
+{#        <form action="" method="post">#}
             {% csrf_token %}
             {% include "edi/invoice_marchandise_update_entete.html" %}
             {% include "edi/invoice_marchandise_update_table.html" %}
-        </form>
+{#        </form>#}
 
     {% else %}
 
@@ -42,69 +42,46 @@
 
             let nbDisplay = {{ nb_display }};
 
-            $(`#idAjoutLigne`).on("click", function () {
-                nbDisplay += 1
-                if (nbDisplay <= {{ count_elements }}) {
-                    $(`#formset${nbDisplay}`).show()
-                    $(`#id_form-TOTAL_FORMS`).val(nbDisplay)
-                } else {
-                    alert("Vous avez atteind le nombre maximal de lignes")
+            $("#id_create_invoice").click(function (event) {
+                let entete = {
+                    'third_party_num':$(`#id_third_party_num`).dropdown('get value'),
+                    'invoice_number':$(`#id_invoice_number`).val(),
+                    'invoice_date':$(`#id_invoice_date`).val(),
+                    'invoice_type':$(`#id_invoice_type`).dropdown('get value'),
+                    'devise':$(`#id_devise`).dropdown('get value')
+                };
+                let lignes = [];
+                let nbFull = 0;
+                for (let i = 1; i < nbDisplay + 1; i++) {
+                    let cctUuidIdentification = $(`#id_cct_uuid_identification_${i.toString().padStart(3, '0')}`).dropdown('get value');
+                    if (cctUuidIdentification !== '') {
+                        nbFull += 1
+                        lignes.push({
+                            'cct_uuid_identification' : cctUuidIdentification,
+                            'client_name' :  $(`#id_client_name_${i.toString().padStart(3, '0')}`).val(),
+                            'serial_number' :  $(`#id_serial_number_${i.toString().padStart(3, '0')}`).val(),
+                            'reference_article' :  $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val(),
+                            'libelle' :  $(`#id_libelle_${i.toString().padStart(3, '0')}`).val(),
+                            'qty' :  $(`#id_qty_${i.toString().padStart(3, '0')}`).val(),
+                            'unit_weight' :  $(`#id_unit_weight_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                            'net_unit_price' :  $(`#id_net_unit_price_${i.toString().padStart(3, '0')}`).val(),
+                            'vat' :  $(`#id_vat_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                            'j' : i.toString()
+                        });
+                    }
                 }
-            })
-
-            $(".button.submit").click(function (event) {
-
-                const third_party_num = $(`#id_form-0-third_party_num`).dropdown('get value');
-                const invoice_number = $(`#id_form-0-invoice_number`).val();
-                const invoice_date = $(`#id_form-0-invoice_date`).val();
-                const invoice_type = $(`#id_form-0-invoice_type`).dropdown('get value');
-                const devise = $(`#id_form-0-devise`).dropdown('get value');
-
                 let formData = {
                     'csrfmiddlewaretoken' : $(`input[name*='csrfmiddlewaretoken']`).val(),
-                    'form-TOTAL_FORMS': $(`#id_form-TOTAL_FORMS`).val(),
-                    'form-INITIAL_FORMS': $(`#id_form-INITIAL_FORMS`).val(),
-                    'form-MIN_NUM_FORMS': $(`#id_form-MIN_NUM_FORMS`).val(),
-                    'form-MAX_NUM_FORMS': $(`#id_form-MAX_NUM_FORMS`).val(),
+                    'entete': entete,
+                    'lignes': lignes
                 };
 
-                for (let i = 0; i < nbDisplay; i++) {
-
-                    let cct_uuid_identification = $(`#id_form-${i}-cct_uuid_identification`).dropdown('get value');
-                    let client_name =  $(`#id_form-${i}-client_name`).val();
-                    let serial_number =  $(`#id_form-${i}-serial_number`).val();
-                    let reference_article =  $(`#id_form-${i}-reference_article`).val();
-                    let libelle =  $(`#id_form-${i}-libelle`).val();
-                    let qty =  $(`#id_form-${i}-qty`).val();
-                    let unity =  $(`#id_form-${i}-unity`).dropdown('get value');
-                    let net_unit_price =  $(`#id_form-${i}-net_unit_price`).val();
-                    let vat =  $(`#id_form-${i}-vat`).dropdown('get value');
-                    let j = i.toString();
-
-                    let data = {
-                        [`form-${j}-third_party_num`]: third_party_num,
-                        [`form-${j}-invoice_number`]: invoice_number,
-                        [`form-${j}-invoice_date`]: invoice_date,
-                        [`form-${j}-invoice_type`]: invoice_type,
-                        [`form-${j}-devise`]: devise,
-                        [`form-${j}-cct_uuid_identification`]: cct_uuid_identification,
-                        [`form-${j}-client_name`]: client_name,
-                        [`form-${j}-serial_number`]: serial_number,
-                        [`form-${j}-reference_article`]: reference_article,
-                        [`form-${j}-libelle`]: libelle,
-                        [`form-${j}-qty`]: qty,
-                        [`form-${j}-unity`]: unity,
-                        [`form-${j}-net_unit_price`]: net_unit_price,
-                        [`form-${j}-vat`]: vat,
-                    };
-                     Object.assign(formData, data);
-                     console.log(data);
-                }
+                console.log(nbFull, {'data': JSON.stringify(formData)})
 
                 $.ajax({
                     type: "POST",
                     url: "{{ url_saisie }}",
-                    data: formData,
+                    data: {'data': JSON.stringify(formData)},
                     encode: true,
                 }).done(function () {
                     console.log("RETOUR")

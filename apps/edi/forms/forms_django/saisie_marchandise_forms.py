@@ -121,6 +121,18 @@ class CreateDetailsInvoiceForm(forms.ModelForm):
         """Ajout ou transformation des champs de formulaires"""
         super().__init__(*args, **kwargs)
 
+        self.fields["cct_uuid_identification"] = forms.ChoiceField(
+            required=False,
+            initial=None,
+            widget=forms.Select(attrs={"class": "ui search dropdown"}),
+        )
+
+        self.fields["reference_article"] = forms.ChoiceField(
+            required=False,
+            initial=None,
+            widget=forms.Select(attrs={"class": "ui search dropdown"}),
+        )
+
         self.fields["vat"].initial = "001"
         self.fields["unit_weight"].initial = 1
 

@@ -3,6 +3,7 @@ from django.urls import path
 from apps.edi.views import (
     import_edi_invoices,
     create_invoice_marchandises,
+    create_post_invoices,
 )
 
 app_name = "apps.edi"
@@ -19,5 +20,10 @@ urlpatterns = [
         "create_invoice_marchandise/",
         create_invoice_marchandises,
         name="create_invoice_marchandise",
+    ),
+    path(
+        "create_post_invoices/",
+        create_post_invoices,
+        name="create_post_invoices",
     ),
 ]

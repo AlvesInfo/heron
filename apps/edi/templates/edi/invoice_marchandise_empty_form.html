@@ -1,98 +1,64 @@
-<div class="fomset-init" style="display: none;padding: 0;margin: 0">
-    <div class="ui segment" style="border-color: {{ border_color }};">
-        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-            <div class="fields primary" style="display: none;">
-                <div class="five wide field">
-                    <label for="id_form-__prefix__-third_party_num" style="text-align: left;">Fournisseur</label>
-                    <input type="text" name="form-__prefix__-third_party_num" maxlength="35" id="id_form-__prefix__-third_party_num">
+        <div id="id_segment_details_000" class="ui segment" style="display: none;">
+            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                <div class="fields formset" style="margin-bottom: 5px;">
+                    <div class="eight wide field">
+                        <label for="id_cct_uuid_identification">CCT X3</label>
+                        <select id="id_cct_uuid_identification"
+                                class="ui search fluid dropdown artilce"
+                                name="cct_uuid_identification">
+                                <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="eight wide field">
+                        <label for="id_client_name">Client</label>
+                        {{ form_details.client_name }}
+                    </div>
+                    <div class="sixteen wide field">
+                        <label for="id_serial_number">N° Série</label>
+                        <input type="text"
+                             name="serial_number"
+                             id="id_serial_number">
+                    </div>
                 </div>
-                <div class="four wide field">
-                    <label for="id_form-__prefix__-invoice_number" style="text-align: left;">N° Facture</label>
-                    <input type="text" name="form-__prefix__-invoice_number" maxlength="35" id="id_form-__prefix__-invoice_number">
-                </div>
-                <div class="two wide field">
-                    <label for="id_form-__prefix__-invoice_date"
-                           style="text-align: left;">Date Facture</label>
-                    <input type="date" name="form-__prefix__-invoice_date" maxlength="35" id="id_form-__prefix__-invoice_date">
-                </div>
-                <div class="one wide field">
-                    <label for="id_form-__prefix__-invoice_type" style="text-align: left;">Type</label>
-                    <input type="text" name="form-__prefix__-invoice_type" maxlength="35" id="id_form-__prefix__-invoice_type">
-                </div>
-                <div class="one wide field">
-                    <label for="id_form-__prefix__-devise" style="text-align: left;">{{ formset.empty_form.devise.label }}</label>
-                    <input type="text" name="form-__prefix__-devise" maxlength="35" id="id_form-__prefix__-devise">
-                </div>
-                <div class="one wide field">
-                    <label for="id_form-__prefix__-sens" style="text-align: left;">{{ formset.empty_form.sens.label }}</label>
-                    <input type="text" name="form-__prefix__-sens" maxlength="35" id="id_form-__prefix__-sens">
-                </div>
-            </div>
-            <div class="fields">
-                <div class="four wide field">
-                    <label for="id_form-__prefix__-cct_uuid_identification">CCT X3</label>
-                    {{ formset.empty_form.cct_uuid_identification }}
-                </div>
-                <div class="three wide field">
-                    <label for="id_form-__prefix__-big_category">Catégorie</label>
-                    {{ formset.empty_form.big_category }}
-                </div>
-                <div class="two wide field">
-                    <label for="id_form-__prefix__-sub_category">Rubriques Presta</label>
-                    <input type="text"
-                           id="id_form-__prefix__-sub_category"
-                           name="form-__prefix__-sub_category" value="">
-                </div>
-                <div class="two wide field">
-                    <label for="id_form-__prefix__-client_name">Client</label>
-                    {{ formset.empty_form.client_name }}
-                </div>
-                <div class="five wide field">
-                    <label for="id_form-__prefix__-serial_number">N° Série</label>
-                    {{ formset.empty_form.serial_number }}
-                </div>
-            </div>
-            <div class="fields">
-                <div class="four wide field">
-                    <label for="id_form-__prefix__-reference_article">Référence Article</label>
-                    <select id="id_form-__prefix__-reference_article"
-                            class="ui search fluid dropdown artilce"
-                            data-id="__prefix__"
-                            name="form-__prefix__-reference_article">
-                            <option value=""></option>
-                    </select>
-                </div>
-                <div class="five wide field">
-                    <label for="id_form-__prefix__-libelle">Libellé</label>
-                    {{ formset.empty_form.libelle }}
-                </div>
-                <div class="one wide field">
-                    <label for="id_form-__prefix__-qty" style="text-align: right;margin-right: 14px">Qté</label>
-                    {{ formset.empty_form.qty }}
-                </div>
-                <div class="one wide field">
-                    <label for="id_form-__prefix__-unity">Unité</label>
-                    {{ formset.empty_form.unity }}
-                </div>
-                <div class="two wide field">
-                    <label for="id_form-__prefix__-net_unit_price" style="text-align: right;margin-right: 14px">PU Net</label>
-                    {{ formset.empty_form.net_unit_price }}
-                </div>
-                <div class="one wide field">
-                    <label for="id_form-__prefix__-vat">TVA X3</label>
-                    {{ formset.empty_form.vat }}
-                </div>
-                <div class="two wide field">
-                    <label for="id_net_amount" style="text-align: right;margin-right: 14px">Montant Net</label>
-                    <input type="text"
-                         name="net_amount"
-                         maxlength="20"
-                         id="id_net_amount"
-                         readonly
-                         style="background-color: #efefff;text-align: right;"
-                         value="0">
+                <div class="fields formset" style="margin-bottom: 5px;">
+                    <div class="eight wide field">
+                        <label for="id_reference_article">Référence Article</label>
+                        <select id="id_reference_article"
+                                class="ui search fluid dropdown artilce"
+                                name="reference_article">
+                                <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="eleven wide field">
+                        <label for="id_libelle">Libellé</label>
+                        {{ form_details.libelle }}
+                    </div>
+                    <div class="two wide field">
+                        <label for="id_qty" style="text-align: right;margin-right: 14px">Qté</label>
+                        {{ form_details.qty }}
+                    </div>
+                    <div class="two wide field">
+                        <label for="id_unit_weight">Unité</label>
+                        {{ form_details.unit_weight }}
+                    </div>
+                    <div class="three wide field">
+                        <label for="id_net_unit_price" style="text-align: right;margin-right: 14px">PU Net</label>
+                        {{ form_details.net_unit_price }}
+                    </div>
+                    <div class="three wide field">
+                        <label for="id_vat">TVA X3</label>
+                        {{ form_details.vat }}
+                    </div>
+                    <div class="three wide field">
+                        <label for="id_net_amount" style="text-align: right;margin-right: 14px">Montant Net</label>
+                        <input type="text"
+                             name="net_amount"
+                             maxlength="20"
+                             id="id_net_amount"
+                             readonly
+                             style="background-color: #efefff;text-align: right;"
+                             value="0">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>

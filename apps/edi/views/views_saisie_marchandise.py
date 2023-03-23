@@ -12,6 +12,7 @@ modified at: 2023-01-04
 modified by: Paulo ALVES
 """
 from typing import Dict
+import json
 
 from django.shortcuts import render, reverse, redirect
 from django.http import JsonResponse
@@ -34,37 +35,34 @@ from django.shortcuts import render
 
 def create_invoice_marchandises(request):
     """Fonction de création de factures manuelle par saisie"""
-    count_elements = 100
-    nb_display = 2
+    nb_display = 10
 
     context = {
         "titre_table": f"Saisie de Facture / Avoir",
-        "nb_elements": range(count_elements),
-        "count_elements": count_elements,
         "nb_display": nb_display,
         "chevron_retour": reverse("home"),
         "form_base": CreateBaseInvoiceForm(),
-        "form_details": CreateDetailsInvoiceForm(),
-        "url_saisie": reverse("edi:create_invoice_marchandise"),
+        "article": CreateDetailsInvoiceForm(),
+        "url_saisie": reverse("edi:create_post_invoices"),
     }
 
-    # if request.method == "POST":
-    #     print("request.POST : ", request.POST)
-    #     formset = InvoiceMarchandiseFormset(request.POST)
-    #
-    #     if formset.is_valid():
-    #         print("formset : ", formset.is_valid())
-    #         instances = formset.save(commit=False)
-    #         print("instances : ", instances)
-    #
-    #         for instance in instances:
-    #             print(dir(instance))
-    #             instance.save()
-    #
-    #         return JsonResponse({"success": "ok"})
-    #
-    #     else:
-    #         print(formset.errors)
+    if request.method == "POST":
+        print("request.POST : ", request.POST)
+        # formset = InvoiceMarchandiseFormset(request.POST)
+        #
+        # if formset.is_valid():
+        #     print("formset : ", formset.is_valid())
+        #     instances = formset.save(commit=False)
+        #     print("instances : ", instances)
+        #
+        #     for instance in instances:
+        #         print(dir(instance))
+        #         instance.save()
+        #
+        #     return JsonResponse({"success": "ok"})
+        #
+        # else:
+        #     print(formset.errors)
 
     print("to render")
     return render(request, "edi/invoice_marchandise_update.html", context=context)
@@ -77,19 +75,21 @@ def create_post_invoices(request):
         return redirect("home")
 
     data = {"success": "ko"}
-    id_pk = request.POST.get("pk")
-    # form = DeleteSupplierFamilyAxesForm({"id": id_pk})
-    if id_pk == 1:
-        s = 1
-        # if form.is_valid():
-        #
-        #     data = {"success": "success"}
+    data_dict = json.loads(request.POST.get("data"))
 
-    else:
-        LOGGER_VIEWS.exception(f"create_post_invoices, form invalid : ")
+    print(type(data_dict), data_dict)
+    # id_pk = request.POST.get("pk")
+    # # form = DeleteSupplierFamilyAxesForm({"id": id_pk})
+    # if id_pk == 1:
+    #     s = 1
+    #     # if form.is_valid():
+    #     #
+    #     #     data = {"success": "success"}
+    #
+    # else:
+    #     LOGGER_VIEWS.exception(f"create_post_invoices, form invalid : ")
 
     return JsonResponse(data)
-
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

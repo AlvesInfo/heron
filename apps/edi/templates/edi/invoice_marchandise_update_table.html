@@ -7,19 +7,13 @@
         <div class="ui medium text loader">Chargement</div>
     </div>
     <div class="sixteen wide column" style="padding: 0;">
-{#      ENTETES DU FORMSET ======================================================================#}
-        <input type="hidden" name="form-TOTAL_FORMS" value="{{ nb_display }}" id="id_form-TOTAL_FORMS">
-        <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS">
-        <input type="hidden" name="form-MIN_NUM_FORMS" value="1" id="id_form-MIN_NUM_FORMS">
-        <input type="hidden" name="form-MAX_NUM_FORMS" value="{{ count_elements }}" id="id_form-MAX_NUM_FORMS">
 
-            <div class="ui segment" style="padding: 10px 14px 5px 14px;">
-                <h4 id="headerTiers">Invoice</h4>
+        <div class="ui segments" style="margin: 5px 0;">
+            <div class="ui segment" style="padding: 10px 14px 5px 14px;background-color: lavender;">
+                <h4 id="headerTiers" style="font-weight: bold;">Invoice</h4>
             </div>
-
-{#        ENETETE ===============================================================================#}
-            <div class="ui segment" style="">
-                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+            <div class="ui segment" style="padding: 10px 14px 5px 14px;">
+                <div class="ui mini form entete" style="font-size: 12px;font-weight:bold;">
                     <div class="fields" style="">
                         <div class="five wide field">
                             <label for="id_third_party_num" style="text-align: left;">Fournisseur</label>
@@ -56,80 +50,2230 @@
                     </div>
                 </div>
             </div>
-        <div class="ui segments" style="margin: 0;">
+        </div>
+        <div class="ui segments" style="margin: 0 0 20px 0;">
 
-{#        ENETETE LIGNES ========================================================================#}
-            <div class="ui segment" style="padding: 10px 14px 5px 14px;">
-                <h4 id="headerTiers">Détails</h4>
+{#        ENETETE LIGNES =========================================================================#}
+            <div class="ui segment" style="padding: 10px 14px 5px 14px;background-color: lavender;">
+                <h4 id="headerTiers" style="font-weight: bold;">Détails</h4>
             </div>
-{#        DEBUT FORMSET =========================================================================#}
-            <div class="ui segment" style="">
-                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-                    <div class="fields formset" style="">
-                        <div class="four wide field">
-                            <label for="id_cct_uuid_identification">CCT X3</label>
-                            <select id="id_cct_uuid_identification"
-                                    class="ui search fluid dropdown artilce"
-                                    data-id="{{ forloop.counter0 }}"
+{#        DEBUT FORM_DETAILS =====================================================================#}
+
+            <div id="id_segment_details_001" class="ui segment" style="background-color: aliceblue;">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_001">CCT X3</label>
+                            <select id="id_cct_uuid_identification_001"
+                                    class="ui search fluid dropdown"
                                     name="cct_uuid_identification">
                                     <option value=""></option>
                             </select>
                         </div>
-                        <div class="three wide field">
-                            <label for="id_client_name">Client</label>
-                            {{ form_details.client_name }}
+                        <div class="eight wide field">
+                            <label for="id_client_name_001">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_001">
                         </div>
-                        <div class="five wide field">
-                            <label for="id_serial_number">N° Série</label>
+                        <div class="eight wide field">
+                            <label for="id_serial_number_001">N° Série</label>
                             <input type="text"
                                  name="serial_number"
-                                 id="id_serial_number"
-                                 value="">
+                                 id="id_serial_number_001">
                         </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_001">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_001">
+                        </div>
+
                     </div>
-                    <div class="fields formset" data-max="{{ nb_display }}" id="formset{{ forloop.counter }}" style="margin-bottom: 5px;{% if forloop.counter > nb_display %}display: none;{% endif %}">
-                        <div class="four wide field">
-                            <label for="id_reference_article">Référence Article</label>
-                            <select id="id_reference_article"
-                                    class="ui search fluid dropdown artilce"
-                                    data-id="{{ forloop.counter0 }}"
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_001">Référence Article</label>
+                            <select id="id_reference_article_001"
+                                    class="ui api-search fluid dropdown artilce"
                                     name="reference_article">
                                     <option value=""></option>
                             </select>
                         </div>
-                        <div class="five wide field">
-                            <label for="id_libelle">Libellé</label>
-                            {{ form_details.libelle }}
-                        </div>
-                        <div class="one wide field">
-                            <label for="id_qty" style="text-align: right;margin-right: 14px">Qté</label>
-                            {{ form_details.qty }}
-                        </div>
-                        <div class="one wide field">
-                            <label for="id_unit_weight">Unité</label>
-                            {{ form_details.unit_weight }}
+                        <div class="eleven wide field">
+                            <label for="id_libelle_001">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_001">
                         </div>
                         <div class="two wide field">
-                            <label for="id_net_unit_price" style="text-align: right;margin-right: 14px">PU Net</label>
-                            {{ form_details.net_unit_price }}
-                        </div>
-                        <div class="one wide field">
-                            <label for="id_vat">TVA X3</label>
-                            {{ form_details.vat }}
+                            <label for="id_qty_001" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_001">
                         </div>
                         <div class="two wide field">
-                            <label for="id_net_amount" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <label for="id_unit_weight_001">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_001">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_001" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_001">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_001">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_001">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_001" style="text-align: right;margin-right: 14px">Montant Net</label>
                             <input type="text"
                                  name="net_amount"
                                  maxlength="20"
-                                 id="id_net_amount"
-                                 readonly
+                                 id="id_net_amount_001"
+                                 readonly  tabindex="-1"
                                  style="background-color: #efefff;text-align: right;"
                                  value="0">
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="id_segment_details_002" class="ui segment" style="">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_002">CCT X3</label>
+                            <select id="id_cct_uuid_identification_002"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_002">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_002">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_002">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_002">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_002">Référence Article</label>
+                            <select id="id_reference_article_002"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_002">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_002">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_002" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_002">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_002">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_002">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_002" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_002">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_002">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_002">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_002" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_002"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_003" class="ui segment" style="background-color: aliceblue;">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_003">CCT X3</label>
+                            <select id="id_cct_uuid_identification_003"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_003">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_003">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_003">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_003">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_003">Référence Article</label>
+                            <select id="id_reference_article_003"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_003">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_003">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_003" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_003">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_003">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_003">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_003" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_003">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_003">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_003">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_003" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_003"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_004" class="ui segment" style="">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_004">CCT X3</label>
+                            <select id="id_cct_uuid_identification_004"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_004">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_004">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_004">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_004">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_004">Référence Article</label>
+                            <select id="id_reference_article_004"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_004">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_004">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_004" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_004">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_004">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_004">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_004" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_004">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_004">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_004">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_004" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_004"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_005" class="ui segment" style="background-color: aliceblue;">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_005">CCT X3</label>
+                            <select id="id_cct_uuid_identification_005"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_005">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_005">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_005">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_005">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_005">Référence Article</label>
+                            <select id="id_reference_article_005"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_005">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_005">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_005" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_005">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_005">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_005">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_005" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_005">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_005">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_005">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_005" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_005"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_006" class="ui segment" style="">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_006">CCT X3</label>
+                            <select id="id_cct_uuid_identification_006"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_006">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_006">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_006">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_006">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_006">Référence Article</label>
+                            <select id="id_reference_article_006"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_006">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_006">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_006" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_006">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_006">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_006">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_006" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_006">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_006">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_006">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_006" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_006"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_007" class="ui segment" style="background-color: aliceblue;">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_007">CCT X3</label>
+                            <select id="id_cct_uuid_identification_007"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_007">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_007">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_007">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_007">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_007">Référence Article</label>
+                            <select id="id_reference_article_007"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_007">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_007">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_007" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_007">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_007">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_007">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_007" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_007">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_007">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_007">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_007" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_007"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_008" class="ui segment" style="">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_008">CCT X3</label>
+                            <select id="id_cct_uuid_identification_008"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_008">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_008">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_008">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_008">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_008">Référence Article</label>
+                            <select id="id_reference_article_008"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_008">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_008">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_008" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_008">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_008">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_008">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_008" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_008">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_008">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_008">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_008" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_008"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_segment_details_009" class="ui segment" style="background-color: aliceblue;">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_cct_uuid_identification_009">CCT X3</label>
+                            <select id="id_cct_uuid_identification_009"
+                                    class="ui search fluid dropdown"
+                                    name="cct_uuid_identification">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eight wide field">
+                            <label for="id_client_name_009">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_009">
+                        </div>
+                        <div class="sixteen wide field">
+                            <label for="id_serial_number_009">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_009">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="eight wide field">
+                            <label for="id_reference_article_009">Référence Article</label>
+                            <select id="id_reference_article_009"
+                                    class="ui dropdown search api-search fluid"
+                                    name="reference_article">
+                                    <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="eleven wide field">
+                            <label for="id_libelle_009">Libellé</label>
+                            <input type="text"
+                                   name="libelle"
+                                   maxlength="150"
+                                   id="id_libelle_009">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_qty_009" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_009">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_009">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_009">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_unit_price_009" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_009">
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_vat_009">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_009">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_net_amount_009" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_009"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="id_segment_details_010" class="ui segment" style="">
+                <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="seven wide field">
+                            <div class="field remote search" data-api="maisons">
+                                <label for="id_cct_uuid_identification_010">CCT X3</label>
+                                <select name="cct_uuid_identification"
+                                        class="ui search dropdown search-model"
+                                        data-models="maisons"
+                                        id="id_cct_uuid_identification_010">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="three wide field">
+                            <label for="id_client_name_010">Client</label>
+                            <input type="text"
+                                   name="client_name"
+                                   maxlength="80"
+                                   id="id_client_name_010">
+                        </div>
+                        <div class="six wide field">
+                            <label for="id_serial_number_010">N° Série</label>
+                            <input type="text"
+                                 name="serial_number"
+                                 id="id_serial_number_010">
+                        </div>
+                    </div>
+                    <div class="fields formset" style="margin-bottom: 5px;">
+                        <div class="seven wide field">
+                            <div class="field remote">
+                                <label for="id_reference_article_010">Article</label>
+                                <select name="reference_article_010"
+                                        class="ui search dropdown search-model"
+                                        data-models="articles"
+                                        id="id_reference_article_010">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="one wide field">
+                            <label for="id_qty_010" style="text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   step="1"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_qty_010">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_unit_weight_010">Unité</label>
+                            <div class="ui fluid search dropdown selection">
+                                <select name="unit_weight" required="" id="id_unit_weight_010">
+                                  <option value="">---------</option>
+                                  <option value="1" selected="">U</option>
+                                  <option value="2">Grammes</option>
+                                  <option value="3">Kg</option>
+                                  <option value="4">Pièce</option>
+                                  <option value="5">Boite</option>
+                                  <option value="6">Carton</option>
+                                  <option value="7">Jrs</option>
+                                  <option value="8">Mois</option>
+                                  <option value="9">Forfait</option>
+                                  <option value="10">Heures</option>
+                                  <option value="11">Ens</option>
+                                  <option value="12">%</option>
+                                </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0" >
+                                    <div class="text">U</div>
+                                    <div class="menu transition hidden" tabindex="-1">
+                                        <div class="item active selected" data-value="1">U</div>
+                                        <div class="item" data-value="2">Grammes</div>
+                                        <div class="item" data-value="3">Kg</div>
+                                        <div class="item" data-value="4">Pièce</div>
+                                        <div class="item" data-value="5">Boite</div>
+                                        <div class="item" data-value="6">Carton</div>
+                                        <div class="item" data-value="7">Jrs</div>
+                                        <div class="item" data-value="8">Mois</div>
+                                        <div class="item" data-value="9">Forfait</div>
+                                        <div class="item" data-value="10">Heures</div>
+                                        <div class="item" data-value="11">Ens</div>
+                                        <div class="item" data-value="12">%</div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_net_unit_price_010" style="text-align: right;margin-right: 14px">PU Net</label>
+                            <input type="number"
+                                   name="net_unit_price"
+                                   value="0"
+                                   step="0.01"
+                                   min="0"
+                                   style="text-align: right;"
+                                   required=""
+                                   id="id_net_unit_price_010">
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_vat_010">TVA X3</label>
+                            <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_010">
+                              <option value="">---------</option>
+                              <option value="001" selected="">001 - FRA</option>
+                              <option value="002">002 - FRA</option>
+                              <option value="003">003 - FRA</option>
+                              <option value="004">004 - FRA</option>
+                              <option value="005">005 - FRA</option>
+                              <option value="006">006 - FRA</option>
+                              <option value="007">007 - FRA</option>
+                              <option value="008">008 - FRA</option>
+                              <option value="009">009 - FRA</option>
+                              <option value="010">010 - CEE</option>
+                              <option value="011">011 - CEE</option>
+                              <option value="012">012 - CEE</option>
+                              <option value="013">013 - CEE</option>
+                              <option value="014">014 - CEE</option>
+                              <option value="015">015 - CEE</option>
+                              <option value="016">016 - CEE</option>
+                              <option value="017">017 - CEE</option>
+                              <option value="018">018 - CEE</option>
+                              <option value="021">021 - CPI</option>
+                              <option value="031">031 - EXP</option>
+                              <option value="032">032 - SPT</option>
+                              <option value="033">033 - None</option>
+                              <option value="041">041 - DOM</option>
+                              <option value="042">042 - DOM</option>
+                              <option value="050">050 - CEE</option>
+                              <option value="051">051 - CEE</option>
+                              <option value="052">052 - None</option>
+                              <option value="053">053 - CEE</option>
+                              <option value="054">054 - CEE</option>
+                              <option value="055">055 - CEE</option>
+                              <option value="056">056 - CEE</option>
+                              <option value="057">057 - CEE</option>
+                              <option value="058">058 - CEE</option>
+                              <option value="059">059 - CEE</option>
+                              <option value="060">060 - CEE</option>
+                              <option value="061">061 - CEE</option>
+                              <option value="062">062 - CEE</option>
+                              <option value="063">063 - CEE</option>
+                              <option value="064">064 - CEE</option>
+                              <option value="065">065 - CEE</option>
+                              <option value="066">066 - CEE</option>
+                              <option value="067">067 - CEE</option>
+                              <option value="068">068 - CEE</option>
+                              <option value="069">069 - CEE</option>
+                              <option value="070">070 - CEE</option>
+                              <option value="071">071 - CEE</option>
+                              <option value="072">072 - CEE</option>
+                              <option value="GST51">GST51 - GST</option>
+                            </select>
+                                <i class="dropdown icon"></i>
+                                <input class="search" autocomplete="off" tabindex="0">
+                                <div class="text">001 - FRA</div>
+                                <div class="menu" tabindex="-1">
+                                    <div class="item active selected" data-value="001">001 - FRA</div>
+                                    <div class="item" data-value="002">002 - FRA</div>
+                                    <div class="item" data-value="003">003 - FRA</div>
+                                    <div class="item" data-value="004">004 - FRA</div>
+                                    <div class="item" data-value="005">005 - FRA</div>
+                                    <div class="item" data-value="006">006 - FRA</div>
+                                    <div class="item" data-value="007">007 - FRA</div>
+                                    <div class="item" data-value="008">008 - FRA</div>
+                                    <div class="item" data-value="009">009 - FRA</div>
+                                    <div class="item" data-value="010">010 - CEE</div>
+                                    <div class="item" data-value="011">011 - CEE</div>
+                                    <div class="item" data-value="012">012 - CEE</div>
+                                    <div class="item" data-value="013">013 - CEE</div>
+                                    <div class="item" data-value="014">014 - CEE</div>
+                                    <div class="item" data-value="015">015 - CEE</div>
+                                    <div class="item" data-value="016">016 - CEE</div>
+                                    <div class="item" data-value="017">017 - CEE</div>
+                                    <div class="item" data-value="018">018 - CEE</div>
+                                    <div class="item" data-value="021">021 - CPI</div>
+                                    <div class="item" data-value="031">031 - EXP</div>
+                                    <div class="item" data-value="032">032 - SPT</div>
+                                    <div class="item" data-value="033">033 - None</div>
+                                    <div class="item" data-value="041">041 - DOM</div>
+                                    <div class="item" data-value="042">042 - DOM</div>
+                                    <div class="item" data-value="050">050 - CEE</div>
+                                    <div class="item" data-value="051">051 - CEE</div>
+                                    <div class="item" data-value="052">052 - None</div>
+                                    <div class="item" data-value="053">053 - CEE</div>
+                                    <div class="item" data-value="054">054 - CEE</div>
+                                    <div class="item" data-value="055">055 - CEE</div>
+                                    <div class="item" data-value="056">056 - CEE</div>
+                                    <div class="item" data-value="057">057 - CEE</div>
+                                    <div class="item" data-value="058">058 - CEE</div>
+                                    <div class="item" data-value="059">059 - CEE</div>
+                                    <div class="item" data-value="060">060 - CEE</div>
+                                    <div class="item" data-value="061">061 - CEE</div>
+                                    <div class="item" data-value="062">062 - CEE</div>
+                                    <div class="item" data-value="063">063 - CEE</div>
+                                    <div class="item" data-value="064">064 - CEE</div>
+                                    <div class="item" data-value="065">065 - CEE</div>
+                                    <div class="item" data-value="066">066 - CEE</div>
+                                    <div class="item" data-value="067">067 - CEE</div>
+                                    <div class="item" data-value="068">068 - CEE</div>
+                                    <div class="item" data-value="069">069 - CEE</div>
+                                    <div class="item" data-value="070">070 - CEE</div>
+                                    <div class="item" data-value="071">071 - CEE</div>
+                                    <div class="item" data-value="072">072 - CEE</div>
+                                    <div class="item" data-value="GST51">GST51 - GST</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="two wide field">
+                            <label for="id_net_amount_010" style="text-align: right;margin-right: 14px">Montant Net</label>
+                            <input type="text"
+                                 name="net_amount"
+                                 maxlength="20"
+                                 id="id_net_amount_010"
+                                 readonly  tabindex="-1"
+                                 style="background-color: #efefff;text-align: right;"
+                                 value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
