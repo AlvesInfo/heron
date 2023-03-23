@@ -370,11 +370,11 @@ def format_line_to_dos(ligne, mode):
 def verif_chiffres(numbers, l_g=None, between=None):
     """
     Fonction qui vérifie un nombre
-        :param numbers: Nombre à vérifier
-        :param l_g: Si l'on veut vérifier le nombre de chiffres
-        :param between: Si l'on veut vérifier un intervalle,
-                        doit être un tuple ou une liste (1998, 2010)
-        :return: True si valide sinon None
+    :param numbers:  à vérifier
+    :param l_g: Si l'on veut vérifier le nombre de chiffres
+    :param between: Si l'on veut vérifier un intervalle,
+                    doit être un tuple ou une liste (1998, 2010)
+    :return: True si valide sinon None
     """
     number = None
     num = str(numbers)

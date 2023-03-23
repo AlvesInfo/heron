@@ -22,7 +22,7 @@ def point(value):
 @register.filter(name="left_trunc")
 @stringfilter
 def left_trunc(value, num):
-    return value[int(num) :]
+    return value[int(num):]
 
 
 @register.filter(name="right_align")
@@ -209,6 +209,11 @@ def numbers_point(value, num):
             return_value += " "
 
     return (return_value[::-1] + "." + centimes[:num]).strip()
+
+
+@register.filter(name="rangex")
+def rangex(value, num):
+    return range(value, num)
 
 
 @register.filter(name="int_formats")

@@ -40,6 +40,7 @@ def create_invoice_marchandises(request):
     context = {
         "titre_table": f"Saisie de Facture / Avoir",
         "nb_display": nb_display,
+        "range_display": range(1, nb_display + 1),
         "chevron_retour": reverse("home"),
         "form_base": CreateBaseInvoiceForm(),
         "article": CreateDetailsInvoiceForm(),

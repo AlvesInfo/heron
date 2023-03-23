@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pendulum
-from django.core import serializers
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.http import JsonResponse
@@ -10,12 +9,30 @@ from django.conf import settings
 
 from heron.loggers import LOGGER_VIEWS
 from apps.edi.models import EdiImport
-from apps.core.bin.api_get_models import get_articles, get_societies, get_maisons
+from apps.core.bin.api_get_models import (
+    get_articles_alls,
+    get_articles,
+    get_societies_alls,
+    get_societies,
+    get_maisons_alls,
+    get_maisons,
+    get_unity_alls,
+    get_unity,
+    get_vat_alls,
+    get_vat,
+)
 
 MODEL_DICT = {
+    "articles_alls": get_articles_alls,
     "articles": get_articles,
+    "societies_alls": get_societies_alls,
     "societies": get_societies,
+    "maisons_alls": get_maisons_alls,
     "maisons": get_maisons,
+    "unites_alls": get_unity_alls,
+    "unites": get_unity,
+    "vats_alls": get_vat_alls,
+    "vats": get_vat,
 }
 
 
