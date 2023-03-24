@@ -230,7 +230,7 @@
                     <div class="column">
                         <h4 class="ui header">01. Factures</h4>
                         <div class="ui link list">
-                            <a href="{% url 'edi:create_invoice_marchandise' %}" class="item">Saisie</a>
+                            <a href="{% url 'edi:create_hand_invoices' category='marchandises' %}" class="item">Saisie</a>
 {#                            <a href="" class="item">Import</a>#}
 {#                            <a href="" class="item">Visualisation</a>#}
                         </div>
@@ -267,7 +267,7 @@
                     <div class="column">
                         <h4 class="ui header">02. Formations</h4>
                         <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
+                            <a href="{% url 'edi:create_hand_invoices' category='formations' %}" class="item">Saisie</a>
 {#                            <a href="" class="item">Import</a>#}
 {#                            <a href="" class="item">Visualisation</a>#}
                         </div>
@@ -277,7 +277,7 @@
                     <div class="column">
                         <h4 class="ui header">03. Personnel</h4>
                         <div class="ui link list">
-                            <a href="" class="item">Saisie</a>
+                            <a href="{% url 'edi:create_hand_invoices' category='personnel' %}" class="item">Saisie</a>
 {#                            <a href="" class="item">Import</a>#}
 {#                            <a href="" class="item">Visualisation</a>#}
                         </div>

@@ -216,22 +216,24 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
         attr_instance_dict = {}
 
     counter_num_obj = initial_counter_nums(counter_instance)
+
     str_num = ""
-    name = counter_instance.name
-    prefix = counter_instance.prefix or ""
-    attr_instance_prefix = attr_instance_dict.get("prefix")
-    suffix = counter_instance.prefix or ""
-    attr_instance_suffix = attr_instance_dict.get("suffix")
-    ldap_num = counter_instance.lpad_num
-    separateur = counter_instance.separateur or ""
+    prefix = counter_instance.prefix or attr_instance_dict.get("prefix", "")
+    attr_instance_prefix = attr_instance_dict.get("prefix", "")
+
+    suffix = counter_instance.suffix or attr_instance_dict.get("suffix", "")
+    attr_instance_suffix = attr_instance_dict.get("suffix", "")
+
+    ldap_num = counter_instance.lpad_num or attr_instance_dict.get("ldap_num", "0")
+    separateur = counter_instance.separateur or attr_instance_dict.get("separateur", "")
 
     if prefix:
-        str_num += get_pre_suf(name=name, attr_instance=attr_instance_prefix) + separateur
-
-    str_num += str(counter_num_obj.num).zfill(ldap_num) + separateur
+        str_num += get_pre_suf(name=prefix, attr_instance=attr_instance_prefix) + separateur
 
     if suffix:
-        str_num += get_pre_suf(name=name, attr_instance=attr_instance_suffix) + separateur
+        str_num += get_pre_suf(name=suffix, attr_instance=attr_instance_suffix) + separateur
+
+    str_num += str(counter_num_obj.num).zfill(ldap_num)
 
     counter_num_obj.num += 1
     counter_num_obj.save()

@@ -43,48 +43,51 @@
             let nbDisplay = {{ nb_display }};
 
             $("#id_create_invoice").click(function (event) {
+
+                $(`.datatable-chargement`).show();
+
                 let entete = {
                     'third_party_num':$(`#id_third_party_num`).dropdown('get value'),
                     'invoice_number':$(`#id_invoice_number`).val(),
                     'invoice_date':$(`#id_invoice_date`).val(),
                     'invoice_type':$(`#id_invoice_type`).dropdown('get value'),
-                    'devise':$(`#id_devise`).dropdown('get value')
+                    'devise':$(`#id_devise`).dropdown('get value'),
+                    'sens': $(`#id_sens`).dropdown('get value'),
                 };
                 let lignes = [];
-                let nbFull = 0;
+
                 for (let i = 1; i < nbDisplay + 1; i++) {
-                    let cctUuidIdentification = $(`#id_cct_uuid_identification_${i.toString().padStart(3, '0')}`).dropdown('get value');
-                    if (cctUuidIdentification !== '') {
-                        nbFull += 1
-                        lignes.push({
-                            'cct_uuid_identification' : cctUuidIdentification,
-                            'client_name' :  $(`#id_client_name_${i.toString().padStart(3, '0')}`).val(),
-                            'serial_number' :  $(`#id_serial_number_${i.toString().padStart(3, '0')}`).val(),
-                            'reference_article' :  $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val(),
-                            'libelle' :  $(`#id_libelle_${i.toString().padStart(3, '0')}`).val(),
-                            'qty' :  $(`#id_qty_${i.toString().padStart(3, '0')}`).val(),
-                            'unit_weight' :  $(`#id_unit_weight_${i.toString().padStart(3, '0')}`).dropdown('get value'),
-                            'net_unit_price' :  $(`#id_net_unit_price_${i.toString().padStart(3, '0')}`).val(),
-                            'vat' :  $(`#id_vat_${i.toString().padStart(3, '0')}`).dropdown('get value'),
-                            'j' : i.toString()
-                        });
-                    }
+                    lignes.push({
+                        'num' : i,
+                        'cct_uuid_identification' : $(`#id_cct_uuid_identification_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                        'client_name' :  $(`#id_client_name_${i.toString().padStart(3, '0')}`).val(),
+                        'serial_number' :  $(`#id_serial_number_${i.toString().padStart(3, '0')}`).val(),
+                        'reference_article' :  $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val(),
+                        'libelle' :  $(`#id_libelle_${i.toString().padStart(3, '0')}`).val(),
+                        'qty' :  $(`#id_qty_${i.toString().padStart(3, '0')}`).val(),
+                        'unit_weight' :  $(`#id_unit_weight_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                        'net_unit_price' :  $(`#id_net_unit_price_${i.toString().padStart(3, '0')}`).val(),
+                        'vat' :  $(`#id_vat_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                    });
                 }
+                let csrftoken = $(`input[name*='csrfmiddlewaretoken']`).val();
                 let formData = {
-                    'csrfmiddlewaretoken' : $(`input[name*='csrfmiddlewaretoken']`).val(),
+                    'csrfmiddlewaretoken' : csrftoken,
                     'entete': entete,
                     'lignes': lignes
                 };
 
-                console.log(nbFull, {'data': JSON.stringify(formData)})
+                console.log({'data': JSON.stringify(formData)})
 
                 $.ajax({
                     type: "POST",
                     url: "{{ url_saisie }}",
                     data: {'data': JSON.stringify(formData)},
                     encode: true,
-                }).done(function () {
-                    console.log("RETOUR")
+                    headers: {'X-CSRFToken': csrftoken},
+                    mode: 'same-origin',
+                }).done(function (data) {
+                    window.location.replace("{{ url_saisie }}");
                 });
 
                 event.preventDefault();

@@ -10,4 +10,3 @@ class HeronError(Exception):
 
 class LaunchDoesNotExistsError(Exception):
     """Exception niveau module"""
-

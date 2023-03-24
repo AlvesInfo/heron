@@ -146,7 +146,7 @@ def get_maisons_alls() -> Maison.objects:
                 "pays__country_name",
                 output_field=CharField(),
             ),
-            pk=F("cct"),
+            pk=F("uuid_identification"),
             model=Concat(
                 "cct",
                 Value(" - "),

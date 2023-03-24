@@ -16,9 +16,9 @@ modified by: Paulo ALVES
 def get_sens(sens: str):
     """Retourne le sens de facturation AC, AC/VE, VE"""
     if sens == "2":
-        return {"purchase_invoice": "on", "sale_invoice": "on"}
+        return {"purchase_invoice": "true", "sale_invoice": "true"}
 
     if sens == "1":
-        return {"purchase_invoice": "off", "sale_invoice": "on"}
+        return {"purchase_invoice": "false", "sale_invoice": "true"}
 
-    return {"purchase_invoice": "on", "sale_invoice": "off"}
+    return {"purchase_invoice": "true", "sale_invoice": "false"}

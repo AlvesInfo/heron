@@ -58,59 +58,59 @@
         <div id="" style="margin: 0;padding: 0">
             {% for i in range_display %}
                 {% with i|stringformat:"03d" as num %}
-                <div id="id_segment_details{{ num }}" class="ui segment" style="{% cycle '' 'background-color: lavender;' %};margin: 0;padding: 5px 10px 10px;">
+                <div id="id_segment_details_{{ num }}" class="ui segment" style="{% cycle '' 'background-color: lavender;' %};margin: 0;padding: 5px 10px 10px;">
                     <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
                         <div class="fields formset" style="margin-bottom: 5px;">
                             <div class="seven wide field">
-                                <div class="field remote search" data-api="maisons">
-                                    <label for="id_cct_uuid_identification{{ num }}">CCT X3</label>
+                                <div class="field remote search">
+                                    <label for="id_cct_uuid_identification_{{ num }}">CCT X3</label>
                                     <select name="cct_uuid_identification"
                                             class="ui search dropdown search-model"
                                             data-models="maisons"
-                                            id="id_cct_uuid_identification{{ num }}">
+                                            id="id_cct_uuid_identification_{{ num }}">
                                     </select>
                                 </div>
                             </div>
                             <div class="three wide field">
-                                <label for="id_client_name{{ num }}">Client</label>
+                                <label for="id_client_name_{{ num }}">Client</label>
                                 <input type="text"
                                        name="client_name"
                                        maxlength="80"
-                                       id="id_client_name{{ num }}">
+                                       id="id_client_name_{{ num }}">
                             </div>
                             <div class="six wide field">
-                                <label for="id_serial_number{{ num }}">N° Série</label>
+                                <label for="id_serial_number_{{ num }}">N° Série</label>
                                 <input type="text"
                                      name="serial_number"
-                                     id="id_serial_number{{ num }}">
+                                     id="id_serial_number_{{ num }}">
                             </div>
                         </div>
                         <div class="fields formset" style="margin-bottom: 5px;">
                             <div class="seven wide field">
                                 <div class="field remote">
-                                    <label for="id_reference_article{{ num }}">Article</label>
-                                    <select name="reference_article{{ num }}"
+                                    <label for="id_reference_article_{{ num }}">Article</label>
+                                    <select name="reference_article_{{ num }}"
                                             class="ui search dropdown search-model"
                                             data-models="articles"
-                                            id="id_reference_article{{ num }}">
+                                            id="id_reference_article_{{ num }}">
                                     </select>
                                 </div>
                             </div>
 
                             <div class="one wide field">
-                                <label for="id_qty{{ num }}" style="text-align: right;margin-right: 14px">Qté</label>
+                                <label for="id_qty_{{ num }}" style="text-align: right;margin-right: 14px">Qté</label>
                                 <input type="number"
                                        name="qty"
                                        value="1"
                                        step="1"
                                        style="text-align: right;"
                                        required=""
-                                       id="id_qty{{ num }}">
+                                       id="id_qty_{{ num }}">
                             </div>
                             <div class="two wide field">
-                                <label for="id_unit_weight{{ num }}">Unité</label>
+                                <label for="id_unit_weight_{{ num }}">Unité</label>
                                 <div class="ui fluid search dropdown selection">
-                                    <select name="unit_weight" required="" id="id_unit_weight{{ num }}">
+                                    <select name="unit_weight" required="" id="id_unit_weight_{{ num }}">
                                       <option value="">---------</option>
                                       <option value="1" selected="">U</option>
                                       <option value="2">Grammes</option>
@@ -145,7 +145,7 @@
                                 </div>
                             </div>
                             <div class="two wide field">
-                                <label for="id_net_unit_price{{ num }}" style="text-align: right;margin-right: 14px">PU Net</label>
+                                <label for="id_net_unit_price_{{ num }}" style="text-align: right;margin-right: 14px">PU Net</label>
                                 <input type="number"
                                        name="net_unit_price"
                                        value="0"
@@ -153,11 +153,11 @@
                                        min="0"
                                        style="text-align: right;"
                                        required=""
-                                       id="id_net_unit_price{{ num }}">
+                                       id="id_net_unit_price_{{ num }}">
                             </div>
                             <div class="two wide field">
-                                <label for="id_vat{{ num }}">TVA X3</label>
-                                <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat{{ num }}">
+                                <label for="id_vat_{{ num }}">TVA X3</label>
+                                <div class="ui fluid search dropdown selection"><select name="vat" required="" id="id_vat_{{ num }}">
                                   <option value="">---------</option>
                                   <option value="001" selected="">001 - FRA</option>
                                   <option value="002">002 - FRA</option>
@@ -264,11 +264,11 @@
                                 </div>
                             </div>
                             <div class="two wide field">
-                                <label for="id_net_amount{{ num }}" style="text-align: right;margin-right: 14px">Montant Net</label>
+                                <label for="id_net_amount_{{ num }}" style="text-align: right;margin-right: 14px">Montant Net</label>
                                 <input type="text"
                                      name="net_amount"
                                      maxlength="20"
-                                     id="id_net_amount{{ num }}"
+                                     id="id_net_amount_{{ num }}"
                                      readonly  tabindex="-1"
                                      style="background-color: #efefff;text-align: right;"
                                      value="0">

@@ -64,11 +64,11 @@ def test_get_pre_suf():
 
     for row in test_list:
         name, attr_instance, expected_result = row
-        # print(
-        #     name,
-        #     attr_instance,
-        #     expected_result,
-        #     " --- ",
-        #     get_pre_suf(name=name, attr_instance=attr_instance),
-        # )
+        print(
+            name,
+            attr_instance,
+            expected_result,
+            get_pre_suf(name=name, attr_instance=attr_instance),
+            sep=" | "
+        )
         assert get_pre_suf(name=name, attr_instance=attr_instance) == expected_result

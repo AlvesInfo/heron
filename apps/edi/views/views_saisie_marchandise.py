@@ -14,28 +14,28 @@ modified by: Paulo ALVES
 from typing import Dict
 import json
 
+from django.contrib import messages
 from django.shortcuts import render, reverse, redirect
 from django.http import JsonResponse
-from django.forms import modelformset_factory
+from django.views.decorators.csrf import csrf_protect
 
 from heron.loggers import LOGGER_VIEWS
-from apps.edi.bin.edi_utilites import get_sens
-from apps.edi.models import EdiImport
+from apps.edi.bin.set_hand_invoices import check_invoice_exists, set_hand_invoice
 from apps.edi.forms import CreateBaseInvoiceForm, CreateDetailsInvoiceForm
 
-# 1. MARCHANDISES
+# 1. CREATION DE FACTURES DE MARCHANDISES
 
 
-def get_edi_import_elements(requect_dict: Dict) -> Dict:
-    """Ajoute les éléments manquants du formulaire"""
-
-
-from django.shortcuts import render
-
-
-def create_invoice_marchandises(request):
+@csrf_protect
+def create_hand_invoices(request, category):
     """Fonction de création de factures manuelle par saisie"""
-    nb_display = 10
+    nb_display = 5
+
+    categories_dict = {
+        "marchandises": "marchandises",
+        "formations": "formations",
+        "personnel": "personnel",
+    }
 
     context = {
         "titre_table": f"Saisie de Facture / Avoir",
@@ -44,53 +44,72 @@ def create_invoice_marchandises(request):
         "chevron_retour": reverse("home"),
         "form_base": CreateBaseInvoiceForm(),
         "article": CreateDetailsInvoiceForm(),
-        "url_saisie": reverse("edi:create_post_invoices"),
+        "url_saisie": reverse("edi:create_hand_invoices", kwargs={"category": category}),
     }
-
-    if request.method == "POST":
-        print("request.POST : ", request.POST)
-        # formset = InvoiceMarchandiseFormset(request.POST)
-        #
-        # if formset.is_valid():
-        #     print("formset : ", formset.is_valid())
-        #     instances = formset.save(commit=False)
-        #     print("instances : ", instances)
-        #
-        #     for instance in instances:
-        #         print(dir(instance))
-        #         instance.save()
-        #
-        #     return JsonResponse({"success": "ok"})
-        #
-        # else:
-        #     print(formset.errors)
-
-    print("to render")
-    return render(request, "edi/invoice_marchandise_update.html", context=context)
-
-
-def create_post_invoices(request):
-    """View de validation et création des factures"""
-
-    if not request.is_ajax() and request.method != "POST":
-        return redirect("home")
-
     data = {"success": "ko"}
-    data_dict = json.loads(request.POST.get("data"))
+    level = 50
 
-    print(type(data_dict), data_dict)
-    # id_pk = request.POST.get("pk")
-    # # form = DeleteSupplierFamilyAxesForm({"id": id_pk})
-    # if id_pk == 1:
-    #     s = 1
-    #     # if form.is_valid():
-    #     #
-    #     #     data = {"success": "success"}
-    #
-    # else:
-    #     LOGGER_VIEWS.exception(f"create_post_invoices, form invalid : ")
+    try:
+        categorie_invoice = categories_dict.get(category)
 
-    return JsonResponse(data)
+        if categorie_invoice is None:
+            return redirect("home")
+
+        if request.is_ajax() and request.method == "POST":
+            data_dict = json.loads(request.POST.get("data"))
+            form = CreateBaseInvoiceForm(data_dict.get("entete"))
+            message = ""
+
+            if form.is_valid():
+                entete = form.cleaned_data
+                third_party_num = entete.get("third_party_num")
+                invoice_number = entete.get("invoice_number", "")
+                invoice_date = entete.get("invoice_date")
+
+                if check_invoice_exists(
+                    third_party_num,
+                    invoice_number,
+                    invoice_date.year,
+                ):
+                    error = True
+                    message = f"La facture N°{invoice_number}, de {third_party_num} existe déjà!"
+
+                else:
+                    error, message = set_hand_invoice(
+                        category, entete, data_dict.get("lignes"), request.user
+                    )
+
+                if not error:
+                    level = 20
+
+                request.session["level"] = level
+                messages.add_message(request, level, message)
+
+                return JsonResponse(data)
+
+            else:
+                for error_list in dict(form.errors).values():
+                    message += (
+                        f", {', '.join([error for error in error_list])}"
+                        if message
+                        else ", ".join([error for error in error_list])
+                    )
+
+            request.session["level"] = level
+            messages.add_message(request, level, message)
+
+            return JsonResponse(data)
+
+    except Exception as error:
+        request.session["level"] = level
+        messages.add_message(
+            request, level, "Une erreur c'est produite, veuillez consulter les logs"
+        )
+        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
+
+        return JsonResponse(data)
+
+    return render(request, "edi/invoice_marchandise_update.html", context=context)
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
