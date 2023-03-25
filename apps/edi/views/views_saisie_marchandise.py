@@ -88,7 +88,7 @@ def create_hand_invoices(request, category):
                     )
 
                 else:
-                    # Si l'entête est bonne, on va essayer de créer la facture complète
+                    # Si l'entête est bon, on va essayer de créer la facture complète
                     error, message = set_hand_invoice(
                         category, entete, data_dict.get("lignes"), user
                     )

@@ -94,9 +94,9 @@ def set_hand_invoice(
             qty = Decimal(line_dict["qty"])
             net_unit_price = Decimal(line_dict["net_unit_price"])
             vat_regime, vat_rate = vat_dict.get(line_dict["vat"])
-            vat_rate = Decimal(vat_rate)
+            vat_rate = round(Decimal(vat_rate), 3)
             net_amount = round(qty * net_unit_price)
-            vat_amount = round(net_amount * vat_rate, 2)
+            vat_amount = round(net_amount * round(Decimal(vat_rate), 3), 2)
             amount_with_vat = net_amount + vat_amount
             invoice_amount_without_tax += net_amount
             invoice_amount_tax += vat_amount
