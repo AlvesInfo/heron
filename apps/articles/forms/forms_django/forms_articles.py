@@ -51,7 +51,9 @@ class ArticleForm(forms.ModelForm):
         ]
 
         widgets = {
+            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sub_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "sub_familly": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "budget_code": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "made_in": forms.Select(attrs=SELECT_FLUIDE_DICT),

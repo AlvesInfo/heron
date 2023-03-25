@@ -10,14 +10,10 @@
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
 
         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-            <div class="fields" style="{% if not base_create %}display: none;{% endif %}">
-              <div class="three wide field">
+            <div class="fields" style="">
+              <div class="six wide field">
                   <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
-                  <input type="text"
-                         name="third_party_num"
-                         maxlength="15"
-                         id="id_third_party_num"
-                         value="{{ third_party_num }}">
+                  {{ form.third_party_num }}
               </div>
             </div>
 
@@ -26,16 +22,14 @@
                 <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
                   {{ form.big_category }}
               </div>
-                <div class="one wide field">
-                    <label for="id_form-{{ forloop.counter0 }}-sub_category" style="text-align: left;">Rubriques Presta</label>
-                    <input type="text"
-                           id="id_form-{{ forloop.counter0 }}-sub_category"
-                           name="form-{{ forloop.counter0 }}-sub_category"
-                           value=""
-                           readonly
-                           style="text-align: left;background-color: #efefff;">
+                <div class="three wide field">
+                    <label for="id_sub_category" style="text-align: left;">Rubriques Presta</label>
+                    {{ form.sub_category }}
                 </div>
-              <div class="four wide field">
+            </div>
+
+            <div class="fields">
+              <div class="six wide field">
                 <label for="id_reference" style="text-align: left;">Référence&nbsp;:</label>
                   {{ form.reference }}
               </div>
@@ -43,11 +37,11 @@
                 <label for="id_ean_code" style="text-align: left;">Code EAN&nbsp;:</label>
                   {{ form.ean_code }}
               </div>
-              <div class="three wide field">
+              <div class="four wide field">
                 <label for="id_brand" style="text-align: left;">Marque&nbsp;:</label>
                   {{ form.brand }}
               </div>
-              <div class="three wide field">
+              <div class="four wide field">
                 <label for="id_manufacturer" style="text-align: left;">Fabricant&nbsp;:</label>
                   {{ form.manufacturer }}
               </div>

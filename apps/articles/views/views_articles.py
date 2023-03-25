@@ -133,6 +133,9 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         """Rajout de third_party_num dans le post"""
+        self.third_party_num = self.kwargs.get("third_party_num", "")
+        self.category = self.kwargs.get("category", "")
+
         if self.third_party_num == "create":
             self.third_party_num = None
             self.base_create = True
