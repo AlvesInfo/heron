@@ -93,15 +93,9 @@ class ArticlesList(ListView):
             "axe_pys__section",
             "axe_rfa__section",
             "comment",
-        )[
+        ).order_by("-created_at", "reference")[
             :1000
         ]
-        ordering = self.get_ordering()
-
-        if ordering:
-            if isinstance(ordering, str):
-                ordering = (ordering,)
-            queryset = queryset.order_by(*ordering)
 
         return queryset
 
