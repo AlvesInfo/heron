@@ -92,6 +92,10 @@ def set_hand_invoice(
 
             # on calcule les montants par ligne et additionne les montants pour le total facturé
             qty = Decimal(line_dict["qty"])
+
+            if entete_dict.get("invoice_type") == '381':
+                qty = -qty
+
             net_unit_price = Decimal(line_dict["net_unit_price"])
             vat_regime, vat_rate = vat_dict.get(line_dict["vat"])
             vat_rate = round(Decimal(vat_rate), 3)
