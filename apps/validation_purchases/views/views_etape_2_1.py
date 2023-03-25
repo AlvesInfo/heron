@@ -15,6 +15,7 @@ from apps.core.functions.functions_http_response import response_file, CONTENT_T
 from apps.data_flux.models import Trace
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.bin.cct_update import update_cct_edi_import
+from apps.edi.bin.edi_utilites import delete_orphans_controls
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
@@ -235,6 +236,7 @@ def delete_supplier_edi_import(request):
             replacements=(),
             force_delete=True,
         )
+        delete_orphans_controls()
         data = {"success": "success"}
 
     else:

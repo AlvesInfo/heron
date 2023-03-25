@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.shortcuts import render, reverse, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
+from django.db import transaction
 
 from heron.loggers import LOGGER_VIEWS
 from apps.edi.bin.duplicates_check import check_invoice_exists
@@ -34,6 +35,7 @@ CATEGORIES_DICT = {
 
 
 @csrf_protect
+@transaction.atomic
 def create_hand_invoices(request, category):
     """View de création des factures par saisie manuelle"""
     nb_display = 10

@@ -13,6 +13,8 @@ modified by: Paulo ALVES
 """
 import inspect
 from typing import AnyStr
+
+from django.db import connection
 from django.utils import timezone
 
 from apps.core.models import ChangesTrace
@@ -83,3 +85,30 @@ def set_trace_hand_invoice(
                 model=EdiImport._meta.model,
                 db_table=EdiImport._meta.db_table,
             )
+
+
+def delete_orphans_controls():
+    """
+    Supprime tous les Contrôles edi_ediimport_control orphelins.
+    Ceux qui ne sont pas dans edi_ediimport et ceux qui ne sont pas dans invoives_invoice
+    :return:
+    """
+    with connection.cursor() as cursor:
+        sql_delete = """
+        delete from "edi_ediimportcontrol" "edic"
+        where not exists (
+            select 1 from (
+                select 
+                    "uuid_control" 
+                from "edi_ediimport" "ee" 
+                group by "uuid_control"
+                union all 
+                select 
+                    "uuid_control" 
+                from "invoices_invoice" "ii"  
+                group by "uuid_control"
+            ) "alls"
+            where "alls"."uuid_control" = "edic"."uuid_identification" 
+        ) 
+        """
+        cursor.execute(sql_delete)

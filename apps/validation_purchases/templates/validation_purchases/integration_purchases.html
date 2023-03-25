@@ -82,6 +82,16 @@
                 $(`.datatable-chargement`).hide();
             {% endif %}
 
+            // FONCTION SEMANTIC UI POUR INITIALISATION DES POPUP
+            setTimeout(function() {
+                    $('.icon').each(function() {
+                        $(this).popup({
+                            position: 'top left',
+                        });
+                    });
+                },
+                1000
+            )
         });
 
     </script>
