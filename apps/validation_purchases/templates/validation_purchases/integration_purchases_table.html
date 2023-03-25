@@ -63,12 +63,12 @@
                         </a>
                     </td>
                     <td style="text-align: center;padding: 0;margin: auto;">
-                        <i class="{{ supplier_purchase.icon }} icon" data-content="{{ supplier_purchase.data_content }}"></i>
+                        <i class="{{ supplier_purchase.icon }} icon" data-content="{{ supplier_purchase.data_content }}" data-variation="tiny"></i>
                         <span style="color: #FFFFFF">{{ supplier_purchase.origin }}</span>
                     </td>
                     <td style="text-align: center;">
                         <a href="{% url 'validation_purchases:integration_supplier_purchases_export' supplier_purchase.enc_param|encode_b64_str %}">
-                            <i class="file excel icon modification" data-content="Export Excel" style="color: green;"></i>
+                            <i class="file excel icon modification" data-content="Export Excel" data-variation="tiny" style="color: green;"></i>
                         </a>
                     </td>
                     <td class="category"

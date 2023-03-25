@@ -63,7 +63,7 @@ from (
         "ee"."uuid_control",
         case when "ee"."origin" isnull then 'question circle' else "pic"."icon" end as "icon",
         case when "ee"."origin" isnull then 0 else "ee"."origin" end as "origin",
-        "origin_name"
+        case when "ee"."origin" isnull then 'INCONNUE' else "pic"."origin_name" end as "origin_name"
     from "edi_ediimport" "ee"
     left join "edi_ediimportcontrol" "ec"
     on "ee"."uuid_control" = "ec"."uuid_identification"
@@ -95,7 +95,7 @@ from (
              "ee"."uuid_control",
              "ee"."origin",
              "pic"."icon",
-        	 "origin_name"
+        	 "pic"."origin_name"
 ) edi
 group by "supplier",
          "invoice_month",
