@@ -11,10 +11,9 @@ created by: Paulo ALVES
 modified at: 2022-12-16
 modified by: Paulo ALVES
 """
+from typing import AnyStr
+
 from django.db import connection, transaction
-
-from apps.core.functions.functions_setups import settings
-
 
 from apps.edi.sql_files.sql_checks import (
     sql_edi_import_duplicates,
@@ -23,7 +22,6 @@ from apps.edi.sql_files.sql_checks import (
     sql_invoices_duplicates_delete,
 )
 from apps.data_flux.models import Trace
-from apps.edi.models import EdiImport
 
 
 @transaction.atomic
@@ -35,7 +33,7 @@ def edi_import_duplicate_check():
         cursor.execute(sql_edi_import_duplicates)
 
         for row in cursor.fetchall():
-            uuid_identification, errors_array, couples = row
+            uuid_identification, errors_array, _ = row
 
             first_comment = (
                 "L'ensemble (<div style='padding-left: 20px;'>"
@@ -99,10 +97,50 @@ def suppliers_invoices_duplicate_check():
         cursor.execute(sql_invoices_duplicates_delete)
 
 
-if __name__ == "__main__":
-    edi_import_duplicate_check()
-    suppliers_invoices_duplicate_check()
-    E = Trace.objects.filter(
-        uuid_identification__in=EdiImport.objects.all().values("uuid_identification")
-    )
-    print(len(E), E)
+def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoice_year: int):
+    """Vérification des doublons dans edi_ediimport union all invoices_invoice
+    Doublons causés par le trouple third_party_num, invoice_number, invoice_year
+    :param third_party_num: Tiers X3
+    :param invoice_number: N° de la facture
+    :param invoice_year: Année de la facture
+    :return: True/False
+    """
+    with connection.cursor() as cursor:
+        sql_check_invoice_exist = """
+        select
+            1 
+        from (
+            (
+                select 
+                    1 as "nbre"
+                from "edi_ediimport" "ee" 
+                where "ee"."third_party_num" = %(third_party_num)s
+                and "ee"."invoice_number" = %(invoice_number)s
+                and "ee"."invoice_year" = %(invoice_year)s
+                limit 1
+            )
+            union all
+            (
+                select 
+                    1 as "nbre"
+                from "invoices_invoice" "ii" 
+                where "ii"."third_party_num"= %(third_party_num)s
+                and "ii"."invoice_number" = %(invoice_number)s
+                and "ii"."invoice_year" = %(invoice_year)s
+                limit 1
+            )
+        ) "doublons"
+        """
+        cursor.execute(
+            sql_check_invoice_exist,
+            {
+                "third_party_num": third_party_num,
+                "invoice_number": invoice_number,
+                "invoice_year": invoice_year,
+            },
+        )
+
+        if cursor.fetchall():
+            return True
+
+        return False

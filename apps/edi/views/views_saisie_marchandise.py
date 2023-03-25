@@ -1,4 +1,4 @@
-# pylint: disable=
+# pylint: disable=E0401,W1203,W0718
 """
 FR : Module des vues pour les saisies et visualisation des marchandises
 EN : Views module for entering and viewing goods
@@ -11,7 +11,6 @@ created by: Paulo ALVES
 modified at: 2023-01-04
 modified by: Paulo ALVES
 """
-from typing import Dict
 import json
 
 from django.contrib import messages
@@ -20,52 +19,56 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 
 from heron.loggers import LOGGER_VIEWS
-from apps.edi.bin.set_hand_invoices import check_invoice_exists, set_hand_invoice
-from apps.edi.forms import CreateBaseInvoiceForm, CreateDetailsInvoiceForm
+from apps.edi.bin.duplicates_check import check_invoice_exists
+from apps.edi.bin.set_hand_invoices import set_hand_invoice
+from apps.edi.bin.edi_utilites import set_trace_hand_invoice
+from apps.edi.forms import CreateBaseInvoiceForm
 
 # 1. CREATION DE FACTURES DE MARCHANDISES
+
+CATEGORIES_DICT = {
+    "marchandises": "Saisie de Facture/Avoir de marchandises",
+    "formations": "Saisie de Facture/Avoir de formations",
+    "personnel": "Saisie de Facture/Avoir de personnel",
+}
 
 
 @csrf_protect
 def create_hand_invoices(request, category):
-    """Fonction de création de factures manuelle par saisie"""
-    nb_display = 5
+    """View de création des factures par saisie manuelle"""
+    nb_display = 10
 
-    categories_dict = {
-        "marchandises": "marchandises",
-        "formations": "formations",
-        "personnel": "personnel",
-    }
+    if category not in CATEGORIES_DICT:
+        return redirect("home")
 
     context = {
-        "titre_table": f"Saisie de Facture / Avoir",
+        "titre_table": CATEGORIES_DICT.get(category),
         "nb_display": nb_display,
         "range_display": range(1, nb_display + 1),
         "chevron_retour": reverse("home"),
         "form_base": CreateBaseInvoiceForm(),
-        "article": CreateDetailsInvoiceForm(),
         "url_saisie": reverse("edi:create_hand_invoices", kwargs={"category": category}),
+        "category": category,
     }
     data = {"success": "ko"}
     level = 50
 
-    try:
-        categorie_invoice = categories_dict.get(category)
+    if request.is_ajax() and request.method == "POST":
+        user = request.user
+        data_dict = json.loads(request.POST.get("data"))
 
-        if categorie_invoice is None:
-            return redirect("home")
-
-        if request.is_ajax() and request.method == "POST":
-            data_dict = json.loads(request.POST.get("data"))
+        try:
             form = CreateBaseInvoiceForm(data_dict.get("entete"))
             message = ""
 
+            # On valide l'entête
             if form.is_valid():
                 entete = form.cleaned_data
                 third_party_num = entete.get("third_party_num")
                 invoice_number = entete.get("invoice_number", "")
                 invoice_date = entete.get("invoice_date")
 
+                # On vérifie que cette facture n'existe pas
                 if check_invoice_exists(
                     third_party_num,
                     invoice_number,
@@ -74,9 +77,18 @@ def create_hand_invoices(request, category):
                     error = True
                     message = f"La facture N°{invoice_number}, de {third_party_num} existe déjà!"
 
+                    # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+                    set_trace_hand_invoice(
+                        invoice_category=category,
+                        invoice_number=invoice_number,
+                        user=user,
+                        errors=True,
+                    )
+
                 else:
+                    # Si l'entête est bonne, on va essayer de créer la facture complète
                     error, message = set_hand_invoice(
-                        category, entete, data_dict.get("lignes"), request.user
+                        category, entete, data_dict.get("lignes"), user
                     )
 
                 if not error:
@@ -88,26 +100,43 @@ def create_hand_invoices(request, category):
                 return JsonResponse(data)
 
             else:
+                # Si le formulaire d'entête est invalide, on génère le message à afficher
                 for error_list in dict(form.errors).values():
                     message += (
-                        f", {', '.join([error for error in error_list])}"
+                        f", {', '.join(list(error_list))}"
                         if message
-                        else ", ".join([error for error in error_list])
+                        else ", ".join(list(error_list))
                     )
+
+                # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+                set_trace_hand_invoice(
+                    invoice_category=category,
+                    invoice_number=data_dict.get("entete").get("invoice_number", ""),
+                    user=user,
+                    errors=True,
+                )
 
             request.session["level"] = level
             messages.add_message(request, level, message)
 
             return JsonResponse(data)
 
-    except Exception as error:
-        request.session["level"] = level
-        messages.add_message(
-            request, level, "Une erreur c'est produite, veuillez consulter les logs"
-        )
-        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
+        except Exception as error:
+            request.session["level"] = level
+            messages.add_message(
+                request, level, "Une erreur c'est produite, veuillez consulter les logs"
+            )
+            LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
 
-        return JsonResponse(data)
+            # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+            set_trace_hand_invoice(
+                invoice_category=category,
+                invoice_number=data_dict.get("entete").get("invoice_number", ""),
+                user=user,
+                errors=True,
+            )
+
+            return JsonResponse(data)
 
     return render(request, "edi/invoice_marchandise_update.html", context=context)
 

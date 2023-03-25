@@ -219,7 +219,7 @@
                                  id="id_qty"
                                  readonly
                                  style="background-color: #efefff;text-align: right;padding-left: 4px;padding-right: 4px;"
-                                 value="{% if invoice.unity.num == 12 %}{% widthratio invoice.qty 1 100 %}{% else %}{{ invoice.qty|numbers:0 }}{% endif %}">
+                                 value="{% if invoice.unit_weight.num == 12 %}{% widthratio invoice.qty 1 100 %}{% else %}{{ invoice.qty|numbers:0 }}{% endif %}">
                         </div>
                         <div class="two wide field">
                             <input type="text"
@@ -227,7 +227,7 @@
                                  id="id_unity"
                                  readonly
                                  style="background-color: #efefff;text-align: center;padding-left: 4px;padding-right: 4px;"
-                                 value="{{ invoice.unity }}">
+                                 value="{{ invoice.unit_weight }}">
                         </div>
                         <div class="three wide field">
                             <input type="text"

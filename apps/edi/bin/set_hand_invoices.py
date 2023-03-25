@@ -1,4 +1,4 @@
-# pylint: disable=E0401,C0303,E1101,R0914,R1735,R0915,W0150,W0718
+# pylint: disable=E0401,E1101,C0303,R0914,R1735,R0915,R0913,W0150,W0718,W0212
 """
 FR : Module de traitement des factures saisies à la main
 EN : New article processing module for in articles table with new_article = true
@@ -16,102 +16,25 @@ from decimal import Decimal
 from uuid import uuid4
 
 import pendulum
-from django.db import transaction, connection
+from django.db import transaction
 
 from heron.loggers import LOGGER_IMPORT
 from apps.users.models import User
+from apps.accountancy.bin.utilities import get_dict_vat_rates
 from apps.articles.bin.articles_queries import get_article
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
-from apps.edi.bin.edi_utilites import get_sens
+from apps.edi.bin.edi_utilites import get_sens, set_trace_hand_invoice
 from apps.edi.forms import CreateEdiImportInvoiceForm
 from apps.edi.models import EdiImport
 
 
-def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoice_year: int):
-    """Vérification des doublons de factures dans la saisie des factures manuelles
-    Doublons causés par le trouple third_party_num, invoice_number, invoice_year
-    :param third_party_num: Tiers X3
-    :param invoice_number: N° de la facture
-    :param invoice_year: Année de la facture
-    :return: True/False
-    """
-    with connection.cursor() as cursor:
-        sql_check_invoice_exist = """
-        select
-            "nbre" 
-        from (
-            (
-                select 
-                    1 as "nbre"
-                from "edi_ediimport" "ee" 
-                where "ee"."third_party_num" = %(third_party_num)s
-                and "ee"."invoice_number" = %(invoice_number)s
-                and "ee"."invoice_year" = %(invoice_year)s
-                limit 1
-            )
-            union all
-            (
-                select 
-                    1 as "nbre"
-                from "invoices_invoice" "ii" 
-                where "ii"."third_party_num"= %(third_party_num)s
-                and "ii"."invoice_number" = %(invoice_number)s
-                and "ii"."invoice_year" = %(invoice_year)s
-                limit 1
-            )
-        ) "doublons"
-        """
-        cursor.execute(
-            sql_check_invoice_exist,
-            {
-                "third_party_num": third_party_num,
-                "invoice_number": invoice_number,
-                "invoice_year": invoice_year,
-            },
-        )
-
-        if cursor.fetchall():
-            return True
-
-        return False
-
-
-def get_vat_rate(invoice_date: AnyStr):
-    """
-    Retourne le taux de TVA
-    :param invoice_date: date de la facture au format isoformat
-    :return: vat_rat dict
-    """
-
-    with connection.cursor() as cursor:
-        sql_vat_rate = """
-        select distinct
-            "vtr"."vat", "vtr"."vat_regime", ("vtr"."rate" / 100)::numeric as "vat_rate"
-        from "accountancy_vatratsage" "vtr"
-        join (
-            select
-                max("vat_start_date") as "vat_start_date",
-                "vat",
-                "vat_regime"
-            from "accountancy_vatratsage"
-            where "vat_start_date" <= %(invoice_date)s
-            group by "vat", "vat_regime"
-        ) "vd"
-        on "vtr"."vat" = "vd"."vat"
-        and "vtr"."vat_start_date" = "vd"."vat_start_date"
-        """
-        cursor.execute(sql_vat_rate, {"invoice_date": invoice_date})
-
-        return {row[0]: row[1:] for row in cursor.fetchall()}
-
-
 @transaction.atomic
 def set_hand_invoice(
-    category_invoice: AnyStr, entete_dict: Dict, lignes_dict: Dict, user: User.objects
+    invoice_category: AnyStr, entete_dict: Dict, lignes_dict: Dict, user: User.objects
 ):
     """
     Création dans edi_import des factures saisies manuellement
-    :param category_invoice: catégorie ( marchandises, formations, personnel)
+    :param invoice_category: catégorie ( marchandises, formations, personnel)
     :param entete_dict: dictionnaire de l'entête de la facture
     :param lignes_dict: dictionnaire des lignes de la facture
     :param user: user qui créer la facture
@@ -120,20 +43,25 @@ def set_hand_invoice(
 
     error = False
     message = ""
+    third_party_num = entete_dict.get("third_party_num")
+    invoice_number = entete_dict.get("invoice_number", "")
+    invoice_date = entete_dict.get("invoice_date")
+    sens_dict = get_sens(entete_dict.pop("sens"))
+
+    # si l'on n'a pas de N° de Facture on en met un par défaut, avec la numérotation automatique
+    # à aprtir du compteur des saisies manuelles
+    if invoice_number == "":
+        invoice_number = get_invoices_manual_entries_nums(entete_dict.get("third_party_num"))
+        entete_dict["invoice_number"] = invoice_number
 
     try:
-        third_party_num = entete_dict.get("third_party_num")
-        invoice_number = entete_dict.get("invoice_number", "")
-        invoice_date = entete_dict.get("invoice_date")
-        sens_dict = get_sens(entete_dict.pop("sens"))
+        # On récupère le dictionnaire des taux de TVA en fonction de la date de la facture
+        vat_dict = get_dict_vat_rates(invoice_date)
 
-        if invoice_number == "":
-            invoice_number = get_invoices_manual_entries_nums(entete_dict.get("third_party_num"))
-            entete_dict["invoice_number"] = invoice_number
-
-        vat_dict = get_vat_rate(invoice_date)
-        lines_to_create = []
+        # On récupère le dictionnaire des articles présents dans la facture
         form_list = [row for row in lignes_dict if row.get("reference_article")]
+
+        lines_to_create = []
         form_list = sorted(form_list, key=lambda line_sort_dict: line_sort_dict.get("num"))
         multistore_set = set()
         articles_pk_list = []
@@ -161,17 +89,18 @@ def set_hand_invoice(
                     "invoice_year": invoice_date.year,
                     **sens_dict,
                 }
+
+            # on calcule les montants par ligne et additionne les montants pour le total facturé
             qty = Decimal(line_dict["qty"])
             net_unit_price = Decimal(line_dict["net_unit_price"])
             vat_regime, vat_rate = vat_dict.get(line_dict["vat"])
-            vat_rate = round(Decimal(vat_rate), 5)
+            vat_rate = Decimal(vat_rate)
             net_amount = round(qty * net_unit_price)
             vat_amount = round(net_amount * vat_rate, 2)
             amount_with_vat = net_amount + vat_amount
             invoice_amount_without_tax += net_amount
             invoice_amount_tax += vat_amount
             invoice_amount_with_tax += amount_with_vat
-
             cct_dict.update(
                 {
                     "gross_unit_price": net_unit_price,
@@ -182,8 +111,11 @@ def set_hand_invoice(
                     "vat_regime": vat_regime,
                 }
             )
+
+            # On récupère les axes et catégories des articles dans la base article
             articles_dict = get_article(line_dict.get("reference_article"))
 
+            # On va valider le formulaire
             form = CreateEdiImportInvoiceForm(
                 {**entete_dict, **line_dict, **cct_dict, **articles_dict}
             )
@@ -205,7 +137,8 @@ def set_hand_invoice(
                 lines_to_create.append(line_to_insert)
 
             else:
-                print(form.errors)
+                # S'il y a une erreur ont on génère le message
+                # print(form.errors)
                 for error_list in dict(form.errors).values():
                     message += (
                         f", {', '.join(list(error_list))}"
@@ -213,17 +146,26 @@ def set_hand_invoice(
                         else ", ".join(list(error_list))
                     )
 
-                    return True, message
+                # On trace l'erreur
+                set_trace_hand_invoice(
+                    invoice_category=invoice_category,
+                    invoice_number=invoice_number,
+                    user=user,
+                    errors=True,
+                )
 
+                return True, message
+
+        # On crée une liste de dictionnaire pour l'import en base
         edi_import_list = []
         uuid_identification = uuid4()
 
-        # On créera une liste de dictionnaire pour l'import en base
         for line_dict in lines_to_create:
             results_dict = dict()
             results_dict.update(entete_dict)
             results_dict.update(line_dict)
 
+            # On ajoute les éléments manquants
             results_dict.update(
                 {
                     "uuid_identification": uuid_identification,
@@ -242,12 +184,20 @@ def set_hand_invoice(
 
             edi_import_list.append(results_dict)
 
-        edi_import = EdiImport.objects.bulk_create(
+        # On crée les Factures dans edi_ediimport, les traces et les changestrace
+        edi_imports = EdiImport.objects.bulk_create(
             [EdiImport(**row_dict) for row_dict in edi_import_list]
         )
+        nbre = len(edi_imports)
+        set_trace_hand_invoice(
+            invoice_category=invoice_category,
+            invoice_number=invoice_number,
+            user=user,
+            edi_objects=edi_imports,
+            numbers=nbre,
+        )
 
-        nbre = len(edi_import)
-        error = False
+        # On prépare le message
         message = (
             (
                 f"La Facture N°{invoice_number}, "
@@ -259,12 +209,18 @@ def set_hand_invoice(
                 f"pour le Fournisseur {third_party_num}, ont bien été crées"
             )
         )
-        return error, message
 
     except Exception:
         LOGGER_IMPORT.exception("Erreur : set_hand_invoice")
         error = True
         message = "Une erreur c'est produite, veuillez consulter les logs"
+        # On trace l'erreur
+        set_trace_hand_invoice(
+            invoice_category=invoice_category,
+            invoice_number=invoice_number,
+            user=user,
+            errors=True,
+        )
 
     finally:
         return error, message
