@@ -37,7 +37,12 @@ CATEGORIES_DICT = {
 @csrf_protect
 @transaction.atomic
 def create_hand_invoices(request, category):
-    """View de création des factures par saisie manuelle"""
+    """View de création des factures par saisie manuelle.
+    Dans le template il y aura des affichages en fonction des catégories. Si une catégorie
+    est ajoutée ou enlevée, il faudra procéder au nettoyage du template aussi.
+    :param request:  Request au sens Django
+    :param category:  Catégorie de facturation
+    """
     nb_display = 10
 
     if category not in CATEGORIES_DICT:

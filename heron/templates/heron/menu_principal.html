@@ -157,11 +157,11 @@
             </div>
 
             <div class="ui popup" id="b">
-                <div class="ui two column relaxed divided grid" style="width: 24em;">
+                <div class="ui two column relaxed divided grid" style="width: 28em;">
 
                     <div class="column">
                         <div class="ui link list">
-                            <a href="/" class="item">0. Recherches</a>
+                            <a href="{% url 'articles:new_articles_list' %}" class="item">00. Nouveaux Articles</a>
                         </div>
                         <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='marchandises' %}" class="item">01. Marchandises</a>
@@ -192,6 +192,9 @@
                         </div>
                         <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">10. Divers</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="/" class="item">11. Recherches</a>
                         </div>
                     </div>
 

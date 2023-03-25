@@ -60,7 +60,7 @@ class SuppliersArticlesList(ListView):
 
 
 class ArticlesList(ListView):
-    """View de la liste des Catégories"""
+    """View de la liste des Articles"""
 
     model = Article
     context_object_name = "articles"
@@ -184,9 +184,8 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     @transaction.atomic
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
-        if not form.instance.libelle_heron:
-            form.instance.libelle_heron = form.instance.libelle
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -236,6 +235,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
