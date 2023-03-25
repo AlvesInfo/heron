@@ -28,7 +28,7 @@ select
     (
         '{"third_party_num": "'
         || "third_party_num" ||
-        '", ""supplier"": "'
+        '", "supplier": "'
         || "supplier" ||
         '", "invoice_month": "'
         || "invoice_month" ||
