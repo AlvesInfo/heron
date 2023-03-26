@@ -152,6 +152,8 @@ def get_maisons_alls() -> Maison.objects:
                 Value(" - "),
                 "intitule",
                 Value(" - "),
+                "adresse",
+                Value(" - "),
                 "ville",
                 output_field=CharField(),
             ),

@@ -102,8 +102,8 @@ def set_hand_invoice(
             net_unit_price = Decimal(line_dict["net_unit_price"])
             vat_regime, vat_rate = vat_dict.get(line_dict["vat"])
             vat_rate = round(Decimal(vat_rate), 3)
-            net_amount = round(qty * net_unit_price)
-            vat_amount = round(net_amount * round(Decimal(vat_rate), 3), 2)
+            net_amount = round(qty * net_unit_price, 2)
+            vat_amount = round(net_amount * vat_rate, 2)
             amount_with_vat = net_amount + vat_amount
             invoice_amount_without_tax += net_amount
             invoice_amount_tax += vat_amount
@@ -143,7 +143,6 @@ def set_hand_invoice(
 
             else:
                 # S'il y a une erreur ont on génère le message
-                print(form.errors)
                 for error_list in dict(form.errors).values():
                     message += (
                         f", {', '.join(list(error_list))}"
