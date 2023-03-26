@@ -42,5 +42,11 @@ $("tr").promise().done(function() {
             $(`.datatable-chargement`).hide();
         },
 
+    }).on('order.dt', function() {
+        $('.icon').each(function() {
+            $(this).popup({
+                position: 'top left',
+            });
+        });
     });
 });
