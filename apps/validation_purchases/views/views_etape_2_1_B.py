@@ -2,6 +2,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import UpdateView
+from django.db.models import Value
+from django.contrib.postgres.aggregates import StringAgg
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
@@ -14,6 +16,7 @@ from apps.validation_purchases.forms import (
     ChangeCttForm,
 )
 
+
 # CONTROLES ETAPE 2.1.B - DETAILS FACTURES
 
 
@@ -25,7 +28,15 @@ def details_purchase(request, enc_param):
     :return: view
     """
     third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
-    invoices = EdiImport.objects.filter(
+    invoices = EdiImport.objects.annotate(
+        delivery_numbers=StringAgg(
+            "delivery_number",
+            delimiter=", ",
+            distinct=True,
+            default=Value(''),
+            ordering="delivery_number",
+        )
+    ).filter(
         third_party_num=third_party_num,
         supplier=supplier,
         invoice_month=invoice_month,
@@ -44,9 +55,6 @@ def details_purchase(request, enc_param):
         "form": ChangeBigCategoryForm(),
         "cct_form": ChangeCttForm(),
         "nb_paging": 50,
-        "delivery_numbers": (
-            bl_num.delivery_number for bl_num in invoices if bl_num.delivery_number
-        ),
     }
 
     return render(request, "validation_purchases/details_invoices_suppliers.html", context=context)

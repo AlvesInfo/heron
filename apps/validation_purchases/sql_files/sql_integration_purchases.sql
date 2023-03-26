@@ -83,7 +83,6 @@ from (
              "invoice_amount_without_tax",
              "invoice_amount_with_tax",
              "invoice_month",
-             "uuid_big_category",
              "third_party_num",
 	         "ec"."statement_without_tax",
 	         "ec"."statement_with_tax",

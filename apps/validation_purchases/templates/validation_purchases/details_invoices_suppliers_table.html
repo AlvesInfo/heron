@@ -65,7 +65,7 @@
                                  id="id_manual_entry"
                                  readonly
                                  style="background-color: #efefff;"
-                                 value="{{ delivery_numbers|string_agg_uniques:',2' }}">
+                                 value="{{ invoices.0.delivery_numbers|truncatechars:80 }}">
                       </div>
                       <div class="two wide field">
                           <label for="id_achat_vente" style="text-align: center;">Sens</label>
