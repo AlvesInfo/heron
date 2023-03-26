@@ -17,6 +17,7 @@ from uuid import uuid4
 
 import pendulum
 from django.db import transaction
+from django import forms
 
 from heron.loggers import LOGGER_IMPORT
 from apps.users.models import User
@@ -24,19 +25,23 @@ from apps.accountancy.bin.utilities import get_dict_vat_rates
 from apps.articles.bin.articles_queries import get_article
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
 from apps.edi.bin.edi_utilites import get_sens, set_trace_hand_invoice
-from apps.edi.forms import CreateEdiImportInvoiceForm
 from apps.edi.models import EdiImport
 
 
 @transaction.atomic
 def set_hand_invoice(
-    invoice_category: AnyStr, entete_dict: Dict, lignes_dict: Dict, user: User.objects
+    invoice_category: AnyStr,
+    category_form: forms.ModelForm,
+    entete_dict: Dict,
+    lignes_dict: Dict,
+    user: User.objects,
 ):
     """
     Création dans edi_import des factures saisies manuellement
-    :param invoice_category: catégorie ( marchandises, formations, personnel)
-    :param entete_dict: dictionnaire de l'entête de la facture
-    :param lignes_dict: dictionnaire des lignes de la facture
+    :param invoice_category: Catégorie ( marchandises, formations, personnel)
+    :param category_form: Form django de la catégorie
+    :param entete_dict: Dictionnaire de l'entête de la facture
+    :param lignes_dict: Dictionnaire des lignes de la facture
     :param user: user qui créer la facture
     :return: error (True/False), message ("" si pas d'erreur/"message" si erreur)
     """
@@ -94,7 +99,7 @@ def set_hand_invoice(
             qty = Decimal(line_dict["qty"])
 
             # Si c'est un avoir (type 381) alors on change le sens
-            if entete_dict.get("invoice_type") == '381':
+            if entete_dict.get("invoice_type") == "381":
                 qty = -qty
                 line_dict["qty"] = f"-{line_dict['qty']}"
 
@@ -122,7 +127,7 @@ def set_hand_invoice(
             articles_dict = get_article(line_dict.get("reference_article"))
 
             # On va valider le formulaire
-            form = CreateEdiImportInvoiceForm(
+            form = category_form(
                 {**entete_dict, **line_dict, **cct_dict, **articles_dict}
             )
 
@@ -144,7 +149,7 @@ def set_hand_invoice(
 
             else:
                 # S'il y a une erreur ont on génère le message
-                # print(form.errors)
+                print(form.errors)
                 for error_list in dict(form.errors).values():
                     message += (
                         f", {', '.join(list(error_list))}"

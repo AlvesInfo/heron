@@ -26,8 +26,7 @@
 
         {% block head_css %}
         {% endblock head_css %}
-{#        <script src="https://unpkg.com/vue@3"></script>#}
-{#        <script type="text/javascript" src="{% static 'jquery/jquery.js' %}"></script>#}
+
         <script type="text/javascript" src="{% static 'pdfmake/pdfmake.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'vfs_fonts/vfs_fonts.js' %}"></script>
         <script type="text/javascript" src="{% static 'datatables/datatables.min.js' %}"></script>
@@ -45,25 +44,7 @@
         <script type="text/javascript" src="{% static 'moment/moment.js' %}"></script>
         <script type="text/javascript" src="{% static 'datetime-moment.js' %}"></script>
         <script type="text/javascript">
-            let addition = `{{ addition }}`;
-
-            function makeAddition () {
-                setSum("supplierHt")
-                setSum("SupplierTtc")
-                setSum("nbreFac")
-                setSum("statementHt")
-                setSum("statementTtc")
-                setDeltaSum("deltaHt", "supplierHt", "statementHt")
-                setDeltaSum("deltaTtc", "SupplierTtc", "statementTtc")
-                {#setDelta("deltaHt", "supplierHt", "statementHt")#}
-                {#setDelta("deltaTtc", "SupplierTtc", "statementTtc")#}
-            }
             let attrsFilter = {% if attrs_filter %}{{ attrs_filter|safe }}{% else %}{}{% endif %};
-
-            $(document).ready(function () {
-              // INITIALISATION DE MOMENT SUR LES DATATABLES POUR TRI
-                $.fn.dataTable.moment( 'DD/MM/YYY' );
-            });
         </script>
 
         <script type="text/javascript" src="{% static 'populate_paginator.js' %}"></script>

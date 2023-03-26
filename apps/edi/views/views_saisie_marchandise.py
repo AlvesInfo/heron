@@ -1,4 +1,4 @@
-# pylint: disable=E0401,W1203,W0718
+# pylint: disable=E0401,W1203,W0718,R0914
 """
 FR : Module des vues pour les saisies et visualisation des marchandises
 EN : Views module for entering and viewing goods
@@ -23,14 +23,42 @@ from heron.loggers import LOGGER_VIEWS
 from apps.edi.bin.duplicates_check import check_invoice_exists
 from apps.edi.bin.set_hand_invoices import set_hand_invoice
 from apps.edi.bin.edi_utilites import set_trace_hand_invoice
-from apps.edi.forms import CreateBaseInvoiceForm
+from apps.edi.forms import (
+    CreateBaseMarchandiseForm,
+    CreateMarchandiseInvoiceForm,
+    CreateBaseFormationForm,
+    CreateFormationInvoiceForm,
+    CreateBasePersonnelForm,
+    CreatePersonnelInvoiceForm,
+)
 
 # 1. CREATION DE FACTURES DE MARCHANDISES
 
 CATEGORIES_DICT = {
-    "marchandises": "Saisie de Facture/Avoir de marchandises",
-    "formations": "Saisie de Facture/Avoir de formations",
-    "personnel": "Saisie de Facture/Avoir de personnel",
+    "marchandises": {
+        "titre_table": "Saisie de Facture/Avoir de marchandises",
+        "template": "edi/invoice_marchandise_update.html",
+        "form": CreateBaseMarchandiseForm,
+        "details_form": CreateMarchandiseInvoiceForm,
+        "third_party_num": None,
+        "sens": None,
+    },
+    "formations": {
+        "titre_table": "Saisie de Facture/Avoir de formations",
+        "template": "edi/invoice_marchandise_update.html",
+        "form": CreateBaseFormationForm,
+        "details_form": CreateFormationInvoiceForm,
+        "third_party_num": "ZFORM",
+        "sens": "1",
+    },
+    "personnel": {
+        "titre_table": "Saisie de Facture/Avoir de personnel",
+        "template": "edi/invoice_marchandise_update.html",
+        "form": CreateBasePersonnelForm,
+        "details_form": CreatePersonnelInvoiceForm,
+        "third_party_num": None,
+        "sens": "1",
+    },
 }
 
 
@@ -48,12 +76,16 @@ def create_hand_invoices(request, category):
     if category not in CATEGORIES_DICT:
         return redirect("home")
 
+    titre_table, template, invoice_form, details_form, third_party_num, sens = CATEGORIES_DICT.get(
+        category
+    ).values()
+
     context = {
-        "titre_table": CATEGORIES_DICT.get(category),
+        "titre_table": titre_table,
         "nb_display": nb_display,
         "range_display": range(1, nb_display + 1),
         "chevron_retour": reverse("home"),
-        "form_base": CreateBaseInvoiceForm(),
+        "form_base": invoice_form(),
         "url_saisie": reverse("edi:create_hand_invoices", kwargs={"category": category}),
         "category": category,
     }
@@ -63,9 +95,16 @@ def create_hand_invoices(request, category):
     if request.is_ajax() and request.method == "POST":
         user = request.user
         data_dict = json.loads(request.POST.get("data"))
+        print(data_dict)
+        if data_dict.get("entete").get("third_party_num") is None:
+            data_dict["third_party_num"] = third_party_num
 
+        if data_dict.get("entete").get("sens") is None:
+            data_dict["sens"] = sens
+
+        print(data_dict)
         try:
-            form = CreateBaseInvoiceForm(data_dict.get("entete"))
+            form = invoice_form(data_dict.get("entete"))
             message = ""
 
             # On valide l'entête
@@ -74,6 +113,7 @@ def create_hand_invoices(request, category):
                 third_party_num = entete.get("third_party_num")
                 invoice_number = entete.get("invoice_number", "")
                 invoice_date = entete.get("invoice_date")
+                print(form.cleaned_data)
 
                 # On vérifie que cette facture n'existe pas
                 if check_invoice_exists(
@@ -95,7 +135,7 @@ def create_hand_invoices(request, category):
                 else:
                     # Si l'entête est bon, on va essayer de créer la facture complète
                     error, message = set_hand_invoice(
-                        category, entete, data_dict.get("lignes"), user
+                        category, details_form, entete, data_dict.get("lignes"), user
                     )
 
                 if not error:
@@ -106,22 +146,21 @@ def create_hand_invoices(request, category):
 
                 return JsonResponse(data)
 
-            else:
-                # Si le formulaire d'entête est invalide, on génère le message à afficher
-                for error_list in dict(form.errors).values():
-                    message += (
-                        f", {', '.join(list(error_list))}"
-                        if message
-                        else ", ".join(list(error_list))
-                    )
+            print(form.errors)
 
-                # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
-                set_trace_hand_invoice(
-                    invoice_category=category,
-                    invoice_number=data_dict.get("entete").get("invoice_number", ""),
-                    user=user,
-                    errors=True,
+            # Si le formulaire d'entête est invalide, on génère le message à afficher
+            for error_list in dict(form.errors).values():
+                message += (
+                    f", {', '.join(list(error_list))}" if message else ", ".join(list(error_list))
                 )
+
+            # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+            set_trace_hand_invoice(
+                invoice_category=category,
+                invoice_number=data_dict.get("entete").get("invoice_number", ""),
+                user=user,
+                errors=True,
+            )
 
             request.session["level"] = level
             messages.add_message(request, level, message)
@@ -145,7 +184,7 @@ def create_hand_invoices(request, category):
 
             return JsonResponse(data)
 
-    return render(request, "edi/invoice_marchandise_update.html", context=context)
+    return render(request, template, context=context)
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
