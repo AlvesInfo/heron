@@ -1,0 +1,34 @@
+{% load filters_tags %}
+
+
+<div class="ui grid" style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_table %}{{ margin_table }}px{% else %}50px{% endif %};margin-right: {% if margin_table %}{{ margin_table }}px{% else %}50px{% endif %};">
+    <div class="ui datatable-chargement active inverted dimmer">
+        <div class="ui medium text loader">Chargement</div>
+    </div>
+    <div class="sixteen wide column" style="padding: 0;">
+
+        <div class="ui segment" style="padding: 5px 14px 5px 5px;background-color: lavender;margin-bottom: 5px;">
+            <h4 id="headerTiers" style="font-weight: bold;">Invoice</h4>
+        </div>
+
+        <div class="ui segment" style="padding: 5px 10px 0;margin: 0 0 10px;">
+            <div class="ui mini form entete" style="font-size: 12px;font-weight:bold;">
+                <div class="fields" style="">
+
+                </div>
+            </div>
+        </div>
+
+{#      ENTETE DETAILS ===========================================================================#}
+        <div class="ui segment" style="padding: 5px 14px 5px 5px;background-color: lavender;margin-bottom: 5px;">
+            <h4 id="headerTiers" style="font-weight: bold;">Détails</h4>
+        </div>
+{#      DEBUT FORM_DETAILS =======================================================================#}
+        <div id="" style="margin: 0;padding: 0">
+            {% for i in range_display %}
+                {% with i|stringformat:"03d" as num %}
+                {% endwith %}
+            {% endfor %}
+    </div>
+    </div>
+</div>

@@ -16,11 +16,14 @@ from typing import AnyStr, Dict
 
 import pendulum
 from django.db import connection
+from django.db.models import Value, Case, When, Q
+from django.db.models.functions import Concat
 from django.utils import timezone
 
 from apps.core.models import ChangesTrace
 from apps.data_flux.models import Trace
 from apps.users.models import User
+from apps.articles.models import Article
 from apps.edi.models import EdiImport
 
 
@@ -106,7 +109,7 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
     if invoice_category == "marchandises":
         ...
 
-    if invoice_category == "formations":
+    if invoice_category == "formation":
         data_dict["entete"]["third_party_num"] = "ZFORM"
         data_dict["entete"]["sens"] = "1"
 
@@ -120,6 +123,40 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
 
     if invoice_category == "personnel":
         data_dict["entete"]["sens"] = "1"
+
+
+def get_query_articles(invoice_category: AnyStr):
+    """
+    Filtre les articles à afficher dans le select du template
+    :param invoice_category: Catégorie ( marchandises, formations, personnel)
+    :return: Query object django filtré
+    """
+
+    if invoice_category == "marchandises":
+        return ""
+
+    queryset = Article.objects.annotate(
+        model=Concat(
+            "third_party_num",
+            Value(" - "),
+            "reference",
+            Value(" - "),
+            Case(
+                When(
+                    Q(libelle_heron__isnull=True) | Q(libelle_heron=""),
+                    then="libelle",
+                ),
+                default="libelle_heron",
+            ),
+        ),
+    ).values_list("pk", "model")
+
+    reults_list_dict = [{"pk": "", "model": "---"}] + [
+        {"pk": key, "model": value}
+        for key, value in queryset.filter(big_category__slug_name=invoice_category)
+    ]
+
+    return reults_list_dict
 
 
 def delete_orphans_controls():

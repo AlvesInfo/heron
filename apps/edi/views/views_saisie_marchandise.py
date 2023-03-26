@@ -21,7 +21,11 @@ from django.db import transaction
 
 from heron.loggers import LOGGER_VIEWS
 from apps.edi.bin.duplicates_check import check_invoice_exists
-from apps.edi.bin.edi_utilites import set_trace_hand_invoice, data_dict_invoices_clean
+from apps.edi.bin.edi_utilites import (
+    set_trace_hand_invoice,
+    data_dict_invoices_clean,
+    get_query_articles,
+)
 from apps.edi.bin.set_hand_invoices import set_hand_invoice
 from apps.edi.forms import (
     CreateBaseMarchandiseForm,
@@ -37,21 +41,21 @@ from apps.edi.forms import (
 CATEGORIES_DICT = {
     "marchandises": {
         "titre_table": "Saisie de Facture de Marchandises",
-        "template": "edi/invoice_marchandise_update.html",
         "form": CreateBaseMarchandiseForm,
         "details_form": CreateMarchandiseInvoiceForm,
+        "query_articles": False,
     },
-    "formations": {
+    "formation": {
         "titre_table": "Saisie de Facture de Formations",
-        "template": "edi/invoice_marchandise_update.html",
         "form": CreateBaseFormationForm,
         "details_form": CreateFormationInvoiceForm,
+        "query_articles": True,
     },
     "personnel": {
         "titre_table": "Saisie de Facture de Personnel",
-        "template": "edi/invoice_marchandise_update.html",
         "form": CreateBasePersonnelForm,
         "details_form": CreatePersonnelInvoiceForm,
+        "query_articles": True,
     },
 }
 
@@ -65,12 +69,14 @@ def create_hand_invoices(request, category):
     :param request:  Request au sens Django
     :param category:  Catégorie de facturation
     """
-    nb_display = 50
 
     if category not in CATEGORIES_DICT:
         return redirect("home")
 
-    titre_table, template, invoice_form, details_form = CATEGORIES_DICT.get(category).values()
+    nb_display = 50
+    titre_table, invoice_form, details_form, query_articles = CATEGORIES_DICT.get(category).values()
+    template = "edi/invoice_hand_update.html"
+
     context = {
         "titre_table": titre_table,
         "nb_display": nb_display,
@@ -79,6 +85,8 @@ def create_hand_invoices(request, category):
         "form_base": invoice_form(),
         "url_saisie": reverse("edi:create_hand_invoices", kwargs={"category": category}),
         "category": category,
+        "query_articles": get_query_articles(category) if query_articles else "",
+        "form_detail": details_form(),
     }
     data = {"success": "ko"}
     level = 50
@@ -86,9 +94,16 @@ def create_hand_invoices(request, category):
     if request.is_ajax() and request.method == "POST":
         user = request.user
         data_dict = json.loads(request.POST.get("data"))
-        print(data_dict)
         data_dict_invoices_clean(category, data_dict)
-        print(data_dict)
+
+        # On vérifie si il y a des lignes dans le POST, si il n'y en a pas on renvoie un message
+        # d'erreur pour ne pas insérer des factures vides, et on shortcut
+        if not data_dict.get("lignes"):
+            request.session["level"] = level
+            messages.add_message(request, level, "Aucunes des lignes saisies n'avaient d'articles")
+
+            return JsonResponse(data)
+
         try:
             form = invoice_form(data_dict.get("entete"))
             message = ""
@@ -99,7 +114,6 @@ def create_hand_invoices(request, category):
                 third_party_num = entete.get("third_party_num")
                 invoice_number = entete.get("invoice_number", "")
                 invoice_date = entete.get("invoice_date")
-                print(form.cleaned_data)
 
                 # On vérifie que cette facture n'existe pas
                 if check_invoice_exists(
@@ -131,8 +145,6 @@ def create_hand_invoices(request, category):
                 messages.add_message(request, level, message)
 
                 return JsonResponse(data)
-
-            print(form.errors)
 
             # Si le formulaire d'entête est invalide, on génère le message à afficher
             for error_list in dict(form.errors).values():

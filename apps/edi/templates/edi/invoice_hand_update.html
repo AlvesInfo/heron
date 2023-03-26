@@ -10,23 +10,23 @@
 
 {% if user.is_authenticated %}
 
-        {% include 'edi/invoice_marchandise_empty_form.html' %}
+        {% include 'edi/invoice_hand_empty_form.html' %}
 
 {#        <form action="" method="post">#}
             {% csrf_token %}
-            {% include "edi/invoice_marchandise_update_entete.html" %}
+            {% include "edi/invoice_handupdate_entete.html" %}
 
             {% if category == "marchandises" %}
 
-                {% include "edi/invoice_marchandise_update_table.html" %}
+                {% include "edi/invoice_update_marchandise_table.html" %}
 
-            {% elif category == "formations"%}
+            {% elif category == "formation"%}
 
-                {% include "edi/invoice_formation_update_table.html" %}
+                {% include "edi/invoice_update_formation_table.html" %}
 
             {% elif category == "personnel"%}
 
-                {% include "edi/invoice_personnel_update_table.html" %}
+                {% include "edi/invoice_update_personnel_table.html" %}
 
             {% endif %}
 
@@ -73,7 +73,8 @@
                 for (let i = 1; i < nbDisplay + 1; i++) {
                     let reference_article = $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val() || '';
 
-                        console.log("reference_article", $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val())
+                    {#console.log("reference_article", $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val())#}
+
                     if (reference_article !== '') {
                         lignes.push({
                             'num' : i,
@@ -101,7 +102,7 @@
                     'lignes': lignes
                 };
 
-                console.log({'data': JSON.stringify(formData)})
+                {#console.log({'data': JSON.stringify(formData)})#}
 
                 $.ajax({
                     type: "POST",
@@ -111,7 +112,7 @@
                     headers: {'X-CSRFToken': csrftoken},
                     mode: 'same-origin',
                 }).done(function (data) {
-                    {#window.location.replace("{{ url_saisie }}");#}
+                    window.location.replace("{{ url_saisie }}");
                 });
 
                 event.preventDefault();

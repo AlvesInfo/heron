@@ -1,4 +1,4 @@
-invoice_formation_update_table.html{% load filters_tags %}
+{% load filters_tags %}
 
 
 <div class="ui grid" style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_table %}{{ margin_table }}px{% else %}50px{% endif %};margin-right: {% if margin_table %}{{ margin_table }}px{% else %}50px{% endif %};">
@@ -43,8 +43,8 @@ invoice_formation_update_table.html{% load filters_tags %}
                         <label for="id_sens" style="text-align: left;">Sens</label>
                         {{ form_base.sens }}
                     </div>
-                    <div class="two wide field" style="text-align: left;">
-                        <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER LIGNE</button>
+                    <div class="two wide field" style="text-align: right;">
+{#                        <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER DES LIGNES</button>#}
                     </div>
                 </div>
             </div>

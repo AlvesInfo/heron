@@ -55,6 +55,7 @@ def pdf_view(request):
 
 def api_models_query(request, models, query):
     """View pour les api dans les dropdown semantic"""
+
     if request.is_ajax() and request.method == "GET":
         dic = {"success": "ko"}
 

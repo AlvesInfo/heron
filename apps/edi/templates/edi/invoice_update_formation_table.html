@@ -38,7 +38,7 @@
                     <div class="five wide field">
                     </div>
                     <div class="two wide field" style="text-align: right;">
-                        <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER DES LIGNES</button>
+{#                        <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER DES LIGNES</button>#}
                     </div>
                 </div>
             </div>
@@ -98,14 +98,14 @@
                         </div>
                         <div class="fields" style="margin-bottom: 5px;">
                             <div class="six wide field">
-                                <div class="field remote">
-                                    <label for="id_reference_article_{{ num }}">Formation</label>
-                                    <select name="reference_article_{{ num }}"
-                                            class="ui search dropdown search-model"
-                                            data-models="articles"
-                                            id="id_reference_article_{{ num }}">
-                                    </select>
-                                </div>
+                                <label for="id_reference_article_{{ num }}">Formation</label>
+                                <select name="invoice_type"
+                                        class="ui search dropdown search-model"
+                                        id="id_reference_article_{{ num }}">
+                                    {% for article in query_articles %}
+                                        <option value="{{ article.pk }}">{{ article.model }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <div class="two wide field">
                                 <label for="id_heures_formation_{{ num }}" style="text-align: right;margin-right: 14px">Heure Formation</label>
