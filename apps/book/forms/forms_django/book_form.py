@@ -80,7 +80,7 @@ class SocietyForm(forms.ModelForm):
             required=False,
             widget=forms.CheckboxInput,
         )
-        self.fields["in_use"] = forms.BooleanField(
+        self.fields["is_multi_billing"] = forms.BooleanField(
             required=False,
             widget=forms.CheckboxInput,
         )
@@ -152,6 +152,7 @@ class SocietyForm(forms.ModelForm):
             "in_use",
             "big_category_default",
             "stat_name",
+            "is_multi_billing"
         ]
 
         widgets = {

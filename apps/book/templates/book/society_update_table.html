@@ -487,7 +487,7 @@
                 {{ form.rfa_remise }}
               </div>
               <div class="one wide field">
-                <label for="id_integrable" style="text-align: left;">Intégrable X3&nbsp;:</label>
+                <label for="id_integrable" style="text-align: left;">Intégrable X3</label>
                 <input type="checkbox"
                        name="integrable"
                        id="id_integrable"
@@ -495,7 +495,7 @@
                        style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
               </div>
               <div class="one wide field">
-                <label for="id_chargeable" style="text-align: left;">Refacturable&nbsp;:</label>
+                <label for="id_chargeable" style="text-align: left;">Refacturable</label>
                 <input type="checkbox"
                        name="chargeable"
                        id="id_chargeable"
@@ -503,7 +503,7 @@
                        style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
               </div>
               <div class="one wide field">
-                <label for="id_od_ana" style="text-align: left;">Analytique&nbsp;:</label>
+                <label for="id_od_ana" style="text-align: left;">Analytique</label>
                 <input type="checkbox"
                        name="od_ana"
                        id="id_od_ana"
@@ -511,12 +511,20 @@
                        style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">
               </div>
               <div class="one wide field">
-                <label for="id_in_use" style="text-align: left;">Courant&nbsp;:</label>
+                <label for="id_in_use" style="text-align: left;">Courant</label>
                 <input type="checkbox"
                        name="in_use"
                        id="id_in_use"
                        style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;"
                        {% if form.in_use.value %}checked{% endif %}>
+              </div>
+              <div class="one wide field">
+                <label for="id_is_multi_billing" style="text-align: left;">Multi Articles</label>
+                <input type="checkbox"
+                       name="is_multi_billing"
+                       id="id_is_multi_billing"
+                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;"
+                       {% if form.is_multi_billing.value %}checked{% endif %}>
               </div>
 
           </div>

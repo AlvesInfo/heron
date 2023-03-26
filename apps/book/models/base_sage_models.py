@@ -240,6 +240,9 @@ class Society(FlagsTable):
     # si il vient par les imports le tiers est automatiquement mis en courant
     in_use = models.BooleanField(null=True, default=False, verbose_name="utilisé")
 
+    # Si le tiers peut facturer d'autres articles que le sien
+    is_multi_billing = models.BooleanField(null=True, default=False, verbose_name="multi facturant")
+
     # Grande catégorie courante pour le tiers
     big_category_default = models.ForeignKey(
         Category,
