@@ -12,8 +12,9 @@ modified at: 2023-01-18
 modified by: Paulo ALVES
 """
 import inspect
-from typing import AnyStr
+from typing import AnyStr, Dict
 
+import pendulum
 from django.db import connection
 from django.utils import timezone
 
@@ -85,6 +86,40 @@ def set_trace_hand_invoice(
                 model=EdiImport._meta.model,
                 db_table=EdiImport._meta.db_table,
             )
+
+
+def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
+    """
+    Nettoyage de la donnée pour se conformer aux données necessaires à chaque
+    type de saisies manuelles (marchandises, formations, personnel)
+    :param invoice_category: Catégorie ( marchandises, formations, personnel)
+    :param data_dict: dictionnaire des données arrivées par la request
+    :return: In place data_dict nettoyé
+    """
+
+    # On supprime toutes les lignes qui n'ont pas d'article et ont les classes pour mettre le cct
+    # si il n'a pas été mis sur toutes les lignes
+    lignes_list = data_dict.get("lignes")
+    lignes_list = [row_dict for row_dict in lignes_list if row_dict.get("reference_article")]
+    data_dict["lignes"] = sorted(lignes_list, key=lambda line_sort_dict: line_sort_dict.get("num"))
+
+    if invoice_category == "marchandises":
+        ...
+
+    if invoice_category == "formations":
+        data_dict["entete"]["third_party_num"] = "ZFORM"
+        data_dict["entete"]["sens"] = "1"
+
+        for ligne_dict in data_dict["lignes"]:
+            ligne_dict["qty"] = "1"
+            ligne_dict["unit_weight"] = "9"
+
+            ligne_dict["formation_month"] = (
+                pendulum.parse(ligne_dict.get("initial_date")).start_of("month").date().isoformat()
+            )
+
+    if invoice_category == "personnel":
+        data_dict["entete"]["sens"] = "1"
 
 
 def delete_orphans_controls():

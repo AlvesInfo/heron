@@ -63,7 +63,7 @@ invoice_formation_update_table.html{% load filters_tags %}
                         <div class="fields formset" style="margin-bottom: 5px;">
                             <div class="seven wide field">
                                 <div class="field remote search">
-                                    <label for="id_cct_uuid_identification_{{ num }}">CCT X3</label>
+                                    <label for="id_cct_uuid_identification_{{ num }}">Ligne {{ forloop.counter }} - CCT X3</label>
                                     <select name="cct_uuid_identification"
                                             class="ui search dropdown search-model"
                                             data-models="maisons"

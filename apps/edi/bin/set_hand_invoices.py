@@ -11,7 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-03-18
 modified by: Paulo ALVES
 """
-from typing import AnyStr, Dict
+from typing import AnyStr, Dict, List
 from decimal import Decimal
 from uuid import uuid4
 
@@ -33,7 +33,7 @@ def set_hand_invoice(
     invoice_category: AnyStr,
     category_form: forms.ModelForm,
     entete_dict: Dict,
-    lignes_dict: Dict,
+    lignes_list: List,
     user: User.objects,
 ):
     """
@@ -41,7 +41,7 @@ def set_hand_invoice(
     :param invoice_category: Catégorie ( marchandises, formations, personnel)
     :param category_form: Form django de la catégorie
     :param entete_dict: Dictionnaire de l'entête de la facture
-    :param lignes_dict: Dictionnaire des lignes de la facture
+    :param lignes_list: Liste des dictionnaires des lignes de la facture
     :param user: user qui créer la facture
     :return: error (True/False), message ("" si pas d'erreur/"message" si erreur)
     """
@@ -63,11 +63,7 @@ def set_hand_invoice(
         # On récupère le dictionnaire des taux de TVA en fonction de la date de la facture
         vat_dict = get_dict_vat_rates(invoice_date)
 
-        # On récupère le dictionnaire des articles présents dans la facture
-        form_list = [row for row in lignes_dict if row.get("reference_article")]
-
         lines_to_create = []
-        form_list = sorted(form_list, key=lambda line_sort_dict: line_sort_dict.get("num"))
         multistore_set = set()
         articles_pk_list = []
         message = ""
@@ -78,7 +74,7 @@ def set_hand_invoice(
         user_uuid_identification = user.uuid_identification
 
         # On itère sur les lignes pour les valider
-        for line_dict in form_list:
+        for line_dict in lignes_list:
             line_to_insert = dict()
 
             # Si la ligne n'a pas de cct alors on reprend celui de la ligne précédente
@@ -127,9 +123,7 @@ def set_hand_invoice(
             articles_dict = get_article(line_dict.get("reference_article"))
 
             # On va valider le formulaire
-            form = category_form(
-                {**entete_dict, **line_dict, **cct_dict, **articles_dict}
-            )
+            form = category_form({**entete_dict, **line_dict, **cct_dict, **articles_dict})
 
             if form.is_valid():
                 line_to_insert.update(form.cleaned_data)

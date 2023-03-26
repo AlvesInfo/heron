@@ -207,6 +207,10 @@
                     <div class="column">
                         <div class="ui link list">
                             <a href="{% url 'edi:import_edi_invoices' %}" class="item">01. Factures EDI</a>
+                            <a href="{% url 'compta:royalties_launch' %}" class="item">02. Royalties</a>
+                            <a href="{% url 'compta:meuleuse_launch' %}" class="item">03. Meuleuses</a>
+                            <a href="{% url 'compta:publicity_launch' %}" class="item">04. Publicité</a>
+                            <a href="{% url 'compta:services_launch' %}" class="item">05. Prestations</a>
 {#                            <a href="/" class="item">1. Marchandises</a>#}
 {#                            <a href="/" class="item">2. RFA</a>#}
 {#                            <a href="/" class="item">3. Redevances</a>#}
@@ -217,114 +221,22 @@
 {#                            <a href="/" class="item">8. Prestations</a>#}
 {#                            <a href="/" class="item">9. Abonnements</a>#}
 {#                            <a href="/" class="item">10. Divers</a>#}
-                            <a href="{% url 'compta:royalties_launch' %}" class="item">02. Royalties</a>
-                            <a href="{% url 'compta:meuleuse_launch' %}" class="item">03. Meuleuses</a>
-                            <a href="{% url 'compta:publicity_launch' %}" class="item">04. Publicité</a>
-                            <a href="{% url 'compta:services_launch' %}" class="item">05. Prestations</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="ui popup" id="d">
-                <div class="ui three column relaxed equal divided grid" style="width: 50em;">
+                <div class="ui three column relaxed equal divided grid" style="width: 28em;">
 
-{#              1. Marchandises #}
+{#              1. Marchandises ================================================================  #}
                     <div class="column">
-                        <h4 class="ui header">01. Factures</h4>
                         <div class="ui link list">
-                            <a href="{% url 'edi:create_hand_invoices' category='marchandises' %}" class="item">Saisie</a>
-{#                            <a href="" class="item">Import</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
+                            <a href="{% url 'edi:create_hand_invoices' category='marchandises' %}" class="item">01. Factures</a>
+                            <a href="{% url 'edi:create_hand_invoices' category='formations' %}" class="item">02. Formation</a>
+                            <a href="{% url 'edi:create_hand_invoices' category='personnel' %}" class="item">03. Personnel</a>
                         </div>
                     </div>
-
-{#              2. RFA #}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">2. RFA</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Saisie</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#              3.Redevance #}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">3. Redevances</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Génération</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#              4. Publicité #}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">4. Publicité</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Génération</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-{#                        </div>#}
-{#                    </div>#}
-
-{#              2. Formations#}
-                    <div class="column">
-                        <h4 class="ui header">02. Formations</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'edi:create_hand_invoices' category='formations' %}" class="item">Saisie</a>
-{#                            <a href="" class="item">Import</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-                        </div>
-                    </div>
-
-{#              3. Personnel#}
-                    <div class="column">
-                        <h4 class="ui header">03. Personnel</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'edi:create_hand_invoices' category='personnel' %}" class="item">Saisie</a>
-{#                            <a href="" class="item">Import</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-                        </div>
-                    </div>
-
-{#              7. Matériel#}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">7. Matériel</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Saisie</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#              8. Prestations #}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">8. Prestations</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Saisie</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#              9. Abonnements#}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">04. Abo./Presta.</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="{% url 'compta:royalties_launch' %}" class="item">Royalties</a>#}
-{#                            <a href="{% url 'compta:meuleuse_launch' %}" class="item">meuleuses</a>#}
-{#                            <a href="{% url 'compta:publicity_launch' %}" class="item">Publicité</a>#}
-{#                            <a href="{% url 'compta:services_launch' %}" class="item">Prestations</a>#}
-{#                        </div>#}
-{#                    </div>#}
-
-{#              10. Divers#}
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">10. Divers</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="" class="item">Saisie</a>#}
-{#                            <a href="" class="item">Visualisation</a>#}
-{#                        </div>#}
-{#                    </div>#}
-
-
                 </div>
             </div>
 

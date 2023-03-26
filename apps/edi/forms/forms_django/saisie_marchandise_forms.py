@@ -21,7 +21,7 @@ from apps.edi.models import EdiImport
 
 
 class CreateBaseMarchandiseForm(forms.ModelForm):
-    """Changer le Tiers X3 d'une intégration"""
+    """Formulaire d'entête pour la création des factures de Marchandises Dans Edi_Import"""
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -99,7 +99,7 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
 
 
 class CreateMarchandiseInvoiceForm(forms.ModelForm):
-    """Formulaire pour la créqtion des factures Dans Edi_Import"""
+    """Formulaire des lignes pour la création des factures de Marchandises Dans Edi_Import"""
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -157,7 +157,7 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
 
 
 class CreateBaseFormationForm(forms.ModelForm):
-    """Changer le Tiers X3 d'une intégration"""
+    """Formulaire d'entête pour la création des factures de Formation Dans Edi_Import"""
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -226,7 +226,7 @@ class CreateBaseFormationForm(forms.ModelForm):
 
 
 class CreateFormationInvoiceForm(forms.ModelForm):
-    """Formulaire pour la créqtion des factures Dans Edi_Import"""
+    """Formulaire des lignes pour la création des factures de Formation Dans Edi_Import"""
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -291,7 +291,7 @@ class CreateFormationInvoiceForm(forms.ModelForm):
 
 
 class CreateBasePersonnelForm(forms.ModelForm):
-    """Changer le Tiers X3 d'une intégration"""
+    """Formulaire d'entête pour la création des factures de Personnel Dans Edi_Import"""
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -338,14 +338,12 @@ class CreateBasePersonnelForm(forms.ModelForm):
         )
         self.fields["devise"] = devise
 
-        # SENS ACHAT ou VENTE ou ACHAT/VENTE =======================================================
-        self.sens_choices = [(0, "AC"), (1, "VE"), (2, "AC/VE")]
-        sens = forms.ChoiceField(
-            choices=self.sens_choices,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+        # SENS ACHAT ou VENTE ou ACHAT/VENTE [(0, "AC"), (1, "VE"), (2, "AC/VE")] ==================
+        sens = forms.CharField(
+            initial=1,
+            widget=forms.Select(attrs={"style": "display: none;"}),
             label="Sens",
             required=False,
-            initial=2,
         )
         self.fields["sens"] = sens
 
@@ -369,20 +367,24 @@ class CreateBasePersonnelForm(forms.ModelForm):
 
 
 class CreatePersonnelInvoiceForm(forms.ModelForm):
-    """Changer le Tiers X3 d'une intégration"""
+    """Formulaire des lignes pour la création des factures de Personnel Dans Edi_Import"""
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
         super().__init__(*args, **kwargs)
 
-        self.fields["vat"].initial = "001"
-        self.fields["unit_weight"].initial = 1
+        self.fields["sub_category"].required = False
 
     class Meta:
         """class Meta"""
 
         model = EdiImport
         fields = [
+            "third_party_num",
+            "invoice_number",
+            "invoice_date",
+            "invoice_type",
+            "devise",
             "cct_uuid_identification",
             "reference_article",
             "libelle",
@@ -392,14 +394,33 @@ class CreatePersonnelInvoiceForm(forms.ModelForm):
             "serial_number",
             "vat",
             "unit_weight",
+            "ean_code",
+            "famille",
+            "axe_bu",
+            "axe_prj",
+            "axe_pro",
+            "axe_pys",
+            "axe_rfa",
+            "customs_code",
+            "item_weight",
+            "big_category",
+            "sub_category",
+            "libelle",
+            "reference_article",
+            "origin",
+            "created_by",
+            "saisie_by",
+            "invoice_month",
+            "invoice_year",
+            "purchase_invoice",
+            "sale_invoice",
+            "gross_unit_price",
+            "net_amount",
+            "vat_rate",
+            "vat_amount",
+            "amount_with_vat",
+            "vat_regime",
+            "modified_by",
+            "initial_date",
+            "personnel_type",
         ]
-        widgets = {
-            "cct_uuid_identification": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "reference_article": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "qty": NumberInput(attrs={"step": "1", "style": "text-align: right;"}),
-            "net_unit_price": NumberInput(
-                attrs={"step": "0.01", "min": 0, "style": "text-align: right;"}
-            ),
-            "unit_weight": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
-        }

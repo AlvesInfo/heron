@@ -58,7 +58,7 @@
 
             $("#id_create_invoice").click(function (event) {
 
-                $(`.datatable-chargement`).show();
+                {#$(`.datatable-chargement`).show();#}
 
                 let entete = {
                     'third_party_num':$(`#id_third_party_num`).dropdown('get value'),
@@ -71,18 +71,28 @@
                 let lignes = [];
 
                 for (let i = 1; i < nbDisplay + 1; i++) {
-                    lignes.push({
-                        'num' : i,
-                        'cct_uuid_identification' : $(`#id_cct_uuid_identification_${i.toString().padStart(3, '0')}`).dropdown('get value'),
-                        'client_name' :  $(`#id_client_name_${i.toString().padStart(3, '0')}`).val(),
-                        'serial_number' :  $(`#id_serial_number_${i.toString().padStart(3, '0')}`).val(),
-                        'reference_article' :  $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val(),
-                        'libelle' :  $(`#id_libelle_${i.toString().padStart(3, '0')}`).val(),
-                        'qty' :  $(`#id_qty_${i.toString().padStart(3, '0')}`).val(),
-                        'unit_weight' :  $(`#id_unit_weight_${i.toString().padStart(3, '0')}`).dropdown('get value'),
-                        'net_unit_price' :  $(`#id_net_unit_price_${i.toString().padStart(3, '0')}`).val(),
-                        'vat' :  $(`#id_vat_${i.toString().padStart(3, '0')}`).dropdown('get value'),
-                    });
+                    let reference_article = $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val() || '';
+
+                        console.log("reference_article", $(`#id_reference_article_${i.toString().padStart(3, '0')}`).val())
+                    if (reference_article !== '') {
+                        lignes.push({
+                            'num' : i,
+                            'cct_uuid_identification' : $(`#id_cct_uuid_identification_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                            'client_name' :  $(`#id_client_name_${i.toString().padStart(3, '0')}`).val(),
+                            'serial_number' :  $(`#id_serial_number_${i.toString().padStart(3, '0')}`).val(),
+                            'reference_article' : reference_article,
+                            'libelle' :  $(`#id_libelle_${i.toString().padStart(3, '0')}`).val(),
+                            'qty' :  $(`#id_qty_${i.toString().padStart(3, '0')}`).val(),
+                            'unit_weight' :  $(`#id_unit_weight_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                            'net_unit_price' :  $(`#id_net_unit_price_${i.toString().padStart(3, '0')}`).val(),
+                            'vat' :  $(`#id_vat_${i.toString().padStart(3, '0')}`).dropdown('get value'),
+                            'initial_date' : $(`#id_initial_date_${i.toString().padStart(3, '0')}`).val(),
+                            'final_date' : $(`#id_final_date_${i.toString().padStart(3, '0')}`).val(),
+                            'last_name' : $(`#id_last_name_${i.toString().padStart(3, '0')}`).val(),
+                            'first_name' : $(`#id_first_name_${i.toString().padStart(3, '0')}`).val(),
+                            'heures_formation' : $(`#id_heures_formation_${i.toString().padStart(3, '0')}`).val(),
+                        });
+                    }
                 }
                 let csrftoken = $(`input[name*='csrfmiddlewaretoken']`).val();
                 let formData = {
@@ -101,7 +111,7 @@
                     headers: {'X-CSRFToken': csrftoken},
                     mode: 'same-origin',
                 }).done(function (data) {
-                    window.location.replace("{{ url_saisie }}");
+                    {#window.location.replace("{{ url_saisie }}");#}
                 });
 
                 event.preventDefault();

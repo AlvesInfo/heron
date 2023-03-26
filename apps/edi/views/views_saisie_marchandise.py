@@ -21,8 +21,8 @@ from django.db import transaction
 
 from heron.loggers import LOGGER_VIEWS
 from apps.edi.bin.duplicates_check import check_invoice_exists
+from apps.edi.bin.edi_utilites import set_trace_hand_invoice, data_dict_invoices_clean
 from apps.edi.bin.set_hand_invoices import set_hand_invoice
-from apps.edi.bin.edi_utilites import set_trace_hand_invoice
 from apps.edi.forms import (
     CreateBaseMarchandiseForm,
     CreateMarchandiseInvoiceForm,
@@ -36,28 +36,22 @@ from apps.edi.forms import (
 
 CATEGORIES_DICT = {
     "marchandises": {
-        "titre_table": "Saisie de Facture/Avoir de marchandises",
+        "titre_table": "Saisie de Facture de Marchandises",
         "template": "edi/invoice_marchandise_update.html",
         "form": CreateBaseMarchandiseForm,
         "details_form": CreateMarchandiseInvoiceForm,
-        "third_party_num": None,
-        "sens": None,
     },
     "formations": {
-        "titre_table": "Saisie de Facture/Avoir de formations",
+        "titre_table": "Saisie de Facture de Formations",
         "template": "edi/invoice_marchandise_update.html",
         "form": CreateBaseFormationForm,
         "details_form": CreateFormationInvoiceForm,
-        "third_party_num": "ZFORM",
-        "sens": "1",
     },
     "personnel": {
-        "titre_table": "Saisie de Facture/Avoir de personnel",
+        "titre_table": "Saisie de Facture de Personnel",
         "template": "edi/invoice_marchandise_update.html",
         "form": CreateBasePersonnelForm,
         "details_form": CreatePersonnelInvoiceForm,
-        "third_party_num": None,
-        "sens": "1",
     },
 }
 
@@ -71,15 +65,12 @@ def create_hand_invoices(request, category):
     :param request:  Request au sens Django
     :param category:  Catégorie de facturation
     """
-    nb_display = 10
+    nb_display = 50
 
     if category not in CATEGORIES_DICT:
         return redirect("home")
 
-    titre_table, template, invoice_form, details_form, third_party_num, sens = CATEGORIES_DICT.get(
-        category
-    ).values()
-
+    titre_table, template, invoice_form, details_form = CATEGORIES_DICT.get(category).values()
     context = {
         "titre_table": titre_table,
         "nb_display": nb_display,
@@ -96,12 +87,7 @@ def create_hand_invoices(request, category):
         user = request.user
         data_dict = json.loads(request.POST.get("data"))
         print(data_dict)
-        if data_dict.get("entete").get("third_party_num") is None:
-            data_dict["third_party_num"] = third_party_num
-
-        if data_dict.get("entete").get("sens") is None:
-            data_dict["sens"] = sens
-
+        data_dict_invoices_clean(category, data_dict)
         print(data_dict)
         try:
             form = invoice_form(data_dict.get("entete"))
