@@ -50,8 +50,8 @@ class CentersInvoices(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["client_billing", "code_center", "code_signboard"],
-                name="centers_invoices_billing",
+                fields=["created_at", "code_center", "code_signboard"],
+                name="centers_invoices",
             ),
             models.UniqueConstraint(
                 fields=[
@@ -118,8 +118,8 @@ class PartiesInvoices(BaseAdressesTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["created_at", "cct", "third_party"],
-                name="parties_adresses_billing",
+                fields=["created_at", "cct", "third_party_num"],
+                name="parties_invoices",
             ),
             models.UniqueConstraint(
                 fields=[
@@ -362,7 +362,7 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
 
         indexes = [
             models.Index(fields=["invoice"], name="invoice_idx"),
-            models.Index(fields=["invoice", "article"], name="invoice_article_idx"),
+            models.Index(fields=["invoice", "reference_article"], name="invoice_article_idx"),
             models.Index(fields=["axe_bu"], name="invoice_axe_bu"),
             models.Index(fields=["axe_prj"], name="invoice_axe_prj"),
             models.Index(fields=["axe_rfa"], name="invoice_axe_rfa"),
