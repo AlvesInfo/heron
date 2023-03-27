@@ -61,7 +61,7 @@
                 <div id="id_segment_details_{{ num }}" class="ui segment" style="{% cycle '' 'background-color: lavender;' %};margin: 0;padding: 5px 10px 10px;">
                     <div class="ui mini form lignes" style="font-size: 12px;font-weight:bold;">
                         <div class="fields formset" style="margin-bottom: 5px;">
-                            <div class="seven wide field">
+                            <div class="eight wide field">
                                 <div class="field remote search">
                                     <label for="id_cct_uuid_identification_{{ num }}">Ligne {{ forloop.counter }} - CCT X3</label>
                                     <select name="cct_uuid_identification"
@@ -71,22 +71,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="three wide field">
-                                <label for="id_client_name_{{ num }}">Client</label>
-                                <input type="text"
-                                       name="client_name"
-                                       maxlength="80"
-                                       id="id_client_name_{{ num }}">
-                            </div>
-                            <div class="six wide field">
-                                <label for="id_serial_number_{{ num }}">N° Série</label>
-                                <input type="text"
-                                     name="serial_number"
-                                     id="id_serial_number_{{ num }}">
-                            </div>
-                        </div>
-                        <div class="fields formset" style="margin-bottom: 5px;">
-                            <div class="seven wide field">
+                            <div class="eight wide field">
                                 <div class="field remote">
                                     <label for="id_reference_article_{{ num }}">Article</label>
                                     <select name="reference_article_{{ num }}"
@@ -96,9 +81,40 @@
                                     </select>
                                 </div>
                             </div>
-
-                            <div class="one wide field">
-                                <label for="id_qty_{{ num }}" style="text-align: right;margin-right: 14px">Qté</label>
+                        </div>
+                        <div class="fields formset" style="margin-bottom: 5px;">
+                            <div class="two wide field">
+                                <label for="id_delivery_number_{{ num }}">Bon de livraison</label>
+                                <input type="text"
+                                       name="delivery_number"
+                                       maxlength="80"
+                                       id="id_delivery_number_{{ num }}">
+                            </div>
+                            <div class="two wide field">
+                                <label for="id_delivery_date_{{ num }}"
+                                       style="text-align: left;">Date Livraison</label>
+                                <input type="date"
+                                     name="delivery_date"
+                                     id="id_delivery_date"
+                                     value="">
+                            </div>
+                            <div class="four wide field">
+                                <label for="id_client_name_{{ num }}">Client</label>
+                                <input type="text"
+                                       name="client_name"
+                                       maxlength="80"
+                                       id="id_client_name_{{ num }}">
+                            </div>
+                            <div class="eight wide field">
+                                <label for="id_serial_number_{{ num }}">N° Série</label>
+                                <input type="text"
+                                     name="serial_number"
+                                     id="id_serial_number_{{ num }}">
+                            </div>
+                        </div>
+                        <div class="fields formset" style="margin-bottom: 5px;">
+                            <div class="two wide field">
+                                <label for="id_qty_{{ num }}" style="text-align: left;margin-right: 14px">Qté</label>
                                 <input type="number"
                                        name="qty"
                                        value="1"
@@ -145,7 +161,7 @@
                                 </div>
                             </div>
                             <div class="two wide field">
-                                <label for="id_net_unit_price_{{ num }}" style="text-align: right;margin-right: 14px">PU Net</label>
+                                <label for="id_net_unit_price_{{ num }}" style="text-align: left;margin-right: 14px">PU Net</label>
                                 <input type="number"
                                        name="net_unit_price"
                                        value="0"
@@ -264,7 +280,7 @@
                                 </div>
                             </div>
                             <div class="two wide field">
-                                <label for="id_net_amount_{{ num }}" style="text-align: right;margin-right: 14px">Montant Net</label>
+                                <label for="id_net_amount_{{ num }}" style="text-align: right;margin-right: 14px">Montant HT</label>
                                 <input type="text"
                                      name="net_amount"
                                      maxlength="20"
@@ -273,11 +289,29 @@
                                      style="background-color: #efefff;text-align: right;"
                                      value="0">
                             </div>
+                            <div class="two wide field">
+                                <label for="id_vat_amount_{{ num }}" style="text-align: right;margin-right: 14px">Montant TVA</label>
+                                <input type="text"
+                                     name="vat_amount"
+                                     maxlength="20"
+                                     id="id_vat_amount_{{ num }}"
+                                     style="background-color: #efefff;text-align: right;"
+                                     value="0">
+                            </div>
+                            <div class="two wide field">
+                                <label for="id_amount_with_vat_{{ num }}" style="text-align: right;margin-right: 14px">Montant TTC</label>
+                                <input type="text"
+                                     name="amount_with_vat"
+                                     maxlength="20"
+                                     id="id_amount_with_vat_{{ num }}"
+                                     style="background-color: #efefff;text-align: right;"
+                                     value="0">
+                            </div>
                         </div>
                     </div>
                 </div>
                 {% endwith %}
             {% endfor %}
-    </div>
+        </div>
     </div>
 </div>

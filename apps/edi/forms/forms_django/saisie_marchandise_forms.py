@@ -106,6 +106,8 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["sub_category"].required = False
+        self.fields["delivery_number"].required = False
+        self.fields["delivery_date"].required = False
 
     class Meta:
         """class Meta"""
@@ -153,6 +155,10 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
             "amount_with_vat",
             "vat_regime",
             "modified_by",
+            "delivery_number",
+            "delivery_date",
+            "vat_amount",
+            "amount_with_vat",
         ]
 
 

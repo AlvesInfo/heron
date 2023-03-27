@@ -103,11 +103,25 @@ def set_hand_invoice(
             vat_regime, vat_rate = vat_dict.get(line_dict["vat"])
             vat_rate = round(Decimal(vat_rate), 3)
             net_amount = round(qty * net_unit_price, 2)
-            vat_amount = round(net_amount * vat_rate, 2)
-            amount_with_vat = net_amount + vat_amount
+
+            if line_dict.get("vat_amount", '0') != '0':
+                vat_amount = (qty / abs(qty)) * Decimal(
+                    line_dict.get("vat_amount").replace(",", ".")
+                )
+            else:
+                vat_amount = round(net_amount * vat_rate, 2)
+
+            if line_dict.get("amount_with_vat", '0') != '0':
+                amount_with_vat = (qty / abs(qty)) * Decimal(
+                    line_dict.get("amount_with_vat").replace(",", ".")
+                )
+            else:
+                amount_with_vat = net_amount + vat_amount
+
             invoice_amount_without_tax += net_amount
             invoice_amount_tax += vat_amount
             invoice_amount_with_tax += amount_with_vat
+
             cct_dict.update(
                 {
                     "gross_unit_price": net_unit_price,
@@ -121,7 +135,6 @@ def set_hand_invoice(
 
             # On récupère les axes et catégories des articles dans la base article
             articles_dict = get_article(line_dict.get("reference_article"))
-
             # On va valider le formulaire
             form = category_form({**entete_dict, **line_dict, **cct_dict, **articles_dict})
 

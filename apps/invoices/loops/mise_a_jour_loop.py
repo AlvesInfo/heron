@@ -41,7 +41,7 @@ def centers_invoices_update():
     file_name = "insert into ..."
     application_name = "centers_invoices_update"
     flow_name = "centers_invoices_update"
-    comment = "Mise à jour Centrales / Enseignes pour la facturation"
+    comment = "Mise à jour historique Centrales pour la facturation"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
 
     with connection.cursor() as cursor:
@@ -89,7 +89,7 @@ def signboards_invoices_update():
     file_name = "insert into ..."
     application_name = "centers_invoices_update"
     flow_name = "centers_invoices_update"
-    comment = "Mise à jour Centrales / Enseignes pour la facturation"
+    comment = "Mise à jour historique Enseignes pour la facturation"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
 
     with connection.cursor() as cursor:
@@ -127,7 +127,7 @@ def parties_invoices_update():
     file_name = "insert into ..."
     application_name = "parties_invoices_update"
     flow_name = "parties_invoices_update"
-    comment = "Mise à des parties prenante dans la facturation"
+    comment = "Mise à jour historique des parties prenantes dans la facturation"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
 
     with connection.cursor() as cursor:
