@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db import transaction
 
 from heron.loggers import LOGGER_VIEWS
+from apps.accountancy.bin.utilities import get_youngests_vat_rate
 from apps.edi.bin.duplicates_check import check_invoice_exists
 from apps.edi.bin.edi_utilites import (
     set_trace_hand_invoice,
@@ -87,6 +88,7 @@ def create_hand_invoices(request, category):
         "category": category,
         "query_articles": get_query_articles(category) if query_articles else "",
         "form_detail": details_form(),
+        "vat_list": get_youngests_vat_rate(),
     }
     data = {"success": "ko"}
     level = 50

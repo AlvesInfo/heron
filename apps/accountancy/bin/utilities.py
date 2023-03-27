@@ -26,7 +26,9 @@ def get_dict_vat_rates(invoice_date: AnyStr):
     with connection.cursor() as cursor:
         sql_vat_rate = """
         select distinct
-            "vtr"."vat", "vtr"."vat_regime", ("vtr"."rate" / 100)::numeric as "vat_rate"
+            "vtr"."vat", 
+            "vtr"."vat_regime", 
+            ("vtr"."rate" / 100)::numeric as "vat_rate"
         from "accountancy_vatratsage" "vtr"
         join (
             select
@@ -63,7 +65,8 @@ def get_vat_rate(invoice_date: AnyStr, vat: AnyStr):
     with connection.cursor() as cursor:
         sql_vat_rate = """
         select distinct
-            "vtr"."vat_regime", round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
+            "vtr"."vat_regime", 
+            round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
         from "accountancy_vatratsage" "vtr"
         join (
             select
@@ -81,3 +84,34 @@ def get_vat_rate(invoice_date: AnyStr, vat: AnyStr):
         cursor.execute(sql_vat_rate, {"invoice_date": invoice_date, "vat": vat})
 
         return cursor.fetchone()
+
+
+def get_youngests_vat_rate():
+    """
+    Retourne les taux de tva en cours
+    :return: vat_regime, vat_rate
+    >>> from apps.core.functions.functions_setups import connection
+    >>> get_youngests_vat_rate()
+    (('001', Decimal('0.20000')), ('002', Decimal('0.05500')), ....)
+    """
+
+    with connection.cursor() as cursor:
+        sql_youngests_vat_rate = """
+        select distinct
+            "vd"."vat", 
+            round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
+        from "accountancy_vatratsage" "vtr"
+        join (
+            select
+                max("vat_start_date") as "vat_start_date",
+                "vat",
+                "vat_regime"
+            from "accountancy_vatratsage"
+            group by "vat", "vat_regime"
+        ) "vd"
+        on "vtr"."vat" = "vd"."vat"
+        and "vtr"."vat_start_date" = "vd"."vat_start_date"
+        """
+        cursor.execute(sql_youngests_vat_rate)
+
+        return cursor.fetchall()

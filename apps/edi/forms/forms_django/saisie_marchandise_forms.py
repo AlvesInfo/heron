@@ -13,8 +13,6 @@ modified by: Paulo ALVES
 """
 from django import forms
 
-from apps.parameters.forms import NumberInput
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society
 from apps.countries.models import Currency
 from apps.edi.models import EdiImport
@@ -293,6 +291,8 @@ class CreateFormationInvoiceForm(forms.ModelForm):
             "first_name",
             "heures_formation",
             "formation_month",
+            "vat_amount",
+            "amount_with_vat",
         ]
 
 

@@ -239,6 +239,24 @@
                                        required=""
                                        id="id_net_unit_price_{{ num }}">
                             </div>
+                            <div class="two wide field">
+                                <label for="id_vat_amount_{{ num }}" style="text-align: right;margin-right: 14px">Montant TVA</label>
+                                <input type="text"
+                                     name="vat_amount"
+                                     maxlength="20"
+                                     id="id_vat_amount_{{ num }}"
+                                     style="background-color: #efefff;text-align: right;"
+                                     value="0">
+                            </div>
+                            <div class="two wide field">
+                                <label for="id_amount_with_vat_{{ num }}" style="text-align: right;margin-right: 14px">Montant TTC</label>
+                                <input type="text"
+                                     name="amount_with_vat"
+                                     maxlength="20"
+                                     id="id_amount_with_vat_{{ num }}"
+                                     style="background-color: #efefff;text-align: right;"
+                                     value="0">
+                            </div>
                         </div>
                     </div>
                 </div>

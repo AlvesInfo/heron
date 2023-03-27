@@ -1,6 +1,7 @@
 {% extends "heron/base_semantic.html" %}
 
 {% load static %}
+{% load filters_tags %}
 
 {% block menu_principal %}
         {% include "heron/menu_principal.html" %}
@@ -56,6 +57,84 @@
 
             let nbDisplay = {{ nb_display }};
 
+            const vatRates = {{%  for vat, rate in vat_list %}
+                '{{ vat }}': {{ rate|point }},
+            {% endfor %}};
+
+            function recalcAlls () {
+
+                let sum_net_amount = 0;
+                let sum_vat_amount = 0;
+                let sum_amount_with_vat = 0;
+
+                for (let i = 1; i < nbDisplay + 1; i++) {
+                    let num = i.toString().padStart(3, '0');
+                    let reference_article = $(`#id_reference_article_${num}`).val() || '';
+
+                    if (reference_article !== '') {
+                        let net_amount = Math.round(($(`#id_net_amount_${num}`).val() || 0) *100)/100;
+                        let vat_amount = Math.round(($(`#id_vat_amount_${num}`).val() || 0) *100)/100;
+                        let amount_with_vat = Math.round(($(`#id_amount_with_vat_${num}`).val() || 0) *100)/100;
+                        console.log(net_amount)
+                        sum_net_amount += net_amount
+                        sum_vat_amount += vat_amount
+                        sum_amount_with_vat += amount_with_vat
+                    }
+                    console.log(sum_net_amount)
+                    $(`#id_vat_amount`).val(sum_vat_amount.toFixed(2))
+                    $(`#id_amount_with_vat`).val(sum_amount_with_vat.toFixed(2))
+                    $(`#id_net_amount`).val(sum_net_amount.toFixed(2))
+                }
+            }
+
+            // RECALCUL DES TOTAUX
+            $(`.amount`).change(function (){
+
+                let num = $(this).attr('id').slice(-3);
+                let name = $(this).attr('name')
+                let vat = $(`#id_vat_${num}`).dropdown('get value');
+                let rate = vatRates[vat];
+                let elementQty = $(`#id_qty_${num}`);
+                let elementNet_amount = $(`#id_net_amount_${num}`);
+                let elementNet_unit_price = $(`#id_net_unit_price_${num}`);
+                let elementVat_amount = $(`#id_vat_amount_${num}`);
+                let elementAmount_with_vat = $(`#id_amount_with_vat_${num}`);
+                let Qty = Math.round((elementQty.val() || 0) *100)/100;
+                let net_unit_price = Math.round((elementNet_unit_price.val() || 0) *100)/100;
+                let net_amount = Math.round((elementNet_amount.val() || 0) *100)/100;
+                let vat_amount = Math.round((elementVat_amount.val() || 0) *100)/100;
+                let amount_with_vat = Math.round((elementAmount_with_vat.val() || 0) *100)/100;
+
+                if (name === 'qty' || name === 'net_unit_price' || name === 'vat') {
+                    net_amount =  Math.round(Qty * net_unit_price *100)/100;
+                    vat_amount = Math.round(net_amount * rate * 100)/100;
+                    amount_with_vat = net_amount + vat_amount;
+                    elementNet_amount.val(net_amount.toFixed(2));
+                    elementVat_amount.val(vat_amount.toFixed(2));
+                    elementAmount_with_vat.val(amount_with_vat.toFixed(2));
+                }
+
+                if (name === 'vat_amount') {
+                    console.log("net_amount : ", net_amount, typeof net_amount);
+                    console.log("elementNet_amount.val() :", elementNet_amount.val(), typeof elementNet_amount.val());
+                    console.log("elementNet_amount.val() :", $(`#id_amount_${num}`).val(), typeof $(`#id_amount_${num}`).val());
+                    console.log($(`#id_amount_${num}`).val());
+
+                    console.log(vat_amount, typeof vat_amount.toFixed(2));
+                    amount_with_vat = net_amount + vat_amount;
+                    elementAmount_with_vat.val(amount_with_vat.toFixed(2));
+                }
+
+                if (name === 'amount_with_vat') {
+                    vat_amount = amount_with_vat - net_amount;
+                    elementVat_amount.val(vat_amount.toFixed(2));
+                }
+
+                recalcAlls()
+            })
+
+
+            // ENVOI DE LA REQUETE POST A L'APPUI DU BOUTON VALIDER
             $("#id_create_invoice").click(function (event) {
 
                 $(`.datatable-chargement`).show();
