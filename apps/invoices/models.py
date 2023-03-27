@@ -25,7 +25,7 @@ from apps.edi.models import EdiImportControl
 
 
 class CentersInvoices(models.Model):
-    """Table pour stocker l'historique des éléments enseigne et centrale pour les factures"""
+    """Table pour stocker l'historique des éléments centrale pour les factures"""
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -36,6 +36,36 @@ class CentersInvoices(models.Model):
     bank_center = models.CharField(null=True, blank=True, max_length=50)
     iban_center = models.CharField(null=True, blank=True, max_length=50)
     code_swift_center = models.CharField(null=True, blank=True, max_length=27)
+
+    # uuid_identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["created_at", "code_center"],
+                name="centers_invoices",
+            ),
+            models.UniqueConstraint(
+                fields=[
+                    "code_center",
+                    "comment_center",
+                    "legal_notice_center",
+                    "bank_center",
+                    "iban_center",
+                    "code_swift_center",
+                ],
+                name="centers_invoices_billing",
+            ),
+        ]
+
+
+class SignboardsInvoices(models.Model):
+    """Table pour stocker l'historique des éléments enseigne pour les factures"""
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     # Elements Enseigne
     code_signboard = models.CharField(max_length=15)
@@ -50,27 +80,21 @@ class CentersInvoices(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["created_at", "code_center", "code_signboard"],
-                name="centers_invoices",
+                fields=["created_at", "code_signboard"],
+                name="signboard_invoices",
             ),
             models.UniqueConstraint(
                 fields=[
-                    "code_center",
-                    "comment_center",
-                    "legal_notice_center",
-                    "bank_center",
-                    "iban_center",
-                    "code_swift_center",
                     "code_signboard",
                     "logo_signboard",
                     "message",
                 ],
-                name="centers_invoices_billing",
+                name="signboard_invoices_billing",
             ),
         ]
 
 
-class PartiesInvoices(BaseAdressesTable):
+class PartiesInvoices(models.Model):
     """Table fixe des adresses du facturé CCT et Tiers"""
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,10 +110,10 @@ class PartiesInvoices(BaseAdressesTable):
     )
     name_cct = models.CharField(null=True, blank=True, max_length=80)
     immeuble_cct = models.CharField(null=True, blank=True, max_length=200)
-    adresse_cct = models.CharField(max_length=200)
-    code_postal_cct = models.CharField(max_length=15)
-    ville_cct = models.CharField(max_length=50)
-    pays_cct = models.CharField(max_length=80)
+    adresse_cct = models.CharField(null=True, blank=True, max_length=200)
+    code_postal_cct = models.CharField(null=True, blank=True, max_length=15)
+    ville_cct = models.CharField(null=True, blank=True, max_length=50)
+    pays_cct = models.CharField(null=True, blank=True, max_length=80)
 
     # Tiers facturé à qui appartient le CCT
     third_party_num = models.ForeignKey(
@@ -101,10 +125,10 @@ class PartiesInvoices(BaseAdressesTable):
     )
     name_third_party = models.CharField(null=True, blank=True, max_length=80)
     immeuble_third_party = models.CharField(null=True, blank=True, max_length=200)
-    adresse_third_party = models.CharField(max_length=200)
-    code_postal_third_party = models.CharField(max_length=15)
-    ville_third_party = models.CharField(max_length=50)
-    pays_third_party = models.CharField(max_length=80)
+    adresse_third_party = models.CharField(null=True, blank=True, max_length=200)
+    code_postal_third_party = models.CharField(null=True, blank=True, max_length=15)
+    ville_third_party = models.CharField(null=True, blank=True, max_length=50)
+    pays_third_party = models.CharField(null=True, blank=True, max_length=80)
 
     # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -174,14 +198,25 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         db_column="cct",
     )
 
-    # Centrale / Enseigne
+    # Centrale
     centers = models.ForeignKey(
         CentersInvoices,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="centers_invoice",
-        verbose_name="facturation",
+        verbose_name="centrale fille",
         db_column="centers",
+        null=True,
+    )
+
+    # Enseigne
+    signboard = models.ForeignKey(
+        SignboardsInvoices,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="signboard_invoice",
+        verbose_name="enseigne",
+        db_column="signboard",
         null=True,
     )
 
@@ -191,7 +226,7 @@ class Invoice(FlagsTable, BaseInvoiceTable):
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="parties_invoice",
-        verbose_name="facturation",
+        verbose_name="parties prenantes",
         db_column="parties",
         null=True,
     )
