@@ -284,12 +284,35 @@ class Invoice(FlagsTable, BaseInvoiceTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["third_party_num", "invoice_number", "invoice_year", "cct"],
+                fields=["third_party_num", "invoice_number", "invoice_year", "cct", "big_category"],
                 name="unique_invoice_purchase",
             ),
             models.UniqueConstraint(
-                fields=["third_party_num", "sale_invoice_number", "invoice_year"],
+                fields=["third_party_num", "sale_invoice_number", "invoice_year", "big_category"],
                 name="unique_invoice_sale",
+            ),
+        ]
+
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["invoice_number"]),
+            models.Index(fields=["invoice_year"]),
+            models.Index(fields=["cct"]),
+            models.Index(fields=["big_category"]),
+            models.Index(fields=["sale_invoice_number"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "invoice_number",
+                    "cct",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "sale_invoice_number",
+                    "cct",
+                ]
             ),
         ]
 

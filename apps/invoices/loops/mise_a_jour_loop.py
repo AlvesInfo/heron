@@ -1,4 +1,4 @@
-# pylint: disable=W0703,W1203
+# pylint: disable=E0401,C0413,W0718
 """
 FR : Module de mise à jour des éléments nécessaires à la facturation
 EN : Module for updating the elements necessary for invoicing
@@ -14,12 +14,9 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
-from uuid import uuid4
 
 import django
-from psycopg2 import sql
-from django.db import connection
-from django.utils import timezone
+from django.db import connection, transaction
 
 BASE_DIR = r"/"
 
@@ -35,6 +32,7 @@ from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.trace import get_trace
 
 
+@transaction.atomic
 def centers_invoices_update():
     """Mise à jour des Centrales / Enseignes pour la facturation"""
     trace_name = "Mise à jour des Centrales / Enseignes pour la facturation"
@@ -56,7 +54,7 @@ def centers_invoices_update():
             "iban_center",
             "code_swift_center",
             -- Enseigne
-            "code_signboard"
+            "code_signboard",
             "logo_signboard",
             "message"
         )
@@ -88,6 +86,7 @@ def centers_invoices_update():
     return trace
 
 
+@transaction.atomic
 def parties_invoices_update():
     """Mise à des parties prenante dans la facturation"""
     trace_name = "Mise à des parties prenante dans la facturation"
@@ -116,7 +115,7 @@ def parties_invoices_update():
             "adresse_third_party",
             "code_postal_third_party",
             "ville_third_party",
-            "pays_third_party",
+            "pays_third_party"
         )
         select
             -- CCT
@@ -145,7 +144,10 @@ def parties_invoices_update():
             -- Tiers facturé à qui appartient le CCT
             "bs"."third_party_num",
             case 
-                when "bs"."name" isnull then '' else "bs"."name" 
+                 when "bs"."invoice_entete" isnull or "bs"."invoice_entete" = '' 
+                then 
+                    case when "bs"."name" isnull then '' end 
+                else "bs"."name"
             end as "name_third_party",
             case 
                 when "bs"."immeuble" isnull then '' else "bs"."immeuble" 
@@ -187,9 +189,7 @@ def process():
         traceback = ""
 
         try:
-            trace, _ = processing_dict.get(file.name)(file)
-            destination = Path(settings.BACKUP_SAGE_DIR) / file.name
-            shutil.move(file.resolve(), destination.resolve())
+            trace = processing()
 
         except Exception as except_error:
             error = True
