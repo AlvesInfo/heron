@@ -14,6 +14,8 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
+from datetime import datetime
+import time
 
 import django
 from django.db import connection, transaction
@@ -216,7 +218,7 @@ def parties_invoices_update():
 
 def process():
     """
-    Mise à jour des CentersInvoices et PartiesInvoices
+    Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices
     pour figer l'historique des parties prenantes dans la facturation
     """
     processings_list = [
@@ -251,4 +253,16 @@ def process():
 
 
 if __name__ == "__main__":
-    process()
+    while True:
+        maintenant = datetime.now()
+        heure = maintenant.hour
+        minute = maintenant.minute
+
+        if heure == 6 and minute == 30:
+            print(
+                "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices : ",
+                maintenant,
+            )
+            process()
+
+        time.sleep(60)
