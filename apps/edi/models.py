@@ -17,10 +17,10 @@ import pendulum
 from django.db import models
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import VatSage, VatRegimeSage, CctSage
+from apps.accountancy.models import VatSage, VatRegimeSage, CctSage, SectionSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
-from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category, SubCategory
+from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category, SubCategory, Nature
 
 
 class EdiImportControl(FlagsTable):
@@ -158,6 +158,63 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         related_name="edi_maison",
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
+    )
+
+    # Sage
+    axe_bu = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "BU"},
+        related_name="+",
+        db_column="axe_bu",
+    )
+    axe_prj = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRJ"},
+        related_name="+",
+        db_column="axe_prj",
+    )
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="+",
+        db_column="axe_pro",
+    )
+    axe_pys = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PYS"},
+        related_name="+",
+        db_column="axe_pys",
+    )
+    axe_rfa = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "RFA"},
+        related_name="+",
+        db_column="axe_rfa",
+    )
+    personnel_type = models.ForeignKey(
+        Nature,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        null=True,
+        limit_choices_to={"for_personnel": True},
+        db_column="personnel_type",
+        verbose_name="type de personnel",
     )
 
     # pour vérifier si les factures sont multi magasins
@@ -324,6 +381,63 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         related_name="+",
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
+    )
+
+    # Sage
+    axe_bu = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "BU"},
+        related_name="+",
+        db_column="axe_bu",
+    )
+    axe_prj = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRJ"},
+        related_name="+",
+        db_column="axe_prj",
+    )
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="+",
+        db_column="axe_pro",
+    )
+    axe_pys = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PYS"},
+        related_name="+",
+        db_column="axe_pys",
+    )
+    axe_rfa = models.ForeignKey(
+        SectionSage,
+        null=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "RFA"},
+        related_name="+",
+        db_column="axe_rfa",
+    )
+    personnel_type = models.ForeignKey(
+        Nature,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="+",
+        null=True,
+        limit_choices_to={"for_personnel": True},
+        db_column="personnel_type",
+        verbose_name="type de personnel",
     )
 
     # pour vérifier si les factures sont multi magasins

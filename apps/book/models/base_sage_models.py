@@ -68,6 +68,7 @@ class Society(FlagsTable):
         db_column="nature",
     )
     name = models.CharField(null=True, blank=True, max_length=80)  # BPRNAM_0
+    invoice_entete = models.CharField(null=True, blank=True, max_length=80)
     short_name = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="intitulé Court"
     )  # BPRSHO

@@ -94,7 +94,7 @@
                     <input type="number"
                            name="item_weight"
                            value="{{ form.statement_with_tax.value|numbers:0 }}"
-                           step="1"
+                           step="0.01"
                            id="id_item_weight"
                            style="text-align: right;">
               </div>
@@ -121,7 +121,7 @@
                     <input type="number"
                            name="catalog_price"
                            value="{{ form.catalog_price.value|numbers:2 }}"
-                           step="0.1"
+                           step="0.01"
                            id="id_catalog_price"
                            style="text-align: right;">
               </div>

@@ -467,6 +467,9 @@ class Nature(FlagsTable):
     for_personnel = models.BooleanField(default=False)
     for_formation = models.BooleanField(default=False)
 
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def save(self, *args, **kwargs):
         """
         FR : Avant la sauvegarde on clean les données
@@ -522,18 +525,31 @@ class BaseInvoiceTable(models.Model):
         verbose_name="FA:380, AV:381",
     )
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
+    sale_devise = models.CharField(null=True, max_length=3, default="EUR")
+    sale_invoice_type = models.CharField(null=True, max_length=10)
 
+    # Achats
     invoice_amount_without_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 125"
+        null=True, max_digits=20, decimal_places=5, default=0
     )
-    invoice_amount_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 150"
-    )
+    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     invoice_amount_with_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="MOA avec 128"
+        null=True, max_digits=20, decimal_places=5, default=0
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
+
+    # Ventes
+    sale_invoice_amount_without_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    sale_invoice_amount_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    sale_invoice_amount_with_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     sale_invoice = models.BooleanField(null=True, default=False)
+
     manual_entry = models.BooleanField(null=True, default=False)
 
     class Meta:
@@ -570,16 +586,6 @@ class BaseInvoiceDetailsTable(models.Model):
         decimal_places=5,
         default=0,
         verbose_name="nombre heures formation",
-    )
-    personnel_type = models.ForeignKey(
-        Nature,
-        on_delete=models.PROTECT,
-        to_field="name",
-        related_name="+",
-        null=True,
-        limit_choices_to={"for_personnel": True},
-        db_column="personnel_type",
-        verbose_name="type de personnel",
     )
     formation_month = models.DateField(null=True, verbose_name="Mois concerné")
     # Article
@@ -664,68 +670,11 @@ class BaseInvoiceDetailsTable(models.Model):
     amount_with_vat = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
-
-    # Sage
-    axe_bu = models.ForeignKey(
-        SectionSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "BU"},
-        related_name="+",
-        db_column="axe_bu",
-    )
-    axe_prj = models.ForeignKey(
-        SectionSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRJ"},
-        related_name="+",
-        db_column="axe_prj",
-    )
-    axe_pro = models.ForeignKey(
-        SectionSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PRO"},
-        related_name="+",
-        db_column="axe_pro",
-    )
-    axe_pys = models.ForeignKey(
-        SectionSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "PYS"},
-        related_name="+",
-        db_column="axe_pys",
-    )
-    axe_rfa = models.ForeignKey(
-        SectionSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        limit_choices_to={"axe": "RFA"},
-        related_name="+",
-        db_column="axe_rfa",
-    )
-    account_purchase = models.ForeignKey(
-        AccountSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="+",
-        db_column="account_purchase",
-    )
-    account_sale = models.ForeignKey(
-        AccountSage,
-        null=True,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="+",
-        db_column="account_sale",
+    sale_net_unit_price = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
+    sale_net_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
+    sale_vat_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
+    sale_sale_amount_with_vat = models.DecimalField(
+        null=True, default=0, max_digits=20, decimal_places=5
     )
     origin = models.ForeignKey(
         IconOriginChoice,

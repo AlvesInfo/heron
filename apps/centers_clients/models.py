@@ -131,6 +131,7 @@ class Maison(FlagsTable):
     )
     intitule = models.CharField(max_length=50)
     intitule_court = models.CharField(max_length=20)
+    invoice_entete = models.CharField(null=True, blank=True, max_length=50)
     client_familly = models.ForeignKey(
         ClientFamilly,
         on_delete=models.PROTECT,

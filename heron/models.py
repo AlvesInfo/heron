@@ -94,6 +94,28 @@ class FlagsTable(DatesTable):
         abstract = True
 
 
+class CreateTable(DatesTable):
+    """
+    Table Abstraite de base pour les tables
+    FR : Table Abstraite de Base Flags
+    EN : Flags Abstract Table Flags
+    """
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        to_field="uuid_identification",
+        db_column="created_by",
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        abstract = True
+
+
 class DbTableAuthorisation(models.Model):
     """
     Table pour savoir si un utlisateur peux visualiser ou modifier un champ
