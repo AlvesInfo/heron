@@ -41,6 +41,44 @@
 {#                        <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER DES LIGNES</button>#}
                     </div>
                 </div>
+
+                <div class="fields" style="">
+                    <div class="ten wide field">
+                    </div>
+                    <div class="two wide field">
+                        <label for="id_tot_net_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL HT</label>
+                        <input type="number"
+                               class="amount"
+                               name="tot_net_amount"
+                               id="id_tot_net_amount"
+                               readonly  tabindex="-1"
+                               step="0.01"
+                               style="background-color: #efefff;text-align: right;"
+                               value="0">
+                    </div>
+                    <div class="two wide field">
+                        <label for="id_tot_vat_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL TVA</label>
+                        <input type="number"
+                               class="amount"
+                               name="tot_vat_amount"
+                               id="id_tot_vat_amount"
+                               readonly  tabindex="-1"
+                               step="0.01"
+                               style="background-color: #efefff;text-align: right;"
+                               value="0">
+                    </div>
+                    <div class="two wide field">
+                        <label for="id_tot_amount_with_vat" style="display: none;text-align: right;margin-right: 14px">TOTAL TTC</label>
+                        <input type="number"
+                               class="amount"
+                               name="tot_amount_with_vat"
+                               id="id_tot_amount_with_vat"
+                               readonly  tabindex="-1"
+                               step="0.01"
+                               style="background-color: #efefff;text-align: right;"
+                               value="0">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -121,7 +159,7 @@
                             <div class="two wide field">
                                 <label for="id_vat_{{ num }}" style="text-align: right">TVA X3</label>
                                 <div class="ui fluid search dropdown selection">
-                                    <select name="vat" required="" id="id_vat_{{ num }}" style="text-align: right;">
+                                    <select name="vat" class="amount" required="" id="id_vat_{{ num }}" style="text-align: right;">
                                   <option value="">---------</option>
                                   <option value="001" selected="">001 - FRA</option>
                                   <option value="002">002 - FRA</option>
@@ -228,9 +266,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <label for="id_qty_{{ num }}" style="display: none;text-align: right;margin-right: 14px">Qté</label>
+                            <input type="number"
+                                       class="amount"
+                                       name="qty"
+                                       value="1"
+                                       step="1"
+                                       style="display: none;text-align: right;"
+                                       required=""
+                                       id="id_qty_{{ num }}">
                             <div class="two wide field">
                                 <label for="id_net_unit_price_{{ num }}" style="text-align: right;margin-right: 14px">Montant Net</label>
                                 <input type="number"
+                                       class="amount"
                                        name="net_unit_price"
                                        value="0"
                                        step="0.1"
@@ -239,23 +287,37 @@
                                        required=""
                                        id="id_net_unit_price_{{ num }}">
                             </div>
+                            <label for="id_net_amount_{{ num }}" style="display: none;text-align: right;margin-right: 14px">Montant HT</label>
+                            <input type="number"
+                                   name="net_amount"
+                                   id="id_net_amount_{{ num }}"
+                                   readonly  tabindex="-1"
+                                   step="0.01"
+                                   style="display: none;background-color: #efefff;text-align: right;"
+                                   value="0">
                             <div class="two wide field">
                                 <label for="id_vat_amount_{{ num }}" style="text-align: right;margin-right: 14px">Montant TVA</label>
                                 <input type="text"
-                                     name="vat_amount"
-                                     maxlength="20"
-                                     id="id_vat_amount_{{ num }}"
-                                     style="background-color: #efefff;text-align: right;"
-                                     value="0">
+                                       class="amount"
+                                       name="vat_amount"
+                                       maxlength="20"
+                                       id="id_vat_amount_{{ num }}"
+                                       readonly  tabindex="-1"
+                                       step="0.01"
+                                       style="background-color: #efefff;text-align: right;"
+                                       value="0">
                             </div>
                             <div class="two wide field">
                                 <label for="id_amount_with_vat_{{ num }}" style="text-align: right;margin-right: 14px">Montant TTC</label>
                                 <input type="text"
-                                     name="amount_with_vat"
-                                     maxlength="20"
-                                     id="id_amount_with_vat_{{ num }}"
-                                     style="background-color: #efefff;text-align: right;"
-                                     value="0">
+                                       class="amount"
+                                       name="amount_with_vat"
+                                       maxlength="20"
+                                       id="id_amount_with_vat_{{ num }}"
+                                       readonly  tabindex="-1"
+                                       step="0.01"
+                                       style="background-color: #efefff;text-align: right;"
+                                       value="0">
                             </div>
                         </div>
                     </div>
