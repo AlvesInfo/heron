@@ -75,16 +75,17 @@
                         let net_amount = Math.round(($(`#id_net_amount_${num}`).val() || 0) *100)/100;
                         let vat_amount = Math.round(($(`#id_vat_amount_${num}`).val() || 0) *100)/100;
                         let amount_with_vat = Math.round(($(`#id_amount_with_vat_${num}`).val() || 0) *100)/100;
-                        console.log(net_amount)
+                        console.log("dans la boucle : ", i, " - ", net_amount);
                         sum_net_amount += net_amount
                         sum_vat_amount += vat_amount
                         sum_amount_with_vat += amount_with_vat
                     }
-                    console.log(sum_net_amount)
-                    $(`#id_vat_amount`).val(sum_vat_amount.toFixed(2))
-                    $(`#id_amount_with_vat`).val(sum_amount_with_vat.toFixed(2))
-                    $(`#id_net_amount`).val(sum_net_amount.toFixed(2))
                 }
+
+                console.log("à la fin : ", sum_net_amount.toFixed(2))
+                $(`#id_net_amount`).val(sum_net_amount.toFixed(2))
+                $(`#id_vat_amount`).val(sum_vat_amount.toFixed(2))
+                $(`#id_amount_with_vat`).val(sum_amount_with_vat.toFixed(2))
             }
 
             // RECALCUL DES TOTAUX
@@ -115,12 +116,6 @@
                 }
 
                 if (name === 'vat_amount') {
-                    console.log("net_amount : ", net_amount, typeof net_amount);
-                    console.log("elementNet_amount.val() :", elementNet_amount.val(), typeof elementNet_amount.val());
-                    console.log("elementNet_amount.val() :", $(`#id_amount_${num}`).val(), typeof $(`#id_amount_${num}`).val());
-                    console.log($(`#id_amount_${num}`).val());
-
-                    console.log(vat_amount, typeof vat_amount.toFixed(2));
                     amount_with_vat = net_amount + vat_amount;
                     elementAmount_with_vat.val(amount_with_vat.toFixed(2));
                 }

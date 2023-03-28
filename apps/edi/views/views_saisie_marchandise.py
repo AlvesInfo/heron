@@ -74,24 +74,10 @@ def create_hand_invoices(request, category):
     if category not in CATEGORIES_DICT:
         return redirect("home")
 
+    level = 50
     nb_display = 50
     titre_table, invoice_form, details_form, query_articles = CATEGORIES_DICT.get(category).values()
-    template = "edi/invoice_hand_update.html"
-
-    context = {
-        "titre_table": titre_table,
-        "nb_display": nb_display,
-        "range_display": range(1, nb_display + 1),
-        "chevron_retour": reverse("home"),
-        "form_base": invoice_form(),
-        "url_saisie": reverse("edi:create_hand_invoices", kwargs={"category": category}),
-        "category": category,
-        "query_articles": get_query_articles(category) if query_articles else "",
-        "form_detail": details_form(),
-        "vat_list": get_youngests_vat_rate(),
-    }
     data = {"success": "ko"}
-    level = 50
 
     if request.is_ajax() and request.method == "POST":
         user = request.user
@@ -183,6 +169,21 @@ def create_hand_invoices(request, category):
             )
 
             return JsonResponse(data)
+
+    template = "edi/invoice_hand_update.html"
+
+    context = {
+        "titre_table": titre_table,
+        "nb_display": nb_display,
+        "range_display": range(1, nb_display + 1),
+        "chevron_retour": reverse("home"),
+        "form_base": invoice_form(),
+        "url_saisie": reverse("edi:create_hand_invoices", kwargs={"category": category}),
+        "category": category,
+        "query_articles": get_query_articles(category) if query_articles else "",
+        "form_detail": details_form(),
+        "vat_list": get_youngests_vat_rate(),
+    }
 
     return render(request, template, context=context)
 

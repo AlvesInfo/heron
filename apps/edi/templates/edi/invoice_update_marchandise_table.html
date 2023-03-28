@@ -49,12 +49,13 @@
                 </div>
 
                 <div class="fields" style="">
-                    <div class="eight wide field">
+                    <div class="ten wide field">
                     </div>
                     <div class="two wide field">
-                        <label for="id_net_amount" style="text-align: right;margin-right: 14px">TOTAL HT</label>
+                        <label for="id_net_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL HT</label>
                         <input type="number"
-                               name="net_amount"
+                               class="amount"
+                               name="tot_net_amount"
                                id="id_net_amount"
                                readonly  tabindex="-1"
                                step="0.01"
@@ -62,10 +63,10 @@
                                value="0">
                     </div>
                     <div class="two wide field">
-                        <label for="id_vat_amount" style="text-align: right;margin-right: 14px">TOTAL TVA</label>
+                        <label for="id_vat_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL TVA</label>
                         <input type="number"
                                class="amount"
-                               name="vat_amount"
+                               name="tot_vat_amount"
                                id="id_vat_amount"
                                readonly  tabindex="-1"
                                step="0.01"
@@ -73,10 +74,10 @@
                                value="0">
                     </div>
                     <div class="two wide field">
-                        <label for="id_amount_with_vat" style="text-align: right;margin-right: 14px">TOTAL TTC</label>
+                        <label for="id_amount_with_vat" style="display: none;text-align: right;margin-right: 14px">TOTAL TTC</label>
                         <input type="number"
                                class="amount"
-                               name="amount_with_vat"
+                               name="tot_amount_with_vat"
                                id="id_amount_with_vat"
                                readonly  tabindex="-1"
                                step="0.01"
@@ -150,6 +151,8 @@
                             </div>
                         </div>
                         <div class="fields formset" style="margin-bottom: 5px;">
+                            <div class="two wide field">
+                            </div>
                             <div class="two wide field">
                                 <label for="id_qty_{{ num }}" style="text-align: left;margin-right: 14px">Qté</label>
                                 <input type="number"
