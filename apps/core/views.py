@@ -16,6 +16,7 @@ from apps.core.bin.api_get_models import (
     get_societies,
     get_maisons_alls,
     get_maisons,
+    get_maisons_in_use,
     get_unity_alls,
     get_unity,
     get_vat_alls,
@@ -29,6 +30,7 @@ MODEL_DICT = {
     "societies": get_societies,
     "maisons_alls": get_maisons_alls,
     "maisons": get_maisons,
+    "maisons_in_use": get_maisons_in_use,
     "unites_alls": get_unity_alls,
     "unites": get_unity,
     "vats_alls": get_vat_alls,
@@ -65,6 +67,29 @@ def api_models_query(request, models, query):
 
             if results_func is not None:
                 results = results_func(str_query)
+                dic = {"success": list(results)}
+
+        except:
+            LOGGER_VIEWS.exception("view : article_rest_api_query")
+
+        response = JsonResponse(dic)
+        return HttpResponse(response)
+
+    return redirect("home")
+
+
+def api_models_query_third_party_num(request, models, third_party_num, query):
+    """View pour les api dans les dropdown semantic"""
+
+    if request.is_ajax() and request.method == "GET":
+        dic = {"success": "ko"}
+
+        try:
+            str_query = str(query).replace("%", r"\%").replace("'", "").lower()
+            results_func = MODEL_DICT.get(str(models))
+
+            if results_func is not None:
+                results = results_func(str_query, third_party_num)
                 dic = {"success": list(results)}
 
         except:

@@ -65,8 +65,24 @@ CATEGORIES_DICT = {
 @transaction.atomic
 def create_hand_invoices(request, category):
     """View de création des factures par saisie manuelle.
+
     Dans le template il y aura des affichages en fonction des catégories. Si une catégorie
     est ajoutée ou enlevée, il faudra procéder au nettoyage du template aussi.
+
+    Dans le template :
+        - les Articles ont un data-models="articles"
+        - les CCT ont un data-models="maisons"
+
+    Les data-models servent à ce que l'appel de l'api renvoyant les données,
+    sache quelle est la fonction à appliquer.
+
+    L'url appelée est "api_models_query/<str:models>/<str:query>/",
+    ou models est ce qu'il y a dans data-models.
+
+    La view endpoint apps/core/views/api_models_query, va remplir les champs avec les fonctions
+    du dictionnaire MODEL_DICT, ou la keys est le data-models et sa fonction correspondante,
+    qui est dans apps/core/bin/api_get_models.py
+
     :param request:  Request au sens Django
     :param category:  Catégorie de facturation
     """

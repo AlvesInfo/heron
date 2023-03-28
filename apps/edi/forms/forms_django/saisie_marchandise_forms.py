@@ -35,7 +35,7 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
         ]
         third_party_num = forms.ChoiceField(
             choices=self.third_party_num_choices,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown third_party_num"}),
             label="Fournisseur X3",
             required=True,
             error_messages={"required": "Le Fournisseur (TiersX3) est obligatoire"},

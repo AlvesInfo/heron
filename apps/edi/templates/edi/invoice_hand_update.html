@@ -127,6 +127,25 @@
                 recalcAlls()
             })
 
+            let category = "{{ category }}";
+
+            let dataOrigin = "articles";
+
+            // Changement de la variable models pour changement de l'url d'api à changer sur les
+            // Articles pour cibler ceux du fournisseur si il n'est pas is_multi_billing
+            $(`#id_third_party_num`).change(function (){
+                if (category === 'marchandises') {
+                    let third_party_num = $(this).dropdown('get value');
+
+                    for (let i = 1; i < nbDisplay + 1; i++) {
+
+                        let num = i.toString().padStart(3, '0');
+                        $(`#id_reference_article_${num}`).data("models", `${dataOrigin}/${third_party_num}`);
+
+                    }
+                }
+            });
+
 
             // ENVOI DE LA REQUETE POST A L'APPUI DU BOUTON VALIDER
             $("#id_create_invoice").click(function (event) {
