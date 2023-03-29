@@ -681,7 +681,7 @@ class BaseInvoiceDetailsTable(models.Model):
     sale_net_unit_price = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
     sale_net_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
     sale_vat_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
-    sale_sale_amount_with_vat = models.DecimalField(
+    sale_amount_with_vat = models.DecimalField(
         null=True, default=0, max_digits=20, decimal_places=5
     )
     origin = models.ForeignKey(

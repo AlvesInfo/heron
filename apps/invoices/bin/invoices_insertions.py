@@ -29,4 +29,3 @@ def insertion_invoices():
         # TODO : FAIRE LE PRE CONTROLE QUAND TOUS LE PROCESS EST TERMINE
         # Renvoyer une erreur si le pré-cotrôle n'est pas vide
         ...
-

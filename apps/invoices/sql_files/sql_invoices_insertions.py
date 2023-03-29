@@ -13,7 +13,14 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
+SQL_SALES_PRICES = sql.SQL(
+    # insertion des prix de ventes
+    """
+    """
+)
+
 SQL_INVOICES = sql.SQL(
+    # Insertion des entêtes de factures
     """
     insert into invoices_invoice iv
     (

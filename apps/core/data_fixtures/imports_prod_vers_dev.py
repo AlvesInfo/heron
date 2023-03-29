@@ -174,7 +174,6 @@ MODELS_PARAMETERS = (
     ActionPermission,
     ActionInProgress,
     Counter,
-    CounterNums,
     Parameters,
     Periodicity,
     SalePriceCategory,

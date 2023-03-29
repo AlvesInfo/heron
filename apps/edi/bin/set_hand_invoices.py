@@ -24,7 +24,12 @@ from apps.users.models import User
 from apps.accountancy.bin.utilities import get_dict_vat_rates
 from apps.articles.bin.articles_queries import get_article
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
-from apps.edi.bin.edi_utilites import get_sens, set_trace_hand_invoice, set_center_signboard
+from apps.edi.bin.edi_utilites import (
+    get_sens,
+    set_trace_hand_invoice,
+    set_center_signboard,
+    set_hand_sales_prices,
+)
 from apps.edi.models import EdiImport
 
 
@@ -52,6 +57,7 @@ def set_hand_invoice(
     invoice_number = entete_dict.get("invoice_number", "")
     invoice_date = entete_dict.get("invoice_date")
     sens_dict = get_sens(entete_dict.pop("sens"))
+    edi_imports = None
 
     # si l'on n'a pas de N° de Facture on en met un par défaut, avec la numérotation automatique
     # à aprtir du compteur des saisies manuelles
@@ -207,8 +213,15 @@ def set_hand_invoice(
         )
         nbre = len(edi_imports)
 
+        # TODO: Renforcer la fonction pour que cela ne créé pas la ligne malgré
+        #  même si erreur avec les deux fonction ci après
+
         # On va mettre à jour la centrale fille et l'enseigne
         set_center_signboard(edi_imports)
+
+        # On va mettre à jour les prix de ventes
+        # TODO : A changer lors des multiprix
+        set_hand_sales_prices(edi_imports)
 
         # on va créer les traces et les changestrace
         set_trace_hand_invoice(
@@ -236,6 +249,7 @@ def set_hand_invoice(
         LOGGER_IMPORT.exception("Erreur : set_hand_invoice")
         error = True
         message = "Une erreur c'est produite, veuillez consulter les logs"
+
         # On trace l'erreur
         set_trace_hand_invoice(
             invoice_category=invoice_category,
