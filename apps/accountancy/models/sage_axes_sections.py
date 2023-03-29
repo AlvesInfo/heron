@@ -77,7 +77,7 @@ class AxeSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return str(self.axe)
+        return f"{str(self.axe)} - {self.name}"
 
     class Meta:
         """class Meta du modèle django"""
@@ -264,7 +264,7 @@ class SectionSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return str(self.section)
+        return f"{str(self.section)} - {self.name}"
 
     class Meta:
         """class Meta du modèle django"""

@@ -175,7 +175,7 @@ def control_sub_categories():
 
 def control_alls_missings():
     """
-    Controle que tous les manques dans edi_ediimport
+    Contrôle de tous les manques dans edi_ediimport
     """
     controls_dict = {}
 
