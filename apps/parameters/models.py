@@ -706,6 +706,7 @@ class BaseInvoiceDetailsTable(models.Model):
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
     flow_name = models.CharField(max_length=80, default="Saisie")
     customs_code = models.CharField(null=True, blank=True, max_length=35)
+    supplier = models.CharField(null=True, blank=True, max_length=35)
 
     class Meta:
         """class Meta du modèle django"""

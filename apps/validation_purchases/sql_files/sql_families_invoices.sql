@@ -3,7 +3,7 @@ with families as (
 		edi."third_party_num",
 		edi."supplier",
 		case
-			when edi."axe_pro" isnull then '' else ac."name"
+			when edi."axe_pro" isnull then '' else ac."section"
 		end as "axe_pro",
 		case
 			when (date_trunc('month', now())- interval '1 month')::date = edi."invoice_month"
@@ -31,9 +31,9 @@ with families as (
 
     select
 		sii."third_party_num",
-		sii."supplier",
+		siid."supplier",
 		case
-			when siid."axe_pro" isnull then '' else ac."name"
+			when siid."axe_pro" isnull then '' else siid."axe_pro"
 		end as "axe_pro",
 		case
 			when (date_trunc('month', now())- interval '1 month')::date = sii."invoice_month"
@@ -53,8 +53,6 @@ with families as (
     from invoices_invoice sii
     join invoices_invoicedetail siid
     on sii.uuid_identification  = siid.uuid_invoice
-    left join "accountancy_sectionsage" ac
-	ON (siid."axe_pro" = ac."uuid_identification")
 	and sii.invoice_month >= (date_trunc('month', now())- interval '3 month')::date
 )
 select
