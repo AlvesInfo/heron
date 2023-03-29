@@ -278,7 +278,6 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
     famille = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="IMD avec F 1ère position"
     )
-    unit_weight = models.CharField(null=True, blank=True, max_length=20)
     packaging_qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 52"
     )

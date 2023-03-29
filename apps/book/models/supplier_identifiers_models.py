@@ -18,7 +18,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import reverse
-from apps.parameters.models import FlagsTable, Category, SubCategory
+from apps.parameters.models import FlagsTable, Category, SubCategory, UnitChoices
 from apps.accountancy.models import SectionSage, CctSage
 
 
@@ -107,13 +107,13 @@ class SupplierFamilyAxes(FlagsTable):
     item_weight = models.DecimalField(
         max_digits=20, decimal_places=5, default=0, verbose_name="quantité"
     )
-    unit_weight = models.CharField(
+    unit_weight = models.ForeignKey(
+        UnitChoices,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="+",
+        db_column="unit_weight",
         null=True,
-        blank=True,
-        max_length=20,
-        choices=Unit.choices,
-        default=Unit.GR,
-        verbose_name="unité",
     )
     customs_code = models.CharField(
         null=True, blank=True, max_length=35, verbose_name="code douanier"
