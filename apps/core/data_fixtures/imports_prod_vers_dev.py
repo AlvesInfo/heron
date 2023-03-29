@@ -59,6 +59,7 @@ from apps.centers_purchasing.models import (
     Translation,
     TranslationParamaters,
     GroupingGoods,
+    AxeProGroupingGoods,
     AccountsAxeProCategory,
 )
 from apps.compta.models import VentesCosium, CaClients
@@ -147,6 +148,7 @@ MODELS_CENTER_PURCHASING = (
     Translation,
     TranslationParamaters,
     GroupingGoods,
+    AxeProGroupingGoods,
     AccountsAxeProCategory,
 )
 
@@ -285,8 +287,8 @@ if __name__ == "__main__":
     # main(MODELS_BOOK)
     # main(MODELS_PARAMETERS)
     # main(MODELS_ARTICLES)
-    # main(MODELS_CENTER_PURCHASING)
+    main(MODELS_CENTER_PURCHASING)
     # main(MODELS_CENTER_CLIENTS)
-    main(MODELS_EDI)
-    main(MODELS_COMPTA)
-    main(MODELS_INVOICES)
+    # main(MODELS_EDI)
+    # main(MODELS_COMPTA)
+    # main(MODELS_INVOICES)

@@ -75,7 +75,7 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des redevances meuleuses "
@@ -117,7 +117,7 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des prestations "
@@ -157,7 +157,7 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des redevances de publicité "
@@ -199,7 +199,7 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des royalties "

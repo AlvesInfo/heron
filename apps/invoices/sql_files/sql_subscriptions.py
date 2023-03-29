@@ -104,22 +104,22 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         end as "libelle",
         %(flow_name)s as "famille",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then round("qty" / 100, 2)::numeric
             else "qty"
         end as "qty",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
             else "net_unit_price"
         end as "gross_unit_price",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
             else "net_unit_price"
         end as "net_unit_price",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then round(
                 (
                     "qty" 
@@ -130,7 +130,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             else "net_unit_price"
         end as "gross_amount",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then round(
                 (
                     "qty" 
@@ -142,7 +142,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         end as "net_amount",
         "vat_rate",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then round((
                 (
                     "qty" 
@@ -153,7 +153,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             else round(("net_unit_price" * "vat_rate"), 2)::numeric
         end as "vat_amount",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then (
                     round(
                         (
@@ -178,7 +178,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
                 )
         end as "amount_with_vat",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then round(
                 (
                     "qty" 
@@ -189,7 +189,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             else "net_unit_price"
         end as "invoice_amount_without_tax",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then round((
                 (
                     "qty" 
@@ -200,7 +200,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             else round(("net_unit_price" * "vat_rate"), 2)::numeric
         end as "invoice_amount_tax",
         case
-            when "unit_weight" = 12
+            when "ccm"."unit_weight" = 12
             then (
                     round(
                         (
