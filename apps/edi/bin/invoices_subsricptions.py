@@ -50,46 +50,6 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
     return rows
 
 
-def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération de factures de Royalties
-    :param dte_d: Date de début de période au format texte isoformat
-    :param dte_f: Date de fin de période au format texte isoformat
-    :param user_uuid: UUID de l'utilisateur lançant la génération
-    :return:
-    """
-    file_name = "royalties"
-    trace_name = "Génération des royalties"
-    application_name = "royalties"
-    flow_name = "ROYALTIES"
-    comment = ""
-    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
-    error = False
-    rows = 0
-
-    try:
-        rows = set_data(dte_d, dte_f, user_uuid, flow_name)
-
-    except Exception as except_error:
-        error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
-
-    if error:
-        trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-
-    to_print = (
-        "Génération des royalties "
-        if rows
-        else f"Erreur Génération des royalties, pas d'abonnements '{flow_name}' à générer"
-    )
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.created_by = User.objects.get(uuid_identification=user_uuid)
-    trace.save()
-
-    return trace, to_print
-
-
 def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     """Génération de factures de redevance Meuleuse
     :param dte_d: Date de début de période au format texte isoformat
@@ -123,6 +83,46 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         else (
             f"Erreur Génération des redevances meuleuses, pas d'abonnements '{flow_name}' à générer"
         )
+    )
+    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+    trace.created_by = User.objects.get(uuid_identification=user_uuid)
+    trace.final_at = timezone.now()
+    trace.save()
+
+    return trace, to_print
+
+
+def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
+    """Génération de factures de Prestations
+    :param dte_d: Date de début de période au format texte isoformat
+    :param dte_f: Date de fin de période au format texte isoformat
+    :param user_uuid: UUID de l'utilisateur lançant la génération
+    :return:
+    """
+    file_name = "prestations"
+    trace_name = "Génération des prestations"
+    application_name = "prestations"
+    flow_name = "PRESTATIONS"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    error = False
+    rows = 0
+
+    try:
+        rows = set_data(dte_d, dte_f, user_uuid, flow_name)
+
+    except Exception as except_error:
+        error = True
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    to_print = (
+        "Génération des prestations "
+        if rows
+        else f"Erreur Génération des prestations, pas d'abonnements '{flow_name}' à générer"
     )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
     trace.created_by = User.objects.get(uuid_identification=user_uuid)
@@ -174,17 +174,17 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     return trace, to_print
 
 
-def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération de factures de Prestations
+def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
+    """Génération de factures de Royalties
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: UUID de l'utilisateur lançant la génération
     :return:
     """
-    file_name = "prestations"
-    trace_name = "Génération des prestations"
-    application_name = "prestations"
-    flow_name = "PRESTATIONS"
+    file_name = "royalties"
+    trace_name = "Génération des royalties"
+    application_name = "royalties"
+    flow_name = "ROYALTIES"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
@@ -202,13 +202,13 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
-        "Génération des prestations "
+        "Génération des royalties "
         if rows
-        else f"Erreur Génération des prestations, pas d'abonnements '{flow_name}' à générer"
+        else f"Erreur Génération des royalties, pas d'abonnements '{flow_name}' à générer"
     )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.final_at = timezone.now()
+    trace.created_by = User.objects.get(uuid_identification=user_uuid)
     trace.save()
 
     return trace, to_print
