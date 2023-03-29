@@ -173,7 +173,7 @@ def get_have_statment():
                         from invoices_invoice sii 
                         join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
-                        where sii.flow_name = 'BbgrStatment'
+                        where sii2.flow_name = 'BbgrStatment'
                     ) req
                 ) mx 
                 where mx.max_id < he.max_id
@@ -218,7 +218,7 @@ def get_have_monthly():
                         from invoices_invoice sii 
                         join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
-                        where sii.flow_name = 'BbgrMonthly'
+                        where sii2.flow_name = 'BbgrMonthly'
                     ) req
                 ) mx 
                 where mx.max_id < he.max_id
@@ -263,7 +263,7 @@ def get_have_retours():
                         from invoices_invoice sii 
                         join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
-                        where sii.flow_name = 'BbgrRetours'
+                        where sii2.flow_name = 'BbgrRetours'
                     ) req
                 ) mx 
                 where mx.max_id < he.max_id
@@ -321,7 +321,7 @@ def get_have_receptions():
                         from invoices_invoice sii 
                         join invoices_invoicedetail sii2 
                         on sii.uuid_identification  = sii2.uuid_invoice 
-                        where sii.flow_name = 'BbgrReceptions'
+                        where sii2.flow_name = 'BbgrReceptions'
                     ) req
                 ) mx 
                 where mx.max_id < he.max_id

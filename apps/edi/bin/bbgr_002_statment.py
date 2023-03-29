@@ -46,7 +46,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                 from invoices_invoice sii 
                 join invoices_invoicedetail sii2 
                 on sii.uuid_identification  = sii2.uuid_invoice 
-                where sii.flow_name = 'BbgrStatment'
+                where sii2.flow_name = 'BbgrStatment'
             ) req
             """
         )
