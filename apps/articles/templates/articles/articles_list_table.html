@@ -14,9 +14,9 @@
                     <th style="width: 11%">Référence</th>
                     <th style="width: 23%">Libelle</th>
                     <th style="width: 22%">Libelle Héron</th>
-                    <th style="width: 5%">Axe PRO</th>
                     <th style="width: 5%">Axe BU</th>
                     <th style="width: 5%">Axe PRJ</th>
+                    <th style="width: 5%">Axe PRO</th>
                     <th style="width: 5%">Axe PYS</th>
                     <th style="width: 5%">Axe RFA</th>
                     <th style="width: 16%">Commentaire</th>
@@ -42,13 +42,13 @@
                         {{ article.libelle_heron|default_if_none:'' }}
                     </td>
                     <td>
-                        {{ article.axe_pro__section|default_if_none:'' }}
-                    </td>
-                    <td>
                         {{ article.axe_bu__section|default_if_none:'' }}
                     </td>
                     <td>
                         {{ article.axe_prj__section|default_if_none:'' }}
+                    </td>
+                    <td>
+                        {{ article.axe_pro__section|default_if_none:'' }}
                     </td>
                     <td>
                         {{ article.axe_pys__section|default_if_none:'' }}
