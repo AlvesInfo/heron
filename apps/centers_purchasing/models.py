@@ -387,7 +387,7 @@ class AxeProGroupingGoods(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["axe_pro"]
+        ordering = ["grouping_goods", "axe_pro"]
         indexes = [
             models.Index(fields=["axe_pro"]),
             models.Index(fields=["grouping_goods"]),
