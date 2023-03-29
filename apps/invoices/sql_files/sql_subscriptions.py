@@ -256,7 +256,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         date_part('year', %(dte_f)s::date) as "invoice_year",
         "ccm"."vat_regime",
         "ccm"."cct_uuid_identification",
-        "unit_weight",
+        "ccm"."unit_weight",
         true as "sale_invoice",
         false as "purchase_invoice",
         false as "is_multi_store",
