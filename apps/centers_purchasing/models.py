@@ -333,8 +333,7 @@ class TranslationParamaters(FlagsTable):
 
 
 class GroupingGoods(FlagsTable):
-    """Table des regroupements de refacturation sur la premiere page du type de facture Marchandise
-    """
+    """Table des regroupements de refacturation sur la premiere page du type de facture Marchandise"""
 
     ranking = models.IntegerField()
     base = models.CharField(max_length=35, verbose_name="base refac")
@@ -457,6 +456,7 @@ class AccountsAxeProCategory(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
+        ordering = ["child_center", "big_category", "axe_pro"]
         unique_together = (("child_center", "big_category", "axe_pro", "vat"),)
         indexes = [
             models.Index(fields=["child_center"]),
@@ -467,6 +467,61 @@ class AccountsAxeProCategory(FlagsTable):
                 fields=[
                     "child_center",
                     "big_category",
+                    "axe_pro",
+                    "vat",
+                ]
+            ),
+        ]
+
+
+class ApplicableProVat(FlagsTable):
+    """
+    Table taux de tva applicables par AXES PRO, pour les clients Français.
+    FR : Taux de tva applicables par AXES PRO
+    EN : VAT rates applicables by AXES PRO
+    """
+
+    child_center = models.ForeignKey(
+        ChildCenterPurchase,
+        on_delete=models.PROTECT,
+        to_field="code",
+        verbose_name="centrale fille",
+        related_name="child_centrale_fille",
+        db_column="child_center",
+    )
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="child_pro",
+        db_column="axe_pro",
+    )
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.PROTECT,
+        to_field="vat",
+        related_name="child_vat",
+        db_column="vat",
+    )
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["child_center", "axe_pro"]
+        unique_together = (("child_center", "axe_pro", "vat"),)
+        indexes = [
+            models.Index(fields=["child_center"]),
+            models.Index(fields=["axe_pro"]),
+            models.Index(fields=["vat"]),
+            models.Index(
+                fields=[
+                    "child_center",
                     "axe_pro",
                     "vat",
                 ]

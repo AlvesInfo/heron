@@ -61,6 +61,7 @@ from apps.centers_purchasing.models import (
     GroupingGoods,
     AxeProGroupingGoods,
     AccountsAxeProCategory,
+    ApplicableProVat,
 )
 from apps.compta.models import VentesCosium, CaClients
 from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport, EdiImportControl
@@ -150,6 +151,7 @@ MODELS_CENTER_PURCHASING = (
     GroupingGoods,
     AxeProGroupingGoods,
     AccountsAxeProCategory,
+    ApplicableProVat,
 )
 
 MODELS_EDI = (SupplierDefinition, ColumnDefinition, EdiImportControl, EdiImport)
