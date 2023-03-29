@@ -606,7 +606,7 @@ class BaseInvoiceDetailsTable(models.Model):
     qty = models.DecimalField(
         null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
     )
-    item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    item_weight = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     unit_weight = models.ForeignKey(
         UnitChoices,
         on_delete=models.PROTECT,

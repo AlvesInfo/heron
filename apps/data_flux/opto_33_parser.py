@@ -370,7 +370,7 @@ class EDIQualifierParser:
         :param data: list of values
         """
         try:
-            imd_qualifier, _, stat, *libelle = data
+            imd_qualifier, id_qualifier, stat, *libelle = data
 
         except ValueError as except_error:
             raise OptoQualifierError(
@@ -378,7 +378,7 @@ class EDIQualifierParser:
                 f", pour le fichier {self.edi_file!r}"
             ) from except_error
 
-        if imd_qualifier != "F":
+        if imd_qualifier != "F" or id_qualifier == "35":
             return {}
 
         return {
