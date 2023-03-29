@@ -23,7 +23,7 @@ import psycopg2
 import django
 from django.db import models, connection
 
-from .loggers import POSTGRES_SAVE_LOGGER
+from heron.loggers import LOGGER_POSTGRES_SAVE
 from .models import Trace, Line
 from .exceptions import (
     PostgresDjangoError,
@@ -84,10 +84,10 @@ def execute_batch(cur, sql_execute, iterable, page_size=500):
             count_final += nbre
 
         except psycopg2.OperationalError:
-            POSTGRES_SAVE_LOGGER.exception("Cconnexion à Postgres fermée de manière inattendue")
+            LOGGER_POSTGRES_SAVE.exception("Cconnexion à Postgres fermée de manière inattendue")
 
         except psycopg2.Error:
-            POSTGRES_SAVE_LOGGER.exception("Erreur sur les insertions execute_bach")
+            LOGGER_POSTGRES_SAVE.exception("Erreur sur les insertions execute_bach")
 
     return erreur, (count_initial, count_final)
 
@@ -532,7 +532,7 @@ class PostgresDjangoUpsert:
 
             except psycopg2.errors.InvalidTextRepresentation as except_error:
                 file.seek(0)
-                POSTGRES_SAVE_LOGGER.exception(
+                LOGGER_POSTGRES_SAVE.exception(
                     f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
                 )
                 raise PostgresTypeError(
@@ -546,7 +546,7 @@ class PostgresDjangoUpsert:
 
             except Exception as except_error:
                 file.seek(0)
-                POSTGRES_SAVE_LOGGER.exception(
+                LOGGER_POSTGRES_SAVE.exception(
                     f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
                 )
                 raise PostgresDjangoError(

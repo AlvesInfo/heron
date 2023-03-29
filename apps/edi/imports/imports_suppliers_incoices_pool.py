@@ -15,7 +15,7 @@ from pathlib import Path
 
 from django.utils import timezone
 
-from apps.edi.loggers import EDI_LOGGER
+from heron.loggers import LOGGER_EDI
 from apps.edi.bin.make_insertion_suppliers_invoices import (
     get_ident,
     get_supplier,
@@ -141,7 +141,7 @@ def bbgr_statment():
         insert_bbgr_stament_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True
@@ -180,7 +180,7 @@ def bbgr_monthly():
         insert_bbgr_monthly_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True
@@ -219,7 +219,7 @@ def bbgr_retours():
         insert_bbgr_retours_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True
@@ -255,7 +255,7 @@ def bbgr_receptions():
         insert_bbgr_receptions_file(uuid_identification=trace.uuid_identification)
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True

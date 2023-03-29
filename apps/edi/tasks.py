@@ -19,8 +19,7 @@ from uuid import UUID
 
 from celery import shared_task
 
-from apps.edi.loggers import EDI_LOGGER
-
+from heron.loggers import LOGGER_EDI
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     bbgr_statment,
@@ -108,11 +107,11 @@ def launch_suppliers_import(process_objects, user_pk):
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        EDI_LOGGER.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale: {file.name}\n{except_error!r}")
 
     finally:
         if error and trace:
@@ -131,7 +130,7 @@ def launch_suppliers_import(process_objects, user_pk):
 
         # TODO : faire une fonction d'envoie de mails
 
-    EDI_LOGGER.warning(
+    LOGGER_EDI.warning(
         to_print
         + f"Validation {file.name} in : {time.time() - start_initial} s"
         + "\n\n======================================================================="
@@ -163,11 +162,11 @@ def launch_bbgr_bi_import(function_name, user_pk):
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        EDI_LOGGER.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale: {function_name}\n{except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale: {function_name}\n{except_error!r}")
 
     finally:
         if error and trace:
@@ -181,7 +180,7 @@ def launch_bbgr_bi_import(function_name, user_pk):
 
         # TODO : faire une fonction d'envoie de mails
 
-    EDI_LOGGER.warning(
+    LOGGER_EDI.warning(
         to_print
         + f"Validation {function_name} in : {time.time() - start_initial} s"
         + "\n\n======================================================================="
@@ -198,18 +197,18 @@ def launch_sql_clean_general(start_all):
 
     try:
         post_processing_all()
-        EDI_LOGGER.warning("post_processing_all terminé")
+        LOGGER_EDI.warning("post_processing_all terminé")
 
         post_vacuum()
-        EDI_LOGGER.warning("post_vacuum terminé")
+        LOGGER_EDI.warning("post_vacuum terminé")
 
         set_exclusions()
-        EDI_LOGGER.warning("exclusions terminées")
+        LOGGER_EDI.warning("exclusions terminées")
 
-        EDI_LOGGER.warning(f"All validations : {time.time() - start_all} s")
+        LOGGER_EDI.warning(f"All validations : {time.time() - start_all} s")
 
     except Exception as except_error:
-        EDI_LOGGER.exception(
+        LOGGER_EDI.exception(
             f"Exception Générale: sur tâche launch_sql_clean_general\n{except_error!r}"
         )
 
@@ -241,11 +240,11 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        EDI_LOGGER.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale: {task_to_launch}\n{except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale: {task_to_launch}\n{except_error!r}")
 
     finally:
         if error and trace:
@@ -259,7 +258,7 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
         if trace is not None:
             trace.save()
 
-    EDI_LOGGER.warning(
+    LOGGER_EDI.warning(
         to_print
         + f"Génération des abonnement - {task_to_launch} : {time.time() - start_initial} s"
         + "\n\n======================================================================="

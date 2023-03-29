@@ -50,6 +50,30 @@ LOGGING = {
             "format": "[%(asctime)s] %(levelname)s : %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
+        "data_flux": {
+            "format": (
+                "[data_flux] : "
+                "[%(asctime)s] %(levelname)s : %(message)s : "
+                "%(filename)s : "
+                "%(funcName)s : "
+                "[ligne : %(lineno)s] : "
+                "%(process)d : "
+                "%(thread)d"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        "invoices_flux": {
+            "format": (
+                "[invoices] : "
+                "[%(asctime)s] %(levelname)s : %(message)s : "
+                "%(filename)s : "
+                "%(funcName)s : "
+                "[ligne : %(lineno)s] : "
+                "%(process)d : "
+                "%(thread)d"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
     },
     "handlers": {
         # Send in console
@@ -96,17 +120,58 @@ LOGGING = {
             "filename": LOG_EXPORT_ECEL,
             "formatter": "verbose",
         },
+        # Send in loader data_flux
+        "loader_logfile_flux": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/loaders_flux.log",
+            "formatter": "data_flux",
+        },
+        # Send in validation data_flux
+        "validation_logfile_flux": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/validation_flux.log",
+            "formatter": "data_flux",
+        },
+        # Send in postgres_save data_flux
+        "postgres_save_logfile_flux": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/postgres_save_flux.log",
+            "formatter": "data_flux",
+        },
+        # Send in timer_heron
+        "timer_heron": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/timer_heron.log",
+            "formatter": "verbose",
+        },
+        # Send in invoices generation or printing
+        "invoices_flux": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/invoices_flux.log",
+            "formatter": "invoices_flux",
+        },
     },
     "loggers": {
         # all messages
         # 5xx ERRROR and 4xx WARNING
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
-        "imports": {"handlers": ["import_logfile"], "level": "WARNING", "propagate": True},
+        "production": {"handlers": ["production_logfile"], "propagate": True},
         "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": False},
+        "timer_heron": {"handlers": ["timer_heron"]},
+        "imports": {"handlers": ["import_logfile"], "propagate": True},
         "edi": {"handlers": ["edi_logfile"], "propagate": True},
         "error_views": {"handlers": ["error_views"], "propagate": True},
         "export_excel": {"handlers": ["export_excel"], "propagate": True},
+        "loader": {"handlers": ["loader_logfile_flux"], "propagate": True},
+        "validation": {"handlers": ["validation_logfile_flux"], "propagate": True},
+        "postgres_save": {"handlers": ["postgres_save_logfile_flux"], "propagate": True},
+        "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
     },
 }
 

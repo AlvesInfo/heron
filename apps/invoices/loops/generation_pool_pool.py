@@ -1,14 +1,14 @@
-# pylint: disable=E0401,W0703,W1203,C0413,C0303,W1201,E1101,C0415,E0611,W0511
+# pylint: disable=E0401
 """
-FR : Module d'import en boucle des fichiers de factures fournisseurs
-EN : Loop import module for invoices suppliers files
+FR : Module de génération de la facturation
+EN : Invoicing generation module
 
 Commentaire:
 
-created at: 2022-04-09
+created at: 2023-03-11
 created by: Paulo ALVES
 
-modified at: 2022-04-09
+modified at: 2023-03-11
 modified by: Paulo ALVES
 """
 from typing import AnyStr
@@ -35,7 +35,7 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
-from heron.loggers import LOGGER_EDI
+from heron.loggers import LOGGER_INVOICES
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
@@ -386,18 +386,20 @@ def celery_import_launch(user_pk: int):
             print(tasks_list)
             result = group(*tasks_list)().get(3600)
             print("result : ", result)
-            LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+            LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
             result_clean = group(
                 *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
             )().get(3600)
 
             print("result_clean : ", result_clean)
-            LOGGER_EDI.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
+            LOGGER_INVOICES.warning(
+                f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
+            )
 
     except Exception as error:
         print("Error : ", error)
-        LOGGER_EDI.exception(
+        LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.celery_import_launch()"
         )
 
@@ -427,18 +429,18 @@ def import_launch_bbgr(function_name: str, user_pk: int):
             ]
         )().get(3600)
         print("result : ", result)
-        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
         result_clean = group(
             *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
         )().get(3600)
 
         print("result_clean : ", result_clean)
-        LOGGER_EDI.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
-        LOGGER_EDI.exception(
+        LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_bbgr()"
         )
 
@@ -476,11 +478,11 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
         )().get(3600)
 
         print("result : ", result)
-        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
-        LOGGER_EDI.exception(
+        LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_bbgr()"
         )
 

@@ -154,6 +154,29 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
     return name or ""
 
 
+def get_action(action: AnyStr = "import_edi_invoices"):
+    """Récupération de l'état d'action"""
+    # action_dict = {"action": "comment", ...}
+    action_dict = {
+        "import_edi_invoices": "Executable pour l'import des fichiers edi des factures founisseurs",
+        "generate_invoices": "génération de la facturation",
+    }
+
+    # Si l'action n'existe pas on la créée
+    try:
+        action = ActionInProgress.objects.get(action=action)
+        print("GET ACTION")
+    except ActionInProgress.DoesNotExist:
+        action = ActionInProgress(
+            action=action,
+            comment=action_dict.get(action),
+        )
+        action.save()
+        print("EXCEPT")
+
+    return action
+
+
 def get_in_progress():
     """Renvoi si un process d'intégration edi est en cours"""
     try:

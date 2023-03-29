@@ -20,6 +20,7 @@ import redis
 from django.utils import timezone
 from psycopg2 import sql
 
+from heron.loggers import LOGGER_EDI
 from apps.core.functions.functions_setups import settings, connection
 from apps.edi.models import SupplierDefinition, ColumnDefinition
 from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
@@ -44,7 +45,6 @@ from apps.data_flux.exceptions import (
     PathFileError,
 )
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
-from apps.edi.loggers import EDI_LOGGER
 
 
 try:
@@ -213,66 +213,66 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
     # Exceptions FileLoader ========================================================================
     except GetAddDictError as except_error:
         error = True
-        EDI_LOGGER.exception(f"GetAddDictError : {except_error!r}")
+        LOGGER_EDI.exception(f"GetAddDictError : {except_error!r}")
 
     except IterFileToInsertError as except_error:
         error = True
-        EDI_LOGGER.exception(f"IterFileToInsertError : {except_error!r}")
+        LOGGER_EDI.exception(f"IterFileToInsertError : {except_error!r}")
 
     except ExcelToCsvError as except_error:
         error = True
-        EDI_LOGGER.exception(f"ExcelToCsvError : {except_error!r}")
+        LOGGER_EDI.exception(f"ExcelToCsvError : {except_error!r}")
 
     except FileToCsvError as except_error:
         error = True
-        EDI_LOGGER.exception(f"FileToCsvError : {except_error!r}")
+        LOGGER_EDI.exception(f"FileToCsvError : {except_error!r}")
 
     # Exceptions Opto33Loader ======================================================================
     except OptoDateError as except_error:
         error = True
-        EDI_LOGGER.exception(f"OptoDateError : {except_error!r}")
+        LOGGER_EDI.exception(f"OptoDateError : {except_error!r}")
 
     except OptoLinesError as except_error:
         error = True
-        EDI_LOGGER.exception(f"OptoLinesError : {except_error!r}")
+        LOGGER_EDI.exception(f"OptoLinesError : {except_error!r}")
 
     except OptoQualifierError as except_error:
         error = True
-        EDI_LOGGER.exception(f"OptoQualifierError : {except_error!r}")
+        LOGGER_EDI.exception(f"OptoQualifierError : {except_error!r}")
 
     except OptoIdError as except_error:
         error = True
-        EDI_LOGGER.exception(f"OptoIdError : {except_error!r}")
+        LOGGER_EDI.exception(f"OptoIdError : {except_error!r}")
 
     except OptoNumberError as except_error:
         error = True
-        EDI_LOGGER.exception(f"OptoNumberError : {except_error!r}")
+        LOGGER_EDI.exception(f"OptoNumberError : {except_error!r}")
 
     except OptoParserError as except_error:
         error = True
-        EDI_LOGGER.exception(f"OptoParserError : {except_error!r}")
+        LOGGER_EDI.exception(f"OptoParserError : {except_error!r}")
 
     except PathTypeError as except_error:
         error = True
-        EDI_LOGGER.exception(f"PathTypeError : {except_error!r}")
+        LOGGER_EDI.exception(f"PathTypeError : {except_error!r}")
 
     except PathFileError as except_error:
         error = True
-        EDI_LOGGER.exception(f"PathFileError : {except_error!r}")
+        LOGGER_EDI.exception(f"PathFileError : {except_error!r}")
 
     # Exceptions PostgresDjangoUpsert ==============================================================
     except PostgresKeyError as except_error:
         error = True
-        EDI_LOGGER.exception(f"PostgresKeyError : {except_error!r}")
+        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
 
     except PostgresTypeError as except_error:
         error = True
-        EDI_LOGGER.exception(f"PostgresTypeError : {except_error!r}")
+        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
 
     # Exception Générale ===========================================================================
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     finally:
         if error:

@@ -20,7 +20,7 @@ from django.utils import timezone
 from apps.core.functions.functions_setups import connection
 from apps.core.functions.functions_postgresql import query_execute
 from apps.data_flux.trace import get_trace
-from apps.edi.loggers import EDI_LOGGER
+from heron.loggers import LOGGER_EDI
 from apps.users.models import User
 from apps.compta.bin.generate_ca import set_ca
 from apps.invoices.sql_files.sql_subscriptions import SQL_SUBSCRIPTIONS
@@ -71,7 +71,7 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True
@@ -111,7 +111,7 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True
@@ -153,7 +153,7 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True
@@ -195,7 +195,7 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     except Exception as except_error:
         error = True
-        EDI_LOGGER.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     if error:
         trace.errors = True

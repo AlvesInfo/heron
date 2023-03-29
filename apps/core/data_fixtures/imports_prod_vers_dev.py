@@ -63,6 +63,14 @@ from apps.centers_purchasing.models import (
 )
 from apps.compta.models import VentesCosium, CaClients
 from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport, EdiImportControl
+from apps.invoices.models import (
+    CentersInvoices,
+    SignboardsInvoices,
+    PartiesInvoices,
+    Invoice,
+    InvoiceDetail,
+    InvoiceSerials,
+)
 from apps.parameters.models import (
     Parameters,
     Counter,
@@ -142,7 +150,16 @@ MODELS_CENTER_PURCHASING = (
     AccountsAxeProCategory,
 )
 
-MODELS_EDI = (SupplierDefinition, ColumnDefinition, EdiImport, EdiImportControl)
+MODELS_EDI = (SupplierDefinition, ColumnDefinition, EdiImportControl, EdiImport)
+
+MODELS_INVOICES = (
+    CentersInvoices,
+    SignboardsInvoices,
+    PartiesInvoices,
+    Invoice,
+    InvoiceDetail,
+    InvoiceSerials,
+)
 
 MODELS_PARAMETERS = (
     Nature,
@@ -267,8 +284,9 @@ if __name__ == "__main__":
     # main(MODELS_ACCOUNTANCY)
     # main(MODELS_BOOK)
     # main(MODELS_PARAMETERS)
-    main(MODELS_ARTICLES)
+    # main(MODELS_ARTICLES)
     # main(MODELS_CENTER_PURCHASING)
     # main(MODELS_CENTER_CLIENTS)
-    # main(MODELS_EDI)
-    # main(MODELS_COMPTA)
+    main(MODELS_EDI)
+    main(MODELS_COMPTA)
+    main(MODELS_INVOICES)

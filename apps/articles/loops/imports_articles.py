@@ -29,7 +29,7 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
-from apps.edi.loggers import EDI_LOGGER
+from heron.loggers import LOGGER_EDI
 from apps.articles.bin.bbgr_002_articles import insert_bbgr_002_articles
 from apps.articles.bin.bbgr_003_articles import insert_bbgr_003_articles
 from apps.articles.bin.bbgr_004_articles import insert_bbgr_004_articles
@@ -40,21 +40,21 @@ def main():
     try:
         insert_bbgr_002_articles()
     except Exception as except_error:
-        EDI_LOGGER.exception(
+        LOGGER_EDI.exception(
             f"Exception Générale: sur fonction insert_bbgr_002_articles()\n{except_error!r}"
         )
 
     try:
         insert_bbgr_003_articles()
     except Exception as except_error:
-        EDI_LOGGER.exception(
+        LOGGER_EDI.exception(
             f"Exception Générale: sur fonction insert_bbgr_003_articles()\n{except_error!r}"
         )
 
     try:
         insert_bbgr_004_articles()
     except Exception as except_error:
-        EDI_LOGGER.exception(
+        LOGGER_EDI.exception(
             f"Exception Générale: sur fonction insert_bbgr_004_articles()\n{except_error!r}"
         )
 

@@ -32,6 +32,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 # noinspection PyCompatibility
+from heron.loggers import LOGGER_VALIDATION
 from .exceptions import (
     ValidationError,
     ValidationFormError,
@@ -39,7 +40,6 @@ from .exceptions import (
     FluxtypeError,
 )
 from .models import Trace, Line, Error
-from .loggers import VALIDATION_LOGGER
 
 
 class TraceTemplate:
@@ -323,7 +323,7 @@ class DrfTrace(TraceTemplate):
             }
             return error_dict
         except AssertionError as except_error:
-            VALIDATION_LOGGER.exception("Erreur sur DrfTrace.get_formatted_error")
+            LOGGER_VALIDATION.exception("Erreur sur DrfTrace.get_formatted_error")
             raise IsValidError(
                 "validator.errors a été appelé avant validator.is_valid()"
             ) from except_error
@@ -538,7 +538,7 @@ class ValidationTemplate:
                     f"vérifier les fichiers de log {now}"
                 ),
             )
-            VALIDATION_LOGGER.exception("Erreur sur ValidationTemplate.validate")
+            LOGGER_VALIDATION.exception("Erreur sur ValidationTemplate.validate")
             raise ValidationFormError(
                 "Une erreur c'est produite à l'appel de validate"
             ) from except_error
