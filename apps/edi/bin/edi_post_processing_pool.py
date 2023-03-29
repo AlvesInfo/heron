@@ -22,7 +22,7 @@ from apps.edi.bin.duplicates_check import (
     suppliers_invoices_duplicate_check,
 )
 from apps.edi.bin.edi_articles_news import set_axes_with_regex
-from apps.edi.bin.set_suppliers_cct import add_news_cct_sage
+from apps.edi.bin.set_suppliers_cct import add_news_cct_sage, set_center_signboard
 from apps.edi.sql_files.sql_common import post_common_dict
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
 from apps.edi.sql_files.sql_bulk import post_bulk_dict
@@ -79,6 +79,7 @@ def post_processing_all():
     edi_import_duplicate_check()
     suppliers_invoices_duplicate_check()
     add_news_cct_sage()
+    set_center_signboard()
     set_axes_with_regex()
 
 

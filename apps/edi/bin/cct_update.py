@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from django.db import connection, transaction
 
-from apps.edi.sql_files.sql_common import BASE_SQL_CCT
+from apps.edi.sql_files.sql_common import BASE_SQL_CCT, SQL_CENTER_SIGNBOARD
 
 
 @transaction.atomic
@@ -21,3 +21,4 @@ def update_cct_edi_import():
     """Fonction d'update des cct depuis book_supplier_cct"""
     with connection.cursor() as cursor:
         cursor.execute(BASE_SQL_CCT)
+        cursor.execute(SQL_CENTER_SIGNBOARD)

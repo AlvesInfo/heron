@@ -1,4 +1,4 @@
-# pylint: disable=E0401,E1101,C0303,R0914,R1735,R0915,R0913,W0150,W0718,W0212
+# pylint: disable=E0401,E1101,C0303,R0914,R1735,R0915,R0912,R0913,W0150,W0718,W0212
 """
 FR : Module de traitement des factures saisies à la main
 EN : New article processing module for in articles table with new_article = true
@@ -24,7 +24,7 @@ from apps.users.models import User
 from apps.accountancy.bin.utilities import get_dict_vat_rates
 from apps.articles.bin.articles_queries import get_article
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
-from apps.edi.bin.edi_utilites import get_sens, set_trace_hand_invoice
+from apps.edi.bin.edi_utilites import get_sens, set_trace_hand_invoice, set_center_signboard
 from apps.edi.models import EdiImport
 
 
@@ -104,14 +104,14 @@ def set_hand_invoice(
             vat_rate = round(Decimal(vat_rate), 3)
             net_amount = round(qty * net_unit_price, 2)
 
-            if line_dict.get("vat_amount", '0') != '0':
+            if line_dict.get("vat_amount", "0") != "0":
                 vat_amount = (qty / abs(qty)) * Decimal(
                     line_dict.get("vat_amount").replace(",", ".")
                 )
             else:
                 vat_amount = round(net_amount * vat_rate, 2)
 
-            if line_dict.get("amount_with_vat", '0') != '0':
+            if line_dict.get("amount_with_vat", "0") != "0":
                 amount_with_vat = (qty / abs(qty)) * Decimal(
                     line_dict.get("amount_with_vat").replace(",", ".")
                 )
@@ -201,11 +201,16 @@ def set_hand_invoice(
 
             edi_import_list.append(results_dict)
 
-        # On crée les Factures dans edi_ediimport, les traces et les changestrace
+        # On crée les Factures dans edi_ediimport
         edi_imports = EdiImport.objects.bulk_create(
             [EdiImport(**row_dict) for row_dict in edi_import_list]
         )
         nbre = len(edi_imports)
+
+        # On va mettre à jour la centrale fille et l'enseigne
+        set_center_signboard(edi_imports)
+
+        # on va créer les traces et les changestrace
         set_trace_hand_invoice(
             invoice_category=invoice_category,
             invoice_number=invoice_number,

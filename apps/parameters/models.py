@@ -552,6 +552,14 @@ class BaseInvoiceTable(models.Model):
 
     manual_entry = models.BooleanField(null=True, default=False)
 
+    code_center = models.CharField(
+        null=True, max_length=15, verbose_name="code centrale fille"
+    )
+
+    code_signboard = models.CharField(
+        null=True, max_length=15, verbose_name="code enseigne"
+    )
+
     class Meta:
         """class Meta du modèle django"""
 

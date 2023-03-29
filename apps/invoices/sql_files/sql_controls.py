@@ -100,6 +100,22 @@ where "ee"."uuid_big_category" isnull
 limit 1
 """
 
+SQL_CENTER_CONTROL = """
+select 
+     1
+from "edi_ediimport" "ee"
+where "ee"."code_center" isnull
+limit 1
+"""
+
+SQL_SIGNBOARD_CONTROL = """
+select 
+     1
+from "edi_ediimport" "ee"
+where "ee"."code_signboard" isnull
+limit 1
+"""
+
 SQL_SUB_CATEGORY_CONTROL = """
 select 
      1

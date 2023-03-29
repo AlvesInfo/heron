@@ -80,6 +80,37 @@ BASE_SQL_CCT = sql.SQL(
     """
 )
 
+SQL_CENTER_SIGNBOARD = """
+update "edi_ediimport" "ee" 
+set "code_center" = "req"."code_center",
+    "code_signboard" = "req"."code_signboard"
+from (
+    select 
+        "ee"."cct_uuid_identification",  
+        "cc"."code" as "code_center",
+        "si"."code" as "code_signboard"
+    from (
+        select
+            "cct_uuid_identification"
+        from "edi_ediimport" 
+        where "cct_uuid_identification" is not null
+        group by "cct_uuid_identification"
+    ) "ee" 
+    left join "centers_clients_maison" "mm" 
+    on "ee"."cct_uuid_identification" = "mm"."uuid_identification" 
+    left join "centers_purchasing_childcenterpurchase" "cc" 
+    on "mm"."center_purchase" = "cc"."code"
+    left join "centers_purchasing_signboard" "si" 
+    on "mm"."sign_board" = "si"."code"
+) "req" 
+where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
+and (
+    "ee"."code_center" != "req"."code_center"
+    or 
+    "ee"."code_center" != "req"."code_center"
+)
+"""
+
 post_common_dict = {
     "sql_round_amount": sql.SQL(
         """

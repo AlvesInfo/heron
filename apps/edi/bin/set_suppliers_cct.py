@@ -208,3 +208,42 @@ def update_edi_import_cct_uui_identifiaction(
             cursor.execute(sql_update, {"third_party_num": third_party_num})
         else:
             cursor.execute(sql_update)
+
+
+def set_center_signboard(cursor: connection.cursor):
+    """
+    Mise à jour en base des centrales filles et les enseignes
+    :param cursor: cursor de connection psycopg2 django
+    """
+    sql_update = """
+    update "edi_ediimport" "ee" 
+    set "code_center" = "req"."code_center",
+        "code_signboard" = "req"."code_signboard"
+    from (
+        select 
+            "ee"."cct_uuid_identification",  
+            "cc"."code" as "code_center",
+            "si"."code" as "code_signboard"
+        from (
+            select
+                "cct_uuid_identification"
+            from "edi_ediimport" 
+            where "cct_uuid_identification" is not null
+            group by "cct_uuid_identification"
+        ) "ee" 
+        left join "centers_clients_maison" "mm" 
+        on "ee"."cct_uuid_identification" = "mm"."uuid_identification" 
+        left join "centers_purchasing_childcenterpurchase" "cc" 
+        on "mm"."center_purchase" = "cc"."code"
+        left join "centers_purchasing_signboard" "si" 
+        on "mm"."sign_board" = "si"."code"
+    ) "req" 
+    where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
+    and (
+        "ee"."code_center" != "req"."code_center"
+        or 
+        "ee"."code_center" != "req"."code_center"
+    )
+    """
+    cursor.execute(sql_update)
+    print(f"fin update des centrales et enseignes : {cursor.rowcount}")

@@ -23,6 +23,8 @@ from apps.invoices.sql_files.sql_controls import (
     SQL_CCT_CONTROL,
     SQL_CATEGORY_CONTROL,
     SQL_SUB_CATEGORY_CONTROL,
+    SQL_CENTER_CONTROL,
+    SQL_SIGNBOARD_CONTROL,
 )
 
 
@@ -267,4 +269,22 @@ def control_alls_missings():
             else ""
         )
 
-    return controls_dict
+        # CENTRALE FILLE
+        cursor.execute(SQL_CENTER_CONTROL)
+        missing_list = [missings[0] for missings in cursor.fetchall()]
+        controls_dict["center_purchase"] = (
+            "Vous avez des manquants sur les Centrales Filles, dans les imports ou les saisies"
+            if missing_list
+            else ""
+        )
+
+        # ENSEIGNE
+        cursor.execute(SQL_SIGNBOARD_CONTROL)
+        missing_list = [missings[0] for missings in cursor.fetchall()]
+        controls_dict["signboard"] = (
+            "Vous avez des manquants sur les Enseignes, dans les imports ou les saisies"
+            if missing_list
+            else ""
+        )
+
+    return {key: value for key, value in controls_dict.items() if value}
