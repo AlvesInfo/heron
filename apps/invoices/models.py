@@ -382,16 +382,10 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
     vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
     vat_regime = models.CharField(max_length=5)
 
-    # Ventes
-    sale_axe_pys = models.CharField(max_length=15)
-    sale_vat = models.CharField(max_length=5)
-    sale_vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
-    sale_vat_regime = models.CharField(max_length=5)
-    sale_sub_category = models.CharField(null=True, max_length=80)
-
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
+    sale_sub_category = models.CharField(null=True, max_length=80)
     class Meta:
         """class Meta du modèle django"""
 

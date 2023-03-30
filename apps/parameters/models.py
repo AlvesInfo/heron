@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import AccountSage, SectionSage
+from apps.accountancy.models import SectionSage
 from apps.countries.models import Country
 
 
@@ -163,8 +163,6 @@ class SendFilesMail(FlagsTable):
 class AddressCode(DatesTable):
     """En attente"""
 
-    ...
-
 
 class SubFamilly(FlagsTable):
     """
@@ -265,6 +263,7 @@ class Counter(FlagsTable):
 
     @staticmethod
     def bool_function(function):
+        """Si la fonction est None en paramètre, on renvoie False"""
         if function is None:
             return False
 
@@ -276,6 +275,7 @@ class Counter(FlagsTable):
         return function.function_name in counters
 
     def clean(self):
+        """Clean method django"""
         # Ensures constraint on model level, raises ValidationError
         if self.lpad_num < 0:
             # raise error for field
@@ -293,12 +293,13 @@ class CounterNums(models.Model):
     Table de la numérotation des compteurs
     """
 
-    counter = models.ForeignKey(
+    counter = models.OneToOneField(
         Counter,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         related_name="counter",
         db_column="uuid_counter",
+        unique=True,
     )
     num = models.IntegerField(default=1)
 
@@ -552,13 +553,9 @@ class BaseInvoiceTable(models.Model):
 
     manual_entry = models.BooleanField(null=True, default=False)
 
-    code_center = models.CharField(
-        null=True, max_length=15, verbose_name="code centrale fille"
-    )
+    code_center = models.CharField(null=True, max_length=15, verbose_name="code centrale fille")
 
-    code_signboard = models.CharField(
-        null=True, max_length=15, verbose_name="code enseigne"
-    )
+    code_signboard = models.CharField(null=True, max_length=15, verbose_name="code enseigne")
 
     class Meta:
         """class Meta du modèle django"""
@@ -644,6 +641,7 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="montant brut MOA avec 8 quand ALC avec H",
     )
+    base_discount_01 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     discount_price_01 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -651,6 +649,7 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="remise 1 MOA avec 8 quand ALC avec H",
     )
+    base_discount_02 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     discount_price_02 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -658,6 +657,7 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="remise 2 MOA avec 8 quand ALC avec H",
     )
+    base_discount_03 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     discount_price_03 = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="remise 3 MOA avec 98"
     )
@@ -678,7 +678,43 @@ class BaseInvoiceDetailsTable(models.Model):
     amount_with_vat = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
+    sale_gross_unit_price = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+    )
     sale_net_unit_price = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
+    sale_gross_amount = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+    )
+    sale_base_discount_01 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    sale_discount_price_01 = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+    )
+    sale_base_discount_02 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    sale_discount_price_02 = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+    )
+    sale_base_discount_03 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    sale_discount_price_03 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     sale_net_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
     sale_vat_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
     sale_amount_with_vat = models.DecimalField(
@@ -715,6 +751,12 @@ class BaseInvoiceDetailsTable(models.Model):
     flow_name = models.CharField(max_length=80, default="Saisie")
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     supplier = models.CharField(null=True, blank=True, max_length=35)
+
+    # Ventes
+    sale_axe_pys = models.CharField(null=True, max_length=15)
+    sale_vat = models.CharField(null=True, max_length=5)
+    sale_vat_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    sale_vat_regime = models.CharField(null=True, max_length=5)
 
     class Meta:
         """class Meta du modèle django"""
