@@ -164,19 +164,29 @@ def parties_invoices_update():
                 else "ccm"."invoice_entete"
             end as "name_cct", 
             case 
-                when "ccm"."immeuble" isnull then '' else "ccm"."immeuble" 
+                when "ccm"."immeuble" isnull or UPPER("ccm"."immeuble") = 'NONE' 
+                then '' 
+                else "ccm"."immeuble" 
             end as "immeuble_cct",
             case 
-                when "ccm"."adresse" isnull then '' else "ccm"."adresse" 
+                when "ccm"."adresse" isnull or UPPER("ccm"."adresse") = 'NONE' 
+                then '' 
+                else "ccm"."adresse" 
             end as "adresse_cct",
             case 
-                when "ccm"."code_postal" isnull then '' else "ccm"."code_postal" 
+                when "ccm"."code_postal" isnull or UPPER("ccm"."code_postal") = 'NONE'
+                then '' 
+                else "ccm"."code_postal" 
             end as "code_postal_cct",
             case 
-                when "ccm"."ville" isnull then '' else "ccm"."ville" 
+                when "ccm"."ville" isnull or UPPER("ccm"."ville") = 'NONE'
+                then '' 
+                else "ccm"."ville" 
             end as "ville_cct",
             case 
-                when "com"."country_name" isnull then '' else "com"."country_name" 
+                when "com"."country_name" isnull or UPPER("com"."country_name") = 'NONE'
+                then '' 
+                else "com"."country_name" 
             end as "pays_cct",
             -- Tiers facturé à qui appartient le CCT
             "bs"."third_party_num",
@@ -186,19 +196,29 @@ def parties_invoices_update():
                 else "bs"."invoice_entete"
             end as "name_third_party",
             case 
-                when "bs"."immeuble" isnull then '' else "bs"."immeuble" 
+                when "bs"."immeuble" isnull or UPPER("bs"."immeuble") = 'NONE'
+                then '' 
+                else "bs"."immeuble" 
             end as "immeuble_third_party",
             case 
-                when "bs"."adresse" isnull then '' else "bs"."adresse" 
+                when "bs"."adresse" isnull or UPPER("bs"."adresse") = 'NONE'
+                then '' 
+                else "bs"."adresse" 
             end as "adresse_third_party",
             case 
-                when "bs"."code_postal" isnull then '' else "bs"."code_postal" 
+                when "bs"."code_postal" isnull or UPPER("bs"."code_postal") = 'NONE'
+                then '' 
+                else "bs"."code_postal" 
             end as "code_postal_third_party",
             case 
-                when "bs"."ville" isnull then '' else "bs"."ville" 
+                when "bs"."ville" isnull or UPPER("bs"."ville") = 'NONE'
+                then '' 
+                else "bs"."ville" 
             end as "ville_third_party",
             case 
-                when "bsm"."country_name" isnull then '' else "bsm"."country_name"  
+                when "bsm"."country_name" isnull or UPPER("bsm"."country_name") = 'NONE'
+                then '' 
+                else "bsm"."country_name"  
             end as "pays_third_party"
         from "centers_clients_maison" "ccm"
         left join "book_society" "bs"  

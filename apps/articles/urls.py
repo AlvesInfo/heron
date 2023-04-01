@@ -9,6 +9,7 @@ from apps.articles.views import (
     articles_export_list,
     # NOUVEAUX ARTICLES
     new_articles_list,
+    articles_new_validation,
     articles_news_export_list,
 )
 
@@ -49,6 +50,11 @@ urlpatterns = [
             "new_articles_list/",
             new_articles_list,
             name="new_articles_list",
+        ),
+        path(
+            "articles_new_validation/",
+            articles_new_validation,
+            name="articles_new_validation",
         ),
         path(
             "articles_news_export_list/",

@@ -386,6 +386,7 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     sale_sub_category = models.CharField(null=True, max_length=80)
+
     class Meta:
         """class Meta du modèle django"""
 

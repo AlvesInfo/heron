@@ -54,6 +54,36 @@
             });
             $(`.datatable-chargement`).hide();
 
+            $(`#validate_articles_news`).click(function () {
+
+                console.log("click sur le bouton")
+                $(`#textModal`).text(`Etes vous sûr de vouloir valider l'ensemble des articles`);
+                $(`#modalContent`).text(name);
+                console.log("lancement modale")
+                $(`#demandeModal`)
+                    .modal({
+                        closable: false,
+                        onApprove: function() {
+                            $(`.datatable-chargement`).show();
+                            let xhr = $.ajax({
+                                data : {},
+                                url : `{{ url_validation }}`,
+                                type : 'POST',
+                                success : function (data) {
+                                    console.log("retour de la requête")
+                                    window.location.href = `{{ url_redirect }}`;
+                                }
+                            });
+                            xhr.always(function() {
+                            });
+                        },
+                        onabort () {
+                            $(`.datatable-chargement`).hide();
+                        }
+                  })
+                  .modal(`show`)
+            });
+
         });
 
     </script>

@@ -71,7 +71,7 @@
                     <td style="{% if not article.big_category__name %}background-color: #ffdae0;{% endif %}">
                           {{ article.big_category__name|default_if_none:'' }}
                     </td>
-                    <td style="">
+                    <td style="{% if article.error_sub_category %}background-color: #ffdae0;{% endif %}">
                           {{ article.sub_category__name|default_if_none:'' }}
                     </td>
                 </tr>

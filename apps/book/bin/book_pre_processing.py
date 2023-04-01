@@ -44,7 +44,7 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
         )
         csv_writer = csv.writer(file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
 
-        # On cré le dictionnaire des types de tiers pour les ajoutés au fichier issu de sage
+        # On crée le dictionnaire des types de tiers pour les ajouter au fichier issu de sage
         societies_dict_exist = {
             row_dict.get("third_party_num"): [
                 "2" if value else "1" for key, value in row_dict.items() if key != "third_party_num"
@@ -63,7 +63,7 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
             )
         }
 
-        # On cré le dictionnaire des moyens de paiement pour les ajoutés au fichier issu de sage
+        # On crée le dictionnaire des moyens de paiement pour les ajouter au fichier issu de sage
         with cnx_postgresql(CNX_STRING).cursor() as cursor:
             cursor.execute(
                 """
@@ -97,7 +97,7 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
 
 def society_book_pre_processing(path_dir: Path, file: Path):
     """
-    Transformation du fichier en entrée des adresses sociétés sage, en vérifiant quelles existent
+    Transformation du fichier en entrée des adresses sociétés Sage, en vérifiant que le tiers existe
     :param path_dir: Répertoire du fichier à traité
     :param file: Fichier à traiter
     """
@@ -131,7 +131,7 @@ def society_book_pre_processing(path_dir: Path, file: Path):
 
 def bank_book_pre_processing(path_dir: Path, file: Path):
     """
-    Transformation du fichier en entrée des adresses sociétés sage, en vérifiant quelles existent
+    Transformation du fichier en entrée des banques sociétés Sage, en vérifiant que le tiers existe
     :param path_dir: Répertoire du fichier à traité
     :param file: Fichier à traiter
     """

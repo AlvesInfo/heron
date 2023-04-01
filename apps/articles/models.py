@@ -154,6 +154,7 @@ class Article(FlagsTable):
     catalog_price = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     comment = models.TextField(null=True, blank=True)
     new_article = models.BooleanField(null=True, default=False)
+    error_sub_category = models.BooleanField(null=True, default=False)
 
     # Statistique utilisée
     stat_name = models.CharField(

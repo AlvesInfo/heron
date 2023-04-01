@@ -29,6 +29,42 @@ django.setup()
 
 from django.db import connection
 
+SQL_FLAG_ERROR_SUB_CATEGORY = """
+with "sub_cat" as (
+    SELECT DISTINCT 
+        "aa"."id"
+    FROM "articles_article" "aa" 
+    LEFT JOIN (
+        SELECT 
+            "uuid_big_category",
+            1 as "uuid_identification"
+        FROM "parameters_subcategory"
+        GROUP BY "uuid_big_category"
+    ) "pc"
+    ON "pc"."uuid_big_category" = "aa"."uuid_big_category"
+    WHERE CASE
+            WHEN "aa"."uuid_big_category" = "pc"."uuid_big_category" 
+                 and 
+                 "aa"."uuid_sub_big_category" isnull 
+            THEN true
+            ELSE false
+          END
+)
+UPDATE "articles_article" "art"
+SET "error_sub_category" = CASE
+                            WHEN "art"."id" in (SELECT "id" FROM "sub_cat")
+                            THEN true
+                            ELSE false
+                          END
+WHERE exists (
+    SELECT 1 
+    FROM "parameters_subcategory" "pp" 
+    WHERE "pp"."uuid_big_category" = "art"."uuid_big_category"
+)
+or 
+"error_sub_category" isnull
+"""
+
 
 def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     """Renvoie le nom des statitsiques à appliquer aux artciles importés
@@ -196,7 +232,7 @@ def insert_new_articles(cursor: connection.cursor):
             "packaging_qty",
             "new_article"
         )
-   select 
+    select 
         now() as "created_at",
         now() as "modified_at",
         "reference_article" as "reference", 
@@ -263,7 +299,12 @@ def insert_new_articles(cursor: connection.cursor):
     on conflict do nothing   
     """
     cursor.execute(sql_insert)
-    print(f"fin insertion des nouveaux articles : {cursor.rowcount}")
+
+    nb_inserts = cursor.rowcount
+
+    cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
+
+    print(f"fin insertion des nouveaux articles : {nb_inserts}")
 
 
 def set_edi_ediimport_articles(cursor: connection.cursor):

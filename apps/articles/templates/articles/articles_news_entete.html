@@ -1,11 +1,10 @@
 {% extends "heron/list_table_courant.html" %}
 
 {% block right_side %}
-{#    <a class="item" href="">#}
-{#        <button class="ui teal basic button" name="validate_articles_news" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">#}
-{#            VALIDER#}
-{#        </button>#}
-{#    </a>#}
+    <button class="ui teal basic button" id="validate_articles_news" name="validate_articles_news" type="button" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        VALIDATION GENERALE
+    </button>
+
     <a class="item" href="{% url 'articles:articles_news_export_list' %}">
        <button class="ui green basic button" name="articles_news_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
           EXPORT EXCEL
