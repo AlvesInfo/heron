@@ -115,10 +115,10 @@ def articles_new_validation(request):
             & Q(new_article=True)
             & Q(error_sub_category=False)
         )
-        ChangesTrace.objects.create(
+        change = ChangesTrace(
             action_datetime=timezone.now(),
             action_type=2,
-            function_name=str(inspect.currentframe().f_back)[:255],
+            function_name=inspect.currentframe(),
             action_by=request.user,
             before={"articles": list(articles.values_list("pk", flat=True))},
             after={"articles": list(articles.values_list("pk", flat=True))},
@@ -135,9 +135,13 @@ def articles_new_validation(request):
 
         if nb_articles == nb_updates:
             message = f"Tous les articles ont étés mis à jour ({nb_articles})"
-
+            change.save()
         else:
             level = 50
+
+            if nb_updates:
+                change.save()
+
             message = (
                 f"Il reste des articles qui comporte des erreus. "
                 f"Articles mis à jour : {nb_updates} / {nb_articles}"
@@ -168,3 +172,7 @@ def articles_news_export_list(_):
         LOGGER_EXPORT_EXCEL.exception("view : articles_news_export_list")
 
     return redirect(reverse("articles:new_articles_list"))
+
+
+if __name__ == '__main__':
+    print(__file__)
