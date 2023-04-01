@@ -55,11 +55,9 @@
             $(`.datatable-chargement`).hide();
 
             $(`#validate_articles_news`).click(function () {
-
-                console.log("click sur le bouton")
                 $(`#textModal`).text(`Etes vous sûr de vouloir valider l'ensemble des articles`);
                 $(`#modalContent`).text(name);
-                console.log("lancement modale")
+
                 $(`#demandeModal`)
                     .modal({
                         closable: false,

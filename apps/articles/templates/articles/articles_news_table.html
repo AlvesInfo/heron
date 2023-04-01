@@ -5,7 +5,13 @@
     <div class="sixteen wide column">
         <div class="ui segment">
             <div class="ui grid">
-                <div class="twelve wide column" style="text-align: left;">
+                <div class="four wide column" style="text-align: left;">
+{#                    <div class="ui error checkbox">#}
+{#                        <label for="checkbox_for_error">Afficher uniquement les erreurs</label>#}
+{#                        <input id="checkbox_for_error" type="checkbox">#}
+{#                    </div>#}
+                </div>
+                <div class="twelve wide column" style="text-align: right;">
                         {% if articles.has_other_pages %}
                           <div id="pagination" class="ui small #efefff buttons">
                             {{ pagination|safe }}
@@ -36,7 +42,7 @@
             </thead>
             <tbody>
             {% for article in articles %}
-                <tr id="id_{{ third_party_num }}" class="hide_plans">
+                <tr id="id_{{ third_party_num }}" class="{% if article.error_sub_category or article.axe_bu__section or article.axe_prj__sectio or article.axe_pro__section or article.axe_pys__section or article.axe_rfa__section or article.big_category__name %}success{% else %}error{% endif %}">
 
                     <td data-value="{{ third_party_num }}"
                         style="text-align: center;">

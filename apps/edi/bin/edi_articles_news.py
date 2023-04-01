@@ -65,6 +65,32 @@ or
 "error_sub_category" isnull
 """
 
+SQL_FLAG_WITHOUT_AXES = """
+UPDATE "articles_article" "art"
+SET "new_article" = true
+WHERE exists (
+    select 
+        1 
+    from "articles_article" "aa"
+    where 
+        (
+            "axe_bu" is null 
+            or
+            "axe_prj" is null
+            or
+            "axe_pro" is null
+            or
+            "axe_pys" is null
+            or
+            "axe_rfa" is null
+            or 
+            "uuid_big_category" is null
+        )
+        and 
+        "aa"."id" = "art"."id"
+)
+"""
+
 
 def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     """Renvoie le nom des statitsiques à appliquer aux artciles importés

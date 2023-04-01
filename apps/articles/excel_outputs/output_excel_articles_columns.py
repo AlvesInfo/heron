@@ -507,4 +507,20 @@ columns_list_articles_news = [
         },
         "width": 11,
     },
+    {
+        "entete": "Erreur\nRubrique\nPresta",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
 ]

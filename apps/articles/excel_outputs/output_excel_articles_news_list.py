@@ -44,15 +44,24 @@ def get_clean_rows() -> iter:
             row.get("item_weight", ""),
             row.get("unit_weight__unity", ""),
             row.get("customs_code", ""),
+            "X" if row.get("error_sub_category", "") else "",
         )
-        for row in Article.objects.filter(
-            Q(axe_bu__isnull=True)
-            | Q(axe_prj__isnull=True)
-            | Q(axe_pro__isnull=True)
-            | Q(axe_pys__isnull=True)
-            | Q(axe_rfa__isnull=True)
-            | Q(big_category__isnull=True)
-            | Q(new_article=True)
+        for row in Article.objects.filter(Q(new_article=True) | Q(error_sub_category=True)).values(
+            "third_party_num",
+            "third_party_num__short_name",
+            "reference",
+            "libelle",
+            "axe_bu__section",
+            "axe_prj__section",
+            "axe_pro__section",
+            "axe_pys__section",
+            "axe_rfa__section",
+            "big_category__name",
+            "sub_category__name",
+            "item_weight",
+            "unit_weight__unity",
+            "customs_code",
+            "error_sub_category",
         ).values(
             "third_party_num",
             "third_party_num__short_name",
@@ -68,6 +77,7 @@ def get_clean_rows() -> iter:
             "item_weight",
             "unit_weight__unity",
             "customs_code",
+            "error_sub_category",
         )
     ]
 
