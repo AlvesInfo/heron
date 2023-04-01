@@ -172,7 +172,3 @@ def articles_news_export_list(_):
         LOGGER_EXPORT_EXCEL.exception("view : articles_news_export_list")
 
     return redirect(reverse("articles:new_articles_list"))
-
-
-if __name__ == '__main__':
-    print(__file__)
