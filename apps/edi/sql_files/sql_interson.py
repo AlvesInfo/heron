@@ -41,7 +41,8 @@ post_interson_dict = {
                             then 'PORT'
                             else "famille"
                         end,
-            "origin" = 1
+            "origin" = 1,
+            "unit_weight" = 4
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
