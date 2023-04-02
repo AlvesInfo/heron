@@ -154,6 +154,7 @@ def set_hand_invoice(
                         "code_fournisseur": maison.cct.cct,
                         "code_maison": maison.cct.cct,
                         "maison": maison.intitule,
+                        "import_uuid_identification": uuid4(),
                     }
                 )
 
