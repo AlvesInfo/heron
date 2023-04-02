@@ -225,7 +225,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
     # pour vérifier si les factures sont multi magasins
     is_multi_store = models.BooleanField(null=True)
 
-    import_uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    import_uuid_identification = models.UUIDField(null=True, default=uuid.uuid4)
 
     def save(self, *args, **kwargs):
         """

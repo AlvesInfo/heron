@@ -109,6 +109,7 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     sql_none = post_common_dict.get("sql_none")
     sql_delivery_number = post_common_dict.get("sql_delivery_number")
     sql_center_signboard = post_common_dict.get("sql_center_signboard")
+    sql_import_uuid_identification = post_common_dict.get("sql_import_uuid_identification")
     sql_validate = post_common_dict.get("sql_validate")
 
     cursor.execute(sql_round_amount, {"uuid_identification": uuid_identification})
@@ -127,6 +128,7 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     cursor.execute(sql_none, {"uuid_identification": uuid_identification})
     cursor.execute(sql_delivery_number, {"uuid_identification": uuid_identification})
     cursor.execute(sql_center_signboard)
+    cursor.execute(sql_import_uuid_identification, {"uuid_identification": uuid_identification})
     cursor.execute(
         sql_validate,
         {"uuid_identification": uuid_identification, "created_by": get_user_automate()},

@@ -38,7 +38,6 @@ class BbgrBulkSchema(
     """Schema Djantic pour validation du modèle BbrgVerre"""
 
     uuid_identification: uuid.UUID
-    import_uuid_identification: uuid.UUID = uuid.uuid4()
     supplier: str
     supplier_ident: str
 

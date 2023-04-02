@@ -530,6 +530,15 @@ post_common_dict = {
     """
     ),
     "sql_center_signboard": SQL_CENTER_SIGNBOARD,
+    "sql_import_uuid_identification": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "import_uuid_identification" = gen_random_uuid() 
+        where "import_uuid_identification" isnull
+          and "uuid_identification" = %(uuid_identification)s
+          and ("valid" = false or "valid" isnull)
+        """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi

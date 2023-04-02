@@ -105,7 +105,6 @@ def bbgr_bulk(file_path: Path):
             "uuid_identification": trace.uuid_identification,
             "created_at": timezone.now(),
             "modified_at": timezone.now(),
-            "import_uuid_identification": None,
         },
     }
     new_file_path = bulk_translate_file(file_path)

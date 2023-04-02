@@ -22,7 +22,12 @@ post_starkey_dict = {
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "purchase_invoice" = true,
             "sale_invoice" = true,
-            "origin" = 1
+            "origin" = 1,
+            "import_uuid_identification" = case 
+                                            when "import_uuid_identification" isnull 
+                                            then gen_random_uuid() 
+                                            else "import_uuid_identification"
+                                           end 
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
