@@ -564,9 +564,12 @@ post_common_dict = {
             "invoice_month" = date_trunc('month', invoice_date)::date,
             "invoice_year" = date_part('year', invoice_date),
             "delete" = false,
+            "item_weight" =  case
+                                when "item_weight" isnull then 0 else "item_weight" 
+                             end,
             "unit_weight" =  case
-                            when "unit_weight" isnull then 1 else "unit_weight" 
-                       end,
+                                when "unit_weight" isnull then 1 else "unit_weight" 
+                             end,
             "packaging_qty" = abs("packaging_qty"),
             "gross_unit_price" = abs("gross_unit_price"),
             "net_unit_price" = abs("net_unit_price"),
