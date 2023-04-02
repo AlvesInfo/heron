@@ -81,7 +81,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         "is_multi_store",
         "manual_entry",
         "uuid_sub_big_category",
-        "origin"
+        "origin",
+        "import_uuid_identification"
     )
     select
         %(uuid_identification)s as "uuid_identification",
@@ -262,7 +263,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         false as "is_multi_store",
         false as "manual_entry",
         "uuid_sub_big_category",
-        "pio"."origin"
+        "pio"."origin",
+        gen_random_uuid() as "import_uuid_identification"
     from (
         select
             "cs".qty,

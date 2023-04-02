@@ -175,7 +175,8 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         "Génération des redevances de publicité "
         if rows
         else (
-            f"Erreur Génération des redevances de publicité, pas d'abonnements '{flow_name}' à générer"
+            f"Erreur Génération des redevances de publicité, "
+            f"pas d'abonnements '{flow_name}' à générer"
         )
     )
     trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
