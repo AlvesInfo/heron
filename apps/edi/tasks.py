@@ -137,7 +137,7 @@ def launch_suppliers_import(process_objects, user_pk):
         "======================================================================="
     )
 
-    return {"import : ": f"edi - {processing_key} - {trace.time_to_process} s"}
+    return {"import : ": f"edi - {processing_key} - {time.time() - start_initial} s"}
 
 
 @shared_task(name="bbgr_bi")

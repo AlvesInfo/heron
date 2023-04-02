@@ -529,7 +529,14 @@ post_common_dict = {
           and ("edi"."valid" = false or "edi"."valid" isnull)
     """
     ),
-    "sql_center_signboard": SQL_CENTER_SIGNBOARD,
+    "sql_center_signboard": (
+        SQL_CENTER_SIGNBOARD
+        +
+        """          
+        and "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        """
+    ),
     "sql_import_uuid_identification": sql.SQL(
         """
         update "edi_ediimport" edi

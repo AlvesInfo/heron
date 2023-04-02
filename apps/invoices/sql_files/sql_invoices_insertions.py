@@ -13,9 +13,12 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
-SQL_SALES_PRICES = sql.SQL(
-    # insertion des prix de ventes
+SQL_IMPORT_UUID = sql.SQL(
+    # insertion d'un uuid si il est manquant
     """
+    update "edi_ediimport" edi
+    set "import_uuid_identification" = gen_random_uuid() 
+    where "import_uuid_identification" isnull
     """
 )
 
@@ -26,5 +29,11 @@ SQL_INVOICES = sql.SQL(
     (
 
     )
+    """
+)
+
+SQL_SALES_PRICES = sql.SQL(
+    # insertion des prix de ventes
+    """
     """
 )

@@ -126,7 +126,7 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     cursor.execute(sql_delta_vat, {"uuid_identification": uuid_identification})
     cursor.execute(sql_none, {"uuid_identification": uuid_identification})
     cursor.execute(sql_delivery_number, {"uuid_identification": uuid_identification})
-    cursor.execute(sql_center_signboard)
+    cursor.execute(sql_center_signboard, {"uuid_identification": uuid_identification})
     cursor.execute(sql_import_uuid_identification, {"uuid_identification": uuid_identification})
     cursor.execute(
         sql_validate,
