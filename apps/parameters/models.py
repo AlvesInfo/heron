@@ -527,8 +527,6 @@ class BaseInvoiceTable(models.Model):
     invoice_month = models.DateField(null=True, blank=True)
     invoice_year = models.IntegerField(null=True, blank=True)
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
-    sale_devise = models.CharField(null=True, max_length=3, default="EUR")
-    sale_invoice_type = models.CharField(null=True, max_length=10)
 
     # Achats
     invoice_amount_without_tax = models.DecimalField(
@@ -539,23 +537,9 @@ class BaseInvoiceTable(models.Model):
         null=True, max_digits=20, decimal_places=5, default=0
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
-
-    # Ventes
-    sale_invoice_amount_without_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    sale_invoice_amount_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    sale_invoice_amount_with_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
     sale_invoice = models.BooleanField(null=True, default=False)
-
     manual_entry = models.BooleanField(null=True, default=False)
-
     code_center = models.CharField(null=True, max_length=15, verbose_name="code centrale fille")
-
     code_signboard = models.CharField(null=True, max_length=15, verbose_name="code enseigne")
 
     class Meta:

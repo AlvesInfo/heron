@@ -16,7 +16,7 @@ import uuid
 from django.db import models
 
 from heron.models import FlagExport
-from apps.parameters.models import BaseInvoiceDetailsTable, BaseCommonDetailsTable
+from apps.parameters.models import BaseInvoiceDetailsTable, BaseInvoiceTable, BaseCommonDetailsTable
 from apps.accountancy.models import CctSage
 from apps.book.models import Society
 from apps.edi.models import EdiImportControl
@@ -165,7 +165,7 @@ class PartiesInvoices(models.Model):
         ]
 
 
-class Invoice(FlagExport):
+class Invoice(FlagExport, BaseInvoiceTable):
     """
     FR : Factures Fournisseurs
     EN : Suppliers Invoices
@@ -181,25 +181,7 @@ class Invoice(FlagExport):
         related_name="third_party_num_invoice",
         db_column="third_party_num",
     )
-    invoice_number = models.CharField(max_length=35)
-    invoice_type = models.CharField(
-        null=True,
-        blank=True,
-        max_length=10,
-        verbose_name="FA:380, AV:381",
-    )
-    invoice_date = models.DateField()
-    invoice_month = models.DateField(null=True, blank=True)
-    invoice_year = models.IntegerField(null=True, blank=True)
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
-    invoice_amount_without_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
-    invoice_amount_with_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    manual_entry = models.BooleanField(null=True, default=False)
     uuid_file = models.UUIDField(null=True)
     uuid_control = models.ForeignKey(
         EdiImportControl,
@@ -304,7 +286,7 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTable)
         ]
 
 
-class SaleInvoice(FlagExport):
+class SaleInvoice(FlagExport, BaseInvoiceTable):
     """
     FR : Factures
     EN : Invoices
@@ -331,26 +313,7 @@ class SaleInvoice(FlagExport):
         db_column="cct",
     )
 
-    invoice_number = models.CharField(max_length=35)
-    invoice_type = models.CharField(
-        null=True,
-        blank=True,
-        max_length=10,
-        verbose_name="FA:380, AV:381",
-    )
-    invoice_date = models.DateField()
-    invoice_month = models.DateField(null=True, blank=True)
-    invoice_year = models.IntegerField(null=True, blank=True)
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
-    invoice_amount_without_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
-    invoice_amount_with_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    manual_entry = models.BooleanField(null=True, default=False)
-    uuid_file = models.UUIDField(null=True)
     comment = models.CharField(null=True, blank=True, max_length=120)
 
     # Centrale
