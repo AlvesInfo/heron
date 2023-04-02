@@ -20,7 +20,14 @@ from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import VatSage, VatRegimeSage, CctSage, SectionSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
-from apps.parameters.models import BaseInvoiceTable, BaseInvoiceDetailsTable, Category, SubCategory, Nature
+from apps.parameters.models import (
+    BaseInvoiceTable,
+    BaseInvoiceDetailsTable,
+    Category,
+    SubCategory,
+    Nature,
+    BaseCommonDetailsTable,
+)
 
 
 class EdiImportControl(FlagsTable):
@@ -37,7 +44,7 @@ class EdiImportControl(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
 
-class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
+class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
     """
     Table de préparation à l'import des factures fournisseurs edi et spécifique
     FR : Table Import EDI
@@ -103,7 +110,6 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         default=0,
         verbose_name="prix assurance",
     )
-    serial_number = models.TextField(null=True, blank=True)
     active = models.BooleanField(null=True, default=False)
     to_delete = models.BooleanField(null=True, default=False)
     to_export = models.BooleanField(null=True, default=False)
@@ -219,6 +225,8 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
     # pour vérifier si les factures sont multi magasins
     is_multi_store = models.BooleanField(null=True)
 
+    import_uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
     def save(self, *args, **kwargs):
         """
         FR : Avant la sauvegarde on clean les données
@@ -259,13 +267,14 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         ]
 
 
-class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
+class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
     """
     Table de dépôts STARKEY
     FR : Table Import EDI
     EN : Edi Import table
     """
 
+    import_uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
     third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
     supplier_name = models.CharField(null=True, blank=True, max_length=80)
@@ -324,7 +333,6 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable):
         default=0,
         verbose_name="prix assurance",
     )
-    serial_number = models.TextField(null=True, blank=True)
     active = models.BooleanField(null=True, default=False)
     to_delete = models.BooleanField(null=True, default=False)
     to_export = models.BooleanField(null=True, default=False)

@@ -82,6 +82,7 @@ class UnitChoices(FlagsTable):
 
     num = models.IntegerField(unique=True)
     unity = models.CharField(unique=True, max_length=80, verbose_name="unité")
+    to_display = models.CharField(null=True, max_length=5)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -570,42 +571,6 @@ class BaseInvoiceDetailsTable(models.Model):
     EN : Flags Abstract Table for Invoices details
     """
 
-    # Livraison
-    acuitis_order_number = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
-    )
-    acuitis_order_date = models.DateField(null=True, verbose_name="DTM avec 4 quand RFF avec ON")
-    delivery_number = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
-    )
-    delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
-    # Article
-    reference_article = models.CharField(
-        null=True, blank=True, max_length=150, verbose_name="LIN avec 21 et autre chose que EN"
-    )
-    ean_code = models.CharField(
-        null=True, blank=True, max_length=35, verbose_name="LIN avec 21 et EN"
-    )
-    libelle = models.CharField(
-        null=True, blank=True, max_length=150, verbose_name="IMD avec F dernière position"
-    )
-    client_name = models.CharField(null=True, blank=True, max_length=80)
-    comment = models.CharField(null=True, blank=True, max_length=120)
-    command_reference = models.CharField(null=True, blank=True, max_length=120)
-
-    # Qty / Montants
-    qty = models.DecimalField(
-        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
-    )
-    item_weight = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
-    unit_weight = models.ForeignKey(
-        UnitChoices,
-        on_delete=models.PROTECT,
-        to_field="num",
-        related_name="+",
-        db_column="unit_weight",
-        null=True,
-    )
     gross_unit_price = models.DecimalField(
         null=True,
         max_digits=20,
@@ -664,6 +629,56 @@ class BaseInvoiceDetailsTable(models.Model):
     amount_with_vat = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
+    unit_weight = models.ForeignKey(
+        UnitChoices,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="+",
+        db_column="unit_weight",
+        null=True,
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        abstract = True
+
+
+class BaseCommonDetailsTable(models.Model):
+    """
+    Table Abstraite de base pour lignes communes entre aachats et ventes
+    FR : Table Abstraite de base pour des artilces facturés
+    EN : Basic Abstract Table for Invoiced Items
+    """
+    # Article
+    reference_article = models.CharField(
+        null=True, blank=True, max_length=150, verbose_name="LIN avec 21 et autre chose que EN"
+    )
+    ean_code = models.CharField(
+        null=True, blank=True, max_length=35, verbose_name="LIN avec 21 et EN"
+    )
+    libelle = models.CharField(
+        null=True, blank=True, max_length=150, verbose_name="IMD avec F dernière position"
+    )
+
+    # Livraison
+    acuitis_order_number = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
+    )
+    acuitis_order_date = models.DateField(null=True, verbose_name="DTM avec 4 quand RFF avec ON")
+    delivery_number = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
+    )
+    delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
+    client_name = models.CharField(null=True, blank=True, max_length=80)
+    comment = models.CharField(null=True, blank=True, max_length=120)
+    command_reference = models.CharField(null=True, blank=True, max_length=120)
+
+    # Qty / Montants
+    qty = models.DecimalField(
+        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
+    )
+    item_weight = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     origin = models.ForeignKey(
         IconOriginChoice,
         null=True,
@@ -712,7 +727,10 @@ class BaseInvoiceDetailsTable(models.Model):
     formation_month = models.DateField(null=True, verbose_name="Mois concerné")
 
     # Personnel
-    personnel_type = models.CharField(null=True, max_length=35)
+    personnel_type = models.CharField(null=True, max_length=80)
+
+    # N° de serie
+    serial_number = models.TextField(null=True, blank=True)
 
     class Meta:
         """class Meta du modèle django"""

@@ -16,7 +16,7 @@ import uuid
 from django.db import models
 
 from heron.models import FlagExport
-from apps.parameters.models import BaseInvoiceDetailsTable
+from apps.parameters.models import BaseInvoiceDetailsTable, BaseCommonDetailsTable
 from apps.accountancy.models import CctSage
 from apps.book.models import Society
 from apps.edi.models import EdiImportControl
@@ -260,7 +260,7 @@ class Invoice(FlagExport):
         ]
 
 
-class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
+class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
     """
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
@@ -380,7 +380,7 @@ class SaleInvoice(FlagExport):
         PartiesInvoices,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
-        related_name="parties_isale",
+        related_name="parties_sale",
         verbose_name="parties prenantes",
         db_column="parties",
         null=True,
@@ -466,7 +466,7 @@ class SaleInvoice(FlagExport):
         ]
 
 
-class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
+class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
     """
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
@@ -518,11 +518,11 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
         ]
 
 
-class InvoiceSerials(models.Model):
+class InvoiceCommonDetails(BaseCommonDetailsTable):
     """
     FR : Detail des n° de série
     EN : Serial numbers detail
     """
 
     import_uuid_identification = models.UUIDField(unique=True)
-    serials = models.CharField(max_length=50)
+    unit_weight = models.CharField(max_length=5)

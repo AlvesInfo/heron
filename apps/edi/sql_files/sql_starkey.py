@@ -158,9 +158,9 @@ post_starkey_dict = {
             "origin",
             "personnel_type",
             "uuid_sub_big_category",
-            "unit_weight",
             "uuid_control",
-            "vat"
+            "vat",
+            "import_uuid_identification"
         )
         select 
             "created_at",
@@ -262,9 +262,9 @@ post_starkey_dict = {
             "origin",
             "personnel_type",
             "uuid_sub_big_category",
-            "unit_weight",
             "uuid_control",
-            "vat"
+            "vat",
+            "import_uuid_identification"
         from "edi_ediimport" ee
         where ee."uuid_identification" = %(uuid_identification)s
         and ee."comment" = 'ENVOI_DEPOT'
