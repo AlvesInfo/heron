@@ -93,7 +93,7 @@ WHERE exists (
 
 
 def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
-    """Renvoie le nom des statitsiques à appliquer aux artciles importés
+    """Renvoie le nom des statitsiques à appliquer aux articles importés
     dans edi_edi_import non présents dans la table articles pour les codifier
     avec les valeurs de stats codifiées
     :param cursor: cursor de connection psycopg2 django

@@ -105,9 +105,13 @@ from (
 ) "req" 
 where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
 and (
+    "ee"."code_center" isnull 
+    or
     "ee"."code_center" != "req"."code_center"
-    or 
-    "ee"."code_center" != "req"."code_center"
+    or
+    "ee"."code_signboard" isnull 
+    or
+    "ee"."code_signboard" != "req"."code_signboard"
 )
 """
 
@@ -525,6 +529,7 @@ post_common_dict = {
           and ("edi"."valid" = false or "edi"."valid" isnull)
     """
     ),
+    "sql_center_signboard": SQL_CENTER_SIGNBOARD,
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi

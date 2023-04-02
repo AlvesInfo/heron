@@ -88,6 +88,7 @@ class ChildCenterPurchase(FlagsTable):
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. Centrale Fille"
     )
+    societe_cpy_x3 = models.CharField(max_length=5, verbose_name="Société X3")
     site_fcy_x3 = models.CharField(max_length=5, verbose_name="Site X3")
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
     legal_notice = models.TextField(null=True, blank=True, verbose_name="mentions légales")

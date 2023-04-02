@@ -319,6 +319,36 @@ class Maison(FlagsTable):
         related_name="cct_bu",
         db_column="axe_bu",
     )
+    axe_pys = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PYS"},
+        related_name="cct_pys",
+        db_column="axe_pys",
+    )
+    axe_prj = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRJ"},
+        related_name="cct_prj",
+        db_column="axe_prj",
+    )
+    axe_rfa = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "RFA"},
+        related_name="cct_rfa",
+        db_column="axe_rfa",
+    )
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

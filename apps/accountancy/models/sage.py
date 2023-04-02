@@ -510,6 +510,7 @@ class PaymentCondition(FlagsTable):
     Fin de mois         | end_month         | TABPAYTERM    | ENDMONFLG (T:20)
     Mont. Min. échéance | mont_echeance_min | TABPAYTERM    | DUDMINAMT (D: 2)
     Identifiant unique  | auuid             | TABPAYTERM    | AUUID     (T: 15)
+    mode règlement      | mode_reglement    | TABPAM        | PAM      (T: 5)
     =============================================================================
     end_month : 1 == non, 2 == fin de mois après, 3 == Fin de mois avant
     """
@@ -526,6 +527,7 @@ class PaymentCondition(FlagsTable):
     mont_echeance_min = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     auuid = models.CharField(unique=True, max_length=80, verbose_name="n° champ unique")
     default = models.BooleanField(null=True)
+    mode_reglement = models.CharField(null=True, max_length=5)
 
     @staticmethod
     def file_import_sage():

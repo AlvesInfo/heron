@@ -40,6 +40,8 @@ class FillesForm(forms.ModelForm):
             "iban",
             "code_swift",
             "sending_email",
+            "societe_cpy_x3",
+            "site_fcy_x3",
         ]
 
 

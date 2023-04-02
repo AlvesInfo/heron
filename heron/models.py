@@ -94,6 +94,43 @@ class FlagsTable(DatesTable):
         abstract = True
 
 
+class FlagExport(DatesTable):
+    """
+    Table Abstraite de base pour les tables qui ont besoins d'exports
+    FR : Table Abstraite de base pour les tables qui ont besoins d'exports
+    EN : Basic Abstract Table for tables that need exports
+    """
+
+    export = models.BooleanField(null=True, default=False)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        to_field="uuid_identification",
+        db_column="created_by",
+    )
+    modified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        to_field="uuid_identification",
+        db_column="modified_by",
+    )
+
+    # Finalisation définitive
+    final = models.BooleanField(null=True, default=False)
+    final_at = models.DateTimeField(blank=True, null=True, verbose_name=_("final at"))
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        abstract = True
+
+
 class CreateTable(DatesTable):
     """
     Table Abstraite de base pour les tables

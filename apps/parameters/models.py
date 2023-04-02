@@ -515,16 +515,16 @@ class BaseInvoiceTable(models.Model):
 
     uuid_file = models.UUIDField(null=True)
 
-    invoice_number = models.CharField(max_length=35)
-    invoice_date = models.DateField(verbose_name="DTM avec 3")
-    invoice_month = models.DateField(null=True, blank=True)
-    invoice_year = models.IntegerField(null=True, blank=True)
     invoice_type = models.CharField(
         null=True,
         blank=True,
         max_length=10,
         verbose_name="FA:380, AV:381",
     )
+    invoice_number = models.CharField(max_length=35)
+    invoice_date = models.DateField(verbose_name="DTM avec 3")
+    invoice_month = models.DateField(null=True, blank=True)
+    invoice_year = models.IntegerField(null=True, blank=True)
     devise = models.CharField(null=True, blank=True, max_length=3, default="EUR")
     sale_devise = models.CharField(null=True, max_length=3, default="EUR")
     sale_invoice_type = models.CharField(null=True, max_length=10)
@@ -579,20 +579,6 @@ class BaseInvoiceDetailsTable(models.Model):
         null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
     )
     delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
-    # Formation
-    initial_home = models.CharField(null=True, blank=True, max_length=15)
-    initial_date = models.DateField(null=True, verbose_name="date initiale")
-    final_date = models.DateField(null=True, verbose_name="date finale")
-    first_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="prenom")
-    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="nom")
-    heures_formation = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-        verbose_name="nombre heures formation",
-    )
-    formation_month = models.DateField(null=True, verbose_name="Mois concerné")
     # Article
     reference_article = models.CharField(
         null=True, blank=True, max_length=150, verbose_name="LIN avec 21 et autre chose que EN"
@@ -678,48 +664,6 @@ class BaseInvoiceDetailsTable(models.Model):
     amount_with_vat = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
     )
-    sale_gross_unit_price = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-    )
-    sale_net_unit_price = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
-    sale_gross_amount = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-    )
-    sale_base_discount_01 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    sale_discount_price_01 = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-    )
-    sale_base_discount_02 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    sale_discount_price_02 = models.DecimalField(
-        null=True,
-        max_digits=20,
-        decimal_places=5,
-        default=0,
-    )
-    sale_base_discount_03 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    sale_discount_price_03 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
-    sale_net_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
-    sale_vat_amount = models.DecimalField(null=True, default=0, max_digits=20, decimal_places=5)
-    sale_amount_with_vat = models.DecimalField(
-        null=True, default=0, max_digits=20, decimal_places=5
-    )
     origin = models.ForeignKey(
         IconOriginChoice,
         null=True,
@@ -752,11 +696,23 @@ class BaseInvoiceDetailsTable(models.Model):
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     supplier = models.CharField(null=True, blank=True, max_length=35)
 
-    # Ventes
-    sale_axe_pys = models.CharField(null=True, max_length=15)
-    sale_vat = models.CharField(null=True, max_length=5)
-    sale_vat_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
-    sale_vat_regime = models.CharField(null=True, max_length=5)
+    # Formation
+    initial_home = models.CharField(null=True, blank=True, max_length=15)
+    initial_date = models.DateField(null=True, verbose_name="date initiale")
+    final_date = models.DateField(null=True, verbose_name="date finale")
+    first_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="prenom")
+    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="nom")
+    heures_formation = models.DecimalField(
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="nombre heures formation",
+    )
+    formation_month = models.DateField(null=True, verbose_name="Mois concerné")
+
+    # Personnel
+    personnel_type = models.CharField(null=True, max_length=35)
 
     class Meta:
         """class Meta du modèle django"""

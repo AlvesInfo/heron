@@ -89,8 +89,8 @@ def process():
                 trace.save()
 
     try:
-        # On créer les fichiers des tiers fournisseurs, clients, et tiers, car ils sont volumineux
-        # Au download ils sont déjà prêts
+        # On crée les fichiers des tiers fournisseurs, clients et tiers, car ils sont volumineux
+        # Au download ils seront déjà prêts
         writre_book_files()
     except Exception as except_error:
         LOGGER_IMPORT.exception(f"Exception Générale: writre_book_files()\n{except_error!r}")

@@ -13,12 +13,10 @@ modified by: Paulo ALVES
 """
 import uuid
 
-import pendulum
 from django.db import models
-from django.core.exceptions import ValidationError
 
-from heron.models import FlagsTable
-from apps.parameters.models import BaseAdressesTable, BaseInvoiceTable, BaseInvoiceDetailsTable
+from heron.models import FlagExport
+from apps.parameters.models import BaseInvoiceDetailsTable
 from apps.accountancy.models import CctSage
 from apps.book.models import Society
 from apps.edi.models import EdiImportControl
@@ -167,196 +165,110 @@ class PartiesInvoices(models.Model):
         ]
 
 
-class Invoice(FlagsTable, BaseInvoiceTable):
+class Invoice(FlagExport):
     """
-    FR : Factures
-    EN : Invoices
+    FR : Factures Fournisseurs
+    EN : Suppliers Invoices
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    sale_invoice_number = models.CharField(max_length=20)
-    sale_invoice_date = models.DateField()
-    sale_invoice_month = models.DateField()
-    sale_invoice_year = models.IntegerField()
-    sale_invoice_periode = models.IntegerField()
 
     # Tiers X3 qui a facturé
     third_party_num = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
         to_field="third_party_num",
-        related_name="society_invoice",
+        related_name="third_party_num_invoice",
         db_column="third_party_num",
     )
-    # cct X3 facturé
-    cct = models.ForeignKey(
-        CctSage,
-        on_delete=models.PROTECT,
-        to_field="cct",
-        related_name="cct_invoice",
-        verbose_name="cct x3",
-        db_column="cct",
-    )
-
-    # Centrale
-    centers = models.ForeignKey(
-        CentersInvoices,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="centers_invoice",
-        verbose_name="centrale fille",
-        db_column="centers",
+    invoice_number = models.CharField(max_length=35)
+    invoice_type = models.CharField(
         null=True,
+        blank=True,
+        max_length=10,
+        verbose_name="FA:380, AV:381",
     )
-
-    # Enseigne
-    signboard = models.ForeignKey(
-        SignboardsInvoices,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="signboard_invoice",
-        verbose_name="enseigne",
-        db_column="signboard",
-        null=True,
-    )
-
-    # Parties
-    parties = models.ForeignKey(
-        PartiesInvoices,
-        on_delete=models.PROTECT,
-        to_field="uuid_identification",
-        related_name="parties_invoice",
-        verbose_name="parties prenantes",
-        db_column="parties",
-        null=True,
-    )
-
+    invoice_date = models.DateField()
+    invoice_month = models.DateField(null=True, blank=True)
+    invoice_year = models.IntegerField(null=True, blank=True)
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
+    invoice_amount_without_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    invoice_amount_with_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    manual_entry = models.BooleanField(null=True, default=False)
+    uuid_file = models.UUIDField(null=True)
     uuid_control = models.ForeignKey(
         EdiImportControl,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
         to_field="uuid_identification",
-        related_name="invoices_edi_import_control",
+        related_name="edi_control_invoice",
         db_column="uuid_control",
     )
-
-    big_category = models.CharField(max_length=120)
-
-    def clean(self):
-        """
-        FR : Nettoyage de la donnée pour les formulaires
-        EN : Data cleansing for forms
-        """
-
-        if self.sale_invoice and not self.centers:
-            raise ValidationError(
-                "Vous devez sélectionner au moins un Centre si c'est une facture Client"
-            )
-
-        if self.sale_invoice and not self.parties:
-            raise ValidationError(
-                "Vous devez sélectionner au moins une partie prenante si c'est une facture Client"
-            )
-
-        if self.sale_invoice and not self.sale_invoice_number:
-            raise ValidationError(
-                "Vous devez avoir le N° de Facture Client si c'est une facture Client"
-            )
-
-        if not self.sale_devise:
-            self.sale_devise = self.devise
-
-        if not self.sale_invoice_type:
-            self.sale_invoice_type = self.invoice_type
-
-        if not self.sale_invoice_month:
-            self.sale_invoice_month = pendulum.parse(self.sale_invoice_date.isoformat()).start_of(
-                "month"
-            )
-
-        if not self.sale_invoice_year:
-            self.sale_invoice_year = self.sale_invoice_date.year
-
-        if not self.sale_invoice_periode:
-            self.sale_invoice_periode = self.invoice_date.month
-
-    def save(self, *args, **kwargs):
-        """
-        FR : On met l'année par défaut suivant la date de la facture
-        EN : We set the year by default according to the date of the invoice
-        """
-
-        if not self.sale_devise:
-            self.sale_devise = self.devise
-
-        if not self.sale_invoice_type:
-            self.sale_invoice_type = self.invoice_type
-
-        if not self.sale_invoice_month:
-            self.sale_invoice_month = pendulum.parse(self.sale_invoice_date.isoformat()).start_of(
-                "month"
-            )
-
-        if not self.sale_invoice_year:
-            self.sale_invoice_year = self.sale_invoice_date.year
-
-        if not self.sale_invoice_periode:
-            self.sale_invoice_periode = self.invoice_date.month
-
-        super().save(*args, **kwargs)
+    comment = models.CharField(null=True, blank=True, max_length=120)
+    date_echeance = models.DateField(null=True)
+    mode_reglement = models.CharField(null=True, max_length=5)
+    type_reglement = models.CharField(null=True, max_length=5, default="1")
+    adresse_tiers = models.CharField(null=True, max_length=5, default="1")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return (
-            f"{self.third_party_num} - {self.cct} - "
-            f"{self.invoice_number} - {self.sale_invoice_number} - {self.invoice_date}"
-        )
+        return f"{self.third_party_num} - {self.invoice_number} - {self.invoice_date}"
 
     class Meta:
         """class Meta du modèle django"""
 
         constraints = [
             models.UniqueConstraint(
-                fields=["third_party_num", "invoice_number", "invoice_year", "cct", "big_category"],
-                name="unique_invoice_purchase",
-            ),
-            models.UniqueConstraint(
-                fields=["third_party_num", "sale_invoice_number", "invoice_year", "big_category"],
-                name="unique_invoice_sale",
+                fields=["third_party_num", "invoice_number", "invoice_year"],
+                name="purchase_unique_invoice",
             ),
         ]
 
         indexes = [
             models.Index(fields=["third_party_num"]),
             models.Index(fields=["invoice_number"]),
+            models.Index(fields=["invoice_type"]),
             models.Index(fields=["invoice_year"]),
-            models.Index(fields=["cct"]),
-            models.Index(fields=["big_category"]),
-            models.Index(fields=["sale_invoice_number"]),
+            models.Index(fields=["invoice_month"]),
             models.Index(
                 fields=[
                     "third_party_num",
                     "invoice_number",
-                    "cct",
+                    "invoice_year",
                 ]
             ),
             models.Index(
                 fields=[
                     "third_party_num",
-                    "sale_invoice_number",
-                    "cct",
+                    "invoice_type",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "invoice_type",
+                    "invoice_month",
                 ]
             ),
         ]
 
 
-class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
+class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     """
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
     """
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    import_uuid_identification = models.UUIDField(unique=True)
 
     invoice = models.ForeignKey(
         Invoice,
@@ -365,27 +277,18 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
         related_name="detail_invoice",
         db_column="uuid_invoice",
     )
-    # Axes
     axe_bu = models.CharField(max_length=15)
     axe_prj = models.CharField(max_length=15)
-    axe_rfa = models.CharField(max_length=15)
-
-    # Regroupement de facturation
     axe_pro = models.CharField(max_length=15)
-    base = models.CharField(max_length=35)
-    grouping_goods = models.CharField(null=True, max_length=35)
-    personnel_type = models.CharField(null=True, max_length=35)
-
-    # Achats
+    axe_rfa = models.CharField(max_length=15)
     axe_pys = models.CharField(max_length=15)
+
     vat = models.CharField(max_length=5)
     vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
     vat_regime = models.CharField(max_length=5)
-
-    # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-
-    sale_sub_category = models.CharField(null=True, max_length=80)
+    big_category = models.CharField(max_length=120)
+    sub_category = models.CharField(null=True, max_length=80)
+    account = models.CharField(max_length=35)
 
     class Meta:
         """class Meta du modèle django"""
@@ -401,17 +304,225 @@ class InvoiceDetail(FlagsTable, BaseInvoiceDetailsTable):
         ]
 
 
+class SaleInvoice(FlagExport):
+    """
+    FR : Factures
+    EN : Invoices
+    """
+
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    # Tiers X3 qui a facturé
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="third_party_num_sale",
+        db_column="third_party_num",
+    )
+
+    # cct X3 facturé
+    cct = models.ForeignKey(
+        CctSage,
+        on_delete=models.PROTECT,
+        to_field="cct",
+        related_name="cct_sale",
+        verbose_name="cct x3",
+        db_column="cct",
+    )
+
+    invoice_number = models.CharField(max_length=35)
+    invoice_type = models.CharField(
+        null=True,
+        blank=True,
+        max_length=10,
+        verbose_name="FA:380, AV:381",
+    )
+    invoice_date = models.DateField()
+    invoice_month = models.DateField(null=True, blank=True)
+    invoice_year = models.IntegerField(null=True, blank=True)
+    vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
+    invoice_amount_without_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    invoice_amount_with_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
+    manual_entry = models.BooleanField(null=True, default=False)
+    uuid_file = models.UUIDField(null=True)
+    comment = models.CharField(null=True, blank=True, max_length=120)
+
+    # Centrale
+    centers = models.ForeignKey(
+        CentersInvoices,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="centers_sale",
+        verbose_name="centrale fille",
+        db_column="centers",
+        null=True,
+    )
+
+    # Enseigne
+    signboard = models.ForeignKey(
+        SignboardsInvoices,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="signboard_sale",
+        verbose_name="enseigne",
+        db_column="signboard",
+        null=True,
+    )
+
+    # Parties
+    parties = models.ForeignKey(
+        PartiesInvoices,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="parties_isale",
+        verbose_name="parties prenantes",
+        db_column="parties",
+        null=True,
+    )
+
+    big_category = models.CharField(max_length=120)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.invoice_number} - {self.invoice_number} - {self.invoice_date} - {self.cct}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["third_party_num", "invoice_number", "invoice_year"],
+                name="sale_unique_invoice",
+            ),
+        ]
+
+        indexes = [
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["invoice_number"]),
+            models.Index(fields=["invoice_type"]),
+            models.Index(fields=["invoice_year"]),
+            models.Index(fields=["invoice_month"]),
+            models.Index(fields=["cct"]),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "invoice_number",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "invoice_type",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "invoice_type",
+                    "invoice_month",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "invoice_number",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "invoice_number",
+                    "invoice_month",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "invoice_type",
+                    "invoice_month",
+                ]
+            ),
+        ]
+
+
+class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
+    """
+    FR : Detail des factures fournisseurs
+    EN : Suppliers Invoices detail
+    """
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    import_uuid_identification = models.UUIDField(unique=True)
+
+    sale_invoice = models.ForeignKey(
+        SaleInvoice,
+        on_delete=models.CASCADE,
+        to_field="uuid_identification",
+        related_name="detail_sale_invoice",
+        db_column="uuid_invoice",
+    )
+    axe_bu = models.CharField(max_length=15)
+    axe_prj = models.CharField(max_length=15)
+    axe_pro = models.CharField(max_length=15)
+    axe_rfa = models.CharField(max_length=15)
+    axe_pys = models.CharField(max_length=15)
+
+    vat = models.CharField(max_length=5)
+    vat_rate = models.DecimalField(max_digits=20, decimal_places=5)
+    vat_regime = models.CharField(max_length=5)
+    big_category = models.CharField(max_length=120)
+    sub_category = models.CharField(null=True, max_length=80)
+
+    # Regroupement de facturation
+    base = models.CharField(max_length=35)
+    grouping_goods = models.CharField(null=True, max_length=35)
+    personnel_type = models.CharField(null=True, max_length=35)
+
+    account = models.CharField(max_length=35)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        indexes = [
+            models.Index(fields=["sale_invoice"], name="sale_invoice_idx"),
+            models.Index(
+                fields=["sale_invoice", "reference_article"], name="sale_invoice_article_idx"
+            ),
+            models.Index(fields=["axe_bu"], name="sale_invoice_axe_bu"),
+            models.Index(fields=["axe_prj"], name="sale_invoice_axe_prj"),
+            models.Index(fields=["axe_rfa"], name="sale_invoice_axe_rfa"),
+            models.Index(fields=["axe_pro"], name="sale_invoice_axe_pro"),
+            models.Index(fields=["axe_pys"], name="sale_invoice_axe_pys"),
+        ]
+
+
 class InvoiceSerials(models.Model):
     """
     FR : Detail des n° de série
     EN : Serial numbers detail
     """
 
-    invoice = models.ForeignKey(
-        Invoice,
-        on_delete=models.CASCADE,
-        to_field="uuid_identification",
-        related_name="serial_invoice",
-        db_column="uuid_invoice",
-    )
-    serial = models.CharField(max_length=50)
+    import_uuid_identification = models.UUIDField(unique=True)
+    serials = models.CharField(max_length=50)
