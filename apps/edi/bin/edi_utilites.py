@@ -216,11 +216,8 @@ def set_update_sales_prices() -> None:
     """
     Mise à jour des prix de ventes
     """
-    with connection.cursor() as cursor:
-        sql_set_update_sales_prices = """
-        update "edi_ediimport" "ee" 
-        set "sale_net_amount" = "net_amount",
-            "sale_net_unit_price" = "net_unit_price",
-        where ("sale_net_unit_price" = 0 or "sale_net_unit_price" isnull)
-        """
-        cursor.execute(sql_set_update_sales_prices)
+    # TODO: A FAIRE
+    # with connection.cursor() as cursor:
+    #     sql_set_update_sales_prices = """
+    #     """
+    #     cursor.execute(sql_set_update_sales_prices)

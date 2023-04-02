@@ -81,7 +81,6 @@ def post_processing_all():
     suppliers_invoices_duplicate_check()
     add_news_cct_sage()
     set_center_signboard()
-    set_update_sales_prices()
     set_axes_with_regex()
 
 
