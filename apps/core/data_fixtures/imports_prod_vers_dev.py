@@ -71,7 +71,9 @@ from apps.invoices.models import (
     PartiesInvoices,
     Invoice,
     InvoiceDetail,
-    InvoiceSerials,
+    SaleInvoice,
+    SaleInvoiceDetail,
+    InvoiceCommonDetails,
 )
 from apps.parameters.models import (
     Parameters,
@@ -162,7 +164,9 @@ MODELS_INVOICES = (
     PartiesInvoices,
     Invoice,
     InvoiceDetail,
-    InvoiceSerials,
+    SaleInvoice,
+    SaleInvoiceDetail,
+    InvoiceCommonDetails,
 )
 
 MODELS_PARAMETERS = (
@@ -287,9 +291,9 @@ if __name__ == "__main__":
     # main(MODELS_ACCOUNTANCY)
     # main(MODELS_BOOK)
     # main(MODELS_PARAMETERS)
-    main(MODELS_ARTICLES)
+    # main(MODELS_ARTICLES)
     # main(MODELS_CENTER_PURCHASING)
     # main(MODELS_CENTER_CLIENTS)
-    # main(MODELS_EDI)
     # main(MODELS_COMPTA)
+    main(MODELS_EDI)
     # main(MODELS_INVOICES)

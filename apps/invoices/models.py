@@ -360,7 +360,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["third_party_num", "invoice_number", "invoice_year"],
+                fields=["cct", "invoice_number", "invoice_year"],
                 name="sale_unique_invoice",
             ),
         ]
@@ -372,6 +372,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
             models.Index(fields=["invoice_year"]),
             models.Index(fields=["invoice_month"]),
             models.Index(fields=["cct"]),
+            models.Index(fields=["big_category"]),
             models.Index(
                 fields=[
                     "third_party_num",
@@ -401,6 +402,19 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
             ),
             models.Index(
                 fields=[
+                    "third_party_num",
+                    "cct",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "third_party_num",
+                    "cct",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
                     "cct",
                     "invoice_number",
                     "invoice_year",
@@ -423,6 +437,34 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
                 fields=[
                     "cct",
                     "invoice_type",
+                    "invoice_month",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "big_category",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "big_category",
+                    "invoice_month",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "big_category",
+                    "invoice_number",
+                    "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
                     "invoice_month",
                 ]
             ),
