@@ -42,6 +42,7 @@ class FillesForm(forms.ModelForm):
             "sending_email",
             "societe_cpy_x3",
             "site_fcy_x3",
+            "vat_regime_center",
         ]
 
 
