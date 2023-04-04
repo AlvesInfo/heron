@@ -56,23 +56,35 @@ def centers_invoices_update():
             "legal_notice_center",
             "bank_center",
             "iban_center",
-            "code_swift_center"
+            "code_swift_center",
+            "vat_regime_center"
         )
-        select
-            now() as created_at,
-            gen_random_uuid() as "uuid_identification",
-            -- Centrale fille
-            "cpc"."code" as "code_center",
-            case when "cpc"."comment" isnull then '' else "cpc"."comment" end as "comment_center",
-            case 
-                when "cpc"."legal_notice" isnull then '' else "cpc"."legal_notice" 
-            end as "legal_notice_center",
-            case when "cpc"."bank" isnull then '' else "cpc"."bank" end as "bank_center",
-            case when "cpc"."iban" isnull then '' else "cpc"."iban" end as "iban_center",
-            case 
-                when "cpc"."code_swift" isnull then '' else "cpc"."code_swift" 
-            end as "code_swift_center"
-        from "centers_purchasing_childcenterpurchase" "cpc"  
+            select
+                now() as created_at,
+                gen_random_uuid() as "uuid_identification",
+                -- Centrale fille
+                "cpc"."code" as "code_center",
+                case 
+                    when "cpc"."comment" isnull 
+                    then '' 
+                    else "cpc"."comment" 
+                end as "comment_center",
+                case 
+                    when "cpc"."legal_notice" isnull then '' else "cpc"."legal_notice" 
+                end as "legal_notice_center",
+                case when "cpc"."bank" isnull then '' else "cpc"."bank" end as "bank_center",
+                case when "cpc"."iban" isnull then '' else "cpc"."iban" end as "iban_center",
+                case 
+                    when "cpc"."code_swift" isnull then '' else "cpc"."code_swift" 
+                end as "code_swift_center",
+                case 
+                    when "av"."vat_regime" isnull 
+                    then 'FRA'
+                    else "av"."vat_regime"
+                end as "vat_regime_center"
+            from "centers_purchasing_childcenterpurchase" "cpc"  
+            left join "accountancy_vatregimesage" "av"
+            on "cpc"."vat_regime_center" = "av"."uuid_identification"
         on conflict do nothing
         """
         cursor.execute(sql_create)

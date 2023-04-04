@@ -15,15 +15,15 @@ import uuid
 
 from django.db import models
 from django.shortcuts import reverse
-from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
 from apps.accountancy.models import (
     AccountSage,
     VatSage,
     SectionSage,
+    VatRegimeSage,
 )
-from apps.parameters.models import SalePriceCategory, Category, SubCategory
+from apps.parameters.models import SalePriceCategory, Category
 
 
 class Action(FlagsTable):
@@ -34,8 +34,6 @@ class Action(FlagsTable):
     FR : Actions
     EN : Actions
     """
-
-    ...
 
 
 class PrincipalCenterPurchase(FlagsTable):
@@ -97,6 +95,13 @@ class ChildCenterPurchase(FlagsTable):
     code_swift = models.CharField(null=True, blank=True, max_length=27)
     # email d'où sont envoyés les documents, ou bien qui reçoivent les mails
     sending_email = models.EmailField(null=True, blank=True, verbose_name="email d'envoi")
+    vat_regime_center = models.ForeignKey(
+        VatRegimeSage,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        verbose_name="régime de tva",
+        db_column="vat_regime_center",
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -334,7 +339,9 @@ class TranslationParamaters(FlagsTable):
 
 
 class GroupingGoods(FlagsTable):
-    """Table des regroupements de refacturation sur la premiere page du type de facture Marchandise"""
+    """Table des regroupements de refacturation
+    sur la premiere page du type de facture Marchandise
+    """
 
     ranking = models.IntegerField()
     base = models.CharField(max_length=35, verbose_name="base refac")

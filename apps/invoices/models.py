@@ -34,6 +34,7 @@ class CentersInvoices(models.Model):
     bank_center = models.CharField(null=True, blank=True, max_length=50)
     iban_center = models.CharField(null=True, blank=True, max_length=50)
     code_swift_center = models.CharField(null=True, blank=True, max_length=27)
+    vat_regime_center = models.CharField(null=True, max_length=5)
 
     # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -54,6 +55,7 @@ class CentersInvoices(models.Model):
                     "bank_center",
                     "iban_center",
                     "code_swift_center",
+                    "vat_regime_center",
                 ],
                 name="centers_invoices_billing",
             ),
@@ -242,7 +244,7 @@ class Invoice(FlagExport, BaseInvoiceTable):
         ]
 
 
-class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
+class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     """
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
@@ -277,7 +279,6 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTable)
 
         indexes = [
             models.Index(fields=["invoice"], name="invoice_idx"),
-            models.Index(fields=["invoice", "reference_article"], name="invoice_article_idx"),
             models.Index(fields=["axe_bu"], name="invoice_axe_bu"),
             models.Index(fields=["axe_prj"], name="invoice_axe_prj"),
             models.Index(fields=["axe_rfa"], name="invoice_axe_rfa"),
@@ -294,7 +295,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
-    # Tiers X3 qui a facturé
+    # Tiers X3 à qui facturer
     third_party_num = models.ForeignKey(
         Society,
         on_delete=models.PROTECT,
@@ -471,7 +472,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
         ]
 
 
-class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
+class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     """
     FR : Detail des factures fournisseurs
     EN : Suppliers Invoices detail
@@ -503,7 +504,6 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTa
     # Regroupement de facturation
     base = models.CharField(max_length=35)
     grouping_goods = models.CharField(null=True, max_length=35)
-    personnel_type = models.CharField(null=True, max_length=35)
 
     account = models.CharField(max_length=35)
 
@@ -512,9 +512,6 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable, BaseCommonDetailsTa
 
         indexes = [
             models.Index(fields=["sale_invoice"], name="sale_invoice_idx"),
-            models.Index(
-                fields=["sale_invoice", "reference_article"], name="sale_invoice_article_idx"
-            ),
             models.Index(fields=["axe_bu"], name="sale_invoice_axe_bu"),
             models.Index(fields=["axe_prj"], name="sale_invoice_axe_prj"),
             models.Index(fields=["axe_rfa"], name="sale_invoice_axe_rfa"),
@@ -531,3 +528,28 @@ class InvoiceCommonDetails(BaseCommonDetailsTable):
 
     import_uuid_identification = models.UUIDField(unique=True)
     unit_weight = models.CharField(max_length=5)
+    uuid_file = models.UUIDField(null=True)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        indexes = [
+            models.Index(
+                fields=["import_uuid_identification"], name="import_uuid_identification_idx"
+            ),
+            models.Index(fields=["acuitis_order_number"], name="acuitis_order_number_idx"),
+            models.Index(fields=["client_name"], name="client_name_idx"),
+            models.Index(fields=["command_reference"], name="command_reference_idx"),
+            models.Index(fields=["customs_code"], name="customs_code_idx"),
+            models.Index(fields=["delivery_number"], name="delivery_number_idx"),
+            models.Index(fields=["first_name"], name="first_name_idx"),
+            models.Index(fields=["formation_month"], name="formation_month_idx"),
+            models.Index(fields=["initial_date"], name="initial_date_idx"),
+            models.Index(fields=["initial_home"], name="initial_home_idx"),
+            models.Index(fields=["last_name"], name="last_name_idx"),
+            models.Index(fields=["libelle"], name="libelle_idx"),
+            models.Index(fields=["personnel_type"], name="personnel_type_idx"),
+            models.Index(fields=["reference_article"], name="reference_article_idx"),
+            models.Index(fields=["serial_number"], name="serial_number_idx"),
+            models.Index(fields=["uuid_file"], name="uuid_file_idx"),
+        ]
