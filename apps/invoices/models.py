@@ -174,6 +174,7 @@ class Invoice(FlagExport, BaseInvoiceTable):
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    invoice_sage_number = models.CharField(unique=True, max_length=20)
 
     # Tiers X3 qui a facturé
     third_party_num = models.ForeignKey(
@@ -199,6 +200,7 @@ class Invoice(FlagExport, BaseInvoiceTable):
     mode_reglement = models.CharField(null=True, max_length=5)
     type_reglement = models.CharField(null=True, max_length=5, default="1")
     adresse_tiers = models.CharField(null=True, max_length=5, default="1")
+    adresse_tiers_paye = models.CharField(null=True, max_length=5, default="1")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -254,7 +256,7 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     import_uuid_identification = models.UUIDField(unique=True)
 
-    invoice = models.ForeignKey(
+    uuid_invoice = models.ForeignKey(
         Invoice,
         on_delete=models.CASCADE,
         to_field="uuid_identification",
@@ -278,7 +280,7 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
         """class Meta du modèle django"""
 
         indexes = [
-            models.Index(fields=["invoice"], name="invoice_idx"),
+            models.Index(fields=["uuid_invoice"], name="invoice_idx"),
             models.Index(fields=["axe_bu"], name="invoice_axe_bu"),
             models.Index(fields=["axe_prj"], name="invoice_axe_prj"),
             models.Index(fields=["axe_rfa"], name="invoice_axe_rfa"),
@@ -294,6 +296,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    invoice_sage_number = models.CharField(unique=True, max_length=20)
 
     # Tiers X3 à qui facturer
     third_party_num = models.ForeignKey(
@@ -482,7 +485,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     import_uuid_identification = models.UUIDField(unique=True)
 
-    sale_invoice = models.ForeignKey(
+    uuid_invoice = models.ForeignKey(
         SaleInvoice,
         on_delete=models.CASCADE,
         to_field="uuid_identification",
@@ -511,7 +514,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
         """class Meta du modèle django"""
 
         indexes = [
-            models.Index(fields=["sale_invoice"], name="sale_invoice_idx"),
+            models.Index(fields=["uuid_invoice"], name="sale_invoice_idx"),
             models.Index(fields=["axe_bu"], name="sale_invoice_axe_bu"),
             models.Index(fields=["axe_prj"], name="sale_invoice_axe_prj"),
             models.Index(fields=["axe_rfa"], name="sale_invoice_axe_rfa"),
