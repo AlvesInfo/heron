@@ -621,6 +621,8 @@ class BaseInvoiceDetailsTable(models.Model):
         db_column="unit_weight",
         null=True,
     )
+    bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
+    flow_name = models.CharField(max_length=80, default="Saisie")
 
     class Meta:
         """class Meta du modèle django"""
@@ -690,8 +692,6 @@ class BaseCommonDetailsTable(models.Model):
         to_field="uuid_identification",
         db_column="modified_by",
     )
-    bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
-    flow_name = models.CharField(max_length=80, default="Saisie")
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     supplier = models.CharField(null=True, blank=True, max_length=35)
 

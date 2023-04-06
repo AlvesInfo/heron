@@ -13,6 +13,8 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
+# TODO: Enlever la clause "cct_uuid_identification" is not null des requêtes
+
 SQL_FIX_IMPORT_UUID = sql.SQL(
     # insertion d'un uuid si il est manquant
     """
@@ -167,7 +169,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             )
         ) "isb" 
         on "isb"."code_signboard" = "ccm"."sign_board" 
-        where "eee"."purchase_invoice" = true
+        where "eee"."cct_uuid_identification" is not null
+          and "eee"."purchase_invoice" = true
           and "eee"."valid" = true
     )
     select distinct
@@ -330,7 +333,7 @@ SQL_SALES_INVOICES = sql.SQL(
             "eee"."devise"
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
-        on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+        on "ccm"."uuid_identification" = "eee"."cct_uuid_identification" 
         left join (
             select 
                 "uuid_identification", 
@@ -373,13 +376,13 @@ SQL_SALES_INVOICES = sql.SQL(
                           "third_party_num"  
                 having max("ipi"."created_at") = "ip"."created_at"
             )
-             
         ) "parts"
         on "parts"."cct" = "ccm"."cct"
-        and "parts"."third_party_num" = "ccm"."third_party_num"
+        and "parts"."third_party_num" = "ccm"."third_party_num"s
         left join "parameters_category" "pcc" 
         on "pcc"."uuid_identification" = "eee"."uuid_big_category" 
-        where "eee"."sale_invoice" = true
+        where "eee"."cct_uuid_identification" is not null
+          and "eee"."sale_invoice" = true
           and "eee"."valid" = true
     ) 
     select 
@@ -539,7 +542,8 @@ SQL_SALES_DETAILS = sql.SQL(
                 on "ca"."grouping_goods" = "gg"."uuid_identification" 
          ) "gr"
          on "gr"."axe_pro" = "ee"."axe_pro"
-        where "ee"."sale_invoice" = true
+        where "ee"."cct_uuid_identification" is not null
+          and "ee"."sale_invoice" = true
           and "ee"."valid" = true
     )
     on conflict do nothing

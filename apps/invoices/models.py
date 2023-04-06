@@ -256,6 +256,14 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     import_uuid_identification = models.UUIDField(unique=True)
 
+    # Tiers X3 qui a facturé
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="third_party_invoice",
+        db_column="third_party_num",
+    )
     uuid_invoice = models.ForeignKey(
         Invoice,
         on_delete=models.CASCADE,
@@ -484,6 +492,15 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     import_uuid_identification = models.UUIDField(unique=True)
+
+    # Tiers X3 qui a facturé
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="third_party_sale_invoice",
+        db_column="third_party_num",
+    )
 
     uuid_invoice = models.ForeignKey(
         SaleInvoice,

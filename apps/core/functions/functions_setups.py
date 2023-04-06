@@ -6,7 +6,7 @@ import sys
 import platform
 
 import django
-from django.db import connection, connections
+from django.db import connection, connections, transaction
 from django.db.utils import IntegrityError
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -25,5 +25,6 @@ import heron.settings as settings
 settings = settings
 connection = connection
 connections = connections
+transaction = transaction
 IntegrityError = IntegrityError
 CNX_STRING = settings.CNX_STRING
