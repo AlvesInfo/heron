@@ -47,6 +47,7 @@ from apps.invoices.sql_files.sql_invoices_insertions import (
     SQL_COMMON_DETAILS,
     SQL_SALES_INVOICES,
     SQL_SALES_DETAILS,
+    SQL_CONTROL_SALES_INSERTION,
 )
 from apps.invoices.bin.columns import COL_SALES_DICT
 
@@ -94,14 +95,27 @@ def set_file_io(
 
     for i, line in enumerate(cursor.fetchall(), 1):
         line_to_write = list(line)
-        line_to_write[5] = f"invoice_sage_{i}"
-        line_to_write[6] = f"invoice_numb_{i}"
+        line_to_write[5] = f"invoice_numb_{i}"
+        line_to_write[6] = f"invoice_sage_{i}"
         line_to_write[8] = invoice_date.isoformat()
         line_to_write[9] = invoice_date.start_of("month").isoformat()
         line_to_write[10] = invoice_date.year
         line_to_write[18] = user.uuid_identification
+        line_to_write[19] = user.uuid_identification
 
         csv_writer.writerow(line_to_write)
+
+
+def control_sales_insertion(cursor: connection.cursor) -> bool:
+    """
+    Controle des montants totaux des entêtes factures de ventes par rapport au montants du détail,
+    sur les HT, TVA et TTC.
+    :param cursor: cursor django pour la db
+    :return: False if OK else True
+    """
+    cursor.execute(SQL_CONTROL_SALES_INSERTION)
+
+    return cursor.fetchone() is not None
 
 
 def sales_invoices_insertion(
@@ -146,6 +160,7 @@ def sales_invoices_insertion(
 
         set_common_details(cursor)
 
+        # On insère les entêtes de factures de vente
         set_file_io(file_io, cursor, user, invoice_date)
 
         file_io.seek(0)
@@ -164,7 +179,16 @@ def sales_invoices_insertion(
             kwargs_prepared={"trace": trace},
         )
 
+        # On insère le détails des factures de vente
         set_sales_details(cursor)
+
+        # On contrôle l'insertion
+        if control_sales_insertion(cursor):
+            to_print = (
+                "Il y a eu une erreur à l'insertion des factures de vente, "
+                "les totaux ne correspondent pas"
+            )
+            raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
@@ -205,4 +229,7 @@ def sales_invoices_insertion(
 if __name__ == "__main__":
     with connection.cursor() as cur, transaction.atomic():
         utilisateur = User.objects.get(last_name="ALVES")
-        sales_invoices_insertion(cur, utilisateur, pendulum.today().date())
+        to_print_ = sales_invoices_insertion(cur, utilisateur, pendulum.today().date())
+
+        if to_print_:
+            raise Exception("Il y a eu une erreur à l'insertion des factures de vente")

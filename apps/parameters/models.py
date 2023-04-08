@@ -621,8 +621,6 @@ class BaseInvoiceDetailsTable(models.Model):
         db_column="unit_weight",
         null=True,
     )
-    bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
-    flow_name = models.CharField(max_length=80, default="Saisie")
 
     class Meta:
         """class Meta du modèle django"""
@@ -715,6 +713,9 @@ class BaseCommonDetailsTable(models.Model):
 
     # N° de serie
     serial_number = models.TextField(null=True, blank=True)
+    bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
+    flow_name = models.CharField(max_length=80, default="Saisie")
+    third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
 
     class Meta:
         """class Meta du modèle django"""
