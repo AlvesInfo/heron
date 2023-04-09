@@ -50,6 +50,7 @@ from apps.invoices.sql_files.sql_invoices_insertions import (
     SQL_CONTROL_SALES_INSERTION,
 )
 from apps.invoices.bin.columns import COL_SALES_DICT
+from apps.invoices.bin.invoives_nums import get_invoice_num
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -94,9 +95,10 @@ def set_file_io(
     cursor.execute(SQL_SALES_INVOICES)
 
     for i, line in enumerate(cursor.fetchall(), 1):
+        invoice_num = get_invoice_num(invoice_date)
         line_to_write = list(line)
-        line_to_write[5] = f"invoice_numb_{i}"
-        line_to_write[6] = f"invoice_sage_{i}"
+        line_to_write[5] = invoice_num
+        line_to_write[6] = invoice_num
         line_to_write[8] = invoice_date.isoformat()
         line_to_write[9] = invoice_date.start_of("month").isoformat()
         line_to_write[10] = invoice_date.year
@@ -156,8 +158,10 @@ def sales_invoices_insertion(
     to_print = ""
 
     try:
+        # On met les import_uuid_identification au cas ou il en manque
         set_fix_uuid(cursor)
 
+        # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
         set_common_details(cursor)
 
         # On insère les entêtes de factures de vente

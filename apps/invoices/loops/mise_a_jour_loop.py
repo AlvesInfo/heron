@@ -163,7 +163,8 @@ def parties_invoices_update():
             "adresse_third_party",
             "code_postal_third_party",
             "ville_third_party",
-            "pays_third_party"
+            "pays_third_party",
+            "payment_condition_client"
         )
         select
             now() as created_at,
@@ -231,7 +232,8 @@ def parties_invoices_update():
                 when "bsm"."country_name" isnull or UPPER("bsm"."country_name") = 'NONE'
                 then '' 
                 else "bsm"."country_name"  
-            end as "pays_third_party"
+            end as "pays_third_party",
+            coalesce("ap"."name", '') as "payment_condition_client"
         from "centers_clients_maison" "ccm"
         left join "book_society" "bs"  
         on "ccm"."third_party_num" = "bs"."third_party_num" 
@@ -239,6 +241,8 @@ def parties_invoices_update():
         on "com"."country" = "ccm"."pays"
         left join "countries_country" "bsm"
         on "bsm"."country" = "bs"."pays"
+        left join "accountancy_paymentcondition" "ap"
+        on "ap"."auuid" = "bs"."payment_condition_client" 
         on conflict do nothing
         """
         cursor.execute(sql_create)

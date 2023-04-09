@@ -12,13 +12,21 @@ created by: Paulo ALVES
 modified at: 2023-03-04
 modified by: Paulo ALVES
 """
-from typing import AnyStr
+import pendulum
+
+from apps.parameters.bin.core import get_counter_num
+from apps.parameters.models import Counter
 
 
-def external_nums(dte_d: AnyStr, dte_f: AnyStr):
+def get_invoice_num(invoice_dte: pendulum.instance):
     """Génération d'un numéro de facture de Vente Enseigne
-    :param dte_d: Date de début de période au format texte isoformat
-    :param dte_f: Date de fin de période au format texte isoformat
+    :param invoice_dte: Date de la facture (instance de pendulumm
     :return:
     """
-    flow_name = "INVOICES_NUMS"
+    counter = Counter.objects.get(name="invoices_num")
+    fac_num = get_counter_num(
+        counter_instance=counter,
+        attr_instance_dict={"prefix": invoice_dte},
+    )
+
+    return fac_num

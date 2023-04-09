@@ -129,7 +129,7 @@ class PartiesInvoices(models.Model):
     code_postal_third_party = models.CharField(null=True, blank=True, max_length=15)
     ville_third_party = models.CharField(null=True, blank=True, max_length=50)
     pays_third_party = models.CharField(null=True, blank=True, max_length=80)
-
+    payment_condition_client = models.CharField(null=True, blank=True, max_length=80)
     # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
@@ -161,6 +161,7 @@ class PartiesInvoices(models.Model):
                     "code_postal_third_party",
                     "ville_third_party",
                     "pays_third_party",
+                    "payment_condition_client",
                 ],
                 name="parties_adresses_billing",
             ),
