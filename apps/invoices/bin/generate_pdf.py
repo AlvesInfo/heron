@@ -50,6 +50,8 @@ def summary_invoice_pdf(cct: AnyStr) -> None:
     """
     context = {
         "invoices": SaleInvoice.objects.filter(cct=cct),
+        "logo_heron": str((Path(settings.STATIC_DIR) / "logo_heron_01.png").resolve()),
+        "logo_enseigne": str((Path(settings.MEDIA_DIR) / "logo/logo_heron_01.png").resolve()),
     }
     content = render_to_string("invoices/marchandises_summary.html", context)
 
@@ -62,7 +64,6 @@ def summary_invoice_pdf(cct: AnyStr) -> None:
     html = HTML(string=content)
     css = CSS(string=summary_css.open("r").read(), font_config=font_config)
     html.write_pdf(pdf_file)
-
 
     # invoice_html.unlink()
 
