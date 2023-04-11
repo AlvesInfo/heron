@@ -179,7 +179,7 @@
 <table  class="tableauFacturation" style="margin:20px 0px 10px 0px;">
 	<tr>
 		<td><img src="{% static 'logo_heron_01.png' %}" alt="logo-heron" style="width:300px;height:auto;margin:0 10px 40px 0;"></td> <!-- Logo Héron fixe -->
-		<td><img src="{{ maison.0.cct_uuid_identification.sign_board.logo.url }}" alt="logo-enseigne" style="width:300px;height:auto;margin:0 10px 40px 0;"></td> <!-- Logo du facturé -->
+		<td><img src="{% if maison.0.cct_uuid_identification.sign_board.logo %}{{ maison.0.cct_uuid_identification.sign_board.logo.url }}{% endif %}" alt="logo-enseigne" style="width:300px;height:auto;margin:0 10px 40px 0;"></td> <!-- Logo du facturé -->
 	</tr>
 	<tr style="	vertical-align: top;">
 		<td style="width:60%">Livré à :<br>

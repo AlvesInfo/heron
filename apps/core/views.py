@@ -41,7 +41,9 @@ MODEL_DICT = {
 def pdf_view(request):
     context = {
         "maison": EdiImport.objects.filter(
-            sale_invoice=True, big_category="f2dda460-20db-4b05-8bb8-fa80a1ff146b"
+            sale_invoice=True,
+            big_category="f2dda460-20db-4b05-8bb8-fa80a1ff146b",
+            cct_uuid_identification__isnull=False,
         ),
         "invoice_date": pendulum.today().date(),
     }

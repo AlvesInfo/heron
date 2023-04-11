@@ -18,9 +18,13 @@ Path.mkdir(BACKUP_SAGE_DIR, exist_ok=True)
 MEDIA_DIR = (Path(FILES_BASE_DIR) / "files/media").resolve()
 Path.mkdir(MEDIA_DIR, exist_ok=True)
 
-# REPERTOIRES DE MEDIA
+# REPERTOIRES DES FICHIERS EXCEL
 MEDIA_EXCEL_FILES_DIR = (Path(FILES_BASE_DIR) / "files/media/excel_files").resolve()
 Path.mkdir(MEDIA_EXCEL_FILES_DIR, exist_ok=True)
+
+# REPERTOIRES DES FICHIERS EXCEL
+SALES_INVOICES_FILES_DIR = (Path(FILES_BASE_DIR) / "files/media/sales_invoices").resolve()
+Path.mkdir(SALES_INVOICES_FILES_DIR, exist_ok=True)
 
 # REPERTOIRES DES PICKLERS
 PICKLERS_DIR = (Path(FILES_BASE_DIR) / "files/media/pickler").resolve()

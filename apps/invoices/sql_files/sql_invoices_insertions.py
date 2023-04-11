@@ -293,7 +293,7 @@ SQL_PURCHASES_DETAILS = sql.SQL(
             "ee"."modified_by",
             "ii"."uuid_identification" as "uuid_invoice",
             "unit_weight",
-            -- GERER ICI LES COMPTES X3
+            -- TODO: GERER ICI LES COMPTES X3
             '' as "account"
          from "edi_ediimport" "ee" 
          join "invoices_invoice" "ii"
@@ -331,7 +331,7 @@ SQL_SALES_INVOICES = sql.SQL(
             "eee"."net_amount",
             "eee"."vat_amount",
             "eee"."amount_with_vat",
-            "pcc"."slug_name" as "big_category",
+            "pcc"."name" as "big_category",
             "ccm"."cct", 
             "icc"."uuid_identification" as "centers",
             "parts"."uuid_identification" as "parties",
@@ -522,7 +522,7 @@ SQL_SALES_DETAILS = sql.SQL(
             "det"."account"
         from (
             select 
-                -- GERER ICI LES PRIX DE VENTES
+                -- TODO: GERER ICI LES PRIX DE VENTES
                 "gross_unit_price",
                 "net_unit_price",
                 "gross_amount",

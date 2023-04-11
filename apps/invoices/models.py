@@ -355,6 +355,12 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
 
     big_category = models.CharField(max_length=120)
 
+    printed = models.BooleanField(null=True, default=False)
+
+    # Les fichiers pdf seront déversés dans le répertoire files/media/sales_invoices
+    invoice_file = models.FileField(null=True, upload_to="sales_invoices")
+    global_invoice_file = models.FileField(null=True, upload_to="sales_invoices")
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.invoice_number} - {self.invoice_date} - {self.cct}"
