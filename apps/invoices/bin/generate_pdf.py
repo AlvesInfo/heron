@@ -61,7 +61,7 @@ def summary_invoice_pdf(cct: AnyStr) -> None:
     font_config = FontConfiguration()
     html = HTML(string=content)
     css = CSS(string=summary_css.open("r").read(), font_config=font_config)
-    html.write_pdf(pdf_file, stylesheets=[css], font_config=font_config)
+    html.write_pdf(pdf_file)
 
 
     # invoice_html.unlink()
