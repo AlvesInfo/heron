@@ -353,8 +353,9 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
         null=True,
     )
 
-    big_category = models.CharField(max_length=120)
-
+    big_category = models.CharField(max_length=80)
+    big_category_code = models.CharField(max_length=15)
+    big_category_slug_name = models.CharField(max_length=120)
     printed = models.BooleanField(null=True, default=False)
 
     # Les fichiers pdf seront déversés dans le répertoire files/media/sales_invoices

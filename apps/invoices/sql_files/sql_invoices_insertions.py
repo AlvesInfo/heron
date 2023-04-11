@@ -332,6 +332,8 @@ SQL_SALES_INVOICES = sql.SQL(
             "eee"."vat_amount",
             "eee"."amount_with_vat",
             "pcc"."name" as "big_category",
+            "pcc"."code" as "big_category_code",
+            "pcc"."slug_name" as "big_category_slug_name",
             "ccm"."cct", 
             "icc"."uuid_identification" as "centers",
             "parts"."uuid_identification" as "parties",
@@ -416,6 +418,8 @@ SQL_SALES_INVOICES = sql.SQL(
         sum("vat_amount") as "invoice_amount_tax",
         sum("amount_with_vat") as "invoice_amount_with_tax",
         "big_category",
+        "big_category_code",
+        "big_category_slug_name",
         "cct",
         "centers",
         null as "created_by",
@@ -430,7 +434,9 @@ SQL_SALES_INVOICES = sql.SQL(
     from "sales"
     group by 
         "vat_regime",
-        "big_category",
+        "big_category",        
+        "big_category_code",
+        "big_category_slug_name",
         "cct",
         "centers",
         "parties",

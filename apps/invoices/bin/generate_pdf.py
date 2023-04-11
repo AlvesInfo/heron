@@ -31,12 +31,9 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
-from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.http import JsonResponse
-from django.shortcuts import redirect, HttpResponse
 from django.conf import settings
-from weasyprint import HTML, CSS
+from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
@@ -51,23 +48,15 @@ def summary_invoice_pdf(cct: AnyStr) -> None:
     context = {
         "invoices": SaleInvoice.objects.filter(cct=cct),
         "logo_heron": str((Path(settings.STATIC_DIR) / "logo_heron_01.png").resolve()),
-        "logo_enseigne": str((Path(settings.MEDIA_DIR) / "logo/logo_heron_01.png").resolve()),
+        "logo_enseigne": str(Path(settings.MEDIA_URL).resolve()),
     }
-    content = render_to_string("invoices/marchandises_summary.html", context)
-
-    summary_css = Path(settings.BASE_DIR) / "apps/invoices/css_invoices/marchandises_summary.css"
-
-    print(summary_css.open("r").read())
+    content = render_to_string("invoices/summary.html", context)
     pdf_file = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct}cct.pdf"
-
     font_config = FontConfiguration()
     html = HTML(string=content)
-    css = CSS(string=summary_css.open("r").read(), font_config=font_config)
-    html.write_pdf(pdf_file)
-
-    # invoice_html.unlink()
+    html.write_pdf(pdf_file, font_config=font_config)
 
 
 if __name__ == '__main__':
-    cct_cct = "AF0104"
+    cct_cct = "AF0518"
     summary_invoice_pdf(cct_cct)

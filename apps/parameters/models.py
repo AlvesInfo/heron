@@ -315,7 +315,7 @@ class Category(FlagsTable):
     code = models.CharField(unique=True, max_length=15)
     name = models.CharField(unique=True, max_length=80)
     ranking = models.IntegerField(unique=True)
-    slug_name = models.CharField(unique=True, max_length=120)
+    slug_name = models.CharField(unique=True, max_length=80)
     function = models.ForeignKey(
         InvoiceFunctions,
         on_delete=models.PROTECT,

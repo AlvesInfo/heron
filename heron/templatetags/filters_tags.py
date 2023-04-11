@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal
 
 import pendulum
 import lxml.html as html
@@ -22,7 +23,7 @@ def point(value):
 @register.filter(name="left_trunc")
 @stringfilter
 def left_trunc(value, num):
-    return value[int(num):]
+    return value[int(num) :]
 
 
 @register.filter(name="right_align")
@@ -140,7 +141,6 @@ def date_from_str_4(value):
 
 @register.filter(name="numbers")
 def numbers(value, num):
-
     if not value:
         return "0"
     list_values = str(value).split(".")
@@ -172,7 +172,6 @@ def numbers(value, num):
 
 @register.filter(name="numbers_format")
 def numbers_format(value, num):
-
     if not value:
         return "0"
 
@@ -190,7 +189,6 @@ def numbers_format(value, num):
 
 @register.filter(name="numbers_point")
 def numbers_point(value, num):
-
     if not value or value == "0":
         return "0"
 
@@ -312,3 +310,26 @@ def string_agg_uniques(value_list, delimiter=","):
             return string_return
 
     return f"{delimiter} ".join([str(value) for value in values])
+
+
+@register.filter(name="addition")
+def addition(value, other):
+    """
+    adittione deux nombre
+    :param value:
+    :param other:
+    :return:
+    """
+    print(value, other)
+    print(Decimal(value), " - ", Decimal(other))
+    return Decimal(value) + Decimal(other)
+
+
+@register.filter(name="regroup_sum")
+def regroup_sum(values_list, field):
+    total = 0
+
+    for invoice in values_list:
+        total += invoice.__dict__.get(field)
+
+    return total

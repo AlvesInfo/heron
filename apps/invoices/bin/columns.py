@@ -59,6 +59,8 @@ COL_SALES_DICT = {
     "invoice_amount_tax": False,
     "invoice_amount_with_tax": False,
     "big_category": False,
+    "big_category_code": False,
+    "big_category_slug_name": False,
     "cct": False,
     "centers": False,
     "created_by": False,

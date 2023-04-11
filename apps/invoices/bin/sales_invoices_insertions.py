@@ -102,8 +102,8 @@ def set_file_io(
         line_to_write[8] = invoice_date.isoformat()
         line_to_write[9] = invoice_date.start_of("month").isoformat()
         line_to_write[10] = invoice_date.year
-        line_to_write[18] = user.uuid_identification
-        line_to_write[19] = user.uuid_identification
+        line_to_write[20] = user.uuid_identification
+        line_to_write[21] = user.uuid_identification
 
         csv_writer.writerow(line_to_write)
 
