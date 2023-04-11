@@ -53,7 +53,7 @@ def summary_invoice_pdf(cct: AnyStr) -> None:
     }
     content = render_to_string("invoices/marchandises_summary.html", context)
 
-    summary_css = Path(settings.BASE_DIR) / "apps/invoice/css_invoices/marchandises_summary.css"
+    summary_css = Path(settings.BASE_DIR) / "apps/invoices/css_invoices/marchandises_summary.css"
 
     print(summary_css.open("r").read())
     pdf_file = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct}cct.pdf"
