@@ -101,21 +101,31 @@ tr.bordures > td:first-child, tr.bordures > td:last-child {
         </td>
     </tr>
     <tr>
-        <td style="padding-top:10px;">{{ invoices.0.code_center}}<br>
-            {{ invoices.0.third_party_num }}<br>
-            {{ invoices.0.cct }}<br>
-            {{ invoices.0.invoice_date }}<br><br>
+        <td style="padding-top:10px;">
+            <table>
+                <tr>
+                    <td>Code Centrale</td>
+                    <td> : {{ invoices.0.code_center}}</td>
+                </tr>
+                <tr>
+                    <td>N° Compte client</td>
+                    <td> : {{ invoices.0.third_party_num.third_party_num }}</td>
+                </tr>
+                <tr>
+                    <td>N° CCT X3</td>
+                    <td> : {{ invoices.0.cct }}</td>
+                </tr>
+            </table>
         </td>
     </tr>
 
 </table>
-
+<br><br>
 <table style="width:100%;margin-bottom:10px;">
     <tr class="entete">
         <td style="text-align: center;font-size: 1.1em;padding:3px;">Récapitulatif de facturation</td>
     </tr>
 </table>
-
 
 <table class="tableauFacturation">
         <tr class="entete">
@@ -147,7 +157,7 @@ tr.bordures > td:first-child, tr.bordures > td:last-child {
     </tr>
 
 </table>
-
+<br>
 
 <p>
     <strong>Mode de paiement</strong> : {{ invoices.0.parties.payment_condition_client|default_if_none:"" }}

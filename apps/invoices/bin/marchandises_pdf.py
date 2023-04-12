@@ -40,7 +40,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice, SaleInvoiceDetail
-from apps.invoices.sql_files.sql_pdf import SQL_HEADAER, SQL_RESUME_HEADER
+from apps.invoices.sql_files.sql_marchandises_pdf import SQL_HEADER, SQL_RESUME_HEADER
 
 
 def marchandise_header_invoice_pdf(uuid_invoice: UUID) -> None:
@@ -51,15 +51,15 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID) -> None:
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_HEADAER, {"uuid_invoice": uuid_invoice})
+        cursor.execute(SQL_HEADER, {"uuid_invoice": uuid_invoice})
         header = cursor.fetchall()
         cursor.execute(SQL_RESUME_HEADER, {"uuid_invoice": uuid_invoice})
         resume = cursor.fetchone()
         invoice = SaleInvoice.objects.get(uuid_identification=uuid_invoice)
         context = {
             "invoice": invoice,
-            "details": header,
-            "resume": resume,
+            # "details": header,
+            # "resume": resume,
             "logo_heron": str((Path(settings.STATIC_DIR) / "logo_heron_01.png").resolve()),
             "logo_enseigne": str(Path(settings.MEDIA_URL).resolve()),
         }

@@ -64,7 +64,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "flow_name",
             "third_party_num",
             "cct",
-            "invoice_number"
+            "invoice_number",
+            "invoice_date"
     )
     (
         select 
@@ -102,7 +103,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "flow_name",
             "ee"."third_party_num",
             "ccm"."cct",
-            "ee"."invoice_number"
+            "ee"."invoice_number",
+            "ee"."invoice_date"
          from "edi_ediimport" "ee"
          left join "parameters_unitchoices" "pu"
            on "ee"."unit_weight" = "pu"."num"
@@ -110,6 +112,7 @@ SQL_COMMON_DETAILS = sql.SQL(
            on "ee"."cct_uuid_identification" = "ccm"."uuid_identification" 
         where "ee"."cct_uuid_identification" is not null
           and "ee"."valid" = true
+        order by "ee"."id"
     )
     on conflict do nothing
     """

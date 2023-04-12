@@ -17,8 +17,6 @@ import platform
 from typing import AnyStr
 from pathlib import Path
 
-import pendulum
-import pdfkit
 import django
 
 BASE_DIR = r"/"

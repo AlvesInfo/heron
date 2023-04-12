@@ -294,7 +294,7 @@ if __name__ == "__main__":
         heure = maintenant.hour
         minute = maintenant.minute
 
-        if heure == 6 and minute == 30:
+        if heure == 7 and minute == 30:
             print(
                 "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices : ",
                 maintenant,

@@ -60,6 +60,7 @@ class SignboardForm(forms.ModelForm):
             "generic_coefficient",
             "comment",
             "message",
+            "email_contact",
             "email_object",
             "email_template",
             "email_corp",

@@ -538,6 +538,7 @@ class InvoiceCommonDetails(BaseCommonDetailsTable):
 
     import_uuid_identification = models.UUIDField(unique=True)
     invoice_number = models.CharField(max_length=35)
+    invoice_date = models.DateField()
     unit_weight = models.CharField(max_length=5)
     uuid_file = models.UUIDField(null=True)
 
