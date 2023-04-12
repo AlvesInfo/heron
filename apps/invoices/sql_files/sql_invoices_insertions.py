@@ -63,7 +63,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "bi_id",
             "flow_name",
             "third_party_num",
-            "cct"
+            "cct",
+            "invoice_number"
     )
     (
         select 
@@ -100,7 +101,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "bi_id",
             "flow_name",
             "ee"."third_party_num",
-            "ccm"."cct"
+            "ccm"."cct",
+            "ee"."invoice_number"
          from "edi_ediimport" "ee"
          left join "parameters_unitchoices" "pu"
            on "ee"."unit_weight" = "pu"."num"
@@ -453,41 +455,42 @@ SQL_SALES_DETAILS = sql.SQL(
     """
     insert into "invoices_saleinvoicedetail"
     (
-        created_at,
-        modified_at,
-        export,
+        "created_at",
+        "modified_at",
+        "export",
         "final",
-        final_at,
-        gross_unit_price,
-        net_unit_price,
-        gross_amount,
-        base_discount_01,
-        discount_price_01,
-        base_discount_02,
-        discount_price_02,
-        base_discount_03,
-        discount_price_03,
-        net_amount,
-        vat_amount,
-        amount_with_vat,
-        import_uuid_identification,
-        axe_bu,
-        axe_prj,
-        axe_pro,
-        axe_rfa,
-        axe_pys,
-        vat,
-        vat_rate,
-        vat_regime,
-        big_category,
-        sub_category,
-        base,
-        grouping_goods,
-        created_by,
-        modified_by,
-        uuid_invoice,
-        unit_weight,
-        account
+        "final_at",
+        "gross_unit_price",
+        "net_unit_price",
+        "gross_amount",
+        "base_discount_01",
+        "discount_price_01",
+        "base_discount_02",
+        "discount_price_02",
+        "base_discount_03",
+        "discount_price_03",
+        "net_amount",
+        "vat_amount",
+        "amount_with_vat",
+        "import_uuid_identification",
+        "axe_bu",
+        "axe_prj",
+        "axe_pro",
+        "axe_rfa",
+        "axe_pys",
+        "vat",
+        "vat_rate",
+        "vat_regime",
+        "big_category",
+        "sub_category",
+        "base",
+        "grouping_goods",
+        "created_by",
+        "modified_by",
+        "uuid_invoice",
+        "unit_weight",
+        "account",
+        "ranking"
     )
     (	
         select 
@@ -525,7 +528,8 @@ SQL_SALES_DETAILS = sql.SQL(
             "det"."modified_by",
             "isi"."uuid_identification" as "uuid_invoice",
             "det"."unit_weight",
-            "det"."account"
+            "det"."account",
+            "det"."ranking"
         from (
             select 
                 -- TODO: GERER ICI LES PRIX DE VENTES
@@ -568,7 +572,8 @@ SQL_SALES_DETAILS = sql.SQL(
                 "isb"."uuid_identification" as "signboard",
                 "ccm"."third_party_num" as "client_third_party_num", 
                 "icc"."code_center",
-                "isb"."code_signboard"
+                "isb"."code_signboard",
+                "gr"."ranking"
             from "edi_ediimport" "eee" 
             left join "centers_clients_maison" "ccm" 
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -635,7 +640,8 @@ SQL_SALES_DETAILS = sql.SQL(
                 select 
                     "axe_pro",
                     "base",
-                    "gg"."grouping_goods"
+                    "gg"."grouping_goods",
+                    "gg"."ranking"
                   from "centers_purchasing_axeprogroupinggoods" "ca"
                   left join "centers_purchasing_groupinggoods" "gg" 
                     on "ca"."grouping_goods" = "gg"."uuid_identification" 
@@ -646,7 +652,7 @@ SQL_SALES_DETAILS = sql.SQL(
               and "eee"."valid" = true
         ) det 
         join "invoices_saleinvoice" "isi" 
-        on "isi"."big_category" = "det"."big_category"
+        on "isi"."big_category_slug_name" = "det"."big_category"
         and "isi"."cct" = "det"."cct"
         and "isi"."centers" = "det"."centers"
         and "isi"."parties" = "det"."parties"

@@ -1,0 +1,15 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+
+    <a class="item" href="{% url 'invoices:entete_details_create' %}">
+        <button class="ui blue basic button" name="axe_grouping_create" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            CREATION
+        </button>
+    </a>
+
+    <a class="item" href="{% url 'invoices:entete_details_export_list' %}">
+      <button class="ui green basic button" style="padding: 7px 10px;margin: 10px;font-size: 11px">LISTING ENTETES DETAILS</button>
+    </a>
+
+{% endblock right_side %}

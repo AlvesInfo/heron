@@ -15,9 +15,9 @@ import uuid
 
 from django.db import models
 
-from heron.models import FlagExport
+from heron.models import FlagExport, FlagsTable
 from apps.parameters.models import BaseInvoiceDetailsTable, BaseInvoiceTable, BaseCommonDetailsTable
-from apps.accountancy.models import CctSage
+from apps.accountancy.models import CctSage, SectionSage
 from apps.book.models import Society
 from apps.edi.models import EdiImportControl
 
@@ -511,6 +511,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     sub_category = models.CharField(null=True, max_length=80)
 
     # Regroupement de facturation
+    ranking = models.IntegerField(null=True, default=0)
     base = models.CharField(max_length=35)
     grouping_goods = models.CharField(null=True, max_length=35)
 
@@ -536,6 +537,7 @@ class InvoiceCommonDetails(BaseCommonDetailsTable):
     """
 
     import_uuid_identification = models.UUIDField(unique=True)
+    invoice_number = models.CharField(max_length=35)
     unit_weight = models.CharField(max_length=5)
     uuid_file = models.UUIDField(null=True)
 
@@ -572,3 +574,47 @@ class InvoiceCommonDetails(BaseCommonDetailsTable):
             models.Index(fields=["serial_number"], name="serial_number_idx"),
             models.Index(fields=["uuid_file"], name="uuid_file_idx"),
         ]
+
+
+class EnteteDetails(FlagsTable):
+    """Tables des Entêtes sur le détails de facturation"""
+
+    ranking = models.IntegerField(null=True, default=0)
+    column_name = models.CharField(unique=True, max_length=35)
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.column_name}"
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["ranking"]
+
+
+class AxesDetails(FlagsTable):
+    """Tables des regroupement dans les détails"""
+
+    axe_pro = models.ForeignKey(
+        SectionSage,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        limit_choices_to={"axe": "PRO"},
+        related_name="axe_dtails",
+        db_column="axe_pro",
+    )
+    column_name = models.ForeignKey(
+        EnteteDetails,
+        on_delete=models.PROTECT,
+        to_field="column_name",
+        related_name="axe_details",
+        verbose_name="Nom Entête",
+        db_column="column_name",
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["axe_pro"]

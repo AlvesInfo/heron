@@ -1,0 +1,41 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="three wide column"></div>
+
+<div class="ten wide column">
+
+    <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+                <tr>
+                    <th style="width: 6%">Edit</th>
+                    <th style="width: 40%">Axe PRO</th>
+                    <th style="width: 40%">Regroupement Facturation</th>
+                    <th style="width: 6%">delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for axe in axes_details %}
+                <tr id="id_{{ forloop.counter }}" class="hide_plans">
+                    <td>
+                        <a href="{% url 'invoices:axes_details_update' pk=axe.pk%}">
+                            <i class="edit icon modification"></i>
+                        </a>
+                    </td>
+                    <td>{{axe.axe_pro}}</td>
+                    <td>{{axe.column_name}}</td>
+                    <td class="tdDelete" style="text-align: center;">
+                        <div style="cursor: pointer;">
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ axe.pk }}, `{{ axe.axe_pro }} - {{ axe.column_name }}`, `{% url 'invoices:axes_details_delete' %}`, `le dictionnaire `)"></i>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</div>
+
+{% endblock table %}

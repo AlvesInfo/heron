@@ -104,6 +104,12 @@
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:axe_pro_vat_list' %}" class="item">Axe PRO/TVA</a>
                         </div>
+                        <div class="ui link list">
+                            <a href="{% url 'invoices:entete_details_list' %}" class="item">Entêtes Détails</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'invoices:axes_details_list' %}" class="item">Axe PRO/Entêtes Détails</a>
+                        </div>
                         {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
                                 <a href="{% url 'parameters:functions_list' %}" class="item">Fonctions</a>
@@ -147,14 +153,14 @@
 
                     </div>
 
-                    {% if user.is_superuser %}
-                        <div class="column">
-                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>
-                            <div class="ui link list">
-                                <a class="item">Users</a>
-                            </div>
-                        </div>
-                    {% endif %}
+{#                    {% if user.is_superuser %}#}
+{#                        <div class="column">#}
+{#                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>#}
+{#                            <div class="ui link list">#}
+{#                                <a class="item">Users</a>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    {% endif %}#}
 
                 </div>
             </div>
