@@ -82,6 +82,34 @@ columns_list_filles = [
         "width": 8,
     },
     {
+        "entete": "Mentions légales",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 107,
+    },
+    {
+        "entete": "Pied de Facture",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 107,
+    },
+    {
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,

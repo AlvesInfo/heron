@@ -350,6 +350,17 @@ class Maison(FlagsTable):
         db_column="axe_rfa",
     )
 
+    # Identifiants magasin
+    siren_number = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="siren"
+    )
+    siret_number = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="siret"
+    )
+    vat_cee_number = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="tva intracommunataire"
+    )
+
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 

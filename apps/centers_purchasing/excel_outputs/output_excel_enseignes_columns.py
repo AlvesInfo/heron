@@ -64,6 +64,20 @@ columns_list_enseignes = [
         "width": 8,
     },
     {
+        "entete": "Email de Contact",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 35,
+    },
+    {
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,

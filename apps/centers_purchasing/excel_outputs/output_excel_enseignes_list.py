@@ -40,6 +40,7 @@ class GetRows:
             "code", 
             "name", 
             "generic_coefficient", 
+            "email_contact",
             "comment"
         from {self.meres._meta.db_table}
         """

@@ -63,6 +63,9 @@ class MaisonForm(forms.ModelForm):
             # "chargeable",
             "od_ana",
             "axe_bu",
+            "siren_number",
+            "siret_number",
+            "vat_cee_number",
         ]
 
         widgets = {

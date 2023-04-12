@@ -155,6 +155,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
                 from "invoices_centersinvoices" "cii" 
                 group by "code_center" 
                 having max("cii"."created_at") = "ici"."created_at"
+                and "cii"."code_center" = "ici"."code_center"
             )
         ) "icc" 
         on "icc"."code_center" = "ccm"."center_purchase"
@@ -361,6 +362,7 @@ SQL_SALES_INVOICES = sql.SQL(
                 from "invoices_centersinvoices" "cii" 
                 group by "code_center" 
                 having max("cii"."created_at") = "ici"."created_at"
+                and "cii"."code_center" = "ici"."code_center"
             )
         ) "icc" 
         on "icc"."code_center" = "ccm"."center_purchase"
@@ -374,6 +376,7 @@ SQL_SALES_INVOICES = sql.SQL(
                 from "invoices_signboardsinvoices" "sii" 
                 group by "code_signboard" 
                 having max("sii"."created_at") = "sci"."created_at"
+                and "sii"."code_signboard" = "sci"."code_signboard"
             )
         ) "isb" 
         on "isb"."code_signboard" = "ccm"."sign_board" 
@@ -591,6 +594,7 @@ SQL_SALES_DETAILS = sql.SQL(
                     from "invoices_centersinvoices" "cii" 
                     group by "code_center" 
                     having max("cii"."created_at") = "ici"."created_at"
+                    and "cii"."code_center" = "ici"."code_center"
                 )
             ) "icc" 
             on "icc"."code_center" = "ccm"."center_purchase"
@@ -604,6 +608,7 @@ SQL_SALES_DETAILS = sql.SQL(
                     from "invoices_signboardsinvoices" "sii" 
                     group by "code_signboard" 
                     having max("sii"."created_at") = "sci"."created_at"
+                    and "sii"."code_signboard" = "sci"."code_signboard"
                 )
             ) "isb" 
             on "isb"."code_signboard" = "ccm"."sign_board" 

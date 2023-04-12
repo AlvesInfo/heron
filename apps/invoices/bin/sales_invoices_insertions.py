@@ -110,7 +110,7 @@ def set_file_io(
 
 def control_sales_insertion(cursor: connection.cursor) -> bool:
     """
-    Controle des montants totaux des entêtes factures de ventes par rapport au montants du détail,
+    Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,
     sur les HT, TVA et TTC.
     :param cursor: cursor django pour la db
     :return: False if OK else True
@@ -158,7 +158,7 @@ def sales_invoices_insertion(
     to_print = ""
 
     try:
-        # On met les import_uuid_identification au cas ou il en manque
+        # On met les import_uuid_identification au cas où il en manque
         set_fix_uuid(cursor)
 
         # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
@@ -183,7 +183,7 @@ def sales_invoices_insertion(
             kwargs_prepared={"trace": trace},
         )
 
-        # On insère le détails des factures de vente
+        # On insère les détails des factures de vente
         set_sales_details(cursor)
 
         # On contrôle l'insertion

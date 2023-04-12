@@ -31,6 +31,7 @@ class CentersInvoices(models.Model):
     code_center = models.CharField(max_length=15)
     comment_center = models.TextField(null=True, blank=True)
     legal_notice_center = models.TextField(null=True, blank=True)
+    footer = models.TextField(null=True, blank=True, verbose_name="bas de page")
     bank_center = models.CharField(null=True, blank=True, max_length=50)
     iban_center = models.CharField(null=True, blank=True, max_length=50)
     code_swift_center = models.CharField(null=True, blank=True, max_length=27)
@@ -56,6 +57,7 @@ class CentersInvoices(models.Model):
                     "iban_center",
                     "code_swift_center",
                     "vat_regime_center",
+                    "footer",
                 ],
                 name="centers_invoices_billing",
             ),
@@ -85,12 +87,7 @@ class SignboardsInvoices(models.Model):
                 name="signboard_invoices",
             ),
             models.UniqueConstraint(
-                fields=[
-                    "code_signboard",
-                    "logo_signboard",
-                    "message",
-                    "email_contact"
-                ],
+                fields=["code_signboard", "logo_signboard", "message", "email_contact"],
                 name="signboard_invoices_billing",
             ),
         ]
@@ -116,7 +113,7 @@ class PartiesInvoices(models.Model):
     code_postal_cct = models.CharField(null=True, blank=True, max_length=15)
     ville_cct = models.CharField(null=True, blank=True, max_length=50)
     pays_cct = models.CharField(null=True, blank=True, max_length=80)
-
+    vat_cee_number_cct = models.CharField(null=True, blank=True, max_length=20)
     # Tiers facturé à qui appartient le CCT
     third_party_num = models.ForeignKey(
         Society,
@@ -132,6 +129,7 @@ class PartiesInvoices(models.Model):
     ville_third_party = models.CharField(null=True, blank=True, max_length=50)
     pays_third_party = models.CharField(null=True, blank=True, max_length=80)
     payment_condition_client = models.CharField(null=True, blank=True, max_length=80)
+    vat_cee_number_client = models.CharField(null=True, blank=True, max_length=20)
     # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
@@ -164,6 +162,8 @@ class PartiesInvoices(models.Model):
                     "ville_third_party",
                     "pays_third_party",
                     "payment_condition_client",
+                    "vat_cee_number_cct",
+                    "vat_cee_number_client",
                 ],
                 name="parties_adresses_billing",
             ),

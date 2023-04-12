@@ -39,6 +39,8 @@ class GetRows:
             "fille"."name", 
             "fille"."base_center" || ' -' || "mere"."name", 
             "fille"."generic_coefficient", 
+            "fille"."legal_notice",
+            "fille"."footer",
             "fille"."comment"
         from {self.filles._meta.db_table} "fille"
         join {PrincipalCenterPurchase._meta.db_table} "mere"

@@ -54,6 +54,7 @@ def centers_invoices_update():
             "code_center",
             "comment_center",
             "legal_notice_center",
+            "footer",
             "bank_center",
             "iban_center",
             "code_swift_center",
@@ -72,6 +73,9 @@ def centers_invoices_update():
                 case 
                     when "cpc"."legal_notice" isnull then '' else "cpc"."legal_notice" 
                 end as "legal_notice_center",
+                case 
+                    when "cpc"."footer" isnull then '' else "cpc"."footer" 
+                end as "footer",
                 case when "cpc"."bank" isnull then '' else "cpc"."bank" end as "bank_center",
                 case when "cpc"."iban" isnull then '' else "cpc"."iban" end as "iban_center",
                 case 
@@ -168,7 +172,9 @@ def parties_invoices_update():
             "code_postal_third_party",
             "ville_third_party",
             "pays_third_party",
-            "payment_condition_client"
+            "payment_condition_client",
+            "vat_cee_number_cct",
+            "vat_cee_number_client"
         )
         select
             now() as created_at,
@@ -237,7 +243,9 @@ def parties_invoices_update():
                 then '' 
                 else "bsm"."country_name"  
             end as "pays_third_party",
-            coalesce("ap"."name", '') as "payment_condition_client"
+            coalesce("ap"."name", '') as "payment_condition_client",
+            coalesce("ccm"."vat_cee_number", '') as "vat_cee_number_cct",
+            coalesce("bs"."vat_cee_number", '') as "vat_cee_number_client"
         from "centers_clients_maison" "ccm"
         left join "book_society" "bs"  
         on "ccm"."third_party_num" = "bs"."third_party_num" 
