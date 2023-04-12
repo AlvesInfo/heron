@@ -71,6 +71,7 @@ class SignboardsInvoices(models.Model):
     code_signboard = models.CharField(max_length=15)
     logo_signboard = models.ImageField(null=True, blank=True, upload_to="logos/")
     message = models.TextField(null=True, blank=True)
+    email_contact = models.EmailField(null=True, blank=True, verbose_name="email de contact")
 
     # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -88,6 +89,7 @@ class SignboardsInvoices(models.Model):
                     "code_signboard",
                     "logo_signboard",
                     "message",
+                    "email_contact"
                 ],
                 name="signboard_invoices_billing",
             ),
@@ -578,7 +580,7 @@ class InvoiceCommonDetails(BaseCommonDetailsTable):
 
 
 class EnteteDetails(FlagsTable):
-    """Tables des Entêtes sur le détails de facturation"""
+    """Tables des Entêtes sur les détails de facturation"""
 
     ranking = models.IntegerField(null=True, default=0)
     column_name = models.CharField(unique=True, max_length=35)
@@ -594,7 +596,7 @@ class EnteteDetails(FlagsTable):
 
 
 class AxesDetails(FlagsTable):
-    """Tables des regroupement dans les détails"""
+    """Tables des regroupements dans les détails"""
 
     axe_pro = models.ForeignKey(
         SectionSage,

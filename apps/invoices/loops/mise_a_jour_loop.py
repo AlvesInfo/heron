@@ -113,7 +113,8 @@ def signboards_invoices_update():
             -- Enseigne
             "code_signboard",
             "logo_signboard",
-            "message"
+            "message",
+            "email_contact"
         )
         select
             now() as created_at,
@@ -121,7 +122,10 @@ def signboards_invoices_update():
             -- Enseigne
             "cps"."code" as "code_signboard",
             case when "cps"."logo" isnull then '' else "cps"."logo" end as "logo_signboard",
-            case when "cps"."message" isnull then '' else "cps"."message" end as "message"
+            case when "cps"."message" isnull then '' else "cps"."message" end as "message",
+            case 
+                when "cps"."email_contact" isnull then '' else "cps"."email_contact" 
+            end as "email_contact"
         from "centers_purchasing_signboard" "cps"
         on conflict do nothing
         """
