@@ -5,7 +5,7 @@
 
 <table style="margin:20px 0 3px 0;">
     <tr>
-        <td><img src="http://10.185.51.9/{% static "logo_heron_01.png" %}" alt="logo-heron" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo Héron fixe -->
+        <td><img src="http://10.185.51.9{% static "logo_heron_01.png" %}" alt="logo-heron" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo Héron fixe -->
         <td><img src="{% if invoices.0.signboard.logo_signboard %}http://10.185.51.9/media/{{ invoices.0.signboard.logo_signboard }}{% endif %}" alt="logo-enseigne" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo du facturé -->
     </tr>
 </table>
