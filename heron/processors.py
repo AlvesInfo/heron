@@ -30,7 +30,7 @@ def title(request):
     dic = {}
 
     if request:
-        dic = {"title": "ANS"}
+        dic = {"title": "HERON"}
 
     return dic
 

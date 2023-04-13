@@ -359,6 +359,8 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     big_category_code = models.CharField(max_length=15)
     big_category_slug_name = models.CharField(max_length=120)
     printed = models.BooleanField(null=True, default=False)
+    mode_reglement = models.CharField(null=True, max_length=80)
+    date_echeance = models.DateField(null=True)
 
     # Les fichiers pdf seront déversés dans le répertoire files/media/sales_invoices
     invoice_file = models.FileField(null=True, upload_to="sales_invoices")
@@ -386,6 +388,8 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
             models.Index(fields=["invoice_month"]),
             models.Index(fields=["cct"]),
             models.Index(fields=["big_category"]),
+            models.Index(fields=["invoice_file"]),
+            models.Index(fields=["global_invoice_file"]),
             models.Index(
                 fields=[
                     "third_party_num",
@@ -598,15 +602,14 @@ class EnteteDetails(FlagsTable):
 class AxesDetails(FlagsTable):
     """Tables des regroupements dans les détails"""
 
-    axe_pro = models.ForeignKey(
+    axe_pro = models.OneToOneField(
         SectionSage,
-        null=True,
-        blank=True,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
         limit_choices_to={"axe": "PRO"},
         related_name="axe_dtails",
         db_column="axe_pro",
+        unique=True,
     )
     column_name = models.ForeignKey(
         EnteteDetails,

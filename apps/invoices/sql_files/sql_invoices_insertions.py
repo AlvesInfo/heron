@@ -71,14 +71,18 @@ SQL_COMMON_DETAILS = sql.SQL(
         select 
             "import_uuid_identification",
             "acuitis_order_date",
-            "acuitis_order_number",
-            "client_name",
-            "command_reference",
-            "comment",
-            "customs_code",
-            "delivery_date",
-            "delivery_number",
-            "ean_code",
+            coalesce("acuitis_order_number", '') as "acuitis_order_number",
+            coalesce("client_name", '') as "client_name",
+            coalesce("command_reference", '') as "command_reference",
+            coalesce("comment", '') as "comment",
+            coalesce("customs_code", '') as "customs_code",
+            case 
+                when "delivery_number" isnull 
+                then null 
+                else "delivery_date" 
+            end as "delivery_date",
+            coalesce("delivery_number", '') as "delivery_number",
+            coalesce("ean_code", '') as "ean_code",
             "final_date",
             "first_name",
             "formation_month",
@@ -95,7 +99,7 @@ SQL_COMMON_DETAILS = sql.SQL(
             "reference_article",
             coalesce("saisie", false) as "saisie",
             "saisie_by",
-            "serial_number",
+            coalesce("serial_number", '') as "serial_number",
             "supplier",
             coalesce("pu"."to_display", 'U') as "unit_weight",
             "uuid_file",
@@ -347,10 +351,13 @@ SQL_SALES_INVOICES = sql.SQL(
             "ccm"."third_party_num", 
             "icc"."code_center",
             "isb"."code_signboard",
-            "eee"."devise"
+            "eee"."devise",
+            "bs"."payment_condition_client" 
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
         on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+        left join "book_society" "bs"
+        on "bs"."third_party_num" = "ccm"."third_party_num"  
         left join (
             select 
                 "uuid_identification", 
@@ -438,7 +445,9 @@ SQL_SALES_INVOICES = sql.SQL(
         "code_center",
         "code_signboard",
         "devise",
-        true as "sale_invoice"
+        true as "sale_invoice",
+        false as "printed",
+        "payment_condition_client" as "mode_reglement"
     from "sales"
     group by 
         "vat_regime",
@@ -452,7 +461,8 @@ SQL_SALES_INVOICES = sql.SQL(
         "third_party_num",
         "code_center",
         "code_signboard",
-        "devise"
+        "devise",
+        "payment_condition_client"
     """
 )
 

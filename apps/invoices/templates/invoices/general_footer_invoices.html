@@ -1,0 +1,5 @@
+<div class="footer">
+    <p style="text-align:center;">Email de contact pour tout renseignement sur cette facturation : <strong>{{ invoices.0.signboard.email_contact }}</strong></p>
+    <hr>
+    <p style="text-align:center;font-size:0.5em;">{{ invoices.0.centers.footer|default_if_none:""|safe|escape }}</p>
+</div>

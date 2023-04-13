@@ -1,78 +1,8 @@
 {% load static %}
 {% load filters_tags %}
-<style>
-    @page {
-    size: 21cm 29.7cm;
-    margin: 10mm 10mm 10mm 10mm;
-}
 
+{% include "invoices/general_style_invoices.html" %}
 
-@font-face {
-font-family: "ClanMedium";
-src: url("heron/files/static/ClanMedium.otf");
-}
-
-@font-face {
-font-family: "ClanBook";
-src: url("heron/files/static/ClanBook.otf");
-}
-
-table, p {
-	border-collapse: collapse;
-	font-family:'ClanBook',sans-serif;
-	font-size:11px;
-	border-spacing: 0;
-}
-
-.entete {
-	background-color:black;
-	color:white;
-	font-family:'ClanMedium', sans-serif;
-    border-spacing: 0;
-}
-
-.entete td:first-child {
-    border-left-style: solid;
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-    padding-left:5px;
-}
-
-.entete td:last-child {
-    border-right-style: solid;
-    border-bottom-right-radius: 6px;
-    border-top-right-radius: 6px;
-}
-
-
-tr.bordures > td {
-	border-left:1px solid #dadada;
-	border-right:1px solid #dadada;
-}
-
-tr.bordures > td:first-child, tr.bordures > td:last-child {
-	border-left:none;
-	border-right:none;
-}
-
-.tableauFacturation {
-	width:100%;
-}
-
-.merci {
-	text-align:center;
-}
-
-.mentionsLegales {
-	font-size:0.6em;
-}
-
-.footer {
-	position: fixed;
-	bottom: 0;
-	width:100%;
-}
-</style>
 <table  class="tableauFacturation" style="margin:20px 0 10px 0;">
     <tr>
         <td><img src="http://10.185.51.9/{% static "logo_heron_01.png" %}" alt="logo-heron" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo Héron fixe -->
@@ -127,17 +57,17 @@ tr.bordures > td:first-child, tr.bordures > td:last-child {
 <br><br>
 <table style="width:100%;margin-bottom:10px;">
     <tr class="entete">
-        <td style="text-align: center;font-size: 1.1em;padding:3px;">Récapitulatif de facturation</td>
+        <td style="text-align: center;font-size: 1.1em;padding: 5px 10px;">Récapitulatif de facturation</td>
     </tr>
 </table>
 
 <table class="tableauFacturation">
         <tr class="entete">
             <td>Rubrique</td>
-            <td style="text-align: center;">N° de facture</td>
-            <td style="text-align: center;">Date Facture</td>
-            <td style="text-align: right;">Montant HT</td>
-            <td style="text-align: right;">Montant TTC</td>
+            <td style="text-align: center;padding: 5px 10px;">N° de facture</td>
+            <td style="text-align: center;padding: 5px 10px;">Date Facture</td>
+            <td style="text-align: right;padding: 5px 10px;">Montant HT</td>
+            <td style="text-align: right;padding: 5px 10px;">Montant TTC</td>
         </tr>
 
 <!-- LES LIGNES APPARAISSENT SI NECESSAIRE (montant >0€) -->
@@ -147,17 +77,17 @@ tr.bordures > td:first-child, tr.bordures > td:last-child {
             <td>{{ invoice.big_category }}</td>
             <td style="text-align: center;">{{ invoice.invoice_number }}</td>
             <td style="text-align: center;">{{ invoice.invoice_date|date:"d/m/Y" }}</td>
-            <td style="text-align: right;">{{ invoice.invoice_amount_without_tax|numbers_format:2 }}</td>
-            <td style="text-align: right;">{{ invoice.invoice_amount_with_tax|numbers_format:2 }}</td>
+            <td style="text-align: right;padding-right: 10px;">{{ invoice.invoice_amount_without_tax|numbers_format:2 }}</td>
+            <td style="text-align: right;padding-right: 10px;">{{ invoice.invoice_amount_with_tax|numbers_format:2 }}</td>
         </tr>
     {% endfor %}
 
     <tr class="entete">
         <td></td>
         <td></td>
-        <td style="text-align: center;">Total du mois</td>
-        <td style="text-align: right;">{{ invoices|regroup_sum:"invoice_amount_without_tax"|numbers_format:2 }}</td>
-        <td style="text-align: right;">{{ invoices|regroup_sum:"invoice_amount_with_tax"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding: 5px 10px;">Total du mois</td>
+        <td style="text-align: right;padding: 5px 10px;">{{ invoices|regroup_sum:"invoice_amount_without_tax"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding: 5px 10px;">{{ invoices|regroup_sum:"invoice_amount_with_tax"|numbers_format:2 }}</td>
     </tr>
 
 </table>
@@ -166,7 +96,7 @@ tr.bordures > td:first-child, tr.bordures > td:last-child {
 <p>
     <strong>Mode de paiement</strong> : {{ invoices.0.parties.payment_condition_client|default_if_none:"" }}
     <br>
-    {% if invoices.0.signboard.message %}<strong>Echéance</strong> : {{ invoices.0.parties.echeance|default_if_none:"" }}{% endif %}
+    {% if invoices.0.date_echeance %}<strong>Echéance</strong> : {{ invoices.0.date_echeance|date:"d/m/Y" }}{% endif %}
 </p>
 
 
@@ -192,8 +122,4 @@ tr.bordures > td:first-child, tr.bordures > td:last-child {
     <hr>
 {% endif %}
 
-<div class="footer">
-    <p style="text-align:center;">Email de contact pour tout renseignement sur cette facture : <strong>{{ invoices.0.signboard.email_contact }}</strong></p>
-    <hr>
-    <p style="text-align:center;font-size:0.5em;">{{ invoices.0.centers.footer|default_if_none:""|safe|escape }}</p>
-</div>
+{% include "invoices/general_footer_invoices.html" %}

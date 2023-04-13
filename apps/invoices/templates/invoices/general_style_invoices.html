@@ -1,0 +1,79 @@
+{% load static %}
+
+<style>
+    @page {
+    size: 21cm 29.7cm;
+    margin: 10mm 10mm 10mm 10mm;
+}
+
+@font-face {
+    font-family: "ClanMedium";
+    src: url('fonts/ClanMedium.otf');
+}
+
+@font-face {
+    font-family: "ClanBook";
+    src: url('fonts/ClanBook.otf');
+}
+
+@font-face {
+    font-family: "ClanThin";
+    src: url('fonts/ClanThin.otf');
+}
+
+table, p {
+	border-collapse: collapse;
+	font-family:'ClanBook',sans-serif;
+	font-size:11px;
+	border-spacing: 0;
+}
+
+.entete {
+	background-color:black;
+	color:white;
+	font-family:'ClanMedium', sans-serif;
+    border-spacing: 0;
+}
+
+.entete td:first-child {
+    border-left-style: solid;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding-left:5px;
+}
+
+.entete td:last-child {
+    border-right-style: solid;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+
+tr.bordures > td {
+	border-left:1px solid #dadada;
+	border-right:1px solid #dadada;
+}
+
+tr.bordures > td:first-child, tr.bordures > td:last-child {
+	border-left:none;
+	border-right:none;
+}
+
+.tableauFacturation {
+	width:100%;
+}
+
+.merci {
+	text-align:center;
+}
+
+.mentionsLegales {
+	font-size:0.6em;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	width:100%;
+}
+</style>

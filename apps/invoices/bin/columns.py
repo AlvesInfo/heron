@@ -72,4 +72,6 @@ COL_SALES_DICT = {
     "code_signboard": False,
     "devise": False,
     "sale_invoice": False,
+    "printed": False,
+    "mode_reglement": False,
 }

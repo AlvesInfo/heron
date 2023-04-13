@@ -1,10 +1,139 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% load static %}
+{% load filters_tags %}
 
-</body>
-</html>
+{% include "invoices/general_style_invoices.html" %}
+
+<table  class="tableauFacturation" style="margin:20px 0 10px 0;">
+    <tr>
+        <td><img src="http://10.185.51.9/{% static "logo_heron_01.png" %}" alt="logo-heron" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo Héron fixe -->
+        <td><img src="{% if invoices.0.signboard.logo_signboard %}http://10.185.51.9/media/{{ invoices.0.signboard.logo_signboard }}{% endif %}" alt="logo-enseigne" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo du facturé -->
+    </tr>
+    <tr style="	vertical-align: top;">
+        <td style="width:60%">Livré à :
+            <br>
+            <strong>{{ invoices.0.parties.name_cct }}</strong>
+            <br>
+            {{ invoices.0.parties.immeuble_cct }}
+            <br>
+            {{invoices.0.parties.adresse_cct }}
+            <br>
+            {{ invoices.0.parties.code_postal_cct }} {{ invoices.0.parties.ville_cct}}
+            <br>
+            N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_cct }}
+        </td>
+        <td style="width:40%">Facturé à :
+            <br>
+            <strong>{{ invoices.0.parties.name_third_party }}</strong>
+            <br>
+            {{ invoices.0.parties.immeuble_third_party }}
+            <br>
+            {{invoices.0.parties.adresse_third_party }}
+            <br>
+            {{ invoices.0.parties.code_postal_third_party }} {{ invoices.0.parties.ville_third_party}}
+            <br>
+            N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_client }}
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-top:10px;">
+            <table>
+                <tr>
+                    <td>Code Centrale</td>
+                    <td> : {{ invoices.0.code_center}}</td>
+                </tr>
+                <tr>
+                    <td>N° Compte client</td>
+                    <td> : {{ invoices.0.third_party_num.third_party_num }}</td>
+                </tr>
+                <tr>
+                    <td>N° CCT X3</td>
+                    <td> : {{ invoices.0.cct }}</td>
+                </tr>
+                <tr>
+                    <td>N° Facture</td>
+                    <td> : {{ invoices.0.invoice_number }}</td>
+                </tr>
+                <tr>
+                    <td>Date facture</td>
+                    <td> : {{ invoices.0.invoice_date|date:"d/m/Y"  }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+</table>
+<br>
+
+<table class="tableauFacturation">
+    <tr class="entete">
+        <td colspan="2" style="text-align: center;">BASE</td>
+        <td style="text-align: right;padding: 5px 10px;">TVA 0%</td>
+        <td style="text-align: right;padding: 5px 10px;">TVA 5,5%</td>
+        <td style="text-align: right;padding: 5px 10px;">TVA 20%</td>
+        <td style="text-align: right;padding: 5px 10px;">TOTAL HT</td>
+
+    {% for header in headers %}
+        <tr class="bordures">
+            <td style="text-align: left;padding-left: 5px;">{{ header.base }}</td>
+            <td style="text-align: left;padding-left: 5px;">{{ header.grouping_goods }}</td>
+            <td style="text-align: right;padding-right: 10px;">{% if header.net_amount_00 %}{{ header.net_amount_00|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 10px;">{% if header.net_amount_01 %}{{ header.net_amount_01|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 10px;">{% if header.net_amount_02 %}{{ header.net_amount_02|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 10px;">{% if header.net_amount %}{{ header.net_amount|numbers_format:2 }}{% endif %}</td>
+        </tr>
+    {% endfor %}
+
+    <tr class="entete">
+        <td></td>
+        <td style="text-align: right;padding: 5px 10px !important;">Total HT</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.net_amount_00 %}{{ resume.net_amount_00|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.net_amount_01 %}{{ resume.net_amount_01|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.net_amount_02 %}{{ resume.net_amount_02|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.net_amount %}{{ resume.net_amount|numbers_format:2 }}{% endif %}</td>
+    </tr>
+
+    <tr class="entete">
+        <td></td>
+        <td style="text-align: right;padding: 5px 10px !important;">Total TVA</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.vat_amount_00 %}{{ resume.vat_amount_00|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.vat_amount_01 %}{{ resume.vat_amount_01|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.vat_amount_02 %}{{ resume.vat_amount_02|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.vat_amount %}{{ resume.vat_amount|numbers_format:2 }}{% endif %}</td>
+    </tr>
+
+    <tr class="entete">
+        <td></td>
+        <td style="text-align: right;padding: 5px 10px !important;">Total TTC</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.ttc_amount_00 %}{{ resume.ttc_amount_00|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.ttc_amount_01 %}{{ resume.ttc_amount_01|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.ttc_amount_02 %}{{ resume.ttc_amount_02|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 10px;">{% if resume.amount_with_vat %}{{ resume.amount_with_vat|numbers_format:2 }}{% endif %}</td>
+    </tr>
+
+</table>
+<br>
+
+<p>
+    <strong>Mode de paiement</strong> : {{ invoices.0.parties.payment_condition_client|default_if_none:"" }}
+    <br>
+    {% if invoices.0.date_echeance %}<strong>Echéance</strong> : {{ invoices.0.date_echeance|date:"d/m/Y" }}{% endif %}
+</p>
+
+
+{% if invoices.0.centers.bank_center %}
+    <table class="tableauFacturation" style="margin-top:10px;">
+        <tr class="entete">
+            <td>Nos références bancaires</td>
+        </tr>
+    </table>
+
+    <p>{{ invoices.0.centers.bank_center|default_if_none:"" }}<br>
+        IBAN : {{ invoices.0.centers.iban_center|default_if_none:"" }}
+        <br>
+        BIC : {{ invoices.0.centers.code_swift_center|default_if_none:"" }}
+    </p>
+{% endif %}
+
+<p class="mentionsLegales" style="color: red;">{{ invoices.0.centers.legal_notice_center|default_if_none:""|safe|escape }}</p>
+
+{% include "invoices/general_footer_invoices.html" %}

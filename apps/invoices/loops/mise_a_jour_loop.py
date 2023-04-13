@@ -264,7 +264,7 @@ def parties_invoices_update():
     return trace
 
 
-def process():
+def process_update():
     """
     Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices
     pour figer l'historique des parties prenantes dans la facturation
@@ -311,6 +311,6 @@ if __name__ == "__main__":
                 "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices : ",
                 maintenant,
             )
-            process()
+            process_update()
 
         time.sleep(60)

@@ -86,6 +86,7 @@ SQL_RESUME_SUPPLIER = sql.SQL(
     select 
         "bs"."name" as "supplier_name",
         sum("sd"."net_amount") as "net_amount",
+        sum("sd"."vat_amount") as "vat_amount",
         sum("sd"."amount_with_vat") as "amount_with_vat"
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
@@ -104,6 +105,7 @@ SQL_DETAILS = sql.SQL(
         select 
             "bs"."name" as "supplier_name",
             "ii"."invoice_number",
+            "ii"."invoice_date",
             case 
                 when "ed"."column_name" = 'MONTURES OPTIQUES' 
                 then "sd"."net_amount" 
@@ -159,7 +161,8 @@ SQL_DETAILS = sql.SQL(
                 then "sd"."net_amount" 
                 else 0 
             end as "DI",
-            "sd"."net_amount"
+            "sd"."net_amount",
+            "sd"."amount_with_vat"
         from "invoices_saleinvoicedetail" "sd"
         join "invoices_invoicecommondetails" as "ii"
         on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
@@ -179,6 +182,7 @@ SQL_DETAILS = sql.SQL(
     select 
         "supplier_name",
         "invoice_number",
+        "invoice_date",
         sum("MO") as "MO",
         sum("MS") as "MS",
         sum("VE") as "VE",
@@ -190,11 +194,14 @@ SQL_DETAILS = sql.SQL(
         sum("CO") as "CO",
         sum("PO") as "PO",
         sum("DI") as "DI",
-        sum("net_amount") as "total_ht"
+        sum("net_amount") as "total_ht",
+        sum("amount_with_vat") as "total_ttc"
     from "details"
     group by "supplier_name",
-             "invoice_number"
+             "invoice_number",
+             "invoice_date"
     order by "supplier_name",
+             "invoice_date",
              "invoice_number"
     """
 )

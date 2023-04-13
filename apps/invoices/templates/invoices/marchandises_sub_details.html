@@ -1,10 +1,147 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% load static %}
+{% load filters_tags %}
 
-</body>
-</html>
+{% include "invoices/general_style_sub_details.html" %}
+
+<table  class="tableauFacturation" style="margin:20px 0 10px 0;">
+    <tr>
+        <td><img src="http://10.185.51.9/{% static "logo_heron_01.png" %}" alt="logo-heron" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo Héron fixe -->
+        <td><img src="{% if invoices.0.signboard.logo_signboard %}http://10.185.51.9/media/{{ invoices.0.signboard.logo_signboard }}{% endif %}" alt="logo-enseigne" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo du facturé -->
+    </tr>
+    <tr style="	vertical-align: top;">
+        <td style="width:60%">Livré à :
+            <br>
+            <strong>{{ invoices.0.parties.name_cct }}</strong>
+            <br>
+            {{ invoices.0.parties.immeuble_cct }}
+            <br>
+            {{invoices.0.parties.adresse_cct }}
+            <br>
+            {{ invoices.0.parties.code_postal_cct }} {{ invoices.0.parties.ville_cct}}
+            <br>
+            N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_cct }}
+        </td>
+        <td style="width:40%">Facturé à :
+            <br>
+            <strong>{{ invoices.0.parties.name_third_party }}</strong>
+            <br>
+            {{ invoices.0.parties.immeuble_third_party }}
+            <br>
+            {{invoices.0.parties.adresse_third_party }}
+            <br>
+            {{ invoices.0.parties.code_postal_third_party }} {{ invoices.0.parties.ville_third_party}}
+            <br>
+            N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_client }}
+        </td>
+    </tr>
+</table>
+
+<table  class="tableauFacturation" style="margin:20px 0 10px 0;">
+    <tr>
+        <td style="width: 30%;">
+            <table>
+                <tr>
+                    <td style="width: 100px;">Code Centrale</td>
+                    <td> : {{ invoices.0.code_center}}</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">N° Compte client</td>
+                    <td> : {{ invoices.0.third_party_num.third_party_num }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">N° CCT X3</td>
+                    <td> : {{ invoices.0.cct }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">N° Facture</td>
+                    <td> : {{ invoices.0.invoice_number }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">Date facture</td>
+                    <td> : {{ invoices.0.invoice_date|date:"d/m/Y"  }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+</table>
+
+<table style="width:100%;margin-bottom:10px;">
+    <tbody>
+        <tr class="entete">
+            <td style="text-align: center;font-size: 1.1em;padding: 5px 10px;">
+                Détails de la facture n° : {{ invoices.0.invoice_number }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+{# REGROUPEMENT PAR FOURNISSEURS ================================================================ #}
+{% regroup sub_details by supplier_name as sub_details_list %}
+
+{% for supplier_name in sub_details_list %}
+    <table class="space">
+        <tbody>
+            <tr class="fournisseur">
+                <td colspan="7">{{ supplier_name.grouper }}</td>
+            </tr>
+
+            {# REGROUPEMENT PAR FACTURES DU FOURNISSEUR ========================================== #}
+            {% regroup supplier_name.list by invoice_number as invoice_list %}
+
+            {% for invoice in invoice_list %}
+                <tr class="detailsFacture">
+                    <td style="padding-left: 5px;" colspan="7">Facture n° : {{ invoice.grouper }} - du {{ invoice.list.0.invoice_date|date:"d/m/y" }}</td>
+                </tr>
+                <tr class="sousEntete">
+                    <td style="padding-left: 5px;">Collection</td>
+                    <td style="padding-left: 5px;">Code Article</td>
+                    <td style="padding-left: 5px;">Libellé</td>
+                    <td style="text-align: right;padding-right: 5px;">Qté</td>
+                    <td style="text-align: right;padding-right: 5px;">PU</td>
+                    <td style="text-align: right;padding-right: 5px;">Total HT</td>
+                    <td style="text-align: right;padding-right: 5px;">Total TTC</td>
+                </tr>
+
+
+                {# REGROUPEMENT PAR BL DE LA FACTURE ============================================ #}
+                {% regroup invoice.list by delivery_number as delivery_list %}
+
+                {% for delivery in delivery_list %}
+                    <tr class="borduresBL">
+                        <td style="padding-left: 5px;" colspan="7">BL n° : {{ delivery.grouper }}{% if delivery.delivery_date %} - du {{ delivery.delivery_date|date:"d/m/y" }}{% endif %}</td>
+                    </tr>
+
+                    {% for line in delivery.list %}
+                        <tr class="bordures">
+                            <td style="padding-left: 3px;">{{ line.grouping_goods|default_if_none:"" }}</td>
+                            <td style="padding-left: 3px;">{{ line.reference_article|default_if_none:"" }}</td>
+                            <td style="padding-left: 3px;">{{ line.libelle|default_if_none:"" }}</td>
+                            <td style="text-align: right;padding-right: 3px;">{{ line.qty|numbers_format:0 }}</td>
+                            <td style="text-align: right;padding-right: 3px;">{{ line.net_unit_price|numbers_format:2 }}</td>
+                            <td style="text-align: right;padding-right: 3px;">{{ line.net_amount|numbers_format:2 }}</td>
+                            <td style="text-align: right;padding-right: 3px;">{{ line.amount_with_vat|numbers_format:2 }}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% endfor %}
+
+                <tr class="sousTotaux borduresBL">
+                    <td style="padding-right: 3px;" colspan="5">Sous-total - Facture n° : {{ invoice.grouper }}</td>
+                    <td style="text-align: right;padding-right: 3px;">{{ invoice.list|regroup_sum:"net_amount"|numbers_format:2 }}</td>
+                    <td style="text-align: right;padding-right: 3px;">{{ invoice.list|regroup_sum:"amount_with_vat"|numbers_format:2 }}</td>
+                </tr>
+
+
+            {% endfor %}
+
+            <tr class="totaux borduresBL">
+                <td colspan="5">Total - {{ supplier_name.grouper }}</td>
+                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"net_amount"|numbers_format:2 }}</td>
+                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"amount_with_vat"|numbers_format:2 }}</td>
+            </tr>
+    </table>
+    <br>
+{% endfor %}
+
+{% include "invoices/general_footer_invoices.html" %}

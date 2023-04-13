@@ -23,7 +23,7 @@ def point(value):
 @register.filter(name="left_trunc")
 @stringfilter
 def left_trunc(value, num):
-    return value[int(num) :]
+    return value[int(num):]
 
 
 @register.filter(name="right_align")
@@ -170,6 +170,14 @@ def numbers(value, num):
     return (return_value[::-1] + centimes_part).strip()
 
 
+@register.filter(name="default_if_zero")
+def default_if_zero(value):
+    if str(value) == "0":
+        return ""
+
+    return value
+
+
 @register.filter(name="numbers_format")
 def numbers_format(value, num):
     if not value:
@@ -184,7 +192,7 @@ def numbers_format(value, num):
         if i % 3 == 0:
             return_value += " "
 
-    return (return_value[::-1] + "," + centimes[:num]).strip()
+    return (return_value[::-1] + ("," if num else "") + centimes[:num]).strip()
 
 
 @register.filter(name="numbers_point")
@@ -315,7 +323,7 @@ def string_agg_uniques(value_list, delimiter=","):
 @register.filter(name="addition")
 def addition(value, other):
     """
-    adittione deux nombre
+    Adittione deux nombres
     :param value:
     :param other:
     :return:
@@ -330,6 +338,9 @@ def regroup_sum(values_list, field):
     total = 0
 
     for invoice in values_list:
-        total += invoice.__dict__.get(field)
+        try:
+            total += invoice.__dict__.get(field, 0)
+        except AttributeError:
+            total += invoice.get(field, 0)
 
     return total

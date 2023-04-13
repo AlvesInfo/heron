@@ -51,6 +51,7 @@ from apps.invoices.sql_files.sql_invoices_insertions import (
 )
 from apps.invoices.bin.columns import COL_SALES_DICT
 from apps.invoices.bin.invoives_nums import get_invoice_num
+from apps.invoices.loops.mise_a_jour_loop import process_update
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -161,6 +162,9 @@ def sales_invoices_insertion(
         # On met les import_uuid_identification au cas où il en manque
         set_fix_uuid(cursor)
 
+        # On met à jour les éléments pour la facturation
+        process_update()
+
         # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
         set_common_details(cursor)
 
@@ -185,6 +189,8 @@ def sales_invoices_insertion(
 
         # On insère les détails des factures de vente
         set_sales_details(cursor)
+
+        # TODO: PREVOIR DE REMPLIR LA DATE D'ECHEANCE EN FONCTION DU mode_reglement
 
         # On contrôle l'insertion
         if control_sales_insertion(cursor):
@@ -233,7 +239,7 @@ def sales_invoices_insertion(
 if __name__ == "__main__":
     with connection.cursor() as cur, transaction.atomic():
         utilisateur = User.objects.get(last_name="ALVES")
-        to_print_ = sales_invoices_insertion(cur, utilisateur, pendulum.today().date())
+        to_print_ = sales_invoices_insertion(cur, utilisateur, pendulum.date(2023, 2, 28))
 
         if to_print_:
             raise Exception("Il y a eu une erreur à l'insertion des factures de vente")

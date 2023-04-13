@@ -215,3 +215,4 @@ zope.interface==5.4.0
 
 pdfkit~=1.0.0
 weasyprint~=58.1
+pdfrw~=0.4
