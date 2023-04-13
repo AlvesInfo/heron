@@ -52,45 +52,11 @@ def bpr_book_post_processing():
 
 
 def adress_sage_post_processing():
-    """Mise à jour des champs pouvant avoir non dans les champs adresse...."""
+    """Mise à jour des champs pouvant avoir None dans les champs adresse...."""
 
-    # mise à jour des valeurs 'None'
     with connection.cursor() as cursor:
-        # Dans book_society
-        sql_book_society = """
-        update "book_society" 
-        set "adresse" = case when upper("adresse") = 'NONE' then null else "adresse" end,
-            "code_postal" = case 
-                                when upper("code_postal") = 'NONE' 
-                                then null 
-                                else "code_postal" 
-                            end,
-            "email" = case when upper("email") = 'NONE' then null else "email" end,
-            "immeuble" = case when upper("immeuble") = 'NONE' then null else "immeuble" end,
-            "mobile" = case when upper("mobile") = 'NONE' then null else "mobile" end,
-            "pays" = case when upper("pays") = 'NONE' then null else "pays" end,
-            "telephone" = case when upper("telephone") = 'NONE' then null else "telephone" end,
-            "ville" = case when upper("ville") = 'NONE' then null else "ville" end
-        where
-            upper("adresse")= 'NONE'
-            or
-            upper("code_postal")= 'NONE'
-            or
-            upper("email")= 'NONE'
-            or
-            upper("immeuble")= 'NONE'
-            or
-            upper("mobile")= 'NONE'
-            or
-            upper("pays")= 'NONE'
-            or
-            upper("telephone")= 'NONE'
-            or
-            upper("ville")= 'NONE'
-        """
-        cursor.execute(sql_book_society)
 
-        # Dans book_address
+        # Mise à jour des valeurs 'None' dans book_address
         sql_book_adress = """
         update "book_address"
         set "line_01" = case when upper("line_01") = 'NONE' then null else "line_01" end,
@@ -139,6 +105,79 @@ def adress_sage_post_processing():
             upper("phone_number_05")= 'NONE';        
         """
         cursor.execute(sql_book_adress)
+
+        # Mise à jour avec l'adresse 1 de book society
+        sql_adress_1 = """
+        update "book_society" "bs" 
+        set "address_code" = "ba"."address_code",
+            "immeuble" = "ba"."immeuble",
+            "adresse" = "ba"."adresse",
+            "code_postal" = "ba"."code_postal",
+            "ville" = "ba"."ville",
+            "pays" = "ba"."pays",
+            "email_01" = "ba"."email_01",
+            "email_02" = "ba"."email_02",
+            "email_03" = "ba"."email_03",
+            "email_04" = "ba"."email_04",
+            "email_05" = "ba"."email_05",
+            "phone_number_01" = "ba"."phone_number_01",
+            "mobile_number" = "ba"."mobile_number"
+        from (
+            select 
+                "society" as "third_party_num",
+                "address_code",
+                "line_01" as "immeuble",
+                "line_02" as "adresse",
+                "postal_code" as "code_postal",
+                "city" as "ville",
+                "country" as "pays",
+                "email_01",
+                "email_02",
+                "email_03",
+                "email_04",
+                "email_05",
+                "phone_number_01",
+                "mobile_number"
+            from book_address ba 
+            where address_code = '1'
+        ) "ba"
+        where "bs"."third_party_num" = "ba"."third_party_num"
+        """
+        cursor.execute(sql_adress_1)
+
+        # Mise à jour des valeurs 'None' Dans book_society
+        sql_book_society = """
+        update "book_society" 
+        set "adresse" = case when upper("adresse") = 'NONE' then null else "adresse" end,
+            "code_postal" = case 
+                                when upper("code_postal") = 'NONE' 
+                                then null 
+                                else "code_postal" 
+                            end,
+            "email" = case when upper("email") = 'NONE' then null else "email" end,
+            "immeuble" = case when upper("immeuble") = 'NONE' then null else "immeuble" end,
+            "mobile" = case when upper("mobile") = 'NONE' then null else "mobile" end,
+            "pays" = case when upper("pays") = 'NONE' then null else "pays" end,
+            "telephone" = case when upper("telephone") = 'NONE' then null else "telephone" end,
+            "ville" = case when upper("ville") = 'NONE' then null else "ville" end
+        where
+            upper("adresse")= 'NONE'
+            or
+            upper("code_postal")= 'NONE'
+            or
+            upper("email")= 'NONE'
+            or
+            upper("immeuble")= 'NONE'
+            or
+            upper("mobile")= 'NONE'
+            or
+            upper("pays")= 'NONE'
+            or
+            upper("telephone")= 'NONE'
+            or
+            upper("ville")= 'NONE'
+        """
+        cursor.execute(sql_book_society)
 
 
 if __name__ == "__main__":

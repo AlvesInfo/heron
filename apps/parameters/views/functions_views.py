@@ -44,12 +44,14 @@ class FunctionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:functions_list")
         context["titre_table"] = "Création d'une nouvelle Fonction"
+
         return context
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -69,12 +71,14 @@ class FunctionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Fonction"
         context["chevron_retour"] = reverse("parameters:functions_list")
+
         return super().get_context_data(**context)
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 

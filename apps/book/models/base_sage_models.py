@@ -202,7 +202,8 @@ class Society(FlagsTable):
         null=True,
     )
 
-    # Adresse pour la centrale d'achat
+    # Adressee pour la centrale d'achat issues de book_adress venant de X3, mis à jour boucle
+    address_code = models.CharField(null=True, blank=True, max_length=20)
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
     adresse = models.CharField(null=True, blank=True, max_length=200, verbose_name="adresse")
     code_postal = models.CharField(null=True, blank=True, max_length=15, verbose_name="code postal")
@@ -220,6 +221,15 @@ class Society(FlagsTable):
     telephone = models.CharField(null=True, blank=True, max_length=25, verbose_name="téléphone")
     mobile = models.CharField(null=True, blank=True, max_length=25, verbose_name="mobile")
     email = models.EmailField(null=True, blank=True, max_length=85, verbose_name="email")
+
+    # Emails issus de book_adress venant de X3, mis à jour boucle
+    email_01 = models.EmailField(null=True, blank=True, verbose_name="e-mail_01")
+    email_02 = models.EmailField(null=True, blank=True, verbose_name="e-mail_02")
+    email_03 = models.EmailField(null=True, blank=True, verbose_name="e-mail_03")
+    email_04 = models.EmailField(null=True, blank=True, verbose_name="e-mail_04")
+    email_05 = models.EmailField(null=True, blank=True, verbose_name="e-mail_05")
+    phone_number_01 = models.CharField(null=True, blank=True, max_length=35)
+    mobile_number = models.CharField(null=True, blank=True, max_length=35)
 
     # RFA
     rfa_frequence = models.IntegerField(

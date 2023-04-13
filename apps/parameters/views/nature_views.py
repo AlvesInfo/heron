@@ -44,12 +44,14 @@ class NatureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:natures_list")
         context["titre_table"] = "Création d'une nouvelle Nature/Genre"
+
         return context
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -68,13 +70,14 @@ class NatureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Nature/Genre"
         context["chevron_retour"] = reverse("parameters:natures_list")
+
         return super().get_context_data(**context)
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
-        print("form.cleaned_data : ", form.cleaned_data)
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 

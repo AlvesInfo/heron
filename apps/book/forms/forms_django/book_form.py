@@ -96,12 +96,22 @@ class SocietyForm(forms.ModelForm):
             required=False,
             widget=forms.CheckboxInput,
         )
-        self.fields["copy_default_address"] = forms.BooleanField(
-            required=False,
-            widget=forms.CheckboxInput,
-        )
         self.fields["default_axe_pro"].required = False
         self.fields["stat_name"].required = False
+
+        self.fields["address_code"].required = False
+        self.fields["immeuble"].required = False
+        self.fields["adresse"].required = False
+        self.fields["code_postal"].required = False
+        self.fields["ville"].required = False
+        self.fields["pays"].required = False
+        self.fields["email_01"].required = False
+        self.fields["email_02"].required = False
+        self.fields["email_03"].required = False
+        self.fields["email_04"].required = False
+        self.fields["email_05"].required = False
+        self.fields["phone_number_01"].required = False
+        self.fields["mobile_number"].required = False
 
     class Meta:
         model = Society
@@ -135,6 +145,7 @@ class SocietyForm(forms.ModelForm):
             "is_contractor",
             "is_physical_person",
             "centers_suppliers_indentifier",
+            "address_code",
             "immeuble",
             "adresse",
             "code_postal",
@@ -142,7 +153,6 @@ class SocietyForm(forms.ModelForm):
             "pays",
             "telephone",
             "mobile",
-            "email",
             "rfa_frequence",
             "rfa_remise",
             "integrable",
@@ -152,7 +162,14 @@ class SocietyForm(forms.ModelForm):
             "in_use",
             "big_category_default",
             "stat_name",
-            "is_multi_billing"
+            "is_multi_billing",
+            "email_01",
+            "email_02",
+            "email_03",
+            "email_04",
+            "email_05",
+            "phone_number_01",
+            "mobile_number",
         ]
 
         widgets = {

@@ -198,12 +198,14 @@ class ChangeTraceMixin:
             db_table=self.object._meta.db_table,
         )
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
         """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
         self.request.session["level"] = 50
         LOGGER_VIEWS.exception(f"ChangeTraceMixin error : {form.errors!r}")
+
         return super().form_invalid(form)
 
 

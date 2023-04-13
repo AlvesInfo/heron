@@ -45,12 +45,14 @@ class NumberingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context["chevron_retour"] = reverse("parameters:numberings_list")
         context["titre_table"] = "Création d'une nouvelle Numérotation"
         context["sep_li"] = "- "
+
         return context
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -70,13 +72,14 @@ class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["titre_table"] = "Mise à jour Numérotation"
         context["chevron_retour"] = reverse("parameters:numberings_list")
         context["sep_li"] = "- "
+
         return super().get_context_data(**context)
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
-        print("form.cleaned_data : ", form.cleaned_data)
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 

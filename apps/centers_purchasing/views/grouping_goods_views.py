@@ -70,6 +70,7 @@ class GroupingGoodsCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -99,6 +100,7 @@ class GroupingGoodsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 

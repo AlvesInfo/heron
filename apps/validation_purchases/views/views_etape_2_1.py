@@ -124,6 +124,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
     def post(self, request, *args, **kwargs):
         """Methode post"""
         self.get_attributes(kwargs)
+
         return super().post(request, *args, **kwargs)
 
     @transaction.atomic
@@ -140,6 +141,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
             invoice_month=self.invoice_month,
             valid=True
         ).update(uuid_control=instance.uuid_identification)
+
         return super().form_valid(form)
 
 
@@ -205,6 +207,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 

@@ -60,6 +60,7 @@ class CategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -85,6 +86,7 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -156,6 +158,7 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -179,6 +182,7 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["titre_table"] = "Modification de la Rubrique de Prestation"
         context["category_new"] = self.object.ranking
         context["category"] = self.object.big_category
+
         return context
 
     def get_success_url(self):
@@ -190,6 +194,7 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 
@@ -240,6 +245,7 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["titre_table"] = "Catégories et Axes par défaut pour les articles"
         context["chevron_retour"] = reverse("home")
         context["big_sub_category"] = self.object.big_category.big_sub_category.all()
+
         return context
 
     def form_valid(self, form):
@@ -250,6 +256,7 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         ):
             form.instance.sub_category = None
         self.request.session["level"] = 20
+
         return super().form_valid(form)
 
 

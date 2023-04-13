@@ -93,9 +93,6 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                     f"{context_dict.get('object').third_party_num} - "
                     f"{context_dict.get('object').name}"
                 ),
-                "adresse_principale_sage": (
-                    context_dict.get("object").society_society.filter(default_adress=True).first()
-                ),
                 "compte_banque": (
                     context_dict.get("object").bank_society.filter(is_default=True).first()
                 ),
@@ -124,22 +121,7 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
-        copy_default_address = form.cleaned_data.get("copy_default_address")
 
-        if copy_default_address:
-            adress = self.get_context_data().get("adresse_principale_sage")
-            if adress:
-                self.object.immeuble = adress.line_01
-                self.object.adresse = adress.line_02
-                self.object.code_postal = adress.postal_code
-                self.object.ville = adress.city
-                self.object.pays = adress.country
-                self.object.telephone = adress.phone_number_01
-                self.object.mobile = adress.mobile_number
-                self.object.email = adress.email_01
-                self.object.save()
-
-        form.save()
         return super().form_valid(form)
 
 
