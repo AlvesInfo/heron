@@ -453,7 +453,7 @@ class FileLoader(TemplateDataLoader):
                     }
                     self.trace_add_line_error("Errors", i, error_dict=error_dict)
 
-                raise IterFileToInsertError("Le fichier contient une ligne non comforme")
+                raise IterFileToInsertError("Le fichier contient une ligne non conforme")
 
     def make_io(self, csv_io: io.StringIO, all_lines=False):
         """
@@ -504,7 +504,7 @@ class FileLoader(TemplateDataLoader):
                     }
                     self.trace_add_line_error("Errors", i, error_dict=error_dict)
 
-                raise IterFileToInsertError("Le fichier contient une ligne non comforme")
+                raise IterFileToInsertError("Le fichier contient une ligne non conforme")
 
     def read_dict(self, all_lines=False):
         """
@@ -546,7 +546,7 @@ class FileLoader(TemplateDataLoader):
                     }
                     self.trace_add_line_error("Errors", i, error_dict=error_dict)
 
-                raise IterFileToInsertError("Le fichier contient une ligne non comforme")
+                raise IterFileToInsertError("Le fichier contient une ligne non conforme")
 
     def close(self):
         """Fermeture du buffer io.StringIO"""
