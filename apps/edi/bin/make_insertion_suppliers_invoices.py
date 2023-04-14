@@ -179,8 +179,11 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
             first_line=get_first_line(SupplierDefinition, flow_name),
             params_dict=params_dict_load,
         ) as file_load:
-            fil = [row for row in file_load.read_dict()]
-            LOGGER_EDI.exception(f"{fil}")
+
+            # POUR VISUALISER CE QU'IL Y A DANS LE FICHIER EN CAS D'ERREURS
+            # fil = [row for row in file_load.read_dict()]
+            # LOGGER_EDI.exception(f"{fil}")
+
             validation = Validation(
                 dict_flow=file_load.read_dict(),
                 model=model,
