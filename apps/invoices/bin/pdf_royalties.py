@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import os
 import sys
 import platform
+from uuid import UUID
 from pathlib import Path
 
 import django
@@ -34,8 +35,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from apps.invoices.models import SaleInvoice
+from apps.invoices.sql_files.sql_pdf_royalties import SQL_ROYALTIES
 
-DOMAIN = "http://10.185.51.9" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
+DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
 def royalties_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
@@ -53,20 +55,14 @@ def royalties_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
         invoices = SaleInvoice.objects.filter(uuid_identification=uuid_invoice)
 
         # HEADER
-        cursor.execute(SQL_HEADER, {"uuid_invoice": uuid_invoice})
-        columns_header = [col[0] for col in cursor.description]
-        headers = [dict(zip(columns_header, row)) for row in cursor.fetchall()]
-
-        # RESUME HEADER
-        cursor.execute(SQL_RESUME_HEADER, {"uuid_invoice": uuid_invoice})
-        columns_resume = [col[0] for col in cursor.description]
-        resume = [dict(zip(columns_resume, row)) for row in cursor.fetchall()][0]
+        cursor.execute(SQL_ROYALTIES, {"uuid_invoice": uuid_invoice})
+        columns_royalties = [col[0] for col in cursor.description]
+        royalties = [dict(zip(columns_royalties, row)) for row in cursor.fetchall()]
 
         # LANCEMENT
         context = {
             "invoices": invoices,
-            "headers": headers,
-            "resume": resume,
+            "royalties": royalties,
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
@@ -79,4 +75,4 @@ def royalties_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 if __name__ == '__main__':
     cct_cct = "AF0518"
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct_cct}_summary.pdf"
-    summary_invoice_pdf(cct_cct, file_path)
+    royalties_invoice_pdf(cct_cct, file_path)

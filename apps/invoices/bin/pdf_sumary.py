@@ -35,7 +35,7 @@ django.setup()
 
 from apps.invoices.models import SaleInvoice
 
-DOMAIN = "http://10.185.51.9" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
+DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
 def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:

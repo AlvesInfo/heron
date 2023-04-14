@@ -9,9 +9,9 @@ gc.set_threshold(100_000, g1*5, g2*10)
 
 DEBUG = True
 
-INTERNAL_IPS = ["10.185.51.9", "localhost", "127.0.0.1"]
+INTERNAL_IPS = ["10.9.2.109", "localhost", "127.0.0.1"]
 
-DOMAINS_WHITELIST = ["10.185.51.9", "localhost", "127.0.0.1"]
+DOMAINS_WHITELIST = ["10.9.2.109", "localhost", "127.0.0.1"]
 
 THIRD_PARTY_APPS = ["debug_toolbar"]
 

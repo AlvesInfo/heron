@@ -2,7 +2,7 @@ from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG
 
 DEBUG = False
 
-DOMAINS_WHITELIST = ["10.185.51.9", "localhost", "127.0.0.1", WHITELIST]
+DOMAINS_WHITELIST = ["10.9.2.109", "localhost", "127.0.0.1", WHITELIST]
 
 THIRD_PARTY_APPS = [
     "django_clamd",

@@ -278,6 +278,7 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     sub_category = models.CharField(null=True, max_length=80)
     account = models.CharField(max_length=35)
     flow_name = models.CharField(max_length=80, default="Saisie")
+    bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
 
     class Meta:
         """class Meta du modèle django"""
