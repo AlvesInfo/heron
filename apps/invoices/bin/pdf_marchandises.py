@@ -36,7 +36,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from apps.invoices.models import SaleInvoice, EnteteDetails
-from apps.invoices.sql_files.sql_marchandises_pdf import (
+from apps.invoices.sql_files.sql_pdf_marchandises import (
     SQL_HEADER,
     SQL_RESUME_HEADER,
     SQL_RESUME_SUPPLIER,
@@ -47,7 +47,7 @@ from apps.invoices.sql_files.sql_marchandises_pdf import (
 DOMAIN = "http://10.185.51.9" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
-def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> render_to_string:
+def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
     Génération des entêtes de factures de marchandises
     :param uuid_invoice: uuid_identification de la facture
@@ -84,7 +84,7 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> render
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandises_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> render_to_string:
+def marchandises_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
     """
     Génération des récapitulatifs par fournisseurs
     :param uuid_invoice: uuid_identification de la facture
@@ -114,7 +114,7 @@ def marchandises_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> 
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> render_to_string:
+def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
     """
     Génération des pages Détails par fournisseurs
     :param uuid_invoice: uuid_identification de la facture
@@ -147,7 +147,7 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> ren
         return content
 
 
-def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> render_to_string:
+def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
     """
     Génération des pages de marchandises
     :param uuid_invoice: uuid_identification de la facture

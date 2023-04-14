@@ -34,8 +34,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from apps.parameters.bin.generic_nums import get_generic_cct_num
-from apps.invoices.bin.sumary_pdf import summary_invoice_pdf
-from apps.invoices.bin.marchandises_pdf import (
+from apps.invoices.bin.pdf_sumary import summary_invoice_pdf
+from apps.invoices.bin.pdf_marchandises import (
     marchandise_header_invoice_pdf,
     marchandises_suppliers_invoice_pdf,
     marchandise_details_invoice_pdf,
