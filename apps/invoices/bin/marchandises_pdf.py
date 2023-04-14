@@ -44,6 +44,8 @@ from apps.invoices.sql_files.sql_marchandises_pdf import (
     SQL_SUB_DETAILS,
 )
 
+DOMAIN = "http://10.185.51.9" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
+
 
 def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> render_to_string:
     """
@@ -73,6 +75,8 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> render
             "invoices": invoices,
             "headers": headers,
             "resume": resume,
+            "domain": DOMAIN,
+            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/marchandises_header.html", context)
         font_config = FontConfiguration()
@@ -101,6 +105,8 @@ def marchandises_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> 
         context = {
             "invoices": invoices,
             "suppliers": suppliers,
+            "domain": DOMAIN,
+            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/marchandises_suppliers.html", context)
         font_config = FontConfiguration()
@@ -130,6 +136,8 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> ren
             "invoices": invoices,
             "entetes": EnteteDetails.objects.all().values("column_name"),
             "suppliers": suppliers,
+            "domain": DOMAIN,
+            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/marchandises_details.html", context)
         font_config = FontConfiguration()
@@ -160,6 +168,8 @@ def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) ->
         context = {
             "invoices": invoices,
             "sub_details": sub_details,
+            "domain": DOMAIN,
+            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/marchandises_sub_details.html", context)
         font_config = FontConfiguration()

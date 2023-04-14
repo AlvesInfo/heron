@@ -35,6 +35,8 @@ django.setup()
 
 from apps.invoices.models import SaleInvoice
 
+DOMAIN = "http://10.185.51.9" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
+
 
 def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
     """
@@ -43,8 +45,11 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
     :param pdf_path: Path du fichier pdf
     :return: None
     """
+    sale = SaleInvoice.objects.filter(cct=cct)
     context = {
-        "invoices": SaleInvoice.objects.filter(cct=cct),
+        "invoices": sale,
+        "logo": str(sale[0].signboard.logo_signboard).replace("logos/", ""),
+        "domain": DOMAIN,
     }
     content = render_to_string("invoices/summary.html", context)
     font_config = FontConfiguration()
