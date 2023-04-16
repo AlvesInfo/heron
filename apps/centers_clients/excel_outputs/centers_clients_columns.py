@@ -135,6 +135,22 @@ columns_list_maisons = [
         "width": 12,
     },
     {
+        "entete": "Référence\nCosium",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#FFE699",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
         "entete": "Code BBGR",
         "f_entete": {
             **f_entetes,
@@ -327,7 +343,7 @@ columns_list_maisons = [
         "width": 12,
     },
     {
-        "entete": "Compte X3 par défaut sur  provision",
+        "entete": "Compte X3 par défaut sur provision",
         "f_entete": {
             **f_entetes,
             **{
@@ -714,5 +730,47 @@ columns_list_maisons = [
             **{},
         },
         "width": 20,
+    },
+    {
+        "entete": "A\nIntégrer\nX3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 10,
+    },
+    {
+        "entete": "A\nRefacturer\nX3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 10,
+    },
+    {
+        "entete": "ODANA",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 10,
     },
 ]

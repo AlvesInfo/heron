@@ -2,26 +2,26 @@
 
 {% block table %}
 
-<div class="one wide column"></div>
-
-<div class="fourteen wide column">
+<div class="sixteen wide column">
 
     <table id="table_document"
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 4%">Edit</th>
-                <th style="width: 8%">CCT</th>
-                <th style="width: 8%">Tiers X3</th>
-                <th style="width: 25%;text-align: left;">Intitulé</th>
-                <th style="width: 7%">Centrale</th>
-                <th style="width: 7%">Enseigne</th>
-                <th style="width: 7%">Devise</th>
-                <th style="width: 7%">Langue</th>
-                <th style="width: 10%;text-align: left;">Pays</th>
-                <th style="width: 7%;text-align: center;">ODANA</th>
-                <th style="width: 10%;text-align: center;">AXE BU</th>
+                <th class="no-sort" style="text-align: center;width: 3%">Edit</th>
+                <th style="width: 6%">CCT</th>
+                <th style="width: 6%">Tiers X3</th>
+                <th style="width: 27%;text-align: left;">Intitulé</th>
+                <th style="width: 6%">Centrale</th>
+                <th style="width: 6%">Enseigne</th>
+                <th style="width: 5%">Devise</th>
+                <th style="width: 5%">Langue</th>
+                <th style="width: 8%;text-align: center;">Pays</th>
+                <th style="width: 7%;text-align: center;">Intégrer X3</th>
+                <th style="width: 8%;text-align: center;">Refacturer X3</th>
+                <th style="width: 5%;text-align: center;">ODANA</th>
+                <th style="width: 8%;text-align: center;">AXE BU</th>
             </tr>
         </thead>
         <tbody>
@@ -72,6 +72,16 @@
                 <td style="text-align: left;">
                   {% if maison.pays__country_name %}
                     {{ maison.pays__country_name }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.integrable %}
+                    X
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.chargeable %}
+                    X
                   {% endif %}
                 </td>
                 <td style="text-align: center;">
