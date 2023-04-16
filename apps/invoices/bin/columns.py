@@ -74,4 +74,7 @@ COL_SALES_DICT = {
     "sale_invoice": False,
     "printed": False,
     "mode_reglement": False,
+    "big_category_ranking": False,
+    "formation": False,
+    "send_email": False,
 }

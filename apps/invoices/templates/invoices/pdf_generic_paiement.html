@@ -1,0 +1,5 @@
+<p>
+    <strong>Mode de paiement</strong> : {{ invoices.0.parties.payment_condition_client|default_if_none:"" }}
+    <br>
+    {% if invoices.0.date_echeance %}<strong>Echéance</strong> : {{ invoices.0.date_echeance|date:"d/m/Y" }}{% endif %}
+</p>

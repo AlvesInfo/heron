@@ -247,7 +247,7 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
     suffix = counter_instance.suffix or attr_instance_dict.get("suffix", "")
     attr_instance_suffix = attr_instance_dict.get("suffix", "")
 
-    ldap_num = counter_instance.lpad_num or attr_instance_dict.get("ldap_num", "0")
+    ldap_num = counter_instance.lpad_num or attr_instance_dict.get("ldap_num", 0)
     separateur = counter_instance.separateur or attr_instance_dict.get("separateur", "")
 
     if prefix:

@@ -44,6 +44,7 @@ class FillesForm(forms.ModelForm):
             "societe_cpy_x3",
             "site_fcy_x3",
             "vat_regime_center",
+            "member_num",
         ]
 
 

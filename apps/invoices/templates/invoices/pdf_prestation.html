@@ -1,0 +1,61 @@
+{% load static %}
+{% load filters_tags %}
+
+{% include "invoices/general_style_invoices.html" %}
+
+{% include "invoices/pdf_generic_entete.html" %}
+
+<table class="tableauFacturation">
+    <tr class="entete">
+        <td style="text-align: left;padding: 5px 5px;">Rubrique</td>
+        <td style="text-align: left;padding: 5px 5px;">Article</td>
+        <td style="text-align: right;padding: 5px 5px;">TVA 0%</td>
+        <td style="text-align: right;padding: 5px 5px;">TVA 5,5%</td>
+        <td style="text-align: right;padding: 5px 5px;">TVA 20%</td>
+        <td style="text-align: right;padding: 5px 5px;">TOTAL HT</td>
+
+    {% for header in headers %}
+        <tr class="bordures">
+            <td style="text-align: left;padding-left: 5px;">{% ifchanged header.sub_category %}<strong>{{ header.sub_category }}</strong>{% endifchanged %}</td>
+            <td style="text-align: left;padding-left: 5px;">{{ header.libelle }}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if header.mont_00 %}{{ header.mont_00|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if header.mont_05 %}{{ header.mont_00|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if header.mont_20 %}{{ header.mont_20|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if header.net_amount %}{{ header.net_amount|numbers_format:2 }}{% endif %}</td>
+        </tr>
+    {% endfor %}
+
+    <tr class="entete">
+        <td style="text-align: right;padding: 5px 5px" colspan="2">Total HT</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.net_mont_00 %}{{ resume.net_mont_00|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.net_mont_05 %}{{ resume.net_mont_05|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.net_mont_20 %}{{ resume.net_mont_20|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.net_amount %}{{ resume.net_amount|numbers_format:2 }}{% endif %}</td>
+    </tr>
+
+    <tr class="entete">
+        <td style="text-align: right;padding: 5px 5px" colspan="2">Total TVA</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.vat_00 %}{{ resume.vat_00|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.vat_05 %}{{ resume.vat_05|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.vat_20 %}{{ resume.vat_20|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.vat_amount %}{{ resume.vat_amount|numbers_format:2 }}{% endif %}</td>
+    </tr>
+
+    <tr class="entete">
+        <td style="text-align: right;padding: 5px 5px;" colspan="2">Total TTC</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.ttc_vat_00 %}{{ resume.ttc_vat_00|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.ttc_vat_05 %}{{ resume.ttc_vat_05|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.ttc_vat_20 %}{{ resume.ttc_vat_20|numbers_format:2 }}{% endif %}</td>
+        <td style="text-align: right;padding: 5px 5px;">{% if resume.amount_with_vat %}{{ resume.amount_with_vat|numbers_format:2 }}{% endif %}</td>
+    </tr>
+
+</table>
+<br>
+
+{% include "invoices/pdf_generic_paiement.html" %}
+
+{% include "invoices/pdf_generic_bank.html" %}
+
+{% include "invoices/pdf_generic_mentions_legales.html" %}
+
+{% include "invoices/pdf_generic_footer_invoices.html" %}

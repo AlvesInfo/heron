@@ -47,13 +47,13 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
     :param pdf_path: Path du fichier pdf
     :return: None
     """
-    sale = SaleInvoice.objects.filter(cct=cct)
+    sale = SaleInvoice.objects.filter(cct=cct).order_by("cct", "big_category_ranking")
     context = {
         "invoices": sale,
         "logo": str(sale[0].signboard.logo_signboard).replace("logos/", ""),
         "domain": DOMAIN,
     }
-    content = render_to_string("invoices/summary.html", context)
+    content = render_to_string("invoices/pdf_summary.html", context)
     font_config = FontConfiguration()
     html = HTML(string=content)
     html.write_pdf(pdf_path, font_config=font_config)

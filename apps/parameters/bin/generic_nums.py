@@ -30,3 +30,15 @@ def get_generic_cct_num(cct: AnyStr) -> get_counter_num:
 
     return generic_cct_num
 
+
+def get_folder_num() -> get_counter_num:
+    """Génération d'un numéro générique unique
+    :return:
+    """
+    counter = Counter.objects.get(name="folder_num")
+    generic_folder_num = get_counter_num(
+        counter_instance=counter,
+        attr_instance_dict={},
+    )
+
+    return generic_folder_num

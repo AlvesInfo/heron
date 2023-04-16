@@ -1,7 +1,7 @@
 # pylint: disable=E0401
 """
-FR : Module de génération des factures de Formations en pdf
-EN : Module for generating invoices Formations in pdf
+FR : Module de génération des factures de Prestations en pdf
+EN : Module for generating invoices Services in pdf
 
 Commentaire:
 
@@ -37,14 +37,14 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
-from apps.invoices.sql_files.sql_pdf_formation import SQL_FORMATION
+from apps.invoices.sql_files.sql_pdf_prestation import SQL_HEADER, SQL_RESUME_HEADER
 
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
-def invoice_formation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+def invoice_prestation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
-    Generation de la facture de formation
+    Generation de la facture de prestation
     Génération des entêtes de factures de marchandises
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
@@ -56,33 +56,34 @@ def invoice_formation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
         # tels que "general_footer_invoices.htmml" et "general_style_invoices"
         invoices = SaleInvoice.objects.filter(uuid_identification=uuid_invoice)
 
+        # HEADER
         # print(cursor.mogrify(SQL_HEADER, {"uuid_invoice": uuid_invoice}).decode())
-        cursor.execute(SQL_FORMATION, {"uuid_invoice": uuid_invoice})
+        cursor.execute(SQL_HEADER, {"uuid_invoice": uuid_invoice})
         columns_header = [col[0] for col in cursor.description]
-        formation = [dict(zip(columns_header, row)) for row in cursor.fetchall()]
+        headers = [dict(zip(columns_header, row)) for row in cursor.fetchall()]
+
+        # RESUME HEADER
+        cursor.execute(SQL_RESUME_HEADER, {"uuid_invoice": uuid_invoice})
+        columns_resume = [col[0] for col in cursor.description]
+        resume = [dict(zip(columns_resume, row)) for row in cursor.fetchall()][0]
 
         # LANCEMENT
         context = {
             "invoices": invoices,
-            "formation": formation[0],
+            "headers": headers,
+            "resume": resume,
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/pdf_formation.html", context)
+        content = render_to_string("invoices/pdf_prestation.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("caeacdfb-33b2-42f8-94cb-937c05374991")
+    uuid_invoice_to_pdf = UUID("9acc90b4-743c-459e-ac4c-6914aa6545e3")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
-    formation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_formation.pdf"
-    invoice_formation_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=formation_path)
-
-    uuid_invoice_to_pdf = UUID("659aa9db-4535-4c8c-9335-688bef477ce0")
-    sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
-
-    formation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_formation_2.pdf"
-    invoice_formation_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=formation_path)
+    prestation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_prestation.pdf"
+    invoice_prestation_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=prestation_path)

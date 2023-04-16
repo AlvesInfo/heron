@@ -36,6 +36,7 @@ from django.conf import settings
 from django.db import connection
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
+from pdfrw import PdfReader, PdfWriter
 
 from apps.invoices.models import SaleInvoice, EnteteDetails
 from apps.invoices.sql_files.sql_pdf_marchandises import (
@@ -49,7 +50,7 @@ from apps.invoices.sql_files.sql_pdf_marchandises import (
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
-def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr:
     """
     Génération des entêtes de factures de marchandises
     :param uuid_invoice: uuid_identification de la facture
@@ -80,13 +81,13 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/marchandises_header.html", context)
+        content = render_to_string("invoices/pdf_marchandises_header.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandises_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
+def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> AnyStr:
     """
     Génération des récapitulatifs par fournisseurs
     :param uuid_invoice: uuid_identification de la facture
@@ -110,13 +111,13 @@ def marchandises_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> 
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/marchandises_suppliers.html", context)
+        content = render_to_string("invoices/pdf_marchandises_suppliers.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
+def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> AnyStr:
     """
     Génération des pages Détails par fournisseurs
     :param uuid_invoice: uuid_identification de la facture
@@ -141,15 +142,13 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> Non
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/marchandises_details.html", context)
+        content = render_to_string("invoices/pdf_marchandises_details.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
 
-        return content
 
-
-def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
+def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> AnyStr:
     """
     Génération des pages de marchandises
     :param uuid_invoice: uuid_identification de la facture
@@ -173,26 +172,64 @@ def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) ->
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/marchandises_sub_details.html", context)
+        content = render_to_string("invoices/pdf_marchandises_sub_details.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
 
-        return content
+
+def invoice_marchandise_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
+    """
+    Génération des pages de marchandises
+    :param uuid_invoice: uuid_identification de la facture
+    :param pdf_path: Path du fichier pdf
+    :return: None
+    """
+    marchandise_dict = {
+        "header": marchandise_header_invoice_pdf,
+        "suppliers": marchandise_suppliers_invoice_pdf,
+        "details": marchandise_details_invoice_pdf,
+        "sub_details": marchandise_sub_details_invoice_pdf,
+    }
+    files_list = []
+
+    for name, generation in marchandise_dict.items():
+        pdf_path_name = Path(str(pdf_path)[:-4]+f"_{name}.pdf")
+        generation(uuid_invoice=uuid_invoice, pdf_path=pdf_path_name)
+        files_list.append(pdf_path_name)
+
+    # On fusionne les pdf
+    writer = PdfWriter()
+
+    # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
+    for pdf_file in files_list:
+        reader = PdfReader(pdf_file)
+        for page in reader.pages:
+            writer.addpage(page)
+
+    # On enregistre le fichier PDF fusionné
+    writer.write(pdf_path)
+
+    for file in files_list:
+        if file.is_file():
+            file.unlink()
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("17a9a3da-f7f0-4ccf-b3cd-c17cdbb501dd")
+    uuid_invoice_to_pdf = UUID("a9dc258d-d35f-4622-8495-a48206f1f76a")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
-    header_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_header_marchandise.pdf"
-    marchandise_header_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=header_path)
+    # header_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_header_marchandise.pdf"
+    # marchandise_header_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=header_path)
+    #
+    # supplier_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_supplier_marchandise.pdf"
+    # marchandises_suppliers_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=supplier_path)
+    #
+    # details_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_details_marchandise.pdf"
+    # marchandise_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=details_path)
+    #
+    # sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_sub_marchandise.pdf"
+    # marchandise_sub_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
 
-    supplier_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_supplier_marchandise.pdf"
-    marchandises_suppliers_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=supplier_path)
-
-    details_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_details_marchandise.pdf"
-    marchandise_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=details_path)
-
-    sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_sub_marchandise.pdf"
-    marchandise_sub_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
+    sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_{sale.invoice_number}.pdf"
+    invoice_marchandise_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)

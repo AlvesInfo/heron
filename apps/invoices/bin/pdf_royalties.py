@@ -37,15 +37,14 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
-from apps.invoices.sql_files.sql_pdf_royalties import SQL_ROYALTIES
+from apps.invoices.sql_files.sql_pdf_royalties import SQL_HEADER, SQL_RESUME_HEADER
 
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
-def royalties_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+def invoice_royalties_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
     Generation de la facture de Royalties
-    Génération des entêtes de factures de marchandises
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
     :return: None
@@ -57,24 +56,33 @@ def royalties_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
         invoices = SaleInvoice.objects.filter(uuid_identification=uuid_invoice)
 
         # HEADER
-        cursor.execute(SQL_ROYALTIES, {"uuid_invoice": uuid_invoice})
-        columns_royalties = [col[0] for col in cursor.description]
-        royalties = [dict(zip(columns_royalties, row)) for row in cursor.fetchall()]
+        # print(cursor.mogrify(SQL_HEADER, {"uuid_invoice": uuid_invoice}).decode())
+        cursor.execute(SQL_HEADER, {"uuid_invoice": uuid_invoice})
+        columns_header = [col[0] for col in cursor.description]
+        headers = [dict(zip(columns_header, row)) for row in cursor.fetchall()]
+
+        # RESUME HEADER
+        cursor.execute(SQL_RESUME_HEADER, {"uuid_invoice": uuid_invoice})
+        columns_resume = [col[0] for col in cursor.description]
+        resume = [dict(zip(columns_resume, row)) for row in cursor.fetchall()][0]
 
         # LANCEMENT
         context = {
             "invoices": invoices,
-            "royalties": royalties,
+            "headers": headers,
+            "resume": resume,
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/marchandises_header.html", context)
+        content = render_to_string("invoices/pdf_royalties.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-if __name__ == '__main__':
-    cct_cct = "AF0518"
-    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct_cct}_summary.pdf"
-    royalties_invoice_pdf(cct_cct, file_path)
+if __name__ == "__main__":
+    uuid_invoice_to_pdf = UUID("57be6d23-cf74-4dc5-bc96-b5a5e692e176")
+    sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
+
+    roayalties_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_roayalties.pdf"
+    invoice_royalties_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=roayalties_path)

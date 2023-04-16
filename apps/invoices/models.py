@@ -37,27 +37,28 @@ class CentersInvoices(models.Model):
     code_swift_center = models.CharField(null=True, blank=True, max_length=27)
     vat_regime_center = models.CharField(null=True, max_length=5)
 
+    # N° d'adhérent pour la formation
+    member_num = models.CharField(max_length=35)
+
     # uuid_identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     class Meta:
         """class Meta du modèle django"""
 
         constraints = [
             models.UniqueConstraint(
-                fields=["created_at", "code_center"],
-                name="centers_invoices",
-            ),
-            models.UniqueConstraint(
                 fields=[
                     "code_center",
                     "comment_center",
                     "legal_notice_center",
+                    "footer",
                     "bank_center",
                     "iban_center",
                     "code_swift_center",
                     "vat_regime_center",
-                    "footer",
+                    "uuid_identification",
+                    "member_num",
                 ],
                 name="centers_invoices_billing",
             ),
@@ -76,18 +77,20 @@ class SignboardsInvoices(models.Model):
     email_contact = models.EmailField(null=True, blank=True, verbose_name="email de contact")
 
     # uuid_identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     class Meta:
         """class Meta du modèle django"""
 
         constraints = [
             models.UniqueConstraint(
-                fields=["created_at", "code_signboard"],
-                name="signboard_invoices",
-            ),
-            models.UniqueConstraint(
-                fields=["code_signboard", "logo_signboard", "message", "email_contact"],
+                fields=[
+                    "code_signboard",
+                    "logo_signboard",
+                    "message",
+                    "email_contact",
+                    "uuid_identification",
+                ],
                 name="signboard_invoices_billing",
             ),
         ]
@@ -131,7 +134,7 @@ class PartiesInvoices(models.Model):
     payment_condition_client = models.CharField(null=True, blank=True, max_length=80)
     vat_cee_number_client = models.CharField(null=True, blank=True, max_length=20)
     # uuid_identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -141,10 +144,6 @@ class PartiesInvoices(models.Model):
         """class Meta du modèle django"""
 
         constraints = [
-            models.UniqueConstraint(
-                fields=["created_at", "cct", "third_party_num"],
-                name="parties_invoices",
-            ),
             models.UniqueConstraint(
                 fields=[
                     "cct",
@@ -164,6 +163,7 @@ class PartiesInvoices(models.Model):
                     "payment_condition_client",
                     "vat_cee_number_cct",
                     "vat_cee_number_client",
+                    "uuid_identification",
                 ],
                 name="parties_adresses_billing",
             ),
@@ -360,13 +360,19 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     big_category = models.CharField(max_length=80)
     big_category_code = models.CharField(max_length=15)
     big_category_slug_name = models.CharField(max_length=120)
+    big_category_ranking = models.IntegerField()
     printed = models.BooleanField(null=True, default=False)
+    send_email = models.BooleanField(null=True, default=False)
     mode_reglement = models.CharField(null=True, max_length=80)
     date_echeance = models.DateField(null=True)
 
     # Les fichiers pdf seront déversés dans le répertoire files/media/sales_invoices
     invoice_file = models.FileField(null=True, upload_to="sales_invoices")
     global_invoice_file = models.FileField(null=True, upload_to="sales_invoices")
+
+    # Colonne formation pour la facturetion à l'unité des formations
+    # 1 facture par personne et par formations
+    formation = models.CharField(max_length=80)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -392,6 +398,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
             models.Index(fields=["big_category"]),
             models.Index(fields=["invoice_file"]),
             models.Index(fields=["global_invoice_file"]),
+            models.Index(fields=["big_category_ranking"]),
             models.Index(
                 fields=[
                     "third_party_num",
@@ -479,6 +486,14 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
                     "big_category",
                     "invoice_number",
                     "invoice_year",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "uuid_identification",
+                    "big_category_slug_name",
+                    "big_category_ranking",
                 ]
             ),
             models.Index(
@@ -538,7 +553,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
         ]
 
 
-class InvoiceCommonDetails(BaseCommonDetailsTable):
+class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
     """
     FR : Detail des n° de série
     EN : Serial numbers detail

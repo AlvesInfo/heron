@@ -1,0 +1,43 @@
+{% load static %}
+{% load filters_tags %}
+
+{% include "invoices/general_style_invoices.html" %}
+
+{% include "invoices/pdf_generic_entete.html" %}
+
+{#  ENTETE GENERALE======================================== #}
+<table class="tableauFacturation">
+    <tr class="entete">
+        <td colspan="4" style="text-align: center;padding: 5px 5px;">RECAPITULATIF PAR FOURNISSEURS</td>
+    </tr>
+</table>
+<br>
+{#  TABLE ========================================== #}
+<table class="tableauFacturation">
+    <tr class="entete">
+        <td style="text-align: left;padding: 5px 5px;width: 40%">FOURNISSEUR</td>
+        <td style="text-align: right;padding: 5px 5px;width: 20%">TOTAL HT</td>
+        <td style="text-align: right;padding: 5px 5px;width: 20%">TOTAL TVA</td>
+        <td style="text-align: right;padding: 5px 5px;width: 20%">TOTAL TTC</td>
+
+    {% for supplier in suppliers %}
+        <tr class="bordures">
+            <td style="text-align: left;padding-left: 5px;">{{ supplier.supplier_name }}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if supplier.net_amount %}{{ supplier.net_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if supplier.vat_amount %}{{ supplier.vat_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 5px;">{% if supplier.amount_with_vat %}{{ supplier.amount_with_vat|numbers_format:2 }}{% endif %}</td>
+        </tr>
+    {% endfor %}
+
+    <tr class="entete">
+        <td style="text-align: right;padding: 5px 5px !important;">Totaux</td>
+        <td style="text-align: right;padding: 5px 5px;">{{ suppliers|regroup_sum:"net_amount"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding: 5px 5px;">{{ suppliers|regroup_sum:"vat_amount"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding: 5px 5px;">{{ suppliers|regroup_sum:"amount_with_vat"|numbers_format:2 }}</td>
+    </tr>
+
+</table>
+
+{% include "invoices/pdf_generic_footer_invoices.html" %}
+
+<div class="fin-doc"></div>

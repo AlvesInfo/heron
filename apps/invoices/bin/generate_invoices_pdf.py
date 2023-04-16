@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=E0401,C0413,R0914
 """
 FR : Module de génération des factures en pdf
 EN : Module for generating invoice headers in pdf
@@ -36,13 +36,11 @@ from pdfrw import PdfReader, PdfWriter
 
 from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.invoices.bin.pdf_sumary import summary_invoice_pdf
-from apps.invoices.bin.pdf_marchandises import (
-    marchandise_header_invoice_pdf,
-    marchandises_suppliers_invoice_pdf,
-    marchandise_details_invoice_pdf,
-    marchandise_sub_details_invoice_pdf,
-)
-from apps.invoices.bin.pdf_royalties import royalties_invoice_pdf
+from apps.invoices.bin.pdf_marchandises import invoice_marchandise_pdf
+from apps.invoices.bin.pdf_royalties import invoice_royalties_pdf
+from apps.invoices.bin.pdf_publicity import invoice_publicity_pdf
+from apps.invoices.bin.pdf_prestation import invoice_prestation_pdf
+from apps.invoices.bin.pdf_formation import invoice_formation_pdf
 from apps.invoices.models import SaleInvoice
 
 
@@ -54,23 +52,18 @@ def invoices_pdf_generation():
     """
 
     generation_pdf_dict = {
-        "marchandises": [
-            marchandise_header_invoice_pdf,
-            marchandises_suppliers_invoice_pdf,
-            marchandise_details_invoice_pdf,
-            marchandise_sub_details_invoice_pdf,
-        ],
-        "rfa": [],
-        "redevances": [royalties_invoice_pdf],
-        "redevances-de-publicite": [],
-        "formation": [],
-        "personnel": [],
-        "materiel": [],
-        "divers": [],
-        "prestation": [],
+        "marchandises": invoice_marchandise_pdf,
+        "rfa": "",
+        "redevances": invoice_royalties_pdf,
+        "redevances-de-publicite": invoice_publicity_pdf,
+        "formation": invoice_formation_pdf,
+        "personnel": "",
+        "materiel": "",
+        "divers": "",
+        "prestation": invoice_prestation_pdf,
     }
-
-    cct_filter = ["AF0001", "AF0514", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549", "AF0014"]
+    #
+    cct_filter = ["AF0001", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549", "AF0514", "AF0014"]
 
     cct_sales_list = (
         SaleInvoice.objects.filter(printed=False)
@@ -84,26 +77,39 @@ def invoices_pdf_generation():
             files_list = []
             file_num = get_generic_cct_num(cct)
             file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
-            print(f"{file_num}_summary.pdf")
+
             files_list.append(file_path)
 
             # On génère le pdf du sommaire
             summary_invoice_pdf(cct, file_path)
 
-            sales_incoices_list = SaleInvoice.objects.filter(cct=cct, printed=False).values_list(
-                "cct", "uuid_identification", "big_category_slug_name"
+            sales_incoices_list = (
+                SaleInvoice.objects.filter(cct=cct, printed=False)
+                .values_list(
+                    "cct", "uuid_identification", "big_category_slug_name", "invoice_number"
+                )
+                .order_by("big_category_ranking")
             )
 
             for sale in sales_incoices_list:
-                cct_sale, uuid_identification, big_category_slug_name = sale
+                cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
 
-                for generation_pdf in generation_pdf_dict.get(big_category_slug_name, []):
-                    name = generation_pdf.__name__.split("_")[1]
-                    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_{name}.pdf"
+                generation_pdf = generation_pdf_dict.get(big_category_slug_name)
+
+                if generation_pdf:
+                    file_path = (
+                        Path(settings.SALES_INVOICES_FILES_DIR)
+                        / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
+                    )
                     files_list.append(file_path)
-                    print(f"{file_num}_{name}.pdf")
+
                     # On génère le pdf des factures
                     generation_pdf(uuid_identification, file_path)
+
+                    # On pose le numéro de facture dans la table des ventes
+                    SaleInvoice.objects.filter(invoice_number=invoice_number).update(
+                        invoice_file=str(file_path)
+                    )
 
             # On fusionne les pdf
             writer = PdfWriter()
@@ -118,6 +124,7 @@ def invoices_pdf_generation():
             file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
             print(f"{file_num}_full.pdf")
             writer.write(file_path)
+            # On pose le numéro du récap de facturation dans la table des ventes
             SaleInvoice.objects.filter(cct=cct, printed=False).update(
                 global_invoice_file=str(file_path)
             )

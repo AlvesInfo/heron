@@ -1,0 +1,73 @@
+<table  class="tableauFacturation" style="margin:0 0 10px 0;">
+    <tr style="">
+        <td><img src="{{ domain }}/static/logo_heron_01.png" alt="logo-heron" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo Héron fixe -->
+        <td><img src="{% if invoices.0.signboard.logo_signboard %}{{ domain }}/static/{{ logo }}{% endif %}" alt="logo-enseigne" style="width:250px;height:auto;margin: 0;"></td> <!-- Logo du facturé -->
+    </tr>
+    <tr>
+        <td><br></td>
+        <td><br></td>
+    </tr>
+
+    <tr>
+        <td style="width:60%;vertical-align: top;">Livré à :
+            <br>
+            <br>
+            <strong>{{ invoices.0.parties.name_cct|default_if_none:"" }}</strong>
+            <br>
+            {{ invoices.0.parties.immeuble_cct|default_if_none:"" }}
+            <br>
+            {{invoices.0.parties.adresse_cct|default_if_none:"" }}
+            <br>
+            {{ invoices.0.parties.code_postal_cct|default_if_none:"" }} {{ invoices.0.parties.ville_cct|default_if_none:""}}
+            <br>
+            {% if invoices.0.parties.vat_cee_number_cct %}N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_cct|default_if_none:"" }}{% endif %}
+        </td>
+        <td style="width:40%;vertical-align: top;">Facturé à :
+            <br>
+            <br>
+            <strong>{{ invoices.0.parties.name_third_party|default_if_none:"" }}</strong>
+            <br>
+            {{ invoices.0.parties.immeuble_third_party|default_if_none:"" }}
+            <br>
+            {{ invoices.0.parties.adresse_third_party|default_if_none:"" }}
+            <br>
+            {{ invoices.0.parties.code_postal_third_party|default_if_none:"" }} {{ invoices.0.parties.ville_third_party|default_if_none:"" }}
+            <br>
+            <br>
+            {% if invoices.0.parties.vat_cee_number_client %}{% if invoices.0.parties.vat_cee_number_client %}N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_client }}{% endif %}{% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-top:10px;">
+            <table>
+                {% if formation %}
+                    <tr>
+                        <td style="width: 90px">N° Adhérent Forco</td>
+                        <td> : {{ invoices.0.centers.member_num}}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td>Code Centrale</td>
+                    <td> : {{ invoices.0.code_center}}</td>
+                </tr>
+                <tr>
+                    <td>N° Compte client</td>
+                    <td> : {{ invoices.0.third_party_num.third_party_num }}</td>
+                </tr>
+                <tr>
+                    <td>N° CCT X3</td>
+                    <td> : {{ invoices.0.cct }}</td>
+                </tr>
+                <tr>
+                    <td>N° Facture</td>
+                    <td> : {{ invoices.0.invoice_number }}</td>
+                </tr>
+                <tr>
+                    <td>Date facture</td>
+                    <td> : {{ invoices.0.invoice_date|date:"d/m/Y"  }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+</table>

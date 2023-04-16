@@ -325,8 +325,8 @@ def main(model_list):
             ]
             printing = None
             make_insert(
-                cursor_from=cursor_dev,
-                cursor_to=cursor_prod,
+                cursor_from=cursor_prod,
+                cursor_to=cursor_dev,
                 table=table,
                 fields=fields,
                 printing=printing,
@@ -334,15 +334,15 @@ def main(model_list):
 
 
 if __name__ == "__main__":
-    main(MODELS_ACCOUNTANCY)
-    main(MODELS_BOOK)
-    main(MODELS_PARAMETERS)
+    # main(MODELS_ACCOUNTANCY)
+    # main(MODELS_BOOK)
+    # main(MODELS_PARAMETERS)
     # main(MODELS_PERIODE)
     # main(MODELS_ARTICLES)
-    main(MODELS_CENTER_PURCHASING)
+    # main(MODELS_CENTER_PURCHASING)
     main(MODELS_CENTER_CLIENTS)
     # main(MODELS_COMPTA)
     # main(MODELS_COUNTRY)
     # main(MODELS_EDI)
     # main(MODELS_IMPORT_FILES)
-    main(MODELS_INVOICES)
+    # main(MODELS_INVOICES)

@@ -30,45 +30,50 @@ SQL_COMMON_DETAILS = sql.SQL(
     """
     insert into "invoices_invoicecommondetails"
     (
-            "import_uuid_identification",
-            "acuitis_order_date",
-            "acuitis_order_number",
-            "client_name",
-            "command_reference",
-            "comment",
-            "customs_code",
-            "delivery_date",
-            "delivery_number",
-            "ean_code",
-            "final_date",
-            "first_name",
-            "formation_month",
-            "heures_formation",
-            "initial_date",
-            "initial_home",
-            "item_weight",
-            "last_name",
-            "libelle",
-            "modified_by",
-            "origin",
-            "personnel_type",
-            "qty",
-            "reference_article",
-            "saisie",
-            "saisie_by",
-            "serial_number",
-            "supplier",
-            "unit_weight",
-            "uuid_file",
-            "bi_id",
-            "flow_name",
-            "third_party_num",
-            "cct",
-            "invoice_number",
-            "invoice_date"
+        "created_at",
+        "modified_at",
+        "import_uuid_identification",
+        "acuitis_order_date",
+        "acuitis_order_number",
+        "client_name",
+        "command_reference",
+        "comment",
+        "customs_code",
+        "delivery_date",
+        "delivery_number",
+        "ean_code",
+        "final_date",
+        "first_name",
+        "formation_month",
+        "heures_formation",
+        "initial_date",
+        "initial_home",
+        "item_weight",
+        "last_name",
+        "libelle",
+        "modified_by",
+        "origin",
+        "personnel_type",
+        "qty",
+        "reference_article",
+        "saisie",
+        "saisie_by",
+        "serial_number",
+        "supplier",
+        "unit_weight",
+        "uuid_file",
+        "bi_id",
+        "flow_name",
+        "third_party_num",
+        "cct",
+        "invoice_number",
+        "invoice_date",
+        "final"
     )
     (
         select 
+            now() as "created_at",
+            now() as modified_at,
             "import_uuid_identification",
             "acuitis_order_date",
             coalesce("acuitis_order_number", '') as "acuitis_order_number",
@@ -108,7 +113,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "ee"."third_party_num",
             "ccm"."cct",
             "ee"."invoice_number",
-            "ee"."invoice_date"
+            "ee"."invoice_date",
+            false as "final"
          from "edi_ediimport" "ee"
          left join "parameters_unitchoices" "pu"
            on "ee"."unit_weight" = "pu"."num"
@@ -352,7 +358,14 @@ SQL_SALES_INVOICES = sql.SQL(
             "icc"."code_center",
             "isb"."code_signboard",
             "eee"."devise",
-            "bs"."payment_condition_client" 
+            "bs"."payment_condition_client",
+            "pcc"."ranking" as "big_category_ranking",
+            -- Case when car la formation doit être facturée à la ligne
+            case 
+                when "eee"."third_party_num" = 'ZFORM'
+                then "eee"."import_uuid_identification"::varchar
+                else ''
+            end as "formation"
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
         on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -447,7 +460,10 @@ SQL_SALES_INVOICES = sql.SQL(
         "devise",
         true as "sale_invoice",
         false as "printed",
-        "payment_condition_client" as "mode_reglement"
+        "payment_condition_client" as "mode_reglement",
+        "big_category_ranking",
+        "formation",
+        false as "send_email"
     from "sales"
     group by 
         "vat_regime",
@@ -462,7 +478,13 @@ SQL_SALES_INVOICES = sql.SQL(
         "code_center",
         "code_signboard",
         "devise",
-        "payment_condition_client"
+        "payment_condition_client",
+        "big_category_ranking",
+        "formation"
+    order by 
+        "cct",
+        "big_category_ranking"
+        
     """
 )
 
@@ -589,7 +611,13 @@ SQL_SALES_DETAILS = sql.SQL(
                 "ccm"."third_party_num" as "client_third_party_num", 
                 "icc"."code_center",
                 "isb"."code_signboard",
-                "gr"."ranking"
+                "gr"."ranking",
+                -- Case when car la formation doit être facturée à la ligne
+                case 
+                    when "eee"."third_party_num" = 'ZFORM'
+                    then "eee"."import_uuid_identification"::varchar
+                    else ''
+                end as "formation"
             from "edi_ediimport" "eee" 
             left join "centers_clients_maison" "ccm" 
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -679,6 +707,7 @@ SQL_SALES_DETAILS = sql.SQL(
         and "isi"."code_center" = "det"."code_center"
         and "isi"."code_signboard" = "det"."code_signboard"
         and "isi"."devise" = "det"."devise"
+        and "isi"."formation" = "det"."formation"
      )
     on conflict do nothing
     """
@@ -694,8 +723,8 @@ SQL_CONTROL_SALES_INSERTION = sql.SQL(
     on is2.uuid_identification  = is3.uuid_invoice 
     group by 
         is2.invoice_number, 
-        is2.invoice_amount_without_tax , 
-        is2.invoice_amount_tax , 
+        is2.invoice_amount_without_tax, 
+        is2.invoice_amount_tax, 
         is2.invoice_amount_with_tax 
     having 	(
             is2.invoice_amount_without_tax 

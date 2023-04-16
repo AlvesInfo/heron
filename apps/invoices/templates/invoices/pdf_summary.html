@@ -1,0 +1,57 @@
+{% load static %}
+{% load filters_tags %}
+
+{% include "invoices/general_style_invoices.html" %}
+
+{% include "invoices/pdf_generic_entete.html" %}
+
+<table style="width:100%;margin-bottom:10px;">
+    <tr class="entete">
+        <td style="text-align: center;font-size: 1.1em;padding: 5px 5px;">Récapitulatif de facturation</td>
+    </tr>
+</table>
+
+<table class="tableauFacturation">
+        <tr class="entete">
+            <td>Rubrique</td>
+            <td style="text-align: center;padding: 5px 5px;">N° de facture</td>
+            <td style="text-align: center;padding: 5px 5px;">Date Facture</td>
+            <td style="text-align: right;padding: 5px 5px;">Montant HT</td>
+            <td style="text-align: right;padding: 5px 5px;">Montant TTC</td>
+        </tr>
+
+<!-- LES LIGNES APPARAISSENT SI NECESSAIRE (montant >0€) -->
+
+    {% for invoice in invoices %}
+        <tr class="bordures">
+            <td>{{ invoice.big_category }}</td>
+            <td style="text-align: center;">{{ invoice.invoice_number }}</td>
+            <td style="text-align: center;">{{ invoice.invoice_date|date:"d/m/Y" }}</td>
+            <td style="text-align: right;padding-right: 5px;">{{ invoice.invoice_amount_without_tax|numbers_format:2 }}</td>
+            <td style="text-align: right;padding-right: 5px;">{{ invoice.invoice_amount_with_tax|numbers_format:2 }}</td>
+        </tr>
+    {% endfor %}
+
+    <tr class="entete">
+        <td style="text-align: right;padding: 5px 5px;" colspan="3">Total du mois</td>
+        <td style="text-align: right;padding: 5px 5px;">{{ invoices|regroup_sum:"invoice_amount_without_tax"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding: 5px 5px;">{{ invoices|regroup_sum:"invoice_amount_with_tax"|numbers_format:2 }}</td>
+    </tr>
+
+</table>
+<br>
+
+{% include "invoices/pdf_generic_paiement.html" %}
+
+
+{% include "invoices/pdf_generic_bank.html" %}
+
+{% include "invoices/pdf_generic_mentions_legales.html" %}
+
+{% if invoices.0.signboard.message %}
+    <hr>
+    <p class="merci">{{ invoices.0.signboard.message }}</p>
+    <hr>
+{% endif %}
+
+{% include "invoices/pdf_generic_footer_invoices.html" %}

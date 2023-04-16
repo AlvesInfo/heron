@@ -65,7 +65,7 @@ class MaisonForm(forms.ModelForm):
             "axe_bu",
             "siren_number",
             "siret_number",
-            "vat_cee_number",
+            "vat_cee_number"
         ]
 
         widgets = {

@@ -167,6 +167,24 @@ def sales_invoices_insertion(
         # On met à jour les éléments pour la facturation
         process_update()
 
+        # On supprime les éxistant non définitifs
+
+        cursor.execute(
+            'delete from invoices_invoicecommondetails where ("final" isnull or "final" = false)'
+        )
+
+        cursor.execute(
+            'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
+        )
+
+        cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
+
+        cursor.execute(
+            'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
+        )
+
+        cursor.execute('delete from invoices_saleinvoice where ("final" isnull or "final" = false)')
+
         # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
         set_common_details(cursor)
 

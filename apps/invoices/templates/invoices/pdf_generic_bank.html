@@ -1,0 +1,13 @@
+{% if invoices.0.centers.bank_center %}
+    <table class="tableauFacturation" style="margin-top:10px;">
+        <tr class="entete">
+            <td>Nos références bancaires</td>
+        </tr>
+    </table>
+
+    <p>{{ invoices.0.centers.bank_center|default_if_none:"" }}<br>
+        IBAN : {{ invoices.0.centers.iban_center|default_if_none:"" }}
+        <br>
+        BIC : {{ invoices.0.centers.code_swift_center|default_if_none:"" }}
+    </p>
+{% endif %}
