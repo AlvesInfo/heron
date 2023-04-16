@@ -42,6 +42,7 @@ from apps.invoices.bin.pdf_marchandises import (
     marchandise_details_invoice_pdf,
     marchandise_sub_details_invoice_pdf,
 )
+from apps.invoices.bin.pdf_royalties import royalties_invoice_pdf
 from apps.invoices.models import SaleInvoice
 
 
@@ -60,7 +61,7 @@ def invoices_pdf_generation():
             marchandise_sub_details_invoice_pdf,
         ],
         "rfa": [],
-        "redevances": [],
+        "redevances": [royalties_invoice_pdf],
         "redevances-de-publicite": [],
         "formation": [],
         "personnel": [],
@@ -69,7 +70,7 @@ def invoices_pdf_generation():
         "prestation": [],
     }
 
-    cct_filter = ["AF0001", "AF0514", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549"]
+    cct_filter = ["AF0001", "AF0514", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549", "AF0014"]
 
     cct_sales_list = (
         SaleInvoice.objects.filter(printed=False)
