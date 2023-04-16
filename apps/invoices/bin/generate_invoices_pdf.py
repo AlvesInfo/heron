@@ -11,17 +11,12 @@ created by: Paulo ALVES
 modified at: 2023-04-13
 modified by: Paulo ALVES
 """
-
 import os
 import sys
 import platform
 from pathlib import Path
 
 import django
-from django.db.models import Count
-from django.conf import settings
-from django.db import transaction
-from pdfrw import PdfReader, PdfWriter
 
 BASE_DIR = r"/"
 
@@ -31,7 +26,13 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from django.db.models import Count
+from django.conf import settings
+from django.db import transaction
+from pdfrw import PdfReader, PdfWriter
 
 from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.invoices.bin.pdf_sumary import summary_invoice_pdf

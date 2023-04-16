@@ -18,7 +18,6 @@ from datetime import datetime
 import time
 
 import django
-from django.db import connection, transaction
 
 BASE_DIR = r"/"
 
@@ -28,7 +27,10 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from django.db import connection, transaction
 
 from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.trace import get_trace

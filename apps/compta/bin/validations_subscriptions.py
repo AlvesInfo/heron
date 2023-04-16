@@ -15,12 +15,9 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
-
 from typing import AnyStr
 
-from psycopg2 import sql
 import django
-from django.db import connection
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -30,7 +27,11 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from psycopg2 import sql
+from django.db import connection
 
 
 def get_have_subscriptions(flow_name: AnyStr, dte_d: AnyStr, dte_f: AnyStr) -> bool:

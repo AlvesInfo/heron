@@ -23,7 +23,7 @@
                            style="background-color: #efefff;font-weight: bold;">
                 {% endif %}
               </div>
-              <div class="three wide field">
+              <div class="four wide field">
                 <label for="id_intitule" style="text-align: left;">Intitulé&nbsp;:</label>
                 {{ form.intitule }}
               </div>
@@ -31,10 +31,17 @@
                 <label for="id_intitule_court" style="text-align: left;">Intitulé court&nbsp;:</label>
                 {{ form.intitule_court }}
               </div>
+
+              <div class="six wide field">
+                <label for="id_tiers" style="text-align: left;">Tiers Client X3&nbsp;:</label>
+                {{ form.third_party_num }}
+              </div>
+              </div>
+          <div class="fields">
               <div class="two wide field">
                 <label for="id_code_maison" style="text-align: left;">Code maison B.I&nbsp;:</label>
                 {% if create %}
-                    {{form.code_maison}}
+                    {{ form.code_maison.value|default_if_none:'' }}
                 {% else %}
                     <input type="text"
                            name="code_maison"
@@ -45,10 +52,24 @@
                            style="background-color: #efefff;font-weight: bold;">
                 {% endif %}
               </div>
-              <div class="one wide field">
+              <div class="two wide field">
+                <label for="id_code_bbgr" style="text-align: left;">Code BBGR B.I&nbsp;:</label>
+                {% if create %}
+                    {{form.code_bbgr.value|default_if_none:''}}
+                {% else %}
+                    <input type="text"
+                           name="code_bbgr"
+                           value="{{ form.code_bbgr.value|default_if_none:'' }}"
+                           required=""
+                           id="id_code_bbgr"
+                           readonly
+                           style="background-color: #efefff;font-weight: bold;">
+                {% endif %}
+              </div>
+              <div class="two wide field">
                 <label for="id_code_cosium" style="text-align: left;">Code cosium B.I&nbsp;:</label>
                 {% if create %}
-                    {{form.code_cosium}}
+                    {{form.code_cosium.value|default_if_none:''}}
                 {% else %}
                     <input type="text"
                            name="code_cosium"
@@ -60,24 +81,34 @@
                 {% endif %}
               </div>
               <div class="two wide field">
-                <label for="id_code_bbgr" style="text-align: left;">Code BBGR B.I&nbsp;:</label>
+                  <label for="id_reference_cosium" style="text-align: left;">Référence Cosium&nbsp;:</label>
                 {% if create %}
-                    {{form.code_bbgr}}
+                    {{form.reference_cosium.value|default_if_none:''}}
                 {% else %}
                     <input type="text"
-                           name="code_bbgr"
-                           value="{{ form.code_bbgr.value|default_if_none:'' }}"
+                           name="reference_cosium"
+                           value="{{ form.reference_cosium.value|default_if_none:'' }}"
                            required=""
-                           id="id_code_bbgr"
+                           id="id_reference_cosium"
                            readonly
                            style="background-color: #efefff;font-weight: bold;">
                 {% endif %}
               </div>
-              <div class="four wide field">
-                <label for="id_tiers" style="text-align: left;">Tiers Client X3&nbsp;:</label>
-                {{ form.third_party_num }}
+              <div class="two wide field">
+                <label for="id_integrable" style="text-align: center;">A Intégrer</label>
+                {{ form.integrable }}
+              </div>
+              <div class="two wide field">
+                <label for="id_chargeable" style="text-align: center;">A Refacturer</label>
+                {{ form.chargeable }}
+              </div>
+              <div class="two wide field">
+                <label for="id_od_ana" style="text-align: center;">ODANA</label>
+                {{ form.od_ana }}
               </div>
           </div>
+
+
         </div>
 
         <h4 class="ui floated header" style="margin-bottom: 5px;">Identifiants</h4>
@@ -273,37 +304,13 @@
                 <label for="id_rfa_remise" style="text-align: left;">Remise RFA&nbsp;:</label>
                 {{ form.rfa_remise }}
               </div>
-              <div class="one wide field">
+              <div class="two wide field">
                 <label for="id_sage_plan_code" style="text-align: left;">Plan X3&nbsp;:</label>
                 {{ form.sage_plan_code }}
               </div>
-{#              <div class="one wide field">#}
-{#                <label for="id_integrable" style="text-align: left;">INTEGRABLE X3&nbsp;:</label>#}
-{#                <input type="checkbox"#}
-{#                       name="integrable"#}
-{#                       id="id_integrable"#}
-{#                       {% if form.integrable.value %}checked{% endif %}#}
-{#                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">#}
-{#              </div>#}
-{#              <div class="one wide field">#}
-{#                <label for="id_chargeable" style="text-align: left;">EXPORT X3&nbsp;:</label>#}
-{#                <input type="checkbox"#}
-{#                       name="chargeable"#}
-{#                       id="id_chargeable"#}
-{#                       {% if form.chargeable.value %}checked{% endif %}#}
-{#                       style="font-weight: bold;width: 25px;height: 25px;margin-left: -15px;margin-top: 5px;">#}
-{#              </div>#}
-              <div class="one wide field">
-                <label for="id_od_ana" style="text-align: center;padding-right: 17px;">ODANA</label>
-                {{ form.od_ana }}
-              </div>
-              <div class="two wide field">
+              <div class="four wide field">
                   <label for="id_axe_bu" style="text-align: left;">AXE BU&nbsp;:</label>
                   {{ form.axe_bu }}
-              </div>
-              <div class="two wide field">
-                  <label for="id_reference_cosium" style="text-align: left;">Référence Cosium&nbsp;:</label>
-                  {{ form.reference_cosium }}
               </div>
           </div>
         </div>

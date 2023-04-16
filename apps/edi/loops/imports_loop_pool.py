@@ -19,7 +19,6 @@ import sys
 from pathlib import Path
 import time
 
-from psycopg2 import sql
 import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -30,10 +29,13 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
 
+from psycopg2 import sql
 from django.db import connection, connections
 from celery import group
+
 from heron import celery_app
 from heron.loggers import LOGGER_EDI
 from apps.core.functions.functions_setups import settings

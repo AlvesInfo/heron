@@ -18,11 +18,7 @@ import platform
 import sys
 import csv
 
-import pendulum
 import django
-from django.utils import timezone
-from celery import group
-from heron import celery_app
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -32,7 +28,13 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+import pendulum
+from django.utils import timezone
+from celery import group
+from heron import celery_app
 
 from heron.loggers import LOGGER_EDI
 from apps.core.functions.functions_setups import connection, transaction

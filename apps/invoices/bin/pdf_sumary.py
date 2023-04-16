@@ -18,10 +18,6 @@ from typing import AnyStr
 from pathlib import Path
 
 import django
-from django.template.loader import render_to_string
-from django.conf import settings
-from weasyprint import HTML
-from weasyprint.text.fonts import FontConfiguration
 
 BASE_DIR = r"/"
 
@@ -31,7 +27,13 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from django.template.loader import render_to_string
+from django.conf import settings
+from weasyprint import HTML
+from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
 

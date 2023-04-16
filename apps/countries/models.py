@@ -182,6 +182,8 @@ class ValidationPostalCode(models.Model):
         on_delete=models.CASCADE,
         to_field="country",
         related_name="post_code_country",
+        db_column="country",
+        unique=True,
     )
     number_char = models.IntegerField(default=0, verbose_name="nombre de caractères")
     rule_number = models.IntegerField(default=0, verbose_name="n° de règle")
@@ -209,6 +211,8 @@ class ValidationIntraVies(models.Model):
         on_delete=models.CASCADE,
         to_field="country",
         related_name="vies_country",
+        db_column="country",
+        unique=True,
     )
     prefix = models.CharField(null=True, blank=True, max_length=2)
     func_verif = models.CharField(null=True, blank=True, max_length=35)

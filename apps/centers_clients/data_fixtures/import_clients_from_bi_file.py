@@ -4,9 +4,6 @@ import sys
 import csv
 from pathlib import Path
 
-from django.db import transaction
-
-
 import django
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -16,7 +13,10 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from django.db import transaction
 
 from apps.core.functions.functions_setups import settings
 from apps.accountancy.models import AccountSage, CodePlanSage, CctSage

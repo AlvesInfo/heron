@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
+
 import django
 
 BASE_DIR = r"/"
@@ -24,6 +25,7 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
 
 import pytest

@@ -5,8 +5,6 @@ import sys
 import platform
 
 import django
-from django.db import connection, connections
-from django.db.utils import IntegrityError
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -15,7 +13,11 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 
 sys.path.insert(0, BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from django.db import connection, connections
+from django.db.utils import IntegrityError
 
 WIDTH_DICT = {
     "1": "one",

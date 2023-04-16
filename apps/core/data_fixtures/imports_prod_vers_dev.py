@@ -64,7 +64,25 @@ from apps.centers_purchasing.models import (
     ApplicableProVat,
 )
 from apps.compta.models import VentesCosium, CaClients
-from apps.edi.models import SupplierDefinition, ColumnDefinition, EdiImport, EdiImportControl
+from apps.countries.models import (
+    Country,
+    Language,
+    Currency,
+    ExchangeRate,
+    ValidationPostalCode,
+    ValidationIntraVies,
+)
+from apps.edi.models import (
+    SupplierDefinition,
+    ColumnDefinition,
+    EdiImport,
+    EdiImportControl,
+    StarkeyDepot,
+)
+from apps.import_files.models import (
+    ShaImportInvoicesFiles,
+    ErrorsShaImportFIles,
+)
 from apps.invoices.models import (
     CentersInvoices,
     SignboardsInvoices,
@@ -74,9 +92,12 @@ from apps.invoices.models import (
     SaleInvoice,
     SaleInvoiceDetail,
     InvoiceCommonDetails,
+    EnteteDetails,
+    AxesDetails,
 )
 from apps.parameters.models import (
     Parameters,
+    UnitChoices,
     Counter,
     CounterNums,
     SendFiles,
@@ -93,7 +114,7 @@ from apps.parameters.models import (
     ActionInProgress,
     DefaultAxeArticle,
 )
-
+from apps.periods.models import Periode
 
 MODELS_ACCOUNTANCY = (
     AccountSage,
@@ -156,12 +177,34 @@ MODELS_CENTER_PURCHASING = (
     ApplicableProVat,
 )
 
-MODELS_EDI = (SupplierDefinition, ColumnDefinition, EdiImportControl, EdiImport)
+MODELS_COUNTRY = (
+    Country,
+    Language,
+    Currency,
+    ExchangeRate,
+    ValidationPostalCode,
+    ValidationIntraVies,
+)
+
+MODELS_EDI = (
+    SupplierDefinition,
+    ColumnDefinition,
+    EdiImportControl,
+    EdiImport,
+    StarkeyDepot,
+)
+
+MODELS_IMPORT_FILES = (
+    ShaImportInvoicesFiles,
+    ErrorsShaImportFIles,
+)
 
 MODELS_INVOICES = (
     CentersInvoices,
     SignboardsInvoices,
     PartiesInvoices,
+    EnteteDetails,
+    AxesDetails,
     Invoice,
     InvoiceDetail,
     SaleInvoice,
@@ -170,6 +213,7 @@ MODELS_INVOICES = (
 )
 
 MODELS_PARAMETERS = (
+    UnitChoices,
     Nature,
     Category,
     InvoiceFunctions,
@@ -188,6 +232,8 @@ MODELS_PARAMETERS = (
     StatFamillyAxes,
     SupplierFamilyAxes,
 )
+
+MODELS_PERIODE = (Periode,)
 
 MODELS_COMPTA = (
     VentesCosium,
@@ -279,8 +325,8 @@ def main(model_list):
             ]
             printing = None
             make_insert(
-                cursor_from=cursor_prod,
-                cursor_to=cursor_dev,
+                cursor_from=cursor_dev,
+                cursor_to=cursor_prod,
                 table=table,
                 fields=fields,
                 printing=printing,
@@ -289,11 +335,14 @@ def main(model_list):
 
 if __name__ == "__main__":
     main(MODELS_ACCOUNTANCY)
-    # main(MODELS_BOOK)
-    # main(MODELS_PARAMETERS)
+    main(MODELS_BOOK)
+    main(MODELS_PARAMETERS)
+    # main(MODELS_PERIODE)
     # main(MODELS_ARTICLES)
-    # main(MODELS_CENTER_PURCHASING)
-    # main(MODELS_CENTER_CLIENTS)
+    main(MODELS_CENTER_PURCHASING)
+    main(MODELS_CENTER_CLIENTS)
     # main(MODELS_COMPTA)
+    # main(MODELS_COUNTRY)
     # main(MODELS_EDI)
-    # main(MODELS_INVOICES)
+    # main(MODELS_IMPORT_FILES)
+    main(MODELS_INVOICES)

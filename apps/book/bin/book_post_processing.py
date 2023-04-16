@@ -16,7 +16,6 @@ import platform
 import sys
 
 import django
-from django.db.models.fields import NOT_PROVIDED
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -26,8 +25,10 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
 
+from django.db.models.fields import NOT_PROVIDED
 from django.db import connection
 
 from apps.book.models import Society

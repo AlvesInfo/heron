@@ -59,8 +59,8 @@ class MaisonForm(forms.ModelForm):
             "prov_account",
             "extourne_account",
             "budget_code",
-            # "integrable",
-            # "chargeable",
+            "integrable",
+            "chargeable",
             "od_ana",
             "axe_bu",
             "siren_number",
@@ -89,6 +89,8 @@ class MaisonForm(forms.ModelForm):
             "budget_code": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "axe_bu": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "od_ana": CheckboxInput(attrs=CHECK_BOX_DICT),
+            "integrable": CheckboxInput(attrs=CHECK_BOX_DICT),
+            "chargeable": CheckboxInput(attrs=CHECK_BOX_DICT),
         }
 
 

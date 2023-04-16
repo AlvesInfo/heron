@@ -15,8 +15,6 @@ import os
 import platform
 import sys
 
-from psycopg2 import sql
-from django.db import connection
 import django
 
 BASE_DIR = r"/"
@@ -27,7 +25,11 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from psycopg2 import sql
+from django.db import connection
 
 
 def insert_bbgr_003_articles():

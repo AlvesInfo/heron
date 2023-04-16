@@ -16,8 +16,6 @@ import csv
 from pathlib import Path
 
 import django
-from django.db import connection, connections
-from django.db.utils import IntegrityError
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -28,7 +26,11 @@ sys.path.insert(0, BASE_DIR)
 sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
+
+from django.db import connection, connections
+from django.db.utils import IntegrityError
 
 
 def set_uuid_control():

@@ -16,9 +16,9 @@ import platform
 import sys
 import csv
 from uuid import UUID
+from pathlib import Path
 
 import django
-from pathlib import Path
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -27,6 +27,7 @@ if platform.uname().node not in ["PauloMSI", "MSI"]:
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
 django.setup()
 
 # from apps.core.functions.functions_setups import *
