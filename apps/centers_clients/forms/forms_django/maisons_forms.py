@@ -16,6 +16,16 @@ from apps.centers_clients.models import (
 
 
 class MaisonForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["code_maison"].required = False
+        self.fields["code_cosium"].required = False
+        self.fields["reference_cosium"].required = False
+        self.fields["code_bbgr"].required = False
+
     class Meta:
         model = Maison
         fields = [
