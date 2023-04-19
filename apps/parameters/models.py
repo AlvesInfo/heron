@@ -655,7 +655,7 @@ class BaseCommonDetailsTable(models.Model):
     )
     delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
     client_name = models.CharField(null=True, blank=True, max_length=80)
-    comment = models.CharField(null=True, blank=True, max_length=120)
+    comment = models.CharField(null=True, blank=True, max_length=255)
     command_reference = models.CharField(null=True, blank=True, max_length=120)
 
     # Qty / Montants

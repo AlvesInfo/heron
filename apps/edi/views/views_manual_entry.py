@@ -26,6 +26,7 @@ from apps.edi.bin.edi_utilites import (
     set_trace_hand_invoice,
     data_dict_invoices_clean,
     get_query_articles,
+    get_personal_profession_type,
 )
 from apps.edi.bin.set_hand_invoices import set_hand_invoice
 from apps.edi.forms import (
@@ -45,18 +46,21 @@ CATEGORIES_DICT = {
         "form": CreateBaseMarchandiseForm,
         "details_form": CreateMarchandiseInvoiceForm,
         "query_articles": False,
+        "nb_display": 50,
     },
     "formation": {
         "titre_table": "Saisie de Facture de Formations",
         "form": CreateBaseFormationForm,
         "details_form": CreateFormationInvoiceForm,
         "query_articles": True,
+        "nb_display": 1,
     },
     "personnel": {
         "titre_table": "Saisie de Facture de Personnel",
         "form": CreateBasePersonnelForm,
         "details_form": CreatePersonnelInvoiceForm,
         "query_articles": True,
+        "nb_display": 30,
     },
 }
 
@@ -80,7 +84,7 @@ def create_hand_invoices(request, category):
     ou models est ce qu'il y a dans data-models.
 
     La view endpoint apps/core/views/api_models_query, va remplir les champs avec les fonctions
-    du dictionnaire MODEL_DICT, ou la keys est le data-models et sa fonction correspondante,
+    du dictionnaire MODEL_DICT, ou la key est le data-models et sa fonction correspondante,
     qui est dans apps/core/bin/api_get_models.py
 
     :param request:  Request au sens Django
@@ -91,8 +95,9 @@ def create_hand_invoices(request, category):
         return redirect("home")
 
     level = 50
-    nb_display = 50
-    titre_table, invoice_form, details_form, query_articles = CATEGORIES_DICT.get(category).values()
+    titre_table, invoice_form, details_form, query_articles, nb_display = CATEGORIES_DICT.get(
+        category
+    ).values()
     data = {"success": "ko"}
 
     if request.is_ajax() and request.method == "POST":
@@ -151,9 +156,11 @@ def create_hand_invoices(request, category):
                 return JsonResponse(data)
 
             # Si le formulaire d'entête est invalide, on génère le message à afficher
-            for error_list in dict(form.errors).values():
+            for key, error_list in dict(form.errors).items():
                 message += (
-                    f", {', '.join(list(error_list))}" if message else ", ".join(list(error_list))
+                    f" - {key} : {', '.join(list(error_list))}"
+                    if message
+                    else f"{key} : {', '.join(list(error_list))}"
                 )
 
             # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
@@ -186,8 +193,6 @@ def create_hand_invoices(request, category):
 
             return JsonResponse(data)
 
-    template = "edi/invoice_hand_update.html"
-
     context = {
         "titre_table": titre_table,
         "nb_display": nb_display,
@@ -201,7 +206,10 @@ def create_hand_invoices(request, category):
         "vat_list": get_youngests_vat_rate(),
     }
 
-    return render(request, template, context=context)
+    if category == "personnel":
+        context.update({"query_profession_type": get_personal_profession_type()})
+
+    return render(request, "edi/invoice_hand_update.html", context=context)
 
 
 # class InvoiceMarchandiseUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

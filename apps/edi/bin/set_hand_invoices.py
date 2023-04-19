@@ -163,11 +163,11 @@ def set_hand_invoice(
 
             else:
                 # S'il y a une erreur ont on génère le message
-                for error_list in dict(form.errors).values():
+                for key, error_list in dict(form.errors).items():
                     message += (
-                        f", {', '.join(list(error_list))}"
+                        f" - {key} : {', '.join(list(error_list))}"
                         if message
-                        else ", ".join(list(error_list))
+                        else f"{key} : {', '.join(list(error_list))}"
                     )
 
                 # On trace l'erreur

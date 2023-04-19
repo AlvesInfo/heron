@@ -1,6 +1,5 @@
 {% load filters_tags %}
 
-
 <div class="ui grid" style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_table %}{{ margin_table }}px{% else %}50px{% endif %};margin-right: {% if margin_table %}{{ margin_table }}px{% else %}50px{% endif %};">
     <div class="ui datatable-chargement active inverted dimmer">
         <div class="ui medium text loader">Chargement</div>
@@ -21,11 +20,7 @@
                     <div class="two wide field">
                         <label for="id_invoice_date"
                                style="text-align: left;">Date Facture</label>
-                        <input type="date"
-                             name="invoice_date"
-                             id="id_invoice_date"
-                             required=""
-                             value="{{ date_du_jour.isoformat }}">
+                        {{ form_base.invoice_date }}
                     </div>
                     <div class="one wide field">
                         <label for="id_invoice_type" style="text-align: left;">Type</label>
@@ -35,18 +30,10 @@
                         <label for="id_devise" style="text-align: left;">Devise</label>
                         {{ form_base.devise }}
                     </div>
-                    <div class="five wide field">
-                    </div>
-                    <div class="two wide field" style="text-align: right;">
-{#                        <button class="ui basic teal button" name="ajoutLigne" id="idAjoutLigne" type="button" style="padding: 7px 10px;margin: 28px 0 0;font-size: 11px">AJOUTER DES LIGNES</button>#}
-                    </div>
-                </div>
-
-                <div class="fields" style="">
-                    <div class="ten wide field">
+                    <div class="one wide field">
                     </div>
                     <div class="two wide field">
-                        <label for="id_tot_net_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL HT</label>
+                        <label for="id_tot_net_amount" style="text-align: right;margin-right: 14px">TOTAL HT</label>
                         <input type="number"
                                class="amount"
                                name="tot_net_amount"
@@ -57,7 +44,7 @@
                                value="0">
                     </div>
                     <div class="two wide field">
-                        <label for="id_tot_vat_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL TVA</label>
+                        <label for="id_tot_vat_amount" style="text-align: right;margin-right: 14px">TOTAL TVA</label>
                         <input type="number"
                                class="amount"
                                name="tot_vat_amount"
@@ -68,7 +55,7 @@
                                value="0">
                     </div>
                     <div class="two wide field">
-                        <label for="id_tot_amount_with_vat" style="display: none;text-align: right;margin-right: 14px">TOTAL TTC</label>
+                        <label for="id_tot_amount_with_vat" style="text-align: right;margin-right: 14px">TOTAL TTC</label>
                         <input type="number"
                                class="amount"
                                name="tot_amount_with_vat"
@@ -118,7 +105,7 @@
                                      required="">
                             </div>
                             <div class="three wide field">
-                                <label for="id_last_name_{{ num }}" style="text-align: left;margin-right: 14px">Nome de Famille</label>
+                                <label for="id_last_name_{{ num }}" style="text-align: left;margin-right: 14px">Nom de Famille</label>
                                 <input type="text"
                                        name="last_name"
                                        style="text-align: left;"

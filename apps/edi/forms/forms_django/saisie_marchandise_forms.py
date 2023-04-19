@@ -11,11 +11,13 @@ created by: Paulo ALVES
 modified at: 2021-11-11
 modified by: Paulo ALVES
 """
+import pendulum
 from django import forms
 
 from apps.book.models import Society
 from apps.countries.models import Currency
 from apps.edi.models import EdiImport
+from apps.parameters.forms.forms_django.const_forms import DATE_INPUT
 
 
 class CreateBaseMarchandiseForm(forms.ModelForm):
@@ -82,6 +84,9 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
         self.fields["invoice_date"].error_messages = {
             "required": "Une date de facture est obligatoire"
         }
+        self.fields["invoice_date"].initial = (
+            pendulum.now().start_of("month").subtract(days=1).date().isoformat()
+        )
 
     class Meta:
         """class Meta"""
@@ -94,6 +99,10 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
             "invoice_type",
             "devise",
         ]
+
+        widgets = {
+            "invoice_date": forms.DateInput(attrs=DATE_INPUT)
+        }
 
 
 class CreateMarchandiseInvoiceForm(forms.ModelForm):
@@ -215,6 +224,9 @@ class CreateBaseFormationForm(forms.ModelForm):
         self.fields["invoice_date"].error_messages = {
             "required": "Une date de facture est obligatoire"
         }
+        self.fields["invoice_date"].initial = (
+            pendulum.now().start_of("month").subtract(days=1).date().isoformat()
+        )
 
     class Meta:
         """class Meta"""
@@ -227,6 +239,10 @@ class CreateBaseFormationForm(forms.ModelForm):
             "invoice_type",
             "devise",
         ]
+
+        widgets = {
+            "invoice_date": forms.DateInput(attrs=DATE_INPUT)
+        }
 
 
 class CreateFormationInvoiceForm(forms.ModelForm):
@@ -304,21 +320,14 @@ class CreateBasePersonnelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # TIERS X3 =================================================================================
-        self.third_party_num_choices = [("", "")] + [
-            (
-                society.get("third_party_num"),
-                f"{society.get('third_party_num')} - {society.get('name')}",
-            )
-            for society in Society.objects.filter(in_use=True).values("third_party_num", "name")
-        ]
-        third_party_num = forms.ChoiceField(
-            choices=self.third_party_num_choices,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-            label="Fournisseur X3",
-            required=True,
-            error_messages={"required": "Le Fournisseur (TiersX3) est obligatoire"},
+        third_party_num = forms.CharField(
+            initial="ZPERSONNEL",
+            widget=forms.TextInput(
+                attrs={"readonly": "", "style": "background-color: #efefff;font-weight: bold;"}
+            ),
         )
         self.fields["third_party_num"] = third_party_num
+        self.fields["third_party_num"].required = False
 
         # TYPE FACTURE FAF / AVO ===================================================================
         self.invoice_type_choices = [("380", "FAF"), ("381", "AVO")]
@@ -358,6 +367,9 @@ class CreateBasePersonnelForm(forms.ModelForm):
         self.fields["invoice_date"].error_messages = {
             "required": "Une date de facture est obligatoire"
         }
+        self.fields["invoice_date"].initial = (
+            pendulum.now().start_of("month").subtract(days=1).date().isoformat()
+        )
 
     class Meta:
         """class Meta"""
@@ -371,6 +383,8 @@ class CreateBasePersonnelForm(forms.ModelForm):
             "devise",
         ]
 
+        widgets = {"invoice_date": forms.DateInput(attrs=DATE_INPUT)}
+
 
 class CreatePersonnelInvoiceForm(forms.ModelForm):
     """Formulaire des lignes pour la création des factures de Personnel Dans Edi_Import"""
@@ -380,6 +394,9 @@ class CreatePersonnelInvoiceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["sub_category"].required = False
+        self.fields["command_reference"].required = False
+        self.fields["initial_date"].required = False
+        self.fields["command_reference"].required = False
 
     class Meta:
         """class Meta"""
@@ -429,4 +446,5 @@ class CreatePersonnelInvoiceForm(forms.ModelForm):
             "modified_by",
             "initial_date",
             "personnel_type",
+            "command_reference",
         ]

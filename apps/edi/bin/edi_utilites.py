@@ -25,6 +25,7 @@ from apps.data_flux.models import Trace
 from apps.users.models import User
 from apps.articles.models import Article
 from apps.edi.models import EdiImport
+from apps.parameters.models import Nature
 
 
 def get_sens(sens: str):
@@ -122,7 +123,12 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
             )
 
     if invoice_category == "personnel":
+        data_dict["entete"]["third_party_num"] = "ZPERSONNEL"
         data_dict["entete"]["sens"] = "1"
+
+        for ligne_dict in data_dict["lignes"]:
+            ligne_dict["qty"] = "1"
+            ligne_dict["unit_weight"] = "7"
 
 
 def get_query_articles(invoice_category: AnyStr):
@@ -221,3 +227,16 @@ def set_update_sales_prices() -> None:
     #     sql_set_update_sales_prices = """
     #     """
     #     cursor.execute(sql_set_update_sales_prices)
+
+
+def get_personal_profession_type():
+    """
+    Retourne les types de personnel
+    :return: Query object django filtré
+    """
+    reults_list_dict = [{"uuid_identification": "", "to_display": "---"}] + [
+        {"uuid_identification": ident, "to_display": display}
+        for ident, display in Nature.objects.filter(for_personnel=True)
+        .values_list("uuid_identification", "to_display")
+    ]
+    return reults_list_dict

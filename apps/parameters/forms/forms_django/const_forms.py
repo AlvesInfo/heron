@@ -15,3 +15,4 @@ SELECT_FLUIDE_DICT = {"class": "ui fluid search dropdown"}
 CHECK_BOX_DICT = {
     "style": "font-weight: bold;width: 25px;height: 25px;margin-left: 0;margin-top: 5px"
 }
+DATE_INPUT = {"type": "date"}

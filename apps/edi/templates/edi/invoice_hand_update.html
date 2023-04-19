@@ -9,11 +9,10 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
+    {% if user.is_authenticated %}
 
         {% include 'edi/invoice_hand_empty_form.html' %}
 
-{#        <form action="" method="post">#}
             {% csrf_token %}
             {% include "edi/invoice_handupdate_entete.html" %}
 
@@ -31,8 +30,6 @@
 
             {% endif %}
 
-{#        </form>#}
-
     {% else %}
 
         <br>
@@ -43,7 +40,7 @@
         <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
             site</p>
 
-{% endif %}
+    {% endif %}
 
 
 {% endblock content %}
@@ -188,6 +185,7 @@
                             'delivery_date' : $(`#id_delivery_date_${i.toString().padStart(3, '0')}`).val(),
                             'vat_amount' : $(`#id_vat_amount_${i.toString().padStart(3, '0')}`).val(),
                             'amount_with_vat' : $(`#id_amount_with_vat_${i.toString().padStart(3, '0')}`).val(),
+                            'personnel_type' : $(`#id_personnel_type_${i.toString().padStart(3, '0')}`).val(),
                         });
                     }
                 }

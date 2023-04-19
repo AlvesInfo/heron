@@ -25,11 +25,7 @@
                     <div class="two wide field">
                         <label for="id_invoice_date"
                                style="text-align: left;">Date Facture</label>
-                        <input type="date"
-                             name="invoice_date"
-                             id="id_invoice_date"
-                             required=""
-                             value="{{ date_du_jour.isoformat }}">
+                        {{ form_base.invoice_date }}
                     </div>
                     <div class="one wide field">
                         <label for="id_invoice_type" style="text-align: left;">Type</label>

@@ -72,6 +72,22 @@
                 <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 80em;">
 
                     <div class="column">
+                        <h4 class="ui header" style="font-size: 1em;">DIVERS</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:natures_list' %}" class="item">Natures/Genres</a>
+                        </div>
+                        {% if user.email == "paulo@alves.ovh" %}
+                            <div class="ui link list">
+                                <a href="{% url 'parameters:functions_list' %}" class="item">Fonctions</a>
+                            </div>
+                        {% endif %}
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:numberings_list' %}" class="item">Numérotations</a>
+                        </div>
+
+                    </div>
+
+                    <div class="column">
                         <h4 class="ui header" style="font-size: 1em;">CENTRALES</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:meres_list' %}" class="item">Centrales Mère</a>
@@ -110,14 +126,6 @@
                         <div class="ui link list">
                             <a href="{% url 'invoices:axes_details_list' %}" class="item">Axe PRO/Entêtes Détails</a>
                         </div>
-                        {% if user.email == "paulo@alves.ovh" %}
-                            <div class="ui link list">
-                                <a href="{% url 'parameters:functions_list' %}" class="item">Fonctions</a>
-                            </div>
-                        {% endif %}
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:numberings_list' %}" class="item">Numérotations</a>
-                        </div>
                     </div>
 
                     <div class="column">
@@ -146,9 +154,6 @@
                         </div>
                         <div class="ui link list">
                             <a href="{% url 'book:statistiques_list' %}" class="item">Familles/Axes</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:natures_list' %}" class="item">Natures/Genres</a>
                         </div>
 
                     </div>
