@@ -126,6 +126,7 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                     and bs."third_party_num" = tc."third_party_num"
                 )
             {condition}
+            on conflict do nothing
             """
         )
         if condition:
