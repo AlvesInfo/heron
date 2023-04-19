@@ -79,8 +79,8 @@ def reset_ca(request):
 
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
-            date_debut = pendulum.parse(dte_d).date()
-            date_fin = pendulum.parse(dte_f).date()
+            date_debut = pendulum.parse(dte_d)
+            date_fin = pendulum.parse(dte_f)
             CaClients.objects.filter(date_ca__range=(date_debut, date_fin)).delete()
             EdiImport.objects.filter(
                 invoice_date__range=(date_debut, date_fin),
