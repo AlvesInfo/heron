@@ -77,6 +77,8 @@ def invoices_pdf_generation():
         "AF0351",
         "AF0549",
         "AF0014",
+        "MF0003",
+        "UNIS001",
     ]
 
     cct_sales_list = (
