@@ -39,7 +39,7 @@ from weasyprint.text.fonts import FontConfiguration
 from pdfrw import PdfReader, PdfWriter
 
 from apps.invoices.models import SaleInvoice, EnteteDetails
-from apps.invoices.sql_files.sql_pdf_marchandises import (
+from apps.invoices.sql_files.sql_marchandises import (
     SQL_HEADER,
     SQL_RESUME_HEADER,
     SQL_RESUME_SUPPLIER,
@@ -216,18 +216,18 @@ def invoice_marchandise_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("a9dc258d-d35f-4622-8495-a48206f1f76a")
+    uuid_invoice_to_pdf = UUID("90593cd2-c984-4e6f-a3da-812002495941")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     # header_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_header_marchandise.pdf"
     # marchandise_header_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=header_path)
-    #
+
     # supplier_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_supplier_marchandise.pdf"
-    # marchandises_suppliers_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=supplier_path)
-    #
+    # marchandise_suppliers_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=supplier_path)
+
     # details_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_details_marchandise.pdf"
     # marchandise_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=details_path)
-    #
+
     # sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_sub_marchandise.pdf"
     # marchandise_sub_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
 

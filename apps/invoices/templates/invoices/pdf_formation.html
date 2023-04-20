@@ -5,44 +5,58 @@
 
 {% include "invoices/pdf_generic_entete.html" %}
 
-{% regroup suppliers by supplier_name as supplier_list %}
+<br>
 
-<table class="space">
+
+<table style="width: 100%;" class="header">
     <tbody>
         <tr class="entete">
-            <td style="text-align: center;">Début<br>Formation</td>
-            <td style="text-align: center;">Fin<br>Formation</td>
-            <td style="text-align: left;">Formation</td>
-            <td style="text-align: left;">Nom<br>Apprenant</td>
-            <td style="text-align: left;">Prénom<br>Apprenant</td>
-            <td style="text-align: left;">Heures<br>Formation</td>
+            <td style="text-align: center;padding: 5px 5px;">
+                Facture n° : {{ invoices.0.invoice_number }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+<br>
+
+{% regroup suppliers by supplier_name as supplier_list %}
+
+<table class="tableauFacturation" style="margin-top: -7px;">
+    <tbody>
+        <tr class="entete">
+            <td style="text-align: center;width: 7%;">Début<br>Formation</td>
+            <td style="text-align: center;width: 7%;">Fin<br>Formation</td>
+            <td style="text-align: center;width: 28%;">Formation</td>
+            <td style="text-align: center;width: 12%;">Prénom<br>Apprenant</td>
+            <td style="text-align: center;width: 12%;">Nom<br>Apprenant</td>
+            <td style="text-align: center;width: 5%;">Heures<br>Formation</td>
 
 
-            <td style="text-align: right;padding: 5px 5px;">Montant HT</td>
-            <td style="text-align: center;">%<br>Taux<br>TVA</td>
-            <td style="text-align: right;padding: 5px 5px;">Montant TVA</td>
-            <td style="text-align: right;padding: 5px 5px;">Montant TTC</td>
+            <td style="text-align: right;padding: 5px 5px;width: 8%;">Montant HT</td>
+            <td style="text-align: center;width: 5%;">Taux<br>TVA</td>
+            <td style="text-align: right;width: 8%;">Montant TVA</td>
+            <td style="text-align: right;padding-right: 10px;width: 8%;">Montant TTC</td>
         </tr>
 
-        <tr class="bordures">
-            <td style="text-align: center;">{{ formation.initial_date }}</td>
-            <td style="text-align: center;">{{ formation.final_date }}</td>
-            <td style="text-align: center;">{{ formation.formation }}</td>
+        <tr class="lignes-light" style="padding: 10px 5px !important;">
+            <td style="text-align: center;">{{ formation.initial_date|date:"d/m/Y" }}</td>
+            <td style="text-align: center;">{{ formation.final_date|date:"d/m/Y" }}</td>
+            <td style="text-align: left;">{{ formation.formation }}</td>
             <td style="text-align: center;">{{ formation.first_name }}</td>
             <td style="text-align: center;">{{ formation.last_name }}</td>
-            <td style="text-align: center;">{{ formation.heures_formation }}</td>
-            <td style="text-align: right;padding: 5px 5px;">{% if formation.net_amount %}{{ formation.net_amount|numbers_format:2 }}{% endif %}</td>
-            <td style="text-align: center;padding: 5px 5px;">{{ formation.taux_tva|numbers_format:2 }}</td>
-            <td style="text-align: right;padding: 5px 5px;">{% if formation.vat_amount %}{{ formation.taux_tva|numbers_format:2 }}{% endif %}</td>
-            <td style="text-align: right;padding: 5px 5px;">{% if formation.amount_with_vat %}{{ formation.vat_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: center;">{{ formation.heures_formation|numbers_format:0 }}</td>
+            <td style="text-align: right;">{% if formation.net_amount %}{{ formation.net_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: center;">{{ formation.taux_tva|numbers_format:2 }} %</td>
+            <td style="text-align: right;">{% if formation.vat_amount %}{{ formation.vat_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding: 8px 10px;">{% if formation.amount_with_vat %}{{ formation.amount_with_vat|numbers_format:2 }}{% endif %}</td>
         </tr>
 
         <tr class="entete">
-            <td style="text-align: right;padding: 5px 5px;" colspan="6">TOTAL</td>
-            <td style="text-align: right;padding: 5px 5px;">{% if formation.net_amount %}{{ formation.net_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 10px;" colspan="6">TOTAL</td>
+            <td style="text-align: right;">{% if formation.net_amount %}{{ formation.net_amount|numbers_format:2 }}{% endif %}</td>
             <td></td>
-            <td style="text-align: right;padding: 5px 5px;">{% if formation.vat_amount %}{{ formation.taux_tva|numbers_format:2 }}{% endif %}</td>
-            <td style="text-align: right;padding: 5px 5px;">{% if formation.amount_with_vat %}{{ formation.vat_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;">{% if formation.vat_amount %}{{ formation.vat_amount|numbers_format:2 }}{% endif %}</td>
+            <td style="text-align: right;padding-right: 10px;">{% if formation.amount_with_vat %}{{ formation.amount_with_vat|numbers_format:2 }}{% endif %}</td>
         </tr>
     </tbody>
 </table>

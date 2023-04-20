@@ -1,14 +1,16 @@
 {% load static %}
 {% load filters_tags %}
 
+{% include "invoices/general_style_counter_pages.html" %}
+
 {% include "invoices/general_style_details.html" %}
 
 {% include "invoices/pdf_generic_logo.html" %}
 
-<table class="space" style="margin-bottom:3px;">
+<table style="width: 100%;" class="header">
     <tbody>
         <tr class="entete">
-            <td class="groupe"  style="width:100%;padding: 3px 3px;">
+            <td style="text-align: center;padding: 5px 5px;">
                 Maison : {{ invoices.0.parties.name_cct|default_if_none:"" }} - Détails de la facture n° : {{ invoices.0.invoice_number }} - Date de la facture : {{ invoices.0.invoice_date|date:"d/m/Y"  }}
             </td>
         </tr>
@@ -38,21 +40,21 @@
             {% for supplier in supplier_name.list %}
 
                 <tr class="bordures">
-                    <td style="padding-left: 3px;">{{ supplier.invoice_number }}</td>
-                    <td style="text-align: center;">{{ supplier.invoice_date|date:"d/m/y" }}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.MO %}{{ supplier.MO|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.MS %}{{ supplier.MS|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.VE %}{{ supplier.VE|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.COT %}{{ supplier.COT|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.AU %}{{ supplier.AU|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.PI %}{{ supplier.PI|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.AC %}{{ supplier.AC|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.AO %}{{ supplier.AO|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.CO %}{{ supplier.CO|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.PO %}{{ supplier.PO|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.DI %}{{ supplier.DI|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.total_ht %}{{ supplier.total_ht|numbers_format:2 }}{% endif %}</td>
-                    <td style="text-align: right;padding-right: 3px;">{% if supplier.total_ttc %}{{ supplier.total_ttc|numbers_format:2 }}{% endif %}</td>
+                    <td class="facture" style="padding-left: 3px;">{{ supplier.invoice_number }}</td>
+                    <td class="date-facture" style="text-align: center;">{{ supplier.invoice_date|date:"d/m/y" }}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.MO %}{{ supplier.MO|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.MS %}{{ supplier.MS|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.VE %}{{ supplier.VE|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.COT %}{{ supplier.COT|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.AU %}{{ supplier.AU|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.PI %}{{ supplier.PI|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.AC %}{{ supplier.AC|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.AO %}{{ supplier.AO|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.CO %}{{ supplier.CO|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.PO %}{{ supplier.PO|numbers_format:2 }}{% endif %}</td>
+                    <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.DI %}{{ supplier.DI|numbers_format:2 }}{% endif %}</td>
+                    <td class="montant" style="text-align: right;padding-right: 3px;">{% if supplier.total_ht %}{{ supplier.total_ht|numbers_format:2 }}{% endif %}</td>
+                    <td class="montant" style="text-align: right;padding-right: 3px;">{% if supplier.total_ttc %}{{ supplier.total_ttc|numbers_format:2 }}{% endif %}</td>
                 </tr>
 
             {% endfor %}
@@ -81,20 +83,20 @@
 <table class="space">
     <tbody>
         <tr class="totalGeneral">
-            <td colspan="2">TOTAL GENERAL</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"MO"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"MS"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"VE"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AU"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"PI"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AC"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AO"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"PO"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"DI"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ht"|numbers_format:2|default_if_zero }}</td>
-            <td style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ttc"|numbers_format:2|default_if_zero }}</td>
+            <td colspan="2" style="width: 14%;padding-right: 10px;">TOTAL GENERAL</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"MO"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"MS"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"VE"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AU"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"PI"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AC"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AO"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"PO"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"DI"|numbers_format:2|default_if_zero }}</td>
+            <td class="montant" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ht"|numbers_format:2|default_if_zero }}</td>
+            <td class="montant" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ttc"|numbers_format:2|default_if_zero }}</td>
 
         </tr>
     </tbody>

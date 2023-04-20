@@ -37,7 +37,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
-from apps.invoices.sql_files.sql_pdf_formation import SQL_FORMATION
+from apps.invoices.sql_files.sql_formation import SQL_FORMATION
 
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
@@ -45,7 +45,6 @@ DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127
 def invoice_formation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
     Generation de la facture de formation
-    Génération des entêtes de factures de marchandises
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
     :return: None
@@ -75,13 +74,13 @@ def invoice_formation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("caeacdfb-33b2-42f8-94cb-937c05374991")
+    uuid_invoice_to_pdf = UUID("a927db3d-6699-4133-a87c-9256c14b881c")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     formation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_formation.pdf"
     invoice_formation_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=formation_path)
 
-    uuid_invoice_to_pdf = UUID("659aa9db-4535-4c8c-9335-688bef477ce0")
+    uuid_invoice_to_pdf = UUID("6be46eff-9d92-4de1-9349-a1e26e20e671")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     formation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_formation_2.pdf"

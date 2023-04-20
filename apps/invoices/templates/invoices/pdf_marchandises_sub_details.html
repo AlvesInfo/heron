@@ -1,19 +1,25 @@
 {% load static %}
 {% load filters_tags %}
 
+{% include "invoices/general_style_counter_pages.html" %}
+
 {% include "invoices/general_style_sub_details.html" %}
 
 {% include "invoices/pdf_generic_entete.html" %}
 
-<table style="width:100%;margin-bottom:10px;">
+<br>
+
+<table style="width:100%;">
     <tbody>
         <tr class="entete">
-            <td style="text-align: center;font-size: 1.1em;padding: 5px 10px;">
+            <td style="text-align: center;font-size: 1.1em;padding: 5px 5px;">
                 Sous Détails de la facture n° : {{ invoices.0.invoice_number }}
             </td>
         </tr>
     </tbody>
 </table>
+
+<br>
 
 {# REGROUPEMENT PAR FOURNISSEURS ================================================================ #}
 {% regroup sub_details by supplier_name as sub_details_list %}
@@ -30,9 +36,9 @@
 
             {% for invoice in invoice_list %}
                 <tr class="detailsFacture">
-                    <td style="padding-left: 5px;" colspan="7">Facture n° : {{ invoice.grouper }} - du {{ invoice.list.0.invoice_date|date:"d/m/y" }}</td>
+                    <td style="padding-left: 5px;background-color: #dbdbdb;" colspan="7">Facture n° : {{ invoice.grouper }} - du {{ invoice.list.0.invoice_date|date:"d/m/y" }}</td>
                 </tr>
-                <tr class="sousEntete">
+                <tr class="sousEntete" style="background-color: #dbdbdb;">
                     <td style="padding-left: 5px;">Collection</td>
                     <td style="padding-left: 5px;">Code Article</td>
                     <td style="padding-left: 5px;">Libellé</td>
@@ -48,7 +54,7 @@
 
                 {% for delivery in delivery_list %}
                     <tr class="borduresBL">
-                        <td style="padding-left: 5px;" colspan="7">BL n° : {{ delivery.grouper }}{% if delivery.delivery_date %} - du {{ delivery.delivery_date|date:"d/m/y" }}{% endif %}</td>
+                        <td style="padding-left: 5px;background-color: #dbdbdb;" colspan="7">BL n° : {{ delivery.grouper }}{% if delivery.delivery_date %} - du {{ delivery.delivery_date|date:"d/m/y" }}{% endif %}</td>
                     </tr>
 
                     {% for line in delivery.list %}
@@ -65,7 +71,7 @@
 
                 {% endfor %}
 
-                <tr class="sousTotaux borduresBL">
+                <tr class="sousTotaux borduresBL" style="background-color: #dbdbdb;">
                     <td style="padding-right: 3px;" colspan="5">Sous-total - Facture n° : {{ invoice.grouper }}</td>
                     <td style="text-align: right;padding-right: 3px;">{{ invoice.list|regroup_sum:"net_amount"|numbers_format:2 }}</td>
                     <td style="text-align: right;padding-right: 3px;">{{ invoice.list|regroup_sum:"amount_with_vat"|numbers_format:2 }}</td>
@@ -74,7 +80,7 @@
 
             {% endfor %}
 
-            <tr class="totaux borduresBL">
+            <tr class="totaux borduresBL" style="background-color: #bebdbd;">
                 <td colspan="5">Total - {{ supplier_name.grouper }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"net_amount"|numbers_format:2 }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"amount_with_vat"|numbers_format:2 }}</td>
@@ -82,7 +88,5 @@
     </table>
     <br>
 {% endfor %}
-
-{% include "invoices/pdf_generic_footer_invoices.html" %}
 
 <div class="fin-doc"></div>

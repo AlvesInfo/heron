@@ -41,6 +41,9 @@ from apps.invoices.bin.pdf_royalties import invoice_royalties_pdf
 from apps.invoices.bin.pdf_publicity import invoice_publicity_pdf
 from apps.invoices.bin.pdf_prestation import invoice_prestation_pdf
 from apps.invoices.bin.pdf_formation import invoice_formation_pdf
+from apps.invoices.bin.pdf_staff import invoice_staff_pdf
+from apps.invoices.bin.pdf_material import invoice_material_pdf
+from apps.invoices.bin.pdf_various import invoice_various_pdf
 from apps.invoices.models import SaleInvoice
 
 
@@ -57,13 +60,13 @@ def invoices_pdf_generation():
         "redevances": invoice_royalties_pdf,
         "redevances-de-publicite": invoice_publicity_pdf,
         "formation": invoice_formation_pdf,
-        "personnel": "",
-        "materiel": "",
-        "divers": "",
+        "personnel": invoice_staff_pdf,
+        "materiel": invoice_material_pdf,
         "prestation": invoice_prestation_pdf,
+        "divers": invoice_various_pdf,
     }
-    #
-    cct_filter = ["AF0001", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549", "AF0514", "AF0014"]
+    # "AF0001", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549", "AF0014"
+    cct_filter = ["AF0514", ]
 
     cct_sales_list = (
         SaleInvoice.objects.filter(printed=False)

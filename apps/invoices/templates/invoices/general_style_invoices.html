@@ -1,7 +1,7 @@
 {% load static %}
 
 <style>
-    @page {
+@page {
     size: 21cm 29.7cm;
     margin: 10mm 10mm 10mm 10mm;
 }
@@ -36,27 +36,38 @@ table, p {
 }
 
 .entete td:first-child {
-    border-left-style: solid;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    {#border-left-style: solid;#}
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
     padding-left:5px;
 }
 
 .entete td:last-child {
-    border-right-style: solid;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
+    {#border-right-style: solid;#}
+    border-bottom-right-radius: 14px;
+    border-top-right-radius: 14px;
 }
 
-
-tr.bordures > td {
+tr.bordures > td, tr.lignes > td, tr.lignes-light > td {
 	border-left:1px solid #dadada;
 	border-right:1px solid #dadada;
 }
 
-tr.bordures > td:first-child, tr.bordures > td:last-child {
+tr.bordures > td:first-child, tr.bordures > td:last-child, tr.lignes > td:first-child, tr.lignes > td:last-child, tr.lignes-light > td:first-child, tr.lignes-light > td:last-child {
 	border-left:none;
 	border-right:none;
+}
+
+tr.entete > td, td.entete > td {
+    padding: 5px;
+}
+
+tr.lignes > td {
+    padding: 2px 5px;
+}
+
+tr.lignes-light > td {
+    padding: 5px 5px 3px;
 }
 
 .tableauFacturation {

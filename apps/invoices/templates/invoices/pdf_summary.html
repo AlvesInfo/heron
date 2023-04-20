@@ -5,6 +5,8 @@
 
 {% include "invoices/pdf_generic_entete.html" %}
 
+<br>
+
 <table style="width:100%;margin-bottom:10px;">
     <tr class="entete">
         <td style="text-align: center;font-size: 1.1em;padding: 5px 5px;">Récapitulatif de facturation</td>
@@ -13,29 +15,29 @@
 
 <table class="tableauFacturation">
         <tr class="entete">
-            <td>Rubrique</td>
-            <td style="text-align: center;padding: 5px 5px;">N° de facture</td>
-            <td style="text-align: center;padding: 5px 5px;">Date Facture</td>
-            <td style="text-align: right;padding: 5px 5px;">Montant HT</td>
-            <td style="text-align: right;padding: 5px 5px;">Montant TTC</td>
+            <td style="padding-left: 10px;width: 34%;">Rubrique</td>
+            <td style="text-align: center;width: 20%;">N° de facture</td>
+            <td style="text-align: center;width: 16%;">Date Facture</td>
+            <td style="text-align: right;width: 15%;">Montant HT</td>
+            <td style="text-align: right;padding-right: 10px;width: 15%;">Montant TTC</td>
         </tr>
 
 <!-- LES LIGNES APPARAISSENT SI NECESSAIRE (montant >0€) -->
 
     {% for invoice in invoices %}
-        <tr class="bordures">
-            <td>{{ invoice.big_category }}</td>
+        <tr class="lignes">
+            <td style="padding-left: 10px">{{ invoice.big_category }}</td>
             <td style="text-align: center;">{{ invoice.invoice_number }}</td>
             <td style="text-align: center;">{{ invoice.invoice_date|date:"d/m/Y" }}</td>
-            <td style="text-align: right;padding-right: 5px;">{{ invoice.invoice_amount_without_tax|numbers_format:2 }}</td>
-            <td style="text-align: right;padding-right: 5px;">{{ invoice.invoice_amount_with_tax|numbers_format:2 }}</td>
+            <td style="text-align: right;padding-right: 5px">{{ invoice.invoice_amount_without_tax|numbers_format:2 }}</td>
+            <td style="text-align: right;padding-right: 10px">{{ invoice.invoice_amount_with_tax|numbers_format:2 }}</td>
         </tr>
     {% endfor %}
 
     <tr class="entete">
-        <td style="text-align: right;padding: 5px 5px;" colspan="3">Total du mois</td>
-        <td style="text-align: right;padding: 5px 5px;">{{ invoices|regroup_sum:"invoice_amount_without_tax"|numbers_format:2 }}</td>
-        <td style="text-align: right;padding: 5px 5px;">{{ invoices|regroup_sum:"invoice_amount_with_tax"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding-right: 10px;" colspan="3">TOTAL FACTURATION</td>
+        <td style="text-align: right;padding-right: 5px;">{{ invoices|regroup_sum:"invoice_amount_without_tax"|numbers_format:2 }}</td>
+        <td style="text-align: right;padding-right: 10px;">{{ invoices|regroup_sum:"invoice_amount_with_tax"|numbers_format:2 }}</td>
     </tr>
 
 </table>

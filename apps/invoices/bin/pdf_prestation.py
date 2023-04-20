@@ -37,7 +37,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
-from apps.invoices.sql_files.sql_pdf_prestation import SQL_HEADER, SQL_RESUME_HEADER
+from apps.invoices.sql_files.sql_prestation import SQL_HEADER, SQL_RESUME_HEADER
 
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
@@ -45,7 +45,6 @@ DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127
 def invoice_prestation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
     Generation de la facture de prestation
-    Génération des entêtes de factures de marchandises
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
     :return: None
@@ -82,7 +81,7 @@ def invoice_prestation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("9acc90b4-743c-459e-ac4c-6914aa6545e3")
+    uuid_invoice_to_pdf = UUID("b8ed6a2b-9a8b-4d0b-a550-5949e2edfe28")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     prestation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_prestation.pdf"

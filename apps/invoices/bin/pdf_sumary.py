@@ -60,6 +60,6 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
 
 
 if __name__ == '__main__':
-    cct_cct = "AF0518"
+    cct_cct = "AF0514"
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct_cct}_summary.pdf"
     summary_invoice_pdf(cct_cct, file_path)

@@ -37,7 +37,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
-from apps.invoices.sql_files.sql_pdf_royalties import SQL_HEADER, SQL_RESUME_HEADER
+from apps.invoices.sql_files.sq_royalties import SQL_HEADER, SQL_RESUME_HEADER
 
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
@@ -45,7 +45,6 @@ DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127
 def invoice_royalties_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
     Generation de la facture de Royalties
-    :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
     :return: None
     """
@@ -81,7 +80,7 @@ def invoice_royalties_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("57be6d23-cf74-4dc5-bc96-b5a5e692e176")
+    uuid_invoice_to_pdf = UUID("4707e4fe-2606-4150-b3d3-c22561f528bc")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     roayalties_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_roayalties.pdf"

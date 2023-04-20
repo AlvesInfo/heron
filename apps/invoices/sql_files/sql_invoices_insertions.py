@@ -73,7 +73,7 @@ SQL_COMMON_DETAILS = sql.SQL(
     (
         select 
             now() as "created_at",
-            now() as modified_at,
+            now() as "modified_at",
             "import_uuid_identification",
             "acuitis_order_date",
             coalesce("acuitis_order_number", '') as "acuitis_order_number",
@@ -99,7 +99,7 @@ SQL_COMMON_DETAILS = sql.SQL(
             "libelle",
             "ee"."modified_by",
             "origin",
-            "personnel_type",
+            "pn"."to_display" as "personnel_type",
             "qty",
             "reference_article",
             coalesce("saisie", false) as "saisie",
@@ -120,6 +120,8 @@ SQL_COMMON_DETAILS = sql.SQL(
            on "ee"."unit_weight" = "pu"."num"
          left join "centers_clients_maison" "ccm" 
            on "ee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+         left join "parameters_nature" "pn"
+		 on "ee"."personnel_type" = "pn"."uuid_identification"
         where "ee"."cct_uuid_identification" is not null
           and "ee"."valid" = true
         order by "ee"."id"

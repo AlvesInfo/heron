@@ -3,7 +3,7 @@
 
 @page {
     size: 29.7cm 21cm;
-    margin: 10mm 10mm 10mm 10mm;
+    margin: 0 0 5mm 0;
 }
 
 @font-face {
@@ -32,10 +32,22 @@ table {
 	width:100%;
 }
 
+{#.header {#}
+{#    height: 30px;#}
+{#    position: fixed;#}
+{#    top: 0;#}
+{#}#}
+
 .groupe {
 	text-align: center;
 	font-size:1.2em;
 	padding:5px;
+}
+.entete {
+	background-color:black;
+	color:white;
+	font-family:'ClanMedium', sans-serif;
+    border-spacing: 0;
 }
 
 .entete {
@@ -46,16 +58,16 @@ table {
 }
 
 .entete td:first-child {
-    border-left-style: solid;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    {#border-left-style: solid;#}
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
     padding-left:5px;
 }
 
 .entete td:last-child {
-    border-right-style: solid;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
+    {#border-right-style: solid;#}
+    border-bottom-right-radius: 14px;
+    border-top-right-radius: 14px;
 }
 
 .fournisseur {
@@ -124,6 +136,50 @@ tr.bordures > td:nth-last-child(-n+2) {
 
 .totalGeneral > td:first-child {
 	width:15%;
+}
+
+tr.bordures > td, tr.lignes > td, tr.lignes-light > td {
+	border-left:1px solid #dadada;
+	border-right:1px solid #dadada;
+}
+
+tr.bordures > td:first-child, tr.bordures > td:last-child, tr.lignes > td:first-child, tr.lignes > td:last-child, tr.lignes-light > td:first-child, tr.lignes-light > td:last-child {
+	border-left:none;
+	border-right:none;
+}
+
+tr.entete > td, td.entete > td {
+    padding: 5px;
+}
+
+tr.lignes > td {
+    padding: 2px 5px;
+}
+
+tr.lignes-light > td {
+    padding: 5px 5px 3px;
+}
+
+.facture {
+    width: 7.94%;
+}
+
+.date-facture {
+    width: 4.47%;
+}
+
+.regroup {
+    width: 7.01%;
+}
+
+.montant {
+    width: 5.24%;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	width:100%;
 }
 
 .fin-doc {

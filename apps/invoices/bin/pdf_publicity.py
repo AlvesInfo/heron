@@ -37,7 +37,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.models import SaleInvoice
-from apps.invoices.sql_files.sql_pdf_publicity import SQL_HEADER, SQL_RESUME_HEADER
+from apps.invoices.sql_files.sql_publicity import SQL_HEADER, SQL_RESUME_HEADER
 
 DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
@@ -81,7 +81,7 @@ def invoice_publicity_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("76197793-8974-4a3a-b137-4662e79074e8")
+    uuid_invoice_to_pdf = UUID("bbdd8a4a-48d3-4a81-bada-ad9948688ac2")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     publicity_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_publicity.pdf"

@@ -4,7 +4,7 @@
 
 @page {
     size: 21cm 29.7cm;
-    margin: 10mm 10mm 10mm 10mm;
+    margin: 0 0 5mm 0;
 }
 
 @font-face {
@@ -41,16 +41,16 @@ table {
 }
 
 .entete td:first-child {
-    border-left-style: solid;
-    border-top-left-radius: 5px; 
-    border-bottom-left-radius: 5px;
+    {#border-left-style: solid;#}
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
     padding-left:5px;
 }
 
 .entete td:last-child {
-    border-right-style: solid;
-    border-bottom-right-radius: 5px; 
-    border-top-right-radius: 5px; 
+    {#border-right-style: solid;#}
+    border-bottom-right-radius: 14px;
+    border-top-right-radius: 14px;
 }
 
 
@@ -68,12 +68,6 @@ tr.bordures > td {
 
 .mentionsLegales {
 	font-size:0.6em;
-}
-
-.footer {
-	position: fixed;
-	bottom: 0;
-	width:100%;
 }
 
 .fournisseur {
@@ -142,6 +136,12 @@ tr.bordures > td:nth-child(4){
 
 tr.bordures > td:nth-child(n+5){
 	width:10%;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	width:100%;
 }
 
 .fin-doc {

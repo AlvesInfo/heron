@@ -126,12 +126,13 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                     and bs."third_party_num" = tc."third_party_num"
                 )
             {condition}
-            on conflict do nothing
             """
         )
         if condition:
+            print(cursor.mogrify(sql_to_create, {"third_party_num": third_party_num}).decode())
             cursor.execute(sql_to_create, {"third_party_num": third_party_num})
         else:
+            print(cursor.mogrify(sql_to_create).decode())
             cursor.execute(sql_to_create)
 
 

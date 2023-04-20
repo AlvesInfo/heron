@@ -127,7 +127,6 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
         data_dict["entete"]["sens"] = "1"
 
         for ligne_dict in data_dict["lignes"]:
-            ligne_dict["qty"] = "1"
             ligne_dict["unit_weight"] = "7"
 
 
