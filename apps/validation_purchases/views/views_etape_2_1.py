@@ -263,7 +263,7 @@ def integration_purchases_export(request):
             file_name = (
                 f"RELEVES_VS_FACTURES_INTEGREES_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
-
+            print(file_name)
             return response_file(
                 excel_integration_purchases,
                 file_name,

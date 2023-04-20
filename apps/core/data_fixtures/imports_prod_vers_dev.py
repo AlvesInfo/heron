@@ -1,6 +1,9 @@
 from io import StringIO
 import csv
 
+import psycopg2
+import django
+
 from apps.core.functions.functions_setups import connections
 
 from apps.accountancy.models.sage import (
@@ -309,6 +312,30 @@ def make_insert(cursor_from, cursor_to, table, fields, printing=None):
     stream.close()
 
 
+def initialise_id_incrementals(cursor):
+    """Lancement de la réinitialisation des compteurs incrémentaux potsgresql"""
+    # On récupère les tables
+    sql_tables = """
+    SELECT table_schema,table_name FROM information_schema.tables
+    where table_schema = 'public'
+    ORDER BY table_schema,table_name;
+    """
+
+    cursor.execute(sql_tables)
+
+    for table_list in cursor.fetchall():
+        if not str(table_list[1]).startswith("heron"):
+            seq = f"{table_list[1]}_id_seq"
+            try:
+                cursor.execute(
+                    f"""SELECT SETVAL('{seq}', (SELECT MAX("id") FROM {table_list[1]}))"""
+                )
+                print(f"table : {table_list[1]} , le compteur a été re-seter")
+            except (psycopg2.errors.UndefinedColumn, django.db.utils.ProgrammingError) as error:
+                print("erreur: ", error)
+                pass
+
+
 def main(model_list):
     """Lancement de tous les imports de l'app accountancy
     :param model_list: liste des modèles à importer
@@ -332,10 +359,14 @@ def main(model_list):
                 printing=printing,
             )
 
+        initialise_id_incrementals(cursor_prod)
+        initialise_id_incrementals(cursor_dev)
+
 
 if __name__ == "__main__":
+    main([])
     # main(MODELS_ACCOUNTANCY)
-    main(MODELS_BOOK)
+    # main(MODELS_BOOK)
     # main(MODELS_PARAMETERS)
     # main(MODELS_PERIODE)
     # main(MODELS_ARTICLES)

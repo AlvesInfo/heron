@@ -129,10 +129,10 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
             """
         )
         if condition:
-            print(cursor.mogrify(sql_to_create, {"third_party_num": third_party_num}).decode())
+            # print(cursor.mogrify(sql_to_create, {"third_party_num": third_party_num}).decode())
             cursor.execute(sql_to_create, {"third_party_num": third_party_num})
         else:
-            print(cursor.mogrify(sql_to_create).decode())
+            # print(cursor.mogrify(sql_to_create).decode())
             cursor.execute(sql_to_create)
 
 
