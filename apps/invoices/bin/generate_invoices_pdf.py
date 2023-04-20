@@ -65,8 +65,19 @@ def invoices_pdf_generation():
         "prestation": invoice_prestation_pdf,
         "divers": invoice_various_pdf,
     }
-    # "AF0001", "AF0551", "GA0001", "ACAL001", "AF0351", "AF0549", "AF0014"
-    cct_filter = ["AF0514", ]
+    # TODO: A SUPPRIMER LORS DU PASSAGE A LA FACTURATION DEFINITIVE
+    cct_filter = [
+        "AF0514",
+        "AF0103",
+        "AF0116",
+        "AF0001",
+        "AF0551",
+        "GA0001",
+        "ACAL001",
+        "AF0351",
+        "AF0549",
+        "AF0014",
+    ]
 
     cct_sales_list = (
         SaleInvoice.objects.filter(printed=False)
