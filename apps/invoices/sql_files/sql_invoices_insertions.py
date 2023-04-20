@@ -121,10 +121,10 @@ SQL_COMMON_DETAILS = sql.SQL(
          left join "centers_clients_maison" "ccm" 
            on "ee"."cct_uuid_identification" = "ccm"."uuid_identification" 
          left join "parameters_nature" "pn"
-		 on "ee"."personnel_type" = "pn"."uuid_identification"
-        where "ee"."cct_uuid_identification" is not null
-          and "ee"."valid" = true
-        order by "ee"."id"
+                on "ee"."personnel_type" = "pn"."uuid_identification"
+             where "ee"."cct_uuid_identification" is not null
+               and "ee"."valid" = true
+             order by "ee"."id"
     )
     on conflict do nothing
     """

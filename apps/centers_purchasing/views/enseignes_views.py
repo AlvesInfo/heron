@@ -13,6 +13,7 @@ from heron.loggers import LOGGER_VIEWS
 from heron.settings import MEDIA_DIR
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.centers_purchasing.bin.copy_logos import copy_static
 from apps.centers_purchasing.excel_outputs.output_excel_enseignes_list import (
     excel_enseignes_list,
 )
@@ -51,6 +52,12 @@ class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
+
+        form.save()
+        logo_files_model = {
+            row.get("logo") for row in Signboard.objects.all().values("logo") if row.get("logo")
+        }
+        copy_static(logo_files_model)
 
         return super().form_valid(form)
 
@@ -95,6 +102,8 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         logo_files_model = {
             row.get("logo") for row in Signboard.objects.all().values("logo") if row.get("logo")
         }
+
+        copy_static(logo_files_model)
 
         for file_path in logo_files_path.difference(logo_files_model):
             file_to_delete = Path(MEDIA_DIR) / file_path
