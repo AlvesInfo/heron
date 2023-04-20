@@ -342,8 +342,6 @@ def process_update():
 
 
 if __name__ == "__main__":
-    process_update()
-    print("fin process")
     while True:
         maintenant = datetime.now()
         heure = maintenant.hour
