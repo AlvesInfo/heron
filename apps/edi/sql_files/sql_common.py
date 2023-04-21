@@ -164,6 +164,16 @@ post_common_dict = {
     and ("edi"."valid" = false or "edi"."valid" isnull)
     """
     ),
+    "sql_supplier_name_update": sql.SQL(
+        """
+    update "edi_ediimport" "edi"
+    set 
+        "supplier_name" = "supplier"
+    where "uuid_identification" = %(uuid_identification)s
+    and ("edi"."supplier_name" is null or "edi"."supplier_name" = '')
+    and ("edi"."valid" = false or "edi"."valid" isnull)
+    """
+    ),
     "sql_fac_update_except_edi": sql.SQL(
         """
         update "edi_ediimport" edi

@@ -220,7 +220,9 @@ SQL_SUB_DETAILS = sql.SQL(
         "ii"."qty",
         "sd"."net_unit_price",
         "sd"."net_amount",
-        "sd"."amount_with_vat"
+        "sd"."amount_with_vat",
+        "ii"."client_name",
+        "ii"."serial_number" 
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
     on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 

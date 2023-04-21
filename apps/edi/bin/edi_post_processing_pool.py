@@ -93,6 +93,7 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     """Mise à jour générale pour tous les founrnisseurs"""
     sql_round_amount = post_common_dict.get("sql_round_amount")
     sql_supplier_update = post_common_dict.get("sql_supplier_update")
+    sql_supplier_name_update = post_common_dict.get("sql_supplier_name_update")
     sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")
     sql_reference = post_common_dict.get("sql_reference")
     sql_cct = post_common_dict.get("sql_cct")
@@ -112,6 +113,7 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
 
     cursor.execute(sql_round_amount, {"uuid_identification": uuid_identification})
     cursor.execute(sql_supplier_update, {"uuid_identification": uuid_identification})
+    cursor.execute(sql_supplier_name_update, {"uuid_identification": uuid_identification})
     cursor.execute(sql_fac_update_except_edi, {"uuid_identification": uuid_identification})
     cursor.execute(sql_reference, {"uuid_identification": uuid_identification})
     cursor.execute(sql_cct, {"uuid_identification": uuid_identification})

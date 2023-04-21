@@ -61,7 +61,17 @@
                         <tr class="bordures">
                             <td style="padding-left: 3px;">{{ line.grouping_goods|default_if_none:"" }}</td>
                             <td style="padding-left: 3px;">{{ line.reference_article|default_if_none:"" }}</td>
-                            <td style="padding-left: 3px;">{{ line.libelle|default_if_none:"" }}</td>
+                            <td style="padding-left: 3px;">
+                                {{ line.libelle|default_if_none:"" }}
+                                {% if line.client_name %}
+                                    <br>
+                                    Client : {{ line.client_name }}
+                                {% endif %}
+                                {% if line.serial_number %}
+                                    <br>
+                                    N° de série : {{ line.serial_number }}
+                                {% endif %}
+                            </td>
                             <td style="text-align: right;padding-right: 3px;">{{ line.qty|numbers_format:0 }}</td>
                             <td style="text-align: right;padding-right: 3px;">{{ line.net_unit_price|numbers_format:2 }}</td>
                             <td style="text-align: right;padding-right: 3px;">{{ line.net_amount|numbers_format:2 }}</td>
