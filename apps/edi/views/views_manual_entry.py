@@ -36,6 +36,8 @@ from apps.edi.forms import (
     CreateFormationInvoiceForm,
     CreateBasePersonnelForm,
     CreatePersonnelInvoiceForm,
+    # CreateBaseRfaForm,
+    # CreateRfaInvoiceForm,
 )
 
 # 1. CREATION DE FACTURES DE MARCHANDISES
@@ -62,6 +64,13 @@ CATEGORIES_DICT = {
         "query_articles": True,
         "nb_display": 30,
     },
+    # "rfa": {
+    #     "titre_table": "Saisie de Facture de Personnel",
+    #     "form": CreateBaseRfaForm,
+    #     "details_form": CreateRfaInvoiceForm,
+    #     "query_articles": True,
+    #     "nb_display": 50,
+    # },
 }
 
 

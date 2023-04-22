@@ -214,13 +214,15 @@ SQL_SUB_DETAILS = sql.SQL(
         "ii"."invoice_date",
         "ii"."delivery_number",
         "ii"."delivery_date",
-        "sd"."grouping_goods",
-        "ii"."reference_article",
-        "ii"."libelle",
+        case 
+            when "sd"."grouping_goods" = 'MONTURES SOLAIRES' then 'MONT. SOL.'
+            when "sd"."grouping_goods" = 'MONTURES OPTIQUES' then 'MONT. OPT.'
+            else "sd"."grouping_goods"
+        end as "grouping_goods",
+        "ii"."reference_article" || ' - ' || "ii"."libelle" as "article",
         "ii"."qty",
         "sd"."net_unit_price",
         "sd"."net_amount",
-        "sd"."amount_with_vat",
         "ii"."client_name",
         "ii"."serial_number" 
     from "invoices_saleinvoicedetail" "sd"

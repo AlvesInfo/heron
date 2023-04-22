@@ -228,8 +228,9 @@ if __name__ == "__main__":
     # details_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_details_marchandise.pdf"
     # marchandise_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=details_path)
 
-    # sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_sub_marchandise.pdf"
-    # marchandise_sub_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
+    sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_sub_marchandise.pdf"
+    marchandise_sub_details_invoice_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
 
-    sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_{sale.invoice_number}.pdf"
-    invoice_marchandise_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
+    # sub_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_{sale.invoice_number}.pdf"
+    # invoice_marchandise_pdf(uuid_invoice=uuid_invoice_to_pdf, pdf_path=sub_path)
+

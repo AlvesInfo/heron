@@ -41,14 +41,12 @@ table {
 }
 
 .entete td:first-child {
-    {#border-left-style: solid;#}
     border-top-left-radius: 14px;
     border-bottom-left-radius: 14px;
     padding-left:5px;
 }
 
 .entete td:last-child {
-    {#border-right-style: solid;#}
     border-bottom-right-radius: 14px;
     border-top-right-radius: 14px;
 }
@@ -56,6 +54,7 @@ table {
 
 tr.bordures > td {
 	border:1px solid #dadada;
+    font-size: 0.9em;
 }
 
 .tableauFacturation {
@@ -70,28 +69,47 @@ tr.bordures > td {
 	font-size:0.6em;
 }
 
-.fournisseur {
-	text-align: center;
-	font-size: 1.2em;
-	background-color:#dbdbdb;
-	color:black;
-	text-transform: uppercase;
-	font-family:'ClanMedium', sans-serif;
-	border:1px solid #d4d4d4;
+.fournisseur td:first-child {
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+    padding: 5px;
 }
 
-.detailsFacture {
-	background-color:#ededed;
-	color:black;
+.fournisseur td:last-child {
+    border-bottom-right-radius: 14px;
+    border-top-right-radius: 14px;
+    padding: 5px;
+}
+
+.fournisseur > td {
+    background-color:black;
+    text-align: center;
+	color:white;
+    font-size: 1.2em;
 	font-family:'ClanMedium', sans-serif;
     border-spacing: 0;
+    text-transform: uppercase;
+    padding: 5px;
 }
 
 .detailsFacture > td {
-   	border:1px solid #d4d4d4;
+	background-color:#ededed;
+	color:black;
+	font-family:'ClanMedium', sans-serif;
+    padding: 5px;
 }
 
-.sousEntete {
+.detailsFacture td:first-child {
+    border-top-left-radius: 14px;
+    padding: 5px;
+}
+
+.detailsFacture td:last-child {
+    border-top-right-radius: 14px;
+    padding: 5px;
+}
+
+.sousEntete td{
 	font-family:'ClanMedium', sans-serif;
     border-spacing: 0;
     text-align: center;
@@ -101,18 +119,12 @@ tr.bordures > td {
 	text-align: left;
 }
 
-.sousEntete > td {
-   	border:1px solid #d4d4d4;
-}
-
-.borduresBL {
+.borduresBL td {
 	background: #f5f5f5;
 	font-family:'ClanMedium', sans-serif;
+    padding-top: 5px;
 }
 
-tr.borduresBL > td {
-	border:1px solid #dadada;
-}
 
 tr.bordures > td:nth-child(n+4), tr.borduresBL > td:nth-child(n+2), tr.sousTotaux > td, tr.totaux > td {
 	text-align: right;
@@ -136,6 +148,25 @@ tr.bordures > td:nth-child(4){
 
 tr.bordures > td:nth-child(n+5){
 	width:10%;
+}
+
+.sousTotaux > TD {
+    background: #dbdbdb;
+}
+
+.totaux > TD {
+    background-color: #bebdbd;
+}
+
+.sousTotaux > TD, .totaux > TD {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: black;
+    padding: 3px 5px 3px 0;
+}
+
+.bordures {
+    page-break-inside: avoid !important;
 }
 
 .footer {
