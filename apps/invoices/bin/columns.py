@@ -40,6 +40,8 @@ COLS_PURCHASE_DICT = {
     "purchase_invoice": False,
     "adresse_tiers_paye": False,
     "created_by": False,
+    "fcy": False,
+    "cpy": False,
 }
 
 COL_SALES_DICT = {

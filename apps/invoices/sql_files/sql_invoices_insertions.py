@@ -152,7 +152,9 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             "icc"."code_center",
             "isb"."code_signboard",
             "eee"."devise",
-            "eee"."purchase_invoice"
+            "eee"."purchase_invoice",
+            "icc"."fcy",
+            "icc"."cpy"
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
         on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -160,7 +162,9 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             select 
                 "uuid_identification", 
                 "code_center", 
-                "vat_regime_center"
+                "vat_regime_center",
+                "cpy",
+                "fcy"
             from "invoices_centersinvoices" "ici"
             where exists (
                 select 1 
@@ -180,7 +184,6 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             from "book_society" "bs"
             left join "accountancy_paymentcondition" "aa"
             on "aa"."auuid" = "bs"."payment_condition_supplier"
-        
         ) "apa"
         on "apa"."third_party_num" = "eee"."third_party_num"
         left join (
@@ -231,8 +234,10 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         "devise",
         "purchase_invoice",
         '1' "adresse_tiers_paye",
-        null as "created_by"
-    from "purchases"
+        null as "created_by",
+        "cpy",
+        "fcy"
+    from "purchases" 
     """
 )
 
