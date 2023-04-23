@@ -31,6 +31,7 @@ from apps.edi.sql_files.sql_bbgr_003_monthly import bbgr_003_monthly_dict
 from apps.edi.sql_files.sql_bbgr_004_retours import bbgr_004_retours_dict
 from apps.edi.sql_files.sql_bbgr_005_receptions import bbgr_005_receptions_dict
 from apps.edi.sql_files.sql_cosium import post_cosium_dict
+from apps.edi.sql_files.sql_cosium_achat import post_cosium_achats_dict
 from apps.edi.sql_files.sql_transferts_cosium import post_transfert_cosium_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
 from apps.edi.sql_files.sql_eye_confort import post_eye_dict
@@ -237,11 +238,28 @@ def cosium_post_insert(uuid_identification: AnyStr):
     Mise à jour des champs vides à l'import du fichier Opto33 EDI
     :param uuid_identification: uuid_identification
     """
-
     sql_ttc_a_zero = post_cosium_dict.get("sql_ttc_a_zero")
     sql_totaux = post_cosium_dict.get("sql_totaux")
     sql_familles = post_cosium_dict.get("sql_familles")
     sql_origin = post_cosium_dict.get("sql_origin")
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_familles, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_origin, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_totaux, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
+
+
+def cosium_achats_post_insert(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier Opto33 EDI
+    :param uuid_identification: uuid_identification
+    """
+    sql_ttc_a_zero = post_cosium_achats_dict.get("sql_ttc_a_zero")
+    sql_totaux = post_cosium_achats_dict.get("sql_totaux")
+    sql_familles = post_cosium_achats_dict.get("sql_familles")
+    sql_origin = post_cosium_achats_dict.get("sql_origin")
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})

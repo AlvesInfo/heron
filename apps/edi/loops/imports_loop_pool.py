@@ -45,6 +45,7 @@ from apps.users.models import User
 from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_bulk,
     cosium,
+    cosium_achats,
     edi,
     eye_confort,
     generique,
@@ -73,6 +74,7 @@ from apps.parameters.bin.core import get_action
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
     "COSIUM": cosium,
+    "COSIUM_ACHATS": cosium_achats,
     "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,

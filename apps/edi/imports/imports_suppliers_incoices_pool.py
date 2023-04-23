@@ -298,6 +298,34 @@ def cosium(file_path: Path):
     return trace, to_print
 
 
+def cosium_achats(file_path: Path):
+    """Import du fichier des factures Cosium"""
+    model = EdiImport
+    validator = CosiumSchema
+    file_name = file_path.name
+    trace_name = "Import Cosium Achats"
+    application_name = "edi_imports_suppliers_incoices_pool"
+    flow_name = "CosiumAchats"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    to_print = make_insert_edi_files(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
+    cosium_post_insert(trace.uuid_identification)
+
+    return trace, to_print
+
+
 def transfert_cosium(file_path: Path):
     """Import du fichier des factures Cosium"""
     model = EdiImport
