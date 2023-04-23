@@ -77,4 +77,6 @@ COL_SALES_DICT = {
     "big_category_ranking": False,
     "formation": False,
     "send_email": False,
+    "fcy": False,
+    "cpy": False,
 }

@@ -62,7 +62,9 @@ def centers_invoices_update():
             "iban_center",
             "code_swift_center",
             "vat_regime_center",
-            "member_num"
+            "member_num",
+            "cpy",
+            "fcy"
         )
         select
             now() as created_at,
@@ -76,7 +78,9 @@ def centers_invoices_update():
             coalesce("cpc"."iban", '') as "iban_center",
             coalesce("cpc"."code_swift", '') as "code_swift_center",
             coalesce("av"."vat_regime", 'FRA') as "vat_regime_center",
-            coalesce("cpc"."member_num", '') as "member_num"
+            coalesce("cpc"."member_num", '') as "member_num",
+            coalesce("cpc"."societe_cpy_x3", '') as "cpy",
+            coalesce("cpc"."site_fcy_x3", '') as "fcy"
         from "centers_purchasing_childcenterpurchase" "cpc"  
         left join "accountancy_vatregimesage" "av"
         on "cpc"."vat_regime_center" = "av"."uuid_identification"
@@ -90,6 +94,8 @@ def centers_invoices_update():
         and coalesce("ic"."code_swift_center", '') = coalesce("cpc"."code_swift", '')
         and coalesce("ic"."vat_regime_center", 'FRA') = coalesce("av"."vat_regime", 'FRA')
         and coalesce("ic"."member_num", '') = coalesce("cpc"."member_num", '')
+        and coalesce("ic"."cpy", '') = coalesce("cpc"."societe_cpy_x3", '')
+        and coalesce("ic"."fcy", '') = coalesce("cpc"."site_fcy_x3", '')
         on conflict ("uuid_identification") DO UPDATE SET "created_at" = EXCLUDED."created_at"
         """
         cursor.execute(sql_create)

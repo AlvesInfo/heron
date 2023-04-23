@@ -36,6 +36,8 @@ class CentersInvoices(models.Model):
     iban_center = models.CharField(null=True, blank=True, max_length=50)
     code_swift_center = models.CharField(null=True, blank=True, max_length=27)
     vat_regime_center = models.CharField(null=True, max_length=5)
+    cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
+    fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
 
     # N° d'adhérent pour la formation
     member_num = models.CharField(max_length=35)
@@ -59,6 +61,8 @@ class CentersInvoices(models.Model):
                     "vat_regime_center",
                     "uuid_identification",
                     "member_num",
+                    "cpy",
+                    "fcy",
                 ],
                 name="centers_invoices_billing",
             ),
@@ -204,6 +208,8 @@ class Invoice(FlagExport, BaseInvoiceTable):
     type_reglement = models.CharField(null=True, max_length=5, default="1")
     adresse_tiers = models.CharField(null=True, max_length=5, default="1")
     adresse_tiers_paye = models.CharField(null=True, max_length=5, default="1")
+    cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
+    fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -373,6 +379,10 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     # Colonne formation pour la facturetion à l'unité des formations
     # 1 facture par personne et par formations
     formation = models.CharField(max_length=80)
+
+    # Société et Site pour import X3
+    cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
+    fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

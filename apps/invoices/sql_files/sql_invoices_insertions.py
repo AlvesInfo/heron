@@ -452,7 +452,9 @@ SQL_SALES_INVOICES = sql.SQL(
                 when "eee"."third_party_num" = 'ZFORM'
                 then "eee"."import_uuid_identification"::varchar
                 else ''
-            end as "formation"
+            end as "formation",
+            "icc"."fcy",
+            "icc"."cpy"
         from "edi_ediimport" "eee"        
         join "amounts" "amo"
         on "amo"."id" = "eee"."id"
@@ -464,7 +466,9 @@ SQL_SALES_INVOICES = sql.SQL(
             select 
                 "uuid_identification", 
                 "code_center", 
-                "vat_regime_center"
+                "vat_regime_center",
+                "cpy",
+                "fcy"
             from "invoices_centersinvoices" "ici"
             where exists (
                 select 1 
@@ -552,7 +556,9 @@ SQL_SALES_INVOICES = sql.SQL(
         "payment_condition_client" as "mode_reglement",
         "big_category_ranking",
         "formation",
-        false as "send_email"
+        false as "send_email",
+        "fcy",
+        "cpy"
     from "sales"
     group by 
         "vat_regime",
@@ -569,7 +575,9 @@ SQL_SALES_INVOICES = sql.SQL(
         "devise",
         "payment_condition_client",
         "big_category_ranking",
-        "formation"
+        "formation",
+        "fcy",
+        "cpy"
     order by 
         "cct",
         "big_category_ranking"
