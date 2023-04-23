@@ -13,7 +13,6 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
-# TODO: Enlever la clause "cct_uuid_identification" is not null des requêtes
 
 SQL_FIX_IMPORT_UUID = sql.SQL(
     # insertion d'un uuid si il est manquant
@@ -122,8 +121,7 @@ SQL_COMMON_DETAILS = sql.SQL(
            on "ee"."cct_uuid_identification" = "ccm"."uuid_identification" 
          left join "parameters_nature" "pn"
                 on "ee"."personnel_type" = "pn"."uuid_identification"
-             where "ee"."cct_uuid_identification" is not null
-               and "ee"."valid" = true
+             where "ee"."valid" = true
              order by "ee"."id"
     )
     on conflict do nothing
@@ -199,8 +197,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             )
         ) "isb" 
         on "isb"."code_signboard" = "ccm"."sign_board" 
-        where "eee"."cct_uuid_identification" is not null
-          and "eee"."purchase_invoice" = true
+        where "eee"."purchase_invoice" = true
           and "eee"."valid" = true
     )
     select distinct
@@ -224,9 +221,9 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         "invoice_amount_tax",
         "invoice_amount_with_tax",
         "third_party_num",
-        "uuid_control",
+        -- "uuid_control",
         '1' as "adresse_tiers",
-        null as "date_echeance",
+        -- null as "date_echeance",
         "mode_reglement",
         "type_reglement",
         "code_center",
@@ -235,6 +232,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         "purchase_invoice",
         '1' "adresse_tiers_paye",
         null as "created_by",
+        null as "modified_by",
         "cpy",
         "fcy"
     from "purchases" 
@@ -263,7 +261,7 @@ SQL_PURCHASES_DETAILS = sql.SQL(
         "net_amount",
         "vat_amount",
         "amount_with_vat",
-        "uuid_identification",
+        "uuid_invoice",
         "import_uuid_identification",
         "axe_bu",
         "axe_prj",
@@ -277,9 +275,9 @@ SQL_PURCHASES_DETAILS = sql.SQL(
         "sub_category",
         "created_by",
         "modified_by",
-        "uuid_invoice",
         "unit_weight",
-        "account"
+        "account",
+        "flow_name"
     )
     (	
         select 
@@ -300,7 +298,7 @@ SQL_PURCHASES_DETAILS = sql.SQL(
             "net_amount",
             "vat_amount",
             "amount_with_vat",
-            "ee"."uuid_identification",
+            "ii"."uuid_identification" as "uuid_invoice",
             "import_uuid_identification",
             "abu"."section" as "axe_bu",
             "prj"."section" as "axe_prj",
@@ -314,10 +312,10 @@ SQL_PURCHASES_DETAILS = sql.SQL(
             "ps"."name" as "sub_category",
             "ee"."created_by",
             "ee"."modified_by",
-            "ii"."uuid_identification" as "uuid_invoice",
             "unit_weight",
             -- TODO: GERER ICI LES COMPTES X3
-            '' as "account"
+            '' as "account",
+            "flow_name"
          from "edi_ediimport" "ee" 
          join "invoices_invoice" "ii"
            on "ii"."third_party_num" = "ii"."third_party_num"
@@ -341,6 +339,37 @@ SQL_PURCHASES_DETAILS = sql.SQL(
           and "ee"."valid" = true
     )
     on conflict do nothing
+    """
+)
+
+
+SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
+    """
+    select 
+        is2.invoice_number
+    from invoices_invoice is2 
+    join invoices_invoicedetail is3 
+    on is2.uuid_identification  = is3.uuid_invoice 
+    group by 
+        is2.invoice_number, 
+        is2.third_party_num,
+        is2.invoice_year,
+        is2.invoice_amount_without_tax, 
+        is2.invoice_amount_tax, 
+        is2.invoice_amount_with_tax 
+    having 	(
+            is2.invoice_amount_without_tax 
+            - 
+            sum(is3.net_amount) 
+            + 
+            is2.invoice_amount_tax 
+            - 
+            sum(is3.vat_amount) 
+            + 
+            is2.invoice_amount_with_tax 
+            - 
+            sum(is3.amount_with_vat)
+    ) != 0
     """
 )
 
@@ -520,7 +549,6 @@ SQL_SALES_INVOICES = sql.SQL(
         left join "parameters_category" "pcc" 
         on "pcc"."uuid_identification" = "eee"."uuid_big_category" 
         where "eee"."sale_invoice" = true
-          and "eee"."cct_uuid_identification" is not null
           and "eee"."valid" = true
     ) 
     select 
@@ -882,7 +910,6 @@ SQL_SALES_DETAILS = sql.SQL(
              ) "gr"
              on "gr"."axe_pro" = "eee"."axe_pro"
             where "eee"."sale_invoice" = true
-              and "eee"."cct_uuid_identification" is not null
               and "eee"."valid" = true
         ) det 
         join "invoices_saleinvoice" "isi" 

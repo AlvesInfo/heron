@@ -30,3 +30,15 @@ def get_invoice_num(invoice_dte: pendulum.instance):
     )
 
     return fac_num
+
+
+def get_purchase_num():
+    """Génération d'un numéro de facture de Vente Enseigne
+    :return:
+    """
+    counter = Counter.objects.get(name="purchase_num")
+    fac_num = get_counter_num(
+        counter_instance=counter,
+    )
+
+    return fac_num
