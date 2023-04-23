@@ -63,7 +63,8 @@ post_cosium_achats_dict = {
     "sql_origin": sql.SQL(
         """
         update edi_ediimport ei
-        set "origin" = 1
+        set "origin" = 1,
+            "unit_weight" = 11
         where ei."uuid_identification" = %(uuid_identification)s
         and (ei."valid" = false or ei."valid" isnull)
         """
