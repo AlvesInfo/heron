@@ -27,6 +27,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     bbgr_retours,
     bbgr_receptions,
     cosium,
+    cosium_achats,
     transfert_cosium,
     edi,
     eye_confort,
@@ -55,6 +56,7 @@ from apps.parameters.bin.core import get_object
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
     "COSIUM": cosium,
+    "COSIUM_ACHATS": cosium_achats,
     "EDI": edi,
     "EYE_CONFORT": eye_confort,
     "GENERIQUE": generique,

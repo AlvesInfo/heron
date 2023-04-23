@@ -31,6 +31,7 @@ from apps.edi.bin.edi_pre_processing_pool import (
 from apps.edi.bin.edi_post_processing_pool import (
     bulk_post_insert,
     cosium_post_insert,
+    cosium_achats_post_insert,
     tansferts_cosium_post_insert,
     edi_post_insert,
     eye_confort_post_insert,
@@ -321,7 +322,7 @@ def cosium_achats(file_path: Path):
     to_print = make_insert_edi_files(
         model, flow_name, file_path, trace, validator, params_dict_loader
     )
-    cosium_post_insert(trace.uuid_identification)
+    cosium_achats_post_insert(trace.uuid_identification)
 
     return trace, to_print
 
