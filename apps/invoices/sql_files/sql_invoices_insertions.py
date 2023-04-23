@@ -78,24 +78,27 @@ SQL_COMMON_DETAILS = sql.SQL(
             coalesce("acuitis_order_number", '') as "acuitis_order_number",
             coalesce("client_name", '') as "client_name",
             coalesce("command_reference", '') as "command_reference",
-            coalesce("comment", '') as "comment",
-            coalesce("customs_code", '') as "customs_code",
+            coalesce("ee"."comment", '') as "comment",
+            coalesce("ee"."customs_code", '') as "customs_code",
             case 
                 when "delivery_number" isnull 
                 then null 
                 else "delivery_date" 
             end as "delivery_date",
             coalesce("delivery_number", '') as "delivery_number",
-            coalesce("ean_code", '') as "ean_code",
+            coalesce("ee"."ean_code", '') as "ean_code",
             "final_date",
             "first_name",
             "formation_month",
             "heures_formation",
             "initial_date",
             "initial_home",
-            "item_weight",
+            "aa"."item_weight",
             "last_name",
-            "libelle",
+            case when "aa"."libelle_heron" is not null and "aa"."libelle_heron" != ''
+                then "aa"."libelle_heron"
+                else "ee"."libelle"
+            end as "libelle",
             "ee"."modified_by",
             "origin",
             "pn"."to_display" as "personnel_type",
@@ -115,6 +118,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "ee"."invoice_date",
             false as "final"
          from "edi_ediimport" "ee"
+         left join "articles_article" "aa"
+                on "aa"."reference" = "ee"."reference_article" 
          left join "parameters_unitchoices" "pu"
            on "ee"."unit_weight" = "pu"."num"
          left join "centers_clients_maison" "ccm" 
