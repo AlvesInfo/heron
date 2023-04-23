@@ -140,7 +140,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
     with "purchases" as (
         select distinct
             "eee"."invoice_number",
-            "eee"."invoice_type",
+            "cpt"."purchase_type_piece" as "invoice_type",
             "eee"."invoice_date",
             "eee"."invoice_month",
             "eee"."invoice_year",
@@ -202,6 +202,9 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             )
         ) "isb" 
         on "isb"."code_signboard" = "ccm"."sign_board" 
+        left join "centers_purchasing_typepiece" "cpt"
+        on "cpt"."invoice_type" = "eee"."invoice_type"
+        and "cpt"."child_center" = "eee"."code_center"  
         where "eee"."purchase_invoice" = true
           and "eee"."valid" = true
     )
@@ -213,11 +216,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         gen_random_uuid() as "uuid_identification",
         '' as "invoice_sage_number",
         "invoice_number",
-        case 
-            when "invoice_type" = '380'
-            then 'FAF'
-            else 'AVO'
-        end as "invoice_type",
+        "invoice_type",
         "invoice_date",
         "invoice_month",
         "invoice_year",
@@ -493,7 +492,8 @@ SQL_SALES_INVOICES = sql.SQL(
                 else ''
             end as "formation",
             "icc"."fcy",
-            "icc"."cpy"
+            "icc"."cpy",
+            "ccm"."center_purchase" 
         from "edi_ediimport" "eee"        
         join "amounts" "amo"
         on "amo"."id" = "eee"."id"
@@ -566,8 +566,18 @@ SQL_SALES_INVOICES = sql.SQL(
         '' as "invoice_sage_number",
         case 
             when sum("net_amount") >= 0 
-            then '380'
-            else '381'
+            then (
+                    select "sale_type_piece" 
+                    from "centers_purchasing_typepiece" 
+                    where "invoice_type" = '380' 
+                    and "child_center" = "center_purchase"
+                )
+            else (
+                    select "sale_type_piece" 
+                    from "centers_purchasing_typepiece" 
+                    where "invoice_type" = '381' 
+                    and "child_center" = "center_purchase"
+                )
         end as "invoice_type",
         '' as "invoice_date",
         '' as "invoice_month",
@@ -615,7 +625,8 @@ SQL_SALES_INVOICES = sql.SQL(
         "big_category_ranking",
         "formation",
         "fcy",
-        "cpy"
+        "cpy",
+        "center_purchase"
     order by 
         "cct",
         "big_category_ranking"
