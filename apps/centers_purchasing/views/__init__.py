@@ -6,3 +6,4 @@ from apps.centers_purchasing.views.grouping_goods_views import *
 from apps.centers_purchasing.views.account_axe_pro_views import *
 from apps.centers_purchasing.views.axe_grouping_views import *
 from apps.centers_purchasing.views.axe_pro_vat_views import *
+from apps.centers_purchasing.views.type_pieces_views import *

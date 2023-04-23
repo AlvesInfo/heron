@@ -351,12 +351,8 @@ class Maison(FlagsTable):
     )
 
     # Identifiants magasin
-    siren_number = models.CharField(
-        null=True, blank=True, max_length=20, verbose_name="siren"
-    )
-    siret_number = models.CharField(
-        null=True, blank=True, max_length=20, verbose_name="siret"
-    )
+    siren_number = models.CharField(null=True, blank=True, max_length=20, verbose_name="siren")
+    siret_number = models.CharField(null=True, blank=True, max_length=20, verbose_name="siret")
     vat_cee_number = models.CharField(
         null=True, blank=True, max_length=20, verbose_name="tva intracommunataire"
     )

@@ -238,7 +238,7 @@ def trace_mark_delete(
         request.session["level"] = 20
         before = {key: value for key, value in row.__dict__.items() if key != "_state"}
         row.delete = True
-        row.modified_by = user
+        row.modified_by = user.uuid_identification
         row.save()
         after = {key: value for key, value in row.__dict__.items() if key != "_state"}
         ChangesTrace.objects.create(

@@ -539,3 +539,36 @@ class ApplicableProVat(FlagsTable):
                 ]
             ),
         ]
+
+
+class TypePiece(models.Model):
+    """Type de pièces pour l'import X3"""
+
+    class InvType(models.TextChoices):
+        """Invoice type choices"""
+
+        FA = "380", "Facture"
+        AV = "381", "Avoir"
+
+    child_center = models.ForeignKey(
+        ChildCenterPurchase,
+        on_delete=models.PROTECT,
+        to_field="code",
+        verbose_name="centrale fille",
+        related_name="type_piece_centrale_fille",
+        db_column="child_center",
+    )
+    invoice_type = models.CharField(max_length=10, choices=InvType.choices, default=InvType.FA)
+    purchase_type_piece = models.CharField(max_length=10)
+    sale_type_piece = models.CharField(max_length=10)
+
+    @staticmethod
+    def get_absolute_url():
+        """Retourne l'url en cas de success create, update ou delete"""
+        return reverse("centers_purchasing:type_piece_list")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["child_center", "invoice_type"]
+        unique_together = (("child_center", "invoice_type"),)

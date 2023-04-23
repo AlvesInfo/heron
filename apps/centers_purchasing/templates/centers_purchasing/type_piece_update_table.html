@@ -1,0 +1,31 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+          <div class="fields">
+              <div class="five wide field"></div>
+              <div class="three wide field">
+                <label for="id_child_center" style="text-align: left;">Centrale Fille&nbsp;:</label>
+                {{ form.child_center }}
+              </div>
+              <div class="one wide field">
+                <label for="id_invoice_type" style="text-align: left;">Type de Facture&nbsp;:</label>
+                {{ form.invoice_type }}
+              </div>
+              <div class="one wide field">
+                <label for="id_purchase_type_piece" style="text-align: left;">Type de pièce Achat&nbsp;:</label>
+                {{ form.purchase_type_piece }}
+              </div>
+              <div class="one wide field">
+                <label for="id_sale_type_piece" style="text-align: left;">Type de pièce Vente&nbsp;:</label>
+                {{ form.sale_type_piece }}
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock table %}
