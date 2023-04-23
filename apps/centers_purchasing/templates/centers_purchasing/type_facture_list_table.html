@@ -20,12 +20,12 @@
             </tr>
         </thead>
         <tbody>
-        {% for type in type_pieces %}
+        {% for type in type_factures %}
             <tr id="id_{{ type.pk }}" class="hide_plans">
 
                 <td data-value="{{ type.pk }}"
                     style="text-align: center;">
-                    <a href="{% url 'centers_purchasing:type_piece_update' pk=type.pk %}">
+                    <a href="{% url 'centers_purchasing:type_facture_update' pk=type.pk %}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
@@ -36,14 +36,14 @@
                     {{ type.invoice_type|default_if_none:"" }}
                 </td>
                 <td style="text-align: center;">
-                    {{ type.purchase_type_piece|default_if_none:"" }}
+                    {{ type.purchase_type_facture|default_if_none:"" }}
                 </td>
                 <td style="text-align: center;">
-                    {{ type.sale_type_piece|default_if_none:"" }}
+                    {{ type.sale_type_facture|default_if_none:"" }}
                 </td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ type.pk }}, `{{ type.child_center }} - {{ type.invoice_type }}`, `{% url 'centers_purchasing:type_piece_delete' %}`, `le dictionnaire `)"></i>
+                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ type.pk }}, `{{ type.child_center }} - {{ type.invoice_type }}`, `{% url 'centers_purchasing:type_facture_delete' %}`, `le dictionnaire `)"></i>
                     </div>
                 </td>
             </tr>

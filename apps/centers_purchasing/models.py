@@ -541,7 +541,7 @@ class ApplicableProVat(FlagsTable):
         ]
 
 
-class TypePiece(models.Model):
+class TypeFacture(models.Model):
     """Type de pièces pour l'import X3"""
 
     class InvType(models.TextChoices):
@@ -559,13 +559,13 @@ class TypePiece(models.Model):
         db_column="child_center",
     )
     invoice_type = models.CharField(max_length=10, choices=InvType.choices, default=InvType.FA)
-    purchase_type_piece = models.CharField(max_length=10)
-    sale_type_piece = models.CharField(max_length=10)
+    purchase_type_facture = models.CharField(max_length=10)
+    sale_type_facture = models.CharField(max_length=10)
 
     @staticmethod
     def get_absolute_url():
         """Retourne l'url en cas de success create, update ou delete"""
-        return reverse("centers_purchasing:type_piece_list")
+        return reverse("centers_purchasing:type_facture_list")
 
     class Meta:
         """class Meta du modèle django"""

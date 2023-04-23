@@ -9,32 +9,33 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
-from apps.centers_purchasing.models import TypePiece
-from apps.centers_purchasing.forms import TypePieceForm, TypePieceDeleteForm
+from apps.centers_purchasing.models import TypeFacture
+from apps.centers_purchasing.forms import TypeFactureForm, TypeFactureDeleteForm
 
 
-# ECRANS DES CENTRALES FILLES / Types de pièces ====================================================
-class TypePieceList(ListView):
-    """View de la liste des Types de Pièces"""
+# ECRANS DES CENTRALES FILLES / Types de Facture ===================================================
 
-    model = TypePiece
-    context_object_name = "type_pieces"
-    template_name = "centers_purchasing/type_piece_list.html"
-    extra_context = {"titre_table": "Centrale / Type de Pièces"}
+class TypeFactureList(ListView):
+    """View de la liste des Types de Factures"""
+
+    model = TypeFacture
+    context_object_name = "type_factures"
+    template_name = "centers_purchasing/type_facture_list.html"
+    extra_context = {"titre_table": "Centrale / Type de Facture"}
 
 
-class TypePieceCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Types de Pièces"""
+class TypeFactureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
+    """CreateView de création des Types de Facture"""
 
-    model = TypePiece
-    form_class = TypePieceForm
+    model = TypeFacture
+    form_class = TypeFactureForm
     form_class.use_required_attribute = False
-    template_name = "centers_purchasing/type_piece_update.html"
+    template_name = "centers_purchasing/type_facture_update.html"
     success_message = (
-        "Le Type de Pièce %(child_center)s - %(invoice_type)s,  a été créé avec success"
+        "Le Type de Facture %(child_center)s - %(invoice_type)s,  a été créé avec success"
     )
     error_message = (
-        "Le Type de Pièce %(child_center)s - %(invoice_type)s, "
+        "Le Type de Facture %(child_center)s - %(invoice_type)s, "
         "n'a pu être créé, une erreur c'est produite"
     )
 
@@ -42,8 +43,8 @@ class TypePieceCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
-        context["chevron_retour"] = reverse("centers_purchasing:type_piece_list")
-        context["titre_table"] = "Création d'un nouveau type de pièce"
+        context["chevron_retour"] = reverse("centers_purchasing:type_facture_list")
+        context["titre_table"] = "Création d'un nouveau type de Facture"
         return context
 
     def form_valid(self, form):
@@ -54,27 +55,27 @@ class TypePieceCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 
-class TypePieceUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Types de Pièces"""
+class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des Types de Facture"""
 
-    model = TypePiece
-    form_class = TypePieceForm
+    model = TypeFacture
+    form_class = TypeFactureForm
     form_class.use_required_attribute = False
-    template_name = "centers_purchasing/type_piece_update.html"
+    template_name = "centers_purchasing/type_facture_update.html"
     success_message = (
-        "Le Type de Pièce %(child_center)s - %(invoice_type)s, a été modifiée avec success"
+        "Le Type de Facture %(child_center)s - %(invoice_type)s, a été modifiée avec success"
     )
     error_message = (
-        "Le Type de Pièce %(child_center)s - %(invoice_type)s, "
+        "Le Type de Facture %(child_center)s - %(invoice_type)s, "
         "n'a pu être modifiée, une erreur c'est produite"
     )
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        context["chevron_retour"] = reverse("centers_purchasing:type_piece_list")
+        context["chevron_retour"] = reverse("centers_purchasing:type_facture_list")
         context["titre_table"] = (
-            f"Mise à jour du Type de Pièce : "
+            f"Mise à jour du Type de Facture : "
             f"{context.get('object').child_center} - "
             f"{context.get('object').invoice_type}"
         )
@@ -88,7 +89,7 @@ class TypePieceUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
 
-def type_piece_delete(request):
+def type_facture_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
     if not request.is_ajax() and request.method != "POST":
@@ -96,12 +97,12 @@ def type_piece_delete(request):
 
     data = {"success": "ko"}
     id_pk = request.POST.get("pk")
-    form = TypePieceDeleteForm({"id": id_pk})
+    form = TypeFactureDeleteForm({"id": id_pk})
 
     if form.is_valid():
         trace_mark_delete(
             request=request,
-            django_model=TypePiece,
+            django_model=TypeFacture,
             data_dict={"id": id_pk},
             force_delete=True,
         )

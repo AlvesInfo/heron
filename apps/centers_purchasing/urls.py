@@ -16,11 +16,11 @@ from apps.centers_purchasing.views import (
     EnseigneCreate,
     EnseigneUpdate,
     enseignes_export_list,
-    # Type de pièce par centrale fille
-    TypePieceList,
-    TypePieceCreate,
-    TypePieceUpdate,
-    type_piece_delete,
+    # Type de Facture par centrale fille
+    TypeFactureList,
+    TypeFactureCreate,
+    TypeFactureUpdate,
+    type_facture_delete,
     # Regroupement factures
     GroupingGoodsList,
     GroupingGoodsCreate,
@@ -64,12 +64,12 @@ urlpatterns = (
         path("fille_update/<int:pk>/", FilleUpdate.as_view(), name="fille_update"),
         path("filles_export_list/", filles_export_list, name="filles_export_list"),
     ]
-    # Type de pièce par centrale fille
+    # Type de Facture par centrale fille
     + [
-        path("type_piece_list/", TypePieceList.as_view(), name="type_piece_list"),
-        path("type_piece_create/", TypePieceCreate.as_view(), name="type_piece_create"),
-        path("type_piece_update/<int:pk>/", TypePieceUpdate.as_view(), name="type_piece_update"),
-        path("type_piece_delete/", type_piece_delete, name="type_piece_delete"),
+        path("type_facture_list/", TypeFactureList.as_view(), name="type_facture_list"),
+        path("type_facture_create/", TypeFactureCreate.as_view(), name="type_facture_create"),
+        path("type_facture_update/<int:pk>/", TypeFactureUpdate.as_view(), name="type_facture_update"),
+        path("type_facture_delete/", type_facture_delete, name="type_facture_delete"),
     ]
     # Enseignes
     + [

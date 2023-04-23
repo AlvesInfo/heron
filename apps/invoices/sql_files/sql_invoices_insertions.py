@@ -140,7 +140,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
     with "purchases" as (
         select distinct
             "eee"."invoice_number",
-            "cpt"."purchase_type_piece" as "invoice_type",
+            "cpt"."purchase_type_facture" as "invoice_type",
             "eee"."invoice_date",
             "eee"."invoice_month",
             "eee"."invoice_year",
@@ -202,7 +202,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             )
         ) "isb" 
         on "isb"."code_signboard" = "ccm"."sign_board" 
-        left join "centers_purchasing_typepiece" "cpt"
+        left join "centers_purchasing_typefacture" "cpt"
         on "cpt"."invoice_type" = "eee"."invoice_type"
         and "cpt"."child_center" = "eee"."code_center"  
         where "eee"."purchase_invoice" = true
@@ -567,14 +567,14 @@ SQL_SALES_INVOICES = sql.SQL(
         case 
             when sum("net_amount") >= 0 
             then (
-                    select "sale_type_piece" 
-                    from "centers_purchasing_typepiece" 
+                    select "sale_type_facture" 
+                    from "centers_purchasing_typefacture" 
                     where "invoice_type" = '380' 
                     and "child_center" = "center_purchase"
                 )
             else (
-                    select "sale_type_piece" 
-                    from "centers_purchasing_typepiece" 
+                    select "sale_type_facture" 
+                    from "centers_purchasing_typefacture" 
                     where "invoice_type" = '381' 
                     and "child_center" = "center_purchase"
                 )
