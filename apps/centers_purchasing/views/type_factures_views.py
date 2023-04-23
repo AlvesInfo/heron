@@ -49,7 +49,6 @@ class TypeFactureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
-        form.instance.created_by = self.request.user.uuid_identification
         self.request.session["level"] = 20
 
         return super().form_valid(form)
@@ -83,7 +82,6 @@ class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
-        form.instance.modified_by = self.request.user.uuid_identification
         self.request.session["level"] = 20
 
         return super().form_valid(form)
