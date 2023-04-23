@@ -67,16 +67,27 @@ def invoices_pdf_generation():
     }
     # TODO: A SUPPRIMER LORS DU PASSAGE A LA FACTURATION DEFINITIVE
     cct_filter = [
-        "AF0514",
-        "AF0103",
-        "AF0116",
-        "AF0001",
-        "AF0551",
-        "GA0001",
-        "ACAL001",
-        "AF0351",
-        "AF0549",
         "AF0014",
+        "AF0705",
+        "AF0351",
+        "AF0514",
+        "AF0303",
+        "AF0569",
+        "AF0002",
+        "AF0549",
+        "AF0406",
+        "AF0001",
+
+        # "AF0103",
+        # "AF0116",
+        # "AF0001",
+        # "AF0551",
+
+        "GA0001",
+
+        # "ACAL001",
+        # "AF0549",
+
         "MF0003",
         "UNIS001",
     ]
