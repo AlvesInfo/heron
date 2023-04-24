@@ -384,6 +384,9 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
     fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
 
+    # Nommage des factures : Facture ou Avoir
+    invoice_type_name = models.CharField(max_length=20)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.invoice_number} - {self.invoice_date} - {self.cct}"
