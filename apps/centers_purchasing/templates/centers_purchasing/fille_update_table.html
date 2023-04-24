@@ -1,5 +1,14 @@
 {% extends "heron/update_create_courant.html" %}
 
+{% load static %}
+
+{% block head_js %}
+
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+
+{% endblock %}
+
 {% block table %}
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">

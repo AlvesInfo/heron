@@ -842,3 +842,27 @@ class DefaultAxeArticle(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["id"]
+
+
+class Email(models.Model):
+    """Modèle des emails pour la facturation"""
+
+    class EmailType(models.IntegerChoices):
+        """Invoice type choices"""
+
+        INV = 0, "Factures"
+        DOC = 1, "Documents"
+
+    name = models.IntegerField(unique=True, choices=EmailType.choices, default=EmailType.INV)
+    description = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255)
+    email_body = models.TextField(blank=True, null=True)
+
+    @staticmethod
+    def get_absolute_url():
+        """Renvoi l'url en cas de succes de la sauvegarde"""
+        return reverse("parameters:emails_list")
+
+    class Meta:
+        """class Meta du modèle django"""
+        ordering = ["name"]

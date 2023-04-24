@@ -22,6 +22,7 @@ from apps.centers_purchasing.forms import SignboardForm
 
 
 # ECRANS DES CENTRALES FILLES ======================================================================
+
 class EnseignesList(ListView):
     """View de la liste des Enseignes"""
 

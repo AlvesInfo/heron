@@ -31,6 +31,10 @@ from apps.parameters.views import (
     NatureUpdate,
     natures_export_list,
     nature_delete,
+    # EMAILS
+    EmailList,
+    EmailCreate,
+    EnseigneUpdate,
 )
 
 app_name = "apps.parameters"
@@ -105,5 +109,11 @@ urlpatterns = [
         path("nature_update/<int:pk>/", NatureUpdate.as_view(), name="nature_update"),
         path("natures_export_list/", natures_export_list, name="natures_export_list"),
         path("nature_delete/", nature_delete, name="nature_delete"),
+    ],
+    # EMAILS
+    *[
+        path("emails_list/", EmailList.as_view(), name="emails_list"),
+        path("email_create/", EmailCreate.as_view(), name="email_create"),
+        path("email_update/<int:pk>/", EnseigneUpdate.as_view(), name="email_update"),
     ],
 ]

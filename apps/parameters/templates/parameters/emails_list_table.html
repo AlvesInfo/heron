@@ -1,0 +1,42 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="twelve wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 7%">Edit</th>
+                <th style="width: 12%">Nom</th>
+                <th style="width: 81%">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for email in emails %}
+            <tr id="id_{{ email.pk }}" class="hide_plans">
+
+                <td data-value="{{ email.third_party_num }}"
+                    style="text-align: center;">
+                    <a href="{% url 'parameters:email_update' pk=email.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                    {{ email.get_name_display }}
+                </td>
+                <td>
+                    {{ email.description }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock table %}

@@ -52,7 +52,7 @@
 
 {% if invoices.0.signboard.message %}
     <hr>
-    <p class="merci">{{ invoices.0.signboard.message }}</p>
+    <p class="merci">{{ invoices.0.signboard.message|default_if_none:""|safe|escape }}</p>
     <hr>
 {% endif %}
 

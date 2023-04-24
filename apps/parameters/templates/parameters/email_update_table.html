@@ -1,0 +1,90 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% load static %}
+
+{% block head_js %}
+
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+
+{% endblock %}
+
+
+{% block table %}
+    <div class="two wide column"></div>
+    <div class="twelve wide column" style="padding: 0;margin: 10px;">
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h3 class="ui floated header" style="margin-bottom: 5px;">Description Email</h3>
+                <div class="ui clearing divider">
+                </div>
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                            <div class="fields">
+                                <div class="two wide field">
+                                    <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
+                                    <input type="text" name="name" id="id_name" value="{% if form.name.value == 0 %}Factures{% else %}Documents{% endif %}" readonly style="background-color: #efefff;font-weight: bold;">
+                                </div>
+                                <div class="fourteen wide field">
+                                    <label for="id_description" style="text-align: left;">Description&nbsp;:</label>
+                                    {{ form.description }}
+                                </div>
+                            </div>
+                            <div class="fields">
+
+                                <div class="sixteen wide field">
+                                    <label for="id_subject" style="text-align: left;">Sujet&nbsp;:</label>
+                                    {{ form.subject }}
+                                </div>
+                            </div>
+                            <div class="fields">
+                                <div class="sixteen wide field">
+                                    <label for="id_email_body" style="text-align: left;">Corps du mail&nbsp;:</label>
+                                    {{ form.email_body }}
+                                </div>
+                            </div>
+                        </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h3 class="ui floated header" style="margin-bottom: 5px;">Légende</h3>
+                <div class="ui clearing divider">
+                </div>
+                <div class="sixteen wide field">
+                    <p style="text-align: left;font-size: 1.1em;">
+                      Pour faire des remplacements automatiques du texte, on doit utiliser les racourcis
+                      suivants
+                    </p>
+                    <table class="ui celled table" style="text-align: center;" id="id_table">
+                      <thead>
+                        <tr>
+                          <th>CCT</th>
+                          <th>Période</th>
+                          <th>Synthèse</th>
+                          <th>Factures</th>
+                          <th>Service</th>
+                          <th>Centrale Fille</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{0}</td>
+                          <td>{1}</td>
+                          <td>{2}</td>
+                          <td>{3}</td>
+                          <td>{4}</td>
+                          <td>{5}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock table %}

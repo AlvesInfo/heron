@@ -2,6 +2,7 @@
 """
 Forms des Maisons
 """
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 
 from apps.centers_purchasing.models import (
@@ -28,6 +29,15 @@ class MeresForm(forms.ModelForm):
 
 
 class FillesForm(forms.ModelForm):
+
+    legal_notice = forms.CharField(widget=CKEditorWidget())
+    footer = forms.CharField(widget=CKEditorWidget())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["legal_notice"].widget.attrs["is"] = "textarea-autogrow"
+        self.fields["footer"].widget.attrs["is"] = "textarea-autogrow"
+
     class Meta:
         model = ChildCenterPurchase
         fields = [
@@ -51,6 +61,12 @@ class FillesForm(forms.ModelForm):
 class SignboardForm(forms.ModelForm):
     img_delete = forms.CheckboxInput()
 
+    message = forms.CharField(widget=CKEditorWidget())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["message"].widget.attrs["is"] = "textarea-autogrow"
+
     class Meta:
         model = Signboard
         fields = [
@@ -62,10 +78,10 @@ class SignboardForm(forms.ModelForm):
             "generic_coefficient",
             "comment",
             "message",
-            "email_contact",
-            "email_object",
-            "email_template",
-            "email_corp",
+            # "email_contact",
+            # "email_object",
+            # "email_template",
+            # "email_corp",
         ]
         widgets = {
             "child_center": forms.Select(attrs=SELECT_FLUIDE_DICT),
