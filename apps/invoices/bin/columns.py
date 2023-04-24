@@ -82,4 +82,5 @@ COL_SALES_DICT = {
     "send_email": False,
     "fcy": False,
     "cpy": False,
+    "invoice_type_name": False,
 }

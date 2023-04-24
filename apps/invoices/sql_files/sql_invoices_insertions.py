@@ -606,7 +606,10 @@ SQL_SALES_INVOICES = sql.SQL(
         "formation",
         false as "send_email",
         "fcy",
-        "cpy"
+        "cpy",
+        case 
+            when sum("net_amount") >= 0 then 'Facture' else 'Avoir'
+        end as "invoice_type_name"
     from "sales"
     group by 
         "vat_regime",

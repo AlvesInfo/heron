@@ -81,7 +81,7 @@ def invoice_material_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("1ed19062-b0d2-46eb-af3c-5335c8f3b265")
+    uuid_invoice_to_pdf = UUID("efc5be7e-f6ea-4f69-a2fc-babb01a3fe3a")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     material_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_material.pdf"

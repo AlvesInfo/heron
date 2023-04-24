@@ -13,7 +13,7 @@
     <tbody>
         <tr class="entete">
             <td style="text-align: center;font-size: 1.1em;padding: 5px 5px;">
-                Sous Détails de la facture n° : {{ invoices.0.invoice_number }}
+                Sous Détails {{ invoices.0.invoice_type_name }} n° : {{ invoices.0.invoice_number }}
             </td>
         </tr>
     </tbody>
@@ -36,7 +36,7 @@
         {% for invoice in invoice_list %}
             <tr><td style="padding-top: 5px;"></td></tr>
             <tr class="detailsFacture">
-                <td style="padding-left: 10px;background-color: #dbdbdb;width: 100%;" colspan="5">Facture n° : {{ invoice.grouper }} - du {{ invoice.list.0.invoice_date|date:"d/m/y" }}</td>
+                <td style="padding-left: 10px;background-color: #dbdbdb;width: 100%;" colspan="5">{{ invoices.0.invoice_type_name }} n° : {{ invoice.grouper }} - du {{ invoice.list.0.invoice_date|date:"d/m/y" }}</td>
             </tr>
             <tr class="sousEntete" style="background-color: #dbdbdb;font-size: 0.9em;;">
                 <td style="padding-left: 10px;width: 12%;">Collection</td>

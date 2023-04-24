@@ -28,7 +28,7 @@
             </tr>
 
             <tr class="sousEntete">
-                <td>N° facture</td>
+                <td>N° {{ invoices.0.invoice_type_name }}</td>
                 <td>Date facture</td>
                 {% for entete in entetes %}
                     <td>{{ entete.column_name }}</td>
