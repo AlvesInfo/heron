@@ -315,7 +315,7 @@ def invoices_insertion(
         # On met les import_uuid_identification au cas où il en manque
         set_fix_uuid(cursor)
 
-        # On met à jour les éléments pour la facturation
+        # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
         process_update()
 
         # On supprime les éxistant non définitifs
