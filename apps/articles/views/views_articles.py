@@ -6,7 +6,6 @@ import pendulum
 from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
-from django.db import transaction
 from django.db.models import Count
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -20,6 +19,7 @@ from apps.book.models import Society
 from apps.parameters.models import Category
 from apps.articles.models import Article
 from apps.articles.forms import ArticleForm
+from apps.edi.models import EdiImport
 
 
 # ECRANS DES ARTICLES ============================================================================
@@ -80,22 +80,25 @@ class ArticlesList(ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, **kwargs):
-        queryset = Article.objects.filter(
-            third_party_num=self.third_party_num, big_category__slug_name=self.category.slug_name
-        ).values(
-            "pk",
-            "reference",
-            "libelle",
-            "libelle_heron",
-            "axe_pro__section",
-            "axe_bu__section",
-            "axe_prj__section",
-            "axe_pys__section",
-            "axe_rfa__section",
-            "comment",
-        ).order_by("-created_at", "reference")[
-            :1000
-        ]
+        queryset = (
+            Article.objects.filter(
+                third_party_num=self.third_party_num,
+                big_category__slug_name=self.category.slug_name,
+            )
+            .values(
+                "pk",
+                "reference",
+                "libelle",
+                "libelle_heron",
+                "axe_pro__section",
+                "axe_bu__section",
+                "axe_prj__section",
+                "axe_pys__section",
+                "axe_rfa__section",
+                "comment",
+            )
+            .order_by("-created_at", "reference")[:1000]
+        )
 
         return queryset
 
@@ -175,13 +178,6 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             ],
         )
 
-    @transaction.atomic
-    def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-
-        return super().form_valid(form)
-
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
@@ -225,12 +221,21 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             ),
         )
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-
-        return super().form_valid(form)
+    def form_updated(self):
+        """Action à faire après form_valid save"""
+        third_party_num = self.object.third_party_num.third_party_num
+        reference = self.object.reference
+        EdiImport.objects.filter(
+            third_party_num=third_party_num, reference_article=reference
+        ).update(
+            axe_bu=self.object.axe_bu,
+            axe_prj=self.object.axe_prj,
+            axe_pro=self.object.axe_pro,
+            axe_pys=self.object.axe_pys,
+            axe_rfa=self.object.axe_rfa,
+            big_category=self.object.big_category,
+            sub_category=self.object.sub_category,
+        )
 
 
 def articles_export_list(_, third_party_num, category):
@@ -242,7 +247,6 @@ def articles_export_list(_, third_party_num, category):
     :return: response_file
     """
     try:
-
         today = pendulum.now()
         file_name = f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 

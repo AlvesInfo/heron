@@ -199,12 +199,24 @@ class ChangeTraceMixin:
         )
         self.request.session["level"] = 20
 
+        # Si la view appelante souhaite faire quelque chose après une validation du formulaire
+        # On lance sa methode form_updated
+        if hasattr(self, "form_updated"):
+            form_updated = getattr(self, "form_updated")
+            form_updated()
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
         """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
         self.request.session["level"] = 50
         LOGGER_VIEWS.exception(f"ChangeTraceMixin error : {form.errors!r}")
+
+        # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
+        # On lance sa methode form_error
+        if hasattr(self, "form_error"):
+            form_error = getattr(self, "form_error")
+            form_error()
 
         return super().form_invalid(form)
 

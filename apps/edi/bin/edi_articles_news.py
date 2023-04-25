@@ -92,6 +92,47 @@ WHERE exists (
 )
 """
 
+SQL_EDI_IMPORT_ARTICLES = """
+update "edi_ediimport" "ee"
+set "axe_bu" = "ar"."axe_bu",  
+    "axe_prj" = "ar"."axe_prj",  
+    "axe_pro" = "ar"."axe_pro",  
+    "axe_pys" = "ar"."axe_pys",  
+    "axe_rfa" = "ar"."axe_rfa",  
+    "uuid_big_category" = "ar"."uuid_big_category",  
+    "uuid_sub_big_category" = "ar"."uuid_sub_big_category"
+from (
+    select
+        "reference",
+        "axe_bu",
+        "axe_prj",
+        "axe_pro",
+        "axe_pys",
+        "axe_rfa",
+        "uuid_big_category",
+        "uuid_sub_big_category",
+        "third_party_num" ,
+        "new_article"
+    from "articles_article" 
+) "ar" 
+where "ar"."reference" = "ee"."reference_article" 
+and "ar"."third_party_num" = "ee"."third_party_num" 
+and (
+    "ar"."axe_bu" is null 
+    or
+    "ar"."axe_prj" is null
+    or
+    "ar"."axe_pro" is null
+    or
+    "ar"."axe_pys" is null
+    or
+    "ar"."axe_rfa" is null
+    or 
+    "ar"."uuid_big_category" is null
+)
+and "ar"."new_article" = false
+"""
+
 
 def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     """Renvoie le nom des statitsiques à appliquer aux articles importés

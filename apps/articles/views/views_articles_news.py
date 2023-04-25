@@ -17,7 +17,11 @@ from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.functions.functions_http import get_pagination_buttons
 from apps.core.models import ChangesTrace
-from apps.edi.bin.edi_articles_news import SQL_FLAG_ERROR_SUB_CATEGORY, SQL_FLAG_WITHOUT_AXES
+from apps.edi.bin.edi_articles_news import (
+    SQL_FLAG_ERROR_SUB_CATEGORY,
+    SQL_FLAG_WITHOUT_AXES,
+    SQL_EDI_IMPORT_ARTICLES,
+)
 from apps.articles.excel_outputs.output_excel_articles_news_list import (
     excel_liste_articles_news,
 )
@@ -132,6 +136,10 @@ def articles_new_validation(request):
             new_article=False, modified_by=request.user, modified_at=timezone.now()
         )
         level = 20
+
+        # On met à jour les articles qui étaient dans edi_ediimport
+        with connection.cursor() as cursor:
+            cursor.execute(SQL_EDI_IMPORT_ARTICLES)
 
         if nb_articles == nb_updates:
             message = f"Tous les articles ont étés mis à jour ({nb_articles})"
