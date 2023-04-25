@@ -67,7 +67,7 @@ def invoices_pdf_generation():
     }
 
     cct_sales_list = (
-        SaleInvoice.objects.filter(printed=False, cct__maison_cct__chargeable=True)
+        SaleInvoice.objects.filter(printed=False, type_x3__in=(1, 2))
         .values("cct")
         .annotate(dcount=Count("cct"))
         .values_list("cct", flat=True)

@@ -729,10 +729,10 @@ columns_list_maisons = [
             **f_ligne,
             **{},
         },
-        "width": 20,
+        "width": 32,
     },
     {
-        "entete": "A\nIntégrer\nX3",
+        "entete": "Type de Vente",
         "f_entete": {
             **f_entetes,
             **{
@@ -743,34 +743,6 @@ columns_list_maisons = [
             **f_ligne,
             **{"align": "center"},
         },
-        "width": 10,
-    },
-    {
-        "entete": "A\nRefacturer\nX3",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{"align": "center"},
-        },
-        "width": 10,
-    },
-    {
-        "entete": "ODANA",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{"align": "center"},
-        },
-        "width": 10,
+        "width": 12,
     },
 ]

@@ -75,7 +75,8 @@ class MaisonForm(forms.ModelForm):
             "axe_bu",
             "siren_number",
             "siret_number",
-            "vat_cee_number"
+            "vat_cee_number",
+            "type_x3",
         ]
 
         widgets = {
@@ -101,6 +102,7 @@ class MaisonForm(forms.ModelForm):
             "od_ana": CheckboxInput(attrs=CHECK_BOX_DICT),
             "integrable": CheckboxInput(attrs=CHECK_BOX_DICT),
             "chargeable": CheckboxInput(attrs=CHECK_BOX_DICT),
+            "type_x3": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 

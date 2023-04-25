@@ -72,6 +72,22 @@ class ClientFamilly(FlagsTable):
         ordering = ["name"]
 
 
+class TypeVente(models.Model):
+    """
+    Table des types de vente
+    """
+    num = models.IntegerField(unique=True)
+    name = models.CharField(max_length=20)
+
+    class Meta:
+        """class Meta du modèle django"""
+        ordering = ["num"]
+
+    def __str__(self):
+        """Retourne le str de la class"""
+        return f"{self.name}"
+
+
 class Maison(FlagsTable):
     """
     Table des Maisons
@@ -360,15 +376,30 @@ class Maison(FlagsTable):
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
+    # type de vente X3 (NAF - aucune vente, VENTE - BICPA, OD SUCC - GASPA OD ANA)
+    type_x3 = models.ForeignKey(
+        TypeVente,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="cct_type_vente",
+        db_column="type_x3",
+        default=0
+    )
+
     def clean(self):
         # Ensures constraint on model level, raises ValidationError
-        if self.od_ana and not self.axe_bu:
+        if self.type_x3 == 2 and not self.axe_bu:
             # raise error for field
             raise ValidationError(
-                {"axe_bu": _("Si vous avez sélectionné ODANA, Alors l'axe BU est obligatoire!")}
+                {
+                    "axe_bu": _(
+                        "Si vous avez sélectionné OD SUCC dans le type de Refac, "
+                        "Alors l'axe BU est obligatoire!"
+                    )
+                }
             )
 
-        if not self.od_ana:
+        if self.type_x3 != 2:
             self.axe_bu = None
 
         if self.reference_cosium:

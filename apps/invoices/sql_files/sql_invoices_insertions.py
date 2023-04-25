@@ -67,7 +67,9 @@ SQL_COMMON_DETAILS = sql.SQL(
         "cct",
         "invoice_number",
         "invoice_date",
-        "final"
+        "final",
+        "purchase_invoice",
+        "sale_invoice"
     )
     (
         select 
@@ -116,7 +118,9 @@ SQL_COMMON_DETAILS = sql.SQL(
             "ccm"."cct",
             "ee"."invoice_number",
             "ee"."invoice_date",
-            false as "final"
+            false as "final",
+            "purchase_invoice",
+            "sale_invoice"
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
                 on "aa"."reference" = "ee"."reference_article" 
@@ -493,7 +497,8 @@ SQL_SALES_INVOICES = sql.SQL(
             end as "formation",
             "icc"."fcy",
             "icc"."cpy",
-            "ccm"."center_purchase" 
+            "ccm"."center_purchase",
+            "ccm"."type_x3"
         from "edi_ediimport" "eee"        
         join "amounts" "amo"
         on "amo"."id" = "eee"."id"
@@ -555,6 +560,7 @@ SQL_SALES_INVOICES = sql.SQL(
         on "pcc"."uuid_identification" = "eee"."uuid_big_category" 
         where "eee"."sale_invoice" = true
           and "eee"."valid" = true
+          and "ccm"."type_x3" in (1, 2)
     ) 
     select 
         now() as "created_at",
@@ -609,7 +615,8 @@ SQL_SALES_INVOICES = sql.SQL(
         "cpy",
         case 
             when sum("net_amount") >= 0 then 'Facture' else 'Avoir'
-        end as "invoice_type_name"
+        end as "invoice_type_name",
+        "type_x3"
     from "sales"
     group by 
         "vat_regime",
@@ -629,7 +636,8 @@ SQL_SALES_INVOICES = sql.SQL(
         "formation",
         "fcy",
         "cpy",
-        "center_purchase"
+        "center_purchase",
+        "type_x3"
     order by 
         "cct",
         "big_category_ranking"
@@ -850,7 +858,8 @@ SQL_SALES_DETAILS = sql.SQL(
                     when "eee"."third_party_num" = 'ZFORM'
                     then "eee"."import_uuid_identification"::varchar
                     else ''
-                end as "formation"
+                end as "formation",
+                "ccm"."type_x3"
             from "edi_ediimport" "eee"     
             join "amounts" "amo"
             on "amo"."id" = "eee"."id"
@@ -942,6 +951,7 @@ SQL_SALES_DETAILS = sql.SQL(
         and "isi"."code_signboard" = "det"."code_signboard"
         and "isi"."devise" = "det"."devise"
         and "isi"."formation" = "det"."formation"
+        and "isi"."type_x3" = "det"."type_x3"
      )
     on conflict do nothing
     """

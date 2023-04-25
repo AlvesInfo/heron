@@ -387,6 +387,9 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     # Nommage des factures : Facture ou Avoir
     invoice_type_name = models.CharField(max_length=20)
 
+    # type de vente X3 (NAF - aucune vente, VENTE - BICPA, OD SUCC - GASPA OD ANA)
+    type_x3 = models.IntegerField()
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.invoice_number} - {self.invoice_date} - {self.cct}"
@@ -587,6 +590,8 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
         verbose_name="cct x3",
         db_column="cct",
     )
+    purchase_invoice = models.BooleanField(null=True, default=False)
+    sale_invoice = models.BooleanField(null=True, default=False)
 
     class Meta:
         """class Meta du modèle django"""

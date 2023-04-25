@@ -89,9 +89,7 @@ def get_clean_rows():
             row.get("telephone", ""),
             row.get("mobile", ""),
             row.get("email", ""),
-            "X" if row.get("integrable", False) else "",
-            "X" if row.get("chargeable", False) else "",
-            "X" if row.get("od_ana", False) else "",
+            row.get("type_x3__name", ""),
         )
         for row in Maison.objects.all().values(
             "cct__cct",
@@ -143,7 +141,7 @@ def get_clean_rows():
             "email",
             "integrable",
             "chargeable",
-            "od_ana",
+            "type_x3__name",
         )
     ]
 

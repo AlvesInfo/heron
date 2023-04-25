@@ -44,9 +44,7 @@ class MaisonsList(ListView):
         "currency",
         "language",
         "pays__country_name",
-        "integrable",
-        "chargeable",
-        "od_ana",
+        "type_x3__name",
         "axe_bu__section",
     )
     context_object_name = "maisons"

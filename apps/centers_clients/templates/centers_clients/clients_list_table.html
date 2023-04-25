@@ -9,19 +9,17 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 3%">Edit</th>
-                <th style="width: 6%">CCT</th>
-                <th style="width: 6%">Tiers X3</th>
+                <th class="no-sort" style="text-align: center;width: 4%">Edit</th>
+                <th style="width: 7%">CCT</th>
+                <th style="width: 7%">Tiers X3</th>
                 <th style="width: 27%;text-align: left;">Intitulé</th>
-                <th style="width: 6%">Centrale</th>
-                <th style="width: 6%">Enseigne</th>
-                <th style="width: 5%">Devise</th>
-                <th style="width: 5%">Langue</th>
-                <th style="width: 8%;text-align: center;">Pays</th>
-                <th style="width: 7%;text-align: center;">ACHAT X3</th>
-                <th style="width: 8%;text-align: center;">VENTE X3</th>
-                <th style="width: 5%;text-align: center;">OD SUCC</th>
-                <th style="width: 8%;text-align: center;">AXE BU</th>
+                <th style="width: 7%">Centrale</th>
+                <th style="width: 7%">Enseigne</th>
+                <th style="width: 6%">Devise</th>
+                <th style="width: 6%">Langue</th>
+                <th style="width: 9%;text-align: center;">Pays</th>
+                <th style="width: 8%;text-align: center;">Type Vente</th>
+                <th style="width: 12%;text-align: center;">AXE BU</th>
             </tr>
         </thead>
         <tbody>
@@ -75,19 +73,7 @@
                   {% endif %}
                 </td>
                 <td style="text-align: center;">
-                  {% if maison.integrable %}
-                    X
-                  {% endif %}
-                </td>
-                <td style="text-align: center;">
-                  {% if maison.chargeable %}
-                    X
-                  {% endif %}
-                </td>
-                <td style="text-align: center;">
-                  {% if maison.od_ana %}
-                    X
-                  {% endif %}
+                  {{ maison.type_x3__name }}
                 </td>
                 <td style="text-align: center;">
                   {% if maison.axe_bu__section %}
