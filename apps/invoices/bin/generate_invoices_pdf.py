@@ -65,32 +65,6 @@ def invoices_pdf_generation():
         "prestation": invoice_prestation_pdf,
         "divers": invoice_various_pdf,
     }
-    # TODO: A SUPPRIMER LORS DU PASSAGE A LA FACTURATION DEFINITIVE
-    cct_filter = [
-        "AF0014",
-        "AF0705",
-        "AF0351",
-        "AF0514",
-        "AF0303",
-        "AF0569",
-        "AF0002",
-        "AF0549",
-        "AF0406",
-        "AF0001",
-
-        # "AF0103",
-        # "AF0116",
-        # "AF0001",
-        # "AF0551",
-
-        "GA0001",
-
-        # "ACAL001",
-        # "AF0549",
-
-        "MF0003",
-        "UNIS001",
-    ]
 
     cct_sales_list = (
         SaleInvoice.objects.filter(printed=False, cct__maison_cct__chargeable=True)
@@ -100,44 +74,44 @@ def invoices_pdf_generation():
     )
 
     for cct in cct_sales_list:
-        if cct in cct_filter:
-            files_list = []
-            file_num = get_generic_cct_num(cct)
-            file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
+        files_list = []
+        file_num = get_generic_cct_num(cct)
+        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
 
-            files_list.append(file_path)
+        files_list.append(file_path)
 
-            # On génère le pdf du sommaire
-            summary_invoice_pdf(cct, file_path)
+        # On génère le pdf du sommaire
+        summary_invoice_pdf(cct, file_path)
 
-            sales_incoices_list = (
-                SaleInvoice.objects.filter(cct=cct, printed=False)
-                .values_list(
-                    "cct", "uuid_identification", "big_category_slug_name", "invoice_number"
-                )
-                .order_by("big_category_ranking")
+        sales_incoices_list = (
+            SaleInvoice.objects.filter(cct=cct, printed=False)
+            .values_list(
+                "cct", "uuid_identification", "big_category_slug_name", "invoice_number"
             )
+            .order_by("big_category_ranking")
+        )
 
-            for sale in sales_incoices_list:
-                cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
+        for sale in sales_incoices_list:
+            cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
 
-                generation_pdf = generation_pdf_dict.get(big_category_slug_name)
+            generation_pdf = generation_pdf_dict.get(big_category_slug_name)
 
-                if generation_pdf:
-                    file_path = (
-                        Path(settings.SALES_INVOICES_FILES_DIR)
-                        / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
-                    )
-                    files_list.append(file_path)
+            if generation_pdf:
+                file_path = (
+                    Path(settings.SALES_INVOICES_FILES_DIR)
+                    / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
+                )
+                files_list.append(file_path)
 
-                    # On génère le pdf des factures
-                    generation_pdf(uuid_identification, file_path)
+                # On génère le pdf des factures
+                generation_pdf(uuid_identification, file_path)
 
-                    # On pose le numéro de facture dans la table des ventes
-                    SaleInvoice.objects.filter(invoice_number=invoice_number).update(
-                        invoice_file=str(file_path)
-                    )
+                # On pose le numéro de facture dans la table des ventes
+                SaleInvoice.objects.filter(invoice_number=invoice_number).update(
+                    invoice_file=str(file_path.name)
+                )
 
+        if files_list:
             # On fusionne les pdf
             writer = PdfWriter()
 
@@ -153,7 +127,7 @@ def invoices_pdf_generation():
             writer.write(file_path)
             # On pose le numéro du récap de facturation dans la table des ventes
             SaleInvoice.objects.filter(cct=cct, printed=False).update(
-                global_invoice_file=str(file_path)
+                global_invoice_file=str(file_path.name)
             )
 
 
