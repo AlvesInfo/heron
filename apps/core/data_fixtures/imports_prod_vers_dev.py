@@ -365,7 +365,7 @@ def main(model_list):
 
 if __name__ == "__main__":
     main([])
-    # main(MODELS_ACCOUNTANCY)
+    main(MODELS_ACCOUNTANCY)
     # main(MODELS_BOOK)
     # main(MODELS_PARAMETERS)
     # main(MODELS_PERIODE)

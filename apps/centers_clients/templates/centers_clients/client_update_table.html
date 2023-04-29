@@ -156,63 +156,63 @@
                 <label for="id_mobile" style="text-align: left;">Mobile&nbsp;:</label>
                 {{ form.mobile }}
               </div>
-              <div class="four wide field">
-                <label for="id_email" style="text-align: left;">e-mail&nbsp;:</label>
-                {{ form.email }}
-              </div>
           </div>
             {% if not create %}
                 <div class="fields">
-                <div class="four wide field">
-                <label for="id_email_01" style="text-align: left;">Email 01 - Tiers Client X3&nbsp;:</label>
-                    <input type="text"
-                           name="email_01"
-                           value="{{ adresse_principale_sage.email_01|default_if_none:''}}"
-                           required=""
-                           id="id_email_01"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-                </div>
-                <div class="four wide field">
-                <label for="id_email_02" style="text-align: left;">Email 02 - Tiers Client X3&nbsp;:</label>
-                    <input type="text"
-                           name="email_02"
-                           value="{{ adresse_principale_sage.email_02|default_if_none:''}}"
-                           required=""
-                           id="id_email_02"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-                </div>
-                <div class="four wide field">
-                <label for="id_email_03" style="text-align: left;">Email 03 - Tiers Client X3&nbsp;:</label>
-                    <input type="text"
-                           name="email_03"
-                           value="{{ adresse_principale_sage.email_03|default_if_none:''}}"
-                           required=""
-                           id="id_email_03"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-                </div>
-                <div class="four wide field">
-                <label for="id_email_04" style="text-align: left;">Email 04 - Tiers Client X3&nbsp;:</label>
-                    <input type="text"
-                           name="email_04"
-                           value="{{ adresse_principale_sage.email_04|default_if_none:''}}"
-                           required=""
-                           id="id_email_04"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-                </div>
-                <div class="four wide field">
-                <label for="id_email_05" style="text-align: left;">Email 05 - Tiers Client X3&nbsp;:</label>
-                    <input type="text"
-                           name="email_05"
-                           value="{{ adresse_principale_sage.email_05|default_if_none:''}}"
-                           required=""
-                           id="id_email_05"
-                           readonly
-                           style="background-color: #efefff;font-weight: bold;">
-                </div>
+                    <div class="six wide field">
+                    <label for="id_email_01" style="text-align: left;">Email 01 - Tiers Client X3&nbsp;:</label>
+                        <input type="text"
+                               name="email_01"
+                               value="{{ adresse_principale_sage.email_01|default_if_none:''}}"
+                               required=""
+                               id="id_email_01"
+                               readonly
+                               style="background-color: #efefff;font-weight: bold;">
+                    </div>
+                    <div class="six wide field">
+                    <label for="id_email_02" style="text-align: left;">Email 02 - Tiers Client X3&nbsp;:</label>
+                        <input type="text"
+                               name="email_02"
+                               value="{{ adresse_principale_sage.email_02|default_if_none:''}}"
+                               required=""
+                               id="id_email_02"
+                               readonly
+                               style="background-color: #efefff;font-weight: bold;">
+                    </div>
+                    <div class="six wide field">
+                    <label for="id_email_03" style="text-align: left;">Email 03 - Tiers Client X3&nbsp;:</label>
+                        <input type="text"
+                               name="email_03"
+                               value="{{ adresse_principale_sage.email_03|default_if_none:''}}"
+                               required=""
+                               id="id_email_03"
+                               readonly
+                               style="background-color: #efefff;font-weight: bold;">
+                    </div>
+                    <div class="six wide field">
+                    <label for="id_email_04" style="text-align: left;">Email 04 - Tiers Client X3&nbsp;:</label>
+                        <input type="text"
+                               name="email_04"
+                               value="{{ adresse_principale_sage.email_04|default_if_none:''}}"
+                               required=""
+                               id="id_email_04"
+                               readonly
+                               style="background-color: #efefff;font-weight: bold;">
+                    </div>
+                    <div class="six wide field">
+                        <label for="id_email_05" style="text-align: left;">Email 05 - Tiers Client X3&nbsp;:</label>
+                        <input type="text"
+                               name="email_05"
+                               value="{{ adresse_principale_sage.email_05|default_if_none:''}}"
+                               required=""
+                               id="id_email_05"
+                               readonly
+                               style="background-color: #efefff;font-weight: bold;">
+                    </div>
+                  <div class="six wide field">
+                    <label for="id_email" style="text-align: left;">Email - Client Heron&nbsp;:</label>
+                    {{ form.email }}
+                  </div>
                 </div>
             {% endif %}
         </div>
