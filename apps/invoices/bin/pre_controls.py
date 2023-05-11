@@ -17,7 +17,8 @@ from apps.invoices.sql_files.sql_controls import (
     SQL_ARTCILES_EDI_CONTROL,
     SQL_TIERS_CONTROL,
     SQL_GROUPING_CONTROL,
-    SQL_ACCOUNTS_CONTROL,
+    SQL_ACCOUNTS_EDI_IMPORT_CONTROL,
+    SQL_ACCOUNTS_ARTICLES,
     SQL_VAT_CONTROL,
     SQL_VAT_REGIME_CONTROL,
     SQL_CCT_CONTROL,
@@ -83,13 +84,31 @@ def control_accounts():
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(SQL_ACCOUNTS_CONTROL)
+        cursor.execute(SQL_ACCOUNTS_EDI_IMPORT_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
 
         if missing_list:
             return (
                 "Vous avez des comptes, qui ne sont pas "
-                "dans le Dictionnaire des Comptes debit crédit"
+                "dans le Dictionnaire des Comptes achat et vente"
+            )
+
+    return ""
+
+
+def control_accounts_articles():
+    """
+    Controle que tous les articles aient un compte achat et vente.
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_ACCOUNTS_ARTICLES)
+        missing_list = [missings[0] for missings in cursor.fetchall()]
+
+        if missing_list:
+            return (
+                "Vous avez des comptes dans les articles, qui ne sont pas "
+                "dans le Dictionnaire des Comptes achat et vente"
             )
 
     return ""
@@ -257,13 +276,25 @@ def control_alls_missings():
         )
 
         # COMPTES DEBIT / CREDITS
-        cursor.execute(SQL_ACCOUNTS_CONTROL)
+        cursor.execute(SQL_ACCOUNTS_EDI_IMPORT_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
         controls_dict["debit_credit"] = (
             (
                 "Vous avez des comptes, qui ne sont pas dans le "
                 "Dictionnaire des Comptes debit crédit. "
                 "(Menu : paramétrage -> FACTURATION -> Axe PRO/Comptes)"
+            )
+            if missing_list
+            else ""
+        )
+
+        # ARTICES COMPTES ACHAT ET VENTE
+        cursor.execute(SQL_ACCOUNTS_ARTICLES)
+        missing_list = [missings[0] for missings in cursor.fetchall()]
+        controls_dict["articles_debit_credit"] = (
+            (
+                "Vous avez des comptes dans les articles, qui ne sont pas "
+                "dans le Dictionnaire des Comptes achat et vente"
             )
             if missing_list
             else ""

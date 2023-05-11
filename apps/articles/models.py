@@ -16,10 +16,11 @@ import uuid
 from django.db import models
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import TabDivSage, SectionSage
+from apps.accountancy.models import TabDivSage, SectionSage, VatSage
 from apps.countries.models import Country
 from apps.parameters.models import SubFamilly, Category, SubCategory, SalePriceCategory, UnitChoices
 from apps.book.models import Society
+from apps.centers_purchasing.models import ChildCenterPurchase
 
 
 class Article(FlagsTable):
@@ -281,6 +282,42 @@ class SalePriceHistory(DatesTable):
 
         ordering = ["sale_price_category", "article"]
         unique_together = (("sale_price_category", "article", "currency", "start_date"),)
+
+
+class ArticleAccount(DatesTable):
+    """Tables des comptes achat et vente par articles"""
+
+    child_center = models.ForeignKey(
+        ChildCenterPurchase,
+        on_delete=models.PROTECT,
+        to_field="code",
+        verbose_name="centrale fille",
+        related_name="article_centrale_fille",
+        db_column="child_center",
+    )
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="account_article",
+        db_column="article",
+    )
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.PROTECT,
+        to_field="vat",
+        related_name="article_vat",
+        verbose_name="tva X3",
+        db_column="vat",
+    )
+    purchase_account = models.CharField(max_length=35)
+    sale_account = models.CharField(max_length=35)
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["child_center", "vat"]
+        unique_together = (("child_center", "article", "vat"),)
 
 
 class Subscription(FlagsTable):

@@ -56,15 +56,48 @@ and "cp"."axe_pro" isnull
 limit 1
 """
 
-SQL_ACCOUNTS_CONTROL = """
+SQL_ACCOUNTS_EDI_IMPORT_CONTROL = """
 select 
-    1
+    "as3"."section", 
+    "pc"."name" as "category", 
+    coalesce("ps"."name"::varchar, '') as "sub_category", 
+    "ee"."vat"
 from "edi_ediimport" "ee" 
+left join "parameters_category" "pc" 
+on "pc"."uuid_identification" = "ee"."uuid_big_category" 
+left join "parameters_subcategory" "ps" 
+on "ps"."uuid_identification" = "ee"."uuid_sub_big_category"
 left join "centers_purchasing_accountsaxeprocategory" "cpa" 
 on "ee"."uuid_big_category" = "cpa"."uuid_big_category" 
 and "ee"."axe_pro" = "cpa"."axe_pro"
 and "ee"."vat" = "cpa"."vat"
+and (
+        coalesce("ee"."uuid_sub_big_category", '2399a57d-20d3-4e8c-9bb7-95be586cbd49'::uuid) 
+        = 
+        coalesce("cpa"."uuid_sub_category", '2399a57d-20d3-4e8c-9bb7-95be586cbd49'::uuid)
+    )
+left join (
+    select 
+        "uuid_identification", "section" 
+    from "accountancy_sectionsage" "as2" 
+    where "axe" = 'PRO'
+) "as3" 
+on "ee"."axe_pro" = "as3"."uuid_identification"
 where "cpa"."uuid_identification" isnull
+group by  "as3"."section", "pc"."name", coalesce("ps"."name"::varchar, ''), "ee"."vat"
+order by "as3"."section", "pc"."name", coalesce("ps"."name"::varchar, ''), "ee"."vat"
+"""
+
+SQL_ACCOUNTS_ARTICLES = """
+select 
+    1
+from edi_ediimport ee 
+left join articles_article aa 
+on aa.reference = ee.reference_article 
+left join articles_articleaccount aa2 
+on aa2.article = aa.uuid_identification 
+and aa2.vat = ee.vat 
+where aa2.article isnull
 limit 1
 """
 

@@ -377,7 +377,10 @@ class SubCategory(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
+        try:
+            return f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
+        except AttributeError:
+            return ""
 
     @staticmethod
     def get_absolute_url():

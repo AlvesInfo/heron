@@ -96,7 +96,6 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
         """
         form.instance.created_by = self.request.user
-
         self.request.session["level"] = 20
 
         try:

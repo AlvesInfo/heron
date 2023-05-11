@@ -178,10 +178,11 @@ class FamillyAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     form_class.use_required_attribute = False
     template_name = "book/statistique_famille_axe_update.html"
     success_message = (
-        "La Définition des Statistiques Familles/Axes Presta %(name)s a été modifiée avec success"
+        "La Définition des Statistiques Familles/Axes Presta %(stat_name)s "
+        "a été modifiée avec success"
     )
     error_message = (
-        "La Définition des Statistiques Familles/Axes Presta %(name)s n'a pu modifiée créé, "
+        "La Définition des Statistiques Familles/Axes Presta %(stat_name)s n'a pu modifiée créé, "
         "une erreur c'est produite"
     )
 

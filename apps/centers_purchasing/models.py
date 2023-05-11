@@ -23,7 +23,7 @@ from apps.accountancy.models import (
     SectionSage,
     VatRegimeSage,
 )
-from apps.parameters.models import SalePriceCategory, Category
+from apps.parameters.models import SalePriceCategory, Category, SubCategory
 
 
 class Action(FlagsTable):
@@ -408,7 +408,7 @@ class AxeProGroupingGoods(FlagsTable):
 
 class AccountsAxeProCategory(FlagsTable):
     """Tables des comptes comptables par defaut
-    en fonction de la centrale fille, la catégrorie, l'axe_pro et le taux de tva
+    en fonction de la centrale fille, la catégrorie, la rubrique presta, l'axe_pro et le taux de tva
 
     """
 
@@ -427,6 +427,14 @@ class AccountsAxeProCategory(FlagsTable):
         to_field="uuid_identification",
         related_name="account_big_category",
         db_column="uuid_big_category",
+    )
+    sub_category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="account_sub_category",
+        db_column="uuid_sub_category",
     )
     axe_pro = models.ForeignKey(
         SectionSage,
@@ -468,17 +476,19 @@ class AccountsAxeProCategory(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["child_center", "big_category", "axe_pro"]
-        unique_together = (("child_center", "big_category", "axe_pro", "vat"),)
+        ordering = ["child_center", "big_category", "sub_category", "axe_pro", "vat"]
+        unique_together = (("child_center", "big_category", "sub_category", "axe_pro", "vat"),)
         indexes = [
             models.Index(fields=["child_center"]),
             models.Index(fields=["big_category"]),
+            models.Index(fields=["sub_category"]),
             models.Index(fields=["axe_pro"]),
             models.Index(fields=["vat"]),
             models.Index(
                 fields=[
                     "child_center",
                     "big_category",
+                    "sub_category",
                     "axe_pro",
                     "vat",
                 ]

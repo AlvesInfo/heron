@@ -306,7 +306,7 @@ def invoices_insertion(
 
     if controls:
         # TODO : FAIRE LE PRE CONTROLE QUAND TOUS LE PROCESS EST TERMINE
-        # Renvoyer une erreur si le pré-cotrôle n'est pas vide
+        # Renvoyer une erreur si le pré-contrôle n'est pas vide
         ...
 
     alls_print = ""

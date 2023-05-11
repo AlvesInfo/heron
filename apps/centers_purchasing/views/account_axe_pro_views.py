@@ -1,7 +1,7 @@
 # pylint: disable=E0401,R0903
 """
-FR : Module Dictionnaire des Comptes debit crédit pour la facturation
-EN : Dictionary of Debit Credit Accounts for invoicing
+FR : Module Dictionnaire des Comptes achat vente pour la facturation
+EN : Dictionary of achat vente Accounts for invoicing
 
 Commentaire:
 
@@ -28,31 +28,32 @@ from apps.centers_purchasing.forms import (
     AccountsAxeProCategoryForm,
     AccountsAxeProCategoryDeleteForm,
 )
+from apps.centers_purchasing.bin.update_account_article import set_article_account
 
 # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
 
 
 class AccountAxeList(ListView):
-    """View de la liste du Dictionnaire des Comptes debit crédit pour la facturation"""
+    """View de la liste du Dictionnaire des Comptes achat vente pour la facturation"""
 
     model = AccountsAxeProCategory
     context_object_name = "accounts_axes"
     template_name = "centers_purchasing/account_axe_list.html"
-    extra_context = {"titre_table": "Dictionnaire des Comptes debit crédit"}
+    extra_context = {"titre_table": "Dictionnaire des Comptes achat vente"}
 
 
 class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création du Dictionnaire des Comptes debit crédit pour la facturation"""
+    """CreateView de création du Dictionnaire des Comptes achat vente pour la facturation"""
 
     model = AccountsAxeProCategory
     form_class = AccountsAxeProCategoryForm
     form_class.use_required_attribute = False
     template_name = "centers_purchasing/account_axe_update.html"
     success_message = (
-        "Dictionnaire des Comptes debit crédit pour la facturation a été créé avec success"
+        "Dictionnaire des Comptes achat vente pour la facturation a été créé avec success"
     )
     error_message = (
-        "Le Dictionnaire des Comptes debit crédit pour la facturation n'a pu être créé, "
+        "Le Dictionnaire des Comptes achat vente pour la facturation n'a pu être créé, "
         "une erreur c'est produite"
     )
 
@@ -61,7 +62,7 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:account_axe_list")
         context["titre_table"] = (
-            "Création d'un nouveau Dictionnaire des Comptes debit crédit"
+            "Création d'un nouveau Dictionnaire des Comptes achat vente"
         )
         return context
 
@@ -76,19 +77,24 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
         return super().form_valid(form)
 
+    @staticmethod
+    def form_updated():
+        """Action à faire après form_valid save"""
+        set_article_account()
+
 
 class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView d'update du Dictionnaire des Comptes debit crédit pour la facturation"""
+    """UpdateView d'update du Dictionnaire des Comptes achat vente pour la facturation"""
 
     model = AccountsAxeProCategory
     form_class = AccountsAxeProCategoryForm
     form_class.use_required_attribute = False
     template_name = "centers_purchasing/account_axe_update.html"
     success_message = (
-        "Le Dictionnaire des Comptes debit crédit pour la facturation a été modifié avec success"
+        "Le Dictionnaire des Comptes achat vente pour la facturation a été modifié avec success"
     )
     error_message = (
-        "Le Dictionnaire des Comptes debit crédit pour la facturation n'a pu être modifié, "
+        "Le Dictionnaire des Comptes achat vente pour la facturation n'a pu être modifié, "
         "une erreur c'est produite"
     )
 
@@ -97,7 +103,8 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:account_axe_list")
         context["titre_table"] = (
-            "Mise à jour d'un Dictionnaire des Comptes debit crédit"
+            "Mise à jour d'un Dictionnaire des Comptes achat vente"
+            "Mise à jour d'un Dictionnaire des Comptes achat vente"
         )
         return context
 
@@ -111,6 +118,11 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         self.request.session["level"] = 20
 
         return super().form_valid(form)
+
+    @staticmethod
+    def form_updated():
+        """Action à faire après form_valid save"""
+        set_article_account()
 
 
 def account_axe_delete(request):
@@ -130,6 +142,7 @@ def account_axe_delete(request):
             data_dict={"id": id_pk},
             force_delete=True,
         )
+        set_article_account()
         data = {"success": "success"}
 
     else:

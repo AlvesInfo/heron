@@ -11,6 +11,11 @@ from apps.centers_purchasing.models import AccountsAxeProCategory
 class AccountsAxeProCategoryForm(forms.ModelForm):
     """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation"""
 
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+        self.fields["sub_category"].required = False
+
     class Meta:
         """class Meta du form django"""
 
@@ -18,6 +23,7 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
         fields = [
             "child_center",
             "big_category",
+            "sub_category",
             "axe_pro",
             "vat",
             "purchase_account",
@@ -26,6 +32,7 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
         widgets = {
             "child_center": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sub_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "axe_pro": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "purchase_account": forms.Select(attrs=SELECT_FLUIDE_DICT),
