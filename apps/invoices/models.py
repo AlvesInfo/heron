@@ -387,7 +387,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     # Nommage des factures : Facture ou Avoir
     invoice_type_name = models.CharField(max_length=20)
 
-    # type de vente X3 (NAF - aucune vente, VENTE - BICPA, OD SUCC - GASPA OD ANA)
+    # type de vente X3 (0: NAF - aucune vente | 1: VENTE - BICPA | 2: OD SUCC - GASPA OD ANA)
     type_x3 = models.IntegerField()
 
     def __str__(self):

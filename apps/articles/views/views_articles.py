@@ -178,6 +178,13 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             ],
         )
 
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+
+        return super().form_valid(form)
+
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
@@ -220,6 +227,13 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                 self.object.big_category.slug_name,
             ),
         )
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+
+        return super().form_valid(form)
 
     def form_updated(self):
         """Action à faire après form_valid save"""
