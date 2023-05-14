@@ -134,5 +134,9 @@ def domain_debug(request):
 
 def user_paulo(request):
     """Retourne si l'user est paulo"""
+    try:
+        user_mail = request.user.email
+    except AttributeError:
+        user_mail = ""
 
-    return {"user_paulo": request.user.email == "paulo@alves.ovh"}
+    return {"user_paulo": user_mail == "paulo@alves.ovh"}
