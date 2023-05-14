@@ -33,7 +33,7 @@ from apps.centers_purchasing.models import AccountsAxeProCategory
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
-def axe_pro_account(file_path: Path):
+def axe_pro_account():
     """Import du fichier des Axes pro / catégories / comptes"""
     params_dict = {
         "model": AccountsAxeProCategory,
