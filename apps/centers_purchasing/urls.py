@@ -38,6 +38,7 @@ from apps.centers_purchasing.views import (
     AccountAxeCreate,
     AccountAxeUpdate,
     account_axe_delete,
+    account_axe_import_file,
     account_axe_export_list,
     # Dictionnaire Centrale Filles/Axe Pro/TVA
     AxeProVatList,
@@ -68,7 +69,9 @@ urlpatterns = (
     + [
         path("type_facture_list/", TypeFactureList.as_view(), name="type_facture_list"),
         path("type_facture_create/", TypeFactureCreate.as_view(), name="type_facture_create"),
-        path("type_facture_update/<int:pk>/", TypeFactureUpdate.as_view(), name="type_facture_update"),
+        path(
+            "type_facture_update/<int:pk>/", TypeFactureUpdate.as_view(), name="type_facture_update"
+        ),
         path("type_facture_delete/", type_facture_delete, name="type_facture_delete"),
     ]
     # Enseignes
@@ -120,6 +123,11 @@ urlpatterns = (
             name="account_axe_update",
         ),
         path("account_axe_delete/", account_axe_delete, name="account_axe_delete"),
+        path(
+            "account_axe_import_file/",
+            account_axe_import_file,
+            name="account_axe_import_file",
+        ),
         path(
             "account_axe_export_list/",
             account_axe_export_list,

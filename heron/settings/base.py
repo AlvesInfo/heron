@@ -174,6 +174,7 @@ TEMPLATES = [
                 "heron.processors.debug",
                 "heron.processors.domain_site",
                 "heron.processors.domain_debug",
+                "heron.processors.user_paulo",
             ]
         },
     }

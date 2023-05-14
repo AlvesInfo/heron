@@ -423,7 +423,6 @@ class AccountsAxeProCategory(FlagsTable):
     big_category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
-        null=True,
         to_field="uuid_identification",
         related_name="account_big_category",
         db_column="uuid_big_category",
@@ -472,6 +471,30 @@ class AccountsAxeProCategory(FlagsTable):
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"child_center", "big_category", "sub_category", "axe_pro", "vat"}
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "child_center": 0,
+            "big_category": 1,
+            "sub_category": 2,
+            "axe_pro": 3,
+            "vat": 4,
+            "purchase_account": 5,
+            "sale_account": 6,
+        }
 
     class Meta:
         """class Meta du modèle django"""

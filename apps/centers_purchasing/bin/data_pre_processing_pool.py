@@ -34,7 +34,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from apps.data_flux.utilities import excel_file_to_csv_string_io
-from apps.edi.models import SupplierDefinition
 from apps.parameters.models import Category, SubCategory
 from apps.accountancy.models import SectionSage, AccountSage
 
@@ -110,10 +109,7 @@ def translate_accounts_axe_pro_category(file: Path):
     new_csv_file = file.parents[0] / f"{file.stem}.csv"
     csv_io = io.StringIO()
     excel_file_to_csv_string_io(file, csv_io)
-
-    first_line = SupplierDefinition.objects.get(
-        flow_name="translate_accounts_axe_pro_category"
-    ).first_line
+    first_line = 4
     get_big_category.cache_clear()
     get_sub_category.cache_clear()
     get_axe_pro.cache_clear()
@@ -182,8 +178,7 @@ def translate_accounts_axe_pro_category(file: Path):
                         axe_pro,
                         vat,
                         purchase_account,
-                        sale_account,
-                        str(uuid4()) if i > first_line else "uuid_identification",
+                        sale_account
                     ]
                 )
 
@@ -195,7 +190,7 @@ def translate_accounts_axe_pro_category(file: Path):
 
 if __name__ == "__main__":
     file_path = Path(
-        r"C:\Users\33680\Downloads\LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION"
-        r"_2023_5_13_1683972386.xlsx"
+        r"C:\SitesWeb\heron\files\processing\suppliers_invoices_files\IMPORT_ACCOUNTS"
+        r"\LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_2023_5_13_1683972386.xlsx"
     )
     translate_accounts_axe_pro_category(file_path)

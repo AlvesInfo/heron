@@ -50,6 +50,7 @@ def import_file_process(files_dir: Path, params_dict: Dict, save_dir: Path = Non
     processing_files = [file for file in Path(files_dir).glob("*") if Path(file).is_file()]
 
     to_print_list = []
+    new_file_path = ""
 
     for file in processing_files:
         error = False
@@ -85,11 +86,11 @@ def import_file_process(files_dir: Path, params_dict: Dict, save_dir: Path = Non
                 trace,
                 params_dict.get("validator"),
                 params_dict_loader,
-                insert_mode="upsert",
+                # insert_mode="upsert",
             )
 
-            if new_file_path != file:
-                new_file_path.unlink()
+            # if new_file_path != file:
+            #     new_file_path.unlink()
 
             if params_dict.get("post_processing"):
                 params_dict.get("post_processing")()
@@ -98,11 +99,11 @@ def import_file_process(files_dir: Path, params_dict: Dict, save_dir: Path = Non
             trace.final_at = timezone.now()
             trace.save()
 
-            if save_dir:
-                destination = Path(save_dir) / file.name
-                shutil.move(file.resolve(), destination.resolve())
-            else:
-                file.unlink()
+            # if save_dir:
+            #     destination = Path(save_dir) / file.name
+            #     shutil.move(file.resolve(), destination.resolve())
+            # else:
+            #     file.unlink()
 
         except TypeError as except_error:
             error = True
@@ -121,6 +122,9 @@ def import_file_process(files_dir: Path, params_dict: Dict, save_dir: Path = Non
 
             if trace is not None:
                 trace.save()
+
+            if new_file_path and new_file_path != file and new_file_path.is_file():
+                new_file_path.unlink()
 
             to_print_list.append(to_print)
 

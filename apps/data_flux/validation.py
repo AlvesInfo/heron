@@ -811,5 +811,6 @@ class Validation:
     def validate(self):
         """Lancement de la validation"""
         self.params_dict.get("file_io").seek(0)
+        self.params_dict.get("file_io").seek(0)
         error_lines = self.to_validate.validate()
         return error_lines

@@ -134,4 +134,5 @@ def domain_debug(request):
 
 def user_paulo(request):
     """Retourne si l'user est paulo"""
-    return request.user.email == "paulo@alves.ovh"
+
+    return {"user_paulo": request.user.email == "paulo@alves.ovh"}

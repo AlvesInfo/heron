@@ -161,6 +161,7 @@ class PostgresDjangoUpsert:
             exclude_update_fields = set()
         self.exclude_update_fields = exclude_update_fields
         self.temp_table_name = self.get_temp_table_name()
+        self.fields_list = self.get_fields_list()
 
     def table_is_exists(self, table_name):
         """
@@ -191,23 +192,64 @@ class PostgresDjangoUpsert:
 
         return name
 
-    def get_column_properties(self, field_key: AnyStr):
+    def get_column_field(self, field_key: AnyStr):
         """
         :param field_key: Champ du model django à retouner
         :return: Le Sql des paramètres de création de la table temporaire
         """
+
         try:
             field_attr = self.meta.get_field(field_key)
+
         except django.core.exceptions.FieldDoesNotExist as except_error:
             raise PostgresKeyError(
                 f"""la clé "{field_key}" n'éxiste pas dans la table"""
             ) from except_error
 
+        return field_attr
+
+    def get_column_properties(self, field_key: AnyStr):
+        """
+        :param field_key: Champ du model django à retouner
+        :return: Le Sql des paramètres de création de la table temporaire
+        """
+        field_attr = self.get_column_field(field_key)
         return (
-            f' "{field_attr.column}" '
+            f' "{field_attr.column if field_attr.db_column is None else field_attr.db_column}" '
             f"{field_attr.db_type(self.cnx)} "
             f'{"NOT NULL" if not self.meta.get_field(field_key).null else "NULL"}'
         )
+
+    def get_null_fields(self):
+        """Retourne la liste des champs qui peuvent être null"""
+        null_fields_list = []
+
+        for field_key in self.fields_dict.keys():
+            field = self.meta.get_field(field_key)
+            if field.null:
+                null_fields_list.append(
+                    f'"{field.column}"' if field.db_column is None else f'"{field.db_column}"'
+                )
+
+        if null_fields_list:
+            return f"FORCE_NULL ({','.join(null_fields_list)}) "
+
+        return ""
+
+    def get_fields_list(self):
+        """
+        Retourne la liste des champs db_column
+        :return:
+        """
+        fields_list = []
+
+        for field_key in self.fields_dict.keys():
+            field_attr = self.get_column_field(field_key)
+            fields_list.append(
+                field_attr.column if field_attr.db_column is None else field_attr.db_column
+            )
+
+        return fields_list
 
     def get_prepare_batch(self, stmt_name: AnyStr):
         """
@@ -222,7 +264,7 @@ class PostgresDjangoUpsert:
             ).format(table=sql.SQL(self.table_name))
             cursor.execute(sql_champs)
             dict_fields = {row[0]: row[1] for row in cursor.fetchall()}
-            tipes = [sql.SQL(dict_fields.get(key)) for key in self.fields_dict.keys()]
+            tipes = [sql.SQL(dict_fields.get(key)) for key in self.fields_list]
             stmt_ident = sql.Identifier(stmt_name)
             params = ", ".join([f"${i}" for i, _ in enumerate(tipes, 1)])
             exe_val = ", ".join(["%s" for _ in tipes])
@@ -254,10 +296,12 @@ class PostgresDjangoUpsert:
         }
 
         for field_key, bool_value in self.fields_dict.items():
+            field_attr = self.get_column_field(field_key)
+            field = field_attr.column if field_attr.db_column is None else field_attr.db_column
             if bool_value:
-                fields_upsert_dict.get("conflict").append(field_key)
+                fields_upsert_dict.get("conflict").append(field)
             else:
-                fields_upsert_dict.get("update").append(field_key)
+                fields_upsert_dict.get("update").append(field)
 
         return fields_upsert_dict
 
@@ -266,11 +310,11 @@ class PostgresDjangoUpsert:
         :param bool_pk: Si on a besoins d'un champ pk, pour un ordre idention aux insertions
         :return: les champs interprétés allant servir dans une requête
         """
+
         return sql.SQL(", ").join(
-            [sql.Identifier(field) for field in self.fields_dict.keys()]
+            [sql.Identifier(field) for field in self.fields_list]
             if not bool_pk
-            else [sql.Identifier("pk")]
-            + [sql.Identifier(field) for field in self.fields_dict.keys()]
+            else [sql.Identifier("pk")] + [sql.Identifier(field) for field in self.fields_list]
         )
 
     @property
@@ -440,12 +484,12 @@ class PostgresDjangoUpsert:
                 sql_expert = (
                     "COPY {table} ({fields}) "
                     "FROM STDIN "
-                    "WITH "
-                    "DELIMITER AS '{delimiter}' "
-                    "CSV "
-                    "QUOTE AS '{quote_character}'"
+                    "WITH ("
+                    "DELIMITER '{delimiter}', "
+                    f"{self.get_null_fields()}, "
+                    "QUOTE '{quote_character}', "
+                    "FORMAT CSV )"
                 )
-
                 if insert_mode == "insert":
                     # copy direct dans la table définitive
                     table = sql.Identifier(self.table_name)
@@ -503,8 +547,8 @@ class PostgresDjangoUpsert:
                 else:
                     # copy dans une table provisoire pour un do_nothing ou un upsert
                     table = sql.Identifier(self.temp_table_name)
-                    cursor.execute(self.get_ddl_temp_table())
                     # print(cursor.mogrify(self.get_ddl_temp_table()).decode())
+                    cursor.execute(self.get_ddl_temp_table())
                     sql_copy = sql.SQL(sql_expert).format(
                         table=table,
                         fields=fields,
@@ -514,9 +558,17 @@ class PostgresDjangoUpsert:
                     # print(cursor.mogrify(sql_copy).decode())
                     # print(*file)
                     # file.seek(0)
+                    # for line in file:
+                    #     print(line)
+
+                    file.seek(0)
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert
+                    # print(
+                    #     "insert_mode_dict.get(insert_mode) : ",
+                    #     insert_mode_dict.get(insert_mode)
+                    # )
                     cursor.execute(insert_mode_dict.get(insert_mode))
 
                     # suppression de la table provisoire

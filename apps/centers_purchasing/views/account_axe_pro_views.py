@@ -29,6 +29,7 @@ from apps.centers_purchasing.forms import (
     AccountsAxeProCategoryDeleteForm,
 )
 from apps.centers_purchasing.bin.update_account_article import set_article_account
+from apps.centers_purchasing.imports.imports_data import axe_pro_account
 
 # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
 
@@ -149,6 +150,21 @@ def account_axe_delete(request):
         LOGGER_VIEWS.exception(f"axe_grouping_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
+
+
+def account_axe_import_file(_):
+    """
+    Import d'un fichier excel pour mise à jour en masse
+    de la liste du Dictionnaire Axe Pro/Regroupement de facturation
+    :return: redirect
+    """
+    try:
+        list_to_print = axe_pro_account()
+        print(list_to_print)
+    except:
+        LOGGER_VIEWS.exception("view : account_axe_import_file")
+
+    return redirect(reverse("centers_purchasing:account_axe_list"))
 
 
 def account_axe_export_list(_):
