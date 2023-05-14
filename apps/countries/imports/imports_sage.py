@@ -13,8 +13,6 @@ modified by: Paulo ALVES
 """
 from pathlib import Path
 
-from django.utils import timezone
-
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.make_inserts import make_insert
 from apps.countries.models import Country

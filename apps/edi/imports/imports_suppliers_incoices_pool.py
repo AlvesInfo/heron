@@ -1,4 +1,4 @@
-# pylint: disable=W0703,W1203,
+# pylint: disable=W0703,W1203
 """
 FR : Module d'import des factures founisseurs EDI
 EN : Import module for EDI incoives suppliers

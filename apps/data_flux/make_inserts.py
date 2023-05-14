@@ -74,7 +74,7 @@ def make_insert(
             key: key in get_uniques_set
             for key in {**get_columns_import_dict, **params_dict_loader.get("add_fields_dict")}
         }
-        nbre = 2
+
         with FileLoader(
             source=source,
             columns_dict=get_columns_import_dict,
@@ -96,18 +96,19 @@ def make_insert(
                 exclude_update_fields={"created_at", "uuid_identification"},
             )
 
-            valide_file_io.seek(0)
-
-            for i, line in enumerate(valide_file_io, 1):
-                if i == nbre:
-                    break
-                # print(line, end="")
+            # valide_file_io.seek(0)
+            # nbre = 2
+            #
+            # for i, line in enumerate(valide_file_io, 1):
+            #     if i == nbre:
+            #         break
+            #     # print(line, end="")
 
             valide_file_io.seek(0)
 
             postgres_upsert.insertion(
                 file=valide_file_io,
-                insert_mode="upsert",
+                insert_mode=insert_mode or "upsert",
                 delimiter=";",
                 quote_character='"',
                 kwargs_prepared={"trace": trace},

@@ -65,6 +65,7 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex_ga,
     z_bu_refac,
 )
+from apps.centers_purchasing.imports.imports_data import axe_pro_account
 from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
@@ -72,6 +73,7 @@ from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
 from apps.parameters.bin.core import get_action
 
 processing_dict = {
+    # IMPORTS FACTURES =====================
     "BBGR_BULK": bbgr_bulk,
     "COSIUM": cosium,
     "COSIUM_ACHATS": cosium_achats,
@@ -93,6 +95,8 @@ processing_dict = {
     "WIDEX": widex,
     "WIDEX_GA": widex_ga,
     "SAGE_YOOZ_REFAC0": z_bu_refac,
+    # IMPORTS DIVERS =======================
+    "IMPORT_ACCOUNTS": axe_pro_account,
 }
 
 

@@ -1,4 +1,10 @@
+# coding: utf-8
+import gc
+
 from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG_DIR
+
+allocs, g1, g2 = gc.get_threshold()
+gc.set_threshold(100_000, g1*5, g2*10)
 
 DEBUG = False
 

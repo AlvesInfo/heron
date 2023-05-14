@@ -59,6 +59,22 @@ columns = [
         "width": 30,
     },
     {
+        "entete": "Rubrique Presta",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 20,
+    },
+    {
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
@@ -132,6 +148,7 @@ def get_clean_rows():
         (
             str(row.child_center),
             str(row.big_category),
+            str(row.sub_category) if row.sub_category else "",
             str(row.axe_pro),
             str(row.vat),
             str(row.purchase_account),

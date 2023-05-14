@@ -75,6 +75,9 @@ class ClientFamilly(FlagsTable):
 class TypeVente(models.Model):
     """
     Table des types de vente
+        0: NAF
+        1: VENTE
+        2: OD ANA
     """
     num = models.IntegerField(unique=True)
     name = models.CharField(max_length=20)

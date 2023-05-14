@@ -137,6 +137,7 @@ SQL_COMMON_DETAILS = sql.SQL(
     """
 )
 
+# ACHAT ============================================================================================
 
 SQL_PURCHASES_INVOICES = sql.SQL(
     # Insertion des entêtes de factures d'achat
@@ -350,6 +351,12 @@ SQL_PURCHASES_DETAILS = sql.SQL(
     """
 )
 
+SQL_PURCHASES_ACCOUNTS = sql.SQL(
+    # Mise à jour des comptes X3 comptable
+    """
+    
+    """
+)
 
 SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
     """
@@ -381,6 +388,8 @@ SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
     """
 )
 
+
+# VENTE ============================================================================================
 
 SQL_SALES_INVOICES = sql.SQL(
     # Insertion des entêtes de factures de ventes
@@ -957,6 +966,11 @@ SQL_SALES_DETAILS = sql.SQL(
     """
 )
 
+SQL_SALESS_ACCOUNTS = sql.SQL(
+    # Mise à jour des comptes X3 comptable
+    """
+    """
+)
 
 SQL_CONTROL_SALES_INSERTION = sql.SQL(
     """

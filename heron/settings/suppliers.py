@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 from pathlib import Path
 
 # ==================================================================================================
-# REPERTOIRES DES FICHIERS A IMPORTES
+# REPERTOIRES DES FICHIERS A IMPORTER
 # ==================================================================================================
 
 # REPERTOIRE PROCESSING POUR IMPORT FICHIERS FROUNISSEURS
@@ -127,6 +127,10 @@ Path.mkdir(WIDEX_GA, exist_ok=True)
 SAGE_YOOZ_REFAC0 = (Path(PROCESS_DIR) / "SAGE_YOOZ_REFAC0").resolve()
 Path.mkdir(SAGE_YOOZ_REFAC0, exist_ok=True)
 
+# REPERTOIRE IMPORT FICHIERS AXE PRO / ARTICLES / COMPTES
+IMPORT_ACCOUNTS = (Path(PROCESS_DIR) / "IMPORT_ACCOUNTS").resolve()
+Path.mkdir(IMPORT_ACCOUNTS, exist_ok=True)
+
 # ==================================================================================================
 # BACKUP DE DEPLACEMENT DES FICHIERS IMPORTES
 # ==================================================================================================
@@ -232,3 +236,7 @@ Path.mkdir(BACKUP_WIDEX_GA, exist_ok=True)
 # REPERTOIRE BACKUP FICHIERS REQUETE SQL SAGE SUR AXE BU REFAC_0
 BACKUP_SAGE_YOOZ_REFAC0 = (Path(BACKUP_SUPPLIERS_DIR) / "SAGE_YOOZ_REFAC0").resolve()
 Path.mkdir(BACKUP_SAGE_YOOZ_REFAC0, exist_ok=True)
+
+# REPERTOIRE BACKUP FICHIERS AXE PRO / ARTICLES / COMPTES
+BACKUP_IMPORT_ACCOUNTS = (Path(BACKUP_SUPPLIERS_DIR) / "IMPORT_ACCOUNTS").resolve()
+Path.mkdir(BACKUP_IMPORT_ACCOUNTS, exist_ok=True)
