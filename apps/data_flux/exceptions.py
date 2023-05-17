@@ -11,6 +11,16 @@ modified by: Paulo ALVES
 """
 
 
+# Exceptions pour les Imports de fihiers ===========================================================
+
+class DuplicatesError(Exception):
+    """Gestion de doublons dans les fichiers"""
+
+
+class ModelFieldError(Exception):
+    """Gestion des valeurs inéxistantes en bdd"""
+
+
 # Exceptions du module loader ======================================================================
 
 class IterFileToInsertError(Exception):

@@ -189,7 +189,7 @@ def transferts_cosium_file(file: Path):
                         rows[4][1] = str(rows[4][1]).replace("\r", "").replace("\n", " ")
                         csv_writer.writerow(
                             [
-                                "COSI001",
+                                "ZTRANSFERT",
                                 invoice_number,
                                 invoice_date.format("DD/MM/YYYY"),
                                 "380",
@@ -204,7 +204,7 @@ def transferts_cosium_file(file: Path):
                         )
                         csv_writer.writerow(
                             [
-                                "COSI001",
+                                "ZTRANSFERT",
                                 invoice_number,
                                 invoice_date.format("DD/MM/YYYY"),
                                 "380",

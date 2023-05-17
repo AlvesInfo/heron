@@ -17,6 +17,7 @@ from pathlib import Path
 
 from django.utils import timezone
 
+from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
 from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.trace import get_trace
 from apps.data_flux.make_inserts import make_insert
@@ -105,6 +106,16 @@ def import_file_process(files_dir: Path, params_dict: Dict, save_dir: Path = Non
             # else:
             #     file.unlink()
 
+        except DuplicatesError as except_error:
+            error = True
+            to_print = "Vous avez des doublons dans le fichier"
+            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+
+        except ModelFieldError as except_error:
+            error = True
+            to_print = "Vous avez des champs qui n'existent pas en base"
+            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+
         except TypeError as except_error:
             error = True
             LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
@@ -127,5 +138,7 @@ def import_file_process(files_dir: Path, params_dict: Dict, save_dir: Path = Non
                 new_file_path.unlink()
 
             to_print_list.append(to_print)
+            print("to_print : ", to_print)
+            print("to_print_list : ", to_print_list)
 
     return to_print_list

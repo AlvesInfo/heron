@@ -17,7 +17,6 @@ import platform
 import io
 import csv
 from pathlib import Path
-from uuid import uuid4
 from functools import lru_cache
 from typing import AnyStr
 
@@ -33,6 +32,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
+from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
 from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.parameters.models import Category, SubCategory
 from apps.accountancy.models import SectionSage, AccountSage
@@ -48,7 +48,7 @@ def get_big_category(big_category: AnyStr) -> AnyStr:
     try:
         category = Category.objects.get(name=big_category).uuid_identification
     except Category.DoesNotExist:
-        category = ""
+        raise ModelFieldError(f"La Catégorie : {big_category!r}, n'existe pas")
 
     return category
 
@@ -61,9 +61,12 @@ def get_sub_category(sub_category: AnyStr) -> AnyStr:
     :return: le str de l'identifiant
     """
     try:
+        if sub_category == "":
+            return ""
+
         rubrique = SubCategory.objects.get(name=sub_category).uuid_identification
     except SubCategory.DoesNotExist:
-        rubrique = ""
+        raise ModelFieldError(f"La rubrique presta : {sub_category!r}, n'existe pas")
 
     return rubrique
 
@@ -78,7 +81,7 @@ def get_axe_pro(axe_pro: AnyStr) -> AnyStr:
     try:
         pro = SectionSage.objects.get(section=axe_pro, axe="PRO").uuid_identification
     except SectionSage.DoesNotExist:
-        pro = ""
+        raise ModelFieldError(f"L'axe pro : {axe_pro!r}, n'existe pas")
 
     return pro
 
@@ -96,7 +99,7 @@ def get_account(code_plan: AnyStr, account: AnyStr) -> AnyStr:
             code_plan_sage=code_plan, account=account
         ).uuid_identification
     except AccountSage.DoesNotExist:
-        compte = ""
+        raise ModelFieldError(f"Le compte : {code_plan!r} - {account!r}, n'existe pas")
 
     return compte
 
@@ -126,6 +129,7 @@ def translate_accounts_axe_pro_category(file: Path):
         csv_writer = csv.writer(
             file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
         )
+        duplicates_set = set()
 
         for i, line in enumerate(csv_reader, 1):
             if i == first_line:
@@ -141,6 +145,11 @@ def translate_accounts_axe_pro_category(file: Path):
                     purchase_account,
                     sale_account,
                 ) = line
+
+                if (child_center, big_category, sub_category, axe_pro, vat) in duplicates_set:
+                    raise DuplicatesError("Vous avez des doublons dans le fichier")
+
+                duplicates_set.add((child_center, big_category, sub_category, axe_pro, vat))
 
                 child_center = child_center.split("-")[0].strip()
 

@@ -62,7 +62,7 @@ post_transfert_cosium_dict = {
             from "edi_ediimport" ee 
             join "articles_article" aa 
             on ee."reference_article" = aa."reference" 
-            and aa."third_party_num" = 'COSI001'
+            and aa."third_party_num" = 'ZTRANSFERT'
             where ee."uuid_identification" = %(uuid_identification)s
             and (ee."valid" = false or ee."valid" isnull)
         ) maj
@@ -149,7 +149,7 @@ post_transfert_cosium_dict = {
                 select 
                     regex_match, axe_pro, uuid_big_category , uuid_sub_big_category 
                 from book_supplierfamilyaxes 
-                where stat_name = 'COSI001'
+                where stat_name = 'ZTRANSFERT'
             ) bs 
             on ee.famille = bs.regex_match
         ) maj
