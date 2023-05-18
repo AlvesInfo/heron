@@ -26,18 +26,6 @@ class MaisonForm(forms.ModelForm):
         self.fields["reference_cosium"].required = False
         self.fields["code_bbgr"].required = False
 
-        self.TIERS_CHOICES = [("", "")] + [
-            (tiers.third_party_num, f"{tiers.third_party_num}-{tiers.name}")
-            for tiers in Society.objects.filter(is_client=True)
-        ]
-        third_party_num = forms.ChoiceField(
-            choices=self.TIERS_CHOICES,
-            label="Tiers X3",
-            required=True,
-            widget=forms.Select(attrs={"class": "ui fluid search dropdown"})
-        )
-        self.fields["third_party_num"] = third_party_num
-
     class Meta:
         model = Maison
         fields = [

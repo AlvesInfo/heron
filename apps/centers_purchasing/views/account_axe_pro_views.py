@@ -33,7 +33,17 @@ from apps.centers_purchasing.forms import (
 from apps.centers_purchasing.bin.update_account_article import set_article_account
 from apps.centers_purchasing.imports.imports_data import axe_pro_account
 
+
 # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
+
+
+class AccountAxeList(ListView):
+    """View de la liste du Dictionnaire des Comptes achat vente pour la facturation"""
+
+    model = AccountsAxeProCategory
+    context_object_name = "accounts_axes"
+    template_name = "centers_purchasing/account_axe_list.html"
+    extra_context = {"titre_table": "Dictionnaire des Comptes achat vente"}
 
 
 def account_axe_list(request):
@@ -88,7 +98,7 @@ def account_axe_list(request):
 
     context = {
         "titre_table": "Dictionnaire des Comptes achat vente",
-        "accounts_axes": accounts_axes
+        "accounts_axes": accounts_axes,
     }
 
     return render(request, "centers_purchasing/account_axe_list.html", context=context)
@@ -113,9 +123,7 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:account_axe_list")
-        context["titre_table"] = (
-            "Création d'un nouveau Dictionnaire des Comptes achat vente"
-        )
+        context["titre_table"] = "Création d'un nouveau Dictionnaire des Comptes achat vente"
         return context
 
     def get_success_url(self):
@@ -224,7 +232,6 @@ def account_axe_export_list(_):
     :return: response_file
     """
     try:
-
         today = pendulum.now()
         file_name = (
             f"LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_"
