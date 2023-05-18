@@ -34,7 +34,7 @@ from apps.centers_purchasing.views import (
     axe_grouping_delete,
     axe_grouping_export_list,
     # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
-    account_axe_list,
+    AccountAxeList,
     AccountAxeCreate,
     AccountAxeUpdate,
     account_axe_delete,
@@ -115,7 +115,7 @@ urlpatterns = (
     ]
     # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
     + [
-        path("account_axe_list/", account_axe_list, name="account_axe_list"),
+        path("account_axe_list/", AccountAxeList.as_view(), name="account_axe_list"),
         path("account_axe_create/", AccountAxeCreate.as_view(), name="account_axe_create"),
         path(
             "account_axe_update/<int:pk>/",

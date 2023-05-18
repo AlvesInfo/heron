@@ -388,7 +388,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     invoice_type_name = models.CharField(max_length=20)
 
     # type de vente X3 :
-    #     0: NAF - aucune vente
+    #     0: BLOCAGE - aucune vente
     #     1: VENTE - BICPA
     #     2: OD ANA - GASPA OD ANA
 

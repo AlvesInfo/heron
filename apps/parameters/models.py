@@ -20,6 +20,7 @@ from django.shortcuts import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.urls.exceptions import NoReverseMatch
 
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import SectionSage
@@ -195,6 +196,8 @@ class InvoiceFunctions(FlagsTable):
     absolute_path_windows = models.TextField(null=True, blank=True, verbose_name="dir windows")
     absolute_path_linux = models.TextField(null=True, blank=True, verbose_name="dir linux")
     description = models.CharField(null=True, blank=True, max_length=255)
+    reverse = models.CharField(null=True, blank=True, max_length=255, default="")
+    redirect = models.CharField(null=True, blank=True, max_length=255, default="")
 
     def __str__(self):
         """Texte renvoyé dans les appels à la class"""
@@ -209,6 +212,14 @@ class InvoiceFunctions(FlagsTable):
     def get_absolute_url():
         """Return the URL to redirect to after processing a valid form."""
         return reverse("parameters:functions_list")
+
+    def save(self, *args, **kwargs):
+        """Calcul du champ reverse en fonction de redirect"""
+        if ":" in self.redirect:
+            try:
+                self.redirect = reverse(self.redirect)
+            except NoReverseMatch:
+                pass
 
     class Meta:
         """class Meta du modèle django"""

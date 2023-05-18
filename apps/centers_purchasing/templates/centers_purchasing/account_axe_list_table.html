@@ -24,7 +24,7 @@
             {% for axe in accounts_axes %}
                 <tr id="id_{{ forloop.counter }}" class="hide_plans">
                     <td>
-                        <a href="{% url 'centers_purchasing:account_axe_update' pk=axe.pk%}">
+                        <a href="{% url 'centers_purchasing:account_axe_update' pk=axe.id%}">
                             <i class="edit icon modification"></i>
                         </a>
                     </td>
@@ -37,7 +37,7 @@
                     <td>{{ axe.sale_account }}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ axe.pk }}, `{{ axe.axe_pro }} - {{ axe.vat }} - {{ axe.purchase_account }} - {{ axe.sale_account }}`, `{% url 'centers_purchasing:account_axe_delete' %}`, `le dictionnaire `)"></i>
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ axe.id }}, `{{ axe.axe_pro }} - {{ axe.vat }} - {{ axe.purchase_account }} - {{ axe.sale_account }}`, `{% url 'centers_purchasing:account_axe_delete' %}`, `le dictionnaire `)"></i>
                         </div>
                     </td>
                 </tr>

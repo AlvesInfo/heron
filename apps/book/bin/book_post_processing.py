@@ -111,7 +111,7 @@ def adress_sage_post_processing():
         sql_adress_1 = """
         update "book_society" "bs" 
         set "address_code" = "ba"."address_code",
-            "immeuble" = "ba"."immeuble",
+            "immeuble" = "ba"."immeuble" || ' - ' || "ba"."immeuble_02",
             "adresse" = "ba"."adresse",
             "code_postal" = "ba"."code_postal",
             "ville" = "ba"."ville",
@@ -128,7 +128,8 @@ def adress_sage_post_processing():
                 "society" as "third_party_num",
                 "address_code",
                 "line_01" as "immeuble",
-                "line_02" as "adresse",
+                "line_02" as "immeuble_02",
+                "line_03" as "adresse",
                 "postal_code" as "code_postal",
                 "city" as "ville",
                 "country" as "pays",

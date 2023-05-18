@@ -202,7 +202,7 @@ class Society(FlagsTable):
         null=True,
     )
 
-    # Adressee pour la centrale d'achat issues de book_adress venant de X3, mis à jour boucle
+    # Adresses pour la centrale d'achat issues de book_adress venant de X3, mis à jour boucle
     address_code = models.CharField(null=True, blank=True, max_length=20)
     immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
     adresse = models.CharField(null=True, blank=True, max_length=200, verbose_name="adresse")

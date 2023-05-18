@@ -65,7 +65,6 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex_ga,
     z_bu_refac,
 )
-from apps.centers_purchasing.imports.imports_data import axe_pro_account
 from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
@@ -95,8 +94,6 @@ processing_dict = {
     "WIDEX": widex,
     "WIDEX_GA": widex_ga,
     "SAGE_YOOZ_REFAC0": z_bu_refac,
-    # IMPORTS DIVERS =======================
-    "IMPORT_ACCOUNTS": axe_pro_account,
 }
 
 

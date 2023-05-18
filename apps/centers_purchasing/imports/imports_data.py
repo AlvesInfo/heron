@@ -17,7 +17,6 @@ from pathlib import Path
 from django.utils import timezone
 
 from apps.core.functions.functions_setups import settings
-from apps.data_flux.trace import get_trace
 from apps.core.bin.import_files import import_file_process
 from apps.centers_purchasing.forms.forms_djantic.forms_data import (
     AxeProAccountSchema,
@@ -33,8 +32,10 @@ from apps.centers_purchasing.models import AccountsAxeProCategory
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
-def axe_pro_account():
-    """Import du fichier des Axes pro / catégories / comptes"""
+def axe_pro_account(file_path: Path):
+    """Import du fichier des Axes pro / catégories / comptes
+    :param file_path: Fichier à importer
+    """
     params_dict = {
         "model": AccountsAxeProCategory,
         "validator": AxeProAccountSchema,
@@ -49,10 +50,10 @@ def axe_pro_account():
         },
         "translate_file": translate_accounts_axe_pro_category,
         "pre_processing": None,
-        "post_processing": post_axe_pro_account,
+        # "post_processing": post_axe_pro_account,
     }
     import_file_process(
-        files_dir=settings.IMPORT_ACCOUNTS,
+        file_path=file_path,
         params_dict=params_dict,
         save_dir=settings.BACKUP_IMPORT_ACCOUNTS,
     )

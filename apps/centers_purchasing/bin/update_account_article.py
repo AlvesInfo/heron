@@ -31,8 +31,8 @@ django.setup()
 from django.db import connection
 
 
-def set_article_account():
-    """Création ou update des comptes achat vente pour les articles"""
+def delete_orphans_accounts():
+    """Suppression globale des comptes dans les articles qui ne sont plus dans la table"""
     sql_delete_not_exists_account = """
     delete from "articles_articleaccount" "arta"
     where "arta"."id" in (
@@ -61,6 +61,13 @@ def set_article_account():
         )
     )
     """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_delete_not_exists_account)
+
+
+def set_global_articles_account():
+    """Update global des comptes achat vente pour tous les articles"""
     sql_create_account = """
     insert into "articles_articleaccount" 
     (
@@ -104,8 +111,8 @@ def set_article_account():
     "purchase_account" = EXCLUDED."purchase_account",
     "sale_account" = EXCLUDED."sale_account"
     """
+
     with connection.cursor() as cursor:
-        cursor.execute(sql_delete_not_exists_account)
         cursor.execute(sql_create_account)
 
 

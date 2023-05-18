@@ -96,6 +96,26 @@ class Error(models.Model):
     data_received = models.TextField(null=True, blank=True)
 
 
+class UploadFiles(models.Model):
+    base_name_file = models.TextField(null=True, blank=True)
+    stack_id = models.IntegerField(blank=True, null=True)
+    id_md5_file = models.CharField(blank=True, null=True, max_length=256)
+    id_sha512_file = models.TextField()
+    file = models.FileField(upload_to="processing/releves/")
+    action = models.CharField(max_length=20)
+
+    """
+    action : (
+        ACCOUNTS,
+    ) 
+    exemple hashlib :
+        hashlib.sha512(open("D:\\chanson.txt").read().encode()).hexdigest()
+    """
+
+    class Meta:
+        ordering = ["file"]
+
+
 class Essais(models.Model):
     """EssaiS"""
 

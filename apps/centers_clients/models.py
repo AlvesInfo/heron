@@ -75,7 +75,7 @@ class ClientFamilly(FlagsTable):
 class TypeVente(models.Model):
     """
     Table des types de vente
-        0: NAF
+        0: BLOCAGE
         1: VENTE
         2: OD ANA
     """
@@ -379,7 +379,7 @@ class Maison(FlagsTable):
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
-    # type de vente X3 (NAF - aucune vente, VENTE - BICPA, OD SUCC - GASPA OD ANA)
+    # type de vente X3 (BLOCAGE - aucune vente, VENTE - BICPA, OD SUCC - GASPA OD ANA)
     type_x3 = models.ForeignKey(
         TypeVente,
         on_delete=models.PROTECT,
