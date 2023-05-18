@@ -20,4 +20,5 @@ class InvoiceFunctionsForm(forms.ModelForm):
             "absolute_path_windows",
             "absolute_path_linux",
             "description",
+            "redirect",
         )

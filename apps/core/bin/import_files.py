@@ -1,4 +1,4 @@
-# pylint: disable=W0703,W1203,E0401
+# pylint: disable=W0703,W1203,E0401,R0912,R0915
 """
 FR : Module d'import de données issues d'un fichier
 EN : Module for importing data from a file
@@ -17,8 +17,8 @@ from pathlib import Path
 
 from django.utils import timezone
 
-from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
 from heron.loggers import LOGGER_IMPORT
+from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
 from apps.data_flux.trace import get_trace
 from apps.data_flux.make_inserts import make_insert
 
@@ -85,8 +85,8 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
             # insert_mode="upsert",
         )
 
-        # if new_file_path != file:
-        #     new_file_path.unlink()
+        if new_file_path != file_path:
+            new_file_path.unlink()
 
         if params_dict.get("post_processing"):
             params_dict.get("post_processing")()
@@ -95,11 +95,11 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
         trace.final_at = timezone.now()
         trace.save()
 
-        # if save_dir:
-        #     destination = Path(save_dir) / file_path.name
-        #     shutil.move(file_path.resolve(), destination.resolve())
-        # else:
-        #     file_path.unlink()
+        if save_dir:
+            destination = Path(save_dir) / file_path.name
+            shutil.move(file_path.resolve(), destination.resolve())
+        else:
+            file_path.unlink()
 
     except DuplicatesError as except_error:
         error = True

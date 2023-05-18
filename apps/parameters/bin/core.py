@@ -203,14 +203,14 @@ def get_object(task_to_launch: AnyStr):
     """
     try:
         function_object = InvoiceFunctions.objects.get(function_name=task_to_launch)
-        func = get_module_object(function_object.function)
+        function = get_module_object(function_object.function)
 
     except (AttributeError, InvoiceFunctions.DoesNotExist) as error:
         raise LaunchDoesNotExistsError(
             f"The function_name to launch, '{task_to_launch!r}' does not exists!"
         ) from error
 
-    return func
+    return function
 
 
 def initial_counter_nums(counter_instance: Counter):

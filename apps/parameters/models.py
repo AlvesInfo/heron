@@ -217,9 +217,11 @@ class InvoiceFunctions(FlagsTable):
         """Calcul du champ reverse en fonction de redirect"""
         if ":" in self.redirect:
             try:
-                self.redirect = reverse(self.redirect)
+                self.reverse = reverse(self.redirect)
             except NoReverseMatch:
                 pass
+
+        super().save(*args, **kwargs)
 
     class Meta:
         """class Meta du modèle django"""

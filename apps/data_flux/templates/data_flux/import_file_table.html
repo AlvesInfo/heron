@@ -1,0 +1,131 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+<div class="sixteen wide column">
+
+    <div class="ui segment">
+
+            <!-- Modal de téléversement en cours ============================================== -->
+            <div id="id_dimmer_maj" class="ui massive dimmer">
+              <div class="ui indeterminate text loader progress-bar" style="top: 15% !important;">
+                Téléversement en cours...
+              </div>
+            </div>
+            <!-- =============================================================================== -->
+
+            <!-- Zone des téléversement ======================================================== -->
+            <h4 class="ui floated header color-blue-do" style="margin-top: 6px;">
+              Import
+            </h4>
+            <div class="ui mini form">
+              {# BOUTON D'UPLOAD #}
+              <button type="button"
+                      name="upload_files"
+                      class="ui basic button js-upload-photos color-blue-do"
+                      style="float: right;margin-top: -5px;">
+                <i class="green cloud upload icon"></i> Téléversement fichiers
+              </button>
+
+              {# MODAL DE SELECTION DES FICHIERS A TELECHARGER #}
+              <input id="fileupload"
+                     type="file"
+                     name="file"
+                     multiple
+                     style="display: none;color: white"
+              >
+            </div>
+            <div class="ui clearing divider"></div>
+            <!-- =============================================================================== -->
+
+            <!-- Zone des messages d'uploads =================================================== -->
+            <div id="ajaxMessage" class="row" align="center" style="display: none;">
+
+              <div  id="okUpload" class="ui black message" style="display: none;">
+                <div class="header">
+                </div>
+              </div>
+
+              <div id="nopUpload" class="ui negative message" style="display: none;">
+                <div class="header">
+                </div>
+
+              </div>
+
+              <div class="ui clearing divider"></div>
+
+            </div>
+            <!-- =============================================================================== -->
+
+            <!-- Zone des messages sur traitement des fichiers ================================= -->
+            <div id="message" style="{% if not messages %}display: none;{% endif %}">
+
+              <h4 class="ui floated header color-blue-do"  style="top: 10% !important;">
+                Messages
+              </h4>
+              <div class="ui clearing divider"></div>
+              <div class="ui mini form">
+                <ul id="ulMessage" style="font-size: 12px;">
+
+                </ul>
+              </div>
+
+            </div>
+            <!-- =============================================================================== -->
+
+            <!-- Modal de traitement des fichiers en cours ===================================== -->
+            <div id="id_dimmer_traitement" class="ui inverted massive dimmer">
+              <div class="ui indeterminate text loader" style="top: 10% !important;">
+                Intégration des fichiers de Relevés bancaires en cours, veuillez patienter ...
+              </div>
+            </div>
+            <!-- =============================================================================== -->
+
+            <!-- Zone des fichiers en attente de traitement ==================================== -->
+            <h4 class="ui floated header color-blue-do traitementButton"
+                style="margin-top: 6px;{% if not files_upload %}display: none;{% endif %}">
+              Fichiers en attente
+            </h4>
+
+            <button type="button"
+                    class="ui basic button color-blue-do traitementButton"
+                    style="float: right;margin-top: -5px;text-align: left;{% if not files_upload %}display: none;{% endif %}"
+                    onclick="integration()">
+              <i class="green download icon"></i> Traitement des fichiers
+            </button>
+
+            <div class="ui clearing divider traitementButton"
+                 style="{% if not files_upload %}display: none;{% endif %}">
+            </div>
+            <!-- =============================================================================== -->
+
+            <!-- Zone des fichiers en attente de traitement ==================================== -->
+            <div class="ui mini form traitementButton"
+                 style="{% if not files_upload %}display: none;{% endif %}">
+
+              <table class="ui celled table"
+                     cellspacing="0"
+                     style="font-size: 12px;font-weight:bold;">
+                <thead></thead>
+                <tbody id="tbodyUpload">
+                  {% for file in files_upload %}
+                    <tr id="file{{ file.pk }}">
+                      <td style="width: 90%;">
+                        {{ file.base_name_file }}
+                      </td>
+                      <td class="tdDelete" style="text-align: center;">
+                        <div style="cursor: pointer;">
+                          <i class="red trash icon"
+                             onclick="deleteUpload({{ file.pk }}, '{{ file.base_name_file }}')"></i>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+            </div>
+
+    </div>
+
+</div>
+{% endblock table %}

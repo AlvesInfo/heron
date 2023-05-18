@@ -101,7 +101,7 @@ class UploadFiles(models.Model):
     stack_id = models.IntegerField(blank=True, null=True)
     id_md5_file = models.CharField(blank=True, null=True, max_length=256)
     id_sha512_file = models.TextField()
-    file = models.FileField(upload_to="processing/releves/")
+    file = models.FileField(upload_to="processing/files/")
     action = models.CharField(max_length=20)
 
     """

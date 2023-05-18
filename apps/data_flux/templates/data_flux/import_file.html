@@ -1,0 +1,51 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+
+        {% include "data_flux/import_file_entete.html" %}
+
+        {% include "data_flux/import_file_table.html" %}
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    {# JQUERY SCRIPTS POUR UPLOAD FICHIERS  #}
+    <script src="{% static 'jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'jquery.fileupload.js' %}"></script>
+    <script src="{% static 'basic-upload.js' %}"></script>
+    <script src="{% static 'web_traitement.js' %}"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            $(`.datatable-chargement`).hide();
+
+        });
+
+    </script>
+
+{% endblock script %}

@@ -76,17 +76,20 @@
                         <div class="ui link list">
                             <a href="{% url 'parameters:natures_list' %}" class="item">Natures/Genres</a>
                         </div>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:emails_list' %}" class="item">Emails</a>
+                        </div>
                         {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
                                 <a href="{% url 'parameters:functions_list' %}" class="item">Fonctions</a>
                             </div>
+                            <div class="ui link list">
+                                <a href="{% url 'parameters:numberings_list' %}" class="item">Numérotations</a>
+                            </div>
+                            <div class="ui link list">
+                                <a href="{% url 'data_flux:processing_files' function_name='ACCOUNTS' %}" class="item">Import Axe PRO/Comptes</a>
+                            </div>
                         {% endif %}
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:numberings_list' %}" class="item">Numérotations</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:emails_list' %}" class="item">Emails</a>
-                        </div>
                     </div>
 
                     <div class="column">

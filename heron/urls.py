@@ -138,6 +138,13 @@ urlpatterns = [
                 namespace="validation_sales",
             ),
         ),
+        path(
+            "data_flux/",
+            include(
+                ("apps.data_flux.urls", "apps.data_flux"),
+                namespace="data_flux",
+            ),
+        ),
     ],
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
