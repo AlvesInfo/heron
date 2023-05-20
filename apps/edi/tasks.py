@@ -123,6 +123,7 @@ def launch_suppliers_import(process_objects, user_pk):
             )
 
         if trace is not None:
+            trace.invoices = True
             trace.save()
 
         if file.is_file() and not backup_file.is_file():
@@ -178,6 +179,7 @@ def launch_bbgr_bi_import(function_name, user_pk):
             )
 
         if trace is not None:
+            trace.invoices = True
             trace.save()
 
         # TODO : faire une fonction d'envoie de mails
@@ -258,6 +260,7 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
             )
 
         if trace is not None:
+            trace.invoices = True
             trace.save()
 
     LOGGER_EDI.warning(

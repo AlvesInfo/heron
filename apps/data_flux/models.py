@@ -38,6 +38,7 @@ class Trace(FlagsTable):
     time_to_process = models.DecimalField(
         null=True, max_digits=20, decimal_places=2, verbose_name="temps de traitement", default=0
     )
+    invoices = models.BooleanField(null=True, default=False)
 
     class Meta:
         """class Meta du modèle django"""

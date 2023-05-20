@@ -114,9 +114,6 @@ def bbgr_bulk(file_path: Path):
     )
     new_file_path.unlink()
     bulk_post_insert(trace.uuid_identification)
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.save()
 
     return trace, to_print
 
@@ -150,9 +147,6 @@ def bbgr_statment():
 
     to_print = f"Import : {flow_name}\n"
     bbgr_statment_post_insert(trace.uuid_identification)
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.save()
 
     return trace, to_print
 
@@ -189,9 +183,6 @@ def bbgr_monthly():
 
     to_print = f"Import : {flow_name}\n"
     bbgr_monthly_post_insert(trace.uuid_identification)
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.save()
 
     return trace, to_print
 
@@ -228,9 +219,6 @@ def bbgr_retours():
 
     to_print = f"Import : {flow_name}\n"
     bbgr_retours_post_insert(trace.uuid_identification)
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.save()
 
     return trace, to_print
 
@@ -264,9 +252,6 @@ def bbgr_receptions():
 
     to_print = f"Import : {flow_name}\n"
     bbgr_reception_post_insert(trace.uuid_identification)
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.save()
 
     return trace, to_print
 
@@ -526,6 +511,7 @@ def johnson(file_path: Path):
     )
     johnson_post_insert(trace.uuid_identification)
     new_file.unlink()
+
     return trace, to_print
 
 
@@ -846,4 +832,5 @@ def z_bu_refac(file_path: Path):
     )
     z_bu_refac_post_insert(trace.uuid_identification)
     new_file.unlink()
+
     return trace, to_print
