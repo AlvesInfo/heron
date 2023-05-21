@@ -36,7 +36,7 @@ def integration_purchases(request):
     :param request: Request Django
     :return: view
     """
-    # on met à jour les cct au cas où l'on est rempli des cct dans un autre écran
+    # on met à jour les cct au cas où l'on ai rempli des cct dans un autre écran
     update_cct_edi_import()
 
     if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count():
