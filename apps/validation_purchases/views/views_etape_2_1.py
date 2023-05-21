@@ -56,7 +56,7 @@ def integration_purchases(request):
             "nature": "les factures du fournisseur",
             "addition": True,
             "traces": Trace.objects.filter(
-                modified_at__gte=pendulum.now().start_of("month"),
+                modified_at__gte=pendulum.now().start_of("month").subtract(days=16),
                 invoices=True,
             ),
             "margin_table": 50,
