@@ -31,6 +31,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from django.db import connection, transaction
+from django.utils import timezone
 
 from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.trace import get_trace
@@ -38,8 +39,8 @@ from apps.data_flux.trace import get_trace
 
 @transaction.atomic
 def centers_invoices_update():
-    """Mise à jour des Centrales / Enseignes pour la facturation"""
-    trace_name = "Mise à jour des Centrales / Enseignes pour la facturation"
+    """Mise à jour des Centrales pour la facturation"""
+    trace_name = "Mise à jour des Centrales pour la facturation"
     file_name = "insert into ..."
     application_name = "centers_invoices_update"
     flow_name = "centers_invoices_update"
@@ -107,11 +108,11 @@ def centers_invoices_update():
 
 @transaction.atomic
 def signboards_invoices_update():
-    """Mise à jour des Centrales / Enseignes pour la facturation"""
-    trace_name = "Mise à jour des Centrales / Enseignes pour la facturation"
+    """Mise à jour des Enseignes pour la facturation"""
+    trace_name = "Mise à jour des Enseignes pour la facturation"
     file_name = "insert into ..."
-    application_name = "centers_invoices_update"
-    flow_name = "centers_invoices_update"
+    application_name = "signboards_invoices_update"
+    flow_name = "signboards_invoices_update"
     comment = "Mise à jour historique Enseignes pour la facturation"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
 
@@ -302,7 +303,8 @@ def parties_invoices_update():
         and "isi"."payment_condition_client" = coalesce("ap"."name", '')
         and "isi"."vat_cee_number_cct" = coalesce("ccm"."vat_cee_number", '')
         and "isi"."vat_cee_number_client" = coalesce("bs"."vat_cee_number", '')
-        on conflict ("uuid_identification") DO UPDATE SET "created_at" = EXCLUDED."created_at"
+        on conflict ("uuid_identification") 
+        DO UPDATE SET "created_at" = EXCLUDED."created_at"
         """
         cursor.execute(sql_create)
         trace.created_numbers_records = cursor.rowcount
@@ -344,6 +346,7 @@ def process_update():
                     + traceback
                 )
             if trace is not None:
+                trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
                 trace.save()
 
 
