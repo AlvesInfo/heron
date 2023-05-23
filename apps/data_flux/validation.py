@@ -79,6 +79,7 @@ class TraceTemplate:
         """
         Initialisation de la Trace
         """
+        print("AVANT INITIALIZE")
         self.trace = Trace.objects.create(
             created_at=timezone.now(),
             uuid_identification=self.trace_number,
@@ -92,6 +93,7 @@ class TraceTemplate:
             errors_numbers_records=0,
             unknown_numbers_records=0,
         )
+        print("APRES INITIALIZE", self.trace)
         return self.trace
 
     def get_formatted_error(self, error_validator):
