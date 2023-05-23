@@ -60,4 +60,10 @@ post_all_dict = {
         where "item_weight" isnull
     """
     ),
+    "sql_orpheans": sql.SQL(
+        """
+        delete from "edi_ediimport" "ee"
+        where "valid" isnull
+    """
+    ),
 }
