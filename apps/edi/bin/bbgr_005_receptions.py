@@ -117,7 +117,8 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                     "bi_id",
                     "unit_weight",
                     "purchase_invoice",
-                    "sale_invoice"
+                    "sale_invoice",
+                    "item_weight"
                 )
                 select
                     %(uuid_identification)s as "uuid_identification",
@@ -164,7 +165,8 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                    max("id") as "bi_id",
                    11 as "unit_weight",
                    false as "purchase_invoice",
-                   true as "sale_invoice"
+                   true as "sale_invoice",
+                   0 as "item_weight"
                 from "heron_bi_receptions_bbgr"
                 where "id" > %(min_id)s
                 group by "famille", "type_article", date_trunc('month', entered_date) 
