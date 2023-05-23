@@ -363,6 +363,7 @@ def edi(file_path: Path):
     to_print = make_insert_edi_files(
         model, flow_name, file_path, trace, validator, params_dict_loader
     )
+    trace.save()
     edi_post_insert(trace.uuid_identification)
 
     return trace, to_print
@@ -419,6 +420,7 @@ def generique(file_path: Path):
     to_print = make_insert_edi_files(
         model, flow_name, file_path, trace, validator, params_dict_loader
     )
+    trace.save()
     generique_post_insert(trace.uuid_identification)
 
     return trace, to_print
