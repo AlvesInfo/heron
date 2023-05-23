@@ -298,7 +298,7 @@ def insert_new_articles(cursor: connection.cursor):
             "uuid_sub_big_category",
             "created_by",
             "packaging_qty",
-            "new_article",
+            "new_article"
         )
     select 
         now() as "created_at",
@@ -404,8 +404,8 @@ def set_edi_ediimport_articles(cursor: connection.cursor):
             "aa"."axe_rfa",
             "aa"."uuid_big_category",
             "aa"."uuid_sub_big_category",
-            "aa"."unit_weight",
-            3 as "item_weight",
+            case when "aa"."unit_weight" is null then 1 else "aa"."unit_weight" end as "unit_weight",
+            "aa"."item_weight",
             "aa"."customs_code"
         from "edi_ediimport" "ee" 
         join "articles_article" "aa" 
