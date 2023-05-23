@@ -89,7 +89,7 @@ bbgr_dict = {
 def launch_suppliers_import(process_objects, user_pk):
     """
     Intégration des factures fournisseurs présentes
-    dans le répertoire de processing/suppliers_invoices_files
+    dans les répertoires de processing/suppliers_invoices_files
     """
 
     start_initial = time.time()

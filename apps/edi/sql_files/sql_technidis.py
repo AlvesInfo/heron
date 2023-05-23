@@ -64,7 +64,8 @@ post_technidis_dict = {
                                         then split_part("reference_article", '-', 1)
                                         else "famille"
                                     end,
-            "origin" = 1
+            "origin" = 1,
+            "item_weight"= 0
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

@@ -298,7 +298,7 @@ def insert_new_articles(cursor: connection.cursor):
             "uuid_sub_big_category",
             "created_by",
             "packaging_qty",
-            "new_article"
+            "new_article",
         )
     select 
         now() as "created_at",
@@ -306,7 +306,7 @@ def insert_new_articles(cursor: connection.cursor):
         "reference_article" as "reference", 
         "ee"."ean_code", 
         max("ee"."libelle") as "libelle", 
-        max("ee"."item_weight") as "item_weight",
+        max(coalesce("ee"."item_weight", 0)) as "item_weight",
         max("ee"."customs_code") as "customs_code",
         max(coalesce("net_unit_price", 0)) as "catalog_price",
         gen_random_uuid() as "uuid_identification",

@@ -73,9 +73,11 @@ def post_processing_all():
 
     # Mise à jour sur la fiche tiers, du champ courant, pour l'affichage plus rapide des tiers
     sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
+    sql_update_item_weight = post_all_dict.get("sql_update_item_weight")
 
     with connection.cursor() as cursor:
         cursor.execute(sql_in_use_third_party_num)
+        cursor.execute(sql_update_item_weight)
 
     edi_import_duplicate_check()
     suppliers_invoices_duplicate_check()

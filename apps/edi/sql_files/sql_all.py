@@ -53,4 +53,11 @@ post_all_dict = {
         where exists (select 1 from alls aa where aa."third_party_num" = bs."third_party_num")
     """
     ),
+    "sql_update_item_weight": sql.SQL(
+        """
+        update "edi_ediimport" "ee"
+        set "item_weight" = 0
+        where "item_weight" isnull
+    """
+    ),
 }
