@@ -353,6 +353,7 @@ def insert_new_articles(cursor: connection.cursor):
     on "ee"."third_party_num" = "aa"."third_party_num"
     and "ee"."reference_article" = "aa"."reference"
     where "aa"."reference" isnull
+    and "ee".third_party_num is not null 
     group by "reference_article",
             "ee"."ean_code",
             "ee"."axe_bu",
