@@ -12,8 +12,14 @@ modified at: 2023-25-25
 modified by: Paulo ALVES
 """
 from typing import AnyStr
+from uuid import uuid4
+from copy import deepcopy
 
 from django.db import connection
+from django.db.models import Q, Count
+
+from apps.edi.models import EdiImport
+from apps.data_flux.models import Trace
 
 
 def set_is_multi_store(third_party_num: AnyStr, invoice_number: AnyStr, invoice_year: int):
@@ -69,3 +75,34 @@ def set_is_multi_store(third_party_num: AnyStr, invoice_number: AnyStr, invoice_
                 "invoice_year": invoice_year,
             },
         )
+
+
+def verify_supplier_ident():
+    """Vérification qu'il ne manque pas les identifiants fournisseurs dans les imports edi.
+    S'il y en a qui n'existent pas alors on supprime la trace et on en crée une nouvelle
+    et les lignes dans edi import sont supprimées"""
+    rows_list = (
+        EdiImport.objects.filter(
+            Q(third_party_num="")
+            | Q(third_party_num__isnull=True)
+            | Q(supplier_ident="")
+            | Q(supplier_ident__isnull=True)
+        )
+        .values("uuid_identification", "third_party_num", "flow_name", "supplier", "supplier_ident")
+        .annotate(dcount=Count("uuid_identification"))
+    )
+
+    for row_dict in rows_list:
+        uuid_edi_import = str(row_dict.get("uuid_identification"))
+        trace = Trace.objects.get(uuid_identification=uuid_edi_import)
+        new_trace = deepcopy(trace)
+        new_trace.pk = None
+        new_trace.uuid_identification = uuid4()
+        new_trace.errors = True
+        new_trace.invoices = True
+        new_trace.comment = (
+            f"Le fichier {trace.file_name}, "
+            "ne contenait pas l'identifiant du fournisseur l'import' a été effacé"
+        )
+        new_trace.save()
+        EdiImport.objects.filter(uuid_identification=uuid_edi_import).delete()

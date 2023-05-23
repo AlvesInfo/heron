@@ -16,6 +16,7 @@ from apps.data_flux.models import Trace
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.bin.edi_utilites import delete_orphans_controls
+from apps.validation_purchases.bin.validations_utilities import verify_supplier_ident
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
@@ -38,6 +39,9 @@ def integration_purchases(request):
     """
     # on met à jour les cct au cas où l'on ai rempli des cct dans un autre écran
     update_cct_edi_import()
+
+    # On vérifie et on supprimes les imports edi s'ils n'ont pas de supplier_ident
+    verify_supplier_ident()
 
     if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count():
         return redirect(reverse("validation_purchases:purchase_without_suppliers"))
