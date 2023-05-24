@@ -212,7 +212,13 @@ def account_axe_import_file(_):
     :return: redirect
     """
     try:
-        list_to_print = axe_pro_account()
+        from pathlib import Path
+        list_to_print = axe_pro_account(
+            Path(
+                "/home/paulo/heron/files/processing/suppliers_invoices_files/IMPORT_ACCOUNTS/"
+                "LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_2023_5_13_1683972386.xlsx"
+            )
+        )
         print(list_to_print)
     except:
         LOGGER_VIEWS.exception("view : account_axe_import_file")
