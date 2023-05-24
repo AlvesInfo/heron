@@ -106,3 +106,21 @@ def verify_supplier_ident():
         )
         new_trace.save()
         EdiImport.objects.filter(uuid_identification=uuid_edi_import).delete()
+
+
+def flag_invoices():
+    """Falg de la colonne invoices à True, pour les éléments qui auraient eu une erreur"""
+    sql_update = """
+    update "data_flux_trace" "dt"
+    set "invoices" = true 
+    from (
+        select 
+            "uuid_identification"
+        from "edi_ediimport" "ee"
+        group by "uuid_identification"
+    ) "req"
+    where ("invoices" = false or "invoices" isnull)
+    and "dt"."uuid_identification" = "req"."uuid_identification"
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql_update)

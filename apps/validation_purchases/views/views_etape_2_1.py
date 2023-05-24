@@ -16,7 +16,7 @@ from apps.data_flux.models import Trace
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.bin.edi_utilites import delete_orphans_controls
-from apps.validation_purchases.bin.validations_utilities import verify_supplier_ident
+from apps.validation_purchases.bin.validations_utilities import verify_supplier_ident, flag_invoices
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
@@ -43,6 +43,9 @@ def integration_purchases(request):
     # On vérifie et on supprimes les imports edi s'ils n'ont pas de supplier_ident
     verify_supplier_ident()
 
+    # On flag les trace invoices = True, si il y a eu des erreurs
+    flag_invoices()
+
     if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count():
         return redirect(reverse("validation_purchases:purchase_without_suppliers"))
 
@@ -66,7 +69,7 @@ def integration_purchases(request):
             "margin_table": 50,
             "margin_rep": 50,
             "nb_paging": 100,
-            "legende": IconOriginChoice.objects.all()
+            "legende": IconOriginChoice.objects.all(),
         }
 
     if get_in_progress():
@@ -114,8 +117,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"{self.third_party_num} - "
-            f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
+            f"{self.third_party_num} - " f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
         context["supplier"] = self.supplier
@@ -144,7 +146,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
             third_party_num=self.third_party_num,
             supplier=self.supplier,
             invoice_month=self.invoice_month,
-            valid=True
+            valid=True,
         ).update(uuid_control=instance.uuid_identification)
 
         return super().form_valid(form)
@@ -195,8 +197,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"{self.third_party_num} - "
-            f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
+            f"{self.third_party_num} - " f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
         context["supplier"] = self.supplier
@@ -248,9 +249,7 @@ def delete_supplier_edi_import(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(
-            f"delete_supplier_edi_import error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.exception(f"delete_supplier_edi_import error, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
