@@ -70,6 +70,7 @@ def set_trace_hand_invoice(
         errors_numbers_records=0,
         unknown_numbers_records=0,
         created_by=user,
+        invoices=True,
     )
 
     # S'il n'y a pas d'erreurs alors on crée la change_trace
