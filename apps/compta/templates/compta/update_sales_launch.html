@@ -7,6 +7,12 @@
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
 
+{% block head_js %}
+    <script type="text/javascript">
+        drop_not_clearable = true
+    </script>
+{% endblock head_js %}
+
 {% block content %}
 
     {% if user.is_authenticated %}
@@ -32,9 +38,9 @@
 
 {% block script %}
 
-    <script>
-
+    <script type="text/javascript">
         $(document).ready(function () {
+
 
             // FRAMEWORK DATA-TABLE POUR AVOIR UN SCROLL VERTICAL
             $('#table_document').DataTable({
@@ -49,7 +55,6 @@
             let form = document.getElementById('id_form_post');
 
             form.addEventListener("submit", (event) => {
-                console.log($(``))
                 $(`#chargement`).text("Génération en cours ...")
                 $(`.datatable-chargement`).show()
             });

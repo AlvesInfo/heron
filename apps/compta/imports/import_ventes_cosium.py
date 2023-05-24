@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-03-02
 modified by: Paulo ALVES
 """
+import pendulum
 from psycopg2 import sql
 from django.db import connection, transaction
 
@@ -341,6 +342,179 @@ def mise_a_jour_ventes_cosium():
         set_cct_ventes(cursor)
 
 
+def force_update_sales(dte_d: str, dte_f: str):
+    """Update Forcé des ventes par périodes"""
+    date_debut = pendulum.parse(dte_d)
+    date_fin = pendulum.parse(dte_f)
+
+    with connection.cursor() as cursor:
+        # Suppression des ventes de la période
+        sql_delete_period = sql.SQL(
+            """
+            delete from compta_ventescosium
+            where date_vente >= %(date_debut)s and date_vente <= %(date_fin)s
+            """
+        )
+        cursor.execute(sql_delete_period, {"date_debut": date_debut, "date_fin": date_fin})
+
+        # Insertion des ventes de la période
+        sql_insert_ventes = sql.SQL(
+            """
+            insert into "compta_ventescosium" 
+            (
+                "id_bi", 
+                "id_vente", 
+                "code_ean", 
+                "code_maison", 
+                "code_cosium", 
+                "famille_cosium", 
+                "rayon_cosium", 
+                "date_vente", 
+                "qte_vente", 
+                "remise", 
+                "taux_tva", 
+                "tva_x3", 
+                "tva", 
+                "total_ttc", 
+                "pv_brut_unitaire", 
+                "pv_net_unitaire", 
+                "px_vente_ttc_devise", 
+                "px_vente_ttc_devise_apres_remise", 
+                "ca_ht_avt_remise", 
+                "ca_ht_ap_remise", 
+                "taux_change", 
+                "pv_brut_unitaire_eur", 
+                "pv_net_unitaire_eur", 
+                "px_vente_ttc_eur", 
+                "px_vente_ttc_eur_apres_remise", 
+                "ca_ht_avt_remise_eur", 
+                "ca_ht_ap_remise_eur", 
+                "px_achat_global", 
+                "px_achat_unitaire", 
+                "solde", 
+                "maj_stock", 
+                "age_client", 
+                "centre_de_gestion", 
+                "centre_payeur", 
+                "code_barre_2", 
+                "code_marketing_1", 
+                "date_age_client", 
+                "date_creation", 
+                "date_encaissement", 
+                "date_ordo", 
+                "designation", 
+                "filtre_pack", 
+                "fournisseur", 
+                "indentification_equip", 
+                "indice", 
+                "lentilles", 
+                "marque", 
+                "nom_mutuelle", 
+                "num_client", 
+                "num_devis_avoir", 
+                "num_facture", 
+                "pays", 
+                "photochromique", 
+                "prescripteur_na", 
+                "prescripteurs"
+            )
+            select
+                "id" as "id_bi", 
+                "id_vente", 
+                "code_ean", 
+                "code_maison", 
+                "code_cosium", 
+                "famille_cosium", 
+                "rayon_cosium", 
+                "date_vente", 
+                "qte_vente", 
+                "remise", 
+                "taux_tva", 
+                "tva_x3", 
+                "tva", 
+                "total_ttc", 
+                "pv_brut_unitaire", 
+                "pv_net_unitaire", 
+                "px_vente_ttc_devise", 
+                "px_vente_ttc_devise_apres_remise", 
+                "ca_ht_avt_remise", 
+                "ca_ht_ap_remise", 
+                "taux_change", 
+                "pv_brut_unitaire_eur", 
+                "pv_net_unitaire_eur", 
+                "px_vente_ttc_eur", 
+                "px_vente_ttc_eur_apres_remise", 
+                "ca_ht_avt_remise_eur", 
+                "ca_ht_ap_remise_eur", 
+                "px_achat_global", 
+                "px_achat_unitaire", 
+                "solde", 
+                "maj_stock", 
+                "age_client", 
+                "centre_de_gestion", 
+                "centre_payeur", 
+                "code_barre_2", 
+                "code_marketing_1", 
+                "date_age_client", 
+                "date_creation", 
+                "date_encaissement", 
+                "date_ordo", 
+                "designation", 
+                "filtre_pack", 
+                "fournisseur", 
+                "indentification_equip", 
+                "indice", 
+                "lentilles", 
+                "marque", 
+                "nom_mutuelle", 
+                "num_client", 
+                "num_devis_avoir", 
+                "num_facture", 
+                "pays", 
+                "photochromique", 
+                "prescripteur_na", 
+                "prescripteurs"
+            from "heron_bi_ventes_cosium"
+            where date_vente >= %(date_debut)s and date_vente <= %(date_fin)s
+            order by "id"
+            """
+        )
+        cursor.execute(sql_insert_ventes, {"date_debut": date_debut, "date_fin": date_fin})
+
+        # Mise à jour des cct des ventes sur la période
+        sql_cct_update = sql.SQL(
+            """
+            update "compta_ventescosium" cv 
+            set "cct_uuid_identification" = bs."cct_uuid_identification"
+                    from (
+                        select
+                           ccm."uuid_identification" as "cct_uuid_identification", 
+                           unnest(
+                                string_to_array(
+                                    case 
+                                        when right("cct_identifier", 1) = '|' 
+                                        then left("cct_identifier", length("cct_identifier")-1) 
+                                        else "cct_identifier"
+                                    end
+                                    , 
+                                    '|'
+                                )
+                           ) as "cct_identifier"
+                        from "book_suppliercct" bsp
+                        join "accountancy_cctsage" ac 
+                        on bsp."cct_uuid_identification" = ac."uuid_identification" 
+                        join "centers_clients_maison" ccm
+                        on ac."cct" = ccm."cct"
+                        where bsp."third_party_num" = 'COSI001'
+                    ) bs
+            where cv."code_cosium" = bs."cct_identifier"
+            and cv.date_vente >= %(date_debut)s and date_vente <= %(date_fin)s
+            """
+        )
+        cursor.execute(sql_cct_update, {"date_debut": date_debut, "date_fin": date_fin})
+
+
 if __name__ == "__main__":
-    insert_ventes_cosium()
-    mise_a_jour_ventes_cosium()
+    # insert_ventes_cosium()
+    # mise_a_jour_ventes_cosium()
+    force_update_sales(dte_d="2023-04-01", dte_f="2023-04-30")

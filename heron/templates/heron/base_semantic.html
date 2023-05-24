@@ -129,10 +129,14 @@
                 // BOUTON DE SOUMISSION DES FORMULAIRE POUR DECLANCHER LE LOADER
                 $(`#submitBtn`).click(function () {
                     $(`.datatable-chargement`).show();
-                });
+                })
 
                 // FONCTION SEMANTIC UI POUR INITIALISATION DES DROPDOWNS
-                $('.dropdown').dropdown({fullTextSearch: true, "clearable": true});
+                if (drop_not_clearable === true) {
+                    $('.dropdown').dropdown({fullTextSearch: true})
+                } else {
+                    $('.dropdown').dropdown({fullTextSearch: true, "clearable": true});
+                }
 
                 // FONCTION SEMANTIC UI POUR INITIALISATION DES TABS
                 $('.menu .item').tab();

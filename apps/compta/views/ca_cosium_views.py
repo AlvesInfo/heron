@@ -13,6 +13,8 @@ from apps.compta.excel_outputs.output_excel_ca_cosium import excel_ca_cosium
 from apps.compta.models import CaClients
 from apps.edi.models import EdiImport
 from apps.compta.bin.generate_ca import set_ca
+from apps.compta.imports.import_ventes_cosium import force_update_sales
+from apps.compta.models import VentesCosium
 
 
 def export_sales_cosium(request):
@@ -38,6 +40,7 @@ def export_sales_cosium(request):
     context = {
         "titre_table": "VENTES COSIUM PAR PERIODE",
         "form": form,
+        "state": VentesCosium.objects.filter(cct_uuid_identification__isnull=True).exists(),
     }
 
     return render(request, "compta/export_sales_cosium.html", context=context)
@@ -66,9 +69,36 @@ def export_ca_cosium(request):
     context = {
         "titre_table": "CA MAISONS/FAMILLES PAR PERIODE",
         "form": form,
+        "state": VentesCosium.objects.filter(cct_uuid_identification__isnull=True).exists(),
     }
 
     return render(request, "compta/export_sales_cosium.html", context=context)
+
+
+def reset_sales(request):
+    """Mise à jour forcée des ventes, si erreur sur Ventes Cosium et après rectification"""
+    form = MonthForm(request.POST or None)
+
+    if request.method == "POST":
+
+        if form.is_valid():
+            dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            force_update_sales(dte_d, dte_f)
+            set_ca(dte_d, dte_f, request.user.uuid_identification)
+
+        else:
+            LOGGER_VIEWS.exception(f"erreur form reset_ca : {str(form.data)!r}")
+
+    context = {
+        "titre_table": "Reset des ventes Cosium",
+        "form": form,
+        "avertissement": (
+            "Attention, Tous les abonnements, Royalties, Meuleuse, Publicité et Prestations, "
+            "seront également supprimé, vous devrez les regénérer manuellement !"
+        ),
+    }
+
+    return render(request, "compta/update_sales_launch.html", context=context)
 
 
 def reset_ca(request):
@@ -105,4 +135,4 @@ def reset_ca(request):
         ),
     }
 
-    return render(request, "compta/subscriptions_launch.html", context=context)
+    return render(request, "compta/update_sales_launch.html", context=context)

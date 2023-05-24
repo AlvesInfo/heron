@@ -7,7 +7,10 @@ from apps.compta.views import (
     publicity_launch,
     services_launch,
     # SALES COSIUM
-    export_sales_cosium,export_ca_cosium,reset_ca
+    export_sales_cosium,
+    export_ca_cosium,
+    reset_sales,
+    reset_ca,
 )
 
 app_name = "apps.compta"
@@ -24,6 +27,7 @@ urlpatterns = (
     + [
         path("export_sales_cosium/", export_sales_cosium, name="export_sales_cosium"),
         path("export_ca_cosium/", export_ca_cosium, name="export_ca_cosium"),
+        path("reset_sales/", reset_sales, name="reset_sales"),
         path("reset_ca/", reset_ca, name="reset_ca"),
     ]
 )

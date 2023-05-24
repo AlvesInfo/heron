@@ -64,7 +64,7 @@ def royalties_launch(request):
         "form": form,
     }
 
-    return render(request, "compta/subscriptions_launch.html", context=context)
+    return render(request, "compta/update_sales_launch.html", context=context)
 
 
 def meuleuse_launch(request):
@@ -115,7 +115,7 @@ def meuleuse_launch(request):
         "form": form,
     }
 
-    return render(request, "compta/subscriptions_launch.html", context=context)
+    return render(request, "compta/update_sales_launch.html", context=context)
 
 
 def publicity_launch(request):
@@ -166,7 +166,7 @@ def publicity_launch(request):
         "form": form,
     }
 
-    return render(request, "compta/subscriptions_launch.html", context=context)
+    return render(request, "compta/update_sales_launch.html", context=context)
 
 
 def services_launch(request):
@@ -217,4 +217,4 @@ def services_launch(request):
         "form": form,
     }
 
-    return render(request, "compta/subscriptions_launch.html", context=context)
+    return render(request, "compta/update_sales_launch.html", context=context)
