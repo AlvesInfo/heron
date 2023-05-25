@@ -149,8 +149,19 @@ class Article(FlagsTable):
         related_name="+",
         db_column="unit_weight",
         null=True,
+        default=1,
     )
     packaging_qty = models.DecimalField(max_digits=20, decimal_places=5, default=1)
+    customs_item_weight = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    customs_unit_weight = models.ForeignKey(
+        UnitChoices,
+        on_delete=models.PROTECT,
+        to_field="num",
+        related_name="+",
+        db_column="customs_unit_weight",
+        null=True,
+        default=1,
+    )
     customs_code = models.CharField(null=True, blank=True, max_length=35)
     catalog_price = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     comment = models.TextField(null=True, blank=True)
