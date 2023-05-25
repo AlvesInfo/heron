@@ -96,7 +96,7 @@ post_generic_internal_dict = {
         """
         update "edi_ediimport"
         set "purchase_invoice" = false,
-            "sale_invoice" = true,
+            "sale_invoice" = true
         where "uuid_identification" = %(uuid_identification)s
         """
     ),
