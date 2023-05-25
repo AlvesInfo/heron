@@ -101,6 +101,9 @@ def launch_suppliers_import(process_objects, user_pk):
     file = Path(str_file)
     backup_file = Path(str_backup_file)
     function = processing_dict.get(processing_key)
+    print(file)
+    print(backup_file)
+    print(function)
 
     try:
         user = User.objects.get(pk=user_pk)
