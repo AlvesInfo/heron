@@ -36,6 +36,7 @@ from apps.edi.bin.edi_post_processing_pool import (
     edi_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
+    generique_post_insert_internal,
     hearing_post_insert,
     interson_post_insert,
     johnson_post_insert,
@@ -450,6 +451,7 @@ def generique_internal(file_path: Path):
     )
     trace.save()
     generique_post_insert(trace.uuid_identification)
+    generique_post_insert_internal(trace.uuid_identification)
 
     return trace, to_print
 
