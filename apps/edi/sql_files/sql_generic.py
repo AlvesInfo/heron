@@ -89,3 +89,15 @@ post_generic_dict = {
     """
     ),
 }
+
+
+post_generic_internal_dict = {
+    "sql_update": sql.SQL(
+        """
+        update "edi_ediimport"
+        set "purchase_invoice" = false,
+            "sale_invoice" = true,
+        where "uuid_identification" = %(uuid_identification)s
+        """
+    ),
+}

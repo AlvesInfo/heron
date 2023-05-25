@@ -35,7 +35,7 @@ from apps.edi.sql_files.sql_cosium_achat import post_cosium_achats_dict
 from apps.edi.sql_files.sql_transferts_cosium import post_transfert_cosium_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
 from apps.edi.sql_files.sql_eye_confort import post_eye_dict
-from apps.edi.sql_files.sql_generic import post_generic_dict
+from apps.edi.sql_files.sql_generic import post_generic_dict, post_generic_internal_dict
 from apps.edi.sql_files.sql_hearing import post_hearing_dict
 from apps.edi.sql_files.sql_interson import post_interson_dict
 from apps.edi.sql_files.sql_johnson import post_johnson_dict
@@ -413,6 +413,17 @@ def generique_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_mg_developpemnt, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
+
+
+def generique_post_insert_internal(uuid_identification: AnyStr):
+    """
+    Mise à jour des champs vides à l'import du fichier EyeConfort
+    :param uuid_identification: uuid_identification
+    """
+    sql_update = post_generic_internal_dict.get("sql_update")
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_update, {"uuid_identification": uuid_identification})
 
 
 def hearing_post_insert(uuid_identification: AnyStr):
