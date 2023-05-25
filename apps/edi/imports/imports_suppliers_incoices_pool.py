@@ -326,7 +326,7 @@ def transfert_cosium(file_path: Path):
         "trace": trace,
         "add_fields_dict": {
             "flow_name": flow_name,
-            "supplier": "COSIUM TRANSFERTS",
+            "supplier": get_supplier(flow_name),
             "uuid_identification": trace.uuid_identification,
             "created_at": timezone.now(),
             "modified_at": timezone.now(),

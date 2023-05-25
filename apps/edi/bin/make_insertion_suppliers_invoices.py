@@ -105,7 +105,7 @@ def get_supplier_ident(flow_name: str):
     :return: Retourne le supplier_ident du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
-
+    LOGGER_EDI.info(f"{supplier}, {supplier_ident}")
     if isinstance(cache, (dict,)):
         cache[f"{flow_name}_ident"] = supplier_ident
         cache[f"{flow_name}_supplier"] = supplier
