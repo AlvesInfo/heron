@@ -28,31 +28,23 @@ def set_cct_ventes(cursor: connection.cursor):
     """
     sql_cct = sql.SQL(
         """
-        update "compta_ventescosium" cv 
-        set "cct_uuid_identification" = bs."cct_uuid_identification"
-                from (
-                    select
-                       ccm."uuid_identification" as "cct_uuid_identification", 
-                       unnest(
-                            string_to_array(
-                                case 
-                                    when right("cct_identifier", 1) = '|' 
-                                    then left("cct_identifier", length("cct_identifier")-1) 
-                                    else "cct_identifier"
-                                end
-                                , 
-                                '|'
-                            )
-                       ) as "cct_identifier"
-                    from "book_suppliercct" bsp
-                    join "accountancy_cctsage" ac 
-                    on bsp."cct_uuid_identification" = ac."uuid_identification" 
-                    join "centers_clients_maison" ccm
-                    on ac."cct" = ccm."cct"
-                    where bsp."third_party_num" = 'COSI001'
-                ) bs
-        where cv."code_cosium" = bs."cct_identifier"
-        and cv."cct_uuid_identification" isnull
+        update "compta_ventescosium" "cv" 
+        set "cct_uuid_identification" = "cm"."cct_uuid_identification"
+        from (
+            select 
+                "code_maison", 
+                "cct", 
+                "uuid_identification" as "cct_uuid_identification"
+            from "centers_clients_maison" 
+            where "code_maison" != '' and "code_maison" is not null
+            union all 
+            select 
+                '703' as "code_maison", 
+                'AF0705' as "cct", 
+                '5a3819ab-4e67-4582-acd5-b5aa10e943ce'::uuid as "cct_uuid_identification"
+        ) "cm"
+        where "cv"."code_maison" = cm."code_maison"
+        and "cv"."cct_uuid_identification" isnull
         """
     )
     cursor.execute(sql_cct)
@@ -484,31 +476,23 @@ def force_update_sales(dte_d: str, dte_f: str):
         # Mise à jour des cct des ventes sur la période
         sql_cct_update = sql.SQL(
             """
-            update "compta_ventescosium" cv 
-            set "cct_uuid_identification" = bs."cct_uuid_identification"
-                    from (
-                        select
-                           ccm."uuid_identification" as "cct_uuid_identification", 
-                           unnest(
-                                string_to_array(
-                                    case 
-                                        when right("cct_identifier", 1) = '|' 
-                                        then left("cct_identifier", length("cct_identifier")-1) 
-                                        else "cct_identifier"
-                                    end
-                                    , 
-                                    '|'
-                                )
-                           ) as "cct_identifier"
-                        from "book_suppliercct" bsp
-                        join "accountancy_cctsage" ac 
-                        on bsp."cct_uuid_identification" = ac."uuid_identification" 
-                        join "centers_clients_maison" ccm
-                        on ac."cct" = ccm."cct"
-                        where bsp."third_party_num" = 'COSI001'
-                    ) bs
-            where cv."code_cosium" = bs."cct_identifier"
-            and cv.date_vente >= %(date_debut)s and date_vente <= %(date_fin)s
+            update "compta_ventescosium" "cv" 
+            set "cct_uuid_identification" = "cm"."cct_uuid_identification"
+            from (
+                select 
+                    "code_maison", 
+                    "cct", 
+                    "uuid_identification" as "cct_uuid_identification"
+                from "centers_clients_maison" 
+                where "code_maison" != '' and "code_maison" is not null
+                union all 
+                select 
+                    '703' as "code_maison", 
+                    'AF0705' as "cct", 
+                    '5a3819ab-4e67-4582-acd5-b5aa10e943ce'::uuid as "cct_uuid_identification"
+            ) "cm"
+            where "cv"."code_maison" = cm."code_maison"
+            and "cv"."date_vente" >= %(date_debut)s and "cv"."date_vente" <= %(date_fin)s
             """
         )
         cursor.execute(sql_cct_update, {"date_debut": date_debut, "date_fin": date_fin})
