@@ -434,7 +434,7 @@ def generique_internal(file_path: Path):
     file_name = file_path.name
     trace_name = "Import Génerique internal- tiers : "
     application_name = "edi_imports_suppliers_incoices_pool"
-    flow_name = "Generique"
+    flow_name = "Generique_internal"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
