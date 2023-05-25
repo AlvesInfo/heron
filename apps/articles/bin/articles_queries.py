@@ -106,7 +106,8 @@ def get_article(article_pk: int) -> Dict:
             "big_category",
             "sub_category",
             "customs_code",
-            "item_weight"
+            "item_weight",
+            "unit_weight",
         ).annotate(
             libelle=F("libelle_article"),
             reference_article=F("reference")
@@ -124,7 +125,8 @@ def get_article(article_pk: int) -> Dict:
             "big_category",
             "sub_category",
             "customs_code",
-            "item_weight"
+            "item_weight",
+            "unit_weight",
         )
         .first()
     )

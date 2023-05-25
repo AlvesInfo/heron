@@ -107,7 +107,7 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
                     "bi_id",
                     "unit_weight",
                     "purchase_invoice",
-                    "sale_invoice"
+                    "sale_invoice",
                     "item_weight"
                 )
                 select 

@@ -48,6 +48,8 @@ class ArticleForm(forms.ModelForm):
             "customs_code",
             "comment",
             "new_article",
+            "customs_item_weight",
+            "customs_unit_weight",
         ]
 
         widgets = {
@@ -63,4 +65,5 @@ class ArticleForm(forms.ModelForm):
             "axe_pro": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "axe_pys": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "axe_rfa": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "customs_unit_weight": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }

@@ -147,7 +147,7 @@
                             </div>
                         </div>
                         <div class="fields formset" style="margin-bottom: 5px;">
-                            <div class="two wide field">
+                            <div class="four wide field">
                             </div>
                             <div class="two wide field">
                                 <label for="id_qty_{{ num }}" style="text-align: right;margin-right: 14px">Qté</label>
@@ -160,43 +160,7 @@
                                        required=""
                                        id="id_qty_{{ num }}">
                             </div>
-                            <div class="two wide field">
-                                <label for="id_unit_weight_{{ num }}">Unité</label>
-                                <div class="ui fluid search dropdown selection">
-                                    <select name="unit_weight" required="" id="id_unit_weight_{{ num }}">
-                                      <option value="">---------</option>
-                                      <option value="1" selected="">U</option>
-                                      <option value="2">Grammes</option>
-                                      <option value="3">Kg</option>
-                                      <option value="4">Pièce</option>
-                                      <option value="5">Boite</option>
-                                      <option value="6">Carton</option>
-                                      <option value="7">Jrs</option>
-                                      <option value="8">Mois</option>
-                                      <option value="9">Forfait</option>
-                                      <option value="10">Heures</option>
-                                      <option value="11">Ens</option>
-                                      <option value="12">%</option>
-                                    </select>
-                                    <i class="dropdown icon"></i>
-                                    <input class="search" autocomplete="off" tabindex="0" >
-                                        <div class="text">U</div>
-                                        <div class="menu transition hidden" tabindex="-1">
-                                            <div class="item active selected" data-value="1">U</div>
-                                            <div class="item" data-value="2">Grammes</div>
-                                            <div class="item" data-value="3">Kg</div>
-                                            <div class="item" data-value="4">Pièce</div>
-                                            <div class="item" data-value="5">Boite</div>
-                                            <div class="item" data-value="6">Carton</div>
-                                            <div class="item" data-value="7">Jrs</div>
-                                            <div class="item" data-value="8">Mois</div>
-                                            <div class="item" data-value="9">Forfait</div>
-                                            <div class="item" data-value="10">Heures</div>
-                                            <div class="item" data-value="11">Ens</div>
-                                            <div class="item" data-value="12">%</div>
-                                        </div>
-                                </div>
-                            </div>
+
                             <div class="two wide field">
                                 <label for="id_net_unit_price_{{ num }}" style="text-align: right;margin-right: 14px">PU Net</label>
                                 <input type="number"
