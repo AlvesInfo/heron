@@ -14,6 +14,22 @@ modified by: Paulo ALVES
 from psycopg2 import sql
 
 post_transfert_cosium_dict = {
+    "sql_code_maison": sql.SQL(
+        """
+    update "edi_ediimport" "ee"
+    set "code_fournisseur" = "req"."cct",
+        "code_maison" = "req"."cct"
+    from (
+        select 
+            "cct", 
+            "reference_cosium" 
+        from "centers_clients_maison" "ccm"
+    ) "req"
+    where "ee"."uuid_identification" = %(uuid_identification)s
+      and ("ee"."valid" = false or "ee"."valid" isnull)
+      and "ee"."code_fournisseur" = "req"."reference_cosium"
+    """
+    ),
     "sql_amounts": sql.SQL(
         """
     update "edi_ediimport" "edi"
