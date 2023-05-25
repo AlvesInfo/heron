@@ -38,7 +38,7 @@ select
         '", "delete": "'
         || 'false' ||
         '"}'
-    ) as str_json,
+    )::json as str_json,
     (
         ee.third_party_num || '||' ||
         supplier || '||' ||

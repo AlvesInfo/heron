@@ -35,7 +35,7 @@ select
         '", "delete": "'
         || 'false' ||
         '"}'
-    ) as "str_json",
+    )::json as "str_json",
     sum("cct_error") as "cct_error",
     case when "uuid_control" isnull then 0 else 1 end "have_control",
     "origin",

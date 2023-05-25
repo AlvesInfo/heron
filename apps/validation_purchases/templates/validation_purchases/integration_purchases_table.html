@@ -99,7 +99,7 @@
                     <td style="text-align: left;">{{ supplier_purchase.comment|default_if_none:'' }}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick='deletePk({{ forloop.counter0 }}, {{ supplier_purchase.str_json|safe }}, `{{ supplier_purchase.supplier }} - {{ supplier_purchase.invoice_month|date:"F Y" }}`, `{% url 'validation_purchases:delete_supplier_edi_import' %}`, `{{ nature }}`)'></i>
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter0 }}, {{ supplier_purchase.str_json }}, `{{ supplier_purchase.supplier }} - {{ supplier_purchase.invoice_month|date:'F Y' }}`, `{% url 'validation_purchases:delete_supplier_edi_import' %}`, `{{ nature }}`)"></i>
                         </div>
                     </td>
                 </tr>
