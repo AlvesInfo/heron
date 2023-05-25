@@ -51,6 +51,28 @@ def bpr_book_post_processing():
     od_ana = False if od_ana == NOT_PROVIDED else od_ana
     Society.objects.filter(od_ana__isnull=True).update(od_ana=od_ana)
 
+    # Mise à jour des champs name (80 caract.), short_name (80 caract.), de book society
+    with connection.cursor() as cursor:
+        sql_update = """
+        update "book_society" 
+        set "name" = case 
+                        when "name" isnull or "name" = '' 
+                        then "third_party_num"
+                        else 'INCONNU'
+                    end,
+            "short_name" = case 
+                            when "short_name" isnull or "short_name" = ''  
+                                then 
+                                    case 
+                                        when "name" isnull or "name" = '' 
+                                        then "third_party_num"
+                                        else 'INCONNU'
+                                    end 
+                            else LEFT("name", 20)
+                        end
+        """
+        cursor.execute(sql_update)
+
 
 def adress_sage_post_processing():
     """Mise à jour des champs pouvant avoir None dans les champs adresse...."""
