@@ -207,7 +207,7 @@ def transferts_cosium_file(file: Path):
                                 "ZTRANSFERT",
                                 invoice_number,
                                 invoice_date.format("DD/MM/YYYY"),
-                                "380",
+                                "381",
                                 "EUR",
                                 ".2",
                             ]
