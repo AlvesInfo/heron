@@ -105,7 +105,7 @@ def verify_supplier_ident():
             "ne contenait pas l'identifiant du fournisseur l'import' a été effacé"
         )
         new_trace.save()
-        EdiImport.objects.filter(uuid_identification=uuid_edi_import).delete()
+        # EdiImport.objects.filter(uuid_identification=uuid_edi_import).delete()
 
 
 def flag_invoices():
