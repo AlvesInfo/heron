@@ -33,7 +33,8 @@ post_transfert_cosium_dict = {
                                 when round(("qty"*"net_unit_price")::numeric, 2)::numeric < 0
                                 then'transfert envoyé' 
                                 else 'transfert reçu'
-                            end
+                            end,
+        "supplier_ident" = 'ZTRANSFERT'
     where "uuid_identification" = %(uuid_identification)s
       and ("valid" = false or "valid" isnull)
     """
