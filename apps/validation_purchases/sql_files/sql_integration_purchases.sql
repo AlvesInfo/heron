@@ -23,7 +23,7 @@ select
 	    else false
 	end as "error",
     "uuid_identification",
-    "third_party_num" || '||' || "supplier" || '||' || invoice_month as "enc_param",
+    "third_party_num" || '||' || coalesce("supplier", '') || '||' || invoice_month as "enc_param",
     "pk",
     (
         '{"third_party_num": "'
