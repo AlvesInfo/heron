@@ -5,7 +5,7 @@ select
         when "purchase_invoice" = true then 'AC'
         when "sale_invoice" = true then 'VE'
     end as "achat_vente",
-    "supplier",
+    coalesce("supplier", 'INCONNU') as "supplier",
     sum("invoice_amount_without_tax") as "invoice_amount_without_tax",
     sum("invoice_amount_with_tax") as "invoice_amount_with_tax",
     sum("qty_invoices") as "qty_invoices",
