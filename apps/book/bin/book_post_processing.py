@@ -66,7 +66,7 @@ def bpr_book_post_processing():
                                     case 
                                         when "name" isnull or "name" = '' 
                                         then "third_party_num"
-                                        else 'INCONNU'
+                                        else "short_name"
                                     end 
                             else LEFT("name", 20)
                         end
