@@ -61,15 +61,15 @@ def bpr_book_post_processing():
                         else "name"
                     end,
             "short_name" = case 
-                            when "short_name" isnull or "short_name" = ''  
-                                then 
-                                    case 
-                                        when "name" isnull or "name" = '' 
-                                        then "third_party_num"
-                                        else "short_name"
-                                    end 
-                            else LEFT("name", 20)
-                        end
+                                when "short_name" isnull or "short_name" = ''  
+                                    then 
+                                        case 
+                                            when "name" isnull or "name" = '' 
+                                            then "third_party_num"
+                                            else LEFT("name", 20)
+                                        end 
+                                else "short_name"
+                            end 
         """
         cursor.execute(sql_update)
 
