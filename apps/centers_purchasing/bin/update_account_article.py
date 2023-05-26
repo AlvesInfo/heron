@@ -101,6 +101,7 @@ def set_global_articles_account():
         on "aa2"."uuid_identification" = "cpa"."purchase_account_uuid" 
         left join "accountancy_accountsage" "aa3" 
         on "aa3"."uuid_identification" = "cpa"."sale_account_uuid" 
+        where "aa"."new_article" = false
     )
     on conflict ( 
         "article", 
@@ -117,4 +118,5 @@ def set_global_articles_account():
 
 
 if __name__ == "__main__":
-    set_article_account()
+    delete_orphans_accounts()
+    set_global_articles_account()

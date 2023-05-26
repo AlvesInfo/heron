@@ -51,14 +51,14 @@ def bpr_book_post_processing():
     od_ana = False if od_ana == NOT_PROVIDED else od_ana
     Society.objects.filter(od_ana__isnull=True).update(od_ana=od_ana)
 
-    # Mise à jour des champs name (80 caract.), short_name (80 caract.), de book society
+    # Mise à jour des champs name (80 caract.), short_name (20 caract.), de book society
     with connection.cursor() as cursor:
         sql_update = """
         update "book_society" 
         set "name" = case 
                         when "name" isnull or "name" = '' 
                         then "third_party_num"
-                        else 'INCONNU'
+                        else "name"
                     end,
             "short_name" = case 
                             when "short_name" isnull or "short_name" = ''  
