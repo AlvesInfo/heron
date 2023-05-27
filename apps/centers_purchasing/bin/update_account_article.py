@@ -66,7 +66,7 @@ def delete_orphans_accounts():
         cursor.execute(sql_delete_not_exists_account)
 
 
-def set_global_articles_account():
+def set_updatel_articles_account():
     """Update global des comptes achat vente pour tous les articles"""
     sql_create_account = """
     insert into "articles_articleaccount" 
@@ -83,25 +83,38 @@ def set_global_articles_account():
         select
             now() as "created_at",	
             now() as "modified_at",
-            "aa2"."account" as "purchase_account", 
-            "aa3"."account" as "sale_account", 
-            "aa"."uuid_identification" as "article", 
-            "cpa"."vat",
-            "cpa"."child_center"
-        from "articles_article" "aa" 
-        join "centers_purchasing_accountsaxeprocategory" "cpa" 
-        on "cpa"."axe_pro" = "aa"."axe_pro" 
-        and "aa"."uuid_big_category" = "cpa"."uuid_big_category" 
-        and (
-            coalesce("aa"."uuid_sub_big_category"::varchar, '')
-            =
-            coalesce("cpa"."uuid_sub_category"::varchar, '')
-        )
-        left join "accountancy_accountsage" "aa2" 
-        on "aa2"."uuid_identification" = "cpa"."purchase_account_uuid" 
-        left join "accountancy_accountsage" "aa3" 
-        on "aa3"."uuid_identification" = "cpa"."sale_account_uuid" 
-        where "aa"."new_article" = false
+            "purchase_account", 
+            "sale_account", 
+            "article", 
+            "vat",
+            "child_center"
+        from (
+            select
+                "aa2"."account" as "purchase_account", 
+                "aa3"."account" as "sale_account", 
+                "aa"."uuid_identification" as "article", 
+                "cpa"."vat",
+                "cpa"."child_center"
+            from "articles_article" "aa" 
+            join "centers_purchasing_accountsaxeprocategory" "cpa" 
+            on "cpa"."axe_pro" = "aa"."axe_pro" 
+            and "aa"."uuid_big_category" = "cpa"."uuid_big_category" 
+            and (
+                coalesce("aa"."uuid_sub_big_category"::varchar, '')
+                =
+                coalesce("cpa"."uuid_sub_category"::varchar, '')
+            )
+            left join "accountancy_accountsage" "aa2" 
+            on "aa2"."uuid_identification" = "cpa"."purchase_account_uuid" 
+            left join "accountancy_accountsage" "aa3" 
+            on "aa3"."uuid_identification" = "cpa"."sale_account_uuid" 
+            where "aa"."new_article" = false
+            group by "aa2"."account" , 
+                "aa3"."account", 
+                "aa"."uuid_identification", 
+                "cpa"."vat",
+                "cpa"."child_center"
+        ) gr
     )
     on conflict ( 
         "article", 
@@ -119,4 +132,4 @@ def set_global_articles_account():
 
 if __name__ == "__main__":
     delete_orphans_accounts()
-    set_global_articles_account()
+    set_updatel_articles_account()

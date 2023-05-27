@@ -1,4 +1,4 @@
-# pylint: disable=W0703,W1203
+# pylint: disable=W0703,W1203,E0401
 """
 FR : Module d'import des données des parametres ou data de remplissage de tables
 EN : Parameter data import module or table filling data
@@ -57,3 +57,4 @@ def axe_pro_account(file_path: Path):
         params_dict=params_dict,
         save_dir=settings.BACKUP_IMPORT_ACCOUNTS,
     )
+    post_axe_pro_account()

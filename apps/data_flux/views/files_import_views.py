@@ -20,7 +20,6 @@ from django.contrib import messages
 
 from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.parameters.bin.core import get_object
-from apps.parameters.models import InvoiceFunctions
 
 
 def processing_files(request: HttpRequest, function_name: AnyStr) -> HttpResponse:
