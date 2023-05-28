@@ -216,8 +216,9 @@ def account_axe_import_file(_):
         list_to_print = axe_pro_account(
             Path(
                 "/home/paulo/heron/files/processing/suppliers_invoices_files/IMPORT_ACCOUNTS/"
+                "axe_pro_comptes.xlsx"
+            )
 
-            ).glob("*.*")[0]
         )
         print(list_to_print)
     except:
