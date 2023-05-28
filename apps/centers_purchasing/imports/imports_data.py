@@ -57,4 +57,5 @@ def axe_pro_account(file_path: Path):
         params_dict=params_dict,
         save_dir=settings.BACKUP_IMPORT_ACCOUNTS,
     )
+    # On met à jour les comptes comptable des articles
     post_axe_pro_account()

@@ -20,6 +20,7 @@ from apps.parameters.models import Category
 from apps.articles.models import Article
 from apps.articles.forms import ArticleForm
 from apps.edi.models import EdiImport
+from apps.centers_purchasing.bin.update_account_article import set_update_articles_account
 
 
 # ECRANS DES ARTICLES ============================================================================
@@ -142,6 +143,12 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         self.object = None
         return super().post(request, *args, **kwargs)
 
+    @staticmethod
+    def form_updated():
+        """Action à faire après form_valid save"""
+        # On met à jour les comptes comptable des articles
+        set_update_articles_account()
+
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
@@ -250,6 +257,9 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             big_category=self.object.big_category,
             sub_category=self.object.sub_category,
         )
+
+        # On met à jour les comptes comptable des articles
+        set_update_articles_account()
 
 
 def articles_export_list(_, third_party_num, category):

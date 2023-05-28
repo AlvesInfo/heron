@@ -66,7 +66,7 @@ def delete_orphans_accounts():
         cursor.execute(sql_delete_not_exists_account)
 
 
-def set_updatel_articles_account():
+def set_update_articles_account():
     """Update global des comptes achat vente pour tous les articles"""
     sql_create_account = """
     insert into "articles_articleaccount" 
@@ -132,4 +132,4 @@ def set_updatel_articles_account():
 
 if __name__ == "__main__":
     delete_orphans_accounts()
-    set_updatel_articles_account()
+    set_update_articles_account()

@@ -42,8 +42,8 @@ app_name = "apps.validation_purchases"
 
 urlpatterns = [
     # MENU CONTROLES ACHATS
+    # Intégration
     *[
-        # Intégration
         path(
             "integration_purchases/",
             integration_purchases,
@@ -117,7 +117,7 @@ urlpatterns = [
             name="delete_line_details_purchase",
         ),
         path(
-            "details_purchases_export/",
+            "details_purchases_export/<str:enc_param>/",
             details_purchases_export,
             name="details_purchases_export",
         ),
@@ -178,8 +178,8 @@ urlpatterns = [
         ),
     ],
     # MENU CONTROLES RFA
+    # par CCT
     *[
-        # par CCT
         path(
             "rfa_cct_invoices_purchases/",
             rfa_cct_invoices_purchases,

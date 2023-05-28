@@ -26,6 +26,7 @@ from apps.articles.excel_outputs.output_excel_articles_news_list import (
     excel_liste_articles_news,
 )
 from apps.articles.models import Article
+from apps.centers_purchasing.bin.update_account_article import set_update_articles_account
 
 
 # ECRANS DES NOUVEAUX ARTICLES =====================================================================
@@ -93,6 +94,12 @@ def new_articles_list(request):
 @transaction.atomic
 def articles_new_validation(request):
     """Validation des nouveaux articles en masse"""
+
+    # On met à jour les articles sans axes ou en erreur de rubrique presta avant affichage
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
+        cursor.execute(SQL_FLAG_WITHOUT_AXES)
+
     articles_object = Article.objects.filter(
         Q(new_article=True)
         | Q(error_sub_category=True)
@@ -140,6 +147,9 @@ def articles_new_validation(request):
         # On met à jour les articles qui étaient dans edi_ediimport
         with connection.cursor() as cursor:
             cursor.execute(SQL_EDI_IMPORT_ARTICLES)
+
+        # On met à jour les comptes comptable des articles
+        set_update_articles_account()
 
         if nb_articles == nb_updates:
             message = f"Tous les articles ont étés mis à jour ({nb_articles})"
