@@ -107,6 +107,7 @@ def delete_line_details_purchase(request):
 def details_purchases_export(request, enc_param):
     """Export Excel de
     :param request: Request Django
+    :param enc_param: Paramètres get de la requête encodée base 64
     :return: response_file
     """
     try:
