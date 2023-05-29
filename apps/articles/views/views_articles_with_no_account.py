@@ -19,7 +19,7 @@ def articles_without_account_list(request):
     """Affichage de tous les articles qui n'ont pas de comptes comptable X3, présents
     dans les imports
     """
-    limit = 50
+    limit = 200
 
     queryset = (
         EdiImport.objects.annotate(
