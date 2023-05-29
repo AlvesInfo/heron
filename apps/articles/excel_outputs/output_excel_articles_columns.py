@@ -578,9 +578,7 @@ columns_list_articles_without_account = [
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            **{"align": "left", "text_wrap": True},
         },
         "width": 100,
     },
@@ -598,7 +596,7 @@ columns_list_articles_without_account = [
                 "align": "center",
             },
         },
-        "width": 11,
+        "width": 15,
     },
     {
         "entete": "Grande catégorie",
@@ -614,7 +612,7 @@ columns_list_articles_without_account = [
                 "align": "center",
             },
         },
-        "width": 15,
+        "width": 20,
     },
     {
         "entete": "Rubrique Presta",
