@@ -11,6 +11,8 @@ from apps.articles.views import (
     new_articles_list,
     articles_new_validation,
     articles_news_export_list,
+    # ARTICLES SANS COMPTES
+    articles_without_account_list,
 )
 
 app_name = "apps.articles"
@@ -60,6 +62,14 @@ urlpatterns = [
             "articles_news_export_list/",
             articles_news_export_list,
             name="articles_news_export_list",
+        ),
+    ],
+    # ARTICLES SANS COMPTES
+    *[
+        path(
+            "articles_without_account_list/",
+            articles_without_account_list,
+            name="articles_without_account_list",
         ),
     ],
 ]

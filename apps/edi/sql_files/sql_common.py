@@ -269,23 +269,34 @@ post_common_dict = {
         from (
             select 
                 "vat",
-                "vat_regime",
-                "vat_rate"
+                "vat_rate",
+                "vat_regime"
             from (
                 select 
-                    vs."vat", 
-                    vs."vat_regime", 
-                    (vsr."rate" / 100)::numeric as "vat_rate",
+                    "vat",
+                    "vat_regime",
+                    "vat_rate",
                     ROW_NUMBER() OVER(
-                        partition by vs."vat", vs."vat_regime"
-                        order by vs."vat", vsr."vat_start_date" desc
-                    ) as "vat_index",
-                    vsr."vat_start_date"
-                from "accountancy_vatsage" vs
-                join "accountancy_vatratsage" vsr 
-                on vs."vat" = vsr."vat" 
-            ) req
-            where "vat_index" = 1
+                        partition by "vat_rate", "vat_regime"
+                        order by "vat"
+                    ) as "last_index"
+                from (
+                    select 
+                        vs."vat", 
+                        vs."vat_regime", 
+                        (vsr."rate" / 100)::numeric as "vat_rate",
+                        ROW_NUMBER() OVER(
+                            partition by vs."vat", vs."vat_regime"
+                            order by vs."vat", vsr."vat_start_date" desc
+                        ) as "vat_index",
+                        vsr."vat_start_date"
+                    from "accountancy_vatsage" vs
+                    join "accountancy_vatratsage" vsr 
+                    on vs."vat" = vsr."vat" 
+                ) req
+                where "vat_index" = 1
+            ) "ir" 
+            where "ir"."last_index" = 1
         ) rvat
         where edi."uuid_identification" = %(uuid_identification)s
           and edi."vat_rate" = rvat."vat_rate" 

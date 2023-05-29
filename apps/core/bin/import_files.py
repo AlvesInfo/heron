@@ -25,7 +25,7 @@ from apps.data_flux.make_inserts import make_insert
 
 def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = None):
     """
-    Intégration de fichiers en fonction des fichiers présents dans le répertoire donné
+    Intégration de fichiers dans les modèles ou tables
     :param file_path: Fichier à importer
     :param params_dict: Dictionnaire des paramètres :
                         params_dict = {

@@ -110,16 +110,21 @@ post_edi_dict = {
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 
-        set "trace_name" = left("trace_name" || sup."supplier", 160)
+        set "trace_name" = left(
+                                "trace_name" || sup."supplier" || ' - ' ||sup."third_party_num",
+                                160
+                            )
           from (
             select 
                 "uuid_identification", 
-                "supplier"
+                "supplier",
+                "third_party_num"
               from "edi_ediimport" ee 
              where "flow_name" = 'Edi'
                and "uuid_identification" = %(uuid_identification)s
              group by "uuid_identification", 
-                "supplier"
+                      "supplier",
+                      "third_party_num"
           ) sup 
         where dt."uuid_identification" = sup."uuid_identification"
           and ("valid" = false or "valid" isnull)
