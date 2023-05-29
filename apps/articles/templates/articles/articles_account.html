@@ -10,7 +10,7 @@
 
 {% block head_js %}
     <script type="text/javascript">
-        let url = `{% url 'articles:articles_without_account_list' %}`;
+        let url = `{% url 'articles:articles_account_list' %}`;
     </script>
 {% endblock %}
 
@@ -18,8 +18,8 @@
 
     {% if user.is_authenticated %}
 
-        {% include "articles/articles_without_account_entete.html" %}
-        {% include "articles/articles_without_account_table.html" %}
+        {% include "articles/articles_account_entete.html" %}
+        {% include "articles/articles_account_table.html" %}
 
     {% else %}
 

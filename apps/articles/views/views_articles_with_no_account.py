@@ -51,8 +51,8 @@ def articles_without_account_list(request):
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
         "titre_table": f"1.2 - Articles sans comptes{titre_count}",
-        "url_validation": reverse("articles:articles_new_validation"),
-        "url_redirect": reverse("articles:new_articles_list"),
+        # "url_validation": reverse("articles:articles_new_validation"),
+        "url_redirect": reverse("articles:articles_without_account_list"),
     }
     return render(request, "articles/articles_without_account.html", context=context)
 

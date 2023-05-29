@@ -14,6 +14,8 @@ from apps.articles.views import (
     # ARTICLES SANS COMPTES
     articles_without_account_list,
     articles_without_account_export_list,
+    # ARTICLES AVEC COMPTES
+    articles_account_list
 )
 
 app_name = "apps.articles"
@@ -77,5 +79,18 @@ urlpatterns = [
             articles_without_account_export_list,
             name="articles_without_account_export_list",
         ),
+    ],
+    # ARTICLES AVEC COMPTES
+    *[
+        path(
+            "articles_account_list/",
+            articles_account_list,
+            name="articles_account_list",
+        ),
+        # path(
+        #     "articles_without_account_export_list/",
+        #     articles_without_account_export_list,
+        #     name="articles_without_account_export_list",
+        # ),
     ],
 ]
