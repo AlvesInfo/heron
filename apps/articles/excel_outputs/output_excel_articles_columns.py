@@ -15,7 +15,6 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_list_articles = [
     {
         "entete": "Référence",
@@ -301,7 +300,6 @@ columns_list_articles = [
     },
 ]
 
-
 columns_list_articles_news = [
     {
         "entete": "Fournisseur",
@@ -522,5 +520,160 @@ columns_list_articles_news = [
             },
         },
         "width": 10,
+    },
+]
+
+columns_list_articles_without_account = [
+    {
+        "entete": "ID",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Centrale\nFille",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Founrisseur",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 35,
+    },
+    {
+        "entete": "Article",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 100,
+    },
+    {
+        "entete": "Axe PRO",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Grande catégorie",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 15,
+    },
+    {
+        "entete": "Rubrique Presta",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 15,
+    },
+    {
+        "entete": "TVA",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "num_format": "@"},
+        },
+        "width": 11,
+    },
+    {
+        "entete": "Compte\nau\nDébit",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Compte\nau\nCrédit",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "num_format": "@"},
+        },
+        "width": 12,
     },
 ]
