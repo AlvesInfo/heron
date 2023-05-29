@@ -3,19 +3,19 @@
 {% block table %}
 
     <div class="sixteen wide column">
+        {% if articles.has_other_pages %}
         <div class="ui segment">
             <div class="ui grid">
                 <div class="four wide column" style="text-align: left;">
                 </div>
                 <div class="twelve wide column" style="text-align: right;">
-                        {% if articles.has_other_pages %}
                           <div id="pagination" class="ui small #efefff buttons">
                             {{ pagination|safe }}
                           </div>
-                        {% endif %}
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <table id="table_document"
            class="ui celled table"
