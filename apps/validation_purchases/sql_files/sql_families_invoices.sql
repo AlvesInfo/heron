@@ -64,6 +64,7 @@ select
 	"fm"."short_name" as "supplier",
 	"fm"."axe_pro",
 	sum("fm"."m_02") as "m_02",
+	sum("fm"."m_01") as "m_01",
 	sum("fm"."m_00") as "m_00",
 	(sum("fm"."m_00")-sum("fm"."m_01"))::numeric as "variation",
 	'' as commentaire
