@@ -48,8 +48,11 @@ from apps.edi.imports.imports_suppliers_incoices_pool import (
     widex_ga,
     z_bu_refac,
 )
-from apps.edi.bin.edi_post_processing_pool import post_vacuum
-from apps.edi.bin.edi_post_processing_pool import post_processing_all
+from apps.edi.bin.edi_post_processing_pool import (
+    post_vacuum,
+    post_processing_all,
+    edi_trace_supplier_insert,
+)
 from apps.edi.bin.exclusions import set_exclusions
 from apps.users.models import User
 from apps.parameters.bin.core import get_object
@@ -132,6 +135,9 @@ def launch_suppliers_import(process_objects, user_pk):
             shutil.move(file.resolve(), backup_file.resolve())
         elif file.is_file():
             file.unlink()
+
+        if trace.flow_name == 'Edi':
+            edi_trace_supplier_insert()
 
         # TODO : faire une fonction d'envoie de mails
 

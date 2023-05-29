@@ -107,6 +107,15 @@ post_edi_dict = {
         and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_get_edi": sql.SQL(
+        """
+        select 
+            uuid_identification
+        from edi_ediimport ee 
+        where flow_name = 'Edi' 
+        group by uuid_identification
+    """
+    ),
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 
@@ -127,7 +136,6 @@ post_edi_dict = {
                       "third_party_num"
           ) sup 
         where dt."uuid_identification" = sup."uuid_identification"
-          and ("valid" = false or "valid" isnull)
     """
     ),
 }

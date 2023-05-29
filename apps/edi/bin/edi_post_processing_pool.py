@@ -303,7 +303,6 @@ def edi_post_insert(uuid_identification: AnyStr):
     sql_tva = post_edi_dict.get("sql_tva")
     sql_precilens = post_edi_dict.get("sql_precilens")
     sql_fac_update_edi = post_edi_dict.get("sql_fac_update_edi")
-    sql_edi_generique = post_edi_dict.get("sql_edi_generique")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -311,8 +310,21 @@ def edi_post_insert(uuid_identification: AnyStr):
         cursor.execute(sql_tva, {"uuid_identification": uuid_identification})
         cursor.execute(sql_precilens, {"uuid_identification": uuid_identification})
         cursor.execute(sql_fac_update_edi, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
+
+
+def edi_trace_supplier_insert():
+    """Update des traces pour avoir le nom du fournisseur dans les edi"""
+    sql_edi_generique = post_edi_dict.get("sql_edi_generique")
+    sql_get_edi = post_edi_dict.get("sql_get_edi")
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_get_edi)
+
+        edi_flow = cursor.fetchall()
+
+        for uuid_identification, in edi_flow:
+            cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
 
 
 def bbgr_statment_post_insert(uuid_identification: AnyStr):
