@@ -6,6 +6,7 @@ from apps.articles.views import (
     ArticlesList,
     ArticleCreate,
     ArticleUpdate,
+    articles_search_list,
     articles_export_list,
     # NOUVEAUX ARTICLES
     new_articles_list,
@@ -47,6 +48,11 @@ urlpatterns = [
             "articles_export_list/<str:third_party_num>/<str:category>/",
             articles_export_list,
             name="articles_export_list",
+        ),
+        path(
+            "articles_search_list/",
+            articles_search_list,
+            name="articles_search_list",
         ),
     ],
     # NOUVEAUX ARTICLES

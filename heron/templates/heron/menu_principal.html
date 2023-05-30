@@ -213,7 +213,7 @@
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">09. Divers</a>
                         </div>
                         <div class="ui link list">
-                            <a href="/" class="item">11. Recherches</a>
+                            <a href="{% url 'articles:articles_search_list' %}" class="item">11. Recherches</a>
                         </div>
                         <div class="ui link list">
                             <a href="{% url 'articles:articles_account_list' %}" class="item">12. Article / Comptes</a>

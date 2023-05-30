@@ -44,13 +44,15 @@ def articles_without_account_list(request):
     context = {
         "articles": articles,
         "pagination": get_pagination_buttons(
-            articles.number, paginator.num_pages, nbre_boutons=5, position_color="darkgrey"
+            articles.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
         ),
         "num_items": paginator.count,
         "num_pages": paginator.num_pages,
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
-        "titre_table": f"1.2 - Articles sans comptes{titre_count}",
+        "titre_table": (
+            f'1.2 - Articles sans comptes <span style="font-size: .8em;">{titre_count}</span>'
+        ),
         # "url_validation": reverse("articles:articles_new_validation"),
         "url_redirect": reverse("articles:articles_without_account_list"),
     }

@@ -78,7 +78,7 @@ def new_articles_list(request):
     context = {
         "articles": articles,
         "pagination": get_pagination_buttons(
-            articles.number, paginator.num_pages, nbre_boutons=5, position_color="darkgrey"
+            articles.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
         ),
         "num_items": paginator.count,
         "num_pages": paginator.num_pages,

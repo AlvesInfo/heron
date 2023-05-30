@@ -25,7 +25,7 @@ def trace_edi_list(request):
     context = {
         "traces": traces,
         "pagination": get_pagination_buttons(
-            traces.number, paginator.num_pages, nbre_boutons=5, position_color="darkgrey"
+            traces.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
         ),
         "num_items": paginator.count,
         "num_pages": paginator.num_pages,

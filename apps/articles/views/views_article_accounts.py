@@ -51,7 +51,9 @@ def articles_account_list(request):
         "num_pages": paginator.num_pages,
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
-        "titre_table": f"12 - Articles / comptes{titre_count}",
+        "titre_table": (
+            f'12 - Articles / comptes <span style="font-size: .8em;">{titre_count}</span>'
+        ),
         "url_validation": reverse("articles:articles_account_list"),
         "url_redirect": reverse("articles:articles_account_list"),
     }
