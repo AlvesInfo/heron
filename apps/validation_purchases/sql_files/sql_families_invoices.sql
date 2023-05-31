@@ -42,10 +42,11 @@ with families as (
 		end as "m_02"
     from "invoices_invoice" "sii"
 	left join "book_society" "bs"
-	on "bs"."third_party_num" = "sii"."third_party_num"
+	  on "bs"."third_party_num" = "sii"."third_party_num"
     join "invoices_invoicedetail" "siid"
-    on "sii"."uuid_identification"  = "siid"."uuid_invoice"
-	and "sii"."integration_month" >= (date_trunc('month', now())- interval '3 month')::date
+      on "sii"."uuid_identification"  = "siid"."uuid_invoice"
+     and "sii"."integration_month" >= (date_trunc('month', now())- interval '3 month')::date
+     and "sii"."export" = true
 )
 select
 	"fm"."third_party_num",
