@@ -68,6 +68,7 @@ def invoices_pdf_generation():
 
     cct_sales_list = (
         SaleInvoice.objects.filter(printed=False, type_x3__in=(1, 2))
+        .filter(cct__in=('AF0001', 'AF0002', 'AF0004', 'AF0005', 'AF0009', 'AF0011', 'AF0012', 'AF0014', 'AF0019', 'AF0021', 'AF0103', 'AF0104', 'AF0117', 'AF0354', 'AF0404', 'AF0501', 'AF0502', 'AF0507', 'AF0597', 'AF0705', 'AF0706', 'ARI008', 'ARI010', 'CORNER0391', 'DO0001', 'DO0006', 'GA0001', 'GA0003', 'GA0103', 'GA0203', 'GF0002', 'GF0010', 'GF0707', 'INNO001', 'INNO019', 'MF0001', 'UNIS001', 'UNIS006'))
         .values("cct")
         .annotate(dcount=Count("cct"))
         .values_list("cct", flat=True)
