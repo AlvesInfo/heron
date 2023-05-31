@@ -60,6 +60,8 @@ articles_without_account_queryset = (
         "third_party_num",
         "supplierm",
         "reference_article",
+        "big_category__name",
+        "vat",
     )
 )
 
@@ -94,5 +96,7 @@ articles_with_account_queryset = (
         "article__third_party_num",
         "article__third_party_num__short_name",
         "article__reference",
+        "article__big_category__name",
+        "vat",
     )
 )
