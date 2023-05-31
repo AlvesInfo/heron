@@ -243,7 +243,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         null as "created_by",
         null as "modified_by",
         "cpy",
-        "fcy"
+        "fcy",
+        date_trunc('month', now())::date as "integration_month"
     from "purchases" 
     """
 )

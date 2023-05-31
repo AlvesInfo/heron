@@ -210,6 +210,7 @@ class Invoice(FlagExport, BaseInvoiceTable):
     adresse_tiers_paye = models.CharField(null=True, max_length=5, default="1")
     cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
     fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
+    integration_month = models.DateField(null=True, blank=True)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
