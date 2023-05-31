@@ -43,6 +43,7 @@ COLS_PURCHASE_DICT = {
     "modified_by": False,
     "fcy": False,
     "cpy": False,
+    "integration_month": False,
 }
 
 COL_SALES_DICT = {
