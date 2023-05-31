@@ -25,7 +25,7 @@ class SocietiesList(ListView):
     context_object_name = "societies"
     template_name = "book/societies_list.html"
     extra_context = {"titre_table": "Tiers X3", "in_use": "alls"}
-    queryset = Society.objects.filter(Q(is_client=True) | Q(is_supplier=True)).values(
+    queryset = Society.objects.all().values(
         "third_party_num",
         "pk",
         "third_party_num",
@@ -33,6 +33,7 @@ class SocietiesList(ListView):
         "is_supplier",
         "is_client",
         "centers_suppliers_indentifier",
+        "siret_number",
     )
 
 

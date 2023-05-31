@@ -2,9 +2,9 @@
 
 {% block table %}
 
-<div class="two wide column"></div>
+<div class="one wide column"></div>
 
-<div class="twelve wide column">
+<div class="fourteen wide column">
 
     <table id="table_document"
        class="ui celled table"
@@ -17,7 +17,8 @@
                 <th style="width: 35.30%">Nom</th>
                 <th style="width: 7.35%">Fournisseur</th>
                 <th style="width: 7.35%">Client</th>
-                <th style="width: 25.00%">Identifiants Centrale</th>
+                <th style="width: 20%">Identifiants Centrale</th>
+                <th style="width: 5%">N° Siret</th>
             </tr>
         </thead>
         <tbody>
@@ -54,6 +55,9 @@
                   {% if society.centers_suppliers_indentifier %}
                       {{ society.centers_suppliers_indentifier }}
                   {% endif %}
+                </td>
+                <td>
+                      {{ society.siret_number|default_if_none:'' }}
                 </td>
             </tr>
         {% endfor %}
