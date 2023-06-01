@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
+
 SQL_HEADER = sql.SQL(
     """
     select 
@@ -35,7 +36,7 @@ SQL_HEADER = sql.SQL(
         from "invoices_saleinvoicedetail" "is2" 
         join "invoices_invoicecommondetails" "ii"
         on "ii"."import_uuid_identification" = "is2"."import_uuid_identification"
-        where "uuid_invoice" = '%(uuid_invoice)s
+        where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
     group by 
         "axe_prj",
