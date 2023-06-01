@@ -149,12 +149,6 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         self.object = None
         return super().post(request, *args, **kwargs)
 
-    @staticmethod
-    def form_updated():
-        """Action à faire après form_valid save"""
-        # On met à jour les comptes comptable des articles
-        set_update_articles_account()
-
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
@@ -197,6 +191,27 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         self.request.session["level"] = 20
 
         return super().form_valid(form)
+
+    def form_updated(self):
+        """Action à faire après form_valid save"""
+
+        # On met à jour les articles des edi table edi_ediimport
+        third_party_num = self.object.third_party_num.third_party_num
+        reference = self.object.reference
+        EdiImport.objects.filter(
+            third_party_num=third_party_num, reference_article=reference
+        ).update(
+            axe_bu=self.object.axe_bu,
+            axe_prj=self.object.axe_prj,
+            axe_pro=self.object.axe_pro,
+            axe_pys=self.object.axe_pys,
+            axe_rfa=self.object.axe_rfa,
+            big_category=self.object.big_category,
+            sub_category=self.object.sub_category,
+        )
+
+        # On met à jour les comptes comptable des articles
+        set_update_articles_account(article_uuid=self.object.uuid_identification)
 
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -250,6 +265,8 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def form_updated(self):
         """Action à faire après form_valid save"""
+
+        # On met à jour les articles des edi table edi_ediimport
         third_party_num = self.object.third_party_num.third_party_num
         reference = self.object.reference
         EdiImport.objects.filter(
@@ -272,6 +289,7 @@ def articles_search_list(request):
     """Affichage de la page de recherche des articles"""
     limit = 50
     articles_filter = ArticleFilter(request.GET, queryset=Article.objects.all())
+    # print(articles_filter, str(articles_filter.qs.query), "\n", dir(articles_filter))
     paginator = Paginator(articles_filter.qs, limit)
     page = request.GET.get("page")
 
@@ -303,7 +321,7 @@ def articles_search_list(request):
         "end_index": articles.end_index(),
         "titre_table": f'11. Recherche Articles<span style="font-size: .8em;">{titre_count}</span>',
         # "url_validation": reverse("articles:articles_new_validation"),
-        "url_redirect": reverse("articles:articles_without_account_list"),
+        "url_redirect": reverse("articles:articles_search_list"),
     }
     return render(request, "articles/articles_search.html", context=context)
 

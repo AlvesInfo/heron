@@ -70,7 +70,7 @@ def invoices_pdf_generation():
         SaleInvoice.objects.filter(printed=False, type_x3__in=(1, 2))
         .filter(
             cct__in=(
-                "ACAS001",
+                # "ACAS001",
                 # "AF0001",
                 # "AF0002",
                 # "AF0004",
@@ -93,21 +93,22 @@ def invoices_pdf_generation():
                 # "AF0705",
                 # "AF0706",
                 # "ARI008",
-                # "ARI010",
+                "ARI010",
                 # "CORNER0391",
                 # "DO0001",
                 # "DO0006",
-                # "GA0001",
-                # "GA0003",
+                "GA0001",
+                "GA0003",
                 # "GA0103",
                 # "GA0203",
-                # "GF0002",
+                "GA0205",
+                "GF0002",
                 # "GF0010",
                 # "GF0707",
-                # "INNO001",
+                "INNO001",
                 # "INNO019",
                 # "MF0001",
-                # "UNIS001",
+                "UNIS001",
                 # "UNIS006",
             )
         )
