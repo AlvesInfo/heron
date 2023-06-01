@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
+import uuid
 
 import django
 
@@ -66,9 +67,18 @@ def delete_orphans_accounts():
         cursor.execute(sql_delete_not_exists_account)
 
 
-def set_update_articles_account():
-    """Update global des comptes achat vente pour tous les articles"""
-    sql_create_account = """
+def set_update_articles_account(article_uuid: uuid.UUID = None):
+    """
+    Update global des comptes achat vente pour tous les articles
+    :param article_uuid: si c'est pour un seul article, on lui met le tiers et la référence
+    :return: None
+    """
+    if article_uuid is None:
+        clause_where = 'where "aa"."new_article" = false'
+    else:
+        clause_where = f"""where "aa"."uuid_identification" = '{article_uuid}'::uuid """
+
+    sql_create_account = f"""
     insert into "articles_articleaccount" 
     (
         "created_at",
@@ -108,7 +118,7 @@ def set_update_articles_account():
             on "aa2"."uuid_identification" = "cpa"."purchase_account_uuid" 
             left join "accountancy_accountsage" "aa3" 
             on "aa3"."uuid_identification" = "cpa"."sale_account_uuid" 
-            where "aa"."new_article" = false
+            {clause_where}
             group by "aa2"."account" , 
                 "aa3"."account", 
                 "aa"."uuid_identification", 

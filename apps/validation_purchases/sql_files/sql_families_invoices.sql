@@ -56,7 +56,12 @@ select
 	sum("fm"."m_01") as "m_01",
 	sum("fm"."m_00") as "m_00",
 	(sum("fm"."m_00")-sum("fm"."m_01"))::numeric as "variation",
-	'' as commentaire
+	'' as commentaire,
+    case
+        when (sum("fm"."m_00")-sum("fm"."m_01"))::numeric >= 0::numeric
+        then 'black'
+        else 'red'
+    end as color
 from "families" "fm"
 GROUP BY "fm"."third_party_num", "fm"."short_name", "fm"."axe_pro"
 ORDER BY "fm"."third_party_num", "fm"."short_name", "fm"."axe_pro"

@@ -1,4 +1,4 @@
-# pylint: disable=E0401,R0903,W0702,W0613
+# pylint: disable=E0401,R0903,W0702,W0613,W0201
 """
 Views des Articles
 """
@@ -36,6 +36,7 @@ class SuppliersArticlesList(ListView):
     extra_context = {}
 
     def get(self, request, *args, **kwargs):
+        """add context in get request"""
         self.extra_context.update(kwargs)
         categorie = Category.objects.get(slug_name=self.kwargs.get("category")).name
         self.extra_context["titre_table"] = f"Articles : {categorie}"
@@ -72,6 +73,7 @@ class ArticlesList(ListView):
     extra_context = {}
 
     def get(self, request, *args, **kwargs):
+        """add context in get request"""
         self.extra_context.update(kwargs)
         self.third_party_num = self.extra_context.get("third_party_num")
         self.category = Category.objects.get(slug_name=self.extra_context.get("category"))
@@ -84,6 +86,7 @@ class ArticlesList(ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, **kwargs):
+        """Change queryset in context"""
         queryset = (
             Article.objects.filter(
                 third_party_num=self.third_party_num,
@@ -262,12 +265,11 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         )
 
         # On met à jour les comptes comptable des articles
-        set_update_articles_account()
+        set_update_articles_account(article_uuid=self.object.uuid_identification)
 
 
 def articles_search_list(request):
-    """Affichage de la page de recherche des articles
-    """
+    """Affichage de la page de recherche des articles"""
     limit = 50
     articles_filter = ArticleFilter(request.GET, queryset=Article.objects.all())
     paginator = Paginator(articles_filter.qs, limit)

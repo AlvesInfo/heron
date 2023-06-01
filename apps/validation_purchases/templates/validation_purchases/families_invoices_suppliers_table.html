@@ -31,7 +31,7 @@
                 <td style="text-align: right;">{{ invoice.m_02|numbers_format:2 }}</td>
                 <td style="text-align: right;">{{ invoice.m_01|numbers_format:2 }}</td>
                 <td style="text-align: right;">{{ invoice.m_00|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ invoice.variation|numbers_format:2 }}</td>
+                <td style="text-align: right;color: {{ invoice.color }};">{{ invoice.variation|numbers_format:2 }}</td>
                 <td style="text-align: left;">{{ invoice.commentaire }}</td>
             </tr>
         {% endfor %}

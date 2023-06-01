@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 
-# CONTROLES ETAPE 5
+# CONTROLES ETAPE 5 ================================================================================
 
 def sage_controls_globals_sales(request):
     """View de l'étape 5.5 des écrans de contrôles"""
