@@ -60,7 +60,7 @@
             {% endfor %}
 
             <tr class="bordures totaux">
-                <td style="text-align: right;padding-right: 10px;" colspan="2">TOTAL FOURNISSEUR</td>
+                <td style="text-align: right;padding-right: 10px;" colspan="2">TOTAL {{ supplier_name.grouper }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"MO"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"MS"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"VE"|numbers_format:2|default_if_zero }}</td>
