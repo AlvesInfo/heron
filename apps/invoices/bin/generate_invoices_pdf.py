@@ -37,6 +37,7 @@ from pdfrw import PdfReader, PdfWriter
 from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.invoices.bin.pdf_sumary import summary_invoice_pdf
 from apps.invoices.bin.pdf_marchandises import invoice_marchandise_pdf
+from apps.invoices.bin.pdf_rfa import rfa_invoice_pdf
 from apps.invoices.bin.pdf_royalties import invoice_royalties_pdf
 from apps.invoices.bin.pdf_publicity import invoice_publicity_pdf
 from apps.invoices.bin.pdf_prestation import invoice_prestation_pdf
@@ -56,7 +57,7 @@ def invoices_pdf_generation():
 
     generation_pdf_dict = {
         "marchandises": invoice_marchandise_pdf,
-        "rfa": "",
+        "rfa": rfa_invoice_pdf,
         "redevances": invoice_royalties_pdf,
         "redevances-de-publicite": invoice_publicity_pdf,
         "formation": invoice_formation_pdf,

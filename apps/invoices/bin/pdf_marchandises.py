@@ -11,25 +11,9 @@ created by: Paulo ALVES
 modified at: 2023-04 -11
 modified by: Paulo ALVES
 """
-import os
-import sys
-import platform
 from pathlib import Path
 from uuid import UUID
 from typing import AnyStr
-
-import django
-
-BASE_DIR = r"/"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
 
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -38,6 +22,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 from pdfrw import PdfReader, PdfWriter
 
+from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice, EnteteDetails
 from apps.invoices.sql_files.sql_marchandises import (
     SQL_HEADER,
@@ -46,8 +31,6 @@ from apps.invoices.sql_files.sql_marchandises import (
     SQL_DETAILS,
     SQL_SUB_DETAILS,
 )
-
-DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
 def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr:

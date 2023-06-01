@@ -11,33 +11,16 @@ created by: Paulo ALVES
 modified at: 2023-04-11
 modified by: Paulo ALVES
 """
-import os
-import sys
-import platform
 from typing import AnyStr
 from pathlib import Path
-
-import django
-
-BASE_DIR = r"/"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
 
 from django.template.loader import render_to_string
 from django.conf import settings
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
+from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
-
-DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
 
 
 def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
