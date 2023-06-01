@@ -56,7 +56,7 @@ def rfa_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr:
             "domain": DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
-        content = render_to_string("invoices/pdf_marchandises_header.html", context)
+        content = render_to_string("invoices/pdf_rfa.html", context)
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
