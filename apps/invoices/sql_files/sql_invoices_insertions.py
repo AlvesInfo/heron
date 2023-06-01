@@ -50,6 +50,7 @@ SQL_COMMON_DETAILS = sql.SQL(
         "item_weight",
         "last_name",
         "libelle",
+        "supplier_initial_libelle",
         "modified_by",
         "origin",
         "personnel_type",
@@ -101,6 +102,7 @@ SQL_COMMON_DETAILS = sql.SQL(
                 then "aa"."libelle_heron"
                 else "ee"."libelle"
             end as "libelle",
+            "ee"."libelle" as "supplier_initial_libelle",
             "ee"."modified_by",
             "origin",
             "pn"."to_display" as "personnel_type",

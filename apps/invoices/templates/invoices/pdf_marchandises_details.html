@@ -34,7 +34,7 @@
                     <td>{{ entete.column_name }}</td>
                 {% endfor %}
                 <td style="text-align: right;padding-right: 3px;">Total HT</td>
-                <td style="text-align: right;padding-right: 3px;">Total TTC</td>
+{#                <td style="text-align: right;padding-right: 3px;">Total TTC</td>#}
             </tr>
 
             {% for supplier in supplier_name.list %}
@@ -54,7 +54,7 @@
                     <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.PO %}{{ supplier.PO|numbers_format:2 }}{% endif %}</td>
                     <td class="regroup" style="text-align: right;padding-right: 3px;">{% if supplier.DI %}{{ supplier.DI|numbers_format:2 }}{% endif %}</td>
                     <td class="montant" style="text-align: right;padding-right: 3px;">{% if supplier.total_ht %}{{ supplier.total_ht|numbers_format:2 }}{% endif %}</td>
-                    <td class="montant" style="text-align: right;padding-right: 3px;">{% if supplier.total_ttc %}{{ supplier.total_ttc|numbers_format:2 }}{% endif %}</td>
+{#                    <td class="montant" style="text-align: right;padding-right: 3px;">{% if supplier.total_ttc %}{{ supplier.total_ttc|default_if_none:0:2 }}{% endif %}</td>#}
                 </tr>
 
             {% endfor %}
@@ -64,7 +64,7 @@
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"MO"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"MS"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"VE"|numbers_format:2|default_if_zero }}</td>
-                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
+                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"COT"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"AU"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"PI"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"AC"|numbers_format:2|default_if_zero }}</td>
@@ -72,8 +72,8 @@
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"PO"|numbers_format:2|default_if_zero }}</td>
                 <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"DI"|numbers_format:2|default_if_zero }}</td>
-                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"total_ht"|numbers_format:2|default_if_zero }}</td>
-                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"total_ttc"|numbers_format:2|default_if_zero }}</td>
+                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"total_ht"|numbers_format:2|default_if_none:0 }}</td>
+{#                <td style="text-align: right;padding-right: 3px;">{{ supplier_name.list|regroup_sum:"total_ttc"|numbers_format:2|default_if_none:0 }}</td>#}
             </tr>
         </tbody>
     </table>
@@ -87,7 +87,7 @@
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"MO"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"MS"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"VE"|numbers_format:2|default_if_zero }}</td>
-            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
+            <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"COT"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AU"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"PI"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"AC"|numbers_format:2|default_if_zero }}</td>
@@ -95,8 +95,8 @@
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"CO"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"PO"|numbers_format:2|default_if_zero }}</td>
             <td class="regroup" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"DI"|numbers_format:2|default_if_zero }}</td>
-            <td class="montant" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ht"|numbers_format:2|default_if_zero }}</td>
-            <td class="montant" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ttc"|numbers_format:2|default_if_zero }}</td>
+            <td class="montant" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ht"|numbers_format:2|default_if_none:0 }}</td>
+{#            <td class="montant" style="text-align: right;padding-right: 3px;">{{ suppliers|regroup_sum:"total_ttc"|numbers_format:2|default_if_none:0 }}</td>#}
 
         </tr>
     </tbody>

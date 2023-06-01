@@ -147,7 +147,7 @@ SQL_DETAILS = sql.SQL(
                 else 0 
             end as "AO",
             case 
-                when "ed"."column_name" = 'CONSOMABLES' 
+                when "ed"."column_name" = 'CONSOMMABLES' 
                 then "sd"."net_amount" 
                 else 0 
             end as "CO",
@@ -239,3 +239,14 @@ SQL_SUB_DETAILS = sql.SQL(
              "ii"."id"
     """
 )
+
+
+
+
+
+
+
+
+
+
+

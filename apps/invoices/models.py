@@ -597,6 +597,7 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
     sale_invoice = models.BooleanField(null=True, default=False)
+    supplier_initial_libelle = models.CharField(null=True, blank=True, max_length=150)
 
     class Meta:
         """class Meta du modèle django"""
