@@ -70,6 +70,7 @@ def invoices_pdf_generation():
         SaleInvoice.objects.filter(printed=False, type_x3__in=(1, 2))
         .filter(
             cct__in=(
+                # "ACAS001",
                 # "AF0001",
                 # "AF0002",
                 # "AF0004",
