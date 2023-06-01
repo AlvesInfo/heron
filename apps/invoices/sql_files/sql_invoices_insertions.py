@@ -291,7 +291,7 @@ SQL_PURCHASES_DETAILS = sql.SQL(
         "account",
         "flow_name"
     )
-    (	
+    (    
         select 
             now() as "created_at",
             now() as "modified_at",
@@ -375,7 +375,7 @@ SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
         is2.invoice_amount_without_tax, 
         is2.invoice_amount_tax, 
         is2.invoice_amount_with_tax 
-    having 	(
+    having     (
             is2.invoice_amount_without_tax 
             - 
             sum(is3.net_amount) 
@@ -393,6 +393,38 @@ SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
 
 
 # VENTE ============================================================================================
+
+SQL_CLEAR_INVOICES_SIGNBOARDS = sql.SQL(
+    """
+    delete from "invoices_signboardsinvoices" "isign"
+    where "isign"."id" in (
+        select 
+            "isi"."id" 
+        from "invoices_signboardsinvoices" "isi"
+        join (
+            select 
+                max("id") as "id", "code_signboard", "created_at"
+            from "invoices_signboardsinvoices" "inv"
+            where exists (
+                select 1
+                from (
+                    select 
+                        "code_signboard", max("created_at") as "created_at"
+                    from "invoices_signboardsinvoices"
+                    group by "code_signboard"
+                ) as "req"
+                where "req"."code_signboard" = "inv"."code_signboard"
+                  and "req"."created_at" = "inv"."created_at"
+            )
+            group by "code_signboard", "created_at"
+            having count(*) >1
+        ) "rc" 
+        on "rc"."code_signboard" = "isi"."code_signboard"
+        and "rc"."created_at" = "isi"."created_at"
+        and "rc"."id" != "isi"."id"
+    )
+"""
+)
 
 SQL_SALES_INVOICES = sql.SQL(
     # Insertion des entêtes de factures de ventes
@@ -457,7 +489,7 @@ SQL_SALES_INVOICES = sql.SQL(
                     when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0 then '001'
                     when "ccm"."sage_vat_by_default" = '001' then "eee"."vat"
                     else "ccm"."sage_vat_by_default"
-                end as "ccm_vat"		
+                end as "ccm_vat"        
             from "edi_ediimport" "eee" 
             join "centers_clients_maison" "ccm" 
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
@@ -719,7 +751,7 @@ SQL_SALES_DETAILS = sql.SQL(
                     when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0 then '001'
                     when "ccm"."sage_vat_by_default" = '001' then "eee"."vat"
                     else "ccm"."sage_vat_by_default"
-                end as "ccm_vat"		
+                end as "ccm_vat"        
             from "edi_ediimport" "eee" 
             join "centers_clients_maison" "ccm" 
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
@@ -783,7 +815,7 @@ SQL_SALES_DETAILS = sql.SQL(
         "account",
         "ranking"
     )
-    (	
+    (    
         select 
             now() as "created_at",
             now() as "modified_at",
@@ -987,7 +1019,7 @@ SQL_CONTROL_SALES_INSERTION = sql.SQL(
         is2.invoice_amount_without_tax, 
         is2.invoice_amount_tax, 
         is2.invoice_amount_with_tax 
-    having 	(
+    having     (
             is2.invoice_amount_without_tax 
             - 
             sum(is3.net_amount) 

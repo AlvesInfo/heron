@@ -50,6 +50,7 @@ from apps.invoices.sql_files.sql_invoices_insertions import (
     SQL_PURCHASES_INVOICES,
     SQL_PURCHASES_DETAILS,
     SQL_CONTROL_PURCHASES_INSERTION,
+    SQL_CLEAR_INVOICES_SIGNBOARDS,
     SQL_SALES_INVOICES,
     SQL_SALES_DETAILS,
     SQL_CONTROL_SALES_INSERTION,
@@ -196,6 +197,7 @@ def set_sales_invoices(
 
     try:
         csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        cursor.execute(SQL_CLEAR_INVOICES_SIGNBOARDS)
         cursor.execute(SQL_SALES_INVOICES)
 
         for line in cursor.fetchall():
