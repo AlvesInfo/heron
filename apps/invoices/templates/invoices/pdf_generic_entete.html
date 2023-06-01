@@ -13,6 +13,7 @@
             <p>{{ invoices.0.parties.immeuble_cct|default_if_none:"" }}</p>
             <p>{{invoices.0.parties.adresse_cct|default_if_none:"" }}</p>
             <p>{{ invoices.0.parties.code_postal_cct|default_if_none:"" }} {{ invoices.0.parties.ville_cct|default_if_none:""}}</p>
+            <p>{{ invoices.0.parties.pays_cct|default_if_none:"" }} {{ invoices.0.parties.ville_cct|default_if_none:""}}</p>
             <p>{% if invoices.0.parties.vat_cee_number_cct %}N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_cct|default_if_none:"" }}{% endif %}</p>
         </td>
         <td style="width:40%;vertical-align: top;">Facturé à :
@@ -20,6 +21,7 @@
             <p>{{ invoices.0.parties.immeuble_third_party|default_if_none:"" }}</p>
             <p>{{ invoices.0.parties.adresse_third_party|default_if_none:"" }}</p>
             <p>{{ invoices.0.parties.code_postal_third_party|default_if_none:"" }} {{ invoices.0.parties.ville_third_party|default_if_none:"" }}</p>
+            <p>{{ invoices.0.parties.pays_third_party|default_if_none:"" }} {{ invoices.0.parties.ville_third_party|default_if_none:"" }}</p>
             <p>{% if invoices.0.parties.vat_cee_number_client %}{% if invoices.0.parties.vat_cee_number_client %}N° TVA Intra. : {{ invoices.0.parties.vat_cee_number_client }}{% endif %}{% endif %}</p>
         </td>
     </tr>
