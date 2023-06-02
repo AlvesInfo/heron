@@ -79,7 +79,7 @@ class GetRows:
             "account_supplier_code", 
             "acc"."name" as "payment_condition_client", 
             "vat_sheme_client", 
-            "account_client_code"
+            "account_client_code",
             {self.tiers}
         from {self.societies._meta.db_table}
         left join "accountancy_paymentcondition" "ass"
