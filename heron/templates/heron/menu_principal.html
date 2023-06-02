@@ -86,13 +86,13 @@
                         </div>
                         {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
-                                <a href="{% url 'parameters:functions_list' %}" class="item">Fonctions</a>
+                                <a href="{% url 'parameters:functions_list' %}" class="item" style="color: red">Fonctions</a>
                             </div>
                             <div class="ui link list">
-                                <a href="{% url 'parameters:numberings_list' %}" class="item">Numérotations</a>
+                                <a href="{% url 'parameters:numberings_list' %}" class="item" style="color: red">Numérotations</a>
                             </div>
                             <div class="ui link list">
-                                <a href="{% url 'data_flux:processing_files' function_name='ACCOUNTS' %}" class="item">Import Axe PRO/Comptes</a>
+                                <a href="{% url 'data_flux:processing_files' function_name='ACCOUNTS' %}" class="item" style="color: red">Import Axe PRO/Comptes</a>
                             </div>
                         {% endif %}
                     </div>
@@ -123,10 +123,10 @@
                         </div>
                         {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
-                                <a href="{% url 'centers_purchasing:grouping_goods_list' %}" class="item">Regroupements facturation</a>
+                                <a href="{% url 'centers_purchasing:grouping_goods_list' %}" class="item" style="color: red">Regroupements facturation</a>
                             </div>
                             <div class="ui link list">
-                                <a href="{% url 'centers_purchasing:axe_grouping_list' %}" class="item">Axe PRO/Regroupements</a>
+                                <a href="{% url 'centers_purchasing:axe_grouping_list' %}" class="item" style="color: red">Axe PRO/Regroupements</a>
                             </div>
                         {% endif %}
                         <div class="ui link list">
