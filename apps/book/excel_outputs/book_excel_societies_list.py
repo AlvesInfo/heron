@@ -81,7 +81,7 @@ class GetRows:
             "vat_sheme_client", 
             "account_client_code",
             {self.tiers}
-        from {self.societies._meta.db_table}
+        from {self.societies._meta.db_table} "bs"
         left join "accountancy_paymentcondition" "ass"
         on "ass"."auuid" = "bs"."payment_condition_supplier" 
         left join "accountancy_paymentcondition" "acc"
