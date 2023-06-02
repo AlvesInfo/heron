@@ -261,7 +261,7 @@ class SocietiesColumns:
             "width": 8,
         },
         {
-            "entete": "Conditions de paiement",
+            "entete": "Conditions de paiement\nFournisseur",
             "f_entete": {
                 **f_entetes,
                 **{
@@ -309,7 +309,7 @@ class SocietiesColumns:
             "width": 11,
         },
         {
-            "entete": "Condition de paiement",
+            "entete": "Condition de paiement\nClient",
             "f_entete": {
                 **f_entetes,
                 **{
@@ -744,7 +744,7 @@ class SocietiesColumns:
             "width": 8,
         },
         {
-            "entete": "Conditions de paiement",
+            "entete": "Conditions de paiement\nFournisseur",
             "f_entete": {
                 **f_entetes,
                 **{
@@ -792,7 +792,7 @@ class SocietiesColumns:
             "width": 11,
         },
         {
-            "entete": "Condition de paiement",
+            "entete": "Condition de paiement\nClient",
             "f_entete": {
                 **f_entetes,
                 **{
@@ -1099,7 +1099,7 @@ class SocietiesColumns:
             "width": 8,
         },
         {
-            "entete": "Conditions de paiement",
+            "entete": "Conditions de paiement\nFournisseur",
             "f_entete": {
                 **f_entetes,
                 **{
@@ -1147,7 +1147,7 @@ class SocietiesColumns:
             "width": 11,
         },
         {
-            "entete": "Condition de paiement",
+            "entete": "Condition de paiement\nClient",
             "f_entete": {
                 **f_entetes,
                 **{

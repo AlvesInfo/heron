@@ -60,8 +60,8 @@ class GetRows:
         self.query = f"""
         select
             "third_party_num", 
-            "name", 
-            "short_name", 
+            bs."name", 
+            bs."short_name", 
             "corporate_name", 
             "siret_number", 
             "vat_cee_number", 
@@ -74,14 +74,18 @@ class GetRows:
             "language", 
             "budget_code", 
             "reviser", 
-            "payment_condition_supplier", 
+            "ass"."name" as "payment_condition_supplier", 
             "vat_sheme_supplier", 
             "account_supplier_code", 
-            "payment_condition_client", 
+            "acc"."name" as "payment_condition_client", 
             "vat_sheme_client", 
-            "account_client_code", 
+            "account_client_code"
             {self.tiers}
         from {self.societies._meta.db_table}
+        left join "accountancy_paymentcondition" "ass"
+        on "ass"."auuid" = "bs"."payment_condition_supplier" 
+        left join "accountancy_paymentcondition" "acc"
+        on "acc"."auuid" = "bs"."payment_condition_client"  
         {self.clause}
         """
 
