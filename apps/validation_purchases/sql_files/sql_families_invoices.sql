@@ -1,7 +1,7 @@
 with families as (
 	select
 		"edi"."third_party_num",
-		"bs"."short_name",
+		"bs"."name",
 		case
 			when "edi"."axe_pro" isnull then '' else "ac"."section"
 		end as "axe_pro",
@@ -21,7 +21,7 @@ with families as (
 
     select
 		"sii"."third_party_num",
-		"bs"."short_name",
+		"bs"."name",
 		case
 			when siid."axe_pro" isnull then '' else siid."axe_pro"
 		end as "axe_pro",
@@ -50,7 +50,7 @@ with families as (
 )
 select
 	"fm"."third_party_num",
-	"fm"."short_name" as "supplier",
+	"fm"."name" as "supplier",
 	"fm"."axe_pro",
 	sum("fm"."m_02") as "m_02",
 	sum("fm"."m_01") as "m_01",
@@ -63,5 +63,5 @@ select
         else 'red'
     end as color
 from "families" "fm"
-GROUP BY "fm"."third_party_num", "fm"."short_name", "fm"."axe_pro"
-ORDER BY "fm"."third_party_num", "fm"."short_name", "fm"."axe_pro"
+GROUP BY "fm"."third_party_num", "fm"."name", "fm"."axe_pro"
+ORDER BY "fm"."third_party_num", "fm"."name", "fm"."axe_pro"

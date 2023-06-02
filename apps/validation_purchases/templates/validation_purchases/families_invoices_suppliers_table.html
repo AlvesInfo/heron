@@ -6,8 +6,9 @@
 {% block table %}
 
 <div class="sixteen wide column">
+{% regroup invoices_famillies by third_party_num as supplier_list %}
 
-    <table id="table_document"
+    <table id=""
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
@@ -22,19 +23,44 @@
                 <th style="width: 36%;">Commentaire</th>
             </tr>
         </thead>
+
+        {% for supplier in supplier_list %}
+
         <tbody>
-        {% for invoice in invoices_famillies %}
+            {% for invoice in supplier.list %}
+                <tr class="hide_plans">
+                    <td>{{ invoice.third_party_num }}</td>
+                    <td style="text-align: left;">{{ invoice.supplier }}</td>
+                    <td>{{ invoice.axe_pro|default_if_none:'' }}</td>
+                    <td style="text-align: right;">{{ invoice.m_02|numbers_format:2 }}</td>
+                    <td style="text-align: right;">{{ invoice.m_01|numbers_format:2 }}</td>
+                    <td style="text-align: right;">{{ invoice.m_00|numbers_format:2 }}</td>
+                    <td style="text-align: right;color: {{ invoice.color }};">{{ invoice.variation|numbers_format:2 }}</td>
+                    <td style="text-align: left;">{{ invoice.commentaire }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tbody>
             <tr class="hide_plans">
-                <td>{{ invoice.third_party_num }}</td>
-                <td style="text-align: left;">{{ invoice.supplier }}</td>
-                <td>{{ invoice.axe_pro|default_if_none:'' }}</td>
-                <td style="text-align: right;">{{ invoice.m_02|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ invoice.m_01|numbers_format:2 }}</td>
-                <td style="text-align: right;">{{ invoice.m_00|numbers_format:2 }}</td>
-                <td style="text-align: right;color: {{ invoice.color }};">{{ invoice.variation|numbers_format:2 }}</td>
-                <td style="text-align: left;">{{ invoice.commentaire }}</td>
+                <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;" colspan="3">TOTAL : {{ supplier.grouper }} - {{ supplier.1.0.supplier }}</td>
+                <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;">{{ supplier.list|regroup_sum:"m_02"|numbers_format:2 }}</td>
+                <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;">{{ supplier.list|regroup_sum:"m_01"|numbers_format:2 }}</td>
+                <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;">{{ supplier.list|regroup_sum:"m_00"|numbers_format:2 }}</td>
+                <td style="background-color: lavender;text-align: right;font-weight: 900;color: {% if supplier.list|regroup_sum:"variation" > 0 %}blue{% else %}red{% endif %};">{{ supplier.list|regroup_sum:"variation"|numbers_format:2 }}</td>
+                <td style="background-color: lavender;"></td>
             </tr>
+        </tbody>
+
         {% endfor %}
+        <tbody>
+            <tr class="hide_plans">
+                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;" colspan="3">TOTAL : GENERAL</td>
+                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;">{{ invoices_famillies|regroup_sum:"m_02"|numbers_format:2 }}</td>
+                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;">{{ invoices_famillies|regroup_sum:"m_01"|numbers_format:2 }}</td>
+                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;">{{ invoices_famillies|regroup_sum:"m_00"|numbers_format:2 }}</td>
+                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: {% if invoices_famillies|regroup_sum:"variation" >= 0 %}black{% else %}red{% endif %};">{{ invoices_famillies|regroup_sum:"variation"|numbers_format:2 }}</td>
+                <td style="background-color: lightsteelblue;"></td>
+            </tr>
         </tbody>
     </table>
 

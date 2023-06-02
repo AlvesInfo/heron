@@ -11,7 +11,6 @@ created by: Paulo ALVES
 modified at: 2021-12-30
 modified by: Paulo ALVES
 """
-
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect

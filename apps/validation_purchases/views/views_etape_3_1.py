@@ -3,7 +3,7 @@ from django.db import connection
 from django.shortcuts import render, redirect, reverse
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_postgresql import query_file_yield_dict_cursor
+from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_familly import (
     excel_integration_invoices_familly,
@@ -17,12 +17,12 @@ def families_invoices_purchases(request):
     sql_context_file = "apps/validation_purchases/sql_files/sql_families_invoices.sql"
 
     with connection.cursor() as cursor:
-        invoices_famillies = query_file_yield_dict_cursor(
+        invoices_famillies = query_file_dict_cursor(
             cursor,
             file_path=sql_context_file,
         )
         context = {
-            "titre_table": "Contrôle des familles - Achats",
+            "titre_table": "3.1 - Contrôle des familles - Achats",
             "invoices_famillies": invoices_famillies,
             "nb_paging": 100,
         }

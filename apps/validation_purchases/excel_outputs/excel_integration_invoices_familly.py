@@ -149,7 +149,6 @@ def get_rows(cursor):
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_families_invoices.sql"
     invoices_famillies = query_file_cursor(cursor, file_path=sql_context_file)
-
     return invoices_famillies
 
 
@@ -183,7 +182,9 @@ def excel_integration_invoices_familly(file_io: io.BytesIO, file_name: str) -> d
                 {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
                 for i, dict_row in enumerate(COLUMNS)
             ]
-            rows_writer(excel, 1, 4, 0, get_rows(cursor), f_lignes, f_lignes_odd)
+            rows_writer(
+                excel, 1, 4, 0, [rows[:8] for rows in get_rows(cursor)], f_lignes, f_lignes_odd
+            )
             sheet_formatting(
                 excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
             )
