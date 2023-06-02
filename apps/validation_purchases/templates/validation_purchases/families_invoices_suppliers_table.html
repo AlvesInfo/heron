@@ -4,8 +4,8 @@
 {% load filters_tags %}
 
 {% block table %}
-
-<div class="sixteen wide column">
+    <div class="two wide column"></div>
+<div class="twelve wide column">
 {% regroup invoices_famillies by third_party_num as supplier_list %}
 
     <table id=""
@@ -13,14 +13,14 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th style="width: 6%;">Tiers X3</th>
-                <th style="width: 20%;">Fournisseur</th>
+                <th style="width: 2%;-webkit-writing-mode: vertical-rl;">Excel</th>
+                <th style="width: 8%;">Tiers X3</th>
+                <th style="width: 24%;">Fournisseur</th>
                 <th style="width: 10%;">AXE PRO X3</th>
-                <th style="width: 7%;text-align: right;">M-2</th>
-                <th style="width: 7%;text-align: right;">M-1</th>
-                <th style="width: 7%;text-align: right;">M</th>
-                <th style="width: 7%;text-align: right;">Variation</th>
-                <th style="width: 36%;">Commentaire</th>
+                <th style="width: 10%;text-align: right;">M-2</th>
+                <th style="width: 10%;text-align: right;">M-1</th>
+                <th style="width: 10%;text-align: right;">M</th>
+                <th style="width: 10%;text-align: right;">Variation</th>
             </tr>
         </thead>
 
@@ -29,6 +29,7 @@
         <tbody>
             {% for invoice in supplier.list %}
                 <tr class="hide_plans">
+                    <td></td>
                     <td>{{ invoice.third_party_num }}</td>
                     <td style="text-align: left;">{{ invoice.supplier }}</td>
                     <td>{{ invoice.axe_pro|default_if_none:'' }}</td>
@@ -36,30 +37,32 @@
                     <td style="text-align: right;">{{ invoice.m_01|numbers_format:2 }}</td>
                     <td style="text-align: right;">{{ invoice.m_00|numbers_format:2 }}</td>
                     <td style="text-align: right;color: {{ invoice.color }};">{{ invoice.variation|numbers_format:2 }}</td>
-                    <td style="text-align: left;">{{ invoice.commentaire }}</td>
                 </tr>
             {% endfor %}
         </tbody>
         <tbody>
             <tr class="hide_plans">
+                <td style="text-align: center;background-color: lavender;font-weight: 900;color: blue;">
+                    <a href="{% url 'validation_purchases:supplier_details_invoices_purchases_export' third_party_num=supplier.grouper %}">
+                        <i class="file excel icon modification" data-content="Export Excel" data-variation="tiny" style="color: green;"></i>
+                    </a>
+                </td>
                 <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;" colspan="3">TOTAL : {{ supplier.grouper }} - {{ supplier.1.0.supplier }}</td>
                 <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;">{{ supplier.list|regroup_sum:"m_02"|numbers_format:2 }}</td>
                 <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;">{{ supplier.list|regroup_sum:"m_01"|numbers_format:2 }}</td>
                 <td style="background-color: lavender;text-align: right;font-weight: 900;color: blue;">{{ supplier.list|regroup_sum:"m_00"|numbers_format:2 }}</td>
                 <td style="background-color: lavender;text-align: right;font-weight: 900;color: {% if supplier.list|regroup_sum:"variation" > 0 %}blue{% else %}red{% endif %};">{{ supplier.list|regroup_sum:"variation"|numbers_format:2 }}</td>
-                <td style="background-color: lavender;"></td>
             </tr>
         </tbody>
 
         {% endfor %}
         <tbody>
             <tr class="hide_plans">
-                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;" colspan="3">TOTAL : GENERAL</td>
+                <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;" colspan="4">TOTAL : GENERAL</td>
                 <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;">{{ invoices_famillies|regroup_sum:"m_02"|numbers_format:2 }}</td>
                 <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;">{{ invoices_famillies|regroup_sum:"m_01"|numbers_format:2 }}</td>
                 <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: blue;">{{ invoices_famillies|regroup_sum:"m_00"|numbers_format:2 }}</td>
                 <td style="background-color: lightsteelblue;text-align: right;font-weight: 900;color: {% if invoices_famillies|regroup_sum:"variation" >= 0 %}black{% else %}red{% endif %};">{{ invoices_famillies|regroup_sum:"variation"|numbers_format:2 }}</td>
-                <td style="background-color: lightsteelblue;"></td>
             </tr>
         </tbody>
     </table>

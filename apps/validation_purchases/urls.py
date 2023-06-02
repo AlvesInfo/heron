@@ -18,10 +18,14 @@ from apps.validation_purchases.views import (
     details_purchases_export,
     without_cct_purchases,
     without_cct_purchases_export,
+    # 3.1 - FAMILLES ARTICLES
     families_invoices_purchases,
     families_invoices_purchases_export,
+    supplier_details_invoices_purchases_export,
+    # 3.1 A - FAMILLES ARTICLES / FACTURES
     articles_families_invoices_purchases,
     articles_families_invoices_purchases_export,
+    #
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
     invoices_suppliers_purchases,
@@ -132,28 +136,8 @@ urlpatterns = [
             without_cct_purchases_export,
             name="without_cct_purchases_export",
         ),
-        # Familles des Factures
-        path(
-            "families_invoices_purchases/",
-            families_invoices_purchases,
-            name="families_invoices_purchases",
-        ),
-        path(
-            "families_invoices_purchases_export/",
-            families_invoices_purchases_export,
-            name="families_invoices_purchases_export",
-        ),
-        # Articles/Familles des Factures
-        path(
-            "articles_families_invoices_purchases/",
-            articles_families_invoices_purchases,
-            name="articles_families_invoices_purchases",
-        ),
-        path(
-            "articles_families_invoices_purchases_export/",
-            articles_families_invoices_purchases_export,
-            name="articles_families_invoices_purchases_export",
-        ),
+
+
         # Soldes
         path(
             "balance_suppliers_purchases/",
@@ -175,6 +159,38 @@ urlpatterns = [
             "invoices_suppliers_purchases_export/",
             invoices_suppliers_purchases_export,
             name="invoices_suppliers_purchases_export",
+        ),
+    ],
+    # 3.1 - FAMILLES ARTICLES
+    *[
+        # Familles des Factures
+        path(
+            "families_invoices_purchases/",
+            families_invoices_purchases,
+            name="families_invoices_purchases",
+        ),
+        path(
+            "families_invoices_purchases_export/",
+            families_invoices_purchases_export,
+            name="families_invoices_purchases_export",
+        ),
+        path(
+            "supplier_details_invoices_purchases_export/<str:third_party_num>/",
+            supplier_details_invoices_purchases_export,
+            name="supplier_details_invoices_purchases_export",
+        ),
+    ],
+    # 3.1 A - FAMILLES ARTICLES / FACTURES
+    *[
+        path(
+            "articles_families_invoices_purchases/<str:third_party_num>/",
+            articles_families_invoices_purchases,
+            name="articles_families_invoices_purchases",
+        ),
+        path(
+            "articles_families_invoices_purchases_export/",
+            articles_families_invoices_purchases_export,
+            name="articles_families_invoices_purchases_export",
         ),
     ],
     # MENU CONTROLES RFA

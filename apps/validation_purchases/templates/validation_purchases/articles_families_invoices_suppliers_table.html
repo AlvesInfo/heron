@@ -1,44 +1,36 @@
-{% extends "heron/table_courant.html" %}
+{#{% extends "heron/table_courant.html" %}#}
 
 {% block table %}
 
     <table id="table_document"
        class="ui celled table"
-       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+       style="font-size: 12px !important;text-align: center;font-weight: 900;margin: 20px 50px;">
         <thead>
             <tr>
-                <th>Fournisseur</th>
-                <th>N° Facture</th>
-                <th>Date</th>
-                <th>N° de Maison</th>
-                <th>Intitulé Compta</th>
-                <th>CodeArticle</th>
-                <th>Libéllé1</th>
-                <th>BU</th>
-                <th>PRO_COL_EM</th>
-                <th>PROJET</th>
-                <th>PAYS</th>
-                <th>RFA</th>
+                <th>TIERS X3</th>
+                <th>N° FACTURE</th>
+                <th>DATE</th>
+                <th>CLIENT</th>
+                <th>NOM CLIENT</th>
+                <th>REFERENCE</th>
+                <th>LIBELLE ARTICLE</th>
+                <th>AXE BU</th>
+                <th>AXE PROJET</th>
+                <th>AXE PRO</th>
+                <th>AXE PAYS</th>
+                <th>AXE RFA</th>
                 <th>Quantité</th>
-                <th>MontantNet</th>
-                <th>PrixUnitaireBrut</th>
-                <th>PrixUnitaireNet</th>
-                <th>Information complémentaire</th>
-                <th>Emballage</th>
-                <th>Port</th>
-                <th>HT</th>
-                <th>TTC</th>
-                <th>TauxTVA</th>
-                <th>Période</th>
+                <th>P.U</th>
+                <th>MONTANT HT</th>
+                <th>TVA</th>
+                <th>MONTANT TVA</th>
+                <th>MONTANT TTC<</th>
+                <th>PERIODE</th>
             </tr>
         </thead>
         <tbody>
         {% for export in controles_exports %}
             <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
                 <td>{{ export.pays }}</td>
                 <td>{{ export.pays }}</td>
                 <td>{{ export.pays }}</td>

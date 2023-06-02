@@ -8,6 +8,9 @@ from apps.core.functions.functions_http_response import response_file, CONTENT_T
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_familly import (
     excel_integration_invoices_familly,
 )
+from apps.validation_purchases.excel_outputs.excel_supplier_details_invoices_familly import (
+    excel_supplier_details_invoice,
+)
 
 # CONTROLES ETAPE 3.1 - CONTROLE FAMILLES
 
@@ -51,5 +54,32 @@ def families_invoices_purchases_export(request):
 
     except:
         LOGGER_VIEWS.exception("view : families_invoices_purchases_export")
+
+    return redirect(reverse("validation_purchases:families_invoices_purchases"))
+
+
+def supplier_details_invoices_purchases_export(request, third_party_num):
+    """Export Excel de
+    :param request: Request Django
+    :param third_party_num: Tiers X3
+    :return: response_file"""
+    try:
+        if request.method == "GET":
+            today = pendulum.now()
+            file_name = (
+                f"FACTURES_CONTROLE_FAMILLES_{third_party_num}_"
+                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            )
+            attr_dict = {"third_party_num": third_party_num}
+
+            return response_file(
+                excel_supplier_details_invoice,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                attr_dict,
+            )
+
+    except:
+        LOGGER_VIEWS.exception("view : supplier_details_invoices_purchases_export")
 
     return redirect(reverse("validation_purchases:families_invoices_purchases"))

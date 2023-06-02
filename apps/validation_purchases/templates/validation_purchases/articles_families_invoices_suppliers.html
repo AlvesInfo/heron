@@ -3,6 +3,18 @@
 {% load static %}
 {% load filters_tags %}
 
+{% block footer_css %}
+            <style>
+.dt-semanticUI {
+    margin-top: 20px !important;
+}
+.dataTables_filter {
+    text-align: left;
+}
+</style>
+{% endblock footer_css %}
+
+
 {% block menu_principal %}
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
