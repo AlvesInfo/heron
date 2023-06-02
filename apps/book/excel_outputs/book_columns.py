@@ -274,7 +274,7 @@ class SocietiesColumns:
                     "align": "center",
                 },
             },
-            "width": 11,
+            "width": 25,
         },
         {
             "entete": "Régime de taxe",
@@ -322,7 +322,7 @@ class SocietiesColumns:
                     "align": "center",
                 },
             },
-            "width": 11,
+            "width": 25,
         },
         {
             "entete": "Régime de taxe",
@@ -757,7 +757,7 @@ class SocietiesColumns:
                     "align": "center",
                 },
             },
-            "width": 11,
+            "width": 25,
         },
         {
             "entete": "Régime de taxe",
@@ -805,7 +805,7 @@ class SocietiesColumns:
                     "align": "center",
                 },
             },
-            "width": 11,
+            "width": 25,
         },
         {
             "entete": "Régime de taxe",
@@ -1112,7 +1112,7 @@ class SocietiesColumns:
                     "align": "center",
                 },
             },
-            "width": 11,
+            "width": 25,
         },
         {
             "entete": "Régime de taxe",
@@ -1160,7 +1160,7 @@ class SocietiesColumns:
                     "align": "center",
                 },
             },
-            "width": 11,
+            "width": 25,
         },
         {
             "entete": "Régime de taxe",
