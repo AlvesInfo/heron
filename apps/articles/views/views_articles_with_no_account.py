@@ -13,6 +13,7 @@ from apps.articles.excel_outputs.output_excel_articles_without_account_list impo
     excel_liste_articles_without_account,
 )
 from apps.articles.parameters.querysets import articles_without_account_queryset
+from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
 
 
 # ECRANS DES ARTICLES SANS COMPTES COMPTABLES EN ACHATS ET VENTES ==================================
@@ -20,6 +21,10 @@ def articles_without_account_list(request):
     """Affichage de tous les articles qui n'ont pas de comptes comptables X3, présents
     dans les imports
     """
+
+    # On met à jour les comptes comptable des articles
+    set_update_articles_confict_account()
+
     limit = 200
 
     paginator = Paginator(articles_without_account_queryset, limit)

@@ -140,6 +140,68 @@ def set_update_articles_account(article_uuid: uuid.UUID = None):
         cursor.execute(sql_create_account)
 
 
+def set_update_articles_confict_account():
+    """
+    Update global sans comptes achat vente pour tous les articles
+    :return: None
+    """
+
+    sql_create_account = f"""
+    insert into "articles_articleaccount" 
+    (
+        "created_at",
+        "modified_at",
+        "purchase_account",
+        "sale_account",
+        "article",
+        "vat",
+        "child_center"
+    )
+    (
+        select
+            now() as "created_at",	
+            now() as "modified_at",
+            "purchase_account", 
+            "sale_account", 
+            "article", 
+            "vat",
+            "child_center"
+        from (
+            select
+                "aa2"."account" as "purchase_account", 
+                "aa3"."account" as "sale_account", 
+                "aa"."uuid_identification" as "article", 
+                "cpa"."vat",
+                "cpa"."child_center"
+            from "articles_article" "aa" 
+            join "centers_purchasing_accountsaxeprocategory" "cpa" 
+            on "cpa"."axe_pro" = "aa"."axe_pro" 
+            and "aa"."uuid_big_category" = "cpa"."uuid_big_category" 
+            and (
+                coalesce("aa"."uuid_sub_big_category"::varchar, '')
+                =
+                coalesce("cpa"."uuid_sub_category"::varchar, '')
+            )
+            left join "accountancy_accountsage" "aa2" 
+            on "aa2"."uuid_identification" = "cpa"."purchase_account_uuid" 
+            left join "accountancy_accountsage" "aa3" 
+            on "aa3"."uuid_identification" = "cpa"."sale_account_uuid" 
+            where not exists (
+                select 1
+                from "articles_articleaccount" "ae"
+                where "ae"."article" = "aa"."uuid_identification"
+                  and "ae"."vat" = "cpa"."vat"
+                  and "ae"."child_center" = "cpa"."child_center"
+            )
+        ) gr
+    )
+    on conflict do nothing
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_create_account)
+
+
 if __name__ == "__main__":
     delete_orphans_accounts()
     set_update_articles_account()
