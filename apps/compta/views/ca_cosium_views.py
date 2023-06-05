@@ -3,7 +3,8 @@
 Views des Abonnements
 """
 import pendulum
-from django.shortcuts import render
+from django.db import connection
+from django.shortcuts import render, redirect, reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -13,7 +14,7 @@ from apps.compta.excel_outputs.output_excel_ca_cosium import excel_ca_cosium
 from apps.compta.models import CaClients
 from apps.edi.models import EdiImport
 from apps.compta.bin.generate_ca import set_ca
-from apps.compta.imports.import_ventes_cosium import force_update_sales
+from apps.compta.imports.import_ventes_cosium import force_update_sales, set_cct_ventes
 from apps.compta.models import VentesCosium
 
 
@@ -73,6 +74,14 @@ def export_ca_cosium(request):
     }
 
     return render(request, "compta/export_sales_cosium.html", context=context)
+
+
+def reset_clients_in_sales(_):
+    """Mise à jour forcée des ctt manquants au cas où un cct à été ajouté"""
+    with connection.cursor() as cursor:
+        set_cct_ventes(cursor)
+        
+    return redirect(reverse("compta:export_sales_cosium"))
 
 
 def reset_sales(request):

@@ -9,6 +9,7 @@ from apps.compta.views import (
     # SALES COSIUM
     export_sales_cosium,
     export_ca_cosium,
+    reset_clients_in_sales,
     reset_sales,
     reset_ca,
 )
@@ -27,6 +28,7 @@ urlpatterns = (
     + [
         path("export_sales_cosium/", export_sales_cosium, name="export_sales_cosium"),
         path("export_ca_cosium/", export_ca_cosium, name="export_ca_cosium"),
+        path("reset_clients_in_sales/", reset_clients_in_sales, name="reset_clients_in_sales"),
         path("reset_sales/", reset_sales, name="reset_sales"),
         path("reset_ca/", reset_ca, name="reset_ca"),
     ]
