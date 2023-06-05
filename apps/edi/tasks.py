@@ -136,9 +136,6 @@ def launch_suppliers_import(process_objects, user_pk):
         elif file.is_file():
             file.unlink()
 
-        if trace.flow_name == 'Edi':
-            edi_trace_supplier_insert()
-
         # TODO : faire une fonction d'envoie de mails
 
     LOGGER_EDI.warning(
@@ -210,6 +207,9 @@ def launch_sql_clean_general(start_all):
     try:
         post_processing_all()
         LOGGER_EDI.warning("post_processing_all terminé")
+
+        # Insertion du nom du fournisseur dans la trace
+        edi_trace_supplier_insert()
 
         post_vacuum()
         LOGGER_EDI.warning("post_vacuum terminé")
