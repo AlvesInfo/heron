@@ -26,17 +26,17 @@ with families as (
 			when siid."axe_pro" isnull then '' else siid."axe_pro"
 		end as "axe_pro",
 		case
-			when (date_trunc('month', now())- interval '1 month')::date = "sii"."integration_month"
+			when (date_trunc('month', now()))::date = "sii"."integration_month"
 			then "siid"."net_amount"
 			else 0
 		end as "m_00",
 		case
-			when (date_trunc('month', now())- interval '2 month')::date = "sii"."integration_month"
+			when (date_trunc('month', now())- interval '1 month')::date = "sii"."integration_month"
 			then "siid"."net_amount"
 			else 0
 		end as "m_01",
 		case
-			when (date_trunc('month', now())- interval '3 month')::date = "sii"."integration_month"
+			when (date_trunc('month', now())- interval '2 month')::date = "sii"."integration_month"
 			then "siid"."net_amount"
 			else 0
 		end as "m_02"

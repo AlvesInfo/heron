@@ -68,7 +68,10 @@ def invoices_pdf_generation():
     }
 
     cct_sales_list = (
-        SaleInvoice.objects.filter(printed=False, type_x3__in=(1, 2))
+        SaleInvoice.objects.filter(
+            final=False,
+            printed=False,
+            type_x3__in=(1, 2))
         .filter(
             cct__in=(
                 # "ACAS001",
