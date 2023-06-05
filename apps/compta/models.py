@@ -47,7 +47,7 @@ class VentesCosium(models.Model):
     ca_ht_ap_remise = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
 
     # PRIX EN EUROS AU TAUX DE CHANGE MOYEN
-    taux_change = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
+    taux_change_moyen = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
     pv_brut_unitaire_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     pv_net_unitaire_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     px_vente_ttc_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
@@ -60,7 +60,9 @@ class VentesCosium(models.Model):
     pv_brut_unitaire_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     pv_net_unitaire_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     px_vente_ttc_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
-    px_vente_ttc_eur_apres_remise_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    px_vente_ttc_eur_apres_remise_bi = models.DecimalField(
+        null=True, decimal_places=5, max_digits=20
+    )
     ca_ht_avt_remise_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     ca_ht_ap_remise_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
 

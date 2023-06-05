@@ -9,7 +9,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.parameters.bin.exchanges import set_base_exchange_rate
+from apps.parameters.bin.exchanges import set_base_exchange_rate, set_exchanges_sales_cosium
 from apps.parameters.models import ExchangeRate
 from apps.periods.forms import MonthForm
 from apps.parameters.forms import ExchangeRateForm
@@ -114,6 +114,10 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
         return super().form_valid(form)
 
+    def form_updated(self):
+        """Action à faire après form_valid save"""
+        set_exchanges_sales_cosium(self.object.rate_month, self.object.currency_change)
+
 
 class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Taux de change"""
@@ -151,3 +155,7 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         self.request.session["level"] = 20
 
         return super().form_valid(form)
+
+    def form_updated(self):
+        """Action à faire après form_valid save"""
+        set_exchanges_sales_cosium(str(self.object.rate_month), self.object.currency_change.code)
