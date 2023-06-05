@@ -22,7 +22,7 @@ from apps.edi.bin.duplicates_check import (
     suppliers_invoices_duplicate_check,
 )
 from apps.edi.bin.edi_articles_news import set_axes_with_regex
-from apps.edi.bin.set_suppliers_cct import add_news_cct_sage, set_center_signboard
+from apps.edi.bin.set_suppliers_cct import add_news_cct_sage, set_signboard
 from apps.edi.sql_files.sql_common import post_common_dict
 from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
 from apps.edi.sql_files.sql_bulk import post_bulk_dict
@@ -84,7 +84,7 @@ def post_processing_all():
     edi_import_duplicate_check()
     suppliers_invoices_duplicate_check()
     add_news_cct_sage()
-    set_center_signboard()
+    set_signboard()
     set_axes_with_regex()
 
 
@@ -112,7 +112,8 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     sql_delta_vat = post_common_dict.get("sql_delta_vat")
     sql_none = post_common_dict.get("sql_none")
     sql_delivery_number = post_common_dict.get("sql_delivery_number")
-    sql_center_signboard = post_common_dict.get("sql_center_signboard")
+    sql_signboard = post_common_dict.get("sql_signboard")
+    sql_center = post_common_dict.get("sql_center")
     sql_import_uuid_identification = post_common_dict.get("sql_import_uuid_identification")
     sql_validate = post_common_dict.get("sql_validate")
 
@@ -132,7 +133,8 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     cursor.execute(sql_delta_vat, {"uuid_identification": uuid_identification})
     cursor.execute(sql_none, {"uuid_identification": uuid_identification})
     cursor.execute(sql_delivery_number, {"uuid_identification": uuid_identification})
-    cursor.execute(sql_center_signboard, {"uuid_identification": uuid_identification})
+    cursor.execute(sql_signboard, {"uuid_identification": uuid_identification})
+    cursor.execute(sql_center, {"uuid_identification": uuid_identification})
     cursor.execute(sql_import_uuid_identification, {"uuid_identification": uuid_identification})
     cursor.execute(
         sql_validate,
@@ -415,7 +417,7 @@ def generique_post_insert(uuid_identification: AnyStr):
     """
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
-    sql_maison = post_generic_dict.get("sql_maison")
+    # sql_maison = post_generic_dict.get("sql_maison")
     sql_mg_developpemnt = post_generic_dict.get("sql_mg_developpemnt")
     sql_edi_generique = post_generic_dict.get("sql_edi_generique")
 

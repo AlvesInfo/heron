@@ -27,7 +27,7 @@ from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
 from apps.edi.bin.edi_utilites import (
     get_sens,
     set_trace_hand_invoice,
-    set_center_signboard,
+    set_signboard,
     set_hand_sales_prices,
 )
 from apps.edi.models import EdiImport
@@ -218,7 +218,7 @@ def set_hand_invoice(
         #  même si erreur avec les deux fonction ci après
 
         # On va mettre à jour la centrale fille et l'enseigne
-        set_center_signboard(edi_imports)
+        set_signboard(edi_imports)
 
         # On va mettre à jour les prix de ventes
         # TODO : A changer lors des multiprix

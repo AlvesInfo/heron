@@ -80,7 +80,15 @@ def reset_clients_in_sales(_):
     """Mise à jour forcée des ctt manquants au cas où un cct à été ajouté"""
     with connection.cursor() as cursor:
         set_cct_ventes(cursor)
-        
+
+    return redirect(reverse("compta:export_sales_cosium"))
+
+
+def reset_exhange_rates_in_sales(_):
+    """Mise à jour forcée des ctt manquants au cas où un cct à été ajouté"""
+    with connection.cursor() as cursor:
+        set_cct_ventes(cursor)
+
     return redirect(reverse("compta:export_sales_cosium"))
 
 

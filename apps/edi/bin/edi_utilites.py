@@ -192,7 +192,7 @@ def delete_orphans_controls():
         cursor.execute(sql_delete)
 
 
-def set_center_signboard(edi_objects: EdiImport.objects) -> None:
+def set_signboard(edi_objects: EdiImport.objects) -> None:
     """
     On va setter les centrales filles et les enseignes des factures saisies manuellement
     :param edi_objects: Queryset Objets EdiImport créé

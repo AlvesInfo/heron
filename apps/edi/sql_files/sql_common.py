@@ -80,14 +80,12 @@ BASE_SQL_CCT = sql.SQL(
     """
 )
 
-SQL_CENTER_SIGNBOARD = """
+SQL_SIGNBOARD = """
 update "edi_ediimport" "ee" 
-set "code_center" = "req"."code_center",
-    "code_signboard" = "req"."code_signboard"
+set "code_signboard" = "req"."code_signboard"
 from (
     select 
         "ee"."cct_uuid_identification",  
-        "cc"."code" as "code_center",
         "si"."code" as "code_signboard"
     from (
         select
@@ -98,17 +96,11 @@ from (
     ) "ee" 
     left join "centers_clients_maison" "mm" 
     on "ee"."cct_uuid_identification" = "mm"."uuid_identification" 
-    left join "centers_purchasing_childcenterpurchase" "cc" 
-    on "mm"."center_purchase" = "cc"."code"
     left join "centers_purchasing_signboard" "si" 
     on "mm"."sign_board" = "si"."code"
 ) "req" 
 where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
 and (
-    "ee"."code_center" isnull 
-    or
-    "ee"."code_center" != "req"."code_center"
-    or
     "ee"."code_signboard" isnull 
     or
     "ee"."code_signboard" != "req"."code_signboard"
@@ -554,11 +546,19 @@ post_common_dict = {
           and ("edi"."valid" = false or "edi"."valid" isnull)
     """
     ),
-    "sql_center_signboard": (
-        SQL_CENTER_SIGNBOARD
+    "sql_signboard": (
+        SQL_SIGNBOARD
         +
         """          
         and "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        """
+    ),
+    "sql_center": (
+        """          
+        update "edi_ediimport" edi
+        set "code_center" = 'ACF'
+        where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
     ),

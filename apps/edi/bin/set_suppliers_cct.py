@@ -212,12 +212,12 @@ def update_edi_import_cct_uui_identifiaction(
             cursor.execute(sql_update)
 
 
-def set_center_signboard() -> None:
+def set_signboard() -> None:
     """
     Mise à jour en base des centrales filles et les enseignes
     """
     with connection.cursor() as cursor:
-        sql_set_center_signboard = """
+        sql_set_signboard = """
         update "edi_ediimport" "ee" 
         set "code_center" = "req"."code_center",
             "code_signboard" = "req"."code_signboard"
@@ -247,4 +247,4 @@ def set_center_signboard() -> None:
             "ee"."code_center" != "req"."code_center"
         )
         """
-        cursor.execute(sql_set_center_signboard)
+        cursor.execute(sql_set_signboard)
