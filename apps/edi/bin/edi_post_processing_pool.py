@@ -425,7 +425,7 @@ def generique_post_insert(uuid_identification: AnyStr):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
-        cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
+        # cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mg_developpemnt, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
