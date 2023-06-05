@@ -48,8 +48,8 @@ class ExchangesList(ListView):
     """View de la liste des Taux de change"""
 
     model = ExchangeRate
-    context_object_name = "natures"
-    template_name = "parameters/natures_list.html"
+    context_object_name = "exchanges"
+    template_name = "parameters/exchange_list.html"
     extra_context = {}
 
     def get(self, request, *args, **kwargs):
@@ -57,7 +57,6 @@ class ExchangesList(ListView):
         self.extra_context.update(kwargs)
         month = self.kwargs.get("month")
         mois = pendulum.parse(month).format("MMMM YYYY", locale="fr").upper()
-        # categorie = Category.objects.get(slug_name=self.kwargs.get("category")).name
         self.extra_context["titre_table"] = f"TAUX DE CHANGE MOYEN DU MOIS : {mois}"
         return super().get(request, *args, **kwargs)
 
@@ -84,16 +83,18 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     model = ExchangeRate
     form_class = ExchangeRateForm
     form_class.use_required_attribute = False
-    template_name = "parameters/natures_update.html"
-    success_message = "La Nature/Genre %(name)s a été créé avec success"
-    error_message = "La Nature/Genre %(name)s n'a pu être créé, une erreur c'est produite"
+    template_name = "parameters/exchange_update_table.html"
+    success_message = "Le Taux de change %(currency_change)s a été créé avec success"
+    error_message = (
+        "Le Taux de change %(currency_change)s n'a pu être créé, une erreur c'est produite"
+    )
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:natures_list")
-        context["titre_table"] = "Création d'une nouvelle Nature/Genre"
+        context["titre_table"] = "Création d'un nouveau taux de change"
 
         return context
 
@@ -111,14 +112,16 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = ExchangeRate
     form_class = ExchangeRateForm
     form_class.use_required_attribute = False
-    template_name = "parameters/natures_update.html"
-    success_message = "La Nature/Genre %(name)s a été modifiée avec success"
-    error_message = "La Nature/Genre %(name)s n'a pu être modifiée, une erreur c'est produite"
+    template_name = "parameters/exchange_update_table.html"
+    success_message = "Le Taux de change %(currency_change)s a été modifiée avec success"
+    error_message = (
+        "Le Taux de change %(currency_change)s n'a pu être modifiée, une erreur c'est produite"
+    )
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        context["titre_table"] = "Mise à jour Nature/Genre"
+        context["titre_table"] = "Mise à jour taux de change"
         context["chevron_retour"] = reverse("parameters:natures_list")
 
         return super().get_context_data(**context)

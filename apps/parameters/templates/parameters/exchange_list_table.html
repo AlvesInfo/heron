@@ -1,0 +1,53 @@
+{% extends "heron/table_courant.html" %}
+{% load filters_tags %}
+
+{% block table %}
+
+<div class="four wide column"></div>
+
+<div class="eight wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
+                <th class="no-sort" style="display: none;width: 0">Month</th>
+                <th style="width: 30%">Base</th>
+                <th style="width: 30%">Monaie</th>
+                <th style="width: 10%">Taux</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for exchange in exchanges %}
+            <tr id="id_{{ forloop.counter }}" class="hide_plans">
+
+                <td data-value="{{ exchange.pk }}"
+                    style="text-align: center;">
+                    <a href="">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td style="display: none;">
+                    {{ exchange.rate_month }}
+                </td>
+                <td style="text-align: center;">
+                    {{ exchange.curency_base }}
+                </td>
+                <td style="text-align: center;">
+                    {{ exchange.currency_change.currency_iso }}
+                </td>
+                <td style="text-align: center;">
+                    {{ exchange.rate }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}
