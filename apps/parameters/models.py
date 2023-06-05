@@ -22,9 +22,10 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.urls.exceptions import NoReverseMatch
 
+
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import SectionSage
-from apps.countries.models import Country
+from apps.countries.models import Country, Currency
 
 
 class Parameters(FlagsTable):
@@ -882,3 +883,43 @@ class Email(models.Model):
     class Meta:
         """class Meta du modèle django"""
         ordering = ["name"]
+
+
+class ExchangeRate(FlagsTable):
+    """Table des taux de change moyens"""
+
+    curency_base = models.CharField(max_length=3, default="EUR")
+    currency_change = models.ForeignKey(
+        Currency,
+        on_delete=models.PROTECT,
+        to_field="code",
+        related_name="currency_exchange",
+        verbose_name="Devise",
+        db_column="currency_change",
+        default="EUR",
+    )
+    rate_month = models.DateField(null=True)
+    rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+
+    def clean(self):
+        if self.rate < 0:
+            raise ValidationError("Le taux de change doit être positif")
+
+    class Meta:
+        """Class Meta Django"""
+
+        ordering = ["currency_change"]
+        unique_together = (("currency_change", "rate_month", "curency_base"),)
+
+        indexes = [
+            models.Index(fields=["curency_base"]),
+            models.Index(fields=["currency_change"]),
+            models.Index(fields=["rate_month"]),
+            models.Index(
+                fields=[
+                    "curency_base",
+                    "currency_change",
+                    "rate_month",
+                ]
+            ),
+        ]

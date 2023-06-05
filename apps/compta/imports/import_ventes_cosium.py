@@ -93,13 +93,13 @@ def insert_ventes_cosium():
                 "px_vente_ttc_devise_apres_remise", 
                 "ca_ht_avt_remise", 
                 "ca_ht_ap_remise", 
-                "taux_change", 
-                "pv_brut_unitaire_eur", 
-                "pv_net_unitaire_eur", 
-                "px_vente_ttc_eur", 
-                "px_vente_ttc_eur_apres_remise", 
-                "ca_ht_avt_remise_eur", 
-                "ca_ht_ap_remise_eur", 
+                "taux_change_bi", 
+                "pv_brut_unitaire_eur_bi", 
+                "pv_net_unitaire_eur_bi", 
+                "px_vente_ttc_eur_bi", 
+                "px_vente_ttc_eur_apres_remise_bi", 
+                "ca_ht_avt_remise_eur_bi", 
+                "ca_ht_ap_remise_eur_bi", 
                 "px_achat_global", 
                 "px_achat_unitaire", 
                 "solde", 
@@ -127,7 +127,8 @@ def insert_ventes_cosium():
                 "pays", 
                 "photochromique", 
                 "prescripteur_na", 
-                "prescripteurs"
+                "prescripteurs",
+                "sale_month"
             )
             select
                 "id" as "id_bi", 
@@ -184,7 +185,8 @@ def insert_ventes_cosium():
                 "pays", 
                 "photochromique", 
                 "prescripteur_na", 
-                "prescripteurs"
+                "prescripteurs",
+                date_trunc('month', "date_vente")::date as "sale_month"
             from "heron_bi_ventes_cosium"
             where "id" > %(min_id)s
             order by "id"
@@ -228,13 +230,13 @@ def mise_a_jour_ventes_cosium():
                 "px_vente_ttc_devise_apres_remise", 
                 "ca_ht_avt_remise", 
                 "ca_ht_ap_remise", 
-                "taux_change", 
-                "pv_brut_unitaire_eur", 
-                "pv_net_unitaire_eur", 
-                "px_vente_ttc_eur", 
-                "px_vente_ttc_eur_apres_remise", 
-                "ca_ht_avt_remise_eur", 
-                "ca_ht_ap_remise_eur", 
+                "taux_change_bi", 
+                "pv_brut_unitaire_eur_bi", 
+                "pv_net_unitaire_eur_bi", 
+                "px_vente_ttc_eu_bir", 
+                "px_vente_ttc_eur_apres_remise_bi", 
+                "ca_ht_avt_remise_eur_bi", 
+                "ca_ht_ap_remise_eur_bi", 
                 "px_achat_global", 
                 "px_achat_unitaire", 
                 "solde", 
@@ -262,7 +264,8 @@ def mise_a_jour_ventes_cosium():
                 "pays", 
                 "photochromique", 
                 "prescripteur_na", 
-                "prescripteurs"
+                "prescripteurs",
+                "sale_month"
             )
             select
                 hbv."id" as "id_bi", 
@@ -319,7 +322,8 @@ def mise_a_jour_ventes_cosium():
                 hbv."pays", 
                 hbv."photochromique", 
                 hbv."prescripteur_na", 
-                hbv."prescripteurs"
+                hbv."prescripteurs",
+                date_trunc('month', hbv."date_vente")::date as "sale_month"
             from "heron_bi_ventes_cosium" hbv
             where hbv."id" > %(min_id)s
             and not hbv."id" = any(
@@ -374,13 +378,13 @@ def force_update_sales(dte_d: str, dte_f: str):
                 "px_vente_ttc_devise_apres_remise", 
                 "ca_ht_avt_remise", 
                 "ca_ht_ap_remise", 
-                "taux_change", 
-                "pv_brut_unitaire_eur", 
-                "pv_net_unitaire_eur", 
-                "px_vente_ttc_eur", 
-                "px_vente_ttc_eur_apres_remise", 
-                "ca_ht_avt_remise_eur", 
-                "ca_ht_ap_remise_eur", 
+                "taux_change_bi", 
+                "pv_brut_unitaire_eur_bi", 
+                "pv_net_unitaire_eur_bi", 
+                "px_vente_ttc_eur_bi", 
+                "px_vente_ttc_eur_apres_remise_bi", 
+                "ca_ht_avt_remise_eur_bi", 
+                "ca_ht_ap_remise_eur_bi", 
                 "px_achat_global", 
                 "px_achat_unitaire", 
                 "solde", 
@@ -408,7 +412,8 @@ def force_update_sales(dte_d: str, dte_f: str):
                 "pays", 
                 "photochromique", 
                 "prescripteur_na", 
-                "prescripteurs"
+                "prescripteurs",
+                "sale_month"
             )
             select
                 "id" as "id_bi", 
@@ -465,7 +470,8 @@ def force_update_sales(dte_d: str, dte_f: str):
                 "pays", 
                 "photochromique", 
                 "prescripteur_na", 
-                "prescripteurs"
+                "prescripteurs",
+                date_trunc('month', "date_vente")::date as "sale_month"
             from "heron_bi_ventes_cosium"
             where date_vente >= %(date_debut)s and date_vente <= %(date_fin)s
             order by "id"

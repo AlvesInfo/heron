@@ -91,7 +91,7 @@ def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
                     distinct "famille_cosium", '|' order by "famille_cosium"
                 ) as "famille_cosium",
                 "bs"."axe_pro" as "axe_pro",
-                sum("ca_ht_ap_remise_eur")::numeric as "ca_ht_eur",
+                sum("ca_ht_ap_remise_eur_bi")::numeric as "ca_ht_eur",
                 sum("ca_ht_ap_remise")::numeric as "ca_ht_devise",
                 %(user)s as "created_by"
             from "compta_ventescosium" "cv" 

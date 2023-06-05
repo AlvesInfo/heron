@@ -35,6 +35,11 @@ from apps.parameters.views import (
     EmailList,
     EmailCreate,
     EnseigneUpdate,
+    # EXCHANGE RATE
+    period_select_exchange,
+    ExchangesList,
+    ExchangeCreate,
+    ExchangeUpdate,
 )
 
 app_name = "apps.parameters"
@@ -115,5 +120,24 @@ urlpatterns = [
         path("emails_list/", EmailList.as_view(), name="emails_list"),
         path("email_create/", EmailCreate.as_view(), name="email_create"),
         path("email_update/<int:pk>/", EnseigneUpdate.as_view(), name="email_update"),
+    ],
+    # EXCHANGE RATE
+    *[
+        path("period_select_exchange/", period_select_exchange, name="period_select_exchange"),
+        path(
+            "exchanges_list/<str:month>/",
+            ExchangesList.as_view(),
+            name="exchanges_list",
+        ),
+        path(
+            "exchange_create/<str:month>/",
+            ExchangeCreate.as_view(),
+            name="exchange_create",
+        ),
+        path(
+            "exchange_update/<str:month>/<int:pk>/",
+            ExchangeUpdate.as_view(),
+            name="exchange_update",
+        ),
     ],
 ]

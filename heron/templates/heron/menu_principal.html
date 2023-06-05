@@ -84,6 +84,9 @@
                         <div class="ui link list">
                             <a href="{% url 'parameters:emails_list' %}" class="item">Emails</a>
                         </div>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:period_select_exchange' %}" class="item">Taux de Change Moyen</a>
+                        </div>
                         {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
                                 <a href="{% url 'parameters:functions_list' %}" class="item" style="color: red">Fonctions</a>

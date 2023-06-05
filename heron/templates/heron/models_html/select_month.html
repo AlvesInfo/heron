@@ -1,0 +1,28 @@
+<div class="ui vertical menu" style="width: {% firstof sel_box_width 220 %}px !important;">
+    <div class="active item"
+         style="margin: 0 !important;height: 30px !important;padding: 8px 16px !important;font-size: 14px !important;">
+        MOIS
+    </div>
+    <div class="item">
+        <label for="{{ form.mois.id_for_label }}" style="width: {% firstof sel_label_width 40%}px !important;
+        text-align: right !important;display:inline-block;">{{ form.mois.label }}&nbsp;:&nbsp;</label>
+        <select name="{{ form.mois.name }}"
+               id="{{ form.mois.id_for_label }}"
+               style="width: {% firstof sel_champ_width 140 %}px !important;color: #000000 !important;
+                       display:inline-block;text-align:left;"
+        >
+
+            {% for x, y in form.fields.mois.choices %}
+                <option value="{{ x }}"
+                        {% if form.mois.initial == x %}
+                        selected="{{ form.mois.initial }}"
+                        {% endif %}>{{ y }}&nbsp;&nbsp;
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+{% if form.mois.errors %}
+    <div class="ui error message">{{ form.mois.errors }}</div>
+{% endif %}

@@ -46,7 +46,7 @@ class VentesCosium(models.Model):
     ca_ht_avt_remise = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
     ca_ht_ap_remise = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
 
-    # PRIX EN EUROS
+    # PRIX EN EUROS AU TAUX DE CHANGE MOYEN
     taux_change = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
     pv_brut_unitaire_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     pv_net_unitaire_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
@@ -54,6 +54,15 @@ class VentesCosium(models.Model):
     px_vente_ttc_eur_apres_remise = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     ca_ht_avt_remise_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
     ca_ht_ap_remise_eur = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+
+    # PRIX EN EUROS AU TAUX BI
+    taux_change_bi = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
+    pv_brut_unitaire_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    pv_net_unitaire_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    px_vente_ttc_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    px_vente_ttc_eur_apres_remise_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    ca_ht_avt_remise_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
+    ca_ht_ap_remise_eur_bi = models.DecimalField(null=True, decimal_places=5, max_digits=20)
 
     px_achat_global = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
     px_achat_unitaire = models.DecimalField(blank=True, null=True, decimal_places=5, max_digits=20)
@@ -95,6 +104,7 @@ class VentesCosium(models.Model):
         verbose_name="CCT x3",
         db_column="cct_uuid_identification",
     )
+    sale_month = models.DateField(null=True)
 
     def __str__(self):
         return f"{self.code_maison} - {self.code_ean}"

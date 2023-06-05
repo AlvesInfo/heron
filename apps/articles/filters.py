@@ -3,7 +3,7 @@
 Filtres pour des recherches dans les views
 """
 from django import forms
-from django.db.models import Max, Value, CharField, Exists, OuterRef, Count, Case, When, Q, F
+from django.db.models import Exists, OuterRef, Count
 import django_filters
 
 from apps.articles.models import Article, ArticleAccount

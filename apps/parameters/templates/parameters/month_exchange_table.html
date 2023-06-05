@@ -1,0 +1,10 @@
+{% extends "heron/table_courant.html" %}
+{% load filters_tags %}
+
+{% block table %}
+
+    <div style="margin: auto;padding: 20px;">
+        {% include "heron/models_html/month_period.html" %}
+    </div>
+
+{% endblock table %}

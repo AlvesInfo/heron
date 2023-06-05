@@ -17,6 +17,7 @@ from apps.core.functions.functions_http import get_pagination_buttons
 from apps.articles.excel_outputs.output_excel_articles_list import (
     excel_liste_articles,
 )
+from apps.articles.bin.sub_category import check_sub_category
 from apps.book.models import Society
 from apps.parameters.models import Category
 from apps.articles.models import Article
@@ -190,6 +191,13 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
+        # On vérifie la cohérence entre catégory et sous-catégorie
+        if form.instance.sub_category and not check_sub_category(
+            form.instance.sub_category.uuid_identification,
+            form.instance.big_category.uuid_identification,
+        ):
+            form.instance.sub_category = None
+
         return super().form_valid(form)
 
     def form_updated(self):
@@ -260,6 +268,13 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
+
+        # On vérifie la cohérence entre catégory et sous-catégorie
+        if form.instance.sub_category and not check_sub_category(
+            form.instance.sub_category.uuid_identification,
+            form.instance.big_category.uuid_identification,
+        ):
+            form.instance.sub_category = None
 
         return super().form_valid(form)
 
