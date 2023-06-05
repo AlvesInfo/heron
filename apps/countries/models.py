@@ -122,6 +122,7 @@ class Language(models.Model):
     FR : Langues
     EN : language
     """
+
     code = models.CharField(primary_key=True, max_length=3)
     name = models.CharField(max_length=35)
 
@@ -136,12 +137,19 @@ class Currency(models.Model):
     FR : Langues
     EN : language
     """
+
     code = models.CharField(primary_key=True, max_length=3)
     name = models.CharField(max_length=35)
+    ranking = models.IntegerField(default=1)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.name
+        return self.code
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["ranking", "code", "name"]
 
 
 class ExchangeRate(models.Model):

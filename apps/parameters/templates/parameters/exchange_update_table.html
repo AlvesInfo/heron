@@ -3,71 +3,29 @@
 
 {% block table %}
 
-<div class="two wide column"></div>
+    <div class="five wide column"></div>
+    <div class="six wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
 
-<div class="twelve wide column">
-
-    <table id="table_document"
-       class="ui celled table"
-       style="font-size: 12px !important;text-align: center;font-weight: 900;">
-        <thead>
-            <tr>
-                <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
-                <th style="width: 30%">Nom</th>
-                <th style="width: 30%">Affichage</th>
-                <th style="width: 10%">Contact</th>
-                <th style="width: 10%">Personnel</th>
-                <th style="width: 10%">Formation</th>
-                <th style="width: 5%;">delete</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for nature in natures %}
-            <tr id="id_{{ forloop.counter }}" class="hide_plans">
-
-                <td data-value="{{ nature.pk }}"
-                    style="text-align: center;">
-                    <a href="{% url 'parameters:nature_update' pk=nature.pk %}">
-                        <i class="edit icon modification"></i>
-                    </a>
-                </td>
-                <td style="text-align: center;">
-                  {% if nature.name %}
-                    {{ nature.name }}
-                  {% endif %}
-                </td>
-                <td style="text-align: center;">
-                  {% if nature.to_display %}
-                    {{ nature.to_display }}
-                  {% endif %}
-                </td>
-                <td style="text-align: center;">
-                    {% if nature.for_contact %}
-                        X
-                    {% endif %}
-                </td>
-                <td style="text-align: center;">
-                    {% if nature.for_personnel %}
-                        X
-                    {% endif %}
-                </td>
-                <td style="text-align: center;">
-                    {% if nature.for_formation %}
-                        X
-                    {% endif %}
-                </td>
-                <td class="tdDelete" style="text-align: center;">
-                    <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ nature.pk }}, `{{ nature.name }} {% if nature.function %}-{% endif %} {{ nature.function|default_if_none:'' }}`, `{% url 'parameters:nature_delete' %}`, `la Numérotation `)"></i>
-                    </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-</div>
-
-<div class="two wide column"></div>
+          <div style="display: none;">
+            <label for="id_rate_month">Mois&nbsp;:</label>
+            {{ form.rate_month }}
+            <label for="id_currency_base" style="text-align: left;">BASE&nbsp;:</label>
+            {{ form.curency_base }}
+          </div>
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+          <div class="fields">
+              <div class="eight wide field">
+                <label for="id_currency_change" style="text-align: left;">Monaie&nbsp;:</label>
+                  {{ form.currency_change }}
+              </div>
+              <div class="eight wide field">
+                  <label for="id_rate" style="text-align: left;">Taux&nbsp;:</label>
+                  {{ form.rate }}
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
 {% endblock table %}

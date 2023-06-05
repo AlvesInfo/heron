@@ -25,7 +25,7 @@
 
                 <td data-value="{{ exchange.pk }}"
                     style="text-align: center;">
-                    <a href="">
+                    <a href="{% url 'parameters:exchange_update' pk=exchange.pk%}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
@@ -36,7 +36,7 @@
                     {{ exchange.curency_base }}
                 </td>
                 <td style="text-align: center;">
-                    {{ exchange.currency_change.currency_iso }}
+                    {{ exchange.currency_change.code }}
                 </td>
                 <td style="text-align: center;">
                     {{ exchange.rate }}

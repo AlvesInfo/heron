@@ -2,16 +2,10 @@
 
 {% block right_side %}
 
-    <a class="item" href="{% url 'parameters:nature_create' %}">
-        <button class="ui blue basic button" name="nature_create" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-            CREATION
+    <a class="item" href="">
+        <button class="ui teal basic button" name="validate_exchange" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            VALIDER
         </button>
-    </a>
-
-    <a class="item" href="{% url 'parameters:natures_export_list' %}">
-       <button class="ui green basic button" name="natures_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-          LISTING NATURES/GENRES
-       </button>
     </a>
 
 {% endblock right_side %}

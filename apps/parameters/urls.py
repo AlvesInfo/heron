@@ -135,7 +135,7 @@ urlpatterns = [
             name="exchange_create",
         ),
         path(
-            "exchange_update/<str:month>/<int:pk>/",
+            "exchange_update/<int:pk>/",
             ExchangeUpdate.as_view(),
             name="exchange_update",
         ),

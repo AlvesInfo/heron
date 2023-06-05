@@ -11,8 +11,14 @@
 
     {% if user.is_authenticated %}
 
+
+        <form action="" method="post">
+        {% csrf_token %}
+
             {% include "parameters/exchange_update_entete.html" %}
             {% include "parameters/exchange_update_table.html" %}
+
+        </form>
 
         <div class="ui equal width grid center"></div>
 

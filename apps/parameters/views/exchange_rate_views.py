@@ -41,7 +41,7 @@ def period_select_exchange(request):
         print(error)
         LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
 
-    return render(request, "parameters/month_exchange.html", context=context)
+    return render(request, "parameters/exchange_month.html", context=context)
 
 
 class ExchangesList(ListView):
@@ -83,7 +83,7 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     model = ExchangeRate
     form_class = ExchangeRateForm
     form_class.use_required_attribute = False
-    template_name = "parameters/exchange_update_table.html"
+    template_name = "parameters/exchange_update.html"
     success_message = "Le Taux de change %(currency_change)s a été créé avec success"
     error_message = (
         "Le Taux de change %(currency_change)s n'a pu être créé, une erreur c'est produite"
@@ -92,15 +92,24 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        context["create"] = True
-        context["chevron_retour"] = reverse("parameters:natures_list")
-        context["titre_table"] = "Création d'un nouveau taux de change"
+        mois = str(self.kwargs.get("month"))
+        mois_change = (
+            pendulum.parse(str(self.kwargs.get("month"))).format("MMMM YYYY", locale="fr").upper()
+        )
+        context["chevron_retour"] = reverse("parameters:exchanges_list", kwargs={"month": mois})
+        context["titre_table"] = f"Nouveau taux de change: {mois_change}"
 
         return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("parameters:exchanges_list", kwargs={"month": self.kwargs.get("month")})
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
+        form.instance.curency_base = "EUR"
+        form.instance.rate_month = self.kwargs.get("month")
         self.request.session["level"] = 20
 
         return super().form_valid(form)
@@ -112,7 +121,7 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = ExchangeRate
     form_class = ExchangeRateForm
     form_class.use_required_attribute = False
-    template_name = "parameters/exchange_update_table.html"
+    template_name = "parameters/exchange_update.html"
     success_message = "Le Taux de change %(currency_change)s a été modifiée avec success"
     error_message = (
         "Le Taux de change %(currency_change)s n'a pu être modifiée, une erreur c'est produite"
@@ -121,14 +130,24 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        context["titre_table"] = "Mise à jour taux de change"
-        context["chevron_retour"] = reverse("parameters:natures_list")
+        mois = pendulum.parse(str(self.object.rate_month)).format("MMMM YYYY", locale="fr").upper()
+        context["titre_table"] = f"Mise à jour taux de change: {mois}"
+        context["chevron_retour"] = reverse(
+            "parameters:exchanges_list", kwargs={"month": self.object.rate_month}
+        )
 
         return super().get_context_data(**context)
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        print(self.object.rate_month)
+        return reverse("parameters:exchanges_list", kwargs={"month": self.object.rate_month})
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
+        form.instance.curency_base = "EUR"
+        form.instance.rate_month = self.object.rate_month
         self.request.session["level"] = 20
 
         return super().form_valid(form)

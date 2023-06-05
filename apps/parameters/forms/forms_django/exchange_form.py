@@ -19,6 +19,11 @@ from apps.parameters.models import ExchangeRate
 
 class ExchangeRateForm(forms.ModelForm):
     """Formulaire des taux de change formset"""
+    def __init__(self, *args, **kwargs):
+        """initialisation de la classe"""
+        super().__init__(*args, **kwargs)
+        self.fields["curency_base"].required = False
+        self.fields["rate_month"].required = False
 
     class Meta:
         """class meta django"""
