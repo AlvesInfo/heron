@@ -211,8 +211,8 @@ def launch_sql_clean_general(start_all):
         # Insertion du nom du fournisseur dans la trace
         edi_trace_supplier_insert()
 
-        post_vacuum()
-        LOGGER_EDI.warning("post_vacuum terminé")
+        # post_vacuum()
+        # LOGGER_EDI.warning("post_vacuum terminé")
 
         set_exclusions()
         LOGGER_EDI.warning("exclusions terminées")
