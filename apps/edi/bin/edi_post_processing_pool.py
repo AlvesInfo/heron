@@ -17,6 +17,7 @@ from django.db import connection
 from django.db.models import Q, Count
 
 from apps.edi.models import EdiImport
+from apps.data_flux.models import Trace
 from apps.edi.bin.duplicates_check import (
     edi_import_duplicate_check,
     suppliers_invoices_duplicate_check,
@@ -68,8 +69,39 @@ def get_user_automate():
     return user.uuid_identification
 
 
+def suppress_import_without_articles():
+    """Vérification qu'il n'y ait pas de lignes d'import sans artilces,
+    sinon on les rejette et on met la trace en erreur
+    """
+    without_reference_list = (
+        EdiImport.objects.filter(Q(reference_article__isnull=True) | Q(reference_article=""))
+        .values("uuid_identification")
+        .annotate(dcount=Count("uuid_identification"))
+        .values("uuid_identification")
+        .order_by()
+        .values_list("uuid_identification", flat=True)
+    )
+
+    for uuid_identification in without_reference_list:
+        try:
+            trace = Trace.objects.get(uuid_identification=uuid_identification)
+            trace.errors = True
+            trace.comment = (
+                "Une erreur c'est produite."
+                "<br>Il manque des références articles dans le fichier."
+                "<br>Le fichier a été réjeté!"
+            )
+            trace.save()
+            EdiImport.objects.filter(uuid_identification=uuid_identification).delete()
+
+        except Trace.DoesNotExist:
+            pass
+
+
 def post_processing_all():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+    # suppression des imports sans articles
+    suppress_import_without_articles()
 
     # Mise à jour sur la fiche tiers, du champ courant, pour l'affichage plus rapide des tiers
     sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
@@ -325,7 +357,7 @@ def edi_trace_supplier_insert():
 
         edi_flow = cursor.fetchall()
 
-        for uuid_identification, in edi_flow:
+        for (uuid_identification,) in edi_flow:
             cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
 
 
