@@ -261,7 +261,7 @@ def mise_a_jour_ventes_cosium():
                 "taux_change_bi", 
                 "pv_brut_unitaire_eur_bi", 
                 "pv_net_unitaire_eur_bi", 
-                "px_vente_ttc_eu_bir", 
+                "px_vente_ttc_eu_bi", 
                 "px_vente_ttc_eur_apres_remise_bi", 
                 "ca_ht_avt_remise_eur_bi", 
                 "ca_ht_ap_remise_eur_bi", 
