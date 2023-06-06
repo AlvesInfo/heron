@@ -78,10 +78,10 @@ def suppliers_invoices_duplicate_check():
                 else "Les ensembles (<div style='padding-left: 20px;'>"
             )
             last_comment = (
-                "</div>) a dèjà été importé.<br>"
+                "</div>) a dèjà été factureé.<br>"
                 "Cette facture à été supprimée de l'intégration.<br>"
                 if len(errors_array) == 1
-                else "</div>) ont dèjà été importés.<br>"
+                else "</div>) ont dèjà été facturées.<br>"
                 "Ces factures ont été supprimées de l'intégration.<br>"
             )
 
@@ -123,7 +123,7 @@ def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoic
             (
                 select 
                     1 as "nbre"
-                from "invoices_invoice" "ii" 
+                from "invoices_invoicecommondetails" "ii" 
                 where "ii"."third_party_num"= %(third_party_num)s
                 and "ii"."invoice_number" = %(invoice_number)s
                 and "ii"."invoice_year" = %(invoice_year)s

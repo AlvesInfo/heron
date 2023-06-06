@@ -176,7 +176,7 @@ sql_invoices_duplicates = sql.SQL(
                 "invoice_number", 
                 "invoice_year"
           ) ee 
-          join "invoices_invoice" sii
+          join "invoices_invoicecommondetails" sii
             on ee."third_party_num" = sii."third_party_num"
            and ee."invoice_number" = sii."invoice_number"
            and ee."invoice_year" = sii."invoice_year"
@@ -198,33 +198,32 @@ sql_invoices_duplicates = sql.SQL(
 
 sql_invoices_duplicates_delete = sql.SQL(
     """
-    with results as (
-        select 
-            ee."uuid_identification", 
-            sii."third_party_num", 
-            sii."invoice_number", 
-            sii."invoice_year" 
-          from (
-            select 
-                "uuid_identification",
-                "third_party_num",
-                "invoice_number",
-                "invoice_year"
-              from "edi_ediimport" 
-             where "delete" = false
-             group by "uuid_identification", 
-                "third_party_num", 
-                "invoice_number", 
-                "invoice_year"
-          ) ee 
-          join "invoices_invoice" sii
-            on ee."third_party_num" = sii."third_party_num"
-           and ee."invoice_number" = sii."invoice_number"
-           and ee."invoice_year" = sii."invoice_year"
-    )
     delete from "edi_ediimport" ei 
     where exists (
-        select 1 from "results" re 
+            select 1 from (
+                    select 
+                ee."uuid_identification", 
+                sii."third_party_num", 
+                sii."invoice_number", 
+                sii."invoice_year" 
+              from (
+                select 
+                    "uuid_identification",
+                    "third_party_num",
+                    "invoice_number",
+                    "invoice_year"
+                  from "edi_ediimport" 
+                 where "delete" = false
+                 group by "uuid_identification", 
+                    "third_party_num", 
+                    "invoice_number", 
+                    "invoice_year"
+              ) ee 
+              join "invoices_invoicecommondetails" sii
+                on ee."third_party_num" = sii."third_party_num"
+               and ee."invoice_number" = sii."invoice_number"
+               and ee."invoice_year" = sii."invoice_year"
+        ) "re" 
         where ei."uuid_identification" = re."uuid_identification"
         and ei."third_party_num" = re."third_party_num"
         and ei."invoice_number" = re."invoice_number"
