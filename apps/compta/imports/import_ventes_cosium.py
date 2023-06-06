@@ -195,19 +195,43 @@ def insert_ventes_cosium():
         cursor.execute(sql_insert_ventes, {"min_id": min_id})
         set_cct_ventes(cursor)
 
-        # mise à jour du taux de change pour l'EURO
+        # mise à jour du taux de change
         sql_update_eur = """
         update "compta_ventescosium" "vc"
-        set "taux_change_moyen" = "req"."rate",
-            "ca_ht_ap_remise_eur" = "ca_ht_ap_remise",
-            "ca_ht_avt_remise_eur" = "ca_ht_avt_remise",
-            "pv_brut_unitaire_eur" = "pv_brut_unitaire",
-            "pv_net_unitaire_eur" = "pv_net_unitaire",
-            "px_vente_ttc_eur" = "px_vente_ttc_devise",
-            "px_vente_ttc_eur_apres_remise" = "px_vente_ttc_devise_apres_remise"
+        set "taux_change_moyen" = round((1/"req"."rate")::numeric ,5)::numeric,
+            "ca_ht_ap_remise_eur" = round(
+                                            "ca_ht_ap_remise"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                  )::numeric,
+            "ca_ht_avt_remise_eur" = round(
+                                            "ca_ht_avt_remise"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                   )::numeric,
+            "pv_brut_unitaire_eur" = round(
+                                            "pv_brut_unitaire"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                   )::numeric,
+            "pv_net_unitaire_eur" = round(
+                                            "pv_net_unitaire"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                       )::numeric,
+            "px_vente_ttc_eur" = round(
+                                        "px_vente_ttc_devise"
+                                        *
+                                        round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                    )::numeric,
+            "px_vente_ttc_eur_apres_remise" = round(
+                                                "px_vente_ttc_devise_apres_remise"
+                                                *
+                                                round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                            )::numeric
         from (
             select 
-                "cv"."id", "cc"."currency_iso", "pe"."rate_month", 1::numeric as "rate" 
+                "cv"."id", "cc"."currency_iso", "pe"."rate_month", "pe"."rate" 
             from "compta_ventescosium" "cv" 
             join "centers_clients_maison" "ccm" 
             on "cv"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -216,12 +240,11 @@ def insert_ventes_cosium():
             join "parameters_exchangerate" "pe" 
             on "cv"."sale_month" = "pe"."rate_month"
             and "cc"."currency_iso" = "pe"."currency_change"
-            and "pe"."currency_change" = 'EUR'
-            and "cv"."taux_change_moyen" isnull
+            where "cv"."id_bi" > %(min_id)s
         ) req 
         where "vc"."id" = "req"."id"
         """
-        cursor.execute(sql_update_eur)
+        cursor.execute(sql_update_eur, {"min_id": min_id})
 
 
 @transaction.atomic
@@ -365,19 +388,49 @@ def mise_a_jour_ventes_cosium():
         cursor.execute(sql_insert_ventes, {"min_id": min_id})
         set_cct_ventes(cursor)
 
-        # mise à jour du taux de change pour l'EURO
+
+def update_exchange_rates(dte_d: str, dte_f: str):
+    """Update Forcé des taux de change dans les ventes par périodes"""
+    date_debut = pendulum.parse(dte_d)
+    date_fin = pendulum.parse(dte_f)
+
+    with connection.cursor() as cursor:
         sql_update_eur = """
         update "compta_ventescosium" "vc"
-        set "taux_change_moyen" = "req"."rate",
-            "ca_ht_ap_remise_eur" = "ca_ht_ap_remise",
-            "ca_ht_avt_remise_eur" = "ca_ht_avt_remise",
-            "pv_brut_unitaire_eur" = "pv_brut_unitaire",
-            "pv_net_unitaire_eur" = "pv_net_unitaire",
-            "px_vente_ttc_eur" = "px_vente_ttc_devise",
-            "px_vente_ttc_eur_apres_remise" = "px_vente_ttc_devise_apres_remise"
+        set "taux_change_moyen" = round((1/"req"."rate")::numeric ,5)::numeric,
+            "ca_ht_ap_remise_eur" = round(
+                                            "ca_ht_ap_remise"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                  )::numeric,
+            "ca_ht_avt_remise_eur" = round(
+                                            "ca_ht_avt_remise"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                   )::numeric,
+            "pv_brut_unitaire_eur" = round(
+                                            "pv_brut_unitaire"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                   )::numeric,
+            "pv_net_unitaire_eur" = round(
+                                            "pv_net_unitaire"
+                                            *
+                                            round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                       )::numeric,
+            "px_vente_ttc_eur" = round(
+                                        "px_vente_ttc_devise"
+                                        *
+                                        round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                    )::numeric,
+            "px_vente_ttc_eur_apres_remise" = round(
+                                                "px_vente_ttc_devise_apres_remise"
+                                                *
+                                                round((1/"req"."rate")::numeric ,5)::numeric, 2
+                                            )::numeric
         from (
             select 
-                "cv"."id", "cc"."currency_iso", "pe"."rate_month", 1::numeric as "rate" 
+                "cv"."id", "cc"."currency_iso", "pe"."rate_month", "pe"."rate" 
             from "compta_ventescosium" "cv" 
             join "centers_clients_maison" "ccm" 
             on "cv"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -386,12 +439,11 @@ def mise_a_jour_ventes_cosium():
             join "parameters_exchangerate" "pe" 
             on "cv"."sale_month" = "pe"."rate_month"
             and "cc"."currency_iso" = "pe"."currency_change"
-            and "pe"."currency_change" = 'EUR'
-            and "cv"."taux_change_moyen" isnull
+            where "cv"."date_vente" >= %(date_debut)s and "cv"."date_vente" <= %(date_fin)s
         ) req 
         where "vc"."id" = "req"."id"
         """
-        cursor.execute(sql_update_eur)
+        cursor.execute(sql_update_eur, {"date_debut": date_debut, "date_fin": date_fin})
 
 
 def force_update_sales(dte_d: str, dte_f: str):
@@ -559,36 +611,11 @@ def force_update_sales(dte_d: str, dte_f: str):
         )
         cursor.execute(sql_cct_update, {"date_debut": date_debut, "date_fin": date_fin})
 
-        # mise à jour du taux de change pour l'EURO
-        sql_update_eur = """
-        update "compta_ventescosium" "vc"
-        set "taux_change_moyen" = "req"."rate",
-            "ca_ht_ap_remise_eur" = "ca_ht_ap_remise",
-            "ca_ht_avt_remise_eur" = "ca_ht_avt_remise",
-            "pv_brut_unitaire_eur" = "pv_brut_unitaire",
-            "pv_net_unitaire_eur" = "pv_net_unitaire",
-            "px_vente_ttc_eur" = "px_vente_ttc_devise",
-            "px_vente_ttc_eur_apres_remise" = "px_vente_ttc_devise_apres_remise"
-        from (
-            select 
-                "cv"."id", "cc"."currency_iso", "pe"."rate_month", 1::numeric as "rate" 
-            from "compta_ventescosium" "cv" 
-            join "centers_clients_maison" "ccm" 
-            on "cv"."cct_uuid_identification" = "ccm"."uuid_identification" 
-            join "countries_country" "cc" 
-            on "ccm"."pays" = "cc"."country" 
-            join "parameters_exchangerate" "pe" 
-            on "cv"."sale_month" = "pe"."rate_month"
-            and "cc"."currency_iso" = "pe"."currency_change"
-            and "pe"."currency_change" = 'EUR'
-            and "cv"."taux_change_moyen" isnull
-        ) req 
-        where "vc"."id" = "req"."id"
-        """
-        cursor.execute(sql_update_eur)
+        update_exchange_rates(dte_d, dte_f)
 
 
 if __name__ == "__main__":
     # insert_ventes_cosium()
     # mise_a_jour_ventes_cosium()
-    force_update_sales(dte_d="2023-04-01", dte_f="2023-04-30")
+    # force_update_sales(dte_d="2023-04-01", dte_f="2023-04-30")
+    update_exchange_rates(dte_d="2023-04-01", dte_f="2023-04-30")

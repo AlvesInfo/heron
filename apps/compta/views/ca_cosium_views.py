@@ -14,7 +14,11 @@ from apps.compta.excel_outputs.output_excel_ca_cosium import excel_ca_cosium
 from apps.compta.models import CaClients
 from apps.edi.models import EdiImport
 from apps.compta.bin.generate_ca import set_ca
-from apps.compta.imports.import_ventes_cosium import force_update_sales, set_cct_ventes
+from apps.compta.imports.import_ventes_cosium import (
+    force_update_sales,
+    set_cct_ventes,
+    update_exchange_rates,
+)
 from apps.compta.models import VentesCosium
 
 
@@ -23,7 +27,6 @@ def export_sales_cosium(request):
     form = MonthForm(request.POST or None)
 
     try:
-
         if request.method == "POST" and form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
 
@@ -52,7 +55,6 @@ def export_ca_cosium(request):
     form = MonthForm(request.POST or None)
 
     try:
-
         if request.method == "POST" and form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
 
@@ -77,7 +79,7 @@ def export_ca_cosium(request):
 
 
 def reset_clients_in_sales(_):
-    """Mise à jour forcée des ctt manquants au cas où un cct à été ajouté"""
+    """Mise à jour forcée des ctt manquants au cas où un cct a été ajouté"""
     with connection.cursor() as cursor:
         set_cct_ventes(cursor)
 
@@ -85,7 +87,7 @@ def reset_clients_in_sales(_):
 
 
 def reset_exhange_rates_in_sales(_):
-    """Mise à jour forcée des ctt manquants au cas où un cct à été ajouté"""
+    """Mise à jour forcée des ctt manquants au cas où un cct a été ajouté"""
     with connection.cursor() as cursor:
         set_cct_ventes(cursor)
 
@@ -97,7 +99,6 @@ def reset_sales(request):
     form = MonthForm(request.POST or None)
 
     if request.method == "POST":
-
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
             force_update_sales(dte_d, dte_f)
@@ -123,9 +124,12 @@ def reset_ca(request):
     form = MonthForm(request.POST or None)
 
     if request.method == "POST":
-
         if form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+
+            # Update des taux de change dans les ventes
+            update_exchange_rates(dte_d, dte_f)
+
             date_debut = pendulum.parse(dte_d)
             date_fin = pendulum.parse(dte_f)
             CaClients.objects.filter(date_ca__range=(date_debut, date_fin)).delete()
