@@ -39,34 +39,31 @@ def import_edi_invoices(request):
     retours_valid = get_retours_valid()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
-    if request.method == "POST":
+    if request.method == "POST" and not in_action:
+        bool_files = any(
+            [have_statment, have_monthly, have_retours, have_receptions, files_celery]
+        )
 
-        # On vérifie qu'il n'y a pas un import en cours
-        if not in_action:
-            bool_files = any(
-                [have_statment, have_monthly, have_retours, have_receptions, files_celery]
-            )
+        # On vérifie qu'il y ait des fichiers
+        if bool_files:
+            user_pk = request.user.id
 
-            # On vérifie qu'il y ait des fichiers
-            if bool_files:
-                user_pk = request.user.id
-
-                if "bbgr_statment" in request.POST:
-                    import_launch_bbgr("bbgr_statment", user_pk)
-                elif "bbgr_monthly" in request.POST:
-                    import_launch_bbgr("bbgr_monthly", user_pk)
-                elif "bbgr_retours" in request.POST:
-                    import_launch_bbgr("bbgr_retours", user_pk)
-                elif "bbgr_receptions" in request.POST:
-                    import_launch_bbgr("bbgr_receptions", user_pk)
-                else:
-                    celery_import_launch(user_pk)
-
-                in_action = True
-
+            if "bbgr_statment" in request.POST:
+                import_launch_bbgr("bbgr_statment", user_pk)
+            elif "bbgr_monthly" in request.POST:
+                import_launch_bbgr("bbgr_monthly", user_pk)
+            elif "bbgr_retours" in request.POST:
+                import_launch_bbgr("bbgr_retours", user_pk)
+            elif "bbgr_receptions" in request.POST:
+                import_launch_bbgr("bbgr_receptions", user_pk)
             else:
-                request.session["level"] = 50
-                messages.add_message(request, 50, "Il n'y a aucuns fichiers EDI à traiter !")
+                celery_import_launch(user_pk)
+
+            in_action = True
+
+        else:
+            request.session["level"] = 50
+            messages.add_message(request, 50, "Il n'y a aucuns fichiers EDI à traiter !")
 
     context = {
         "en_cours": in_action,

@@ -289,7 +289,8 @@ SQL_PURCHASES_DETAILS = sql.SQL(
         "modified_by",
         "unit_weight",
         "account",
-        "flow_name"
+        "flow_name",
+        "bi_id"
     )
     (    
         select 
@@ -327,7 +328,8 @@ SQL_PURCHASES_DETAILS = sql.SQL(
             "unit_weight",
             -- TODO: GERER ICI LES COMPTES X3
             '' as "account",
-            "flow_name"
+            "flow_name",
+            "bi_id"
          from "edi_ediimport" "ee" 
          join "invoices_invoice" "ii"
            on "ii"."third_party_num" = "ii"."third_party_num"

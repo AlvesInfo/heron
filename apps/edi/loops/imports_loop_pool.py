@@ -367,40 +367,43 @@ def have_files():
 def celery_import_launch(user_pk: int):
     """Main pour lancement de l'import avec Celery"""
 
-    # Si l'action n'existe pas on la créée
-    action = get_action(action="import_edi_invoices")
+    acitve_action = None
+    action = True
 
     try:
         tasks_list = []
 
-        # Si l'action est déjà en cours, on ne fait rien
-        if not action.in_progress:
-            print("ACTION")
-            # On initialise l'action comme en cours
-            action.in_progress = True
-            action.save()
-            start_all = time.time()
+        while action:
+            acitve_action = get_action(action="import_edi_invoices")
+            if not acitve_action.in_progress:
+                action = False
 
-            # On boucle sur les fichiers à insérer
-            proc_files_l = get_files_celery()
+        print("ACTION")
+        # On initialise l'action comme en cours
+        acitve_action.in_progress = True
+        acitve_action.save()
+        start_all = time.time()
 
-            for row_args in proc_files_l:
-                tasks_list.append(
-                    celery_app.signature(
-                        "suppliers_import", kwargs={"process_objects": row_args, "user_pk": user_pk}
-                    )
+        # On boucle sur les fichiers à insérer
+        proc_files_l = get_files_celery()
+
+        for row_args in proc_files_l:
+            tasks_list.append(
+                celery_app.signature(
+                    "suppliers_import", kwargs={"process_objects": row_args, "user_pk": user_pk}
                 )
-            print(tasks_list)
-            result = group(*tasks_list)().get(3600)
-            print("result : ", result)
-            LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+            )
+        print(tasks_list)
+        result = group(*tasks_list)().get(3600)
+        print("result : ", result)
+        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-            result_clean = group(
-                *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
-            )().get(3600)
+        result_clean = group(
+            *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
+        )().get(3600)
 
-            print("result_clean : ", result_clean)
-            LOGGER_EDI.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
+        print("result_clean : ", result_clean)
+        LOGGER_EDI.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
@@ -410,22 +413,27 @@ def celery_import_launch(user_pk: int):
 
     finally:
         # On remet l'action en cours à False, après l'execution
-        action.in_progress = False
-        action.save()
+        acitve_action.in_progress = False
+        acitve_action.save()
 
 
 def import_launch_bbgr(function_name: str, user_pk: int):
     """Main pour lancement de l'import"""
 
-    # Si l'action n'existe pas on la créée
-    action = get_action(action="import_edi_invoices")
+    acitve_action = None
+    action = True
 
     try:
+        while action:
+            acitve_action = get_action(action="import_edi_invoices")
+            if not acitve_action.in_progress:
+                action = False
+
         start_all = time.time()
 
         # On initialise l'action comme en cours
-        action.in_progress = True
-        action.save()
+        acitve_action.in_progress = True
+        acitve_action.save()
         result = group(
             *[
                 celery_app.signature(
@@ -451,23 +459,28 @@ def import_launch_bbgr(function_name: str, user_pk: int):
 
     finally:
         # On remet l'action en cours à False, après l'execution
-        action.in_progress = False
-        action.save()
+        acitve_action.in_progress = False
+        acitve_action.save()
 
 
 def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: User):
     """Main pour lancement de l'import des abonnements"""
 
-    # Si l'action n'existe pas on la créée
-    action = get_action(action="import_edi_invoices")
+    acitve_action = None
     result = ""
+    action = True
 
     try:
+        while action:
+            acitve_action = get_action(action="import_edi_invoices")
+            if not acitve_action.in_progress:
+                action = False
+
         start_all = time.time()
 
         # On initialise l'action comme en cours
-        action.in_progress = True
-        action.save()
+        acitve_action.in_progress = True
+        acitve_action.save()
         result = group(
             *[
                 celery_app.signature(
@@ -493,8 +506,8 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
 
     finally:
         # On remet l'action en cours à False, après l'execution
-        action.in_progress = False
-        action.save()
+        acitve_action.in_progress = False
+        acitve_action.save()
 
     if isinstance(result, (list,)) and result:
         result = result[0]
