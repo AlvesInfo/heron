@@ -13,6 +13,9 @@ from apps.invoices.views import (
     AxesDetailsUpdate,
     axes_details_delete,
     axes_details_export_list,
+    # Insertion et Génération des factures en PDF
+    generate_invoices_insertions,
+    generate_pdf_invoice,
 )
 
 app_name = "apps.invoices"
@@ -51,5 +54,14 @@ urlpatterns = (
             axes_details_export_list,
             name="axes_details_export_list",
         ),
+    ]
+    # Insertion et Génération des factures en PDF
+    + [
+        path(
+            "generate_invoices_insertions/",
+            generate_invoices_insertions,
+            name="generate_invoices_insertions",
+        ),
+        path("generate_pdf_invoice/", generate_pdf_invoice, name="generate_pdf_invoice"),
     ]
 )
