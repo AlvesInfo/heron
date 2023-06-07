@@ -70,7 +70,8 @@ SQL_COMMON_DETAILS = sql.SQL(
         "invoice_date",
         "final",
         "purchase_invoice",
-        "sale_invoice"
+        "sale_invoice",
+        "invoice_year"
     )
     (
         select 
@@ -122,7 +123,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             "ee"."invoice_date",
             false as "final",
             "purchase_invoice",
-            "sale_invoice"
+            "sale_invoice",
+            "ee"."invoice_year"
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
                 on "aa"."reference" = "ee"."reference_article" 
