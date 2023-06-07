@@ -300,7 +300,7 @@ def invoices_insertion(
     :return: to_print
     """
 
-    # On update dabord les cct puis les centre et enseignes
+    # On update dabord les cct puis les centrales et enseignes
     update_cct_edi_import()
 
     # Pré-contrôle des données avant insertion
