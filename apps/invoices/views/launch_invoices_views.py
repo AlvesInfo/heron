@@ -58,7 +58,8 @@ def generate_pdf_invoice(request):
     insertion, pdf_invoices = get_invoices_in_progress()
     titre_table = "Génération des factures de ventes en pdf"
     sales_invoices_exists = SaleInvoice.objects.filter(
-        final=False, printed=False, type_x3__in=(1, 2)
+        # final=False, printed=False, type_x3__in=(1, 2)
+        type_x3__in=(1, 2)
     ).exists()
 
     if request.method == "POST" and not sales_invoices_exists:
