@@ -399,7 +399,7 @@ def invoices_insertion(
 if __name__ == "__main__":
     with connection.cursor() as cur, transaction.atomic():
         utilisateur = User.objects.get(last_name="ALVES")
-        to_print_ = invoices_insertion(cur, utilisateur, pendulum.date(2023, 4, 30))
+        to_print_ = invoices_insertion(cur, utilisateur, pendulum.date(2023, 5, 30))
 
         if to_print_:
             raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
