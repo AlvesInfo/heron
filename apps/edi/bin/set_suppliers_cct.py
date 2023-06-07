@@ -44,53 +44,71 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                 from (
                     select 
                         "third_party_num" 
-                    from "edi_ediimport" ee 
+                    from "edi_ediimport" "ee" 
                     union all
                     select 
                         "third_party_num"
                     from "invoices_invoice" sii 
                     {force_select}
-                ) req 
+                ) "req" 
                 group by "third_party_num"
             ),
             "existing" as (
                 select 
-                    ac."cct", 
-                    ac."name", 
-                    ac."short_name", 
-                    ac."uuid_identification", 
-                    bs."cct_uuid_identification", 
-                    bs."third_party_num", 
-                    bs."cct_identifier"
-                from "accountancy_cctsage" ac 
-                join "book_suppliercct" bs
-                on ac."uuid_identification" = bs."cct_uuid_identification"
-                where bs."cct_uuid_identification" is not null
+                    "ac"."cct", 
+                    "ac"."name", 
+                    "ac"."short_name", 
+                    "ac"."uuid_identification", 
+                    "bs"."cct_uuid_identification", 
+                    "bs"."third_party_num", 
+                    "bs"."cct_identifier"
+                from "accountancy_cctsage" "ac" 
+                join "book_suppliercct" "bs"
+                on "ac"."uuid_identification" = "bs"."cct_uuid_identification"
+                where "bs"."cct_uuid_identification" is not null
             ),
-            "alls" as (
+            "complete" as (
                 select 
                     "cct", 
                     "third_party_num", 
-                    ac."uuid_identification" as "cct_uuid_identification"
-                from "suppliers" ss, "accountancy_cctsage" ac
+                    "ac"."uuid_identification" as "cct_uuid_identification"
+                from "suppliers" "ss", "accountancy_cctsage" "ac"
+                union all
+                select 
+                    "ccm"."cct",
+                    "third_party_num", 
+                    "aa"."uuid_identification" as "cct_uuid_identification"
+                from "centers_clients_maison" "ccm"  
+                join "accountancy_cctsage" "aa"
+                on "ccm"."cct" = "aa"."cct"            
+            ),
+            "alls" as (              
+                select 
+                    "cct", 
+                    "third_party_num", 
+                    "cct_uuid_identification"
+                from "complete"
+                group by "cct", 
+                         "third_party_num", 
+                         "cct_uuid_identification"
             ),
             "to_create" as (
                 select 
                     now() as "created_at",
                     now() as "modified_at",
                     "cct" || '|'as "cct_identifier",
-                    au."uuid_identification" as "created_by",
+                    "au"."uuid_identification" as "created_by",
                     "third_party_num",
                     "cct_uuid_identification",
                     "cct"
-                from "alls" aa, "auth_user" au
+                from "alls" "aa", "auth_user" "au"
                 where not exists (
                     select 1 
-                    from "existing" ex 
-                    where ex."cct" = aa."cct" 
-                    and ex."third_party_num" = aa."third_party_num"
+                    from "existing" "ex" 
+                    where "ex"."cct" = "aa"."cct" 
+                    and "ex"."third_party_num" = "aa"."third_party_num"
                 )
-                and au."username" = 'automate'
+                and "au"."username" = 'automate'
             )
             insert into "book_suppliercct"
             (
@@ -108,12 +126,12 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                 "created_by",
                 "third_party_num",
                 "cct_uuid_identification"
-            from "to_create" tc
+            from "to_create" "tc"
             where exists (
                     select 1 
-                    from "centers_clients_maison" cc 
-                    where cc."cct" = tc."cct"
-                    and closing_date isnull
+                    from "centers_clients_maison" "cc" 
+                    where "cc"."cct" = "tc"."cct"
+                    and "closing_date" isnull
                 )
               and not exists (
                     select 1 
@@ -122,8 +140,8 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                             "third_party_num", 
                             unnest(string_to_array("cct_identifier", '|')) as "cct" 
                         from "book_suppliercct"
-                    ) bs where bs."cct" = tc."cct" 
-                    and bs."third_party_num" = tc."third_party_num"
+                    ) "bs" where "bs"."cct" = "tc"."cct" 
+                    and "bs"."third_party_num" = "tc"."third_party_num"
                 )
             {condition}
             """
