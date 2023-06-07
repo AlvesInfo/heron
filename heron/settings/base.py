@@ -340,7 +340,3 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 60 * 60
-CELERY_IMPORTS = [
-    'edi.tasks',
-    'invoices.tasks',
-]
