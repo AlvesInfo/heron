@@ -187,7 +187,7 @@ def invoices_pdf_generation(cct: Maison.cct):
             .order_by("big_category_ranking")
         )
 
-        # On boucle sur les différents type de factures
+        # On boucle sur le différent type de factures
         for sale in sales_incoices_list:
             cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
 
