@@ -86,72 +86,6 @@ def get_invoices_in_progress():
     return insertion, pdf_invoices
 
 
-def celery_pdf_launch(user_pk: int):
-    """
-    Main pour lancement de la génération des pdf avec Celery
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
-    """
-
-    active_action = None
-    action = True
-
-    try:
-        tasks_list = []
-
-        while action:
-            active_action = get_action(action="generate_invoices")
-
-            if not active_action.in_progress:
-                action = False
-
-        print("ACTION")
-        # On initialise l'action comme en cours
-        active_action.in_progress = True
-        active_action.save()
-        start_all = time.time()
-
-        # On boucle sur les factures des cct pour générer les pdf
-        cct_sales_list = (
-            # SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
-            SaleInvoice.objects.filter(type_x3__in=(1, 2))
-            .values("cct")
-            .annotate(dcount=Count("cct"))
-            .values_list("cct", flat=True)
-            .order_by("cct")[:10]
-        )
-
-        from multiprocessing import Pool
-
-        with Pool(8) as pool:
-            pool.map(
-                invoices_pdf_generation,
-                [{"cct": cct, "user_pk": user_pk} for cct in cct_sales_list],
-            )
-
-        # for cct in cct_sales_list:
-        #     tasks_list.append(
-        #         celery_app.signature(
-        #             "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
-        #         )
-        #     )
-        # print(tasks_list)
-        # result = group(*tasks_list)().get(7200)
-        # print("result : ", result)
-        # LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
-        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
-
-    except Exception as error:
-        print("Error : ", error)
-        LOGGER_INVOICES.exception(
-            "Erreur détectée dans apps.invoices.bin.generate_invoices_pdf.celery_pdf_launch()"
-        )
-
-    finally:
-        # On remet l'action en cours à False, après l'execution
-        active_action.in_progress = False
-        active_action.save()
-
-
 @transaction.atomic
 def invoices_pdf_generation(cct: Maison.cct):
     """
@@ -252,3 +186,66 @@ def invoices_pdf_generation(cct: Maison.cct):
     to_print = f"Generate pdf: {file_num}_full.pdf\n"
 
     return trace, to_print
+
+
+def celery_pdf_launch(user_pk: int):
+    """
+    Main pour lancement de la génération des pdf avec Celery
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    """
+
+    active_action = None
+    action = True
+
+    try:
+        tasks_list = []
+
+        while action:
+            active_action = get_action(action="generate_invoices")
+
+            if not active_action.in_progress:
+                action = False
+
+        print("ACTION")
+        # On initialise l'action comme en cours
+        active_action.in_progress = True
+        active_action.save()
+        start_all = time.time()
+
+        # On boucle sur les factures des cct pour générer les pdf
+        cct_sales_list = (
+            # SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
+            SaleInvoice.objects.filter(type_x3__in=(1, 2))
+            .values("cct")
+            .annotate(dcount=Count("cct"))
+            .values_list("cct", flat=True)
+            .order_by("cct")[:10]
+        )
+
+        from multiprocessing import Pool
+
+        with Pool(8) as pool:
+            pool.map(invoices_pdf_generation, [cct for cct in cct_sales_list])
+
+        # for cct in cct_sales_list:
+        #     tasks_list.append(
+        #         celery_app.signature(
+        #             "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
+        #         )
+        #     )
+        # print(tasks_list)
+        # result = group(*tasks_list)().get(7200)
+        # print("result : ", result)
+        # LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
+
+    except Exception as error:
+        print("Error : ", error)
+        LOGGER_INVOICES.exception(
+            "Erreur détectée dans apps.invoices.bin.generate_invoices_pdf.celery_pdf_launch()"
+        )
+
+    finally:
+        # On remet l'action en cours à False, après l'execution
+        active_action.in_progress = False
+        active_action.save()
