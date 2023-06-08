@@ -117,7 +117,7 @@ def celery_pdf_launch(user_pk: int):
             .values("cct")
             .annotate(dcount=Count("cct"))
             .values_list("cct", flat=True)
-            .order_by("cct")
+            .order_by("cct")[:10]
         )
 
         for cct in cct_sales_list:
