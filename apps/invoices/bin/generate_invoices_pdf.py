@@ -120,16 +120,25 @@ def celery_pdf_launch(user_pk: int):
             .order_by("cct")[:10]
         )
 
-        for cct in cct_sales_list:
-            tasks_list.append(
-                celery_app.signature(
-                    "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
-                )
+        from multiprocessing import Pool
+
+        with Pool(8) as pool:
+            pool.map(
+                invoices_pdf_generation,
+                [{"cct": cct, "user_pk": user_pk} for cct in cct_sales_list],
             )
-        print(tasks_list)
-        result = group(*tasks_list)().get(7200)
-        print("result : ", result)
-        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+
+        # for cct in cct_sales_list:
+        #     tasks_list.append(
+        #         celery_app.signature(
+        #             "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
+        #         )
+        #     )
+        # print(tasks_list)
+        # result = group(*tasks_list)().get(7200)
+        # print("result : ", result)
+        # LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
@@ -158,6 +167,8 @@ def invoices_pdf_generation(cct: Maison.cct):
         flow_name="pdf_invoices",
         comment="",
     )
+    files_list = []
+    file_num = get_generic_cct_num(cct)
 
     try:
         generation_pdf_dict = {
@@ -171,9 +182,6 @@ def invoices_pdf_generation(cct: Maison.cct):
             "prestation": invoice_prestation_pdf,
             "divers": invoice_various_pdf,
         }
-
-        files_list = []
-        file_num = get_generic_cct_num(cct)
         file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
 
         files_list.append(file_path)
@@ -241,6 +249,6 @@ def invoices_pdf_generation(cct: Maison.cct):
 
         trace.save()
 
-    to_print = "Grenerate pdf\n"
+    to_print = f"Generate pdf: {file_num}_full.pdf\n"
 
     return trace, to_print
