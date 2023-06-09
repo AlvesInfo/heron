@@ -37,6 +37,9 @@ class FillesForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["legal_notice"].widget.attrs["is"] = "textarea-autogrow"
         self.fields["footer"].widget.attrs["is"] = "textarea-autogrow"
+        self.fields['comment'].required = False
+        self.fields['legal_notice'].required = False
+        self.fields['footer'].required = False
 
     class Meta:
         model = ChildCenterPurchase
@@ -66,6 +69,8 @@ class SignboardForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["message"].widget.attrs["is"] = "textarea-autogrow"
+        self.fields['comment'].required = False
+        self.fields['message'].required = False
 
     class Meta:
         model = Signboard
