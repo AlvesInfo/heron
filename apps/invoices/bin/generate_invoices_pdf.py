@@ -117,7 +117,7 @@ def celery_pdf_launch(user_pk: int):
             .values("cct")
             .annotate(dcount=Count("cct"))
             .values_list("cct", flat=True)
-            .order_by("cct")[:10]
+            .order_by("cct")[:20]
         )
 
         for cct in cct_sales_list:
@@ -129,7 +129,7 @@ def celery_pdf_launch(user_pk: int):
         print(tasks_list)
         group(*tasks_list)().get(7200)
         # print("result : ", result)
-        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
