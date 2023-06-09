@@ -32,7 +32,7 @@ django.setup()
 
 from django.db.models import Count
 from django.conf import settings
-from django.db import transaction
+from django.db import connection
 from pdfrw import PdfReader, PdfWriter
 from celery import group
 from django_celery_results.models import TaskResult
@@ -122,51 +122,83 @@ def invoices_pdf_generation(cct: Maison.cct):
         # On génère le pdf du sommaire
         summary_invoice_pdf(cct, file_path)
 
-        sales_incoices_list = (
-            SaleInvoice.objects.filter(cct=cct, printed=False)
-            .values_list("cct", "uuid_identification", "big_category_slug_name", "invoice_number")
-            .order_by("big_category_ranking")
-        )
+        # sales_incoices_list = (
+        #     SaleInvoice.objects.filter(cct=cct, printed=False)
+        #     .values_list("cct", "uuid_identification", "big_category_slug_name", "invoice_number")
+        #     .order_by("big_category_ranking")
+        # )
+        with connection.cursor() as cursor:
+            sql_invoices_list = """
+            SELECT 
+              "ee"."cct", 
+              "ee"."uuid_identification", 
+              "ee"."big_category_slug_name", 
+              "ee"."invoice_number" 
+            FROM 
+              "invoices_saleinvoice" "ee"
+            WHERE "ee"."cct" = AF0514 AND NOT "ee"."printed" 
+            ORDER BY "ee"."big_category_ranking" ASC
+            """
+            cursor.exececute()
+            sales_incoices_list = cursor.fetchall()
 
-        # On boucle sur le différent type de factures
-        for sale in sales_incoices_list:
-            cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
+            # On boucle sur le différent type de factures
+            for sale in sales_incoices_list:
+                cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
 
-            generation_pdf = generation_pdf_dict.get(big_category_slug_name)
+                generation_pdf = generation_pdf_dict.get(big_category_slug_name)
 
-            if generation_pdf:
-                file_path = (
-                    Path(settings.SALES_INVOICES_FILES_DIR)
-                    / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
-                )
-                files_list.append(file_path)
+                if generation_pdf:
+                    file_path = (
+                        Path(settings.SALES_INVOICES_FILES_DIR)
+                        / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
+                    )
+                    files_list.append(file_path)
 
-                # On génère le pdf des factures
-                generation_pdf(uuid_identification, file_path)
+                    # On génère le pdf des factures
+                    generation_pdf(uuid_identification, file_path)
 
-                # On pose le numéro de facture dans la table des ventes
-                SaleInvoice.objects.filter(invoice_number=invoice_number).update(
-                    invoice_file=str(file_path.name)
-                )
+                    # On pose le numéro de facture dans la table des ventes
+                    # SaleInvoice.objects.filter(invoice_number=invoice_number).update(
+                    #     invoice_file=str(file_path.name)
+                    # )
+                    sql_update_file = """
+                    update "invoices_saleinvoice"
+                    set "invoice_file" = %(file_name)s
+                    where "invoice_number" = %(invoice_number)s
+                    """
+                    cursor.exececute(
+                        sql_update_file,
+                        {"invoice_number": invoice_number, "file_name": str(file_path.name)},
+                    )
 
-        # On fusionne les pdf
-        writer = PdfWriter()
+            # On fusionne les pdf
+            writer = PdfWriter()
 
-        # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
-        for pdf_file in files_list:
-            reader = PdfReader(pdf_file)
-            for page in reader.pages:
-                writer.addpage(page)
+            # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
+            for pdf_file in files_list:
+                reader = PdfReader(pdf_file)
+                for page in reader.pages:
+                    writer.addpage(page)
 
-        # On enregistre le fichier PDF fusionné
-        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
-        print(f"{file_num}_full.pdf")
-        writer.write(file_path)
-        # On pose le numéro du récap de facturation dans la table des ventes
-        SaleInvoice.objects.filter(cct=cct, printed=False).update(
-            global_invoice_file=str(file_path.name)
-        )
+            # On enregistre le fichier PDF fusionné
+            file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
+            print(f"{file_num}_full.pdf")
+            writer.write(file_path)
+            # On pose le numéro du récap de facturation dans la table des ventes
+            # SaleInvoice.objects.filter(cct=cct, printed=False).update(
+            #     global_invoice_file=str(file_path.name)
+            # )
 
+            sql_update_full = """
+            update "invoices_saleinvoice"
+            set "global_invoice_file" = %(file_name)s
+            where "cct" = %(cct)s and not "printed"
+            """
+            cursor.exececute(
+                sql_update_full,
+                {"cct": cct, "file_name": str(file_path.name)},
+            )
         trace.file_name = f"Generate pdf : {file_num}_full.pdf"
 
     except Exception as except_error:
