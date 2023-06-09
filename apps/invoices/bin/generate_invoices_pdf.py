@@ -226,6 +226,10 @@ def invoices_pdf_generation(cct: Maison.cct):
             global_invoice_file=str(file_path.name)
         )
 
+        # On supprime les fichiers intermédiaires
+        for file in files_list:
+            file.unlink()
+
         trace.file_name = f"Generate pdf : {file_num}_full.pdf"
 
     except Exception as except_error:
