@@ -86,7 +86,6 @@ def get_invoices_in_progress():
     return insertion, pdf_invoices
 
 
-@transaction.atomic
 def invoices_pdf_generation(cct: Maison.cct):
     """
     Génération des pdf de factures de ventes
