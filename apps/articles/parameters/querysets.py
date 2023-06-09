@@ -51,19 +51,18 @@ articles_with_account_queryset = (
     )
 )
 
-articles_accounts = Article.objects.annotate(
-    code_center=F("account_article__child_center"),
-    vat=F("account_article__vat")
-).values(
-    "third_party_num",
-    "reference",
-    "code_center",
-    "vat"
-).filter(
-    third_party_num=OuterRef("third_party_num"),
-    reference=OuterRef("reference_article"),
-    code_center=OuterRef("code_center"),
-    vat=OuterRef("vat"),
+articles_accounts = (
+    Article.objects.annotate(
+        code_center=F("account_article__child_center"), vat=F("account_article__vat")
+    )
+    .exclude(vat__isnull=True)
+    .values("third_party_num", "reference", "code_center", "vat")
+    .filter(
+        third_party_num=OuterRef("third_party_num"),
+        reference=OuterRef("reference_article"),
+        code_center=OuterRef("code_center"),
+        vat=OuterRef("vat"),
+    )
 )
 
 articles_without_account_queryset = (
@@ -75,14 +74,11 @@ articles_without_account_queryset = (
     .annotate(
         without=Exists(
             Article.objects.annotate(
-                code_center=F("account_article__child_center"),
-                vat=F("account_article__vat")
-            ).values(
-                "third_party_num",
-                "reference",
-                "code_center",
-                "vat"
-            ).filter(
+                code_center=F("account_article__child_center"), vat=F("account_article__vat")
+            )
+            .exclude(vat__isnull=True)
+            .values("third_party_num", "reference", "code_center", "vat")
+            .filter(
                 third_party_num=OuterRef("third_party_num"),
                 reference=OuterRef("reference_article"),
                 code_center=OuterRef("code_center"),

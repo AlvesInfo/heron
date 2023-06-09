@@ -26,7 +26,7 @@ def articles_without_account_list(request):
     set_update_articles_confict_account()
 
     limit = 200
-
+    print(str(articles_without_account_queryset.query))
     paginator = Paginator(articles_without_account_queryset, limit)
     page = request.GET.get("page")
 
