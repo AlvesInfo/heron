@@ -13,7 +13,10 @@ from apps.articles.excel_outputs.output_excel_articles_without_account_list impo
     excel_liste_articles_without_account,
 )
 from apps.articles.parameters.querysets import articles_without_account_queryset
-from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
+from apps.centers_purchasing.bin.update_account_article import (
+    set_update_articles_confict_account,
+    update_axes_edi,
+)
 
 
 # ECRANS DES ARTICLES SANS COMPTES COMPTABLES EN ACHATS ET VENTES ==================================
@@ -24,6 +27,9 @@ def articles_without_account_list(request):
 
     # On met à jour les comptes comptable des articles
     set_update_articles_confict_account()
+
+    # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
+    update_axes_edi()
 
     limit = 200
     print(str(articles_without_account_queryset.query))

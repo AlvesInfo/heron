@@ -320,19 +320,25 @@ SQL_PURCHASES_DETAILS = sql.SQL(
             "pro"."section" as "axe_pro",
             "rfa"."section" as "axe_rfa",
             "pys"."section" as "axe_pys",
-            "vat",
+            "ee"."vat",
             "vat_rate",
             "ee"."vat_regime",
             "pc"."slug_name" as "big_category",
             "ps"."name" as "sub_category",
             "ee"."created_by",
             "ee"."modified_by",
-            "unit_weight",
-            -- TODO: GERER ICI LES COMPTES X3
-            '' as "account",
+            "ee"."unit_weight",
+            "ac"."purchase_account" as "account",
             "flow_name",
             "bi_id"
          from "edi_ediimport" "ee" 
+         join "articles_article" "aa" 
+           on "ee"."third_party_num" = "aa"."third_party_num" 
+          and "ee"."reference_article" = "aa"."reference" 
+         left join "articles_articleaccount" "ac"
+           on "aa"."uuid_identification" = "ac"."article"
+          and "ee"."code_center" = "ac"."child_center"
+          and "ee"."vat" = "ac"."vat"
          join "invoices_invoice" "ii"
            on "ii"."third_party_num" = "ii"."third_party_num"
           and "ii"."invoice_number" = "ee"."invoice_number"
@@ -891,7 +897,7 @@ SQL_SALES_DETAILS = sql.SQL(
                 "eee"."created_by",
                 "eee"."modified_by",
                 "eee"."unit_weight",
-                '' as "account",
+                "ac"."sale_account" as "account",
                 "eee"."devise",
                 "ccm"."cct", 
                 "icc"."uuid_identification" as "centers",
@@ -908,7 +914,14 @@ SQL_SALES_DETAILS = sql.SQL(
                     else ''
                 end as "formation",
                 "ccm"."type_x3"
-            from "edi_ediimport" "eee"     
+            from "edi_ediimport" "eee"    
+            join "articles_article" "aa" 
+              on "eee"."third_party_num" = "aa"."third_party_num" 
+             and "eee"."reference_article" = "aa"."reference" 
+            left join "articles_articleaccount" "ac"
+              on "aa"."uuid_identification" = "ac"."article"
+             and "eee"."code_center" = "ac"."child_center"
+             and "eee"."vat" = "ac"."vat" 
             join "amounts" "amo"
             on "amo"."id" = "eee"."id"
             left join "centers_clients_maison" "ccm" 
@@ -1000,6 +1013,7 @@ SQL_SALES_DETAILS = sql.SQL(
         and "isi"."devise" = "det"."devise"
         and "isi"."formation" = "det"."formation"
         and "isi"."type_x3" = "det"."type_x3"
+        where not "isi"."final" and not "isi"."export"
      )
     on conflict do nothing
     """

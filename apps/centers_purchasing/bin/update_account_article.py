@@ -67,6 +67,50 @@ def delete_orphans_accounts():
         cursor.execute(sql_delete_not_exists_account)
 
 
+def update_axes_edi():
+    """Mise à jour des articles de la table edi_ediimport avec les axes de la table articles"""
+    sql_update_edi_articles = """
+    update "edi_ediimport" "edi"
+    set "axe_bu" = "req"."axe_bu",
+        "axe_prj" = "req"."axe_prj",
+        "axe_pro" = "req"."axe_pro",
+        "axe_pys" = "req"."axe_pys",
+        "axe_rfa" = "req"."axe_rfa",
+        "uuid_big_category" = "req"."uuid_big_category",
+        "uuid_sub_big_category" = "req"."uuid_sub_big_category"
+    from (
+        select 
+            "ee"."id",
+            "aa"."axe_bu",
+            "aa"."axe_prj",
+            "aa"."axe_pro",
+            "aa"."axe_pys",
+            "aa"."axe_rfa",
+            "aa"."uuid_big_category",
+            "aa"."uuid_sub_big_category"
+        from "edi_ediimport" "ee" 
+        left join "articles_article" "aa" 
+        on "ee"."third_party_num" = "aa"."third_party_num" 
+        and "ee"."reference_article" = "aa"."reference" 
+        where "ee"."axe_bu" != "aa"."axe_bu"
+        or "ee"."axe_prj" != "aa"."axe_prj"
+        or "ee"."axe_pro" != "aa"."axe_pro"
+        or "ee"."axe_pys" != "aa"."axe_pys"
+        or "ee"."axe_rfa" != "aa"."axe_rfa"
+        or "ee"."uuid_big_category" != "aa"."uuid_big_category"
+        or (
+            coalesce("ee"."uuid_sub_big_category"::varchar, '') 
+            != 
+            coalesce("aa"."uuid_sub_big_category"::varchar, '')
+        )
+    ) "req" 
+    where "edi"."id" = "req"."id"
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_update_edi_articles)
+
+
 def set_update_articles_account(article_uuid: uuid.UUID = None):
     """
     Update global des comptes achat vente pour tous les articles

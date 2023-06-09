@@ -58,6 +58,7 @@ from apps.invoices.sql_files.sql_invoices_insertions import (
 from apps.invoices.bin.columns import COLS_PURCHASE_DICT, COL_SALES_DICT
 from apps.invoices.bin.invoives_nums import get_purchase_num, get_invoice_num
 from apps.invoices.loops.mise_a_jour_loop import process_update
+from apps.centers_purchasing.bin.update_account_article import update_axes_edi
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -337,6 +338,9 @@ def invoices_insertion(
         )
 
         cursor.execute('delete from invoices_saleinvoice where ("final" isnull or "final" = false)')
+
+        # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
+        update_axes_edi()
 
         # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
         set_common_details(cursor)
