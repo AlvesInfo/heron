@@ -139,29 +139,30 @@ def invoices_pdf_generation(cct: Maison.cct):
             WHERE "ee"."cct" = AF0514 AND NOT "ee"."printed" 
             ORDER BY "ee"."big_category_ranking" ASC
             """
-            cursor.exececute()
+            cursor.exececute(sql_invoices_list)
             sales_incoices_list = cursor.fetchall()
 
-            # On boucle sur le différent type de factures
-            for sale in sales_incoices_list:
-                cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
+        # On boucle sur le différent type de factures
+        for sale in sales_incoices_list:
+            cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
 
-                generation_pdf = generation_pdf_dict.get(big_category_slug_name)
+            generation_pdf = generation_pdf_dict.get(big_category_slug_name)
 
-                if generation_pdf:
-                    file_path = (
-                        Path(settings.SALES_INVOICES_FILES_DIR)
-                        / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
-                    )
-                    files_list.append(file_path)
+            if generation_pdf:
+                file_path = (
+                    Path(settings.SALES_INVOICES_FILES_DIR)
+                    / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
+                )
+                files_list.append(file_path)
 
-                    # On génère le pdf des factures
-                    generation_pdf(uuid_identification, file_path)
+                # On génère le pdf des factures
+                generation_pdf(uuid_identification, file_path)
 
-                    # On pose le numéro de facture dans la table des ventes
-                    # SaleInvoice.objects.filter(invoice_number=invoice_number).update(
-                    #     invoice_file=str(file_path.name)
-                    # )
+                # On pose le numéro de facture dans la table des ventes
+                # SaleInvoice.objects.filter(invoice_number=invoice_number).update(
+                #     invoice_file=str(file_path.name)
+                # )
+                with connection.cursor() as cursor:
                     sql_update_file = """
                     update "invoices_saleinvoice"
                     set "invoice_file" = %(file_name)s
@@ -172,24 +173,24 @@ def invoices_pdf_generation(cct: Maison.cct):
                         {"invoice_number": invoice_number, "file_name": str(file_path.name)},
                     )
 
-            # On fusionne les pdf
-            writer = PdfWriter()
+        # On fusionne les pdf
+        writer = PdfWriter()
 
-            # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
-            for pdf_file in files_list:
-                reader = PdfReader(pdf_file)
-                for page in reader.pages:
-                    writer.addpage(page)
+        # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
+        for pdf_file in files_list:
+            reader = PdfReader(pdf_file)
+            for page in reader.pages:
+                writer.addpage(page)
 
-            # On enregistre le fichier PDF fusionné
-            file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
-            print(f"{file_num}_full.pdf")
-            writer.write(file_path)
-            # On pose le numéro du récap de facturation dans la table des ventes
-            # SaleInvoice.objects.filter(cct=cct, printed=False).update(
-            #     global_invoice_file=str(file_path.name)
-            # )
-
+        # On enregistre le fichier PDF fusionné
+        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
+        print(f"{file_num}_full.pdf")
+        writer.write(file_path)
+        # On pose le numéro du récap de facturation dans la table des ventes
+        # SaleInvoice.objects.filter(cct=cct, printed=False).update(
+        #     global_invoice_file=str(file_path.name)
+        # )
+        with connection.cursor() as cursor:
             sql_update_full = """
             update "invoices_saleinvoice"
             set "global_invoice_file" = %(file_name)s
@@ -252,11 +253,12 @@ def celery_pdf_launch(user_pk: int):
             .values_list("cct", flat=True)
             .order_by("cct")[:10]
         )
+        cct_list = [cct for cct in cct_sales_list]
 
         from multiprocessing import Pool
 
         with Pool(8) as pool:
-            pool.map(invoices_pdf_generation, [cct for cct in cct_sales_list])
+            pool.map(invoices_pdf_generation, cct_list)
 
         # for cct in cct_sales_list:
         #     tasks_list.append(
