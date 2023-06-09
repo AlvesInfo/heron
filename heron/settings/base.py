@@ -191,6 +191,9 @@ DATABASES = {
         "HOST": HOST_DATABASE,
         "PORT": PORT_DATABASE,
         "client_encoding": "UTF8",
+        'OPTIONS': {
+             'sslmode': 'disable',
+         },
     },
     "heron": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
