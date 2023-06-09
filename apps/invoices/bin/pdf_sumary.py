@@ -30,7 +30,9 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
     :param pdf_path: Path du fichier pdf
     :return: None
     """
-    sale = SaleInvoice.objects.filter(cct=cct).order_by("cct", "big_category_ranking")
+    sale = SaleInvoice.objects.filter(
+        cct=cct, final=False, printed=False, type_x3__in=(1, 2)
+    ).order_by("cct", "big_category_ranking")
     context = {
         "invoices": sale,
         "logo": str(sale[0].signboard.logo_signboard).replace("logos/", ""),
@@ -42,7 +44,7 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
     html.write_pdf(pdf_path, font_config=font_config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cct_cct = "AF0514"
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct_cct}_summary.pdf"
     summary_invoice_pdf(cct_cct, file_path)

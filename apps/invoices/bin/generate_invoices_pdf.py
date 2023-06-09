@@ -181,7 +181,7 @@ def invoices_pdf_generation(cct: Maison.cct):
         summary_invoice_pdf(cct, file_path)
 
         sales_incoices_list = (
-            SaleInvoice.objects.filter(cct=cct, printed=False)
+            SaleInvoice.objects.filter(cct=cct, final=False, printed=False, type_x3__in=(1, 2))
             .values_list("cct", "uuid_identification", "big_category_slug_name", "invoice_number")
             .order_by("big_category_ranking")
         )
@@ -221,7 +221,7 @@ def invoices_pdf_generation(cct: Maison.cct):
         print(f"{file_num}_full.pdf")
         writer.write(file_path)
         # On pose le numéro du récap de facturation dans la table des ventes
-        SaleInvoice.objects.filter(cct=cct, printed=False).update(
+        SaleInvoice.objects.filter(cct=cct, final=False, printed=False, type_x3__in=(1, 2)).update(
             global_invoice_file=str(file_path.name)
         )
 
