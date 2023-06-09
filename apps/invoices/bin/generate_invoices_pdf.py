@@ -32,7 +32,7 @@ django.setup()
 
 from django.db.models import Count
 from django.conf import settings
-from django.db import connection
+from django.db import transaction
 from pdfrw import PdfReader, PdfWriter
 from celery import group
 from django_celery_results.models import TaskResult
@@ -86,140 +86,6 @@ def get_invoices_in_progress():
     return insertion, pdf_invoices
 
 
-def invoices_pdf_generation(cct: Maison.cct):
-    """
-    Génération des pdf de factures de ventes
-    :param cct: cct de la facture pdf à générer
-    :return:
-    """
-    error = False
-    trace = get_trace(
-        trace_name="Generate pdf invoices",
-        file_name="Generate pdf",
-        application_name="invoices_pdf_generation",
-        flow_name="pdf_invoices",
-        comment="",
-    )
-    files_list = []
-    file_num = get_generic_cct_num(cct)
-
-    try:
-        generation_pdf_dict = {
-            "marchandises": invoice_marchandise_pdf,
-            "rfa": rfa_invoice_pdf,
-            "redevances": invoice_royalties_pdf,
-            "redevances-de-publicite": invoice_publicity_pdf,
-            "formation": invoice_formation_pdf,
-            "personnel": invoice_staff_pdf,
-            "materiel": invoice_material_pdf,
-            "prestation": invoice_prestation_pdf,
-            "divers": invoice_various_pdf,
-        }
-        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
-
-        files_list.append(file_path)
-
-        # On génère le pdf du sommaire
-        summary_invoice_pdf(cct, file_path)
-
-        # sales_incoices_list = (
-        #     SaleInvoice.objects.filter(cct=cct, printed=False)
-        #     .values_list("cct", "uuid_identification", "big_category_slug_name", "invoice_number")
-        #     .order_by("big_category_ranking")
-        # )
-        with connection.cursor() as cursor:
-            sql_invoices_list = """
-            SELECT 
-              "ee"."cct", 
-              "ee"."uuid_identification", 
-              "ee"."big_category_slug_name", 
-              "ee"."invoice_number" 
-            FROM 
-              "invoices_saleinvoice" "ee"
-            WHERE "ee"."cct" = AF0514 AND NOT "ee"."printed" 
-            ORDER BY "ee"."big_category_ranking" ASC
-            """
-            cursor.exececute(sql_invoices_list)
-            sales_incoices_list = cursor.fetchall()
-
-        # On boucle sur le différent type de factures
-        for sale in sales_incoices_list:
-            cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
-
-            generation_pdf = generation_pdf_dict.get(big_category_slug_name)
-
-            if generation_pdf:
-                file_path = (
-                    Path(settings.SALES_INVOICES_FILES_DIR)
-                    / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
-                )
-                files_list.append(file_path)
-
-                # On génère le pdf des factures
-                generation_pdf(uuid_identification, file_path)
-
-                # On pose le numéro de facture dans la table des ventes
-                # SaleInvoice.objects.filter(invoice_number=invoice_number).update(
-                #     invoice_file=str(file_path.name)
-                # )
-                with connection.cursor() as cursor:
-                    sql_update_file = """
-                    update "invoices_saleinvoice"
-                    set "invoice_file" = %(file_name)s
-                    where "invoice_number" = %(invoice_number)s
-                    """
-                    cursor.exececute(
-                        sql_update_file,
-                        {"invoice_number": invoice_number, "file_name": str(file_path.name)},
-                    )
-
-        # On fusionne les pdf
-        writer = PdfWriter()
-
-        # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
-        for pdf_file in files_list:
-            reader = PdfReader(pdf_file)
-            for page in reader.pages:
-                writer.addpage(page)
-
-        # On enregistre le fichier PDF fusionné
-        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
-        print(f"{file_num}_full.pdf")
-        writer.write(file_path)
-        # On pose le numéro du récap de facturation dans la table des ventes
-        # SaleInvoice.objects.filter(cct=cct, printed=False).update(
-        #     global_invoice_file=str(file_path.name)
-        # )
-        with connection.cursor() as cursor:
-            sql_update_full = """
-            update "invoices_saleinvoice"
-            set "global_invoice_file" = %(file_name)s
-            where "cct" = %(cct)s and not "printed"
-            """
-            cursor.exececute(
-                sql_update_full,
-                {"cct": cct, "file_name": str(file_path.name)},
-            )
-        trace.file_name = f"Generate pdf : {file_num}_full.pdf"
-
-    except Exception as except_error:
-        error = True
-        LOGGER_INVOICES.exception(f"Exception Générale : {except_error!r}")
-
-    finally:
-        if error:
-            trace.errors = True
-            trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
-
-        trace.save()
-
-    to_print = f"Generate pdf: {file_num}_full.pdf\n"
-
-    return trace, to_print
-
-
 def celery_pdf_launch(user_pk: int):
     """
     Main pour lancement de la génération des pdf avec Celery
@@ -253,24 +119,17 @@ def celery_pdf_launch(user_pk: int):
             .values_list("cct", flat=True)
             .order_by("cct")[:10]
         )
-        cct_list = [cct for cct in cct_sales_list]
 
-        from multiprocessing import Pool
-
-        with Pool(8) as pool:
-            pool.map(invoices_pdf_generation, cct_list)
-
-        # for cct in cct_sales_list:
-        #     tasks_list.append(
-        #         celery_app.signature(
-        #             "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
-        #         )
-        #     )
-        # print(tasks_list)
-        # result = group(*tasks_list)().get(7200)
+        for cct in cct_sales_list:
+            tasks_list.append(
+                celery_app.signature(
+                    "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
+                )
+            )
+        print(tasks_list)
+        group(*tasks_list)().get(7200)
         # print("result : ", result)
-        # LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
-        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
+        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
         print("Error : ", error)
@@ -282,3 +141,106 @@ def celery_pdf_launch(user_pk: int):
         # On remet l'action en cours à False, après l'execution
         active_action.in_progress = False
         active_action.save()
+
+
+@transaction.atomic
+def invoices_pdf_generation(cct: Maison.cct):
+    """
+    Génération des pdf de factures de ventes
+    :param cct: cct de la facture pdf à générer
+    :return:
+    """
+    error = False
+    trace = get_trace(
+        trace_name="Generate pdf invoices",
+        file_name="Generate pdf",
+        application_name="invoices_pdf_generation",
+        flow_name="pdf_invoices",
+        comment="",
+    )
+
+    try:
+        generation_pdf_dict = {
+            "marchandises": invoice_marchandise_pdf,
+            "rfa": rfa_invoice_pdf,
+            "redevances": invoice_royalties_pdf,
+            "redevances-de-publicite": invoice_publicity_pdf,
+            "formation": invoice_formation_pdf,
+            "personnel": invoice_staff_pdf,
+            "materiel": invoice_material_pdf,
+            "prestation": invoice_prestation_pdf,
+            "divers": invoice_various_pdf,
+        }
+
+        files_list = []
+        file_num = get_generic_cct_num(cct)
+        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
+
+        files_list.append(file_path)
+
+        # On génère le pdf du sommaire
+        summary_invoice_pdf(cct, file_path)
+
+        sales_incoices_list = (
+            SaleInvoice.objects.filter(cct=cct, printed=False)
+            .values_list("cct", "uuid_identification", "big_category_slug_name", "invoice_number")
+            .order_by("big_category_ranking")
+        )
+
+        # On boucle sur le différent type de factures
+        for sale in sales_incoices_list:
+            cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
+
+            generation_pdf = generation_pdf_dict.get(big_category_slug_name)
+
+            if generation_pdf:
+                file_path = (
+                    Path(settings.SALES_INVOICES_FILES_DIR)
+                    / f"{cct_name}_{big_category_slug_name}_{invoice_number}.pdf"
+                )
+                files_list.append(file_path)
+
+                # On génère le pdf des factures
+                generation_pdf(uuid_identification, file_path)
+
+                # On pose le numéro de facture dans la table des ventes
+                SaleInvoice.objects.filter(invoice_number=invoice_number).update(
+                    invoice_file=str(file_path.name)
+                )
+
+        # On fusionne les pdf
+        writer = PdfWriter()
+
+        # On ajoute chaque page de chaque fichier PDF à l'objet PdfWriter
+        for pdf_file in files_list:
+            reader = PdfReader(pdf_file)
+            for page in reader.pages:
+                writer.addpage(page)
+
+        # On enregistre le fichier PDF fusionné
+        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
+        print(f"{file_num}_full.pdf")
+        writer.write(file_path)
+        # On pose le numéro du récap de facturation dans la table des ventes
+        SaleInvoice.objects.filter(cct=cct, printed=False).update(
+            global_invoice_file=str(file_path.name)
+        )
+
+        trace.file_name = f"Generate pdf : {file_num}_full.pdf"
+
+    except Exception as except_error:
+        error = True
+        LOGGER_INVOICES.exception(f"Exception Générale : {except_error!r}")
+
+    finally:
+        if error:
+            trace.errors = True
+            trace.comment = (
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+            )
+
+        trace.save()
+
+    to_print = "Grenerate pdf\n"
+
+    return trace, to_print
