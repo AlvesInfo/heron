@@ -157,6 +157,7 @@ def invoices_pdf_generation(cct: Maison.cct):
         flow_name="pdf_invoices",
         comment="",
     )
+    to_print = ""
 
     try:
         generation_pdf_dict = {
@@ -230,6 +231,7 @@ def invoices_pdf_generation(cct: Maison.cct):
             file.unlink()
 
         trace.file_name = f"Generate pdf : {file_num}_full.pdf"
+        to_print = f"have generate pdf : {file_num}_full.pdf"
 
     except Exception as except_error:
         error = True
@@ -243,7 +245,5 @@ def invoices_pdf_generation(cct: Maison.cct):
             )
 
         trace.save()
-
-    to_print = "Grenerate pdf\n"
 
     return trace, to_print
