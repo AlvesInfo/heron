@@ -935,6 +935,86 @@ class SocietiesColumns:
             },
             "width": 12,
         },
+        {
+            "entete": "Email 01",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 02",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 03",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 04",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 05",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
     ]
 
     columns_list_clients = [
@@ -1289,6 +1369,86 @@ class SocietiesColumns:
                 },
             },
             "width": 12,
+        },
+        {
+            "entete": "Email 01",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 02",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 03",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 04",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
+        },
+        {
+            "entete": "Email 05",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "left",
+                },
+            },
+            "width": 20,
         },
     ]
 
