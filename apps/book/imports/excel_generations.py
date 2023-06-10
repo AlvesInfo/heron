@@ -11,10 +11,25 @@ created by: Paulo ALVES
 modified at: 2022-05-19
 modified by: Paulo ALVES
 """
-
 import io
 import shutil
+import os
+import sys
+import platform
 from pathlib import Path
+
+import django
+
+BASE_DIR = r"/"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.append(BASE_DIR)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
+django.setup()
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
 from apps.book.models import Society
