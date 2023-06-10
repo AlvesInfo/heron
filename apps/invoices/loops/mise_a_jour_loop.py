@@ -153,7 +153,7 @@ def signboards_invoices_update():
 
 @transaction.atomic
 def parties_invoices_update():
-    """Mise à jour des parties prenante dans la facturation"""
+    """Mise à jour des parties prenantes dans la facturation"""
     trace_name = "Mise à jour des parties prenante dans la facturation"
     file_name = "insert into ..."
     application_name = "parties_invoices_update"

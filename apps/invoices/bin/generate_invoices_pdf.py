@@ -55,6 +55,7 @@ from apps.invoices.bin.pdf_various import invoice_various_pdf
 from apps.invoices.models import SaleInvoice
 from apps.centers_clients.models import Maison
 from apps.parameters.models import ActionInProgress
+from apps.invoices.loops.mise_a_jour_loop import process_update
 
 
 def get_invoices_in_progress():
@@ -103,6 +104,9 @@ def celery_pdf_launch(user_pk: int):
 
             if not active_action.in_progress:
                 action = False
+
+        # on met à jour les parts invoices
+        process_update()
 
         print("ACTION")
         # On initialise l'action comme en cours
