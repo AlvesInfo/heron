@@ -80,7 +80,12 @@ class GetRows:
             "acc"."name" as "payment_condition_client", 
             "vat_sheme_client", 
             "account_client_code",
-            {self.tiers}
+            {self.tiers},
+            "email_01",
+            "email_02",
+            "email_03",
+            "email_04",
+            "email_05"
         from {self.societies._meta.db_table} "bs"
         left join "accountancy_paymentcondition" "ass"
         on "ass"."auuid" = "bs"."payment_condition_supplier" 

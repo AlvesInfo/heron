@@ -39,3 +39,7 @@ def writre_book_files():
             shutil.copyfileobj(file_io, write_file, -1)
 
         file_io.close()
+
+
+if __name__ == '__main__':
+    writre_book_files()
