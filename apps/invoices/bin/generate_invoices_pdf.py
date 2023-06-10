@@ -251,3 +251,7 @@ def invoices_pdf_generation(cct: Maison.cct):
         trace.save()
 
     return trace, to_print
+
+
+if __name__ == "__main__":
+    invoices_pdf_generation("AF0564")
