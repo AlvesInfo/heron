@@ -159,7 +159,8 @@ def get_action(action: AnyStr = "import_edi_invoices"):
     # action_dict = {"action": "comment", ...}
     action_dict = {
         "import_edi_invoices": "Executable pour l'import des fichiers edi des factures founisseurs",
-        "generate_invoices": "génération de la facturation",
+        "insertion_invoices": "Insertion des factures achat et vente",
+        "generate_pdf_invoices": "Dénération de la facturation pdf",
     }
 
     # Si l'action n'existe pas on la créée
@@ -169,7 +170,7 @@ def get_action(action: AnyStr = "import_edi_invoices"):
     except ActionInProgress.DoesNotExist:
         action = ActionInProgress(
             action=action,
-            comment=action_dict.get(action),
+            comment=action_dict.get(action, action),
         )
         action.save()
         print("EXCEPT")

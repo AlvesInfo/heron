@@ -34,7 +34,6 @@ django.setup()
 from django.conf import settings
 from django.db import transaction
 from pdfrw import PdfReader, PdfWriter
-from django_celery_results.models import TaskResult
 
 from heron.loggers import LOGGER_INVOICES
 from apps.data_flux.trace import get_trace
@@ -50,36 +49,15 @@ from apps.invoices.bin.pdf_material import invoice_material_pdf
 from apps.invoices.bin.pdf_various import invoice_various_pdf
 from apps.invoices.models import SaleInvoice
 from apps.centers_clients.models import Maison
-from apps.parameters.models import ActionInProgress
+from apps.parameters.bin.core import get_action
 
 
 def get_invoices_in_progress():
     """Renvoi si un process d'intégration edi est en cours"""
-    insertion = False
-    pdf_invoices = False
+    in_action_insertion = get_action(action="insertion_invoices")
+    in_action_pdf_invoices = get_action(action="generate_pdf_invoices")
 
-    try:
-        in_action_object = ActionInProgress.objects.get(action="generate_invoices")
-        in_action = in_action_object.in_progress
-
-        # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
-        if in_action:
-            insertion = TaskResult.objects.filter(
-                task_name="apps.invoices.tasks.invoices_insertions"
-            ).exclude(status__in=["SUCCESS", "FAILURE"])
-
-            pdf_invoices = TaskResult.objects.filter(
-                task_name="apps.invoices.tasks.launch_generate_pdf_invoices"
-            ).exclude(status__in=["SUCCESS", "FAILURE"])
-
-            if not insertion and not pdf_invoices:
-                in_action_object.in_progress = False
-                in_action_object.save()
-
-    except ActionInProgress.DoesNotExist:
-        pass
-
-    return insertion, pdf_invoices
+    return in_action_insertion.in_progress, in_action_pdf_invoices.in_progress
 
 
 @transaction.atomic
@@ -164,7 +142,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         writer.write(file_path)
         # On pose le numéro du récap de facturation dans la table des ventes
         SaleInvoice.objects.filter(cct=cct, final=False, printed=False, type_x3__in=(1, 2)).update(
-            global_invoice_file=str(file_path.name)
+            global_invoice_file=str(file_path.name), printed=True
         )
 
         # On supprime les fichiers intermédiaires
