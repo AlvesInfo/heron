@@ -81,7 +81,7 @@ def generate_pdf_invoice(request):
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if all([request.method == "POST", not insertion, not pdf_invoices]):
         user_pk = request.user.pk
-        celery_app.signature("celery_pdf_launch", kwargs={"user_pk": str(user_pk)})()
+        celery_app.signature("celery_pdf_launch", kwargs={"user_pk": str(user_pk)}).apply()
         pdf_invoices = True
 
     if insertion:
