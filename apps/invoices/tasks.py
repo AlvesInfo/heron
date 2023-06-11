@@ -124,7 +124,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
                 )
             )
 
-        group(*tasks_list).apply_async().get(7200)
+        group(*tasks_list).apply_async()
         process = True
 
         while process:
