@@ -18,6 +18,7 @@ import pendulum
 from celery import shared_task
 from celery import group
 from django.db.models import Count
+from django_celery_results.models import TaskResult
 
 from heron.loggers import LOGGER_INVOICES
 from heron import celery_app
@@ -122,9 +123,21 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
                     kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
                 )
             )
-        result = group(*tasks_list)().get(7200)
-        print("result : ", result)
-        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+
+        group(*tasks_list).apply_async().get(7200)
+        process = True
+
+        while process:
+            if TaskResult.objects.filter(
+                status="STARTED", task_name="launch_generate_pdf_invoices"
+            ).exists():
+                process = False
+
+            time.sleep(2)
+
+        LOGGER_INVOICES.warning(
+            f"{str(cct_sales_list.count())} pdf's make in {time.time() - start_all} s"
+        )
 
     except Exception as error:
         print("Error : ", error)
