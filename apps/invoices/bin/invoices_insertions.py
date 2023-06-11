@@ -296,9 +296,8 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     :param invoice_date: date de la facture
     :return: to_print
     """
-    print(type(invoice_date), invoice_date)
     trace = get_trace(
-        f"Insertion de la facturation : {invoice_date.isoformat()}",
+        f"Insertion de la facturation : {invoice_date}",
         "insertion par fonction",
         "invoices_insertion",
         "Invoices_Insertion",

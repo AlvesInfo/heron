@@ -38,7 +38,10 @@ def generate_invoices_insertions(request):
             user_uuid = request.user.uuid_identification
             celery_app.signature(
                 "invoices_insertions_launch",
-                kwargs={"user_uuid": user_uuid, "invoice_date": pendulum.date(2023, 5, 31)},
+                kwargs={
+                    "user_uuid": user_uuid,
+                    "invoice_date": pendulum.date(2023, 5, 31).isoformat(),
+                },
             ).delay()
             insertion = True
 
