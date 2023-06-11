@@ -320,7 +320,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
     try:
         with connection.cursor() as cursor:
-            LOGGER_INVOICES.info(r"Prépartifs insertion des factures")
+            LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
             # On met les import_uuid_identification au cas où il en manque
             set_fix_uuid(cursor)
 
@@ -357,7 +357,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             user = User.objects.get(uuid_identification=user_uuid)
 
             # On insère les factures d'achats
-            LOGGER_INVOICES.info(r"Insertion des factures d'achat")
+            LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
             error, to_print = set_purchases_invoices(cursor, user)
 
             if error:
@@ -367,7 +367,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             cursor.execute(SQL_PURCHASES_DETAILS)
 
             # On contrôle l'insertion des achats
-            LOGGER_INVOICES.info(r"Contrôle des factures d'achat")
+            LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
             if control_sales_insertion(cursor):
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures d'achat, "
@@ -384,13 +384,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             alls_print += to_print
 
             # On insère les détails des factures de vente
-            LOGGER_INVOICES.info(r"Insertion des factures de vente")
+            LOGGER_INVOICES.warning(r"Insertion des factures de vente")
             set_sales_details(cursor)
 
             # TODO: PREVOIR DE REMPLIR LA DATE D'ECHEANCE EN FONCTION DU mode_reglement
 
             # On contrôle l'insertion
-            LOGGER_INVOICES.info(r"Contrôle des factures de vente")
+            LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
             if control_sales_insertion(cursor):
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures de vente, "
