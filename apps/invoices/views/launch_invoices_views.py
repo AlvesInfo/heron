@@ -15,10 +15,10 @@ import pendulum
 from django.shortcuts import render
 from django.contrib import messages
 
+from heron import celery_app
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.edi.models import EdiImport
 from apps.invoices.models import SaleInvoice
-from apps.invoices.tasks import launch_invoices_insertions, launch_celery_pdf_launch
 
 
 def generate_invoices_insertions(request):
@@ -35,8 +35,11 @@ def generate_invoices_insertions(request):
     else:
         # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
         if all([request.method == "POST", not insertion, not pdf_invoices]):
-            user_pk = request.user.uuid_identification
-            launch_invoices_insertions.delay(user_pk, pendulum.date(2023, 5, 31))
+            user_uuid = request.user.uuid_identification
+            celery_app.signature(
+                "launch_generate_pdf_invoices",
+                kwargs={"user_uuid": user_uuid, "invoice_date": pendulum.date(2023, 5, 31)},
+            ).delay()
             insertion = True
 
         if insertion:
@@ -72,7 +75,7 @@ def generate_pdf_invoice(request):
         # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
         if all([request.method == "POST", not insertion, not pdf_invoices]):
             user_pk = request.user.pk
-            launch_celery_pdf_launch.delay(user_pk)
+            celery_app.signature("launch_celery_pdf_launch", kwargs={"user_pk": user_pk}).delay()
             pdf_invoices = True
 
         if insertion:
