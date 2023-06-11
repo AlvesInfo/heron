@@ -40,34 +40,9 @@
 
             {% include "heron/base_data_table.html" %}
 
-            $(`#import_edi_invoices_button`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
-
-            $(`#bbgr_statment`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
-
-            $(`#bbgr_monthly`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
-
-            $(`#bbgr_retours`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
-
-            $(`#bbgr_receptions`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
-
             {% if en_cours %}
                 setTimeout(function() {
-                        location.href = "{% url 'edi:import_edi_invoices' %}"
+                        location.href = "{% url 'invoices:generate_invoices_insertions' %}"
                     },
                     10000
                 )
