@@ -11,12 +11,14 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
+import pendulum
 from django.shortcuts import render
 from django.contrib import messages
 
-from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress, celery_pdf_launch
+from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.edi.models import EdiImport
 from apps.invoices.models import SaleInvoice
+from apps.invoices.tasks import launch_invoices_insertions, launch_celery_pdf_launch
 
 
 def generate_invoices_insertions(request):
@@ -33,8 +35,8 @@ def generate_invoices_insertions(request):
     else:
         # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
         if all([request.method == "POST", not insertion, not pdf_invoices]):
-            user_pk = request.user.uuid_identification
-            # celery_pdf_launch(user_pk)
+            user_pk = request.user
+            launch_invoices_insertions.delay(user_pk, pendulum.date(2023, 5, 31))
             insertion = True
 
         if insertion:
@@ -70,7 +72,7 @@ def generate_pdf_invoice(request):
         # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
         if all([request.method == "POST", not insertion, not pdf_invoices]):
             user_pk = request.user.pk
-            celery_pdf_launch(user_pk)
+            launch_celery_pdf_launch.delay(user_pk)
             pdf_invoices = True
 
         if insertion:

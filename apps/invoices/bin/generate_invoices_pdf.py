@@ -15,7 +15,6 @@ import os
 import sys
 import platform
 from pathlib import Path
-import time
 from typing import AnyStr
 
 import django
@@ -31,18 +30,14 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-from django.db.models import Count
+
 from django.conf import settings
 from django.db import transaction
 from pdfrw import PdfReader, PdfWriter
-from celery import group
 from django_celery_results.models import TaskResult
 
 from heron.loggers import LOGGER_INVOICES
-from heron import celery_app
 from apps.data_flux.trace import get_trace
-from apps.parameters.bin.generic_nums import get_generic_cct_num
-from apps.parameters.bin.core import get_action
 from apps.invoices.bin.pdf_sumary import summary_invoice_pdf
 from apps.invoices.bin.pdf_marchandises import invoice_marchandise_pdf
 from apps.invoices.bin.pdf_rfa import rfa_invoice_pdf
@@ -56,7 +51,6 @@ from apps.invoices.bin.pdf_various import invoice_various_pdf
 from apps.invoices.models import SaleInvoice
 from apps.centers_clients.models import Maison
 from apps.parameters.models import ActionInProgress
-from apps.invoices.loops.mise_a_jour_loop import process_update
 
 
 def get_invoices_in_progress():
@@ -86,67 +80,6 @@ def get_invoices_in_progress():
         pass
 
     return insertion, pdf_invoices
-
-
-def celery_pdf_launch(user_pk: int):
-    """
-    Main pour lancement de la génération des pdf avec Celery
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
-    """
-
-    active_action = None
-    action = True
-
-    try:
-        tasks_list = []
-
-        while action:
-            active_action = get_action(action="generate_invoices")
-
-            if not active_action.in_progress:
-                action = False
-
-        # on met à jour les parts invoices
-        process_update()
-
-        print("ACTION")
-        # On initialise l'action comme en cours
-        active_action.in_progress = True
-        active_action.save()
-        start_all = time.time()
-
-        # On boucle sur les factures des cct pour générer les pdf
-        cct_sales_list = (
-            SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
-            .values("cct")
-            .annotate(dcount=Count("cct"))
-            .values_list("cct", flat=True)
-            .order_by("cct")
-        )
-        num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
-
-        for cct, num_file in zip(cct_sales_list, num_file_list):
-            tasks_list.append(
-                celery_app.signature(
-                    "launch_generate_pdf_invoices",
-                    kwargs={"cct": cct, "num_file": num_file, "user_pk": user_pk},
-                )
-            )
-        print(tasks_list)
-        group(*tasks_list).apply_async()
-        # print("result : ", result)
-        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
-
-    except Exception as error:
-        print("Error : ", error)
-        LOGGER_INVOICES.exception(
-            "Erreur détectée dans apps.invoices.bin.generate_invoices_pdf.celery_pdf_launch()"
-        )
-
-    finally:
-        # On remet l'action en cours à False, après l'execution
-        active_action.in_progress = False
-        active_action.save()
 
 
 @transaction.atomic
@@ -259,4 +192,4 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
 
 if __name__ == "__main__":
     # invoices_pdf_generation("AF0564")
-    invoices_pdf_generation("AF0021")
+    invoices_pdf_generation("AF0021", "AF0021_0000001199")

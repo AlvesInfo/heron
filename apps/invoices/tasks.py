@@ -1,4 +1,4 @@
-# pylint: disable=E0401,W0718,E0633,W1203
+# pylint: disable=E0401,W0718,E0633,W1203,W1201
 """
 FR : Module de génération des factures pdf de ventes sous task Celery
 EN : Module for generating pdf sales invoices under task Celery
@@ -14,29 +14,38 @@ modified by: Paulo ALVES
 import time
 from typing import AnyStr
 
+import pendulum
 from celery import shared_task
+from celery import group
+from django.db.models import Count
 
 from heron.loggers import LOGGER_INVOICES
+from heron import celery_app
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
+from apps.invoices.bin.invoices_insertions import invoices_insertion
+from apps.parameters.bin.generic_nums import get_generic_cct_num
+from apps.parameters.bin.core import get_action
+from apps.invoices.loops.mise_a_jour_loop import process_update
+from apps.invoices.models import SaleInvoice
 
 
-@shared_task(name="invoices_insertions")
-def launch_invoices_insertions(user_pk):
+@shared_task(name="launch_invoices_insertions")
+def launch_invoices_insertions(user: User, invoice_date: pendulum.date):
     """
     Insertion des factures définitives achats et ventes
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param user: utilisateur qui a lancé le process
+    :param invoice_date: date de la facture
     """
 
     start_initial = time.time()
 
     error = False
-    trace = None
+    trace = ""
     to_print = ""
 
     try:
-        user = User.objects.get(pk=user_pk)
-        # trace, to_print = invoices_pdf_generation(cct)
+        trace, to_print = invoices_insertion(user, invoice_date)
         trace.created_by = user
     except TypeError as except_error:
         error = True
@@ -70,8 +79,70 @@ def launch_invoices_insertions(user_pk):
     return {"launch_invoices_insertions : ": f"{time.time() - start_initial} s"}
 
 
+@shared_task(name="launch_celery_pdf_launch")
+def launch_celery_pdf_launch(user_pk: int):
+    """
+    Main pour lancement de la génération des pdf avec Celery
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    """
+
+    active_action = None
+    action = True
+
+    try:
+        tasks_list = []
+
+        while action:
+            active_action = get_action(action="generate_invoices")
+
+            if not active_action.in_progress:
+                action = False
+
+        # on met à jour les parts invoices
+        process_update()
+
+        print("ACTION")
+        # On initialise l'action comme en cours
+        active_action.in_progress = True
+        active_action.save()
+        start_all = time.time()
+
+        # On boucle sur les factures des cct pour générer les pdf
+        cct_sales_list = (
+            SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
+            .values("cct")
+            .annotate(dcount=Count("cct"))
+            .values_list("cct", flat=True)
+            .order_by("cct")
+        )
+        num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
+
+        for cct, num_file in zip(cct_sales_list, num_file_list):
+            tasks_list.append(
+                celery_app.signature(
+                    "launch_generate_pdf_invoices",
+                    kwargs={"cct": cct, "num_file": num_file, "user_pk": user_pk},
+                )
+            )
+        print(tasks_list)
+        group(*tasks_list).apply_async()
+        # print("result : ", result)
+        LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
+
+    except Exception as error:
+        print("Error : ", error)
+        LOGGER_INVOICES.exception(
+            "Erreur détectée dans apps.invoices.bin.generate_invoices_pdf.celery_pdf_launch()"
+        )
+
+    finally:
+        # On remet l'action en cours à False, après l'execution
+        active_action.in_progress = False
+        active_action.save()
+
+
 @shared_task(name="launch_generate_pdf_invoices")
-def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr,  user_pk:int):
+def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int):
     """
     Génération des pdf des factures de ventes
     :param cct: cct de la facture pdf à générer
@@ -87,7 +158,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr,  user_pk:int
 
     try:
         user = User.objects.get(pk=user_pk)
-        trace, to_print = invoices_pdf_generation(cct)
+        trace, to_print = invoices_pdf_generation(cct, num_file)
         trace.created_by = user
     except TypeError as except_error:
         error = True

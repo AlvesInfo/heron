@@ -44,6 +44,7 @@ from apps.users.models import User
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.invoices.bin.pre_controls import control_alls_missings
 from apps.invoices.models import Invoice, SaleInvoice
+from apps.data_flux.models import Trace
 from apps.invoices.sql_files.sql_invoices_insertions import (
     SQL_FIX_IMPORT_UUID,
     SQL_COMMON_DETAILS,
@@ -290,16 +291,20 @@ def control_sales_insertion(cursor: connection.cursor) -> bool:
     return cursor.fetchone() is not None
 
 
-def invoices_insertion(
-    cursor: connection.cursor, user: User, invoice_date: pendulum.date
-) -> AnyStr:
+def invoices_insertion(user: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
-    :param cursor: cursor django pour la db
     :param user: utilisateur qui a lancé la commande
     :param invoice_date: date de la facture
     :return: to_print
     """
+    trace = get_trace(
+        f"Insertion de la facturation : {invoice_date.isoformat()}",
+        "insertion par fonction",
+        "invoices_insertion",
+        "Invoices_Insertion",
+        "",
+    )
 
     # On update dabord les cct puis les centrales et enseignes
     update_cct_edi_import()
@@ -315,73 +320,77 @@ def invoices_insertion(
     alls_print = ""
 
     try:
-        # On met les import_uuid_identification au cas où il en manque
-        set_fix_uuid(cursor)
+        with connection.cursor() as cursor:
+            # On met les import_uuid_identification au cas où il en manque
+            set_fix_uuid(cursor)
 
-        # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
-        process_update()
+            # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
+            process_update()
 
-        # On supprime les éxistant non définitifs
+            # On supprime les éxistant non définitifs
 
-        cursor.execute(
-            'delete from invoices_invoicecommondetails where ("final" isnull or "final" = false)'
-        )
-
-        cursor.execute(
-            'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
-        )
-
-        cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
-
-        cursor.execute(
-            'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
-        )
-
-        cursor.execute('delete from invoices_saleinvoice where ("final" isnull or "final" = false)')
-
-        # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
-        update_axes_edi()
-
-        # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
-        set_common_details(cursor)
-
-        # On insère les factures d'achats
-        error, to_print = set_purchases_invoices(cursor, user)
-
-        if error:
-            raise Exception
-
-        alls_print += to_print
-        cursor.execute(SQL_PURCHASES_DETAILS)
-
-        # On contrôle l'insertion des achats
-        if control_sales_insertion(cursor):
-            alls_print = (
-                "Il y a eu une erreur à l'insertion des factures d'achat, "
-                "les totaux ne correspondent pas"
+            cursor.execute(
+                'delete from invoices_invoicecommondetails '
+                'where ("final" isnull or "final" = false)'
             )
-            raise Exception("Il y a eu une erreur à l'insertion des factures d'achat")
 
-        # On insère les entêtes de factures de vente
-        error, to_print = set_sales_invoices(cursor, user, invoice_date)
-
-        if error:
-            raise Exception
-
-        alls_print += to_print
-
-        # On insère les détails des factures de vente
-        set_sales_details(cursor)
-
-        # TODO: PREVOIR DE REMPLIR LA DATE D'ECHEANCE EN FONCTION DU mode_reglement
-
-        # On contrôle l'insertion
-        if control_sales_insertion(cursor):
-            alls_print = (
-                "Il y a eu une erreur à l'insertion des factures de vente, "
-                "les totaux ne correspondent pas"
+            cursor.execute(
+                'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
             )
-            raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+
+            cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
+
+            cursor.execute(
+                'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
+            )
+
+            cursor.execute(
+                'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
+            )
+
+            # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
+            update_axes_edi()
+
+            # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
+            set_common_details(cursor)
+
+            # On insère les factures d'achats
+            error, to_print = set_purchases_invoices(cursor, user)
+
+            if error:
+                raise Exception
+
+            alls_print += to_print
+            cursor.execute(SQL_PURCHASES_DETAILS)
+
+            # On contrôle l'insertion des achats
+            if control_sales_insertion(cursor):
+                alls_print = (
+                    "Il y a eu une erreur à l'insertion des factures d'achat, "
+                    "les totaux ne correspondent pas"
+                )
+                raise Exception("Il y a eu une erreur à l'insertion des factures d'achat")
+
+            # On insère les entêtes de factures de vente
+            error, to_print = set_sales_invoices(cursor, user, invoice_date)
+
+            if error:
+                raise Exception
+
+            alls_print += to_print
+
+            # On insère les détails des factures de vente
+            set_sales_details(cursor)
+
+            # TODO: PREVOIR DE REMPLIR LA DATE D'ECHEANCE EN FONCTION DU mode_reglement
+
+            # On contrôle l'insertion
+            if control_sales_insertion(cursor):
+                alls_print = (
+                    "Il y a eu une erreur à l'insertion des factures de vente, "
+                    "les totaux ne correspondent pas"
+                )
+                raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
@@ -397,13 +406,13 @@ def invoices_insertion(
     finally:
         pass
 
-    return alls_print
+    return trace, alls_print
 
 
 if __name__ == "__main__":
     with connection.cursor() as cur, transaction.atomic():
         utilisateur = User.objects.get(last_name="ALVES")
-        to_print_ = invoices_insertion(cur, utilisateur, pendulum.date(2023, 5, 31))
+        to_print_ = invoices_insertion(utilisateur, pendulum.date(2023, 5, 31))
 
         if to_print_:
             raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
