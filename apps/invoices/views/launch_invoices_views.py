@@ -88,7 +88,7 @@ def generate_pdf_invoice(request):
             flow_name="pdf_invoices",
             comment="",
         )
-        trace.created_by = request.user.uuid_identification
+        trace.created_by = request.user
         trace.save()
         celery_app.signature("celery_pdf_launch").apply_async()
         pdf_invoices = True
