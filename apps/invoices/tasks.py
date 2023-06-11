@@ -119,12 +119,10 @@ def launch_celery_pdf_launch(user_pk: int):
             tasks_list.append(
                 celery_app.signature(
                     "launch_generate_pdf_invoices",
-                    kwargs={"cct": cct, "num_file": num_file, "user_pk": user_pk},
+                    kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
                 )
             )
-
-        group(*tasks_list).apply_async()
-        result = group(*tasks_list)().get(7200)
+        result = group(*tasks_list).apply_async().get(7200)
         print("result : ", result)
         LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
