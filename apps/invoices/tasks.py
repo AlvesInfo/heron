@@ -12,6 +12,7 @@ modified at: 2023-06-07
 modified by: Paulo ALVES
 """
 import time
+from typing import AnyStr
 
 from celery import shared_task
 
@@ -69,11 +70,12 @@ def launch_invoices_insertions(user_pk):
     return {"launch_invoices_insertions : ": f"{time.time() - start_initial} s"}
 
 
-@shared_task(name="generate_pdf_invoices")
-def launch_generate_pdf_invoices(cct: Maison.cct, user_pk):
+@shared_task(name="launch_generate_pdf_invoices")
+def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr,  user_pk:int):
     """
     Génération des pdf des factures de ventes
     :param cct: cct de la facture pdf à générer
+    :param num_file: numero du fichier full
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
 

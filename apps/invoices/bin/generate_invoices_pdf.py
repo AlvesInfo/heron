@@ -16,6 +16,7 @@ import sys
 import platform
 from pathlib import Path
 import time
+from typing import AnyStr
 
 import django
 
@@ -74,7 +75,7 @@ def get_invoices_in_progress():
             ).exclude(status__in=["SUCCESS", "FAILURE"])
 
             pdf_invoices = TaskResult.objects.filter(
-                task_name="apps.invoices.tasks.generate_pdf_invoices"
+                task_name="apps.invoices.tasks.launch_generate_pdf_invoices"
             ).exclude(status__in=["SUCCESS", "FAILURE"])
 
             if not insertion and not pdf_invoices:
@@ -122,15 +123,17 @@ def celery_pdf_launch(user_pk: int):
             .values_list("cct", flat=True)
             .order_by("cct")
         )
+        num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
 
-        for cct in cct_sales_list:
+        for cct, num_file in zip(cct_sales_list, num_file_list):
             tasks_list.append(
                 celery_app.signature(
-                    "generate_pdf_invoices", kwargs={"cct": cct, "user_pk": user_pk}
+                    "launch_generate_pdf_invoices",
+                    kwargs={"cct": cct, "num_file": num_file, "user_pk": user_pk},
                 )
             )
         print(tasks_list)
-        group(*tasks_list)().get(7200)
+        group(*tasks_list).apply_async()
         # print("result : ", result)
         LOGGER_INVOICES.warning(f"result in {time.time() - start_all} s")
 
@@ -147,10 +150,11 @@ def celery_pdf_launch(user_pk: int):
 
 
 @transaction.atomic
-def invoices_pdf_generation(cct: Maison.cct):
+def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
     """
     Génération des pdf de factures de ventes
     :param cct: cct de la facture pdf à générer
+    :param num_file: numero du fichier full
     :return:
     """
     error = False
@@ -177,7 +181,7 @@ def invoices_pdf_generation(cct: Maison.cct):
         }
 
         files_list = []
-        file_num = get_generic_cct_num(cct)
+        file_num = num_file
         file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
 
         files_list.append(file_path)
