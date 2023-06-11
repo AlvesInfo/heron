@@ -31,10 +31,10 @@ from apps.invoices.models import SaleInvoice
 
 
 @shared_task(name="launch_invoices_insertions")
-def launch_invoices_insertions(user: User, invoice_date: pendulum.date):
+def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
     """
     Insertion des factures définitives achats et ventes
-    :param user: utilisateur qui a lancé le process
+    :param user_uuid: uuid de l'utilisateur qui a lancé le process
     :param invoice_date: date de la facture
     """
 
@@ -45,7 +45,8 @@ def launch_invoices_insertions(user: User, invoice_date: pendulum.date):
     to_print = ""
 
     try:
-        trace, to_print = invoices_insertion(user, invoice_date)
+        user = User.objects.get(uuid_identification=user_uuid)
+        trace, to_print = invoices_insertion(user_uuid, invoice_date)
         trace.created_by = user
     except TypeError as except_error:
         error = True

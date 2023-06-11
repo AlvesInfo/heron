@@ -1,4 +1,4 @@
-# pylint: disable=E0401,C0413,W1203,R0914,W0718
+# pylint: disable=E0401,C0413,W1203,R0914,W0718,R0915,W0719
 """
 FR : Module d'insertion provisoire
 EN : Provisional insert module
@@ -33,8 +33,6 @@ django.setup()
 
 import pendulum
 from django.utils import timezone
-from celery import group
-from heron import celery_app
 
 from heron.loggers import LOGGER_EDI
 from apps.core.functions.functions_setups import connection, transaction
@@ -101,7 +99,7 @@ def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyS
     trace_name = "Insertion des factures d'achat"
     application_name = "purchasess_invoices_insertion"
     flow_name = "Purchases_Insertion"
-    comment = f"Factures d'Achat"
+    comment = "Factures d'Achat"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
     file_io = io.StringIO()
@@ -291,10 +289,10 @@ def control_sales_insertion(cursor: connection.cursor) -> bool:
     return cursor.fetchone() is not None
 
 
-def invoices_insertion(user: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
+def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
-    :param user: utilisateur qui a lancé la commande
+    :param user_uuid: utilisateur qui a lancé la commande
     :param invoice_date: date de la facture
     :return: to_print
     """
@@ -330,7 +328,7 @@ def invoices_insertion(user: User, invoice_date: pendulum.date) -> (Trace.object
             # On supprime les éxistant non définitifs
 
             cursor.execute(
-                'delete from invoices_invoicecommondetails '
+                "delete from invoices_invoicecommondetails "
                 'where ("final" isnull or "final" = false)'
             )
 
@@ -353,6 +351,8 @@ def invoices_insertion(user: User, invoice_date: pendulum.date) -> (Trace.object
 
             # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
             set_common_details(cursor)
+
+            user = User.objects.get(uuid_identification=user_uuid)
 
             # On insère les factures d'achats
             error, to_print = set_purchases_invoices(cursor, user)

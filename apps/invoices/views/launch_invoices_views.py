@@ -35,7 +35,7 @@ def generate_invoices_insertions(request):
     else:
         # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
         if all([request.method == "POST", not insertion, not pdf_invoices]):
-            user_pk = request.user
+            user_pk = request.user.uuid_identification
             launch_invoices_insertions.delay(user_pk, pendulum.date(2023, 5, 31))
             insertion = True
 
