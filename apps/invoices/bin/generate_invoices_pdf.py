@@ -34,6 +34,7 @@ django.setup()
 from django.conf import settings
 from django.db import transaction
 from pdfrw import PdfReader, PdfWriter
+from django_celery_results.models import TaskResult
 
 from heron.loggers import LOGGER_INVOICES
 from apps.data_flux.trace import get_trace
@@ -49,15 +50,18 @@ from apps.invoices.bin.pdf_material import invoice_material_pdf
 from apps.invoices.bin.pdf_various import invoice_various_pdf
 from apps.invoices.models import SaleInvoice
 from apps.centers_clients.models import Maison
-from apps.parameters.bin.core import get_action
 
 
 def get_invoices_in_progress():
     """Renvoi si un process d'intégration edi est en cours"""
-    in_action_insertion = get_action(action="insertion_invoices")
-    in_action_pdf_invoices = get_action(action="generate_pdf_invoices")
+    in_action_insertion = TaskResult.objects.filter(
+        status="STARTED", task_name="invoices_insertions_launch"
+    ).exists()
+    in_action_pdf_invoices = TaskResult.objects.filter(
+        status="STARTED", task_name="launch_generate_pdf_invoices"
+    ).exists()
 
-    return in_action_insertion.in_progress, in_action_pdf_invoices.in_progress
+    return in_action_insertion, in_action_pdf_invoices
 
 
 @transaction.atomic

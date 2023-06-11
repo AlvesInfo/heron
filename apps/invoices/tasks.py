@@ -18,7 +18,6 @@ import pendulum
 from celery import shared_task
 from celery import group
 from django.db.models import Count
-from django_celery_results.models import TaskResult
 
 from heron.loggers import LOGGER_INVOICES
 from heron import celery_app
@@ -91,10 +90,17 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
     Main pour lancement de la génération des pdf avec Celery
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
-    start_all = time.time()
-    action = ActionInProgress.objects.get(action="generate_pdf_invoices")
-    action.in_progress = True
-    action.save()
+
+    # On récupère les factures à générer par cct
+    cct_sales_list = (
+        SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
+        .values("cct")
+        .annotate(dcount=Count("cct"))
+        .values_list("cct", flat=True)
+        .order_by("cct")
+    )
+    # On récupère les numérotations gérnériques des factures à générer (A....full.pdf)
+    num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
 
     try:
         tasks_list = []
@@ -103,17 +109,6 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
         process_update()
 
         print("ACTION")
-
-        # On récupère les factures à générer par cct
-        cct_sales_list = (
-            SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
-            .values("cct")
-            .annotate(dcount=Count("cct"))
-            .values_list("cct", flat=True)
-            .order_by("cct")
-        )
-        # On récupère les numérotations gérnériques des factures à générer (A....full.pdf)
-        num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
 
         # On boucle sur les factures des cct pour générer les pdf avec celery tasks
         for cct, num_file in zip(cct_sales_list, num_file_list):
@@ -125,32 +120,14 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
             )
 
         group(*tasks_list).apply_async()
-        process = True
-
-        while process:
-            if TaskResult.objects.filter(
-                status="STARTED", task_name="launch_generate_pdf_invoices"
-            ).exists():
-                process = False
-
-            time.sleep(2)
-
-        LOGGER_INVOICES.warning(
-            f"{str(cct_sales_list.count())} pdf's make in {time.time() - start_all} s"
-        )
 
     except Exception as error:
         print("Error : ", error)
         LOGGER_INVOICES.exception(
-            "Erreur détectée dans apps.invoices.bin.generate_invoices_pdf.celery_pdf_launch()"
+            "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
 
-    finally:
-        # On remet l'action en cours à False, après l'execution
-        action.in_progress = False
-        action.save()
-
-    return {f"Generation de toutes les factures pdf en {time.time() - start_all} s"}
+    return {f"Generation des factures pdf : {str(cct_sales_list.count())} factures générées"}
 
 
 @shared_task(name="launch_generate_pdf_invoices")
@@ -196,9 +173,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
     LOGGER_INVOICES.warning(
         to_print
-        + f"Génération du pdf {cct} in : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
+        + f"Génération du pdf {cct} : {time.time() - start_initial} s \n"
     )
 
-    return {"Generation facture pdf : ": f"cct : {cct} - {time.time() - start_initial} s"}
+    return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
