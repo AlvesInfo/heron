@@ -16,6 +16,7 @@ from apps.invoices.views import (
     # Insertion et Génération des factures en PDF
     generate_invoices_insertions,
     generate_pdf_invoice,
+    send_email_pdf_invoice,
 )
 
 app_name = "apps.invoices"
@@ -63,5 +64,6 @@ urlpatterns = (
             name="generate_invoices_insertions",
         ),
         path("generate_pdf_invoice/", generate_pdf_invoice, name="generate_pdf_invoice"),
+        path("send_email_pdf_invoice/", send_email_pdf_invoice, name="send_email_pdf_invoice"),
     ]
 )
