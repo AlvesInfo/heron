@@ -85,7 +85,7 @@ def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
 
 
 @shared_task(name="celery_pdf_launch")
-def launch_celery_pdf_launch(user_pk: int):
+def launch_celery_pdf_launch(user_pk: AnyStr):
     """
     Main pour lancement de la génération des pdf avec Celery
     :param user_pk: uuid de l'utilisateur qui a lancé le process
