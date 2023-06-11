@@ -122,7 +122,7 @@ def launch_celery_pdf_launch(user_pk: int):
                     kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
                 )
             )
-        result = group(*tasks_list).apply_async().get(7200)
+        result = group(*tasks_list)().get(7200)
         print("result : ", result)
         LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
