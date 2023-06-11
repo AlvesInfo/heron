@@ -108,26 +108,22 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
         # on met à jour les parts invoices
         process_update()
 
-        print("ACTION")
+        # On boucle sur les factures des cct pour générer les pdf avec celery tasks
+        for cct, num_file in zip(cct_sales_list, num_file_list):
+            tasks_list.append(
+                celery_app.signature(
+                    "launch_generate_pdf_invoices",
+                    kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
+                )
+            )
 
-        # # On boucle sur les factures des cct pour générer les pdf avec celery tasks
-        # for cct, num_file in zip(cct_sales_list, num_file_list):
-        #     tasks_list.append(
-        #         celery_app.signature(
-        #             "launch_generate_pdf_invoices",
-        #             kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
-        #         )
-        #     )
-        #
-        # group(*tasks_list).apply_async()
+        group(*tasks_list).apply_async()
 
     except Exception as error:
         print("Error : ", error)
         LOGGER_INVOICES.exception(
            "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
-
-    # return {f"Generation des factures pdf : {str(cct_sales_list.count())!r} factures generees"}
 
 
 @shared_task(name="launch_generate_pdf_invoices")
