@@ -97,7 +97,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
         .values("cct")
         .annotate(dcount=Count("cct"))
         .values_list("cct", flat=True)
-        .order_by("cct")[:8]
+        .order_by("cct")
     )
     # On récupère les numérotations gérnériques des factures à générer (A....full.pdf)
     num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
