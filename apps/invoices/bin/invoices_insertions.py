@@ -172,15 +172,16 @@ def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyS
 
 
 def set_sales_invoices(
-    cursor: connection.cursor, user: User, invoice_date: pendulum.date
+    cursor: connection.cursor, user: User, invoice_date_iso: AnyStr
 ) -> [bool, AnyStr]:
     """
     Remplissage du fichier io pour insertion en base des factures de vente
     :param cursor: cursor django pour la db
     :param user: utilisateur qui a lancé la commande
-    :param invoice_date: date de la facture
+    :param invoice_date_iso: date de la facture au format isoformat
     :return:
     """
+    invoice_date = pendulum.parse(invoice_date_iso).date()
     model = SaleInvoice
     file_name = "select ..."
     trace_name = "Insertion des factures de vente"
