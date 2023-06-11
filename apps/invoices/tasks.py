@@ -97,7 +97,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
         .values("cct")
         .annotate(dcount=Count("cct"))
         .values_list("cct", flat=True)
-        .order_by("cct")
+        .order_by("cct")[:8]
     )
     # On récupère les numérotations gérnériques des factures à générer (A....full.pdf)
     num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
@@ -173,7 +173,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
     LOGGER_INVOICES.warning(
         to_print
-        + f"Génération du pdf {cct} : {time.time() - start_initial} s \n"
+        + f"Génération du pdf {cct} : {time.time() - start_initial} s "
     )
 
     return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
