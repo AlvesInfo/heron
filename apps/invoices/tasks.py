@@ -124,10 +124,10 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
     except Exception as error:
         print("Error : ", error)
         LOGGER_INVOICES.exception(
-            "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
+           "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
 
-    return {fr"Generation des factures pdf : {str(cct_sales_list.count())} factures generees"}
+    return {f"Generation des factures pdf : {str(cct_sales_list.count())!r} factures generees"}
 
 
 @shared_task(name="launch_generate_pdf_invoices")
