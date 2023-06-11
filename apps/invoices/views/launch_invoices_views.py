@@ -37,7 +37,7 @@ def generate_invoices_insertions(request):
         if all([request.method == "POST", not insertion, not pdf_invoices]):
             user_uuid = request.user.uuid_identification
             celery_app.signature(
-                "launch_generate_pdf_invoices",
+                "invoices_insertions_launch",
                 kwargs={"user_uuid": user_uuid, "invoice_date": pendulum.date(2023, 5, 31)},
             ).delay()
             insertion = True
@@ -75,7 +75,7 @@ def generate_pdf_invoice(request):
         # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
         if all([request.method == "POST", not insertion, not pdf_invoices]):
             user_pk = request.user.pk
-            celery_app.signature("launch_celery_pdf_launch", kwargs={"user_pk": user_pk}).delay()
+            celery_app.signature("celery_pdf_launch", kwargs={"user_pk": user_pk}).delay()
             pdf_invoices = True
 
         if insertion:

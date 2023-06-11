@@ -30,7 +30,7 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 
 
-@shared_task(name="launch_invoices_insertions")
+@shared_task(name="invoices_insertions_launch")
 def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
     """
     Insertion des factures définitives achats et ventes
@@ -80,7 +80,7 @@ def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
     return {"launch_invoices_insertions : ": f"{time.time() - start_initial} s"}
 
 
-@shared_task(name="launch_celery_pdf_launch")
+@shared_task(name="celery_pdf_launch")
 def launch_celery_pdf_launch(user_pk: int):
     """
     Main pour lancement de la génération des pdf avec Celery
