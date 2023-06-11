@@ -85,10 +85,9 @@ def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
 
 
 @shared_task(name="celery_pdf_launch")
-def launch_celery_pdf_launch(user_pk: AnyStr):
+def launch_celery_pdf_launch():
     """
     Main pour lancement de la génération des pdf avec Celery
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
 
     # On récupère les factures à générer par cct
@@ -115,7 +114,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
             tasks_list.append(
                 celery_app.signature(
                     "launch_generate_pdf_invoices",
-                    kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
+                    kwargs={"cct": str(cct), "num_file": str(num_file)},
                 )
             )
 
@@ -131,7 +130,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
 
 
 @shared_task(name="launch_generate_pdf_invoices")
-def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int):
+def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr):
     """
     Génération des pdf des factures de ventes pour un cct
     :param cct: cct de la facture pdf à générer
@@ -146,9 +145,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
     to_print = ""
 
     try:
-        user = User.objects.get(pk=user_pk)
         trace, to_print = invoices_pdf_generation(cct, num_file)
-        trace.created_by = user
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"

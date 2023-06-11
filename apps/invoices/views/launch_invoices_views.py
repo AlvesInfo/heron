@@ -19,6 +19,7 @@ from heron import celery_app
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.edi.models import EdiImport
 from apps.invoices.models import SaleInvoice
+from apps.data_flux.trace import get_trace
 
 
 def generate_invoices_insertions(request):
@@ -80,8 +81,16 @@ def generate_pdf_invoice(request):
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if all([request.method == "POST", not insertion, not pdf_invoices]):
-        user_pk = request.user.pk
-        celery_app.signature("celery_pdf_launch", args=(str(user_pk),)).apply_async()
+        trace = get_trace(
+            trace_name="Generate pdf invoices",
+            file_name="Generate pdf",
+            application_name="invoices_pdf_generation",
+            flow_name="pdf_invoices",
+            comment="",
+        )
+        trace.created_by = request.user.uuid_identification
+        trace.save()
+        celery_app.signature("celery_pdf_launch").apply_async()
         pdf_invoices = True
 
     if insertion:
