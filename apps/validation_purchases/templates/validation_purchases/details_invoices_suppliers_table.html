@@ -75,7 +75,7 @@
                                  id="id_achat_vente"
                                  readonly
                                  style="background-color: #efefff;text-align: center;"
-                                 value="{% if invoices.0.purchase_invoice and invoices.0.purchase_invoice %}AC/VE{% elif invoices.0.purchase_invoice %}AC{% else %}VE{% endif %}">
+                                 value="{% if invoices.0.purchase_invoice and invoices.0.sale_invoice %}AC/VE{% elif invoices.0.purchase_invoice %}AC{% else %}VE{% endif %}">
                       </div>
                       <div class="three wide field">
                           <label for="id_invoice_amount_without_tax" style="text-align: right;padding-right: 14px;">Total H.T</label>
