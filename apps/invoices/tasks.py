@@ -101,7 +101,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
 
     # On récupère les factures à générer par cct
     cct_sales_list = (
-        SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
+        SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2), cct="AF0597")
         .values("cct")
         .annotate(dcount=Count("cct"))
         .values_list("cct", flat=True)
