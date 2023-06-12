@@ -59,8 +59,6 @@ def invoice_material_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_material.html", context)
-        print(content)
-        LOGGER_INVOICES.exception(f"{content!r}")
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
