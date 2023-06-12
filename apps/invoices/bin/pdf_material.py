@@ -25,6 +25,7 @@ from apps.invoices.models import SaleInvoice
 from apps.invoices.sql_files.sql_material import SQL_HEADER, SQL_RESUME_HEADER
 from heron.loggers import LOGGER_INVOICES
 
+
 def invoice_material_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
     """
     Generation de la facture de materiel
