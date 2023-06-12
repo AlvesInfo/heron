@@ -6,7 +6,6 @@
 {% include "invoices/pdf_generic_entete.html" %}
 
 <br>
-<main class="site-content">
 <table style="width:100%;">
     <tr class="entete">
         <td style="text-align: center;font-size: 1.1em;padding: 5px 5px;">{{ invoices.0.invoice_type_name }} N° {{ invoices.0.invoice_number }}</td>
@@ -68,6 +67,5 @@
 {% include "invoices/pdf_generic_bank.html" %}
 
 {% include "invoices/pdf_generic_mentions_legales.html" %}
-</main>
 
 {% include "invoices/pdf_generic_footer_invoices.html" %}
