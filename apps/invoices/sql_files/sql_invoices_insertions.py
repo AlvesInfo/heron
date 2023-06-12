@@ -128,6 +128,7 @@ SQL_COMMON_DETAILS = sql.SQL(
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
                 on "aa"."reference" = "ee"."reference_article" 
+               and "aa"."third_party_num" = "ee"."third_party_num" 
          left join "parameters_unitchoices" "pu"
            on "ee"."unit_weight" = "pu"."num"
          left join "centers_clients_maison" "ccm" 

@@ -54,7 +54,7 @@ class EmailCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 
-class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Emails"""
 
     model = Email

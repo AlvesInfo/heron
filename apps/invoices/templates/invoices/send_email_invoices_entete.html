@@ -2,9 +2,9 @@
 
 {% block right_side %}
     {% if not en_cours %}
-        <a class="item" href="{% url 'invoices:generate_pdf_invoice' %}">
-            <button class="ui blue basic button" name="generate_pdf_invoices" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-                GENERER
+        <a class="item" href="{% url 'invoices:send_email_pdf_invoice' %}">
+            <button class="ui blue basic button" name="send_email_invoices" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                ENVOYER
             </button>
         </a>
     {% endif %}

@@ -11,9 +11,17 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
+import os
+import io
+import smtplib
+from pathlib import Path
 import time
 from typing import AnyStr
 
+import dkim
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import pendulum
 from celery import shared_task
 from celery import group

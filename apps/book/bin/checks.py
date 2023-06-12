@@ -9,10 +9,27 @@ created by: Paulo ALVES
 modified at:
 modified by:
 """
+import os
+import platform
+import sys
+
+import django
+
+BASE_DIR = r"C:\SitesWeb\heron"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.append(BASE_DIR)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
+django.setup()
+
 from psycopg2 import sql
 from django.db import connection
 from apps.accountancy.models import CctSage
 from apps.book.models import SupplierCct
+from apps.book.forms import SageEmailForm
 
 
 def check_cct_identifier(cleaned_data: dict):
@@ -98,3 +115,50 @@ def check_cct_identifier(cleaned_data: dict):
             return None, message
 
     return True, ""
+
+
+def check_emails():
+    """Vérifie les email_01 à email_05 présents dans book society"""
+
+    sql_check_emails = """
+    select 
+        email, third_party_num 
+    from (
+        select 
+            email_01 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_02 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_03 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_04 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_05 as email, third_party_num
+        from book_society bs 
+    ) r
+    where r.email is not null and r.email != ''
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_check_emails)
+        emails_list = [
+            {"email": email, "third_party_num": third_party_num}
+            for email, third_party_num in cursor.fetchall()
+        ]
+        for email_dict in emails_list:
+            e = SageEmailForm(data=email_dict)
+            e.is_valid()
+            if e.errors:
+                print(email_dict.get("third_party_num"), email_dict.get("email"))
+
+
+if __name__ == "__main__":
+    check_emails()

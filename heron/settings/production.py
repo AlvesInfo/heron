@@ -89,6 +89,18 @@ LOGGING = {
             ),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
+        "send_email": {
+            "format": (
+                "[send_email] : "
+                "[%(asctime)s] %(levelname)s : %(message)s : "
+                "%(filename)s : "
+                "%(funcName)s : "
+                "[ligne : %(lineno)s] : "
+                "%(process)d : "
+                "%(thread)d"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
     },
     "handlers": {
         # Send in console
@@ -174,6 +186,13 @@ LOGGING = {
             "filename": f"{str(LOG_DIR)}/invoices_flux.log",
             "formatter": "invoices_flux",
         },
+        # Send in send email
+        "send_email": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/send_email.log",
+            "formatter": "send_email",
+        },
     },
     "loggers": {
         # all messages
@@ -191,6 +210,7 @@ LOGGING = {
         "validation": {"handlers": ["validation_logfile_flux"], "propagate": True},
         "postgres_save": {"handlers": ["postgres_save_logfile_flux"], "propagate": True},
         "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
+        "send_email": {"handlers": ["send_email"], "propagate": True},
     },
 }
 

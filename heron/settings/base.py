@@ -25,16 +25,17 @@ path_env = (Path(PROJECT_DIR) / "env/.env").resolve()
 config = AutoConfig(search_path=path_env)
 
 SECRET_KEY = config("SECRET_KEY")
+ENV_ROOT = path_env
 
 EMAIL_HOST = config("EMAIL_HOST", default="localhost")
 EMAIL_PORT = config("EMAIL_PORT", default=25, cast=int)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="admin@asipsante.fr")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="comptabilite@acuitis.com")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=None)
 EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=True, cast=bool)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
 
-EMAIL_DEV = config("EMAIL_HOST_USER", default="admin@asipsante.fr")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="admin.bi@acuitis.com")
+EMAIL_DEV = config("EMAIL_HOST_USER", default="comptabilite@acuitis.com")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="comptabilite@acuitis.com")
 
 NAME_DATABASE = config("NAME_DATABASE")
 USER_DATABASE = config("USER_DATABASE")
@@ -66,6 +67,8 @@ REDIS_PASSWORD = config("REDIS_PASSWORD")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 WHITELIST = config("ALLOWED_HOSTS", cast=Csv())
+
+DOMAIN = config("DOMAIN", default="acuitis.com")
 
 # REPERTOIRE DES LOGS
 LOG_DIR = (

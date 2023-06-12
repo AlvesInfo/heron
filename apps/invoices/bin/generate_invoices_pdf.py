@@ -174,4 +174,4 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
 
 if __name__ == "__main__":
     # invoices_pdf_generation("AF0564")
-    invoices_pdf_generation("AF0021", "AF0021_0000001199")
+    invoices_pdf_generation("AF0597", "AF0021_0000001199")

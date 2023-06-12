@@ -12,8 +12,8 @@
     {% if user.is_authenticated %}
         <form action="" method="post">
             {% csrf_token %}
-            {% include "invoices/generate_pdf_invoices_entete.html" %}
-            {% include "invoices/generate_pdf_invoices_table.html" %}
+            {% include "invoices/send_email_invoices_entete.html" %}
+            {% include "invoices/send_email_invoices_table.html" %}
         </form>
         <div class="ui equal width grid center"></div>
 
@@ -42,7 +42,7 @@
 
             {% if en_cours %}
                 setTimeout(function() {
-                        location.href = "{% url 'invoices:generate_pdf_invoice' %}"
+                        location.href = "{% url 'invoices:send_email_pdf_invoice' %}"
                     },
                     10000
                 )
