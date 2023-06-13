@@ -41,10 +41,7 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
 
     subject_mail = subject.format(**context)
     translate_email_html = email_html.format(**context)
-
     translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text()
-
-    print(f"subject_mail : {subject_mail} |")
 
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
@@ -61,7 +58,6 @@ def send_mass_mail(email_list=None):
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-        print("server.ehlo() : ", server.ehlo())
         server.starttls(context=ssl.create_default_context())
         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
@@ -86,11 +82,12 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     body = MIMEMultipart("alternative")
 
     prepare_mail(message, body, subject, email_text, email_html, context)
+    message["To"] = mail_to
     message.attach(body)
 
     for file in attachement_file_list:
         payload = MIMEBase("application", "octet-stream")
-        print(file.resolve())
+
         try:
             with open(file, "rb") as open_file:
                 payload.set_payload(open_file.read())
