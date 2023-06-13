@@ -51,10 +51,11 @@
             {% regroup invoice.list by delivery_number as delivery_list %}
 
             {% for delivery in delivery_list %}
-                <tr class="borduresBL" style="font-size: 0.9em;">
-                    <td style="padding-left: 10px;background-color: #dbdbdb;width: 100%;" colspan="5">BL n° : {{ delivery.grouper }}{% if delivery.delivery_date %} - du {{ delivery.delivery_date|date:"d/m/y" }}{% endif %}</td>
-                </tr>
-
+                {% if delivery.grouper %}
+                    <tr class="borduresBL" style="font-size: 0.9em;">
+                        <td style="padding-left: 10px;background-color: #dbdbdb;width: 100%;" colspan="5">BL n° : {{ delivery.grouper }}{% if delivery.delivery_date %} - du {{ delivery.delivery_date|date:"d/m/y" }}{% endif %}</td>
+                    </tr>
+                {% endif %}
                 {% for line in delivery.list %}
                     <tr class="bordures" style="font-size: 0.9em;">
                         <td style="vertical-align: top;padding-left: 3px;width: 14%;">{{ line.grouping_goods|default_if_none:"" }}</td>
