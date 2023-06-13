@@ -89,7 +89,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
 
     for file in attachement_file_list:
         file_to_send = MIMEBase("application", "octet-stream")
-
+        print(file.resolve())
         try:
             with file.open("rb") as open_file:
                 file_to_send.set_payload(open_file.read())
