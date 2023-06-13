@@ -294,69 +294,29 @@ def control_sales_insertion(cursor: connection.cursor) -> bool:
 
 def num_full_sales_invoices():
     """Insertion des numérotaions full par cct"""
-    file_io = io.StringIO()
 
-    try:
-        sales_list = (
-            SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
-            .values("uuid_identification", "cct")
-            .annotate(dcount=Count("cct"))
-            .order_by()
+    sales_list = (
+        SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
+        .values("uuid_identification", "cct")
+        .annotate(dcount=Count("cct"))
+        .order_by()
+    )
+
+    cct = sales_list[0].get("cct")
+    global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
+
+    for line_dict in sales_list:
+        uuid_identification = line_dict.get("uuid_identification")
+        cct_query = line_dict.get("cct")
+
+        if cct_query != cct:
+            cct = cct_query
+            global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
+
+        SaleInvoice.objects.update_or_create(
+            uuid_identification=uuid_identification,
+            defaults={"global_invoice_file": global_invoice_file},
         )
-
-        cct = sales_list[0].get("cct")
-        global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
-        csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
-        file_io.seek(0)
-
-        for line_dict in sales_list:
-            uuid_identification = line_dict.get("uuid_identification")
-            cct_query = line_dict.get("cct")
-
-            if cct_query != cct:
-                cct = cct_query
-                global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
-
-            csv_writer.writerow([uuid_identification, global_invoice_file])
-
-        file_io.seek(0)
-        postgres_upsert = PostgresDjangoUpsert(
-            model=SaleInvoice,
-            fields_dict={"uuid_identification": True, "global_invoice_file": False},
-            cnx=connection,
-            exclude_update_fields={},
-        )
-        file_io.seek(0)
-        postgres_upsert.insertion(
-            file=file_io,
-            insert_mode="prepared",
-            delimiter=";",
-            quote_character='"',
-            kwargs_prepared={},
-        )
-
-    # Exceptions PostgresDjangoUpsert ==========================================================
-    except PostgresKeyError as except_error:
-        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
-        raise Exception("insertion num full dans sale_invoices") from except_error
-
-    except PostgresTypeError as except_error:
-        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
-        raise Exception("insertion num full dans sale_invoices") from except_error
-
-    # Exception Générale =======================================================================
-    except Exception as except_error:
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
-        raise Exception("insertion num full dans sale_invoices") from except_error
-
-    finally:
-        try:
-            if not file_io.closed:
-                file_io.close()
-            del file_io
-
-        except (AttributeError, NameError):
-            pass
 
 
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
