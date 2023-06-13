@@ -510,11 +510,11 @@ class PostgresDjangoUpsert:
                         )
                     stmt_name = get_random_name()
 
-                    if kwargs_prepared.get("mode") not in {"insert", "do_nothing", "upsert"}:
-                        raise PostgresInsertMethodError(
-                            f"La methode {kwargs_prepared.get('mode')!r} "
-                            "d'insertion choisie n'existe pas"
-                        )
+                    # if kwargs_prepared.get("mode") not in {"insert", "do_nothing", "upsert"}:
+                    #     raise PostgresInsertMethodError(
+                    #         f"La methode {kwargs_prepared.get('mode')!r} "
+                    #         "d'insertion choisie n'existe pas"
+                    #     )
                     sql_prepare, sql_execute, sql_deallocate = self.get_prepare_smt(
                         kwargs_prepared.get("mode"), stmt_name
                     )
@@ -565,10 +565,10 @@ class PostgresDjangoUpsert:
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert
-                    print(
-                        "insert_mode_dict.get(insert_mode) : ",
-                        insert_mode_dict.get(insert_mode)
-                    )
+                    # print(
+                    #     "insert_mode_dict.get(insert_mode) : ",
+                    #     insert_mode_dict.get(insert_mode)
+                    # )
                     cursor.execute(insert_mode_dict.get(insert_mode))
 
                     # suppression de la table provisoire
