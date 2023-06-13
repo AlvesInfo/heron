@@ -47,6 +47,7 @@ def invoices_send_by_email(context_dict: Dict):
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
     """
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get("global_invoice_file")
+    print("file_path : ", file_path.name, file_path.is_file())
     error = False
     trace = get_trace(
         trace_name="Send invoices mail",
@@ -124,11 +125,10 @@ def invoices_send_by_email(context_dict: Dict):
                 mail_to_list.append(email_03)
                 mail_to_list.append(email_04)
                 mail_to_list.append(email_05)
-
+            print("row : ", row)
             context_email["3"] += f'<p style="margin-left: 40px">{invoice}</p>'
 
         mail_to_list = [mail for mail in mail_to_list if mail]
-
         send_mass_mail(
             [
                 (
