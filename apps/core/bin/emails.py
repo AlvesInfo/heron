@@ -41,9 +41,9 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     translate_email_html = email_html
 
     for i in range(10):
-        subject_mail = subject_mail.replace(f"{str(i)}", context.get(str(i)))
-        translate_email_text = translate_email_text.replace(f"{str(i)}", context.get(str(i)))
-        translate_email_html = translate_email_html.replace(f"{str(i)}", context.get(str(i)))
+        subject_mail = subject_mail.replace(f"{str(i)}", context.get(str(i), ""))
+        translate_email_text = translate_email_text.replace(f"{str(i)}", context.get(str(i), ""))
+        translate_email_html = translate_email_html.replace(f"{str(i)}", context.get(str(i), ""))
 
     subject_mail = subject_mail.replace("{", "").replace("}", "")
     translate_email_text = translate_email_text.replace("{", "").replace("}", "")
@@ -70,13 +70,21 @@ def send_mass_mail(email_list=None):
 
     with smtplib.SMTP("pro1.mail.ovh.net", 587) as server:
         print(server)
+        print("server.ehlo() : ", server.ehlo())
         server.starttls(context=ssl.create_default_context())
         server.login("paulo.alves@4a-info.fr", "OVH3zfsdnvh$")
 
         for email_to_send in email_list:
+            print("email_to_send", email_to_send)
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
             send_mail(
-                server, mail_to, subject, email_text, email_html, context, attachement_file_list
+                server,
+                ",".join(mail_to),
+                subject,
+                email_text,
+                email_html,
+                context,
+                attachement_file_list,
             )
 
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
@@ -96,7 +104,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
             message.attach(file_to_send)
 
     # Mise en place de la signature DKIM
-    dkim_file = Path(ENV_ROOT) / DKIM_PEM_FILE
+    dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
     print("dkim_file : ", dkim_file)
 
     with dkim_file.open() as pem_file:
