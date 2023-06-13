@@ -37,17 +37,12 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     if not context:
         context = {}
 
-    subject_mail = subject
-    translate_email_html = email_html
-
-    subject_mail.format(**context)
-    translate_email_html.format(**context)
+    subject_mail = subject.format(**context)
+    translate_email_html = email_html.format(**context)
 
     translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text()
 
     print(f"subject_mail : {subject_mail} |")
-    print("translate_email_text", translate_email_text)
-    print("translate_email_html", translate_email_html)
 
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
@@ -70,9 +65,6 @@ def send_mass_mail(email_list=None):
 
         for email_to_send in email_list:
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
-            print("tous les attributs : ",
-                mail_to, subject, email_text, email_html, context, attachement_file_list
-            )
             send_mail(
                 server,
                 ",".join(mail_to),
