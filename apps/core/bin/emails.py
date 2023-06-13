@@ -68,6 +68,12 @@ def send_mass_mail(email_list=None):
         server.starttls(context=ssl.create_default_context())
         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
+    # with smtplib.SMTP("pro1.mail.ovh.net", 587) as server:
+    #     print(server)
+    #     print("server.ehlo() : ", server.ehlo())
+    #     server.starttls(context=ssl.create_default_context())
+    #     server.login("paulo@alves.ovh", "3Zfsdnvh")
+
         for email_to_send in email_list:
             print("email_to_send", email_to_send)
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
