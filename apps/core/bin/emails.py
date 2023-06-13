@@ -21,7 +21,6 @@ from email.mime.application import MIMEApplication
 
 import dkim
 from bs4 import BeautifulSoup
-from django.core.mail import EmailMessage
 
 from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_EMAIL
@@ -109,7 +108,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         dkim_private_key = pem_file.read()
         sig = dkim.sign(
             message=message.as_bytes(),
-            logger=LOGGER_SAV,
+            logger=LOGGER_EMAIL,
             selector="email".encode(),
             domain=DOMAIN.encode(),
             privkey=dkim_private_key.encode(),
