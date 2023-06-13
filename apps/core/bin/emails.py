@@ -21,7 +21,7 @@ from email.mime.application import MIMEApplication
 
 import dkim
 from bs4 import BeautifulSoup
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage
 
 from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_EMAIL
@@ -90,7 +90,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     subject_mail, translate_email_text, translate_email_html = prepare_mail(
         msg, subject, email_text, email_html, context
     )
-    message = EmailMultiAlternatives(subject_mail, translate_email_text, EMAIL_HOST_USER, mail_to)
+    message = EmailMessage(subject_mail, translate_email_text, EMAIL_HOST_USER, mail_to)
     message.attach_alternative(translate_email_html, "text/html")
 
     for file in attachement_file_list:
@@ -113,19 +113,19 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         msg.attach(file_to_send)
 
     # Mise en place de la signature DKIM
-    # dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
-    #
-    # with dkim_file.open() as pem_file:
-    #     dkim_private_key = pem_file.read()
-    #     sig = dkim.sign(
-    #         message=msg.as_bytes(),
-    #         logger=LOGGER_EMAIL,
-    #         selector="email".encode(),
-    #         domain=DOMAIN.encode(),
-    #         privkey=dkim_private_key.encode(),
-    #         include_headers=[b"from", b"to"],
-    #     ).decode()
-    #     message.headers = {"DKIM-Signature": sig.lstrip("DKIM-Signature: ")}
+    dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
+
+    with dkim_file.open() as pem_file:
+        dkim_private_key = pem_file.read()
+        sig = dkim.sign(
+            message=msg.as_bytes(),
+            logger=LOGGER_EMAIL,
+            selector="email".encode(),
+            domain=DOMAIN.encode(),
+            privkey=dkim_private_key.encode(),
+            include_headers=[b"from", b"to"],
+        ).decode()
+        message.headers = {"DKIM-Signature": sig.lstrip("DKIM-Signature: ")}
 
     message.send(fail_silently=False)
     #
