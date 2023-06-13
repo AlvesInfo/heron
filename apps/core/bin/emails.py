@@ -96,7 +96,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
             file_to_send = MIMEApplication(open_file.read())
             file_to_send.add_header("Content-Disposition", "attachment", filename=file.name)
             message.attach(file_to_send)
-
+    print(ENV_ROOT)
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT) / DKIM_PEM_FILE
 
