@@ -298,11 +298,11 @@ def num_full_sales_invoices(cursor: connection.cursor):
 
     try:
         sales = (
-                SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
-                .values_list("id", "cct")
-                .annotate(dcount=Count("cct"))
-                .order_by()
-            )
+            SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
+            .values_list("id", "cct")
+            .annotate(dcount=Count("cct"))
+            .order_by()
+        )
 
         cct = sales[0].cct
         global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
@@ -310,12 +310,12 @@ def num_full_sales_invoices(cursor: connection.cursor):
         file_io.seek(0)
 
         for line in cursor.fetchall():
-            pk, cct_query, *_ = line
+            id_pk, cct_query, *_ = line
             if cct_query != cct:
                 cct = line[1]
                 global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
-            csv_writer.writerow([pk, global_invoice_file])
+            csv_writer.writerow([id_pk, global_invoice_file])
 
         file_io.seek(0)
         postgres_upsert = PostgresDjangoUpsert(
@@ -450,8 +450,6 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             if error:
                 raise Exception
-
-
 
             alls_print += to_print
 

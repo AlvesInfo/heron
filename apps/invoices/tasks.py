@@ -1,4 +1,4 @@
-# pylint: disable=E0401,W0718,E0633,W1203,W1201
+# pylint: disable=E0401,W0718,E0633,W1203,W1201,C0411
 """
 FR : Module de génération des factures pdf de ventes sous task Celery
 EN : Module for generating pdf sales invoices under task Celery
@@ -32,7 +32,6 @@ from heron import celery_app
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
-from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress
@@ -128,7 +127,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
     except Exception as error:
         print("Error : ", error)
         LOGGER_INVOICES.exception(
-           "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
+            "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
 
 
@@ -174,8 +173,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print
-        + f"Génération du pdf {cct} : {time.time() - start_initial} s "
+        to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "
     )
 
     return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
