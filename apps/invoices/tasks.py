@@ -223,8 +223,8 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
 
     try:
         tasks_list = []
-
         for cct_dict in cct_invoices_list:
+            print({**context_dict, **cct_dict})
             tasks_list.append(
                 celery_app.signature(
                     "send_invoice_email",
