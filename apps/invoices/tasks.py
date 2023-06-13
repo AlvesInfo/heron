@@ -200,19 +200,6 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
             cct__in=[
                 "AF0101",
                 "AF0103",
-                "AF0104",
-                "AF0105",
-                "AF0106",
-                "AF0107",
-                "AF0110",
-                "AF0112",
-                "AF0114",
-                "AF0115",
-                "AF0116",
-                "AF0117",
-                "AF0509",
-                "AF0510",
-                "AF0519",
             ],
         )
         .values("cct", "global_invoice_file", "invoice_month")

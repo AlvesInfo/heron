@@ -10,7 +10,6 @@ created by: Paulo ALVES
 modified at: 2023-06-13
 modified by: Paulo ALVES
 """
-import os
 import smtplib
 import ssl
 from pathlib import Path
@@ -23,11 +22,6 @@ import dkim
 from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_EMAIL
 
-try:
-    PROTOCOL = settings.SECURE_PROXY_SSL_HEADER[1]
-except AttributeError:
-    PROTOCOL = "http"
-
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -35,8 +29,6 @@ EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 ENV_ROOT = settings.path_env
 DOMAIN = settings.DOMAIN
 DKIM_PEM_FILE = settings.DKIM_PEM_FILE
-
-TEMPLATE_ROOT = os.path.join(settings.APPS_DIR, "services/templates/services")
 
 
 def prepare_mail(message, subject, email_text="", email_html="", context=None):
