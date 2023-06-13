@@ -105,7 +105,13 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         summary_invoice_pdf(cct, file_path)
 
         sales_incoices_list = (
-            SaleInvoice.objects.filter(cct=cct, final=False, printed=False, type_x3__in=(1, 2))
+            SaleInvoice.objects.filter(
+                cct=cct,
+                global_invoice_file=num_file,
+                final=False,
+                printed=False,
+                type_x3__in=(1, 2),
+            )
             .values_list("cct", "uuid_identification", "big_category_slug_name", "invoice_number")
             .order_by("big_category_ranking")
         )

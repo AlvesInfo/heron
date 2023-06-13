@@ -356,6 +356,7 @@ def num_full_sales_invoices(cursor: connection.cursor):
         except (AttributeError, NameError):
             pass
 
+
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
@@ -428,6 +429,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             if error:
                 raise Exception
+
+            # On insère les numérotations des factures globales
+            num_full_sales_invoices(cursor)
 
             alls_print += to_print
             cursor.execute(SQL_PURCHASES_DETAILS)
