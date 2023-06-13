@@ -113,19 +113,19 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         msg.attach(file_to_send)
 
     # Mise en place de la signature DKIM
-    dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
-
-    with dkim_file.open() as pem_file:
-        dkim_private_key = pem_file.read()
-        sig = dkim.sign(
-            message=msg.as_bytes(),
-            logger=LOGGER_EMAIL,
-            selector="email".encode(),
-            domain=DOMAIN.encode(),
-            privkey=dkim_private_key.encode(),
-            include_headers=[b"from", b"to"],
-        ).decode()
-        message.headers = {"DKIM-Signature": sig.lstrip("DKIM-Signature: ")}
+    # dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
+    #
+    # with dkim_file.open() as pem_file:
+    #     dkim_private_key = pem_file.read()
+    #     sig = dkim.sign(
+    #         message=msg.as_bytes(),
+    #         logger=LOGGER_EMAIL,
+    #         selector="email".encode(),
+    #         domain=DOMAIN.encode(),
+    #         privkey=dkim_private_key.encode(),
+    #         include_headers=[b"from", b"to"],
+    #     ).decode()
+    #     message.headers = {"DKIM-Signature": sig.lstrip("DKIM-Signature: ")}
 
     message.send(fail_silently=False)
     #
