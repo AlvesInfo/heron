@@ -71,6 +71,8 @@ WHITELIST = config("ALLOWED_HOSTS", cast=Csv())
 
 DOMAIN = config("DOMAIN", default="acuitis.com")
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 # REPERTOIRE DES LOGS
 LOG_DIR = (
     (Path(BASE_DIR) / config("LOG_BASE_PATH", default=None)).resolve()
