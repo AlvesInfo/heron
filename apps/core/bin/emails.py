@@ -40,30 +40,8 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     subject_mail = subject
     translate_email_html = email_html
 
-    subject_mail.format(
-        context.get("0", ""),
-        context.get("1", ""),
-        context.get("2", ""),
-        context.get("3", ""),
-        context.get("4", ""),
-        context.get("5", ""),
-        context.get("6", ""),
-        context.get("7", ""),
-        context.get("8", ""),
-        context.get("9", ""),
-    )
-    translate_email_html.format(
-        context.get("0", ""),
-        context.get("1", ""),
-        context.get("2", ""),
-        context.get("3", ""),
-        context.get("4", ""),
-        context.get("5", ""),
-        context.get("6", ""),
-        context.get("7", ""),
-        context.get("8", ""),
-        context.get("9", ""),
-    )
+    subject_mail.format(**context)
+    translate_email_html.format(**context)
 
     translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text()
 

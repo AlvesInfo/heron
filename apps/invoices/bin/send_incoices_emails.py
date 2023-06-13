@@ -58,12 +58,12 @@ def invoices_send_by_email(context_dict: Dict):
     )
     to_print = ""
     context_email = {
-        "1": (
+        "periode": (
             pendulum.parse(context_dict.get("invoice_month"))
             .format("MMMM YYYY", locale="fr")
             .upper()
         ),
-        "3": "",
+        "factures": "",
     }
     mail_to_list = []
 
@@ -116,17 +116,17 @@ def invoices_send_by_email(context_dict: Dict):
                 email_05,
             ) = row
             if i == 0:
-                context_email["0"] = cct_name
-                context_email["2"] = f'<p style="margin-left: 40px">{synthese}</p>'
-                context_email["4"] = service
-                context_email["5"] = center
+                context_email["cct"] = cct_name
+                context_email["syntese"] = f'<p style="margin-left: 40px">{synthese}</p>'
+                context_email["service"] = service
+                context_email["centrale"] = center
                 mail_to_list.append(email_01)
                 mail_to_list.append(email_02)
                 mail_to_list.append(email_03)
                 mail_to_list.append(email_04)
                 mail_to_list.append(email_05)
 
-            context_email["3"] += f'<p style="margin-left: 80px">{invoice}</p>'
+            context_email["factures"] += f'<p style="margin-left: 80px">{invoice}</p>'
 
         mail_to_list = [mail for mail in mail_to_list if mail]
         send_mass_mail(
