@@ -17,6 +17,7 @@ import os
 import platform
 import sys
 import csv
+import time
 
 import django
 
@@ -312,11 +313,8 @@ def num_full_sales_invoices():
             cct = cct_query
             global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
-        SaleInvoice.objects.update_or_create(
-            cct=cct,
-            final=False,
-            type_x3__in=(1, 2),
-            defaults={"global_invoice_file": global_invoice_file},
+        SaleInvoice.objects.filter(cct=cct, final=False, type_x3__in=(1, 2)).update(
+            global_invoice_file=global_invoice_file
         )
 
 
@@ -327,6 +325,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     :param invoice_date: date de la facture
     :return: to_print
     """
+    start = time.time()
     trace = get_trace(
         f"Insertion de la facturation : {invoice_date}",
         "insertion par fonction",
@@ -337,9 +336,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
     # On update dabord les cct puis les centrales et enseignes
     update_cct_edi_import()
+    print(f"update_cct_edi_import :{time.time()-start} s")
+    start = time.time()
 
     # Pré-contrôle des données avant insertion
     controls = control_alls_missings()
+    print(f"control_alls_missings :{time.time()-start} s")
+    start = time.time()
 
     if controls:
         # TODO : FAIRE LE PRE CONTROLE QUAND TOUS LE PROCESS EST TERMINE
@@ -353,9 +356,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
             # On met les import_uuid_identification au cas où il en manque
             set_fix_uuid(cursor)
+            print(f"set_fix_uuid :{time.time()-start} s")
+            start = time.time()
 
             # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
             process_update()
+            print(f"process_update :{time.time()-start} s")
+            start = time.time()
 
             # On supprime les éxistant non définitifs
 
@@ -377,18 +384,26 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             cursor.execute(
                 'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
             )
+            print(f"suppression :{time.time()-start} s")
+            start = time.time()
 
             # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
             update_axes_edi()
+            print(f"update_axes_edi :{time.time()-start} s")
+            start = time.time()
 
             # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
             set_common_details(cursor)
+            print(f"set_common_details :{time.time()-start} s")
+            start = time.time()
 
             user = User.objects.get(uuid_identification=user_uuid)
 
             # On insère les factures d'achats
             LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
             error, to_print = set_purchases_invoices(cursor, user)
+            print(f"set_purchases_invoices :{time.time()-start} s")
+            start = time.time()
 
             if error:
                 raise Exception
@@ -405,17 +420,26 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
                 )
                 raise Exception("Il y a eu une erreur à l'insertion des factures d'achat")
 
+            print(f"control_sales_insertion :{time.time()-start} s")
+            start = time.time()
+
             # On insère les entêtes de factures de vente
             error, to_print = set_sales_invoices(cursor, user, invoice_date)
 
             if error:
                 raise Exception
 
+            print(f"set_sales_invoices :{time.time()-start} s")
+            start = time.time()
+
             alls_print += to_print
 
             # On insère les détails des factures de vente
             LOGGER_INVOICES.warning(r"Insertion des factures de vente")
             set_sales_details(cursor)
+
+            print(f"set_sales_details :{time.time()-start} s")
+            start = time.time()
 
             # TODO: PREVOIR DE REMPLIR LA DATE D'ECHEANCE EN FONCTION DU mode_reglement
 
@@ -428,8 +452,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
                 )
                 raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
+            print(f"control_sales_insertion :{time.time()-start} s")
+            start = time.time()
+
         # On insère les numérotations des factures globales
+        LOGGER_INVOICES.warning(r"insertion numérotation globale")
         num_full_sales_invoices()
+        print(f"num_full_sales_invoices :{time.time()-start} s")
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
