@@ -84,8 +84,9 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     prepare_mail(message, body, subject, email_text, email_html, context)
     message["To"] = ";".join(mail_to)
     message.attach(body)
-
+    cct_name = ""
     for file in attachement_file_list:
+        cct_name = file.name[:6]
         payload = MIMEBase("application", "octet-stream")
 
         try:
@@ -114,5 +115,5 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         ).decode()
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
-    print(mail_to)
+    print(f"{cct_name} : {mail_to}")
     # server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
