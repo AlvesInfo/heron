@@ -22,12 +22,12 @@
 {% for supplier_name in supplier_list %}
     <table class="space">
         <tbody>
-            <tr class="fournisseur">
+            <tr class="fournisseur" style="display:table-header-group">
                 <td colspan="15">{{ supplier_name.grouper }}
                 </td>
             </tr>
 
-            <tr class="sousEntete">
+            <tr class="sousEntete" style="display:table-header-group">
                 <td>N° {{ invoices.0.invoice_type_name }}</td>
                 <td>Date facture</td>
                 {% for entete in entetes %}
