@@ -70,9 +70,9 @@ def invoices_send_by_email(context_dict: Dict):
         sql_context = """
         select 
             "si"."cct" || ' - ' || "ip"."name_cct" as "cct_name", 
-            '    * Synthèse' || "si"."global_invoice_file" as "synthese",
+            'Synthèse' || "si"."global_invoice_file" as "synthese",
             (
-                '        - Facture de ' 
+                '- Facture de ' 
                 || 
                 "si"."big_category" 
                 || 
@@ -143,7 +143,7 @@ def invoices_send_by_email(context_dict: Dict):
                 )
             ]
         )
-        print("context_dict.get('subject_email')", context_dict.get("subject_email"))
+        print(f"context_dict.get('subject_email') : {context_dict.get('subject_email')} |")
         print(context_email)
 
     try:

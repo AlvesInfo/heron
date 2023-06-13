@@ -51,7 +51,7 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     translate_email_text = BeautifulSoup(translate_email_text, "lxml").get_text()
     translate_email_html = translate_email_html.replace("{", "").replace("}", "")
 
-    print("subject_mail", subject_mail)
+    print(f"subject_mail : {subject_mail} |")
     print("translate_email_text", translate_email_text)
     print("translate_email_html", translate_email_html)
 
