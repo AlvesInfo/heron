@@ -128,12 +128,22 @@ def invoices_send_by_email(context_dict: Dict):
             context_email["3"] += f"{invoice}\n"
 
         mail_to_list = [mail for mail in mail_to_list if mail]
+        print(
+            mail_to_list,
+            context_dict.get("subject_email"),
+            context_dict.get("email_text"),
+            context_dict.get("email_html"),
+            context_email,
+            [
+                file_path,
+            ],
+        )
         send_mass_mail(
             [
                 ["paulo@alves.ovh"],
                 context_dict.get("subject_email"),
-                context_dict.get("email_html"),
                 context_dict.get("email_text"),
+                context_dict.get("email_html"),
                 context_email,
                 [
                     file_path,
