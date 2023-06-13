@@ -329,7 +329,7 @@ def num_full_sales_invoices():
         file_io.seek(0)
         postgres_upsert.insertion(
             file=file_io,
-            insert_mode="upsert",
+            insert_mode="prepared",
             delimiter=";",
             quote_character='"',
             kwargs_prepared={},
