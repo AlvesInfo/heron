@@ -52,8 +52,6 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     message.attach(MIMEText(translate_email_text, "text"))
     message.attach(MIMEText(translate_email_html, "html"))
 
-    return subject_mail, translate_email_text, translate_email_html
-
 
 def send_mass_mail(email_list=None):
     """Envoi des mails en masse"""
@@ -72,7 +70,7 @@ def send_mass_mail(email_list=None):
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
             send_mail(
                 server,
-                mail_to,
+                ",".join(mail_to),
                 subject,
                 email_text,
                 email_html,
@@ -85,18 +83,10 @@ def send_mass_mail(email_list=None):
 
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
     """Envoi le mail avec le template souhaité"""
-    msg = MIMEMultipart("alternative")
+    message = MIMEMultipart("alternative")
 
-    subject_mail, translate_email_text, translate_email_html = prepare_mail(
-        msg, subject, email_text, email_html, context
-    )
-    message = EmailMessage(subject_mail, translate_email_text, EMAIL_HOST_USER, mail_to)
+    prepare_mail(message, subject, email_text, email_html, context)
     # message.attach_alternative(translate_email_html, "text/html")
-
-    for file in attachement_file_list:
-        message.attach_file(file.resolve())
-
-    msg["To"] = ",".join(mail_to)
 
     for file in attachement_file_list:
         file_to_send = MIMEBase("application", "octet-stream")
@@ -110,7 +100,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         encoders.encode_base64(file_to_send)
 
         file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
-        msg.attach(file_to_send)
+        message.attach(file_to_send)
 
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
@@ -118,15 +108,13 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     with dkim_file.open() as pem_file:
         dkim_private_key = pem_file.read()
         sig = dkim.sign(
-            message=msg.as_bytes(),
-            logger=LOGGER_EMAIL,
+            message=message.as_bytes(),
+            logger=LOGGER_SAV,
             selector="email".encode(),
             domain=DOMAIN.encode(),
             privkey=dkim_private_key.encode(),
             include_headers=[b"from", b"to"],
         ).decode()
-        message.headers = {"DKIM-Signature": sig.lstrip("DKIM-Signature: ")}
+        message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
-    message.send(fail_silently=False)
-    #
-    # server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
+    server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
