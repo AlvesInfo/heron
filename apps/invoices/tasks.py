@@ -11,27 +11,22 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
-import os
-import io
-import smtplib
-from pathlib import Path
-import time
-from typing import AnyStr
 
-import dkim
-import ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import time
+from typing import AnyStr, Dict
+
 import pendulum
 from celery import shared_task
 from celery import group
 from django.db.models import Count
+from bs4 import BeautifulSoup
 
 from heron.loggers import LOGGER_INVOICES
 from heron import celery_app
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
+from apps.invoices.bin.send_incoices_emails import invoices_send_by_email
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
@@ -180,37 +175,77 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
 
 @shared_task(name="celery_send_invoices_emails")
-def celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr=None, period:AnyStr=None):
+def celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None):
     """
     Main pour lancement de l'enoi des factures par mails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     :param cct: cct de la fcture à envoyer
     :param period: période de la facturation
     """
-    email_html = Email.objects.get()
+    # récupération du texte du corps de mail et sujet
+    email = Email.objects.get(name=0)
+    context_dict = {
+        "subject_email": str(email.subject),
+        "email_html": str(email.email_body),
+        "email_text": BeautifulSoup(str(email.email_body)).get_text(),
+    }
+
     # envoi de toutes les factures imprimées en pdf et non finales, et non envoyées
     cct_invoices_list = (
-        SaleInvoice.objects.filter(final=False, printed=True, type_x3__in=(1, 2), send_mail=False)
-        .values("global_invoice_file")
+        SaleInvoice.objects.filter(
+            final=False,
+            printed=True,
+            type_x3__in=(1, 2),
+            send_email=False,
+            cct__in=[
+                "AF0101",
+                "AF0103",
+                "AF0104",
+                "AF0105",
+                "AF0106",
+                "AF0107",
+                "AF0110",
+                "AF0112",
+                "AF0114",
+                "AF0115",
+                "AF0116",
+                "AF0117",
+                "AF0509",
+                "AF0510",
+                "AF0519",
+            ],
+        )
+        .values("cct", "global_invoice_file", "invoice_month")
         .annotate(dcount=Count("cct"))
-        .values_list("cct", "global_invoice_file")
         .order_by("cct")
     )
 
     # Si l'on demande un cct on doit avoir la période pour filtrer et ne pas tout envoyer
     if cct and period:
         cct_invoices_list = (
-            SaleInvoice.objects
-            .filter(cct=cct, invoice_month=period, printed=True, type_x3__in=(1, 2))
-            .values("global_invoice_file")
+            SaleInvoice.objects.filter(
+                cct=cct,
+                invoice_month=period,
+                printed=True,
+                type_x3__in=(1, 2),
+            )
+            .values("cct", "global_invoice_file", "invoice_month")
             .annotate(dcount=Count("cct"))
-            .values_list("cct", "global_invoice_file")
             .order_by("cct")
         )
 
     try:
         tasks_list = []
 
+        for cct_dict in cct_invoices_list:
+            tasks_list.append(
+                celery_app.signature(
+                    "send_invoice_email",
+                    kwargs={**context_dict, **cct_dict, "user_pk": str(user_pk)},
+                )
+            )
+
+        group(*tasks_list).apply_async()
 
     except Exception as error:
         print("Error : ", error)
@@ -220,11 +255,10 @@ def celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr=None, period:AnyStr=N
 
 
 @shared_task(name="send_invoice_email")
-def send_invoice_email(cct: Maison.cct, num_file: AnyStr, user_pk: int):
+def send_invoice_email(context_dict: Dict, user_pk: int):
     """
     Envoi d'une facture par mail
-    :param cct: cct de la facture pdf à générer
-    :param num_file: numero du fichier full
+    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
 
@@ -236,7 +270,7 @@ def send_invoice_email(cct: Maison.cct, num_file: AnyStr, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        trace, to_print = invoices_pdf_generation(cct, num_file)
+        trace, to_print = invoices_send_by_email(context_dict)
         trace.created_by = user
     except TypeError as except_error:
         error = True
@@ -246,7 +280,8 @@ def send_invoice_email(cct: Maison.cct, num_file: AnyStr, user_pk: int):
     except Exception as except_error:
         error = True
         LOGGER_INVOICES.exception(
-            f"Exception Générale: launch_generate_pdf_invoices : {cct}\n{except_error!r}"
+            f"Exception Générale: launch_generate_pdf_invoices : "
+            f"{context_dict.get('cct')}\n{except_error!r}"
         )
 
     finally:
@@ -261,11 +296,15 @@ def send_invoice_email(cct: Maison.cct, num_file: AnyStr, user_pk: int):
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "
+        to_print + f"Génération du pdf {context_dict.get('cct')} : {time.time() - start_initial} s "
     )
 
-    return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
+    return {
+        "Generation facture pdf : ": (
+            f"cct : {str(context_dict.get('cct'))} " f"- {time.time() - start_initial} s"
+        )
+    }
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     celery_send_invoice_mails(user_pk=1)
