@@ -99,7 +99,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
 
         encoders.encode_base64(payload)
 
-        payload.add_header("Content-Disposition", "attachment", filename=f"test.csv")
+        payload.add_header("Content-Disposition", "attachment", filename=f"{file.name}")
         message.attach(payload)
 
     # Mise en place de la signature DKIM
