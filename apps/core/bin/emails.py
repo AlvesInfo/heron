@@ -16,7 +16,6 @@ from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from email.mime.base import MIMEBase
 
 import dkim
 from bs4 import BeautifulSoup
@@ -87,11 +86,13 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     prepare_mail(message, subject, email_text, email_html, context)
 
     for file in attachement_file_list:
+        file_to_send = None
         with file.open("rb") as open_file:
             print("file : ", file)
             file_to_send = MIMEApplication(open_file.read())
-            file_to_send["Content-Disposition"] = 'attachment; filemane="%s"' % file.name
-            message.attach(file_to_send)
+
+        file_to_send.add_header("Content-Disposition", "attachment", filename=file.name)
+        message.attach(file_to_send)
 
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
