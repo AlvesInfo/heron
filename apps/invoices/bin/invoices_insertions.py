@@ -297,7 +297,7 @@ def num_full_sales_invoices():
 
     sales_list = (
         SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
-        .values("uuid_identification", "cct")
+        .values("cct")
         .annotate(dcount=Count("cct"))
         .order_by()
     )
@@ -306,7 +306,6 @@ def num_full_sales_invoices():
     global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
     for line_dict in sales_list:
-        uuid_identification = line_dict.get("uuid_identification")
         cct_query = line_dict.get("cct")
 
         if cct_query != cct:
@@ -314,7 +313,9 @@ def num_full_sales_invoices():
             global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
         SaleInvoice.objects.update_or_create(
-            uuid_identification=uuid_identification,
+            cct=cct,
+            final=False,
+            type_x3__in=(1, 2),
             defaults={"global_invoice_file": global_invoice_file},
         )
 
