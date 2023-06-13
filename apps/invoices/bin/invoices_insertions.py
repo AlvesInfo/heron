@@ -432,9 +432,6 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             if error:
                 raise Exception
 
-            # On insère les numérotations des factures globales
-            num_full_sales_invoices()
-
             alls_print += to_print
             cursor.execute(SQL_PURCHASES_DETAILS)
 
@@ -469,6 +466,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
                     "les totaux ne correspondent pas"
                 )
                 raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+
+        # On insère les numérotations des factures globales
+        num_full_sales_invoices()
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
