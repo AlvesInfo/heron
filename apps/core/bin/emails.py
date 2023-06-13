@@ -15,6 +15,8 @@ import ssl
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.application import MIMEApplication
 
 import dkim
@@ -86,12 +88,17 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     prepare_mail(message, subject, email_text, email_html, context)
 
     for file in attachement_file_list:
-        file_to_send = None
-        with file.open("rb") as open_file:
-            print("file : ", file)
-            file_to_send = MIMEApplication(open_file.read())
+        file_to_send = MIMEBase("application", "octet-stream")
 
-        file_to_send.add_header("Content-Disposition", "attachment", filename=file.name)
+        try:
+            with open(file, "rb") as open_file:
+                file_to_send.set_payload(open_file.read())
+        except Exception as msg_error:
+            raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
+
+        encoders.encode_base64(file_to_send)
+
+        file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
         message.attach(file_to_send)
 
     # Mise en place de la signature DKIM
