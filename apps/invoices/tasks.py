@@ -296,15 +296,14 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print + f"Génération du pdf {context_dict.get('cct')} : {time.time() - start_initial} s "
+        to_print + (
+            f"Envoie de la facture par mail {context_dict.get('cct')} "
+            f": {time.time() - start_initial} s "
+        )
     )
 
     return {
-        "Generation facture pdf : ": (
+        "Envoie de la facture par mail : ": (
             f"cct : {str(context_dict.get('cct'))} " f"- {time.time() - start_initial} s"
         )
     }
-
-
-if __name__ == "__main__":
-    celery_send_invoice_mails(user_pk=1)
