@@ -21,6 +21,7 @@ from email.mime.application import MIMEApplication
 
 import dkim
 from bs4 import BeautifulSoup
+from django.core.mail import EmailMultiAlternatives
 
 from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_EMAIL
@@ -84,41 +85,40 @@ def send_mass_mail(email_list=None):
 
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
     """Envoi le mail avec le template souhaité"""
-    message = MIMEMultipart("alternative")
-    from django.core.mail import EmailMultiAlternatives
+    msg = MIMEMultipart("alternative")
 
     subject_mail, translate_email_text, translate_email_html = prepare_mail(
-        message, subject, email_text, email_html, context
+        msg, subject, email_text, email_html, context
     )
     message = EmailMultiAlternatives(subject_mail, translate_email_text, EMAIL_HOST_USER, mail_to)
     message.attach_alternative(translate_email_html, "text/html")
+
     for file in attachement_file_list:
         message.attach_file(file.resolve())
-    #
-    # message["To"] = mail_to
-    # prepare_mail(message, subject, email_text, email_html, context)
-    #
-    # for file in attachement_file_list:
-    #     file_to_send = MIMEBase("application", "octet-stream")
-    #     print(file.resolve())
-    #     try:
-    #         with open(file, "rb") as open_file:
-    #             file_to_send.set_payload(open_file.read())
-    #     except Exception as msg_error:
-    #         raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
-    #
-    #     encoders.encode_base64(file_to_send)
-    #
-    #     file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
-    #     message.attach(file_to_send)
-    #
+
+    msg["To"] = ",".join(mail_to)
+
+    for file in attachement_file_list:
+        file_to_send = MIMEBase("application", "octet-stream")
+        print(file.resolve())
+        try:
+            with open(file, "rb") as open_file:
+                file_to_send.set_payload(open_file.read())
+        except Exception as msg_error:
+            raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
+
+        encoders.encode_base64(file_to_send)
+
+        file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
+        msg.attach(file_to_send)
+
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
 
     with dkim_file.open() as pem_file:
         dkim_private_key = pem_file.read()
         sig = dkim.sign(
-            message=str("envoi mail").encode(),
+            message=msg.as_bytes(),
             logger=LOGGER_EMAIL,
             selector="email".encode(),
             domain=DOMAIN.encode(),
