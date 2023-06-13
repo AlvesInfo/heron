@@ -565,10 +565,10 @@ class PostgresDjangoUpsert:
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert
-                    # print(
-                    #     "insert_mode_dict.get(insert_mode) : ",
-                    #     insert_mode_dict.get(insert_mode)
-                    # )
+                    print(
+                        "insert_mode_dict.get(insert_mode) : ",
+                        insert_mode_dict.get(insert_mode)
+                    )
                     cursor.execute(insert_mode_dict.get(insert_mode))
 
                     # suppression de la table provisoire

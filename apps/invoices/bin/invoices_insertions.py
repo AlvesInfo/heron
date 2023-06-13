@@ -299,7 +299,7 @@ def num_full_sales_invoices():
     try:
         sales_list = (
             SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
-            .values("id", "cct")
+            .values("uuid_identification", "cct")
             .annotate(dcount=Count("cct"))
             .order_by()
         )
@@ -310,19 +310,19 @@ def num_full_sales_invoices():
         file_io.seek(0)
 
         for line_dict in sales_list:
-            id_pk = line_dict.get("id")
+            uuid_identification = line_dict.get("uuid_identification")
             cct_query = line_dict.get("cct")
 
             if cct_query != cct:
                 cct = cct_query
                 global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
-            csv_writer.writerow([id_pk, global_invoice_file])
+            csv_writer.writerow([uuid_identification, global_invoice_file])
 
         file_io.seek(0)
         postgres_upsert = PostgresDjangoUpsert(
             model=SaleInvoice,
-            fields_dict={"id": True, "global_invoice_file": False},
+            fields_dict={"uuid_identification": True, "global_invoice_file": False},
             cnx=connection,
             exclude_update_fields={},
         )
