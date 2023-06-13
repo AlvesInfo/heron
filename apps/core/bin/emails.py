@@ -63,16 +63,10 @@ def send_mass_mail(email_list=None):
     if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
-    # with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-    #     print("server.ehlo() : ", server.ehlo())
-    #     server.starttls(context=ssl.create_default_context())
-    #     server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-
-    with smtplib.SMTP("pro1.mail.ovh.net", 587) as server:
-        print(server)
+    with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
         print("server.ehlo() : ", server.ehlo())
         server.starttls(context=ssl.create_default_context())
-        server.login("paulo.alves@4a-info.fr", "OVH3zfsdnvh$")
+        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
         for email_to_send in email_list:
             print("email_to_send", email_to_send)
@@ -105,7 +99,6 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
 
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
-    print("dkim_file : ", dkim_file)
 
     with dkim_file.open() as pem_file:
         dkim_private_key = pem_file.read()
