@@ -42,7 +42,6 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     translate_email_html = email_html
 
     for i in range(10):
-        print("context.get(str(i), " ")", i, context.get(str(i), ""))
         subject_mail = subject_mail.replace(f"{str(i)}", context.get(str(i), ""))
         translate_email_html = translate_email_html.replace(f"{str(i)}", context.get(str(i), ""))
         translate_email_text = translate_email_text.replace(f"{str(i)}", context.get(str(i), ""))
@@ -77,6 +76,9 @@ def send_mass_mail(email_list=None):
 
         for email_to_send in email_list:
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
+            print(
+                mail_to, subject, email_text, email_html, context, attachement_file_list
+            )
             send_mail(
                 server,
                 ",".join(mail_to),
