@@ -36,8 +36,8 @@ class EmailCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     form_class = EmailForm
     form_class.use_required_attribute = False
     template_name = "parameters/email_update.html"
-    success_message = "L'email %(name)s a été créé avec success"
-    error_message = "L'email %(name)s n'a pu être créé, une erreur c'est produite"
+    success_message = "L'email %(description)s a été créé avec success"
+    error_message = "L'email %(description)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -62,8 +62,8 @@ class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     form_class = EmailForm
     form_class.use_required_attribute = False
     template_name = "parameters/email_update.html"
-    success_message = "L'email %(name)s a été modifiée avec success"
-    error_message = "L'email %(name)s n'a pu être modifiée, une erreur c'est produite"
+    success_message = "L'email %(description)s a été modifiée avec success"
+    error_message = "L'email %(description)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""

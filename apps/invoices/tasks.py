@@ -34,7 +34,7 @@ from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Mai
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
-from apps.parameters.models import ActionInProgress
+from apps.parameters.models import ActionInProgress, Email
 
 
 @shared_task(name="invoices_insertions_launch")
@@ -177,3 +177,95 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
     )
 
     return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
+
+
+@shared_task(name="celery_send_invoices_emails")
+def celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr=None, period:AnyStr=None):
+    """
+    Main pour lancement de l'enoi des factures par mails
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param cct: cct de la fcture à envoyer
+    :param period: période de la facturation
+    """
+    email_html = Email.objects.get()
+    # envoi de toutes les factures imprimées en pdf et non finales, et non envoyées
+    cct_invoices_list = (
+        SaleInvoice.objects.filter(final=False, printed=True, type_x3__in=(1, 2), send_mail=False)
+        .values("global_invoice_file")
+        .annotate(dcount=Count("cct"))
+        .values_list("cct", "global_invoice_file")
+        .order_by("cct")
+    )
+
+    # Si l'on demande un cct on doit avoir la période pour filtrer et ne pas tout envoyer
+    if cct and period:
+        cct_invoices_list = (
+            SaleInvoice.objects
+            .filter(cct=cct, invoice_month=period, printed=True, type_x3__in=(1, 2))
+            .values("global_invoice_file")
+            .annotate(dcount=Count("cct"))
+            .values_list("cct", "global_invoice_file")
+            .order_by("cct")
+        )
+
+    try:
+        tasks_list = []
+
+
+    except Exception as error:
+        print("Error : ", error)
+        LOGGER_INVOICES.exception(
+            "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
+        )
+
+
+@shared_task(name="send_invoice_email")
+def send_invoice_email(cct: Maison.cct, num_file: AnyStr, user_pk: int):
+    """
+    Envoi d'une facture par mail
+    :param cct: cct de la facture pdf à générer
+    :param num_file: numero du fichier full
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    """
+
+    start_initial = time.time()
+
+    error = False
+    trace = None
+    to_print = ""
+
+    try:
+        user = User.objects.get(pk=user_pk)
+        trace, to_print = invoices_pdf_generation(cct, num_file)
+        trace.created_by = user
+    except TypeError as except_error:
+        error = True
+        to_print += f"TypeError : {except_error}\n"
+        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+
+    except Exception as except_error:
+        error = True
+        LOGGER_INVOICES.exception(
+            f"Exception Générale: launch_generate_pdf_invoices : {cct}\n{except_error!r}"
+        )
+
+    finally:
+        if error and trace:
+            trace.errors = True
+            trace.comment = (
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+            )
+
+        if trace is not None:
+            trace.invoices = True
+            trace.save()
+
+    LOGGER_INVOICES.warning(
+        to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "
+    )
+
+    return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
+
+
+if __name__ == '__main__':
+    celery_send_invoice_mails(user_pk=1)

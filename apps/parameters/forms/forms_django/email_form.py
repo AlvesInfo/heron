@@ -23,7 +23,6 @@ class EmailForm(forms.ModelForm):
 
         model = Email
         fields = (
-            "name",
             "description",
             "subject",
             "email_body",

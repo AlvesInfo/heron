@@ -23,10 +23,6 @@
                     {% csrf_token %}
                         <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                             <div class="fields">
-                                <div class="two wide field">
-                                    <label for="id_name" style="text-align: left;">Nom&nbsp;:</label>
-                                    <input type="text" name="name" id="id_name" value="{% if form.name.value == 0 %}Factures{% else %}Documents{% endif %}" readonly style="background-color: #efefff;font-weight: bold;">
-                                </div>
                                 <div class="fourteen wide field">
                                     <label for="id_description" style="text-align: left;">Description&nbsp;:</label>
                                     {{ form.description }}
