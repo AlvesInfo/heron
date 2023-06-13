@@ -299,7 +299,7 @@ def num_full_sales_invoices():
     try:
         sales_list = (
             SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
-            .values_list("id", "cct")
+            .values("id", "cct")
             .annotate(dcount=Count("cct"))
             .order_by()
         )
