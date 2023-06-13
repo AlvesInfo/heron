@@ -118,7 +118,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     with dkim_file.open() as pem_file:
         dkim_private_key = pem_file.read()
         sig = dkim.sign(
-            message=message.as_bytes(),
+            message=str(message).encode(),
             logger=LOGGER_EMAIL,
             selector="email".encode(),
             domain=DOMAIN.encode(),
