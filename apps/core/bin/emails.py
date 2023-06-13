@@ -88,18 +88,18 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     # message.attach_alternative(translate_email_html, "text/html")
 
     for file in attachement_file_list:
-        file_to_send = MIMEBase("application", "octet-stream")
+        payload = MIMEBase("application", "octet-stream")
         print(file.resolve())
         try:
             with open(file, "rb") as open_file:
-                file_to_send.set_payload(open_file.read())
+                payload.set_payload(open_file.read())
         except Exception as msg_error:
             raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
 
-        encoders.encode_base64(file_to_send)
+        encoders.encode_base64(payload)
 
-        file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
-        message.attach(file_to_send)
+        payload.add_header("Content-Disposition", "attachment", filename=f"{str(file.name)}")
+        message.attach(payload)
 
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
