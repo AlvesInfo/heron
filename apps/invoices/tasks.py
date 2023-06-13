@@ -187,9 +187,9 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
     context_dict = {
         "subject_email": str(email.subject),
         "email_html": str(email.email_body),
-        "email_text": BeautifulSoup(str(email.email_body)).get_text(),
+        "email_text": BeautifulSoup(str(email.email_body), "lxml").get_text(),
     }
-
+    print(context_dict)
     # envoi de toutes les factures imprimées en pdf et non finales, et non envoyées
     cct_invoices_list = (
         SaleInvoice.objects.filter(
