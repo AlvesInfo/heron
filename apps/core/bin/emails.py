@@ -82,7 +82,7 @@ def send_mass_mail(email_list=None):
 
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
     """Envoi le mail avec le template souhaité"""
-    message = MIMEMultipart("alternative")
+    message = MIMEMultipart()
 
     prepare_mail(message, subject, email_text, email_html, context)
     # message.attach_alternative(translate_email_html, "text/html")
