@@ -118,9 +118,9 @@ def invoices_send_by_email(context_dict: Dict):
                 context_email["cct"] = cct_name
                 context_email["synthese"] = (
                     f"<p "
-                    f'style="margin-left: 20px;'
+                    f'style="'
                     f"padding: 0;"
-                    f"margin: 0;"
+                    f"margin: 0 0 10px 0;"
                     f'font-size: 11pt;">{synthese}</p>'
                 )
                 context_email["service"] = service
@@ -132,7 +132,7 @@ def invoices_send_by_email(context_dict: Dict):
                 mail_to_list.append(email_05)
 
             context_email["factures"] += (
-                f'<p style="margin-left: 40px;padding: 0;margin: 0;font-size: 11pt;">'
+                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
                 f"{invoice}</p>"
             )
 
