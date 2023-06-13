@@ -33,6 +33,7 @@ django.setup()
 
 import pendulum
 from django.utils import timezone
+from django.db.models import Count
 
 from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
 from apps.core.functions.functions_setups import connection, transaction
@@ -42,6 +43,7 @@ from apps.users.models import User
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.invoices.bin.pre_controls import control_alls_missings
 from apps.invoices.models import Invoice, SaleInvoice
+from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.data_flux.models import Trace
 from apps.invoices.sql_files.sql_invoices_insertions import (
     SQL_FIX_IMPORT_UUID,
@@ -290,6 +292,70 @@ def control_sales_insertion(cursor: connection.cursor) -> bool:
     return cursor.fetchone() is not None
 
 
+def num_full_sales_invoices(cursor: connection.cursor):
+    """Insertion des numérotaions full par cct"""
+    file_io = io.StringIO()
+
+    try:
+        sales = (
+                SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
+                .values_list("id", "cct")
+                .annotate(dcount=Count("cct"))
+                .order_by()
+            )
+
+        cct = sales[0].cct
+        global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
+        csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        file_io.seek(0)
+
+        for line in cursor.fetchall():
+            pk, cct_query, *_ = line
+            if cct_query != cct:
+                cct = line[1]
+                global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
+
+            csv_writer.writerow([pk, global_invoice_file])
+
+        file_io.seek(0)
+        postgres_upsert = PostgresDjangoUpsert(
+            model=SaleInvoice,
+            fields_dict={"id": True, "global_invoice_file": False},
+            cnx=connection,
+            exclude_update_fields={},
+        )
+        file_io.seek(0)
+        postgres_upsert.insertion(
+            file=file_io,
+            insert_mode="upsert",
+            delimiter=";",
+            quote_character='"',
+            kwargs_prepared={},
+        )
+
+    # Exceptions PostgresDjangoUpsert ==========================================================
+    except PostgresKeyError as except_error:
+        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
+        raise Exception("insertion num full dans sale_invoices") from except_error
+
+    except PostgresTypeError as except_error:
+        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
+        raise Exception("insertion num full dans sale_invoices") from except_error
+
+    # Exception Générale =======================================================================
+    except Exception as except_error:
+        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        raise Exception("insertion num full dans sale_invoices") from except_error
+
+    finally:
+        try:
+            if not file_io.closed:
+                file_io.close()
+            del file_io
+
+        except (AttributeError, NameError):
+            pass
+
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
@@ -380,6 +446,8 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             if error:
                 raise Exception
+
+
 
             alls_print += to_print
 

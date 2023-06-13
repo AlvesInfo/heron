@@ -102,13 +102,11 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
     # On récupère les factures à générer par cct
     cct_sales_list = (
         SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
-        .values("cct")
+        .values("cct", "global_invoice_file")
         .annotate(dcount=Count("cct"))
-        .values_list("cct", flat=True)
+        .values_list("cct", "global_invoice_file")
         .order_by("cct")
     )
-    # On récupère les numérotations gérnériques des factures à générer (A....full.pdf)
-    num_file_list = [get_generic_cct_num(cct) for cct in cct_sales_list]
 
     try:
         tasks_list = []
@@ -117,7 +115,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
         process_update()
 
         # On boucle sur les factures des cct pour générer les pdf avec celery tasks
-        for cct, num_file in zip(cct_sales_list, num_file_list):
+        for cct, num_file in cct_sales_list:
             tasks_list.append(
                 celery_app.signature(
                     "launch_generate_pdf_invoices",

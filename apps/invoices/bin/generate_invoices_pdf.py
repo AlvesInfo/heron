@@ -96,7 +96,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         }
 
         files_list = []
-        file_num = num_file
+        file_num = num_file.replace("_full.pdf", "")
         file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_summary.pdf"
 
         files_list.append(file_path)
@@ -126,11 +126,6 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
                 # On génère le pdf des factures
                 generation_pdf(uuid_identification, file_path)
 
-                # On pose le numéro de facture dans la table des ventes
-                SaleInvoice.objects.filter(invoice_number=invoice_number).update(
-                    invoice_file=str(file_path.name)
-                )
-
         # On fusionne les pdf
         writer = PdfWriter()
 
@@ -141,20 +136,16 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
                 writer.addpage(page)
 
         # On enregistre le fichier PDF fusionné
-        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{file_num}_full.pdf"
-        print(f"{file_num}_full.pdf")
+        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / num_file
+        print(num_file)
         writer.write(file_path)
-        # On pose le numéro du récap de facturation dans la table des ventes
-        SaleInvoice.objects.filter(cct=cct, final=False, printed=False, type_x3__in=(1, 2)).update(
-            global_invoice_file=str(file_path.name), printed=True
-        )
 
         # On supprime les fichiers intermédiaires
         for file in files_list:
             file.unlink()
 
-        trace.file_name = f"Generate pdf : {file_num}_full.pdf"
-        to_print = f"have generate pdf : {file_num}_full.pdf"
+        trace.file_name = f"Generate pdf : {num_file}"
+        to_print = f"have generate pdf : {num_file} - "
 
     except Exception as except_error:
         error = True
