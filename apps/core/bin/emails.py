@@ -65,7 +65,7 @@ def send_mass_mail(email_list=None):
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
             send_mail(
                 server,
-                ";".join(mail_to),
+                mail_to,
                 subject,
                 email_text,
                 email_html,
@@ -82,7 +82,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     body = MIMEMultipart("alternative")
 
     prepare_mail(message, body, subject, email_text, email_html, context)
-    message["To"] = mail_to
+    message["To"] = ";".join(mail_to)
     message.attach(body)
 
     for file in attachement_file_list:
