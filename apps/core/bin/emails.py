@@ -18,6 +18,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
 import dkim
+from bs4 import BeautifulSoup
 
 from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_EMAIL
@@ -41,12 +42,15 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     translate_email_html = email_html
 
     for i in range(10):
+        print("context.get(str(i), " ")", i, context.get(str(i), ""))
         subject_mail = subject_mail.replace(f"{str(i)}", context.get(str(i), ""))
-        translate_email_text = translate_email_text.replace(f"{str(i)}", context.get(str(i), ""))
         translate_email_html = translate_email_html.replace(f"{str(i)}", context.get(str(i), ""))
+        translate_email_text = translate_email_text.replace(f"{str(i)}", context.get(str(i), ""))
 
     subject_mail = subject_mail.replace("{", "").replace("}", "")
     translate_email_text = translate_email_text.replace("{", "").replace("}", "")
+    translate_email_text = (BeautifulSoup(translate_email_text, "lxml").get_text(),)
+
     translate_email_html = translate_email_html.replace("{", "").replace("}", "")
 
     print("subject_mail", subject_mail)
