@@ -91,10 +91,8 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         file_to_send = MIMEBase("application", "octet-stream")
         print(file.resolve())
         try:
-            with file.open("rb") as open_file:
-                file_to_send.set_payload(open_file.read())
             with open(file, "rb") as open_file:
-                print(open_file.read())
+                file_to_send.set_payload(open_file.read())
         except Exception as msg_error:
             raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
 

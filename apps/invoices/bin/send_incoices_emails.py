@@ -47,7 +47,6 @@ def invoices_send_by_email(context_dict: Dict):
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
     """
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get("global_invoice_file")
-    print("file_path : ", file_path.name, file_path.is_file())
     error = False
     trace = get_trace(
         trace_name="Send invoices mail",
