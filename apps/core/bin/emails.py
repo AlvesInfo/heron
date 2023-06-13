@@ -65,7 +65,7 @@ def send_mass_mail(email_list=None):
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
             send_mail(
                 server,
-                ",".join(mail_to),
+                ";".join(mail_to),
                 subject,
                 email_text,
                 email_html,
