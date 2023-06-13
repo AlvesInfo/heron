@@ -34,7 +34,7 @@ DOMAIN = settings.DOMAIN
 DKIM_PEM_FILE = settings.DKIM_PEM_FILE
 
 
-def prepare_mail(message, subject, email_text="", email_html="", context=None):
+def prepare_mail(message, body, subject, email_text="", email_html="", context=None):
     """Préparation smtp mail pour l'envoie du mail"""
     if not context:
         context = {}
@@ -48,8 +48,8 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
 
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
-    message.attach(MIMEText(translate_email_text, "text"))
-    message.attach(MIMEText(translate_email_html, "html"))
+    body.attach(MIMEText(translate_email_text, "text"))
+    body.attach(MIMEText(translate_email_html, "html"))
 
 
 def send_mass_mail(email_list=None):
@@ -83,9 +83,10 @@ def send_mass_mail(email_list=None):
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
     """Envoi le mail avec le template souhaité"""
     message = MIMEMultipart()
+    body = MIMEMultipart("alternative")
 
-    prepare_mail(message, subject, email_text, email_html, context)
-    # message.attach_alternative(translate_email_html, "text/html")
+    prepare_mail(message, body, subject, email_text, email_html, context)
+    message.attach(body)
 
     for file in attachement_file_list:
         payload = MIMEBase("application", "octet-stream")
