@@ -33,6 +33,7 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="comptabilite@acuitis.com")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=None)
 EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=True, cast=bool)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
+DKIM_PEM_FILE = config("DKIM_PEM_FILE", default="")
 
 EMAIL_DEV = config("EMAIL_HOST_USER", default="comptabilite@acuitis.com")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="comptabilite@acuitis.com")

@@ -32,9 +32,9 @@ EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
-ENV_ROOT = settings.ENV_ROOT
+ENV_ROOT = settings.path_env
 DOMAIN = settings.DOMAIN
-DKIM_PEM_FILE = "dkim.private.key"
+DKIM_PEM_FILE = settings.DKIM_PEM_FILE
 
 TEMPLATE_ROOT = os.path.join(settings.APPS_DIR, "services/templates/services")
 
@@ -96,9 +96,10 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
             file_to_send = MIMEApplication(open_file.read())
             file_to_send.add_header("Content-Disposition", "attachment", filename=file.name)
             message.attach(file_to_send)
-    print(ENV_ROOT)
+
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT) / DKIM_PEM_FILE
+    print("dkim_file : ", dkim_file)
 
     with dkim_file.open() as pem_file:
         dkim_private_key = pem_file.read()
