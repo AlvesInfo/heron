@@ -115,4 +115,4 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
     print(mail_to)
-    server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
+    # server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
