@@ -49,6 +49,10 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     translate_email_text = translate_email_text.replace("{", "").replace("}", "")
     translate_email_html = translate_email_html.replace("{", "").replace("}", "")
 
+    print("subject_mail", subject_mail)
+    print("translate_email_text", translate_email_text)
+    print("translate_email_html", translate_email_html)
+
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
     message.attach(MIMEText(translate_email_text, "text"))
@@ -68,14 +72,7 @@ def send_mass_mail(email_list=None):
         server.starttls(context=ssl.create_default_context())
         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
-    # with smtplib.SMTP("pro1.mail.ovh.net", 587) as server:
-    #     print(server)
-    #     print("server.ehlo() : ", server.ehlo())
-    #     server.starttls(context=ssl.create_default_context())
-    #     server.login("paulo@alves.ovh", "3Zfsdnvh")
-
         for email_to_send in email_list:
-            print("email_to_send", email_to_send)
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
             send_mail(
                 server,
@@ -99,6 +96,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
 
     for file in attachement_file_list:
         with file.open("rb") as open_file:
+            print("file : ", file)
             file_to_send = MIMEApplication(open_file.read())
             file_to_send.add_header("Content-Disposition", "attachment", filename=file.name)
             message.attach(file_to_send)
