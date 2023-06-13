@@ -103,7 +103,7 @@ def send_email_pdf_invoice(request):
     """Vue d'envoi des factures en pdf, par mail"""
     titre_table = "Envoi par mail des factures de vente"
     sales_invoices_exists = SaleInvoice.objects.filter(
-        final=False, send_email=False, type_x3__in=(1, 2)
+        final=False, send_email=False, type_x3__in=(1, 2), printed=True
     ).exists()
     context = {"margin_table": 50, "titre_table": titre_table}
 
@@ -117,7 +117,8 @@ def send_email_pdf_invoice(request):
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if request.method == "POST":
         user_pk = request.user.pk
-        # celery_app.signature("celery_pdf_launch", kwargs={"user_pk": str(user_pk)}).apply_async()
-        # pdf_invoices = True
+        celery_app.signature(
+            "celery_send_invoice_mails", kwargs={"user_pk": str(user_pk)}
+        ).apply_async()
 
     return render(request, "invoices/send_email_invoices.html", context=context)
