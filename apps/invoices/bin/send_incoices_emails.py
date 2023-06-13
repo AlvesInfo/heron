@@ -131,14 +131,16 @@ def invoices_send_by_email(context_dict: Dict):
 
         send_mass_mail(
             [
-                ["paulo@alves.ovh"],
-                context_dict.get("subject_email"),
-                context_dict.get("email_text"),
-                context_dict.get("email_html"),
-                context_email,
-                [
-                    file_path,
-                ],
+                (
+                    ["paulo@alves.ovh"],
+                    context_dict.get("subject_email"),
+                    context_dict.get("email_text"),
+                    context_dict.get("email_html"),
+                    context_email,
+                    [
+                        file_path,
+                    ],
+                )
             ]
         )
         print(context_email)
