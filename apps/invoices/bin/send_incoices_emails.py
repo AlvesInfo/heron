@@ -86,16 +86,19 @@ def invoices_send_by_email(context_dict: Dict):
             "bs"."email_02",
             "bs"."email_03",
             "bs"."email_04",
-            "bs"."email_05"
+            "bs"."email_05",
+            "cm"."email" as "email_06"
         from "invoices_saleinvoice" "si" 
         join "invoices_partiesinvoices" "ip"
           on "si"."parties" = "ip"."uuid_identification"
         join "invoices_centersinvoices" "ic"
           on "si"."centers" = "ic"."uuid_identification"
+        join "centers_clients_maison" "cm"
+          on "ip"."cct" = "cm"."cct" 
         left join "centers_purchasing_childcenterpurchase" "cp"
         on "ic"."code_center" = "cp"."code"  
         left join "book_society" "bs"
-          on "ip"."third_party_num" = "bs"."third_party_num"  
+          on "ip"."third_party_num" = "bs"."third_party_num"   
         where "si"."cct"= %(cct)s
           and "si"."global_invoice_file" = %(global_invoice_file)s
           and "si"."invoice_month" = %(invoice_month)s
@@ -113,6 +116,7 @@ def invoices_send_by_email(context_dict: Dict):
                 email_03,
                 email_04,
                 email_05,
+                email_06,
             ) = row
             if i == 0:
                 context_email["cct"] = cct_name
@@ -130,6 +134,7 @@ def invoices_send_by_email(context_dict: Dict):
                 mail_to_list.append(email_03)
                 mail_to_list.append(email_04)
                 mail_to_list.append(email_05)
+                mail_to_list.append(email_06)
 
             context_email["factures"] += (
                 f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
