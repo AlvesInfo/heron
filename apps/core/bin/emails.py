@@ -51,6 +51,8 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
     message.attach(MIMEText(translate_email_text, "text"))
     message.attach(MIMEText(translate_email_html, "html"))
 
+    return subject_mail, translate_email_text, translate_email_html
+
 
 def send_mass_mail(email_list=None):
     """Envoi des mails en masse"""
@@ -82,25 +84,34 @@ def send_mass_mail(email_list=None):
 
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
     """Envoi le mail avec le template souhaité"""
-
     message = MIMEMultipart("alternative")
-    message["To"] = mail_to
-    prepare_mail(message, subject, email_text, email_html, context)
+    from django.core.mail import EmailMultiAlternatives
 
+    subject_mail, translate_email_text, translate_email_html = prepare_mail(
+        message, subject, email_text, email_html, context
+    )
+    message = EmailMultiAlternatives(subject_mail, translate_email_text, EMAIL_HOST_USER, mail_to)
+    message.attach_alternative(translate_email_html, "text/html")
     for file in attachement_file_list:
-        file_to_send = MIMEBase("application", "octet-stream")
-        print(file.resolve())
-        try:
-            with open(file, "rb") as open_file:
-                file_to_send.set_payload(open_file.read())
-        except Exception as msg_error:
-            raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
-
-        encoders.encode_base64(file_to_send)
-
-        file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
-        message.attach(file_to_send)
-
+        message.attach_file(file.resolve())
+    #
+    # message["To"] = mail_to
+    # prepare_mail(message, subject, email_text, email_html, context)
+    #
+    # for file in attachement_file_list:
+    #     file_to_send = MIMEBase("application", "octet-stream")
+    #     print(file.resolve())
+    #     try:
+    #         with open(file, "rb") as open_file:
+    #             file_to_send.set_payload(open_file.read())
+    #     except Exception as msg_error:
+    #         raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
+    #
+    #     encoders.encode_base64(file_to_send)
+    #
+    #     file_to_send.add_header("Content-Disposition", "attachment", filename="%s" % (file.name,))
+    #     message.attach(file_to_send)
+    #
     # Mise en place de la signature DKIM
     dkim_file = Path(ENV_ROOT).parent / DKIM_PEM_FILE
 
@@ -116,4 +127,6 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         ).decode()
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
-    server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
+    message.send(fail_silently=False)
+    #
+    # server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
