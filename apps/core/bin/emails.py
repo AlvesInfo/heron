@@ -38,18 +38,34 @@ def prepare_mail(message, subject, email_text="", email_html="", context=None):
         context = {}
 
     subject_mail = subject
-    translate_email_text = email_text
     translate_email_html = email_html
 
-    for i in range(10):
-        subject_mail = subject_mail.replace(f"{str(i)}", context.get(str(i), ""))
-        translate_email_html = translate_email_html.replace(f"{str(i)}", context.get(str(i), ""))
-        translate_email_text = translate_email_text.replace(f"{str(i)}", context.get(str(i), ""))
+    subject_mail.format(
+        context.get("0", ""),
+        context.get("1", ""),
+        context.get("2", ""),
+        context.get("3", ""),
+        context.get("4", ""),
+        context.get("5", ""),
+        context.get("6", ""),
+        context.get("7", ""),
+        context.get("8", ""),
+        context.get("9", ""),
+    )
+    translate_email_html.format(
+        context.get("0", ""),
+        context.get("1", ""),
+        context.get("2", ""),
+        context.get("3", ""),
+        context.get("4", ""),
+        context.get("5", ""),
+        context.get("6", ""),
+        context.get("7", ""),
+        context.get("8", ""),
+        context.get("9", ""),
+    )
 
-    subject_mail = subject_mail.replace("{", "").replace("}", "")
-    translate_email_text = translate_email_text.replace("{", "").replace("}", "")
-    translate_email_text = BeautifulSoup(translate_email_text, "lxml").get_text()
-    translate_email_html = translate_email_html.replace("{", "").replace("}", "")
+    translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text()
 
     print(f"subject_mail : {subject_mail} |")
     print("translate_email_text", translate_email_text)
@@ -76,7 +92,7 @@ def send_mass_mail(email_list=None):
 
         for email_to_send in email_list:
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
-            print(
+            print("tous les attributs : ",
                 mail_to, subject, email_text, email_html, context, attachement_file_list
             )
             send_mail(
