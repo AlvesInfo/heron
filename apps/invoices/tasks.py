@@ -175,7 +175,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
 
 @shared_task(name="celery_send_invoices_emails")
-def celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None):
+def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None):
     """
     Main pour lancement de l'enoi des factures par mails
     :param user_pk: uuid de l'utilisateur qui a lancé le process

@@ -118,7 +118,7 @@ def send_email_pdf_invoice(request):
     if request.method == "POST":
         user_pk = request.user.pk
         celery_app.signature(
-            "celery_send_invoice_mails", kwargs={"user_pk": str(user_pk)}
+            "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
         ).apply_async()
 
     return render(request, "invoices/send_email_invoices.html", context=context)
