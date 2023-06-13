@@ -125,7 +125,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
             privkey=dkim_private_key.encode(),
             include_headers=[b"from", b"to"],
         ).decode()
-        message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
+        message.headers({"DKIM-Signature": sig.lstrip("DKIM-Signature: ")})
 
     message.send(fail_silently=False)
     #
