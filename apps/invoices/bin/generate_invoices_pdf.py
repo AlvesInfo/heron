@@ -143,7 +143,6 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
 
         # On enregistre le fichier PDF fusionné
         file_path = Path(settings.SALES_INVOICES_FILES_DIR) / num_file
-        print(num_file)
         writer.write(file_path)
 
         # On supprime les fichiers intermédiaires
