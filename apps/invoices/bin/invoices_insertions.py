@@ -292,27 +292,29 @@ def control_sales_insertion(cursor: connection.cursor) -> bool:
     return cursor.fetchone() is not None
 
 
-def num_full_sales_invoices(cursor: connection.cursor):
+def num_full_sales_invoices():
     """Insertion des numérotaions full par cct"""
     file_io = io.StringIO()
 
     try:
-        sales = (
+        sales_list = (
             SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
             .values_list("id", "cct")
             .annotate(dcount=Count("cct"))
             .order_by()
         )
 
-        cct = sales[0].cct
+        cct = sales_list[0].get("cct")
         global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
         csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
         file_io.seek(0)
 
-        for line in cursor.fetchall():
-            id_pk, cct_query, *_ = line
+        for line_dict in sales_list:
+            id_pk = line_dict.get("id")
+            cct_query = line_dict.get("cct")
+
             if cct_query != cct:
-                cct = line[1]
+                cct = cct_query
                 global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
             csv_writer.writerow([id_pk, global_invoice_file])
@@ -431,7 +433,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
                 raise Exception
 
             # On insère les numérotations des factures globales
-            num_full_sales_invoices(cursor)
+            num_full_sales_invoices()
 
             alls_print += to_print
             cursor.execute(SQL_PURCHASES_DETAILS)
