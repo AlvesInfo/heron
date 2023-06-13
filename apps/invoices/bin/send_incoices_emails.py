@@ -116,7 +116,13 @@ def invoices_send_by_email(context_dict: Dict):
             ) = row
             if i == 0:
                 context_email["cct"] = cct_name
-                context_email["synthese"] = f'<p style="margin-left: 40px;padding-top: 0">{synthese}</p>'
+                context_email["synthese"] = (
+                    f"<p "
+                    f'style="margin-left: 20px;'
+                    f"padding-top: 0;"
+                    f"padding-bottom: 10px;"
+                    f'font-size: 11pt;">{synthese}</p>'
+                )
                 context_email["service"] = service
                 context_email["centrale"] = center
                 mail_to_list.append(email_01)
@@ -126,7 +132,8 @@ def invoices_send_by_email(context_dict: Dict):
                 mail_to_list.append(email_05)
 
             context_email["factures"] += (
-                f'<p style="margin-left: 80px;padding-top: 0;padding-bottom: 20px;">{invoice}</p>'
+                f'<p style="margin-left: 40px;padding-top: 0;padding-bottom: 5px;font-size: 11pt;">'
+                f"{invoice}</p>"
             )
 
         mail_to_list = [mail for mail in mail_to_list if mail]
