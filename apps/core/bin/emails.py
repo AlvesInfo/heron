@@ -72,6 +72,7 @@ def send_mass_mail(email_list=None):
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+        print("server.ehlo() : ", server.ehlo())
         server.starttls(context=ssl.create_default_context())
         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
