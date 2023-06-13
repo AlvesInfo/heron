@@ -91,7 +91,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         msg, subject, email_text, email_html, context
     )
     message = EmailMessage(subject_mail, translate_email_text, EMAIL_HOST_USER, mail_to)
-    message.attach_alternative(translate_email_html, "text/html")
+    # message.attach_alternative(translate_email_html, "text/html")
 
     for file in attachement_file_list:
         message.attach_file(file.resolve())
