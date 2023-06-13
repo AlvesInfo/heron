@@ -63,10 +63,15 @@ def send_mass_mail(email_list=None):
     if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
-    with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-        print("server.ehlo() : ", server.ehlo())
+    # with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+    #     print("server.ehlo() : ", server.ehlo())
+    #     server.starttls(context=ssl.create_default_context())
+    #     server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
+    with smtplib.SMTP("pro1.mail.ovh.net", 587) as server:
+        print(server)
         server.starttls(context=ssl.create_default_context())
-        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+        server.login("paulo.alves@4a-info.fr", "OVH3zfsdnvh$")
 
         for email_to_send in email_list:
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
