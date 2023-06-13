@@ -101,19 +101,19 @@ def invoices_send_by_email(context_dict: Dict):
           and "si"."invoice_month" = %(invoice_month)s
         """
         cursor.execute(sql_context, context_dict)
-        for (
-            i,
-            cct_name,
-            synthese,
-            invoice,
-            service,
-            center,
-            email_01,
-            email_02,
-            email_03,
-            email_04,
-            email_05,
-        ) in enumerate(cursor.fetchall()):
+        for i, row in enumerate(cursor.fetchall()):
+            (
+                cct_name,
+                synthese,
+                invoice,
+                service,
+                center,
+                email_01,
+                email_02,
+                email_03,
+                email_04,
+                email_05,
+            ) = row
             if i == 0:
                 context_email["0"] = cct_name
                 context_email["2"] = synthese
