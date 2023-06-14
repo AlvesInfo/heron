@@ -32,7 +32,6 @@ django.setup()
 
 from django.conf import settings
 from django.db import connection
-from django.utils import timezone
 import pendulum
 
 from heron.loggers import LOGGER_EMAIL
@@ -197,7 +196,6 @@ def invoices_send_by_email(context_dict: Dict):
             ).update(send_email=True)
 
         trace.time_to_process = start - time.time()
-        trace.final_at = timezone.now()
         trace.save()
 
     return trace, to_print
