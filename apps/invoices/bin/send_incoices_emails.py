@@ -1,4 +1,4 @@
-# pylint: disable=E0401,E1101,C0303,R0913
+# pylint: disable=E0401,E1101,C0303,R0913,C0413,R0914,W0718,W1203,R0915
 """
 FR : Module d'envoi des factures par email
 EN : Send invoices by email module
@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 import os
 import sys
 import platform
+import time
 from pathlib import Path
 from typing import Dict
 
@@ -31,11 +32,14 @@ django.setup()
 
 from django.conf import settings
 from django.db import connection
+from django.utils import timezone
 import pendulum
 
 from heron.loggers import LOGGER_EMAIL
+from apps.core.exceptions import EmailException
 from apps.data_flux.trace import get_trace
 from apps.core.bin.emails import send_mass_mail
+from apps.invoices.models import SaleInvoice
 
 
 def invoices_send_by_email(context_dict: Dict):
@@ -46,6 +50,7 @@ def invoices_send_by_email(context_dict: Dict):
     CCT	    Période	    Synthèse	Factures	Service	    Centrale Fille
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
     """
+    start = time.time()
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get("global_invoice_file")
     error = False
     trace = get_trace(
@@ -137,41 +142,62 @@ def invoices_send_by_email(context_dict: Dict):
                 mail_to_list.append(email_06)
 
             context_email["factures"] += (
-                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
-                f"{invoice}</p>"
+                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">' f"{invoice}</p>"
             )
 
-        mail_to_list = [mail for mail in mail_to_list if mail]
-        send_mass_mail(
-            [
-                (
-                    mail_to_list,
-                    context_dict.get("subject_email"),
-                    context_dict.get("email_text"),
-                    context_dict.get("email_html"),
-                    context_email,
-                    [
-                        file_path,
-                    ],
-                )
-            ]
-        )
-
     try:
-        trace.file_name = f"send email invoice : {file_path.name}"
-        to_print = f"Have send invoice email : {file_path.name} - "
+        mail_to_list = [mail for mail in mail_to_list if mail]
 
-    except Exception as except_error:
+        if mail_to_list:
+            send_mass_mail(
+                [
+                    (
+                        mail_to_list,
+                        context_dict.get("subject_email"),
+                        context_dict.get("email_text"),
+                        context_dict.get("email_html"),
+                        context_email,
+                        [
+                            file_path,
+                        ],
+                    )
+                ]
+            )
+            trace.file_name = f"send email invoice : {file_path.name}"
+            to_print = f"Have send invoice email : {file_path.name} - "
+
+        else:
+            error = True
+            trace.comment = f"pas d'addresses mail ppour le client : {context_email['ctt']}"
+            trace.file_name = f"send email invoice : {file_path.name}"
+            to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
+
+    except EmailException as error:
         error = True
-        LOGGER_EMAIL.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EMAIL.exception(f"Exception EmailException : {error!r}")
+
+    except Exception as error:
+        error = True
+        LOGGER_EMAIL.exception(f"Exception Générale : {error!r}")
 
     finally:
         if error:
             trace.errors = True
-            trace.comment = (
+            trace.comment += (
                 trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
+        else:
+            # S'il n'y a pas eu d'erreurs on flag send_mail à tru pour ne pas le renvoyer
+            SaleInvoice.objects.filter(
+                cct=context_dict.get("context_dict"),
+                global_invoice_file=context_dict.get("global_invoice_file"),
+                invoice_month=context_dict.get("invoice_month"),
+                printed=True,
+                type_x3__in=(1, 2),
+            ).update(send_email=True)
 
+        trace.time_to_process = start - time.time()
+        trace.final_at = timezone.now()
         trace.save()
 
     return trace, to_print

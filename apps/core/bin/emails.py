@@ -1,4 +1,4 @@
-# pylint: disable=E0401,E1101,C0303,R0913
+# pylint: disable=E0401,E1101,C0303,R0913,W0613,R0914
 """
 FR : Module d'envoi des emails
 EN : Send emails module
@@ -17,12 +17,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.mime.base import MIMEBase
-from email.mime.application import MIMEApplication
 
 import dkim
 from bs4 import BeautifulSoup
 
 from apps.core.functions.functions_setups import settings
+from apps.core.exceptions import EmailException
 from heron.loggers import LOGGER_EMAIL
 
 EMAIL_HOST = settings.EMAIL_HOST
@@ -57,7 +57,9 @@ def send_mass_mail(email_list=None):
     if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
-    with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+    server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+
+    try:
         server.starttls(context=ssl.create_default_context())
         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
@@ -73,6 +75,16 @@ def send_mass_mail(email_list=None):
                 attachement_file_list,
             )
 
+    except (smtplib.SMTPException, ValueError) as error:
+        raise EmailException("Erreur envoi email") from error
+
+    finally:
+        if server:
+            try:
+                server.close()
+            except AttributeError:
+                pass
+
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 
 
@@ -84,16 +96,15 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     prepare_mail(message, body, subject, email_text, email_html, context)
     message["To"] = ";".join(mail_to)
     message.attach(body)
-    cct_name = ""
+    
     for file in attachement_file_list:
-        cct_name = file.name[:6]
         payload = MIMEBase("application", "octet-stream")
 
         try:
             with open(file, "rb") as open_file:
                 payload.set_payload(open_file.read())
         except Exception as msg_error:
-            raise ValueError("échec à la lecture d'un fichier joint (" + msg_error + ")")
+            raise ValueError("échec à la lecture d'un fichier joint") from msg_error
 
         encoders.encode_base64(payload)
 
@@ -115,5 +126,4 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         ).decode()
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
-    print(f"{cct_name} : {mail_to}")
     server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
