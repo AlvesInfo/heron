@@ -145,8 +145,7 @@ def invoices_send_by_email(context_dict: Dict):
             )
 
     try:
-        # mail_to_list = [mail for mail in mail_to_list if mail]
-        mail_to_list = ["paulo.alves@4a-info.fr"]
+        mail_to_list = [mail for mail in mail_to_list if mail]
 
         if mail_to_list:
             send_mass_mail(
@@ -168,8 +167,8 @@ def invoices_send_by_email(context_dict: Dict):
 
         else:
             error = True
-            trace.comment = f"pas d'adresses mail ppour le client : {context_email.get('ctt')}"
-            trace.file_name = f"send email invoice : {file_path.name}"
+            trace.comment = f"Pas d'adresses mail pour le client : {context_email.get('ctt')}"
+            trace.file_name = f"Send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
     except EmailException as except_error:

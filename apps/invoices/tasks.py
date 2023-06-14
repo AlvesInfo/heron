@@ -197,7 +197,6 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
             printed=True,
             type_x3__in=(1, 2),
             send_email=False,
-            cct="AF0021"
         )
         .values("cct", "global_invoice_file", "invoice_month")
         .annotate(dcount=Count("cct"))
