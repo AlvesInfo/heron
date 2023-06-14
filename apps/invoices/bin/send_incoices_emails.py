@@ -171,13 +171,13 @@ def invoices_send_by_email(context_dict: Dict):
             trace.file_name = f"send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
-    except EmailException as error:
+    except EmailException as except_error:
         error = True
-        LOGGER_EMAIL.exception(f"Exception EmailException : {error!r}")
+        LOGGER_EMAIL.exception(f"Exception EmailException : {except_error!r}")
 
-    except Exception as error:
+    except Exception as except_error:
         error = True
-        LOGGER_EMAIL.exception(f"Exception Générale : {error!r}")
+        LOGGER_EMAIL.exception(f"Exception Générale : {except_error!r}")
 
     finally:
         if error:
