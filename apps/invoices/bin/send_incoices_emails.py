@@ -190,6 +190,13 @@ def invoices_send_by_email(context_dict: Dict):
             )
         else:
             # S'il n'y a pas eu d'erreurs on flag send_mail à tru pour ne pas le renvoyer
+            print(str(SaleInvoice.objects.filter(
+                cct=context_dict.get("context_dict"),
+                global_invoice_file=context_dict.get("global_invoice_file"),
+                invoice_month=pendulum.parse(context_dict.get("invoice_month")).date(),
+                printed=True,
+                type_x3__in=(1, 2),
+            ).query))
             SaleInvoice.objects.filter(
                 cct=context_dict.get("context_dict"),
                 global_invoice_file=context_dict.get("global_invoice_file"),
