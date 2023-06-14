@@ -145,7 +145,8 @@ def invoices_send_by_email(context_dict: Dict):
             )
 
     try:
-        mail_to_list = [mail for mail in mail_to_list if mail]
+        # mail_to_list = [mail for mail in mail_to_list if mail]
+        mail_to_list = ["paulo.alves@4a-info.fr"]
 
         if mail_to_list:
             send_mass_mail(
@@ -167,7 +168,7 @@ def invoices_send_by_email(context_dict: Dict):
 
         else:
             error = True
-            trace.comment = f"pas d'addresses mail ppour le client : {context_email['ctt']}"
+            trace.comment = f"pas d'adresses mail ppour le client : {context_email.get('ctt')}"
             trace.file_name = f"send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
@@ -183,7 +184,9 @@ def invoices_send_by_email(context_dict: Dict):
         if error:
             trace.errors = True
             trace.comment += (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                + str(context_dict)
             )
         else:
             # S'il n'y a pas eu d'erreurs on flag send_mail à tru pour ne pas le renvoyer
