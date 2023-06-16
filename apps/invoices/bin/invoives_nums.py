@@ -66,3 +66,15 @@ def get_bispar_num():
     )
 
     return fac_num
+
+
+def get_gasparz_num():
+    """Génération d'un numéro de l'export x3 des od
+    :return:
+    """
+    counter = Counter.objects.get(name="gasparz_num")
+    fac_num = get_counter_num(
+        counter_instance=counter,
+    )
+
+    return fac_num

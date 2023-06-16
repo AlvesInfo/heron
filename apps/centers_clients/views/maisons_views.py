@@ -45,7 +45,8 @@ class MaisonsList(ListView):
         "language",
         "pays__country_name",
         "type_x3__name",
-        "axe_bu__section",
+        "credit_account__account",
+        "debit_account__account",
     )
     context_object_name = "maisons"
     template_name = "centers_clients/clients_list.html"

@@ -9,17 +9,18 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 4%">Edit</th>
-                <th style="width: 7%">CCT</th>
-                <th style="width: 7%">Tiers X3</th>
+                <th class="no-sort" style="text-align: center;width: 3%">Edit</th>
+                <th style="width: 6%">CCT</th>
+                <th style="width: 6%">Tiers X3</th>
                 <th style="width: 27%;text-align: left;">Intitulé</th>
-                <th style="width: 7%">Centrale</th>
-                <th style="width: 7%">Enseigne</th>
+                <th style="width: 6%">Centrale</th>
+                <th style="width: 6%">Enseigne</th>
                 <th style="width: 6%">Devise</th>
                 <th style="width: 6%">Langue</th>
-                <th style="width: 9%;text-align: center;">Pays</th>
+                <th style="width: 8%;text-align: center;">Pays</th>
                 <th style="width: 8%;text-align: center;">Type Vente</th>
-                <th style="width: 12%;text-align: center;">AXE BU</th>
+                <th style="width: 9%;text-align: center;">Compte Débit</th>
+                <th style="width: 9%;text-align: center;">Compte Crédit</th>
             </tr>
         </thead>
         <tbody>
@@ -76,8 +77,13 @@
                   {{ maison.type_x3__name }}
                 </td>
                 <td style="text-align: center;">
-                  {% if maison.axe_bu__section %}
-                    {{ maison.axe_bu__section }}
+                  {% if maison.debit_account__account %}
+                    {{ maison.debit_account__account }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if maison.credit_account__account %}
+                    {{ maison.credit_account__account }}
                   {% endif %}
                 </td>
             </tr>

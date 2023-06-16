@@ -1,47 +1,50 @@
 select
 	-- T
-    'T' as "T",
-    "isi"."invoice_type" as "SIVTYP",
-    "isi"."invoice_number" as "NUM",
-    "isi"."third_party_num" as "BPR",
-    "isi"."cpy" as "CPY",
-    "isi"."fcy" as "FCY",
-    TO_CHAR("isi"."invoice_date"::date, 'DDMMYY') as "ACCDAT",
-    "isi"."devise" as "CUR",
-    "isi"."type_cours" as "CURTYP",
-    TO_CHAR("isi"."date_cours"::date, 'DDMMYY') as "RATDAT",
-    "isi"."tiers_payeur" as "BPRRAY",
-    TO_CHAR("isi"."date_depart_echeance"::date, 'DDMMYY') as "STRDUDDAT",
-    "isi"."regime_tva_maison" as "VAC",
-    "isi"."invoice_number" as "BPRVCR",
-	"isi"."collectif" as "BPRSAC",
+    "isi"."invoice_number", -- invoice_number pour itération
+    'T' as "T", -- Indicateur model import
+    "isi"."invoice_type" as "SIVTYP", -- Type facture
+    ("isi"."fcy" || "isi"."invoice_number") as "NUM", -- Numéro de pièce
+    "isi"."third_party_num" as "BPR", -- Tiers
+    "isi"."cpy" as "CPY", -- Société
+    "isi"."fcy" as "FCY", -- Site
+    TO_CHAR("isi"."invoice_date"::date, 'DDMMYY') as "ACCDAT", -- Date comptable
+    "isi"."devise" as "CUR", -- Devise
+    "isi"."type_cours" as "CURTYP", -- Type de cours
+    TO_CHAR("isi"."date_cours"::date, 'DDMMYY') as "RATDAT", -- Date cours
+    "isi"."tiers_payeur" as "BPRRAY", -- Tiers Payeur
+    TO_CHAR("isi"."date_depart_echeance"::date, 'DDMMYY') as "STRDUDDAT", -- Départ échéance
+    "isi"."regime_tva_maison" as "VAC", -- Régime TVA
+    "isi"."invoice_number" as "BPRVCR", -- Document origine
+	"isi"."collectif" as "BPRSAC", -- Collectif
 	left(
 		coalesce(
 			(
 				"isb"."code_signboard"
-				|| '- ' ||
+				|| '-' ||
 				"isi"."cct"::varchar
-				|| '- ' ||
-				"isi"."invoice_month"::varchar
+				|| '-' ||
+                TO_CHAR("isi"."date_depart_echeance"::date, 'MM/YYYY')
 			),
 			''
 		),
 		30
-	) as "DES",
+	) as "DES", -- Commentaires
 
 	-- D
-    'D' as "D",
+    'D' as "D", -- Indicateur model import
    	'1' as "D_LIG", -- Numéro de ligne
     "isi"."fcy" as "D_FCYLIN", -- Site
 	"isi"."code_plan_sage" as "COA_00", -- Code plan
+    "isi"."code_plan_sage" as "COA_01", -- Code plan
 	coalesce("acs"."call_code", '') as "SAC", --Collectif
 	"isd"."account" as "ACC_00", -- Comptes généraux
+    "isd"."account" as "ACC_01", -- Comptes généraux
 	'' as "BPRLIN", -- Tiers
 	'' as "DSP", -- Répartition
 	case
 		when "isi"."invoice_type_name" = 'Facture'
-		then sum("isd"."net_amount")::numeric
-		else -sum("isd"."net_amount")::numeric
+		then round("iid"."d_amount"::numeric, 2)::numeric
+		else -round("iid"."d_amount"::numeric, 2)
 	end as "AMTNOTLIN", -- Montant HT
 	'0' as "QTY", -- Quantité
 	"isd"."vat" as "VAT", -- Taxe X3
@@ -49,10 +52,10 @@ select
 		coalesce(
 			(
 				"isb"."code_signboard"
-				|| '- ' ||
+				|| '-' ||
 				"isi"."cct"::varchar
-				|| '- ' ||
-				"isi"."invoice_month"::varchar
+				|| '-' ||
+                TO_CHAR("isi"."date_depart_echeance"::date, 'MM/YYYY')
 			),
 			''
 		),
@@ -60,40 +63,58 @@ select
 	) as "DES", --Commentaire
 
 	-- A
-	'A' as "A",
+	case when "acs"."nb_axes" = 0 then '' else 'A' end as "A", -- Indicateur model import
 	'1' as "ANALIG", -- Numéro d'ordre
 	'BU' as "DIE", -- Code axe BU
 	'CCT' as "DIE_01", -- Code axe CCT
-	'PRJ' as "DIE_02", -- Code axe PRJ
 	'PRO' as "DIE_03", -- Code axe PRO
+	'PRJ' as "DIE_02", -- Code axe PRJ
 	'PYS' as "DIE_04", -- Code axe PYS
-	'RFA' as "DIE_04", -- Code axe RFA
+	'RFA' as "DIE_05", -- Code axe RFA
 	"isd"."axe_bu" as "CCE", -- Section analytique BU
 	"isi"."cct" as "CCE_01", -- Section analytique CCT
-	"isd"."axe_prj" as "CCE_02", -- Section analytique PRJ
 	"isd"."axe_pro" as "CCE_03", -- Section analytique PRO
+	"isd"."axe_prj" as "CCE_02", -- Section analytique PRJ
 	"isd"."axe_pys" as "CCE_04", -- Section analytique PYS
-	"isd"."axe_rfa" as "CCE_04", -- Section analytique RFA
+	"isd"."axe_rfa" as "CCE_05", -- Section analytique RFA
 	case
 		when "isi"."invoice_type_name" = 'Facture'
-		then sum("isd"."net_amount")::numeric
-		else -sum("isd"."net_amount")::numeric
+		then sum(round("isd"."net_amount"::numeric, 2))::numeric
+		else -sum(round("isd"."net_amount"::numeric, 2))::numeric
 	end as "AMT", -- Montant
-	'1' as "QTY" -- Quantité
+	'1' as "QTY", -- Quantité
+	case when "acs"."nb_axes" = 0 then false else true end as test_a
 
-   from "invoices_saleinvoice" "isi"
-   join "invoices_saleinvoicedetail" "isd"
-     on "isi"."uuid_identification" = "isd"."uuid_invoice"
-   join "invoices_signboardsinvoices" "isb"
-     on "isi"."signboard" = "isb"."uuid_identification"
-   left join "accountancy_accountsage" "acs"
-     on "isd"."account" = "acs"."account"
-    and "isi"."code_plan_sage" = "acs"."code_plan_sage"
+from "invoices_saleinvoice" "isi"
+join "invoices_saleinvoicedetail" "isd"
+ on "isi"."uuid_identification" = "isd"."uuid_invoice"
+join (
+        select
+            sum("net_amount") as "d_amount",
+            "uuid_invoice",
+            "vat",
+            "account"
+        from "invoices_saleinvoicedetail"
+        group by
+            "uuid_invoice",
+            "vat",
+            "account"
+   ) "iid"
+ on "isi"."uuid_identification" = "iid"."uuid_invoice"
+and "isd"."account" = "iid"."account"
+and "isd"."vat" = "iid"."vat"
+join "invoices_signboardsinvoices" "isb"
+ on "isi"."signboard" = "isb"."uuid_identification"
+left join "accountancy_accountsage" "acs"
+ on "isd"."account" = "acs"."account"
+and "isi"."code_plan_sage" = "acs"."code_plan_sage"
 
+-- type de client 1 : "VENTE" et "export" = false
+where type_x3 = 1
+ and not "isi"."export"
+ and not "isi"."final"
+ and "isi"."fcy" = %(fcy)s
 
-   -- type de client 1 : "VENTE" et "export" = false
-   where type_x3 = 1
-     and not "isi"."export"
 group by
         -- T
         "isi"."invoice_type",
@@ -114,10 +135,10 @@ group by
             coalesce(
                 (
                     "isb"."code_signboard"
-                    || '- ' ||
+                    || '-' ||
                     "isi"."cct"::varchar
-                    || '- ' ||
-                    "isi"."invoice_month"::varchar
+                    || '-' ||
+                    TO_CHAR("isi"."date_depart_echeance"::date, 'MM/YYYY')
                 ),
                 ''
             ),
@@ -129,16 +150,17 @@ group by
         "isi"."code_plan_sage",
         coalesce("acs"."call_code", ''),
         "isd"."account",
+        "iid"."d_amount",
         "isi"."invoice_type_name",
         "isd"."vat",
         left(
             coalesce(
                 (
                     "isb"."code_signboard"
-                    || '- ' ||
+                    || '-' ||
                     "isi"."cct"::varchar
-                    || '- ' ||
-                    "isi"."invoice_month"::varchar
+                    || '-' ||
+                    TO_CHAR("isi"."date_depart_echeance"::date, 'MM/YYYY')
                 ),
                 ''
             ),
@@ -146,6 +168,7 @@ group by
         ),
 
         -- A
+        "acs"."nb_axes",
         "isd"."axe_bu",
         "isi"."cct",
         "isd"."axe_prj",
@@ -154,8 +177,9 @@ group by
         "isd"."axe_rfa"
 order by
 		"isi"."invoice_number",
-		"isd"."axe_bu",
+		"isd"."account",
         "isi"."cct",
+		"isd"."axe_bu",
         "isd"."axe_prj",
         "isd"."axe_pro",
         "isd"."axe_pys",
