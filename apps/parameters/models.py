@@ -216,7 +216,7 @@ class InvoiceFunctions(FlagsTable):
 
     def save(self, *args, **kwargs):
         """Calcul du champ reverse en fonction de redirect"""
-        if ":" in self.redirect:
+        if self.redirect is not None and ":" in self.redirect:
             try:
                 self.reverse = reverse(self.redirect)
             except NoReverseMatch:

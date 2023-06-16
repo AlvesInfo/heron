@@ -102,7 +102,7 @@ class ChildCenterPurchase(FlagsTable):
         to_field="uuid_identification",
         verbose_name="régime de tva",
         db_column="vat_regime_center",
-        null=True
+        null=True,
     )
     # Numéro d'adhérent pour la formation
     member_num = models.CharField(null=True, blank=True, max_length=35)
