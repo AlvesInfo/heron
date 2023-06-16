@@ -133,6 +133,116 @@ and (
 and "ar"."new_article" = false
 """
 
+SQL_AXE_BU = """
+    update "articles_article" "art"
+    set "axe_bu" = null 
+    from (
+        select 
+            "aa"."third_party_num", "aa"."reference"
+        from "articles_article" "aa" 
+        left join (
+            select 
+            "section", 
+            "uuid_identification" 
+            from "accountancy_sectionsage" 
+            where "axe"='BU'
+        ) "as2" 
+        on "aa"."axe_bu" = "as2"."uuid_identification"
+        group by "aa"."third_party_num", "aa"."reference", "as2"."section"
+        having "as2"."section" isnull
+    ) "sec"
+    where "art"."third_party_num" = "sec"."third_party_num"
+      and "art"."reference" = "sec"."reference"
+"""
+
+SQL_AXE_PRJ = """
+    update "articles_article" "art"
+    set "axe_prj" = null 
+    from (
+        select 
+            "aa"."third_party_num", "aa"."reference"
+        from "articles_article" "aa" 
+        left join (
+            select 
+            "section", 
+            "uuid_identification" 
+            from "accountancy_sectionsage" 
+            where "axe"='PRJ'
+        ) "as2" 
+        on "aa"."axe_prj" = "as2"."uuid_identification"
+        group by "aa"."third_party_num", "aa"."reference", "as2"."section"
+        having "as2"."section" isnull
+    ) "sec"
+    where "art"."third_party_num" = "sec"."third_party_num"
+      and "art"."reference" = "sec"."reference"
+"""
+
+SQL_AXE_PRO = """
+    update "articles_article" "art"
+    set "axe_pro" = null 
+    from (
+        select 
+            "aa"."third_party_num", "aa"."reference"
+        from "articles_article" "aa" 
+        left join (
+            select 
+            "section", 
+            "uuid_identification" 
+            from "accountancy_sectionsage" 
+            where "axe"='PRO'
+        ) "as2" 
+        on "aa"."axe_pro" = "as2"."uuid_identification"
+        group by "aa"."third_party_num", "aa"."reference", "as2"."section"
+        having "as2"."section" isnull
+    ) "sec"
+    where "art"."third_party_num" = "sec"."third_party_num"
+      and "art"."reference" = "sec"."reference"
+"""
+
+SQL_AXE_PYS = """
+    update "articles_article" "art"
+    set "axe_pys" = null 
+    from (
+        select 
+            "aa"."third_party_num", "aa"."reference"
+        from "articles_article" "aa" 
+        left join (
+            select 
+            "section", 
+            "uuid_identification" 
+            from "accountancy_sectionsage" 
+            where "axe"='PYS'
+        ) "as2" 
+        on "aa"."axe_pys" = "as2"."uuid_identification"
+        group by "aa"."third_party_num", "aa"."reference", "as2"."section"
+        having "as2"."section" isnull
+    ) "sec"
+    where "art"."third_party_num" = "sec"."third_party_num"
+      and "art"."reference" = "sec"."reference"
+"""
+
+SQL_AXE_RFA = """
+    update "articles_article" "art"
+    set "axe_rfa" = null 
+    from (
+        select 
+            "aa"."third_party_num", "aa"."reference"
+        from "articles_article" "aa" 
+        left join (
+            select 
+            "section", 
+            "uuid_identification" 
+            from "accountancy_sectionsage" 
+            where "axe"='RFA'
+        ) "as2" 
+        on "aa"."axe_rfa" = "as2"."uuid_identification"
+        group by "aa"."third_party_num", "aa"."reference", "as2"."section"
+        having "as2"."section" isnull
+    ) "sec"
+    where "art"."third_party_num" = "sec"."third_party_num"
+      and "art"."reference" = "sec"."reference"
+"""
+
 
 def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> Tuple:
     """Renvoie le nom des statitsiques à appliquer aux articles importés

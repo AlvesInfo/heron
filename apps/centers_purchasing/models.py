@@ -102,9 +102,11 @@ class ChildCenterPurchase(FlagsTable):
         to_field="uuid_identification",
         verbose_name="régime de tva",
         db_column="vat_regime_center",
+        null=True
     )
     # Numéro d'adhérent pour la formation
     member_num = models.CharField(null=True, blank=True, max_length=35)
+    code_plan_sage = models.CharField(max_length=10)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

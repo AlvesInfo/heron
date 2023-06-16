@@ -21,6 +21,11 @@ from apps.edi.bin.edi_articles_news import (
     SQL_FLAG_ERROR_SUB_CATEGORY,
     SQL_FLAG_WITHOUT_AXES,
     SQL_EDI_IMPORT_ARTICLES,
+    SQL_AXE_BU,
+    SQL_AXE_PRJ,
+    SQL_AXE_PRO,
+    SQL_AXE_PYS,
+    SQL_AXE_RFA,
 )
 from apps.articles.excel_outputs.output_excel_articles_news_list import (
     excel_liste_articles_news,
@@ -38,6 +43,11 @@ def new_articles_list(request):
     with connection.cursor() as cursor:
         cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
         cursor.execute(SQL_FLAG_WITHOUT_AXES)
+        cursor.execute(SQL_AXE_BU)
+        cursor.execute(SQL_AXE_PRJ)
+        cursor.execute(SQL_AXE_PRO)
+        cursor.execute(SQL_AXE_PYS)
+        cursor.execute(SQL_AXE_RFA)
 
     paginator = Paginator(
         Article.objects.filter(

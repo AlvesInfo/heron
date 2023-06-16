@@ -167,7 +167,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             "eee"."devise",
             "eee"."purchase_invoice",
             "icc"."fcy",
-            "icc"."cpy"
+            "icc"."cpy",
+            "icc"."code_plan_sage"
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
         on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -177,7 +178,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
                 "code_center", 
                 "vat_regime_center",
                 "cpy",
-                "fcy"
+                "fcy",
+                "code_plan_sage"
             from "invoices_centersinvoices" "ici"
             where exists (
                 select 1 
@@ -249,8 +251,46 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         null as "modified_by",
         "cpy",
         "fcy",
-        date_trunc('month', now())::date as "integration_month"
+        date_trunc('month', now())::date as "integration_month",
+        "code_plan_sage"
     from "purchases" 
+    """
+)
+
+SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
+    """
+    update "invoices_saleinvoice" "isv"
+    set "regime_tva_maison" = "rrr"."regime_tva_maison",
+        "collectif" = "rrr"."collectif",
+        "type_cours" = "rrr"."type_cours",
+        "date_cours" = "rrr"."date_cours",
+        "tiers_payeur" = "rrr"."tiers_payeur",
+        "date_depart_echeance" = "rrr"."date_depart_echeance"
+    from (
+        select 
+            "isi"."id",
+            "avs"."vat_regime" as "regime_tva_maison",
+            case 
+                when "isi"."invoice_amount_without_tax" < 0
+                then coalesce("aac"."call_code", '')
+                else coalesce("acc"."call_code", '')
+            end as "collectif",
+            '1' as "type_cours",
+            "isi"."invoice_date" as "date_cours",
+            "isi"."third_party_num" as "tiers_payeur",
+            "isi"."invoice_date" as "date_depart_echeance"
+        from "invoices_saleinvoice" "isi"
+        left join "centers_clients_maison" "ccm"
+        on "isi"."cct" = "ccm"."cct" 
+        left join "accountancy_accountsage" "aac" 
+        on "ccm"."debit_account" = "aac"."uuid_identification" 
+        left join "accountancy_accountsage" "acc"
+        on "ccm"."credit_account" = "acc"."uuid_identification" 
+        left join "accountancy_vatsage" "avs"
+        on "ccm"."sage_vat_by_default" = "avs"."vat" 
+    ) "rrr"
+    where "isv"."id" = "rrr"."id"
+      and not "final"
     """
 )
 

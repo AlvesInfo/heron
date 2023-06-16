@@ -38,6 +38,7 @@ class CentersInvoices(models.Model):
     vat_regime_center = models.CharField(null=True, max_length=5)
     cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
     fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
+    code_plan_sage = models.CharField(null=True, blank=True, max_length=10)
 
     # N° d'adhérent pour la formation
     member_num = models.CharField(max_length=35)
@@ -394,6 +395,14 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     #     2: OD ANA - GASPA OD ANA
 
     type_x3 = models.IntegerField()
+
+    # complément spour export X3
+    regime_tva_maison = models.CharField(null=True, max_length=5)
+    collectif = models.CharField(null=True, blank=True, max_length=15)
+    type_cours = models.CharField(null=True, max_length=5, default="1")
+    date_cours = models.DateField(null=True, blank=True)
+    tiers_payeur = models.CharField(null=True, max_length=15)
+    date_depart_echeance = models.DateField(null=True, blank=True)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""

@@ -44,6 +44,7 @@ COLS_PURCHASE_DICT = {
     "fcy": False,
     "cpy": False,
     "integration_month": False,
+    "code_plan_sage": False
 }
 
 COL_SALES_DICT = {

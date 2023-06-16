@@ -65,7 +65,8 @@ def centers_invoices_update():
             "vat_regime_center",
             "member_num",
             "cpy",
-            "fcy"
+            "fcy",
+            "code_plan_sage"
         )
         select
             now() as created_at,
@@ -81,7 +82,8 @@ def centers_invoices_update():
             coalesce("av"."vat_regime", 'FRA') as "vat_regime_center",
             coalesce("cpc"."member_num", '') as "member_num",
             coalesce("cpc"."societe_cpy_x3", '') as "cpy",
-            coalesce("cpc"."site_fcy_x3", '') as "fcy"
+            coalesce("cpc"."site_fcy_x3", '') as "fcy",
+            coalesce("cpc"."code_plan_sage", 'FRA') as "code_plan_sage"
         from "centers_purchasing_childcenterpurchase" "cpc"  
         left join "accountancy_vatregimesage" "av"
         on "cpc"."vat_regime_center" = "av"."uuid_identification"
