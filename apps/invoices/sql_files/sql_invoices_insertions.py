@@ -257,43 +257,6 @@ SQL_PURCHASES_INVOICES = sql.SQL(
     """
 )
 
-SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
-    """
-    update "invoices_saleinvoice" "isv"
-    set "regime_tva_maison" = "rrr"."regime_tva_maison",
-        "collectif" = "rrr"."collectif",
-        "type_cours" = "rrr"."type_cours",
-        "date_cours" = "rrr"."date_cours",
-        "tiers_payeur" = "rrr"."tiers_payeur",
-        "date_depart_echeance" = "rrr"."date_depart_echeance"
-    from (
-        select 
-            "isi"."id",
-            "avs"."vat_regime" as "regime_tva_maison",
-            case 
-                when "isi"."invoice_amount_without_tax" < 0
-                then coalesce("aac"."call_code", '')
-                else coalesce("acc"."call_code", '')
-            end as "collectif",
-            '1' as "type_cours",
-            "isi"."invoice_date" as "date_cours",
-            "isi"."third_party_num" as "tiers_payeur",
-            "isi"."invoice_date" as "date_depart_echeance"
-        from "invoices_saleinvoice" "isi"
-        left join "centers_clients_maison" "ccm"
-        on "isi"."cct" = "ccm"."cct" 
-        left join "accountancy_accountsage" "aac" 
-        on "ccm"."debit_account" = "aac"."uuid_identification" 
-        left join "accountancy_accountsage" "acc"
-        on "ccm"."credit_account" = "acc"."uuid_identification" 
-        left join "accountancy_vatsage" "avs"
-        on "ccm"."sage_vat_by_default" = "avs"."vat" 
-    ) "rrr"
-    where "isv"."id" = "rrr"."id"
-      and not "final"
-    """
-)
-
 SQL_PURCHASES_DETAILS = sql.SQL(
     # insertion des détails spécifiques aux achats
     """
@@ -736,6 +699,47 @@ SQL_SALES_INVOICES = sql.SQL(
     order by 
         "cct",
         "big_category_ranking"
+    """
+)
+
+SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
+    """
+    update "invoices_saleinvoice" "isv"
+    set "regime_tva_maison" = "rrr"."regime_tva_maison",
+        "collectif" = "rrr"."collectif",
+        "type_cours" = "rrr"."type_cours",
+        "date_cours" = "rrr"."date_cours",
+        "tiers_payeur" = "rrr"."tiers_payeur",
+        "date_depart_echeance" = "rrr"."date_depart_echeance",
+        "code_plan_sage" = "rrr"."code_plan_sage"
+    from (
+        select 
+            "isi"."id",
+            "avs"."vat_regime" as "regime_tva_maison",
+            case 
+                when "isi"."invoice_amount_without_tax" < 0
+                then coalesce("aac"."call_code", '')
+                else coalesce("acc"."call_code", '')
+            end as "collectif",
+            '1' as "type_cours",
+            "isi"."invoice_date" as "date_cours",
+            "isi"."third_party_num" as "tiers_payeur",
+            "isi"."invoice_date" as "date_depart_echeance",
+            "cpc"."code_plan_sage"
+        from "invoices_saleinvoice" "isi"
+        left join "centers_clients_maison" "ccm"
+        on "isi"."cct" = "ccm"."cct" 
+        left join "accountancy_accountsage" "aac" 
+        on "ccm"."debit_account" = "aac"."uuid_identification" 
+        left join "accountancy_accountsage" "acc"
+        on "ccm"."credit_account" = "acc"."uuid_identification" 
+        left join "accountancy_vatsage" "avs"
+        on "ccm"."sage_vat_by_default" = "avs"."vat" 
+        left join "centers_purchasing_childcenterpurchase" "cpc"
+        on "isi"."code_center" = "cpc"."code"
+    ) "rrr"
+    where "isv"."id" = "rrr"."id"
+      and not "final"
     """
 )
 

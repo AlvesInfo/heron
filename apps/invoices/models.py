@@ -138,6 +138,7 @@ class PartiesInvoices(models.Model):
     pays_third_party = models.CharField(null=True, blank=True, max_length=80)
     payment_condition_client = models.CharField(null=True, blank=True, max_length=80)
     vat_cee_number_client = models.CharField(null=True, blank=True, max_length=20)
+
     # uuid_identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
@@ -403,6 +404,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     date_cours = models.DateField(null=True, blank=True)
     tiers_payeur = models.CharField(null=True, max_length=15)
     date_depart_echeance = models.DateField(null=True, blank=True)
+    code_plan_sage = models.CharField(null=True, blank=True, max_length=10)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
