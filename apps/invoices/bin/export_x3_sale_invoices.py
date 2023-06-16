@@ -16,7 +16,7 @@ from pathlib import Path
 
 from psycopg2 import sql
 
-from apps.core.functions.functions_setups import connection, settings
+from apps.core.functions.functions_setups import connections, settings
 from apps.invoices.bin.invoives_nums import get_bicpar_num
 
 
@@ -27,7 +27,7 @@ def get_rows(fcy):
     """
     sql_file = Path(settings.APPS_DIR) / "invoices/sql_files/sql_export_x3_sale_incoices.sql"
 
-    with connection.cursor() as cursor, sql_file.open("r") as sql_file:
+    with connections["heron"].cursor() as cursor, sql_file.open("r") as sql_file:
         # print(cursor.mogrify(sql.SQL(sql_file.read()), {"fcy": fcy}).decode())
         cursor.execute(sql.SQL(sql_file.read()), {"fcy": fcy})
 
