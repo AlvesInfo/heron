@@ -214,6 +214,17 @@ class Invoice(FlagExport, BaseInvoiceTable):
     fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
     integration_month = models.DateField(null=True, blank=True)
 
+    # Nommage des factures : Facture ou Avoir
+    invoice_type_name = models.CharField(null=True, max_length=20)
+
+    # compléments pour export X3
+    regime_tva_tiers = models.CharField(null=True, max_length=5)
+    type_cours = models.CharField(null=True, max_length=5, default="1")
+    date_cours = models.DateField(null=True, blank=True)
+    tiers_payeur = models.CharField(null=True, max_length=15)
+    date_depart_echeance = models.DateField(null=True, blank=True)
+    code_plan_sage = models.CharField(null=True, blank=True, max_length=10)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.third_party_num} - {self.invoice_number} - {self.invoice_date}"
@@ -288,6 +299,9 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     account = models.CharField(max_length=35)
     flow_name = models.CharField(max_length=80, default="Saisie")
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
+
+    # compléments pour export X3
+    collectif = models.CharField(null=True, blank=True, max_length=15)
 
     class Meta:
         """class Meta du modèle django"""
@@ -397,7 +411,7 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
 
     type_x3 = models.IntegerField()
 
-    # complément spour export X3
+    # compléments pour export X3
     regime_tva_maison = models.CharField(null=True, max_length=5)
     collectif = models.CharField(null=True, blank=True, max_length=15)
     type_cours = models.CharField(null=True, max_length=5, default="1")

@@ -160,14 +160,14 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             "eee"."invoice_amount_with_tax",
             "eee"."third_party_num",
             "eee"."uuid_control",
-            "apa"."mode_reglement",
+            "apa"."mode" as "mode_reglement",
             "apa"."type_reglement",
             "icc"."code_center",
             "isb"."code_signboard",
             "eee"."devise",
             "eee"."purchase_invoice",
-            "icc"."fcy",
             "icc"."cpy",
+            "icc"."fcy",
             "icc"."code_plan_sage"
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
@@ -193,7 +193,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         left join (
             select 
                 "bs"."third_party_num", 
-                "aa"."mode_reglement" , 
+                "aa"."mode", 
                 "aa"."code" as "type_reglement", 
                 "bs"."vat_sheme_supplier" as "vat_regime"
             from "book_society" "bs"
@@ -375,6 +375,45 @@ SQL_PURCHASES_ACCOUNTS = sql.SQL(
     """
 )
 
+SQL_PURCHASE_FOR_EXPORT_X3 = sql.SQL(
+    """
+    update "invoices_invoice" "isv"
+    set "type_cours" = "rrr"."type_cours",
+        "date_cours" = "rrr"."date_cours",
+        "tiers_payeur" = "rrr"."tiers_payeur",
+        "date_depart_echeance" = "rrr"."date_depart_echeance",
+        "code_plan_sage" = "rrr"."code_plan_sage",
+        "regime_tva_tiers" = "rrr"."regime_tva_tiers",
+        "invoice_type_name" = "rrr"."invoice_type_name"
+    from (
+        select 
+            "isi"."id",
+            '1' as "type_cours",
+            "isi"."invoice_date" as "date_cours",
+            "isi"."third_party_num" as "tiers_payeur",
+            "isi"."invoice_date" as "date_depart_echeance",
+            "cpc"."code_plan_sage",
+            coalesce("bsi"."vat_sheme_supplier", '') as "regime_tva_tiers",
+            case 
+                when "cpt"."invoice_type" = '380'
+                then 'Facture'
+                else 'Avoir'
+            end as "invoice_type_name"
+        from "invoices_invoice" "isi"
+        left join "centers_purchasing_childcenterpurchase" "cpc"
+        on "isi"."code_center" = "cpc"."code"
+        join "book_society" "bsi"
+          on "isi"."third_party_num" = "bsi"."third_party_num" 
+        left join "centers_purchasing_typefacture" "cpt"
+        on "cpt"."purchase_type_facture" = "isi"."invoice_type"
+        and "cpt"."child_center" = "isi"."code_center" 
+        where not "isi"."final"    
+    ) "rrr"
+    where "isv"."id" = "rrr"."id"
+    and not "final"
+    """
+)
+
 SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
     """
     select 
@@ -405,6 +444,27 @@ SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
     """
 )
 
+
+SQL_PURCHASE_DETAILS_FOR_EXPORT_X3 = sql.SQL(
+    """
+    update "invoices_invoicedetail" "isv"
+    set "collectif" = "rrr"."collectif"
+    from (
+        select 
+            "isd"."id",
+            coalesce("aac"."call_code", '') as "collectif"
+        from "invoices_invoice" "isi"
+        join "invoices_invoicedetail" "isd"
+          on "isi"."uuid_identification" = "isd"."uuid_invoice"
+        join "accountancy_accountsage" "aac" 
+          on "isi"."code_plan_sage" = "aac"."code_plan_sage" 
+         and "isd"."account" = "aac"."account" 
+        where not "isi"."final"
+    ) "rrr"
+    where "isv"."id" = "rrr"."id"
+    and not "final"
+    """
+)
 
 # VENTE ============================================================================================
 
@@ -737,6 +797,7 @@ SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
         on "ccm"."sage_vat_by_default" = "avs"."vat" 
         left join "centers_purchasing_childcenterpurchase" "cpc"
         on "isi"."code_center" = "cpc"."code"
+        where not "isi"."final"
     ) "rrr"
     where "isv"."id" = "rrr"."id"
       and not "final"

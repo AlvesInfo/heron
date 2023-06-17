@@ -50,10 +50,13 @@ from apps.invoices.sql_files.sql_invoices_insertions import (
     SQL_FIX_IMPORT_UUID,
     SQL_COMMON_DETAILS,
     SQL_PURCHASES_INVOICES,
+    SQL_PURCHASE_FOR_EXPORT_X3,
     SQL_PURCHASES_DETAILS,
+    SQL_PURCHASE_DETAILS_FOR_EXPORT_X3,
     SQL_CONTROL_PURCHASES_INSERTION,
     SQL_CLEAR_INVOICES_SIGNBOARDS,
     SQL_SALES_INVOICES,
+    SQL_SALES_FOR_EXPORT_X3,
     SQL_SALES_DETAILS,
     SQL_CONTROL_SALES_INSERTION,
 )
@@ -365,7 +368,6 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             start = time.time()
 
             # On supprime les éxistant non définitifs
-
             cursor.execute(
                 "delete from invoices_invoicecommondetails "
                 'where ("final" isnull or "final" = false)'
@@ -409,7 +411,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
                 raise Exception
 
             alls_print += to_print
+            cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
             cursor.execute(SQL_PURCHASES_DETAILS)
+            cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
 
             # On contrôle l'insertion des achats
             LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
@@ -431,8 +435,8 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             print(f"set_sales_invoices :{time.time()-start} s")
             start = time.time()
-
             alls_print += to_print
+            cursor.execute(SQL_SALES_FOR_EXPORT_X3)
 
             # On insère les détails des factures de vente
             LOGGER_INVOICES.warning(r"Insertion des factures de vente")
