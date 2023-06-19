@@ -96,7 +96,6 @@ class ChangeTraceMixin:
         """Renvoie le type d'action réalisée"""
 
         if self.action_type is None:
-
             if isinstance(self, (DeleteView,)):
                 self.action_type = "DELETE"
             elif isinstance(self, (CreateView,)):
@@ -116,12 +115,14 @@ class ChangeTraceMixin:
         before_to_test = {
             key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
             for key, value in before.items()
-            if key not in {"created_at", "modified_at", "modified_by"}
+            if key
+            not in {"created_at", "modified_at", "modified_by", "created_by_id", "modified_by_id"}
         }
         after_to_test = {
             key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
             for key, value in after.items()
-            if key not in {"created_at", "modified_at", "modified_by"}
+            if key
+            not in {"created_at", "modified_at", "modified_by", "created_by_id", "modified_by_id"}
         }
 
         # Si les dictionnaires avant et après on des longueurs différentes alors on renvoie True
@@ -173,7 +174,7 @@ class ChangeTraceMixin:
         after = {key: value for key, value in self.object.__dict__.items() if key != "_state"}
 
         if not self.has_change(before, after):
-            self.success_message = "Vous n'avez rien modifié!"
+            self.form_succes_message = "Vous n'avez rien modifié!"
             return super().form_valid(form)
 
         self.action()
@@ -380,7 +381,7 @@ def trace_bulk_change(
         key: value for key, value in form.cleaned_data.items() if key not in elements_change
     }
     before = {key: value for key, value in changed_data_dict.items() if key not in elements_change}
-    after = {key: value for key, value in changed_data_dict.items()}
+    after = changed_data_dict.items()
     to_change = {
         **{key: value for key, value in changed_data_dict.items() if key in elements_change},
         **{"modified_by": user},

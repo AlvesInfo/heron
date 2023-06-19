@@ -70,6 +70,18 @@ def get_d_invoices(file, d_line, idtlin=1):
     file.write(get_clean_line(d_line))
 
 
+def get_d_od_ana(file, d_line, idtlin=1):
+    """Fonction qui écrit dans un fichier en place la ligne D pour les gaspar od analytique
+    :param file: fichier dans lequel il faut écrire
+    :param d_line: ligne D à transformer et écrire
+    :param idtlin: identifiant de la ligne
+    :return: None
+    """
+    d_line[1] = idtlin
+    d_line[3] = idtlin
+    file.write(get_clean_line(d_line))
+
+
 def get_a(file, a_line, idtlin=1):
     """Fonction qui écrit dans un fichier en place la ligne A d'analytique
     :param file: fichier dans lequel il faut écrire

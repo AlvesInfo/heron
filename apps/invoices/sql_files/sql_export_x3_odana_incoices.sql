@@ -18,7 +18,7 @@ with "groupe_g" as (
 		TO_CHAR("isi"."invoice_date"::date, 'DDMMYY') as "ACCDAT", -- Date comptable
 		"aec"."transaction" as "DACDIA", -- Transaction
 		"isi"."devise" as "CUR_G", -- Devise de pièce
-		left('OD ANA' || "isi"."big_category_code" , 30) as "DESVCR", -- Libellé
+		left('OD ANA - ' || "isi"."big_category_code" , 30) as "DESVCR", -- Libellé
 		"isi"."invoice_number" as "BPRVCR" -- Document origine
 
 	 from "invoices_saleinvoice" "isi"
@@ -27,7 +27,7 @@ with "groupe_g" as (
 	  and "aec"."ecriture" = 'ODANA'
 	where "isi"."type_x3" = 2
 	  and not "isi"."export"
-	  and "isi"."fcy" = 'AC00'
+	  and "isi"."fcy" = %(fcy)s
 ),
 "comptes_700" as (
 	select
@@ -149,8 +149,8 @@ with "groupe_g" as (
 		'' as "BPR", -- Tiers
 		case
 			when round("isd"."net_amount"::numeric, 2)::numeric > 0
-			then -1
-			else 1
+			then 1
+			else -1
 		end as "SNS_D", -- Sens
 		"isi"."devise" as "CUR_D", -- Devise de pièce
 		round(abs("isd"."net_amount"::numeric), 2)::numeric as "AMTCUR_D", -- Montant pièce
@@ -183,8 +183,8 @@ with "groupe_g" as (
 		1 as "QTY", -- Quantité
 		case
 			when round("isd"."net_amount"::numeric, 2)::numeric > 0
-			then -1
-			else 1
+			then 1
+			else -1
 		end  as "SNS_A" -- Sens
 
 	from "groupe_g" "isi"
@@ -224,7 +224,9 @@ with "groupe_g" as (
     on "c_700"."invoice_number" = "a_700"."invoice_number"
     and "c_700"."SNS_D" = "a_700"."SNS_D"
     and "c_700"."ACC" = "a_700"."ACC"
+
     union all
+
     select
         "classement",
         "c_600"."invoice_number",
@@ -255,19 +257,27 @@ with "groupe_g" as (
     and "c_600"."ACC" = "a_600"."ACC"
 )
 select
-        "invoice_number", "TYP", "NUM", "FCY", "JOU", "ACCDAT", "DACDIA", "CUR_G",
-        "DESVCR", "BPRVCR", "REF", "LIN_D", "LEDTYP", "IDTLIN", "FCYLIN", "SAC", "LED", "COA",
-        "ACC", "BPR", "SNS_D", "CUR_D", "AMTCUR_D", "DES", "TAX", "OFFACC", "LIN_A", "DIE",
+        "invoice_number",
+        'G' as "G", -- Indicateur model import
+        "TYP", "NUM", "FCY", "JOU", "ACCDAT", "DACDIA", "CUR_G",
+        "DESVCR", "BPRVCR", "REF",
+
+        'D' as "D", -- Indicateur model import
+        "LIN_D", "LEDTYP", "IDTLIN", "FCYLIN", "SAC", "LED", "COA",
+        "ACC", "BPR", "SNS_D", "CUR_D", "AMTCUR_D", "DES", "TAX", "OFFACC",
+
+        'A' as "A", -- Indicateur model import
+        "LIN_A", "DIE",
         "DIE_01", "DIE_03", "DIE_02", "DIE_04", "DIE_05", "CCE", "CCE_01", "CCE_03", "CCE_02",
         "CCE_04", "CCE_05",
         sum("AMTCUR_A"::numeric) as "AMTCUR_A",
         "QTY", "SNS_A"
 from "alls"
 group by
-        "invoice_number", "TYP", "NUM", "FCY", "JOU", "ACCDAT", "DACDIA", "CUR_G",
+        "classement", "invoice_number", "TYP", "NUM", "FCY", "JOU", "ACCDAT", "DACDIA", "CUR_G",
         "DESVCR", "BPRVCR", "REF", "LIN_D", "LEDTYP", "IDTLIN", "FCYLIN", "SAC", "LED", "COA",
         "ACC", "BPR", "SNS_D", "CUR_D", "AMTCUR_D", "DES", "TAX", "OFFACC", "LIN_A", "DIE",
         "DIE_01", "DIE_03", "DIE_02", "DIE_04", "DIE_05", "CCE", "CCE_01", "CCE_03", "CCE_02",
         "CCE_04", "CCE_05",  "QTY", "SNS_A"
 order by
-        "classement", "invoice_number", "ACC", "SNS_D"
+        "invoice_number", "classement", "ACC", "SNS_D"
