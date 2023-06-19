@@ -90,6 +90,7 @@ def get_clean_rows():
             row.get("mobile", ""),
             row.get("email", ""),
             row.get("type_x3__name", ""),
+            row.get("axe_bu__section", ""),
         )
         for row in Maison.objects.all().values(
             "cct__cct",
@@ -142,6 +143,7 @@ def get_clean_rows():
             "integrable",
             "chargeable",
             "type_x3__name",
+            "axe_bu__section",
         )
     ]
 

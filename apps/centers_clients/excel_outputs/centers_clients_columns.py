@@ -745,4 +745,18 @@ columns_list_maisons = [
         },
         "width": 12,
     },
+    {
+        "entete": "Axe BU",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 12,
+    },
 ]
