@@ -145,6 +145,7 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
+        form.instance.axe_bu = form.cleaned_data.get("axe_bu")
         self.request.session["level"] = 20
 
         if form.instance.reference_cosium:
@@ -161,7 +162,6 @@ def maisons_export_list(_):
     :return: response_file
     """
     try:
-
         today = pendulum.now()
         file_name = f"LISTING_DES_CLIENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
@@ -184,7 +184,6 @@ def import_bi(request):
     form = ImportMaisonBiForm(request.POST or None)
 
     if request.method == "POST":
-
         if form.is_valid():
             society = Society.objects.get(third_party_num=form.cleaned_data.get("tiers"))
             maison_bi = MaisonBi.objects.get(code_maison=form.cleaned_data.get("maison_bi"))

@@ -571,6 +571,16 @@ post_common_dict = {
           and ("valid" = false or "valid" isnull)
         """
     ),
+    "sql_purchase_vat_cee": sql.SQL(
+        """
+        update "edi_ediimport" edi
+        set "vat" = '011' 
+        where "vat_regime" = 'CEE'
+          and "purchase_invoice" = true
+          and "uuid_identification" = %(uuid_identification)s
+          and ("valid" = false or "valid" isnull)
+        """
+    ),
     "sql_validate": sql.SQL(
         """
         update "edi_ediimport" edi
