@@ -585,6 +585,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     grouping_goods = models.CharField(null=True, max_length=35)
 
     account = models.CharField(max_length=35)
+    account_od_600 = models.CharField(max_length=35)
 
     class Meta:
         """class Meta du modèle django"""

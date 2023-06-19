@@ -6,7 +6,7 @@ import django
 
 from apps.core.functions.functions_setups import connections
 
-from apps.accountancy.models.sage import (
+from apps.accountancy.models import (
     AccountSage,
     CategorySage,
     CctSage,
@@ -18,6 +18,10 @@ from apps.accountancy.models.sage import (
     VatRatSage,
     VatRegimeSage,
     VatSage,
+    Pieces,
+    Journaux,
+    Transactions,
+    Ecritures,
 )
 from apps.accountancy.models.sage_axes_sections import (
     AxeSage,
@@ -133,6 +137,10 @@ MODELS_ACCOUNTANCY = (
     AxeSage,
     CctSage,
     SectionSage,
+    Pieces,
+    Journaux,
+    Transactions,
+    Ecritures,
 )
 
 MODELS_ARTICLES = (

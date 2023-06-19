@@ -929,7 +929,8 @@ SQL_SALES_DETAILS = sql.SQL(
         "uuid_invoice",
         "unit_weight",
         "account",
-        "ranking"
+        "ranking",
+        "account_od_600",
     )
     (    
         select 
@@ -968,7 +969,8 @@ SQL_SALES_DETAILS = sql.SQL(
             "isi"."uuid_identification" as "uuid_invoice",
             "det"."unit_weight",
             "det"."account",
-            "det"."ranking"
+            "det"."ranking",
+            "det"."account_od_600"
         from (
             select 
                 -- TODO: GERER ICI LES PRIX DE VENTES
@@ -1004,6 +1006,7 @@ SQL_SALES_DETAILS = sql.SQL(
                 "eee"."modified_by",
                 "eee"."unit_weight",
                 "ac"."sale_account" as "account",
+                "ac"."purchase_account" as "account_od_600",
                 "eee"."devise",
                 "ccm"."cct", 
                 "icc"."uuid_identification" as "centers",
@@ -1107,19 +1110,31 @@ SQL_SALES_DETAILS = sql.SQL(
             where "eee"."sale_invoice" = true
               and "eee"."valid" = true
         ) det 
-        join "invoices_saleinvoice" "isi" 
+        join (
+            select 
+                "uuid_identification",
+                "big_category_slug_name",
+                "cct",
+                "centers",
+                "parties",
+                "signboard",
+                "third_party_num",
+                "code_center",
+                "code_signboard",
+                "devise",
+                "formation",
+                "type_x3",
+                "final_at"
+            from "invoices_saleinvoice"  
+            where not "final" and not "export"
+        ) "isi" 
         on "isi"."big_category_slug_name" = "det"."big_category"
         and "isi"."cct" = "det"."cct"
-        and "isi"."centers" = "det"."centers"
-        and "isi"."parties" = "det"."parties"
-        and "isi"."signboard" = "det"."signboard"
-        and "isi"."third_party_num" = "det"."client_third_party_num"
         and "isi"."code_center" = "det"."code_center"
         and "isi"."code_signboard" = "det"."code_signboard"
         and "isi"."devise" = "det"."devise"
         and "isi"."formation" = "det"."formation"
         and "isi"."type_x3" = "det"."type_x3"
-        where not "isi"."final" and not "isi"."export"
      )
     on conflict do nothing
     """

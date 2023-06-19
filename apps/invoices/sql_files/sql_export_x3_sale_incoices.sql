@@ -96,24 +96,34 @@ join (
             sum("net_amount") as "d_amount",
             "uuid_invoice",
             "vat",
-            "account"
-        from "invoices_saleinvoicedetail"
+            "account",
+            "iii"."cpy",
+    		"iii"."fcy"
+        from "invoices_saleinvoicedetail" "idd"
+        join "invoices_saleinvoice" "iii"
+        on "iii"."uuid_identification" = "idd"."uuid_invoice"
+        where  "iii"."type_x3" = 1
+          and not "iii"."export"
+		  and "iii"."fcy" = %(fcy)s
         group by
             "uuid_invoice",
             "vat",
-            "account"
+            "account",
+            "iii"."cpy",
+    		"iii"."fcy"
    ) "iid"
  on "isi"."uuid_identification" = "iid"."uuid_invoice"
 and "isd"."account" = "iid"."account"
 and "isd"."vat" = "iid"."vat"
+and "isi"."cpy" = "iid"."cpy"
+and "isi"."fcy" = "iid"."fcy"
 left join "accountancy_accountsage" "acs"
  on "isd"."account" = "acs"."account"
 and "isi"."code_plan_sage" = "acs"."code_plan_sage"
 
--- type de client 1 : "VENTE" , "final"=false et "export" = false
-where type_x3 = 1
+-- type de client 1 : "VENTE" , "export" = false
+where "isi"."type_x3" = 1
  and not "isi"."export"
- and not "isi"."final"
  and "isi"."fcy" = %(fcy)s
 
 group by

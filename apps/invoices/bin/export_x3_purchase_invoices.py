@@ -74,13 +74,18 @@ def write_bispar(fcy, nb_fac=5000):
             i += 1
 
             if i > nb_fac:
+                # On écrit le E de la dernière ligne
+                get_e(file, invoice_e)
+
                 if not file.closed:
                     file.close()
 
                 file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
                 i = 1
 
-            get_e(file, invoice_e)
+            else:
+                get_e(file, invoice_e)
+
             get_t(file=file, t_line=line_t)
             invoice = invoice_number
             invoice_e = line_e

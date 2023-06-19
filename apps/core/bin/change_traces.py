@@ -61,7 +61,7 @@ def get_difference_dict(before, after):
 
 class ChangeTraceMixin:
     """
-    Decorator qui sauvegarde les changements dans les données.
+    class Mixin qui sauvegarde les changements dans les données.
 
         class Classe(ChangeTraceMixin):
             ....
@@ -116,12 +116,12 @@ class ChangeTraceMixin:
         before_to_test = {
             key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
             for key, value in before.items()
-            if key not in {"created_at", "modified_at"}
+            if key not in {"created_at", "modified_at", "modified_by"}
         }
         after_to_test = {
             key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
             for key, value in after.items()
-            if key not in {"created_at", "modified_at"}
+            if key not in {"created_at", "modified_at", "modified_by"}
         }
 
         # Si les dictionnaires avant et après on des longueurs différentes alors on renvoie True

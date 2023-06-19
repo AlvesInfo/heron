@@ -113,21 +113,26 @@ join (
             sum("net_amount") as "d_amount",
             "uuid_invoice",
             "vat",
-            "account"
+            "account",
+            "iii"."cpy",
+    		"iii"."fcy"
         from "invoices_invoicedetail" "idd"
         join "invoices_invoice" "iii"
         on "iii"."uuid_identification" = "idd"."uuid_invoice"
         where not "iii"."export"
-		  and not "iii"."final"
-		  and "iii"."fcy" = 'AC00'
+		  and "iii"."fcy" = %(fcy)s
         group by
             "uuid_invoice",
             "vat",
-            "account"
+            "account",
+            "iii"."cpy",
+    		"iii"."fcy"
    ) "iid"
  on "isi"."uuid_identification" = "iid"."uuid_invoice"
 and "isd"."account" = "iid"."account"
 and "isd"."vat" = "iid"."vat"
+and "isi"."cpy" = "iid"."cpy"
+and "isi"."fcy" = "iid"."fcy"
 join (
 	select
 		"import_uuid_identification",
@@ -139,9 +144,8 @@ left join "accountancy_accountsage" "acs"
  on "isd"."account" = "acs"."account"
 and "isi"."code_plan_sage" = "acs"."code_plan_sage"
 
--- "final"=false et "export" = false
+-- "export" = false
 where not "isi"."export"
- and not "isi"."final"
  and "isi"."fcy" = %(fcy)s
 
 group by

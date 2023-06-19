@@ -13,7 +13,6 @@ created by: Paulo ALVES
 modified at: 2021-09-09
 modified by: Paulo ALVES
 """
-
 import uuid
 
 from django.db import models
