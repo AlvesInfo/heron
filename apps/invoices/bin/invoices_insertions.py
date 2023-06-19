@@ -117,12 +117,14 @@ def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyS
 
         for line in cursor.fetchall():
             line_to_write = list(line)
-            line_to_write[
-                5
-            ] = f"{line_to_write[15]}_{str(line_to_write[10])[-2:]}_{get_purchase_num()}"
+            line_to_write[5] = (
+                f"{line_to_write[15]}"
+                f"{str(line_to_write[10])[-2:]}"
+                f"{str(line_to_write[8].month).zfill(2)}"
+                f"{get_purchase_num()}"
+            )[-20:]
             line_to_write[24] = user.uuid_identification
             line_to_write[25] = user.uuid_identification
-
             csv_writer.writerow(line_to_write)
 
         file_io.seek(0)

@@ -19,12 +19,17 @@ with "groupe_g" as (
 		"aec"."transaction" as "DACDIA", -- Transaction
 		"isi"."devise" as "CUR_G", -- Devise de pièce
 		left('OD ANA - ' || "isi"."big_category_code" , 30) as "DESVCR", -- Libellé
-		"isi"."invoice_number" as "BPRVCR" -- Document origine
+		"isi"."invoice_number" as "BPRVCR", -- Document origine
+		"sa"."section" as "bu_client"
 
 	 from "invoices_saleinvoice" "isi"
 	 join "accountancy_ecritures" "aec"
 	   on "isi"."type_x3" = "aec"."type_x3"
 	  and "aec"."ecriture" = 'ODANA'
+	 join "centers_clients_maison" "cm"
+	   on "isi"."cct" = "cm"."cct"
+	 join "accountancy_sectionsage" "sa"
+	   on "cm"."axe_bu" = "sa"."uuid_identification"
 	where "isi"."type_x3" = 2
 	  and not "isi"."export"
 	  and "isi"."fcy" = %(fcy)s
@@ -173,7 +178,7 @@ with "groupe_g" as (
 		'PRJ' as "DIE_02", -- Code axe PRJ
 		'PYS' as "DIE_04", -- Code axe PYS
 		'RFA' as "DIE_05", -- Code axe RFA
-		"isd"."axe_bu" as "CCE", -- Section analytique BU
+		"isi"."bu_client" as "CCE", -- Section analytique BU
 		"isi"."cct" as "CCE_01", -- Section analytique CCT
 		"isd"."axe_pro" as "CCE_03", -- Section analytique PRO
 		"isd"."axe_prj" as "CCE_02", -- Section analytique PRJ
