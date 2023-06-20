@@ -973,6 +973,7 @@ SQL_SALES_DETAILS = sql.SQL(
             "det"."account_od_600"
         from (
             select 
+                "eee"."third_party_num",
                 -- TODO: GERER ICI LES PRIX DE VENTES
                 "gross_unit_price",
                 "net_unit_price",
@@ -1023,16 +1024,16 @@ SQL_SALES_DETAILS = sql.SQL(
                     else ''
                 end as "formation",
                 "ccm"."type_x3"
-            from "edi_ediimport" "eee"    
+            from "edi_ediimport" "eee" 
+            join "amounts" "amo"
+              on "amo"."id" = "eee"."id"   
             join "articles_article" "aa" 
               on "eee"."third_party_num" = "aa"."third_party_num" 
              and "eee"."reference_article" = "aa"."reference" 
             left join "articles_articleaccount" "ac"
               on "aa"."uuid_identification" = "ac"."article"
              and "eee"."code_center" = "ac"."child_center"
-             and "eee"."vat" = "ac"."vat" 
-            join "amounts" "amo"
-            on "amo"."id" = "eee"."id"
+             and "amo"."vat" = "ac"."vat" 
             left join "centers_clients_maison" "ccm" 
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
             left join (
