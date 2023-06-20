@@ -15,7 +15,7 @@ from pathlib import Path
 from psycopg2 import sql
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_setups import settings, connections
+from apps.core.functions.functions_setups import settings, connection
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
     titre_page_writer,
@@ -33,7 +33,7 @@ def get_clean_rows():
 
     sql_file = Path(settings.APPS_DIR) / "validation_sales/sql_files/sales_not_final.sql"
 
-    with connections["heron"].cursor() as cursor, sql_file.open("r") as sql_file:
+    with connection.cursor() as cursor, sql_file.open("r") as sql_file:
         # print(cursor.mogrify(sql.SQL(sql_file.read())))
         cursor.execute(sql.SQL(sql_file.read()))
 

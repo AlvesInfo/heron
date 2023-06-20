@@ -31,7 +31,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 6,
+        "width": 9,
     },
     {
         "entete": "Enseigne",
@@ -47,7 +47,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 11,
+        "width": 9,
     },
     {
         "entete": "Type\nVente",
@@ -63,7 +63,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 8,
+        "width": 9,
     },
     {
         "entete": "CCT",
@@ -79,7 +79,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Client",
@@ -95,7 +95,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 15,
+        "width": 25,
     },
     {
         "entete": "Tiers\nClient",
@@ -111,7 +111,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Non Tiers client",
@@ -127,10 +127,10 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 25,
     },
     {
-        "entete": "N° Facture\nCentrale",
+        "entete": "N° Facture\nHéron",
         "f_entete": {
             **f_entetes,
             **{
@@ -143,7 +143,7 @@ columns_sales_heron = [
                 "num_format": "@",
             },
         },
-        "width": 9,
+        "width": 16,
     },
     {
         "entete": "Date\nFacture",
@@ -159,7 +159,7 @@ columns_sales_heron = [
                 "num_format": "dd/mm/yyyy",
             },
         },
-        "width": 9,
+        "width": 10,
     },
     {
         "entete": "Total HT",
@@ -175,7 +175,7 @@ columns_sales_heron = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 14,
+        "width": 10,
     },
     {
         "entete": "Total TVA",
@@ -191,7 +191,7 @@ columns_sales_heron = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 14,
+        "width": 10,
     },
     {
         "entete": "Total TTC",
@@ -207,7 +207,7 @@ columns_sales_heron = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 9,
+        "width": 10,
     },
     {
         "entete": "Grande\nCatégorie",
@@ -220,7 +220,7 @@ columns_sales_heron = [
         "f_ligne": {
             **f_ligne,
         },
-        "width": 14,
+        "width": 20,
     },
     {
         "entete": "Tiers\nFournisseur",
@@ -236,7 +236,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 14,
+        "width": 11,
     },
     {
         "entete": "Nom\nFournisseur",
@@ -252,7 +252,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 25,
     },
     {
         "entete": "Type\nFacture",
@@ -268,7 +268,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 7,
     },
     {
         "entete": "N° Pièce\nFournisseur",
@@ -284,7 +284,7 @@ columns_sales_heron = [
                 "num_format": "@",
             },
         },
-        "width": 10,
+        "width": 25,
     },
     {
         "entete": "Date\nPièce",
@@ -316,7 +316,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 25,
     },
     {
         "entete": "Libellé",
@@ -332,7 +332,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 35,
     },
     {
         "entete": "Qty",
@@ -348,7 +348,7 @@ columns_sales_heron = [
                 "num_format": "#,##0",
             },
         },
-        "width": 10,
+        "width": 6,
     },
     {
         "entete": "P.U HT",
@@ -364,7 +364,7 @@ columns_sales_heron = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 9,
     },
     {
         "entete": "Montant\nHT",
@@ -397,7 +397,7 @@ columns_sales_heron = [
                 "num_format": "@",
             },
         },
-        "width": 10,
+        "width": 7,
     },
     {
         "entete": "Taux\nTVA",
@@ -413,7 +413,7 @@ columns_sales_heron = [
                 "num_format": "#,##0.00 %",
             },
         },
-        "width": 10,
+        "width": 7,
     },
     {
         "entete": "Montant\nTVA",
@@ -461,7 +461,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Axe PRO",
@@ -477,7 +477,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Axe PRJ",
@@ -493,7 +493,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Axe PYS",
@@ -509,7 +509,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Axe RFA",
@@ -525,7 +525,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Compte\nX3",
@@ -542,7 +542,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Axe BU\nOD",
@@ -559,7 +559,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Compte X3\nOD",
@@ -576,7 +576,7 @@ columns_sales_heron = [
                 "align": "center",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Grande\nCatégorie",
@@ -592,7 +592,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 20,
     },
     {
         "entete": "Rubrique Presta",
@@ -608,7 +608,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 20,
     },
     {
         "entete": "Bases\nFacture",
@@ -624,7 +624,7 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 20,
     },
     {
         "entete": "Regroupement",
@@ -640,6 +640,6 @@ columns_sales_heron = [
                 "align": "left",
             },
         },
-        "width": 10,
+        "width": 20,
     },
 ]
