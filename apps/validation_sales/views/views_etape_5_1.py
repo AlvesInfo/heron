@@ -1,7 +1,20 @@
+# pylint: disable=E0401,R0903,W0702,W0613,W0201
+"""
+Views des Articles
+"""
+import pendulum
+from django.shortcuts import redirect, reverse
 from django.shortcuts import render
+
+from heron.loggers import LOGGER_EXPORT_EXCEL
+from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.validation_sales.excel_outputs.output_excel_sales_not_final import (
+    excel_heron_sales_not_final,
+)
 
 
 # CONTROLES ETAPE 5 ================================================================================
+
 
 def sage_controls_globals_sales(request):
     """View de l'étape 5.5 des écrans de contrôles"""
@@ -10,9 +23,24 @@ def sage_controls_globals_sales(request):
 
 
 def validation_sales_export_globals(request):
-    """View de l'étape 5.5 des écrans de contrôles"""
-    context = {"titre_table": "Export Excel"}
-    return render(request, "validation_sales/sage_controls.html", context=context)
+    """
+    Export Excel de la liste des Articles par Fournisseurs et Catégories
+    :param request: Request Django
+    :return: response_file
+    """
+    try:
+        if request.method == "POST":
+            today = pendulum.now()
+            file_name = f"VENTES_A_FINALISER_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+
+            return response_file(excel_heron_sales_not_final, file_name, CONTENT_TYPE_EXCEL)
+
+    except:
+        LOGGER_EXPORT_EXCEL.exception("view : validation_sales_export_globals")
+
+    context = {"titre_table": f"VENTES HERON NON FINALISEES"}
+
+    return render(request, "validation_sales/sage_heron_sales.html", context=context)
 
 
 def sage_controls_details_sales(request):
@@ -45,6 +73,7 @@ def validation_sales_export_familles(request):
 
 # CONTROLES ETAPE 5.3
 
+
 def compare_turnover_sales(request):
     """View de l'étape 5.3 des écrans de contrôles"""
     context = {
@@ -76,6 +105,7 @@ def compare_turnover_sales_export_details(request):
 
 # CONTROLES ETAPE 5
 
+
 def controls_cct_sales(request):
     """View de l'étape 5 des écrans de contrôles"""
     context = {
@@ -94,7 +124,7 @@ def controls_cct_sales_suppliers(request):
     """View de l'étape 5A des écrans de contrôles"""
     context = {
         "titre_table": f"Contrôle refac M M-1 Fournisseurs pour le CCT : {'AF001'}",
-        "details": True
+        "details": True,
     }
     return render(request, "validation_sales/controls_cct_sales.html", context=context)
 
@@ -109,7 +139,7 @@ def controls_cct_sales_suppliers_details(request):
     """View de l'étape 5B des écrans de contrôles"""
     context = {
         "titre_table": f"Détails des factures Fournisseurs pour le CCT : {'AF001'}",
-        "details": True
+        "details": True,
     }
     return render(request, "validation_sales/controls_cct_sales.html", context=context)
 
