@@ -1,5 +1,5 @@
 # pylint: disable=W0702,W1203,E0401,E1101,C0103,W0603
-"""Module d'export du fichier excel des ventes Héron non finalisées
+"""Module d'export du fichier excel des achats Héron non finalisées
 
 Commentaire:
 
@@ -23,7 +23,7 @@ from apps.core.excel_outputs.excel_writer import (
     columns_headers_writer,
     sheet_formatting,
 )
-from apps.validation_sales.excel_outputs.columns_excel import columns_sales_heron
+from apps.validation_purchases.excel_outputs.columns_excel import columns_purchases_heron
 
 num_ligne = 0
 
@@ -31,7 +31,7 @@ num_ligne = 0
 def get_clean_rows():
     """Retourne les lignes à écrire"""
 
-    sql_file = Path(settings.APPS_DIR) / "validation_sales/sql_files/sales_not_final.sql"
+    sql_file = Path(settings.APPS_DIR) / "validation_purchases/sql_files/purchases_not_final.sql"
 
     with connection.cursor() as cursor, sql_file.open("r") as sql_file:
         # print(cursor.mogrify(sql.SQL(sql_file.read())))
@@ -59,12 +59,12 @@ def write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd):
         num_ligne += 1
 
 
-def excel_heron_sales_not_final(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier des ventes Héron non finalisées"""
-    titre = f"VENTES HERON A FINALISER"
+def excel_heron_purchases_not_final(file_io: io.BytesIO, file_name: str) -> dict:
+    """Fonction de génération du fichier de liste des achats Héron non finalisés"""
+    titre = f"ACHATS HERON A FINALISER"
     list_excel = [file_io, ["VENTES HERON"]]
     excel = GenericExcel(list_excel)
-    columns = columns_sales_heron
+    columns = columns_purchases_heron
     global num_ligne
 
     try:

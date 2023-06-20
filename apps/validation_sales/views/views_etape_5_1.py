@@ -3,7 +3,6 @@
 Views des Articles
 """
 import pendulum
-from django.shortcuts import redirect, reverse
 from django.shortcuts import render
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -22,9 +21,9 @@ def sage_controls_globals_sales(request):
     return render(request, "validation_sales/sage_controls.html", context=context)
 
 
-def validation_sales_export_globals(request):
+def invoices_sales_export_globals(request):
     """
-    Export Excel de la liste des Articles par Fournisseurs et Catégories
+    Export Excel des ventes Héron non finalisées
     :param request: Request Django
     :return: response_file
     """
@@ -36,7 +35,7 @@ def validation_sales_export_globals(request):
             return response_file(excel_heron_sales_not_final, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_EXPORT_EXCEL.exception("view : validation_sales_export_globals")
+        LOGGER_EXPORT_EXCEL.exception("view : invoices_sales_export_globals")
 
     context = {"titre_table": f"VENTES HERON NON FINALISEES"}
 

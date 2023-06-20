@@ -14,7 +14,7 @@ from .views import (
     controls_cct_sales_suppliers_details_export,
     # MENU CONTROLES SAGE
     sage_controls_globals_sales,
-    validation_sales_export_globals,
+    invoices_sales_export_globals,
     sage_controls_details_sales,
     validation_sales_export_details,
     sage_controls_familles_sales,
@@ -89,9 +89,9 @@ urlpatterns = [
             name="sage_controls_globals_sales",
         ),
         path(
-            "validation_sales_export_globals/",
-            validation_sales_export_globals,
-            name="validation_sales_export_globals",
+            "invoices_sales_export_globals/",
+            invoices_sales_export_globals,
+            name="invoices_sales_export_globals",
         ),
         # Ventes Détails
         path(

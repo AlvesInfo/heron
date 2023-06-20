@@ -29,7 +29,7 @@ from apps.validation_purchases.views import (
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
     invoices_suppliers_purchases,
-    invoices_suppliers_purchases_export,
+    invoices_purchases_export_globals,
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
     rfa_prj_invoices_purchases,
@@ -156,9 +156,9 @@ urlpatterns = [
             name="invoices_suppliers_purchases",
         ),
         path(
-            "invoices_suppliers_purchases_export/",
-            invoices_suppliers_purchases_export,
-            name="invoices_suppliers_purchases_export",
+            "invoices_purchases_export_globals/",
+            invoices_purchases_export_globals,
+            name="invoices_purchases_export_globals",
         ),
     ],
     # 3.1 - FAMILLES ARTICLES
