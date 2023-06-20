@@ -130,6 +130,22 @@ columns_sales_heron = [
         "width": 25,
     },
     {
+        "entete": "N° Facture\nSage",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "@",
+            },
+        },
+        "width": 16,
+    },
+    {
         "entete": "N° Facture\nHéron",
         "f_entete": {
             **f_entetes,

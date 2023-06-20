@@ -62,7 +62,7 @@ def write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd):
 def excel_heron_purchases_not_final(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier de liste des achats Héron non finalisés"""
     titre = f"ACHATS HERON A FINALISER"
-    list_excel = [file_io, ["VENTES HERON"]]
+    list_excel = [file_io, ["ACHATS HERON"]]
     excel = GenericExcel(list_excel)
     columns = columns_purchases_heron
     global num_ligne

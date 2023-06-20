@@ -4,7 +4,7 @@ select
 	-- T
     'T' as "T", -- Indicateur model import
     "isi"."invoice_type" as "SIVTYP", -- Type facture
-    ("isi"."fcy" || "isi"."invoice_number") as "NUM", -- Numéro de pièce
+    "isi"."invoice_sage_number" as "NUM", -- Numéro de pièce
     "isi"."third_party_num" as "BPR", -- Tiers
     "isi"."cpy" as "CPY", -- Société
     "isi"."fcy" as "FCY", -- Site
@@ -129,6 +129,7 @@ where "isi"."type_x3" = 1
 group by
         -- T
         "isi"."invoice_type",
+        "isi"."invoice_sage_number",
         "isi"."invoice_number",
         "isi"."third_party_num",
         "isi"."cpy",

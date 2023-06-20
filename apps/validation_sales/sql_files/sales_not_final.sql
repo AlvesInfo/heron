@@ -6,6 +6,7 @@ select
 	"ip"."name_cct",
 	"si"."third_party_num" as "tiers_facturer",
 	"ip"."name_third_party",
+	"si"."invoice_sage_number",
 	"si"."invoice_number" as "num_fac_acuitis",
 	"si"."invoice_date",
 	"si"."invoice_amount_without_tax" as "total_ht",

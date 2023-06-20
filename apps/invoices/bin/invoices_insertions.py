@@ -213,7 +213,7 @@ def set_sales_invoices(
             invoice_num = get_invoice_num(invoice_date)
             line_to_write = list(line)
             line_to_write[5] = invoice_num
-            line_to_write[6] = invoice_num
+            line_to_write[6] = f"{str(line[34])}{invoice_num}"
             line_to_write[8] = invoice_date.isoformat()
             line_to_write[9] = invoice_date.start_of("month").isoformat()
             line_to_write[10] = invoice_date.year
