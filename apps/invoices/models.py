@@ -692,3 +692,7 @@ class AxesDetails(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["axe_pro"]
+
+
+class ExportX3(FlagExport):
+    """class pour les fichiers export X3"""
