@@ -186,7 +186,7 @@ def set_update_articles_account(article_uuid: uuid.UUID = None):
 
 def set_update_articles_confict_account():
     """
-    Update global sans comptes achat vente pour tous les articles
+    Update global sans comptes achat ou vente pour tous les articles
     :return: None
     """
 

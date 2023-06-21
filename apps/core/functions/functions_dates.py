@@ -204,7 +204,7 @@ def long_date_string(dte):
 
 
 def long_date_string_s(dte):
-    """Fonction qui renvoie le nom du mois en minuscule séparer par _, avec l'année
+    """Fonction qui renvoie le nom du mois en minuscule séparé par _, avec l'année
     :param dte: 17/02/2017
     :return: février_2017
     """
@@ -212,7 +212,7 @@ def long_date_string_s(dte):
 
 
 def long_date_string_upper_s(dte):
-    """Fonction qui renvoie le nom du mois en majuscule séparer par _, avec l'année
+    """Fonction qui renvoie le nom du mois en majuscule séparé par _, avec l'année
     :param dte: 17/02/2017
     :return: FÉVRIER_2017
     """
@@ -301,8 +301,8 @@ def between_dates(dte_d, dte_f):
 
 def controle_between(dte_d, dte_f):
     """Fonction qui renvoie l'ordre des dates reçues
-    :param dte_d: date
-    :param dte_f: date
+    :param dte_d: Date début
+    :param dte_f: Date fin
     :return: date_plus_petite, date_plus_grande
     """
     if dte_d > dte_f:
@@ -778,7 +778,7 @@ def is_business_day_and_not_holiday(dte: datetime.datetime, days_off=(6, 7)):
 
 
 def business_days(date_from, date_to, days_off=(6, 7)):
-    """Générateur retournant les jours ouvrés dans la période [date_from:date_to]
+    """Générateur retournant les jours ouvrés dans la période [date_from: date_to]
     :param date_from: Date de début de la période
     :param date_to: Date de fin de la période
     :param days_off: jours non ouvrés de la semaine
@@ -858,7 +858,7 @@ def get_last_days_opening(
     """Fonction qui retourne le premier jour travaillé
     avant ou après le nombre de jours défini
     et à partir du jour demandé.
-        :param dte: date de départ
+        :param dte: Date de départ
         :type dte: pendulum.datetime
         :param days: jours à reculer ou à avancer
         :type days: int

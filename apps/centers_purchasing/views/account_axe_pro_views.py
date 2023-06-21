@@ -31,7 +31,7 @@ from apps.centers_purchasing.forms import (
     AccountsAxeProCategoryForm,
     AccountsAxeProCategoryDeleteForm,
 )
-# from apps.centers_purchasing.bin.update_account_article import set_article_account
+from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
 from apps.centers_purchasing.imports.imports_data import axe_pro_account
 
 
@@ -135,7 +135,8 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     @staticmethod
     def form_updated():
         """Action à faire après form_valid save"""
-        # set_article_account()
+        # Mise à jour des articles qui n'ont pas de comptes achats/ventes
+        set_update_articles_confict_account()
 
 
 class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -176,7 +177,8 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     @staticmethod
     def form_updated():
         """Action à faire après form_valid save"""
-        # set_article_account()
+        # Mise à jour des articles qui n'ont pas de comptes achats/ventes
+        set_update_articles_confict_account()
 
 
 def account_axe_delete(request):

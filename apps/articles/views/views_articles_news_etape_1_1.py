@@ -31,7 +31,7 @@ from apps.articles.excel_outputs.output_excel_articles_news_list import (
     excel_liste_articles_news,
 )
 from apps.articles.models import Article
-from apps.centers_purchasing.bin.update_account_article import set_update_articles_account
+from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
 
 
 # ECRANS DES NOUVEAUX ARTICLES =====================================================================
@@ -159,7 +159,7 @@ def articles_new_validation(request):
             cursor.execute(SQL_EDI_IMPORT_ARTICLES)
 
         # On met à jour les comptes comptable des articles
-        set_update_articles_account()
+        set_update_articles_confict_account()
 
         if nb_articles == nb_updates:
             message = f"Tous les articles ont étés mis à jour ({nb_articles})"
