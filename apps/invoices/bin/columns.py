@@ -31,7 +31,7 @@ COLS_PURCHASE_DICT = {
     "third_party_num": False,
     # "uuid_control": False,
     "adresse_tiers": False,
-    # "date_echeance": False,
+    "date_echeance": False,
     "mode_reglement": False,
     "type_reglement": False,
     "code_center": False,

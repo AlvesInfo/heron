@@ -37,6 +37,7 @@ from django.utils import timezone
 from django.db.models import Count
 
 from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
+from apps.core.bin.echeances import get_payment_method_elements, get_due_date
 from apps.core.functions.functions_setups import connection, transaction
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
 from apps.data_flux.trace import get_trace
@@ -111,20 +112,27 @@ def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyS
     file_io = io.StringIO()
     to_print = ""
 
+    # On initialise le cache de la fonction qui renvoie les modes de paiements
+    get_payment_method_elements.cache_clear()
+
     try:
         csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
         cursor.execute(SQL_PURCHASES_INVOICES)
 
         for line in cursor.fetchall():
-            line_to_write = list(line)
+            *line_to_write, auuid = list(line)
             line_to_write[5] = (
                 f"{line_to_write[15]}"
                 f"{str(line_to_write[10])[-2:]}"
                 f"{str(line_to_write[8].month).zfill(2)}"
                 f"{get_purchase_num()}"
             )[-20:]
-            line_to_write[24] = user.uuid_identification
+            # print(get_due_date(str(line_to_write[8]), auuid))
+            line_to_write[17] = get_due_date(str(line_to_write[8]), auuid)
             line_to_write[25] = user.uuid_identification
+            line_to_write[26] = user.uuid_identification
+            # print(dict(zip(COLS_PURCHASE_DICT, line_to_write)))
+
             csv_writer.writerow(line_to_write)
 
         file_io.seek(0)
@@ -357,7 +365,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     alls_print = ""
 
     try:
-        with connection.cursor() as cursor:
+        with connection.cursor() as cursor, transaction.atomic():
             LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
             # On met les import_uuid_identification au cas où il en manque
             set_fix_uuid(cursor)
@@ -418,13 +426,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
 
             # On contrôle l'insertion des achats
-            LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
+            LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
             if control_sales_insertion(cursor):
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures d'achat, "
                     "les totaux ne correspondent pas"
                 )
-                raise Exception("Il y a eu une erreur à l'insertion des factures d'achat")
+                raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
             print(f"control_sales_insertion :{time.time()-start} s")
             start = time.time()
@@ -441,7 +449,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             cursor.execute(SQL_SALES_FOR_EXPORT_X3)
 
             # On insère les détails des factures de vente
-            LOGGER_INVOICES.warning(r"Insertion des factures de vente")
+            LOGGER_INVOICES.warning(r"Insertion des détails des factures de vente")
             set_sales_details(cursor)
 
             print(f"set_sales_details :{time.time()-start} s")
@@ -468,13 +476,16 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
+        print("ERREUR - PostgresKeyError : ", except_error)
         LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
 
     except PostgresTypeError as except_error:
+        print("ERREUR - PostgresTypeError : ", except_error)
         LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
 
     # Exception Générale =======================================================================
     except Exception as except_error:
+        print("ERREUR - Exception : ", except_error)
         LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     finally:
@@ -484,9 +495,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
 
 if __name__ == "__main__":
-    with connection.cursor() as cur, transaction.atomic():
-        utilisateur = User.objects.get(last_name="ALVES")
-        to_print_ = invoices_insertion(utilisateur, pendulum.date(2023, 5, 31))
-
-        if to_print_:
-            raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+    utilisateur = User.objects.get(last_name="ALVES")
+    to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-05-31")
+    # set_purchases_invoices(cur, utilisateur)
+    # if to_print_:
+    #     print(to_print_)
+    #     raise Exception("Il y a eu une erreur à l'insertion des factures de vente")

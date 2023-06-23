@@ -89,10 +89,7 @@ select
 	-- E
 	'E' as "E", -- Indicateur model import
 	'1' as "DUDLIG", -- Numéro échéance
-	TO_CHAR(
-	    (date_trunc('month', "isi"."invoice_date") + interval '2 month - 1 day')::date,
-	    'DDMMYY'
-	) as "DUDDAT", -- Date échéance
+	"isi"."date_echeance"  as "DUDDAT", -- Date échéance
 	"isi"."mode_reglement" as "PAM", -- Mode de règlement
 	'1' as "PAMTYP", -- Type de règlement
 	case
@@ -211,6 +208,7 @@ group by
         -- E
         "isi"."mode_reglement",
         "isi"."type_reglement",
+        "isi"."date_echeance",
         "isi"."invoice_amount_with_tax",
         "isi"."invoice_date"
 

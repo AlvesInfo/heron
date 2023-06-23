@@ -168,7 +168,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             "eee"."purchase_invoice",
             "icc"."cpy",
             "icc"."fcy",
-            "icc"."code_plan_sage"
+            "icc"."code_plan_sage",
+            "apa"."auuid"
         from "edi_ediimport" "eee" 
         left join "centers_clients_maison" "ccm" 
         on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
@@ -195,7 +196,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
                 "bs"."third_party_num", 
                 "aa"."mode", 
                 "aa"."code" as "type_reglement", 
-                "bs"."vat_sheme_supplier" as "vat_regime"
+                "bs"."vat_sheme_supplier" as "vat_regime",
+                "aa"."auuid"
             from "book_society" "bs"
             left join "accountancy_paymentcondition" "aa"
             on "aa"."auuid" = "bs"."payment_condition_supplier"
@@ -239,7 +241,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         "third_party_num",
         -- "uuid_control",
         '1' as "adresse_tiers",
-        -- null as "date_echeance",
+        null as "date_echeance",
         "mode_reglement",
         "type_reglement",
         "code_center",
@@ -252,7 +254,8 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         "cpy",
         "fcy",
         date_trunc('month', now())::date as "integration_month",
-        "code_plan_sage"
+        "code_plan_sage",
+        "auuid"
     from "purchases" 
     """
 )
@@ -930,7 +933,7 @@ SQL_SALES_DETAILS = sql.SQL(
         "unit_weight",
         "account",
         "ranking",
-        "account_od_600",
+        "account_od_600"
     )
     (    
         select 

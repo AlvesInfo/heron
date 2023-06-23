@@ -34,6 +34,7 @@ from apps.articles.models import (
     SellingPrice,
     Subscription,
     SubscriptionArticle,
+    ArticleAccount,
 )
 from apps.book.models import (
     Address,
@@ -69,6 +70,7 @@ from apps.centers_purchasing.models import (
     AxeProGroupingGoods,
     AccountsAxeProCategory,
     ApplicableProVat,
+    TypeFacture,
 )
 from apps.compta.models import VentesCosium, CaClients
 from apps.countries.models import (
@@ -150,6 +152,7 @@ MODELS_ARTICLES = (
     SellingPrice,
     Subscription,
     SubscriptionArticle,
+    ArticleAccount,
 )
 
 MODELS_BOOK = (
@@ -186,6 +189,7 @@ MODELS_CENTER_PURCHASING = (
     AxeProGroupingGoods,
     AccountsAxeProCategory,
     ApplicableProVat,
+    TypeFacture,
 )
 
 MODELS_COUNTRY = (
@@ -373,12 +377,12 @@ def main(model_list):
 
 if __name__ == "__main__":
     main([])
-    main(MODELS_ACCOUNTANCY)
+    # main(MODELS_ACCOUNTANCY)
     # main(MODELS_BOOK)
     # main(MODELS_PARAMETERS)
     # main(MODELS_PERIODE)
-    # main(MODELS_ARTICLES)
-    # main(MODELS_CENTER_PURCHASING)
+    main(MODELS_ARTICLES)
+    main(MODELS_CENTER_PURCHASING)
     # main(MODELS_CENTER_CLIENTS)
     # main(MODELS_COMPTA)
     # main(MODELS_COUNTRY)
