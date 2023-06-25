@@ -26,6 +26,7 @@ from apps.invoices.sql_files.sql_controls import (
     SQL_SUB_CATEGORY_CONTROL,
     SQL_CENTER_CONTROL,
     SQL_SIGNBOARD_CONTROL,
+    SQL_SALES_AXE_BU,
 )
 
 
@@ -194,6 +195,22 @@ def control_sub_categories():
     return ""
 
 
+def control_axe_bu_od_ana():
+    """
+    Controle qu'il y ait les axes BU pour les clients/maisons, qui sont en OD_ANA.
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(SQL_SALES_AXE_BU)
+        missing_list = [missings[0] for missings in cursor.fetchall()]
+
+        if missing_list:
+            return (
+                "Vous avez des axe bu manquants sur les Clients en OD ANA"
+            )
+
+    return ""
+
+
 def control_alls_missings():
     """
     Contrôle de tous les manques dans edi_ediimport
@@ -275,31 +292,6 @@ def control_alls_missings():
             else ""
         )
 
-        # COMPTES DEBIT / CREDITS
-        cursor.execute(SQL_ACCOUNTS_EDI_IMPORT_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["debit_credit"] = (
-            (
-                "Vous avez des comptes, qui ne sont pas dans le "
-                "Dictionnaire des Comptes debit crédit. "
-                "(Menu : paramétrage -> FACTURATION -> Axe PRO/Comptes)"
-            )
-            if missing_list
-            else ""
-        )
-
-        # ARTICES COMPTES ACHAT ET VENTE
-        cursor.execute(SQL_ACCOUNTS_ARTICLES)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["articles_debit_credit"] = (
-            (
-                "Vous avez des comptes dans les articles, qui ne sont pas "
-                "dans le Dictionnaire des Comptes achat et vente"
-            )
-            if missing_list
-            else ""
-        )
-
         # CENTRALE FILLE
         cursor.execute(SQL_CENTER_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -314,6 +306,15 @@ def control_alls_missings():
         missing_list = [missings[0] for missings in cursor.fetchall()]
         controls_dict["signboard"] = (
             "Vous avez des manquants sur les Enseignes, dans les imports ou les saisies"
+            if missing_list
+            else ""
+        )
+
+        # AXE BU
+        cursor.execute(SQL_SALES_AXE_BU)
+        missing_list = [missings[0] for missings in cursor.fetchall()]
+        controls_dict["axe_bu"] = (
+            "Vous avez des axe bu manquants sur les Clients en OD ANA"
             if missing_list
             else ""
         )

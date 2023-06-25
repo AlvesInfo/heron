@@ -78,3 +78,15 @@ def get_gaspar_num():
     )
 
     return fac_num
+
+
+def get_bispa_num():
+    """Génération d'un numéro de l'export x3 des factures d"achat
+    :return:
+    """
+    counter = Counter.objects.get(name="bispa_num")
+    fac_num = get_counter_num(
+        counter_instance=counter,
+    )
+
+    return fac_num

@@ -271,7 +271,7 @@ with "real_sales" as(
 				else -round(("sa"."invoice_amount_with_tax" - sum("d_ttc"))::numeric, 2)
 			end as "AMTNOTLIN", -- Montant HT
 			'0' as "QTY_D", -- Quantité
-			'004' "VAT", -- Taxe X3
+			'004' as  "VAT", -- Taxe X3
 			left(
 				coalesce(
 					(

@@ -594,6 +594,7 @@ class TypeFacture(models.Model):
         db_column="child_center",
     )
     invoice_type = models.CharField(max_length=10, choices=InvType.choices, default=InvType.FA)
+    invoice_name = models.CharField(null=True, max_length=15)
     purchase_type_facture = models.CharField(max_length=10)
     sale_type_facture = models.CharField(max_length=10)
 

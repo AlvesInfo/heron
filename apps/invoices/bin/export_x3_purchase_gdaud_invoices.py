@@ -13,8 +13,8 @@ modified by: Paulo ALVES
 """
 from operator import itemgetter
 
-from apps.core.functions.functions_setups import connection, settings
-from apps.invoices.bin.invoives_nums import get_bispar_num
+from apps.core.functions.functions_setups import connections, settings
+from apps.invoices.bin.invoives_nums import get_bispa_num
 from apps.invoices.bin.base_export_x3_functions import (
     get_rows,
     get_t,
@@ -32,21 +32,22 @@ def write_bispar(fcy, nb_fac=5000):
     :param nb_fac: nombre de factures max par fichiers
     :return: generateur des lignes de la requête
     """
-    rows = get_rows(connection, settings.APPS_DIR, fcy, "sql_export_x3_purchase_incoices")
+    connection = connections["heron"]
+    rows = get_rows(connection, settings.APPS_DIR, fcy, "sql_export_x3_purchase_gdaud_incoices")
 
     try:
         row = next(rows)
     except StopIteration:
         return
 
-    file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
+    file = get_file(settings.EXPORT_DIR, fcy, get_bispa_num)
     invoice_number, *line_to_write, test_a = row
     invoice = invoice_number
     slicing_bispar = itemgetter(
         slice(0, 17, None),
         slice(17, 30, None),
-        slice(30, 46, None),
-        slice(46, len(line_to_write), None),
+        slice(30, 44, None),
+        slice(44, len(line_to_write), None),
     )
     line_t, line_d, line_a, line_e = split_line(line_to_write, slicing_bispar)
     invoice_d = str(line_d)
@@ -110,4 +111,4 @@ def write_bispar(fcy, nb_fac=5000):
 
 
 if __name__ == "__main__":
-    write_bispar("AC00")
+    write_bispar("GA00")

@@ -29,7 +29,6 @@ COLS_PURCHASE_DICT = {
     "invoice_amount_tax": False,
     "invoice_amount_with_tax": False,
     "third_party_num": False,
-    # "uuid_control": False,
     "adresse_tiers": False,
     "date_echeance": False,
     "mode_reglement": False,

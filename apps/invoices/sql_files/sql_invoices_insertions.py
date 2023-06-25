@@ -71,7 +71,8 @@ SQL_COMMON_DETAILS = sql.SQL(
         "final",
         "purchase_invoice",
         "sale_invoice",
-        "invoice_year"
+        "invoice_year",
+        "uuid_control"
     )
     (
         select 
@@ -124,7 +125,8 @@ SQL_COMMON_DETAILS = sql.SQL(
             false as "final",
             "purchase_invoice",
             "sale_invoice",
-            "ee"."invoice_year"
+            "ee"."invoice_year",
+            "ee"."uuid_control"
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
                 on "aa"."reference" = "ee"."reference_article" 
@@ -159,7 +161,6 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             "eee"."invoice_amount_tax",
             "eee"."invoice_amount_with_tax",
             "eee"."third_party_num",
-            "eee"."uuid_control",
             "apa"."mode" as "mode_reglement",
             "apa"."type_reglement",
             "icc"."code_center",
@@ -239,7 +240,6 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         "invoice_amount_tax",
         "invoice_amount_with_tax",
         "third_party_num",
-        -- "uuid_control",
         '1' as "adresse_tiers",
         null as "date_echeance",
         "mode_reglement",
@@ -1144,12 +1144,6 @@ SQL_SALES_DETAILS = sql.SQL(
     """
 )
 
-SQL_SALESS_ACCOUNTS = sql.SQL(
-    # Mise à jour des comptes X3 comptable
-    """
-    """
-)
-
 SQL_CONTROL_SALES_INSERTION = sql.SQL(
     """
     select 
@@ -1175,5 +1169,17 @@ SQL_CONTROL_SALES_INSERTION = sql.SQL(
             - 
             sum(is3.amount_with_vat)
     ) != 0
+    """
+)
+
+SQL_SALES_ACCOUNTS = sql.SQL(
+    # Controle qu'il ne manque pas de comptes pour les exports ventes
+    """
+    """
+)
+
+SQL_SALES_ACCOUNTS_GDAUD = sql.SQL(
+    # Controle qu'il ne manque pas de comptes pour les exports achat GDAUD
+    """
     """
 )

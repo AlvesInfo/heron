@@ -497,7 +497,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 if __name__ == "__main__":
     utilisateur = User.objects.get(last_name="ALVES")
     to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-05-31")
-    # set_purchases_invoices(cur, utilisateur)
+    # set_purchases_invoices (cur, utilisateur)
     # if to_print_:
     #     print(to_print_)
     #     raise Exception("Il y a eu une erreur à l'insertion des factures de vente")

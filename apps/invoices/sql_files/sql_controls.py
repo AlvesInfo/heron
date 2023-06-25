@@ -158,3 +158,16 @@ on "ee"."uuid_big_category" = ps."uuid_big_category"
 where "ee"."uuid_sub_big_category" isnull
 limit 1
 """
+
+SQL_SALES_AXE_BU = """
+select 
+    "axe_bu"
+from (
+    select 
+        "cct", 
+        "axe_bu"
+    from "centers_clients_maison"
+    where "type_x3" = 2
+) rr
+where "axe_bu" isnull
+"""

@@ -195,15 +195,6 @@ class Invoice(FlagExport, BaseInvoiceTable):
     )
     vat_regime = models.CharField(null=True, max_length=5, verbose_name="régime de taxe")
     uuid_file = models.UUIDField(null=True)
-    uuid_control = models.ForeignKey(
-        EdiImportControl,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        to_field="uuid_identification",
-        related_name="edi_control_invoice",
-        db_column="uuid_control",
-    )
     comment = models.CharField(null=True, blank=True, max_length=120)
     date_echeance = models.DateField(null=True)
     mode_reglement = models.CharField(null=True, max_length=35)
@@ -625,6 +616,15 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
     sale_invoice = models.BooleanField(null=True, default=False)
     supplier_initial_libelle = models.CharField(null=True, blank=True, max_length=150)
     invoice_year = models.IntegerField()
+    uuid_control = models.ForeignKey(
+        EdiImportControl,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        to_field="uuid_identification",
+        related_name="edi_control_invoice",
+        db_column="uuid_control",
+    )
 
     class Meta:
         """class Meta du modèle django"""
