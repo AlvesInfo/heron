@@ -4,6 +4,7 @@ from apps.validation_purchases.views import (
     integration_purchases,
     purchase_without_suppliers,
     purchase_without_suppliers_update,
+    integration_supplier_validation,
     delete_supplier_edi_import,
     integration_purchases_export,
     big_category_change,
@@ -62,6 +63,11 @@ urlpatterns = [
             "purchase_without_suppliers_update/",
             purchase_without_suppliers_update,
             name="purchase_without_suppliers_update",
+        ),
+        path(
+            "integration_supplier_validation/",
+            integration_supplier_validation,
+            name="integration_supplier_validation",
         ),
         path(
             "delete_supplier_edi_import/",

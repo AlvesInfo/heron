@@ -40,7 +40,9 @@ select
     case when "uuid_control" isnull then 0 else 1 end "have_control",
     "origin",
     "icon",
-    ('Source : ' || "origin_name") as "data_content"
+    ('Source : ' || "origin_name") as "data_content",
+    "validation",
+    "uuid_control"
 from (
     select
         "supplier",
@@ -60,10 +62,11 @@ from (
         "purchase_invoice",
         "sale_invoice",
         case when "is_multi_store" then 0 else 1 end as "is_multi_store",
-        "ee"."uuid_control",
+        "ec"."uuid_identification" as "uuid_control",
         case when "ee"."origin" isnull then 'question circle' else "pic"."icon" end as "icon",
         case when "ee"."origin" isnull then 0 else "ee"."origin" end as "origin",
-        case when "ee"."origin" isnull then 'INCONNUE' else "pic"."origin_name" end as "origin_name"
+        case when "ee"."origin" isnull then 'INCONNUE' else "pic"."origin_name" end as "origin_name",
+        "ec"."valid" as "validation"
     from "edi_ediimport" "ee"
     left join "edi_ediimportcontrol" "ec"
     on "ee"."uuid_control" = "ec"."uuid_identification"
@@ -91,10 +94,11 @@ from (
              "purchase_invoice",
              "sale_invoice",
              is_multi_store,
-             "ee"."uuid_control",
+             "ec"."uuid_identification",
              "ee"."origin",
              "pic"."icon",
-        	 "pic"."origin_name"
+        	 "pic"."origin_name",
+        	 "ec"."uuid_identification"
 ) edi
 group by "supplier",
          "invoice_month",
@@ -106,10 +110,12 @@ group by "supplier",
          "pk",
          "purchase_invoice",
          "sale_invoice",
-         uuid_control,
+         "uuid_control",
          "origin",
          "icon",
-         "origin_name"
+         "origin_name",
+    	 "validation",
+    	 "uuid_control"
 order by third_party_num,
          "supplier",
          "invoice_month"

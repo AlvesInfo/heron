@@ -108,6 +108,7 @@ class EdiImportControlForm(forms.ModelForm):
     invoice_month = forms.CharField(max_length=15, required=False)
 
     class Meta:
+        """class Meta"""
         model = EdiImportControl
         fields = [
             "statement_without_tax",
@@ -155,3 +156,15 @@ class UpdateThirdpartynumForm(forms.ModelForm):
 
         model = EdiImport
         fields = ("flow_name", "supplier", "supplier_ident", "third_party_num")
+
+
+class ControlValidationForm(forms.Form):
+    """Form pour la validation"""
+    uuid_identification = forms.UUIDField()
+    valid = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["valid"].required = False

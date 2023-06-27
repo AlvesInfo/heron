@@ -7,6 +7,30 @@
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
 
+{% block head_js %}
+    <script type="text/javascript">
+        function supplierValidation(idButton, uuid_control) {
+            $(`.datatable-chargement`).show();
+            console.log(idButton, uuid_control);
+            console.log($(`#${idButton}`).is(':checked'));
+            let formData = {
+                uuid_identification: uuid_control,
+                valid: $(`#${idButton}`).is(':checked'),
+            };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'validation_purchases:integration_supplier_validation' %}",
+                data: formData,
+                encode: true,
+            }).done(function (data) {
+                console.log(data)
+                $(`.datatable-chargement`).hide();
+            });
+        }
+
+    </script>
+{% endblock head_js %}
+
 {% block content %}
 
     {% if user.is_authenticated %}

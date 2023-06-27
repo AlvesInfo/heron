@@ -41,7 +41,7 @@ class EdiImportControl(FlagsTable):
     )
     comment = models.TextField(blank=True, null=True)
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
 
 class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):

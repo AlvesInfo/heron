@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, reverse
 from django.views.generic import CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_bulk_delete
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_bulk_delete, trace_change
 from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_dates import get_date_apostrophe
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -24,6 +24,7 @@ from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
     EdiImportControlForm,
+    ControlValidationForm,
 )
 from apps.edi.models import EdiImportControl
 from apps.parameters.models import IconOriginChoice
@@ -40,7 +41,7 @@ def integration_purchases(request):
     # on met à jour les cct au cas où l'on ai rempli des cct dans un autre écran
     update_cct_edi_import()
 
-    # On vérifie et on supprimes les imports edi s'ils n'ont pas de supplier_ident
+    # On vérifie et on supprime les imports edi s'ils n'ont pas de supplier_ident
     verify_supplier_ident()
 
     # On flag les trace invoices = True, si il y a eu des erreurs
@@ -222,6 +223,50 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         ).update(uuid_control=instance.uuid_identification)
 
         return super().form_valid(form)
+
+
+def integration_supplier_validation(request):
+    """Validation des Fournisseurs un par un, dans l'écran 2.1 Contrôle intégration"""
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {
+        "success": "ko",
+        "inputCheck": False,
+        "message": "Il y a eu une erreur pendant la validation",
+    }
+
+    form = ControlValidationForm(request.POST or None)
+
+    if form.is_valid():
+        try:
+            uuid_identification = form.cleaned_data.get("uuid_identification")
+            valid_after = (
+                False if form.cleaned_data.get("valid") is None else form.cleaned_data.get("valid")
+            )
+            before_kwargs = {
+                "uuid_identification": uuid_identification,
+            }
+            update_kwargs = {
+                "uuid_identification": uuid_identification,
+                "valid": valid_after,
+            }
+            trace_change(request, EdiImportControl, before_kwargs, update_kwargs)
+            data["message"] = "Le Fournisseur à bien été validé"
+            data["success"] = "ok"
+
+        except EdiImportControl.DoesNotExist:
+            LOGGER_VIEWS.exception(
+                f"integration_supplier_validation error, uuid not exists : {form.cleaned_data!r}"
+            )
+
+    else:
+        LOGGER_VIEWS.exception(
+            f"integration_supplier_validation error, form invalid : {form.errors!r}"
+        )
+
+    return JsonResponse(data)
 
 
 @transaction.atomic

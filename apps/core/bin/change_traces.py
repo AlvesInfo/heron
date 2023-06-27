@@ -414,7 +414,6 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
 
     user = request.user
     action_datetime = timezone.now()
-
     before_dict = {
         key: value
         for key, value in model.objects.filter(**before_kwargs).first().__dict__.items()
