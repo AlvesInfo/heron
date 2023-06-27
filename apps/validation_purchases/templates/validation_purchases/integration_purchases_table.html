@@ -101,11 +101,13 @@
                     <td id="deltaHt{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ht != 0 %}{{ supplier_purchase.delta_ht|numbers_format:2 }}{% endif %}</td>
                     <td id="deltaTtc{{ forloop.counter0 }}" style="text-align: right;font-weight: bold;color: red;">{% if supplier_purchase.delta_ttc != 0 %}{{ supplier_purchase.delta_ttc|numbers_format:2 }}{% endif %}</td>
                     <td style="text-align: left;">
-                        <label>
-                            <input type="checkbox" name="validation" id="id_validation_{{ forloop.counter0 }}" onclick="supplierValidation(`id_validation_{{ forloop.counter0 }}`, `{{ supplier_purchase.uuid_control }}`)" {% if supplier_purchase.validation %}checked="" {% endif %}style="font-weight: bold;width: 20px;height: 20px;margin-left: 12px;">
-                        </label>
+                        {% if supplier_purchase.uuid_control %}
+                            <label>
+                                <input type="checkbox" name="validation" id="id_validation_{{ forloop.counter0 }}" onclick="supplierValidation(`id_validation_{{ forloop.counter0 }}`, `{{ supplier_purchase.uuid_control }}`)" {% if supplier_purchase.validation %}checked="" {% endif %}style="font-weight: bold;width: 20px;height: 20px;margin-left: 12px;">
+                            </label>
+                        {% endif %}
                     </td>
-                    <td style="text-align: center;color: #FFFFFF;font-weight: bold">{% if supplier_purchase.validation %}!{% endif %}</td>
+                    <td style="text-align: center;color: #FFFFFF;font-weight: bold">{% if supplier_purchase.uuid_control %}{% if supplier_purchase.validation %}!{% endif %}{% endif %}</td>
                     <td style="text-align: left;">{{ supplier_purchase.comment|default_if_none:'' }}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
