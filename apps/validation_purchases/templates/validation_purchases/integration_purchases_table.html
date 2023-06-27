@@ -103,7 +103,7 @@
                     <td style="text-align: left;">
                         {% if supplier_purchase.uuid_control %}
                             <label>
-                                <input type="checkbox" name="validation" id="id_validation_{{ forloop.counter0 }}" onclick="supplierValidation(`id_validation_{{ forloop.counter0 }}`, `{{ supplier_purchase.uuid_control }}`)" {% if supplier_purchase.validation %}checked="" {% endif %}style="font-weight: bold;width: 20px;height: 20px;margin-left: 12px;">
+                                <input type="checkbox" name="validation" id="id_validation_{{ forloop.counter0 }}" onclick="supplierValidation(`id_validation_{{ forloop.counter0 }}`, `{{ supplier_purchase.uuid_control }}`)" {% if supplier_purchase.validation %}checked=""{% endif %} style="font-weight: bold;width: 20px;height: 20px;margin-left: 5px;">
                             </label>
                         {% endif %}
                     </td>
