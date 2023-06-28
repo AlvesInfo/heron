@@ -50,6 +50,34 @@ def set_cct_ventes(cursor: connection.cursor):
     cursor.execute(sql_cct)
 
 
+def update_cct_from_bi(cursor: connection.cursor):
+    """Met à jour les cct dans les ventes
+    :param cursor: cursor psycopg2
+    :return:
+    """
+    sql_update_cct = sql.SQL(
+        """
+        update "compta_ventescosium" "cv" 
+        set "code_maison" = "req"."code_maison"
+        from (
+            select 
+                "id",
+                "code_maison"
+            from "heron_bi_ventes_cosium" "hb"
+            where ("hb"."code_maison" is not null or "hb"."code_maison" != '')
+              and exists (
+                select 
+                    1 
+                from "compta_ventescosium" "cv" 
+                where ("cv"."code_maison" isnull or "cv"."code_maison" = '') 
+                  and "cv"."id_bi" = "hb"."id"
+              )
+        ) "req"
+        where "cv"."id_bi" = "req"."id"  """
+    )
+    cursor.execute(sql_update_cct)
+
+
 @transaction.atomic
 def insert_ventes_cosium():
     """Intégration des lignes de la table des ventes cosium
@@ -193,6 +221,7 @@ def insert_ventes_cosium():
             """
         )
         cursor.execute(sql_insert_ventes, {"min_id": min_id})
+        update_cct_from_bi(cursor)
         set_cct_ventes(cursor)
 
         # mise à jour du taux de change
