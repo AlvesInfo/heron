@@ -549,7 +549,7 @@ def excel_invoice_details(file_io: io.BytesIO, file_name: str, attr_dict: dict) 
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
     third_party_num = attr_dict.get("third_party_num")
     supplier = attr_dict.get("supplier")
-    invoice_month = attr_dict.get("invoice_number")
+    invoice_month = attr_dict.get("invoice_month")
     titre = f"{third_party_num} - {supplier} : Mois {invoice_month}"
 
     list_excel = [file_io, ["DETAILS FACTURES"]]
