@@ -67,11 +67,11 @@ def generate_pdf_invoice(request):
     sales_invoices_exists = SaleInvoice.objects.filter(
         final=False, printed=False, type_x3__in=(1, 2)
     ).exists()
-    context = {"margin_table": 50, "titre_table": titre_table}
+    context = {"margin_table": 50, "titre_table": titre_table, "news": sales_invoices_exists}
 
     if not sales_invoices_exists:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucunes factures à traiter !")
+        messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
         context["en_cours"] = False
 
         return render(request, "invoices/generate_pdf_invoices.html", context=context)
@@ -105,11 +105,11 @@ def send_email_pdf_invoice(request):
     sales_invoices_exists = SaleInvoice.objects.filter(
         final=False, send_email=False, type_x3__in=(1, 2), printed=True
     ).exists()
-    context = {"margin_table": 50, "titre_table": titre_table}
+    context = {"margin_table": 50, "titre_table": titre_table, "news": sales_invoices_exists}
 
-    if request.method == "POST" and not sales_invoices_exists:
+    if not sales_invoices_exists:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucunes factures à envoyer !")
+        messages.add_message(request, 50, "Il n'y a aucune facture à envoyer !")
         context["en_cours"] = False
 
         return render(request, "invoices/send_email_invoices.html", context=context)
