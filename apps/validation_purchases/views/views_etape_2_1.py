@@ -351,6 +351,7 @@ def alls_details_purchases_export(request, enc_param):
             )
             attr_dict = {
                 "third_party_num": third_party_num,
+                "supplier": supplier,
                 "invoice_month": invoice_month,
             }
             return response_file(

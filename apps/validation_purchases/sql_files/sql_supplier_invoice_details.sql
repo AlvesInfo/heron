@@ -57,4 +57,5 @@ left join "accountancy_sectionsage" "arfa"
        on "ee"."axe_rfa" = "arfa"."uuid_identification"
 where "ee"."third_party_num" = %(third_party_num)s
   and "ee"."invoice_month" = %(invoice_month)s
+  and "ee"."supplier" = %(supplier)s
 order by "ee"."id"
