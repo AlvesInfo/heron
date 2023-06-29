@@ -26,11 +26,11 @@ def generate_invoices_insertions(request):
 
     titre_table = "Insertion des factures intégrées"
     edi_invoices_exists = EdiImport.objects.filter(valid=True).exists()
-    context = {"margin_table": 50, "titre_table": titre_table}
+    context = {"margin_table": 50, "titre_table": titre_table, "news": edi_invoices_exists}
 
     if not edi_invoices_exists:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucunes factures à traiter !")
+        messages.add_message(request, 50, "Il n'y a aucune facture à intégrer !")
         context["en_cours"] = True
 
         return render(request, "invoices/insertion_invoices.html", context=context)

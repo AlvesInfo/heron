@@ -19,7 +19,7 @@
                 <tr>
                     <th class="no-sort" style="width: 3px;"></th>
                     <th style="width: 9px;-webkit-writing-mode: vertical-rl;">Source</th>
-                    <th style="width: 9px;-webkit-writing-mode: vertical-rl;">Excel</th>
+                    <th style="width: 9px;-webkit-writing-mode: vertical-rl;">Détails</th>
                     <th style="width: 15px;display: none;">Categorie</th>
                     <th style="width: 15px;">CCT</th>
                     <th style="width: 20px;">Tiers X3</th>
@@ -71,7 +71,7 @@
                         <span style="color: #FFFFFF">{{ supplier_purchase.origin }}</span>
                     </td>
                     <td style="text-align: center;">
-                        <a href="{% url 'validation_purchases:integration_supplier_purchases_export' supplier_purchase.enc_param|encode_b64_str %}">
+                        <a href="{% url 'validation_purchases:alls_details_purchases_export' supplier_purchase.enc_param|encode_b64_str %}">
                             <i class="file excel icon modification" data-content="Export Excel" data-variation="tiny" style="color: green;"></i>
                         </a>
                     </td>

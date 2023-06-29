@@ -7,6 +7,7 @@ from apps.validation_purchases.views import (
     integration_supplier_validation,
     delete_supplier_edi_import,
     integration_purchases_export,
+    alls_details_purchases_export,
     big_category_change,
     CreateIntegrationControl,
     UpdateIntegrationControl,
@@ -88,6 +89,11 @@ urlpatterns = [
             "integration_purchases_export/",
             integration_purchases_export,
             name="integration_purchases_export",
+        ),
+        path(
+            "alls_details_purchases_export/<str:enc_param>/",
+            alls_details_purchases_export,
+            name="alls_details_purchases_export",
         ),
         path(
             "big_category_change/",

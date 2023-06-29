@@ -28,6 +28,9 @@ from apps.validation_purchases.forms import (
 )
 from apps.edi.models import EdiImportControl
 from apps.parameters.models import IconOriginChoice
+from apps.validation_purchases.excel_outputs.excel_supplier_invoices_details import (
+    excel_invoice_details,
+)
 
 # CONTROLES ETAPE 2.1 - CONTROLE INTEGRATION
 
@@ -38,7 +41,7 @@ def integration_purchases(request):
     :param request: Request Django
     :return: view
     """
-    # on met à jour les cct au cas où l'on ai rempli des cct dans un autre écran
+    # on met à jour les cct au cas où l'on ait rempli des cct dans un autre écran
     update_cct_edi_import()
 
     # On vérifie et on supprime les imports edi s'ils n'ont pas de supplier_ident
@@ -328,5 +331,36 @@ def integration_purchases_export(request):
 
     except:
         LOGGER_VIEWS.exception("view : integration_purchases_export")
+
+    return redirect(reverse("validation_purchases:integration_purchases"))
+
+
+def alls_details_purchases_export(request, enc_param):
+    """Export Excel de
+    :param request: Request Django
+    :param enc_param: Paramètres get de la requête encodée base 64
+    :return: response_file
+    """
+    try:
+        if request.method == "GET":
+            third_party_num, supplier, invoice_month = get_base_64(enc_param)
+            today = pendulum.now()
+            file_name = (
+                f"{third_party_num}_{supplier}_"
+                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            )
+            attr_dict = {
+                "third_party_num": third_party_num,
+                "invoice_month": invoice_month,
+            }
+            return response_file(
+                excel_invoice_details,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                attr_dict,
+            )
+
+    except:
+        LOGGER_VIEWS.exception("view : alls_details_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))
