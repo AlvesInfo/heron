@@ -31,6 +31,7 @@ from apps.edi.bin.edi_utilites import (
     set_hand_sales_prices,
 )
 from apps.edi.models import EdiImport
+from apps.book.models import Society
 
 
 @transaction.atomic
@@ -183,6 +184,7 @@ def set_hand_invoice(
         # On crée une liste de dictionnaire pour l'import en base
         edi_import_list = []
         uuid_identification = uuid4()
+        society = Society.objects.get(third_party_num=third_party_num)
 
         for line_dict in lines_to_create:
             results_dict = dict()
@@ -193,9 +195,9 @@ def set_hand_invoice(
             results_dict.update(
                 {
                     "uuid_identification": uuid_identification,
-                    "supplier": third_party_num,
+                    "supplier": str(society.short_name)[:35],
                     "supplier_ident": third_party_num,
-                    "supplier_name": third_party_num,
+                    "supplier_name": str(society.name)[:80],
                     "valid": True,
                     "saisie": True,
                     "is_multi_store": len(multistore_set) > 1,
