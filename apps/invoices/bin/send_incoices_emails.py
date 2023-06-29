@@ -122,6 +122,7 @@ def invoices_send_by_email(context_dict: Dict):
                 email_05,
                 email_06,
             ) = row
+
             if i == 0:
                 context_email["cct"] = cct_name
                 context_email["synthese"] = (
@@ -188,7 +189,7 @@ def invoices_send_by_email(context_dict: Dict):
                 + str(context_dict)
             )
         else:
-            # S'il n'y a pas eu d'erreurs on flag send_mail à tru pour ne pas le renvoyer
+            # S'il n'y a pas eu d'erreurs ont flag send_mail à true pour ne pas le renvoyer
             SaleInvoice.objects.filter(
                 cct=context_dict.get("cct"),
                 global_invoice_file=context_dict.get("global_invoice_file"),

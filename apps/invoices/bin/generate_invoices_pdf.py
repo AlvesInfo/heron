@@ -162,6 +162,14 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
             trace.comment = (
                 trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
+        else:
+            SaleInvoice.objects.filter(
+                cct=cct,
+                global_invoice_file=num_file,
+                final=False,
+                printed=False,
+                type_x3__in=(1, 2),
+            ).update(printed=True)
 
         trace.save()
 

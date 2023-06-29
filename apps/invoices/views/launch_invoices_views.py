@@ -69,7 +69,7 @@ def generate_pdf_invoice(request):
     ).exists()
     context = {"margin_table": 50, "titre_table": titre_table}
 
-    if request.method == "POST" and not sales_invoices_exists:
+    if not sales_invoices_exists:
         request.session["level"] = 50
         messages.add_message(request, 50, "Il n'y a aucunes factures à traiter !")
         context["en_cours"] = False

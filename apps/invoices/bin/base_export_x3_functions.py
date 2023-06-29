@@ -123,5 +123,4 @@ def get_file(export_dir, fcy, get_function_num):
     file_num = get_function_num()
 
     file = Path(export_dir) / f"{fcy}_{file_num}.txt"
-    print(file.name)
     return file.open("w", encoding="iso8859_1", errors="replace", newline="")
