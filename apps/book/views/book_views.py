@@ -33,6 +33,7 @@ class SocietiesList(ListView):
         "is_supplier",
         "is_client",
         "centers_suppliers_indentifier",
+        "invoice_entete",
         "siret_number",
     )
 
@@ -61,6 +62,8 @@ class SocietiesInUseList(ListView):
             "is_supplier",
             "is_client",
             "centers_suppliers_indentifier",
+            "invoice_entete",
+            "siret_number"
         )
     )
 

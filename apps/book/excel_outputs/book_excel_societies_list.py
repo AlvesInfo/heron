@@ -63,6 +63,7 @@ class GetRows:
             bs."name", 
             bs."short_name", 
             "corporate_name", 
+            "invoice_entete",
             "siret_number", 
             "vat_cee_number", 
             "vat_number", 

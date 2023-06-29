@@ -344,3 +344,21 @@ def regroup_sum(values_list, field):
             total += invoice.get(field, 0)
 
     return total
+
+
+@register.filter(name="siret_number")
+def siret_number(value):
+    """
+    Embelli les N° de Siret
+    :param value: valeur venue du queryset
+    :return:
+    """
+    siret = ""
+    value_to_siret = str(value).strip().replace("_", "").replace(" ", "").replace("-", "")
+
+    for i, letter in enumerate(value_to_siret, 1):
+        siret += letter
+        if i % 3 == 0 and i < 10:
+            siret += " "
+
+    return siret

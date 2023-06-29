@@ -85,6 +85,22 @@ class SocietiesColumns:
             "width": 15,
         },
         {
+            "entete": "Entête Facture",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "center",
+                },
+            },
+            "width": 15,
+        },
+        {
             "entete": "N° siret",
             "f_entete": {
                 **f_entetes,
@@ -648,6 +664,22 @@ class SocietiesColumns:
             "width": 15,
         },
         {
+            "entete": "Entête Facture",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "center",
+                },
+            },
+            "width": 15,
+        },
+        {
             "entete": "N° siret",
             "f_entete": {
                 **f_entetes,
@@ -1068,6 +1100,22 @@ class SocietiesColumns:
         },
         {
             "entete": "Raison sociale",
+            "f_entete": {
+                **f_entetes,
+                **{
+                    "bg_color": "#dce7f5",
+                },
+            },
+            "f_ligne": {
+                **f_ligne,
+                **{
+                    "align": "center",
+                },
+            },
+            "width": 15,
+        },
+        {
+            "entete": "Entête Facture",
             "f_entete": {
                 **f_entetes,
                 **{
