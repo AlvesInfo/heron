@@ -80,7 +80,7 @@ def write_bispar(fcy, nb_fac=5000):
                 if not file.closed:
                     file.close()
 
-                file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
+                file = get_file(settings.EXPORT_DIR, fcy, get_bispa_num)
                 i = 1
 
             else:
