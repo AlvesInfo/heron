@@ -112,6 +112,7 @@ class SocietyForm(forms.ModelForm):
         self.fields["email_05"].required = False
         self.fields["phone_number_01"].required = False
         self.fields["mobile_number"].required = False
+        self.fields["invoice_entete"].required = False
 
     class Meta:
         model = Society
@@ -170,6 +171,7 @@ class SocietyForm(forms.ModelForm):
             "email_05",
             "phone_number_01",
             "mobile_number",
+            "invoice_entete"
         ]
 
         widgets = {
