@@ -13,6 +13,7 @@ import io
 from typing import Dict
 from pathlib import Path
 
+import pendulum
 from django.db import connection
 from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -550,7 +551,8 @@ def excel_invoice_details(file_io: io.BytesIO, file_name: str, attr_dict: dict) 
     third_party_num = attr_dict.get("third_party_num")
     supplier = attr_dict.get("supplier")
     invoice_month = attr_dict.get("invoice_month")
-    titre = f"{third_party_num} - {supplier} : Mois {invoice_month}"
+    month = pendulum.parse(invoice_month).format("MMMM YYYY", locale="fr").capitalize()
+    titre = f"{third_party_num} - {supplier} : {month}"
 
     list_excel = [file_io, ["DETAILS FACTURES"]]
     excel = GenericExcel(list_excel)
