@@ -124,7 +124,6 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
             )
 
     if invoice_category == "personnel":
-        data_dict["entete"]["third_party_num"] = "ZPERSONNEL"
         data_dict["entete"]["sens"] = "1"
 
         for ligne_dict in data_dict["lignes"]:
