@@ -404,7 +404,7 @@ def trace_bulk_change(
 
 
 def trace_change(request, model: models.Model, before_kwargs: dict, update_kwargs: dict):
-    """Fonction trace des changements de données, pour views functions flag delete à True
+    """Fonction trace des changements de données, pour views functions ou fonctions
     :param request: request au sens Django
     :param model: Model au sens django
     :param before_kwargs: dictionaire avant

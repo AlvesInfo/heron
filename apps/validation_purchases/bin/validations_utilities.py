@@ -1,4 +1,4 @@
-# pylint: disable=E0401
+# pylint: disable=E0401,W0702
 """
 FR : Module des utilitaires pour la validation
 EN : Utilities Modul for validation
@@ -15,10 +15,12 @@ from typing import AnyStr
 from uuid import uuid4
 from copy import deepcopy
 
+import pendulum
 from django.db import connection
 from django.db.models import Q, Count
 
-from apps.edi.models import EdiImport
+from heron.loggers import LOGGER_EDI
+from apps.edi.models import EdiImport, EdiValidation
 from apps.data_flux.models import Trace
 
 
@@ -109,7 +111,7 @@ def verify_supplier_ident():
 
 
 def flag_invoices():
-    """Falg de la colonne invoices à True, pour les éléments qui auraient eu une erreur"""
+    """Flag de la colonne invoices à True"""
     sql_update = """
     update "data_flux_trace" "dt"
     set "invoices" = true 
@@ -124,3 +126,19 @@ def flag_invoices():
     """
     with connection.cursor() as cursor:
         cursor.execute(sql_update)
+
+
+def create_edi_validation():
+    """
+    Création de la validation pour la facturation en cours si elle n'existe pas
+    :return:
+    """
+
+    try:
+        edi_validation = EdiValidation.objects.filter(final=False).exists()
+
+        if not edi_validation:
+            EdiValidation.objects.get_or_create(billing_period=pendulum.now().date())
+
+    except:
+        LOGGER_EDI.exception("view : create_edi_validation")

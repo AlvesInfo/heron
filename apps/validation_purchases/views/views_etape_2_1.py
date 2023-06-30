@@ -16,17 +16,22 @@ from apps.data_flux.models import Trace
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.bin.edi_utilites import delete_orphans_controls
-from apps.validation_purchases.bin.validations_utilities import verify_supplier_ident, flag_invoices
+from apps.validation_purchases.bin.validations_utilities import (
+    verify_supplier_ident,
+    flag_invoices,
+    create_edi_validation,
+)
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
-from apps.edi.models import EdiImport, EdiValidation
+from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
     EdiImportControlForm,
     ControlValidationForm,
+    IntegrationValidationForm,
 )
-from apps.edi.models import EdiImportControl
+from apps.edi.models import EdiImportControl, EdiValidation
 from apps.parameters.models import IconOriginChoice
 from apps.validation_purchases.excel_outputs.excel_supplier_invoices_details import (
     excel_invoice_details,
@@ -50,7 +55,10 @@ def integration_purchases(request):
     # On flag les trace invoices = True, si il y a eu des erreurs
     flag_invoices()
 
-    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).count():
+    # Création d'un edi_validation si i n'était pas créé
+    create_edi_validation()
+
+    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).exists():
         return redirect(reverse("validation_purchases:purchase_without_suppliers"))
 
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_purchases.sql"
@@ -322,7 +330,6 @@ def integration_purchases_export(request):
             file_name = (
                 f"RELEVES_VS_FACTURES_INTEGREES_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
-            print(file_name)
             return response_file(
                 excel_integration_purchases,
                 file_name,
@@ -367,27 +374,42 @@ def alls_details_purchases_export(request, enc_param):
     return redirect(reverse("validation_purchases:integration_purchases"))
 
 
-def create_edi_validation(request):
-    """
-    Création de la validation pour la facturation en cours si elle n'existe pas
-    :param request: request au sens django
-    :return:
-    """
+def integration_validation(request):
+    """Flag à True de la partie de validation validée"""
 
     if not request.is_ajax() and request.method != "POST":
         return redirect("home")
 
-    data = {"success": "ko"}
+    data = {
+        "success": "ko",
+        "message": "Il y a eu une erreur pendant la validation",
+    }
 
-    try:
-        edi_validation = EdiValidation.objects.filter(final=False).exists()
+    form = IntegrationValidationForm(request.POST or None)
 
-        if not edi_validation:
-            EdiValidation.objects.get_or_create()
+    if form.is_valid():
+        try:
+            uuid_identification = form.cleaned_data.get("uuid_identification")
+            integration_after = form.cleaned_data.get("integration", False)
+            before_kwargs = {
+                "uuid_identification": uuid_identification,
+            }
+            update_kwargs = {
+                "uuid_identification": uuid_identification,
+                "integration": integration_after,
+            }
+            trace_change(request, EdiValidation, before_kwargs, update_kwargs)
+            data["message"] = "L'intégration à bien été validé"
+            data["success"] = "ok"
 
-        data = {"success": "ok"}
+        except EdiImportControl.DoesNotExist:
+            LOGGER_VIEWS.exception(
+                f"integration_validation error, uuid not exists : {form.cleaned_data!r}"
+            )
 
-    except:
-        LOGGER_VIEWS.exception("view : create_edi_validation")
+    else:
+        LOGGER_VIEWS.exception(
+            f"integration_validation error, form invalid : {form.errors!r}"
+        )
 
     return JsonResponse(data)

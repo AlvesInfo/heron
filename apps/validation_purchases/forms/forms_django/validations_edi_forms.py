@@ -168,3 +168,15 @@ class ControlValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["valid"].required = False
+
+
+class IntegrationValidationForm(forms.Form):
+    """Validation des intégrations"""
+    uuid_identification = forms.UUIDField()
+    integration = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["integration"].required = False

@@ -9,7 +9,6 @@ from apps.validation_purchases.views import (
     delete_supplier_edi_import,
     integration_purchases_export,
     alls_details_purchases_export,
-    create_edi_validation,
     #
     big_category_change,
     CreateIntegrationControl,
@@ -97,11 +96,6 @@ urlpatterns = [
             "alls_details_purchases_export/<str:enc_param>/",
             alls_details_purchases_export,
             name="alls_details_purchases_export",
-        ),
-        path(
-            "create_edi_validation/",
-            create_edi_validation,
-            name="create_edi_validation",
         ),
     ],
     *[

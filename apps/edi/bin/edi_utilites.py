@@ -182,7 +182,7 @@ def delete_orphans_controls():
                 union all 
                 select 
                     "uuid_control" 
-                from "invoices_invoice" "ii"  
+                from "invoices_invoicecommondetails" "ii"  
                 group by "uuid_control"
             ) "alls"
             where "alls"."uuid_control" = "edic"."uuid_identification" 
