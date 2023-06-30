@@ -37,7 +37,9 @@ select
     "apys"."section" as "axe_pys",
     "arfa"."section" as "axe_rfa",
     "pc"."name" as "big_category",
-    coalesce("sc"."name", '') as "sub_category"
+    coalesce("sc"."name", '') as "sub_category",
+    "ee"."first_name",
+    "ee"."last_name"
 from "edi_ediimport" "ee"
 left join "centers_clients_maison" "ac"
        on "ee"."cct_uuid_identification" = "ac"."uuid_identification"

@@ -40,9 +40,7 @@ def import_edi_invoices(request):
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if request.method == "POST" and not in_action:
-        bool_files = any(
-            [have_statment, have_monthly, have_retours, have_receptions, files_celery]
-        )
+        bool_files = any([have_statment, have_monthly, have_retours, have_receptions, files_celery])
 
         # On vérifie qu'il y ait des fichiers
         if bool_files:

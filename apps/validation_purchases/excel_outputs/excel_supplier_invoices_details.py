@@ -526,6 +526,34 @@ COLUMNS = [
         },
         "width": 12,
     },
+    {
+        "entete": "Prénom",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 15,
+    },
+    {
+        "entete": "Nom",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 15,
+    },
 ]
 
 

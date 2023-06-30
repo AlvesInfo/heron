@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.validation_purchases.views import (
+    # 2.1 Intégration
     integration_purchases,
     purchase_without_suppliers,
     purchase_without_suppliers_update,
@@ -8,6 +9,8 @@ from apps.validation_purchases.views import (
     delete_supplier_edi_import,
     integration_purchases_export,
     alls_details_purchases_export,
+    create_edi_validation,
+    #
     big_category_change,
     CreateIntegrationControl,
     UpdateIntegrationControl,
@@ -48,7 +51,7 @@ app_name = "apps.validation_purchases"
 
 urlpatterns = [
     # MENU CONTROLES ACHATS
-    # Intégration
+    # 2.1 Intégration
     *[
         path(
             "integration_purchases/",
@@ -95,6 +98,13 @@ urlpatterns = [
             alls_details_purchases_export,
             name="alls_details_purchases_export",
         ),
+        path(
+            "create_edi_validation/",
+            create_edi_validation,
+            name="create_edi_validation",
+        ),
+    ],
+    *[
         path(
             "big_category_change/",
             big_category_change,
@@ -148,8 +158,6 @@ urlpatterns = [
             without_cct_purchases_export,
             name="without_cct_purchases_export",
         ),
-
-
         # Soldes
         path(
             "balance_suppliers_purchases/",

@@ -28,6 +28,19 @@
             });
         }
 
+        function ediValidation () {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'validation_purchases:create_edi_validation' %}",
+                data: {},
+                encode: true,
+            }).done(function (data) {
+                console.log(data)
+            });
+        }
+
+        ediValidation()
+
     </script>
 {% endblock head_js %}
 

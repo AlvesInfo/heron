@@ -44,6 +44,49 @@ class EdiImportControl(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
 
+class EdiValidation(FlagsTable):
+
+    # Validation sur Ecran 1.1 Nouveaux Articles
+    articles_news = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 1.2 Articles sans Comptes
+    articles_without_account = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 2.1 Intégrations
+    integration = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 2.2 Contrôle CCT
+    cct = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 3.1 Contrôles Familles
+    families = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 3.2 Contrôle Franchiseurs
+    franchiseurs = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 3.3 Nouveaux CLients
+    clients_news = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 3.5 Abonnements
+    subscriptions = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 5.0 Contrôle Refac par CCT
+    refac_cct = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 5.1 Contrôle Fournisseurs
+    suppliers = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 5.3 Comparaison CA/Ventes
+    validation_ca = models.BooleanField(null=True, default=False)
+
+    billing_period = models.DateField()
+
+    final = models.BooleanField(null=True, default=False)
+
+    # Identification
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
+
+
 class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
     """
     Table de préparation à l'import des factures fournisseurs edi et spécifique

@@ -22,7 +22,7 @@ from apps.edi.models import EdiImport
 
 
 def big_category_change(request):
-    """Fonction de changement du cct d'une facture"""
+    """Fonction de changement de la grande catégorie d'une ligne de facture"""
 
     if not request.is_ajax() and request.method != "POST":
         return redirect("home")

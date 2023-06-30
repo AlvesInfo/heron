@@ -20,7 +20,7 @@ from apps.validation_purchases.bin.validations_utilities import verify_supplier_
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
-from apps.edi.models import EdiImport
+from apps.edi.models import EdiImport, EdiValidation
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
     EdiImportControlForm,
@@ -365,3 +365,29 @@ def alls_details_purchases_export(request, enc_param):
         LOGGER_VIEWS.exception("view : alls_details_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))
+
+
+def create_edi_validation(request):
+    """
+    Création de la validation pour la facturation en cours si elle n'existe pas
+    :param request: request au sens django
+    :return:
+    """
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {"success": "ko"}
+
+    try:
+        edi_validation = EdiValidation.objects.filter(final=False).exists()
+
+        if not edi_validation:
+            EdiValidation.objects.get_or_create()
+
+        data = {"success": "ok"}
+
+    except:
+        LOGGER_VIEWS.exception("view : create_edi_validation")
+
+    return JsonResponse(data)
