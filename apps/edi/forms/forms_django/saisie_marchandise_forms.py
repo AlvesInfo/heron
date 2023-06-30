@@ -320,14 +320,21 @@ class CreateBasePersonnelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # TIERS X3 =================================================================================
-        third_party_num = forms.CharField(
-            initial="ZPERSONNEL",
-            widget=forms.TextInput(
-                attrs={"readonly": "", "style": "background-color: #efefff;font-weight: bold;"}
-            ),
+        self.third_party_num_choices = [("", "")] + [
+            (
+                society.get("third_party_num"),
+                f"{society.get('third_party_num')} - {society.get('name')}",
+            )
+            for society in Society.objects.filter(in_use=True).values("third_party_num", "name")
+        ]
+        third_party_num = forms.ChoiceField(
+            choices=self.third_party_num_choices,
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown third_party_num"}),
+            label="Fournisseur X3",
+            required=True,
+            error_messages={"required": "Le Fournisseur (TiersX3) est obligatoire"},
         )
         self.fields["third_party_num"] = third_party_num
-        self.fields["third_party_num"].required = False
 
         # TYPE FACTURE FAF / AVO ===================================================================
         self.invoice_type_choices = [("380", "FAF"), ("381", "AVO")]
