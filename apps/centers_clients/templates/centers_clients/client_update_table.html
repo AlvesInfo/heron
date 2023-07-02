@@ -38,7 +38,7 @@
                   {% with third=form.third_party_num.value|get_third_party %}
                     <div class="field remote search">
                         <div class="field remote search">
-                        <label for="id_third_party_num">Tiers Client X3&nbsp;:</label>
+                        <label for="id_third_party_num" style="text-align: left;">Tiers Client X3&nbsp;:</label>
                         <div class="ui search dropdown search-model selection">
                             <select name="third_party_num" data-models="societies" id="id_third_party_num">
                                 <option value="{{ form.third_party_num.value }}" selected="">{{ third }}</option>
