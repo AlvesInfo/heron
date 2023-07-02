@@ -23,6 +23,7 @@ from django.db.models import CharField, Value
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.bin.mixins import ChildCenterMixin
 from apps.centers_purchasing.excel_outputs.output_excel_account_axe_list import (
     excel_liste_account_axe,
 )
@@ -33,12 +34,12 @@ from apps.centers_purchasing.forms import (
 )
 from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
 from apps.centers_purchasing.imports.imports_data import axe_pro_account
-
+from apps.centers_purchasing.bin.duplicates import duplicates_delete_accounts
 
 # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
 
 
-class AccountAxeList(ListView):
+class AccountAxeList(ChildCenterMixin, ListView):
     """View de la liste du Dictionnaire des Comptes achat vente pour la facturation"""
 
     model = AccountsAxeProCategory
@@ -49,6 +50,7 @@ class AccountAxeList(ListView):
         AccountsAxeProCategory.objects.all()
         .values(
             "id",
+            "child_center",
             "child_center__code",
             "child_center__name",
             "axe_pro__section",
@@ -65,7 +67,7 @@ class AccountAxeList(ListView):
             "sale_account__account",
         )
         .annotate(
-            child_center=Concat(
+            child_center_c=Concat(
                 LPad(Cast("child_center__code", output_field=CharField()), 2, Value("0")),
                 Value(" - "),
                 "child_center__name",
@@ -90,6 +92,7 @@ class AccountAxeList(ListView):
             ),
         )
         .order_by(
+            "child_center",
             "child_center__code",
             "axe_pro__section",
             "big_category__ranking",
@@ -97,6 +100,11 @@ class AccountAxeList(ListView):
             "vat__vat",
         )
     )
+
+    def __init__(self, **kwargs):
+        """Suppression des doublons avant l'affichage"""
+        duplicates_delete_accounts()
+        super().__init__(**kwargs)
 
 
 class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -158,9 +166,7 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:account_axe_list")
-        context["titre_table"] = (
-            "Mise à jour d'un Dictionnaire des Comptes achat vente"
-        )
+        context["titre_table"] = "Mise à jour d'un Dictionnaire des Comptes achat vente"
         return context
 
     def get_success_url(self):
@@ -215,12 +221,12 @@ def account_axe_import_file(_):
     """
     try:
         from pathlib import Path
+
         list_to_print = axe_pro_account(
             Path(
                 "/home/paulo/heron/files/processing/suppliers_invoices_files/IMPORT_ACCOUNTS/"
                 "LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_2023_5_13_1683972386.xlsx"
             )
-
         )
         print(list_to_print)
     except:
@@ -229,9 +235,10 @@ def account_axe_import_file(_):
     return redirect(reverse("centers_purchasing:account_axe_list"))
 
 
-def account_axe_export_list(_):
+def account_axe_export_list(request):
     """
     Export Excel de la liste du Dictionnaire Axe Pro/Regroupement de facturation
+    :param request: request au sens django
     :return: response_file
     """
     try:
@@ -240,8 +247,10 @@ def account_axe_export_list(_):
             f"LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_"
             f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
-
-        return response_file(excel_liste_account_axe, file_name, CONTENT_TYPE_EXCEL)
+        code_child_center = request.user.code_child_center
+        return response_file(
+            excel_liste_account_axe, file_name, CONTENT_TYPE_EXCEL, code_child_center
+        )
 
     except:
         LOGGER_VIEWS.exception("view : account_axe_export_list")

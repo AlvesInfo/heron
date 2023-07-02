@@ -31,14 +31,19 @@ class ChildCenterMixin:
         The return value must be an iterable and may be an instance of
         `QuerySet` in which case `QuerySet` specific behavior will be enabled.
         """
+
+        code_child_center = self.request.user.code_child_center
+
         if self.queryset is not None:
-            queryset = self.queryset
+            if code_child_center != "*":
+                queryset = self.queryset.filter(child_center__in=code_child_center.split("|"))
+            else:
+                queryset = self.queryset
+
             if isinstance(queryset, QuerySet):
                 queryset = queryset.all()
 
         elif self.model is not None:
-            code_child_center = self.request.user.code_child_center
-
             if code_child_center != "*":
                 queryset = self.model._default_manager.filter(
                     child_center__in=code_child_center.split("|")
