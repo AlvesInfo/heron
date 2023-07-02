@@ -43,6 +43,8 @@ class EdiImportControl(FlagsTable):
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
+    final = models.BooleanField(null=True, default=False)
+
 
 class EdiValidation(FlagsTable):
 

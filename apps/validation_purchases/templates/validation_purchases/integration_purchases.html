@@ -11,8 +11,6 @@
     <script type="text/javascript">
         function supplierValidation(idButton, uuid_control) {
             $(`.datatable-chargement`).show();
-            console.log(idButton, uuid_control);
-            console.log($(`#${idButton}`).is(':checked'));
             let formData = {
                 uuid_identification: uuid_control,
                 valid: $(`#${idButton}`).is(':checked'),
@@ -23,7 +21,21 @@
                 data: formData,
                 encode: true,
             }).done(function (data) {
-                console.log(data)
+                $(`.datatable-chargement`).hide();
+            });
+        }
+
+        function allsValidation(uuid_validation) {
+            $(`.datatable-chargement`).show();
+            let formData = {
+                uuid_identification: uuid_validation,
+            };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'validation_purchases:integration_supplier_validation' %}",
+                data: formData,
+                encode: true,
+            }).done(function (data) {
                 $(`.datatable-chargement`).hide();
             });
         }

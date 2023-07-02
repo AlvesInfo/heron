@@ -63,6 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     function = models.CharField(max_length=80, null=True, blank=True)
     subordonates = models.ManyToManyField("self", through="UserChief", symmetrical=False)
     secure_session_key = models.CharField(null=True, blank=True, max_length=50)
+    code_child_center = models.CharField(max_length=15, verbose_name="code Centrale")
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)

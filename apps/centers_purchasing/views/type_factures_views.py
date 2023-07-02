@@ -9,13 +9,14 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.mixins import ChildCenterMixin
 from apps.centers_purchasing.models import TypeFacture
 from apps.centers_purchasing.forms import TypeFactureForm, TypeFactureDeleteForm
 
 
 # ECRANS DES CENTRALES FILLES / Types de Facture ===================================================
 
-class TypeFactureList(ListView):
+class TypeFactureList(ChildCenterMixin, ListView):
     """View de la liste des Types de Factures"""
 
     model = TypeFacture

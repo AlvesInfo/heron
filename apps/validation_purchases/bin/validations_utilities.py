@@ -133,12 +133,15 @@ def create_edi_validation():
     Création de la validation pour la facturation en cours si elle n'existe pas
     :return:
     """
+    edi_validation = EdiValidation.objects.filter(final=False).first()
 
     try:
-        edi_validation = EdiValidation.objects.filter(final=False).exists()
-
         if not edi_validation:
-            EdiValidation.objects.get_or_create(billing_period=pendulum.now().date())
+            edi_validation, _ = EdiValidation.objects.get_or_create(
+                billing_period=pendulum.now().date()
+            )
 
     except:
         LOGGER_EDI.exception("view : create_edi_validation")
+
+    return edi_validation.uuid_identification

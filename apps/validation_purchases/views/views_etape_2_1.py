@@ -1,10 +1,11 @@
 import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
-from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.generic import CreateView, UpdateView
+from django.db.models import Value, CharField, Q
+from django.db.models.functions import Coalesce, Cast
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_bulk_delete, trace_change
@@ -46,6 +47,10 @@ def integration_purchases(request):
     :param request: Request Django
     :return: view
     """
+
+    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).exists():
+        return redirect(reverse("validation_purchases:purchase_without_suppliers"))
+
     # on met à jour les cct au cas où l'on ait rempli des cct dans un autre écran
     update_cct_edi_import()
 
@@ -55,13 +60,19 @@ def integration_purchases(request):
     # On flag les trace invoices = True, si il y a eu des erreurs
     flag_invoices()
 
-    # Création d'un edi_validation si i n'était pas créé
-    create_edi_validation()
-
-    if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).exists():
-        return redirect(reverse("validation_purchases:purchase_without_suppliers"))
+    # Création d'un edi_validation s'il n'était pas créé
+    uuid_validation = create_edi_validation()
 
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_purchases.sql"
+
+    alls = not (
+        EdiImport.objects.annotate(
+            control=Coalesce(Cast("uuid_control", output_field=CharField()), Value(""))
+        )
+        .filter(Q(uuid_control__valid__isnull=True) | Q(uuid_control__valid=False))
+        .values("control")
+        .exists()
+    )
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(cursor, file_path=sql_context_file)
@@ -82,6 +93,8 @@ def integration_purchases(request):
             "margin_rep": 50,
             "nb_paging": 100,
             "legende": IconOriginChoice.objects.all(),
+            "uuid_validation": uuid_validation,
+            "alls": alls,
         }
 
     if get_in_progress():
@@ -174,7 +187,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     invoice_month = ""
     success_message = (
         "La saisie du relevé pour le tiers %(third_party_num)s "
-        f"pour le mois %(invoice_month)s, a été modifiée avec success"
+        "pour le mois %(invoice_month)s, a été modifiée avec success"
     )
     error_message = (
         "La saisie du relevé pour le tiers N° %(third_party_num)s "
@@ -399,17 +412,19 @@ def integration_validation(request):
                 "integration": integration_after,
             }
             trace_change(request, EdiValidation, before_kwargs, update_kwargs)
-            data["message"] = "L'intégration à bien été validé"
-            data["success"] = "ok"
+
+            if integration_after:
+                data["message"] = "Les Intégration sont maintenant validées"
+                data["success"] = "ok"
+            else:
+                data["message"] = "Les Intégration sont maintenant dé-validées"
 
         except EdiImportControl.DoesNotExist:
             LOGGER_VIEWS.exception(
-                f"integration_validation error, uuid not exists : {form.cleaned_data!r}"
+                f"integration_validation error, uuid_integration not exists : {form.cleaned_data!r}"
             )
 
     else:
-        LOGGER_VIEWS.exception(
-            f"integration_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.exception(f"integration_validation error, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
