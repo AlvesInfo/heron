@@ -1,5 +1,7 @@
 {% extends "heron/update_create_courant.html" %}
 
+{% load filters_tags %}
+
 {% block table %}
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
@@ -33,8 +35,24 @@
               </div>
 
               <div class="six wide field">
-                <label for="id_tiers" style="text-align: left;">Tiers Client X3&nbsp;:</label>
-                {{ form.third_party_num }}
+                  {% with third=form.third_party_num.value|get_third_party %}
+                    <div class="field remote search">
+                        <div class="field remote search">
+                        <label for="id_third_party_num">Tiers Client X3&nbsp;:</label>
+                        <div class="ui search dropdown search-model selection">
+                            <select name="third_party_num" data-models="societies" id="id_third_party_num">
+                                <option value="{{ form.third_party_num.value }}" selected="">{{ third }}</option>
+                                <option value="" class="addition"></option>
+                            </select><i class="dropdown icon clear"></i>
+                            <input class="search" autocomplete="off">
+                            <div class="text">{{ third }}</div>
+                            <div class="menu transition hidden" tabindex="-1">
+                                <div class="item active selected" data-value="{{ form.third_party_num.value }}">{{ third }}</div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                  {% endwith %}
               </div>
               </div>
           <div class="fields">

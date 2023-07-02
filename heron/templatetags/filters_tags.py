@@ -10,6 +10,7 @@ from django.template.defaultfilters import stringfilter
 
 from apps.core.bin.encoders import set_base_64_list, set_base_64_str
 from apps.accountancy.bin.utils import get_str_echeances
+from apps.book.models import Society
 
 register = template.Library()
 
@@ -362,3 +363,20 @@ def siret_number(value):
             siret += " "
 
     return siret
+
+
+@register.filter(name="get_third_party")
+def get_third_party(value):
+    """
+    Retourne le nom du tiers à afficher
+    :param value: thid_party_num
+    :return: nom
+    """
+
+    try:
+        return str(Society.objects.get(third_party_num=value))
+
+    except Society.DoesNotExist:
+        pass
+
+    return ""
