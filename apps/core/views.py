@@ -21,6 +21,7 @@ from apps.core.bin.api_get_models import (
     get_unity,
     get_vat_alls,
     get_vat,
+    get_account,
 )
 
 MODEL_DICT = {
@@ -35,6 +36,7 @@ MODEL_DICT = {
     "unites": get_unity,
     "vats_alls": get_vat_alls,
     "vats": get_vat,
+    "accounts": get_account,
 }
 
 

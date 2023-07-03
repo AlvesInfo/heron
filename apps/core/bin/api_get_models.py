@@ -16,7 +16,7 @@ from typing import AnyStr
 from django.db.models import CharField, Value, Case, When, Q, F
 from django.db.models.functions import Concat
 
-from apps.accountancy.models import VatSage
+from apps.accountancy.models import VatSage, AccountSage
 from apps.articles.models import Article
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
@@ -252,5 +252,40 @@ def get_vat(str_query: AnyStr) -> VatSage.objects:
     :return: queryset of dict
     """
     queryset = get_vat_alls()
+
+    return queryset.filter(str_search__icontains=str_query)
+
+
+def get_accounts_alls() -> AccountSage.objects:
+    """
+    Recherche par API des Comptes Sage X3
+    :return: queryset of dict
+    """
+    queryset = AccountSage.objects.annotate(
+        str_search=Concat(
+            "account",
+            Value("|"),
+            "code_plan_sage",
+            output_field=CharField(),
+        ),
+        pk=F("uuid_identification"),
+        model=Concat(
+            "account",
+            Value("|"),
+            "code_plan_sage",
+            output_field=CharField(),
+        ),
+    ).values("pk", "model")
+
+    return queryset
+
+
+def get_account(str_query: AnyStr) -> AccountSage.objects:
+    """
+    Recherche par API des Comptes Sage X3
+    :param str_query: Texte à rechercher pour l'api dropdown
+    :return: queryset of dict
+    """
+    queryset = get_accounts_alls()
 
     return queryset.filter(str_search__icontains=str_query)

@@ -340,12 +340,44 @@
                 {{ form.generic_coefficient }}
               </div>
               <div class="two wide field">
-                <label for="id_credit_account" style="text-align: left;">Compte au Crédit&nbsp;:</label>
-                {{ form.credit_account }}
+                  {% with credit_account=form.credit_account.value|get_account %}
+                    <div class="field remote search">
+                        <div class="field remote search">
+                        <label for="id_credit_account" style="text-align: left;">Compte au Crédit&nbsp;:</label>
+                        <div class="ui search dropdown search-model selection">
+                            <select name="credit_account" data-models="accounts" id="id_credit_account">
+                                <option value="{{ form.credit_account.value }}" selected="">{{ credit_account }}</option>
+                                <option value="" class="addition"></option>
+                            </select><i class="dropdown icon clear"></i>
+                            <input class="search" autocomplete="off">
+                            <div class="text">{{ credit_account }}</div>
+                            <div class="menu transition hidden" tabindex="-1">
+                                <div class="item active selected" data-value="{{ form.credit_account.value }}">{{ credit_account }}</div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                  {% endwith %}
               </div>
               <div class="two wide field">
-                <label for="id_debit_account" style="text-align: left;">Compte au Débit&nbsp;:</label>
-                {{ form.debit_account }}
+                  {% with debit_account=form.debit_account.value|get_account %}
+                    <div class="field remote search">
+                        <div class="field remote search">
+                        <label for="id_debit_account" style="text-align: left;">Compte au Débit&nbsp;:</label>
+                        <div class="ui search dropdown search-model selection">
+                            <select name="debit_account" data-models="accounts" id="id_debit_account">
+                                <option value="{{ form.debit_account.value }}" selected="">{{ debit_account }}</option>
+                                <option value="" class="addition"></option>
+                            </select><i class="dropdown icon clear"></i>
+                            <input class="search" autocomplete="off">
+                            <div class="text">{{ debit_account }}</div>
+                            <div class="menu transition hidden" tabindex="-1">
+                                <div class="item active selected" data-value="{{ form.debit_account.value }}">{{ debit_account }}</div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                  {% endwith %}
               </div>
               <div class="two wide field">
                 <label for="id_prov_account" style="text-align: left;">Compte sur Provision&nbsp;:</label>

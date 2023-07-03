@@ -10,6 +10,7 @@ from django.template.defaultfilters import stringfilter
 
 from apps.core.bin.encoders import set_base_64_list, set_base_64_str
 from apps.accountancy.bin.utils import get_str_echeances
+from apps.accountancy.models import AccountSage
 from apps.book.models import Society
 
 register = template.Library()
@@ -377,6 +378,23 @@ def get_third_party(value):
         return str(Society.objects.get(third_party_num=value))
 
     except Society.DoesNotExist:
+        pass
+
+    return ""
+
+
+@register.filter(name="get_account")
+def get_account(value):
+    """
+    Retourne le nom du compte à afficher
+    :param value: thid_party_num
+    :return: nom
+    """
+
+    try:
+        return str(AccountSage.objects.get(uuid_identification=value))
+
+    except AccountSage.DoesNotExist:
         pass
 
     return ""

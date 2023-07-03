@@ -139,7 +139,7 @@ class AccountSage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.code_plan_sage} - {self.account}"
+        return f"{self.account} - {self.code_plan_sage}"
 
     class Meta:
         """class Meta du modèle django"""
