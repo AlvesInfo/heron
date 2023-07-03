@@ -109,6 +109,7 @@ class EdiImportControlForm(forms.ModelForm):
 
     class Meta:
         """class Meta"""
+
         model = EdiImportControl
         fields = [
             "statement_without_tax",
@@ -160,6 +161,7 @@ class UpdateThirdpartynumForm(forms.ModelForm):
 
 class ControlValidationForm(forms.Form):
     """Form pour la validation"""
+
     uuid_identification = forms.UUIDField()
     valid = forms.BooleanField()
 
@@ -172,6 +174,7 @@ class ControlValidationForm(forms.Form):
 
 class IntegrationValidationForm(forms.Form):
     """Validation des intégrations"""
+
     uuid_identification = forms.UUIDField()
     integration = forms.BooleanField()
 
@@ -180,3 +183,55 @@ class IntegrationValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["integration"].required = False
+
+
+class FamiliesValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    families = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["families"].required = False
+
+
+class FranchiseursValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    franchiseurs = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["franchiseurs"].required = False
+
+
+class ClientsNewsValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    clients_news = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["clients_news"].required = False
+
+
+class SubscriptionsValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    subscriptions = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["subscriptions"].required = False

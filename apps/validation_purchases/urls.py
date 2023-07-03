@@ -10,31 +10,47 @@ from apps.validation_purchases.views import (
     integration_purchases_export,
     alls_details_purchases_export,
     integration_validation,
-    #
     big_category_change,
     CreateIntegrationControl,
     UpdateIntegrationControl,
+    # 2.1.A LISTING FACTURES
     integration_supplier_purchases,
     cct_change,
     delete_invoice_purchase,
     integration_supplier_purchases_export,
+    # 2.1.B - DETAILS FACTURES
     details_purchase,
     delete_line_details_purchase,
     details_purchases_export,
+    # 2.2 - FACTURES SANS CCT
     without_cct_purchases,
     without_cct_purchases_export,
-    # 3.1 - FAMILLES ARTICLES
-    families_invoices_purchases,
-    families_invoices_purchases_export,
-    supplier_details_invoices_purchases_export,
-    # 3.1 A - FAMILLES ARTICLES / FACTURES
-    articles_families_invoices_purchases,
-    articles_families_invoices_purchases_export,
-    #
+    # Soldes
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
     invoices_suppliers_purchases,
     invoices_purchases_export_globals,
+    # 3.1 - FAMILLES ARTICLES
+    families_invoices_purchases,
+    families_invoices_purchases_export,
+    supplier_details_invoices_purchases_export,
+    families_validation,
+    # 3.1 A - FAMILLES ARTICLES / FACTURES
+    articles_families_invoices_purchases,
+    articles_families_invoices_purchases_export,
+    # 3.2 - CONTROLE CCT Franchiseurs
+    cct_franchiseurs_purchases,
+    cct_franchiseurs_purchases_export,
+    franchiseurs_validation,
+    # 3.3 - Nouveaux Clients
+    clients_news_purchases,
+    clients_news_purchases_export,
+    clients_news_validation,
+    # 3.5 - Abonnements
+    subscriptions_purchases,
+    subscriptions_purchases_export,
+    subscriptions_validation,
+    # RFA
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
     rfa_prj_invoices_purchases,
@@ -104,6 +120,7 @@ urlpatterns = [
             name="integration_validation",
         ),
     ],
+    # 2.1.A LISTING FACTURES
     *[
         path(
             "big_category_change/",
@@ -131,7 +148,9 @@ urlpatterns = [
             integration_supplier_purchases_export,
             name="integration_supplier_purchases_export",
         ),
-        # Détails facture
+    ],
+    # 2.1.B - DETAILS FACTURES
+    *[
         path(
             "details_purchase/<str:enc_param>/",
             details_purchase,
@@ -147,7 +166,9 @@ urlpatterns = [
             details_purchases_export,
             name="details_purchases_export",
         ),
-        # Factures sans cct
+    ],
+    # 2.2 - FACTURES SANS CCT
+    *[
         path(
             "without_cct_purchases/",
             without_cct_purchases,
@@ -158,7 +179,9 @@ urlpatterns = [
             without_cct_purchases_export,
             name="without_cct_purchases_export",
         ),
-        # Soldes
+    ],
+    # Soldes
+    *[
         path(
             "balance_suppliers_purchases/",
             balance_suppliers_purchases,
@@ -199,6 +222,11 @@ urlpatterns = [
             supplier_details_invoices_purchases_export,
             name="supplier_details_invoices_purchases_export",
         ),
+        path(
+            "families_validation/",
+            families_validation,
+            name="families_validation",
+        ),
     ],
     # 3.1 A - FAMILLES ARTICLES / FACTURES
     *[
@@ -211,6 +239,60 @@ urlpatterns = [
             "articles_families_invoices_purchases_export/",
             articles_families_invoices_purchases_export,
             name="articles_families_invoices_purchases_export",
+        ),
+    ],
+    # 3.2 - CONTROLE CCT Franchiseurs
+    *[
+        path(
+            "cct_franchiseurs_purchases/",
+            cct_franchiseurs_purchases,
+            name="cct_franchiseurs_purchases",
+        ),
+        path(
+            "cct_franchiseurs_purchases_export/",
+            cct_franchiseurs_purchases_export,
+            name="cct_franchiseurs_purchases_export",
+        ),
+        path(
+            "franchiseurs_validation/",
+            franchiseurs_validation,
+            name="franchiseurs_validation",
+        ),
+    ],
+    # 3.3 - Nouveaux Clients
+    *[
+        path(
+            "clients_news_purchases/",
+            clients_news_purchases,
+            name="clients_news_purchases",
+        ),
+        path(
+            "clients_news_purchases_export/",
+            clients_news_purchases_export,
+            name="clients_news_purchases_export",
+        ),
+        path(
+            "clients_news_validation/",
+            clients_news_validation,
+            name="clients_news_validation",
+        ),
+    ],
+    # 3.5 - Abonnements
+    *[
+        path(
+            "subscriptions_purchases/",
+            subscriptions_purchases,
+            name="subscriptions_purchases",
+        ),
+        path(
+            "subscriptions_purchases_export/",
+            subscriptions_purchases_export,
+            name="subscriptions_purchases_export",
+        ),
+        path(
+            "subscriptions_validation/",
+            subscriptions_validation,
+            name="subscriptions_validation",
         ),
     ],
     # MENU CONTROLES RFA

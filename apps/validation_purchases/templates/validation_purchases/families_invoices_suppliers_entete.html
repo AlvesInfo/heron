@@ -1,14 +1,24 @@
 {% extends "heron/list_table_courant.html" %}
 
+{% block left_side %}
+    <div id="id_family_validation"
+         class="ui {% if family_validation.families %}green{% else %}red{% endif %} label"
+         data-value="{% if family_validation.families %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if family_validation.families %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if family_validation.families %}red{% else %}green{% endif %} basic button"
+            onclick="familiesValidation(`id_family_validation`, `{{ family_validation.uuid_identification }}`)"
+            name="families_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if family_validation.families %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
 {% block right_side %}
-    {% if not details %}
-        <a class="item" href="{% url 'validation_purchases:families_invoices_purchases_export' %}">
-    {% else %}
-        <a class="item" href="{% url 'validation_purchases:families_invoices_purchases_export' %}">
-    {% endif %}
+    <a class="item" href="{% url 'validation_purchases:families_invoices_purchases_export' %}">
        <button class="ui green basic button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
           EXPORT EXCEL
        </button>
     </a>
-
 {% endblock right_side %}

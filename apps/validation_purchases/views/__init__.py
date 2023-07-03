@@ -6,6 +6,9 @@ from .views_etape_2_1_B import *
 from .views_etape_2_2 import *
 from .views_etape_3_1 import *
 from .views_etape_3_1_A import *
+from .views_etape_3_2 import *
+from .views_etape_3_3 import *
+from .views_etape_3_5 import *
 from .views_etape_5_1 import *
 from .views_etape_5_5 import *
 from .views_etape_rfa import *

@@ -1,0 +1,24 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block left_side %}
+    <div id="id_franchiseurs_validation"
+         class="ui {% if franchiseurs_validation.franchiseurs %}green{% else %}red{% endif %} label"
+         data-value="{% if franchiseurs_validation.franchiseurs %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if franchiseurs_validation.franchiseurs %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if franchiseurs_validation.franchiseurs %}red{% else %}green{% endif %} basic button"
+            onclick="franchiseursValidation(`id_franchiseurs_validation`, `{{ franchiseurs_validation.uuid_identification }}`)"
+            name="franchiseurs_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if franchiseurs_validation.franchiseurs %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'validation_purchases:cct_franchiseurs_purchases_export' %}">
+       <button class="ui green basic button" name="cct_franchiseurs_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+{% endblock right_side %}

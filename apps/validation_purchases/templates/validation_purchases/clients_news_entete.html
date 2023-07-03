@@ -1,0 +1,24 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block left_side %}
+    <div id="id_clients_news_validation"
+         class="ui {% if clients_news_validation.clients_news %}green{% else %}red{% endif %} label"
+         data-value="{% if clients_news_validation.clients_news %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if clients_news_validation.clients_news %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if clients_news_validation.clients_news %}red{% else %}green{% endif %} basic button"
+            onclick="clientsNewsValidation(`id_clients_news_validation`, `{{ clients_news_validation.uuid_identification }}`)"
+            name="clients_news_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if clients_news_validation.clients_news %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'validation_purchases:clients_news_purchases_export' %}">
+       <button class="ui green basic button" name="cct_clients_news_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+{% endblock right_side %}

@@ -11,15 +11,15 @@
 
 {% block head_js %}
     <script type="text/javascript">
-        function familiesValidation(idButton, uuid_control) {
+        function subscriptionsValidation(idButton, uuid_control) {
             $(`.datatable-chargement`).show();
             let formData = {
                 uuid_identification: uuid_control,
-                families: $(`#${idButton}`).data("value"),
+                subscriptions: $(`#${idButton}`).data("value"),
             };
             $.ajax({
                 type: "POST",
-                url: "{% url 'validation_purchases:families_validation' %}",
+                url: "{% url 'validation_purchases:subscriptions_validation' %}",
                 data: formData,
                 encode: true,
             }).done(function (data) {
@@ -34,8 +34,8 @@
 
     {% if user.is_authenticated %}
 
-            {% include "validation_purchases/families_invoices_suppliers_entete.html" %}
-            {% include "validation_purchases/families_invoices_suppliers_table.html" %}
+            {% include "validation_purchases/subscriptions_entete.html" %}
+            {% include "validation_purchases/subscriptions_table.html" %}
 
         <div class="ui equal width grid center"></div>
 

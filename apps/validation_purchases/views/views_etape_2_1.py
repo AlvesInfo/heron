@@ -419,12 +419,12 @@ def integration_validation(request):
             else:
                 data["message"] = "Les Intégration sont maintenant dé-validées"
 
-        except EdiImportControl.DoesNotExist:
-            LOGGER_VIEWS.exception(
-                f"integration_validation error, uuid_integration not exists : {form.cleaned_data!r}"
-            )
+        except:
+            LOGGER_VIEWS.exception(f"Views : integration_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(f"integration_validation error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.exception(
+            f"Views : integration_validation error, form invalid : {form.errors!r}"
+        )
 
     return JsonResponse(data)

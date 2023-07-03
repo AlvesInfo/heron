@@ -1,0 +1,24 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block left_side %}
+    <div id="id_subscriptions_validation"
+         class="ui {% if subscriptions_validation.subscriptions %}green{% else %}red{% endif %} label"
+         data-value="{% if subscriptions_validation.subscriptions %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if subscriptions_validation.subscriptions %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if subscriptions_validation.subscriptions %}red{% else %}green{% endif %} basic button"
+            onclick="subscriptionsValidation(`id_subscriptions_validation`, `{{ subscriptions_validation.uuid_identification }}`)"
+            name="subscriptions_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if subscriptions_validation.subscriptions %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'validation_purchases:subscriptions_purchases_export' %}">
+       <button class="ui green basic button" name="cct_subscriptions_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+{% endblock right_side %}
