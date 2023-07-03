@@ -33,11 +33,11 @@
                     <td>{{ client.country_name }}</td>
                     <td style="text-align: left;">{{ client.cct_name }}</td>
                     <td>{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
-                    <td style="background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
+                    <td style="background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
                     <td style="text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
                     <td style="text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
                     <td style="text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
-                    <td style="text-align: right;">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
+                    <td style="text-align: right;background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
                     <td style="text-align: right;color: {% if client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
                 </tr>
             {% endfor %}
