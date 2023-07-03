@@ -10,6 +10,7 @@ from .views_etape_3_2 import *
 from .views_etape_3_3 import *
 from .views_etape_3_5 import *
 from .views_etape_5_1 import *
+from .views_etape_5_0 import *
 from .views_etape_5_5 import *
 from .views_etape_rfa import *
 from .views_without_third_party_num import *

@@ -235,3 +235,16 @@ class SubscriptionsValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["subscriptions"].required = False
+
+
+class RefacCctValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    refac_cct = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["refac_cct"].required = False

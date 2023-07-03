@@ -1,0 +1,24 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block left_side %}
+    <div id="id_refac_cct_validation"
+         class="ui {% if refac_cct_validation.refac_cct %}green{% else %}red{% endif %} label"
+         data-value="{% if refac_cct_validation.refac_cct %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if refac_cct_validation.refac_cct %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if refac_cct_validation.refac_cct %}red{% else %}green{% endif %} basic button"
+            onclick="refacCctValidation(`id_refac_cct_validation`, `{{ refac_cct_validation.uuid_identification }}`)"
+            name="refac_cct_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if refac_cct_validation.refac_cct %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'validation_purchases:refac_cct_purchases_export' %}">
+       <button class="ui green basic button" name="cct_refac_cct_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+{% endblock right_side %}

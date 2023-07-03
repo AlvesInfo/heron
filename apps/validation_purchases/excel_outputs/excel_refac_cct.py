@@ -1,17 +1,16 @@
 # pylint: disable=E0401,W0702,W1203
-"""Module d'export du fichier excel du Contrôle des achats
-des CCT franchiseur (CAHA, MARK, INFO, etc…)
+"""Module d'export du fichier excel pour les factures du tiers pas mois
 
 Commentaire:
 
-created at: 2023-07-03
+created at: 2022-05-12
 created by: Paulo ALVES
 
-modified at: 2023-07-03
+modified at: 2022-05-12
 modified by: Paulo ALVES
 """
 import io
-from typing import Dict, List, Generator
+from typing import Dict
 from pathlib import Path
 
 import pendulum
@@ -26,11 +25,44 @@ from apps.core.excel_outputs.excel_writer import (
     output_day_writer,
     columns_headers_writer,
     sheet_formatting,
+    rows_writer,
 )
 
 COLUMNS = [
     {
-        "entete": "Fournisseur",
+        "entete": "Enseigne",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 15,
+    },
+    {
+        "entete": "Pays",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 14,
+    },
+    {
+        "entete": "CCT",
         "f_entete": {
             **f_entetes,
             **{
@@ -46,7 +78,7 @@ COLUMNS = [
         "width": 51,
     },
     {
-        "entete": "M-11",
+        "entete": "Date\nOuverture",
         "f_entete": {
             **f_entetes,
             **{
@@ -56,13 +88,14 @@ COLUMNS = [
         "f_ligne": {
             **f_ligne,
             **{
-                "num_format": "#,##0.00",
+                "align": "center",
+                "num_format": "dd/mm/yy",
             },
         },
         "width": 10,
     },
     {
-        "entete": "M-10",
+        "entete": "Date\nFermeture",
         "f_entete": {
             **f_entetes,
             **{
@@ -72,103 +105,8 @@ COLUMNS = [
         "f_ligne": {
             **f_ligne,
             **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-9",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-8",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-7",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-6",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-5",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-4",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
+                "align": "center",
+                "num_format": "dd/mm/yy",
             },
         },
         "width": 10,
@@ -238,7 +176,7 @@ COLUMNS = [
         "width": 10,
     },
     {
-        "entete": "Total des 6\nderniers mois",
+        "entete": "Variation\nM vs M-1",
         "f_entete": {
             **f_entetes,
             **{
@@ -254,7 +192,7 @@ COLUMNS = [
         "width": 14,
     },
     {
-        "entete": "Commentaires",
+        "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
             **{
@@ -287,86 +225,40 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def write_rows(excel: GenericExcel, f_lignes: List, f_lignes_odd: List, get_clean_rows: Generator):
-    """Ecritures de lignes d'entete des clients"""
-    row = 2
-    row_format = 1
-    col = 0
-    current_client = ""
-    page_breaks = []
-
-    format_client = {
-        "font_name": "calibri",
-        "bg_color": "#dce7f5",
-        "top": 2,
-        "bottom": 1,
-        "left": 2,
-        "right": 2,
-        "bold": True,
-        "text_wrap": True,
-        "align": "left",
-        "valign": "vcenter",
-    }
-
-    for rows in get_clean_rows:
-        client, *line = rows
-
-        if current_client != client:
-            if row > 4:
-                row += 1
-                page_breaks.append(row)
-            else:
-                row += 1
-
-            excel.write_row(1, row, col, client, format_client)
-            row += 1
-            columns_headers_writer(excel, 1, row, 0, COLUMNS)
-            current_client = client
-            row += 1
-            row_format = 1
-
-        excel.write_rows(1, row, col, line, f_lignes if row_format % 2 == 0 else f_lignes_odd)
-        row += 1
-        row_format += 1
-
-    return page_breaks
-
-
-def excel_cct_franchiseurs(file_io: io.BytesIO, file_name: str) -> dict:
+def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    titre = "3.2 - Contrôle des CCT/franchiseurs (MARK, INFO, etc…)"
-    list_excel = [file_io, ["CCT - FRANCHISEURS"]]
+    titre = f"5.0 - Contrôle Refac M M-1 par CCT"
+    list_excel = [file_io, ["REFAC PAR CCT"]]
     excel = GenericExcel(list_excel)
-    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_cct_franchiseur.sql")
+    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_refac_cct.sql")
+    get_clean_rows = get_rows(file_path)
+    mois = 4
+
+    for i, column_dict in enumerate(COLUMNS, 1):
+        if 5 < i < 10:
+            column_dict["entete"] = (
+                (
+                    pendulum.now()
+                    .subtract(months=mois)
+                    .start_of("month")
+                    .format("MMMM YYYY", locale="fr")
+                )
+                .capitalize()
+                .replace(" ", "\n")
+            )
+            mois -= 1
 
     try:
-        mois = 12
-
-        for i, column_dict in enumerate(COLUMNS, 1):
-            if 1 < i < 14:
-                column_dict["entete"] = (
-                    (
-                        pendulum.now()
-                        .subtract(months=mois)
-                        .start_of("month")
-                        .format("MMMM YYYY", locale="fr")
-                    )
-                    .capitalize()
-                    .replace(" ", "\n")
-                )
-                mois -= 1
-
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
         output_day_writer(excel, 1, 1, 0)
+        columns_headers_writer(excel, 1, 3, 0, COLUMNS)
         f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
         f_lignes_odd = [
             {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
         ]
-        page_breaks = write_rows(excel, f_lignes, f_lignes_odd, get_rows(file_path))
-        excel.excel_sheet(1).set_h_pagebreaks(page_breaks)
-        excel.excel_sheet(1).set_footer("&R&P/&N", {"margin": 0.1})
+        rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
         sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 2), "fit_page": (1, 0)}
+            excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
         )
 
     except:

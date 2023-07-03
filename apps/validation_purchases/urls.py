@@ -50,6 +50,10 @@ from apps.validation_purchases.views import (
     subscriptions_purchases,
     subscriptions_purchases_export,
     subscriptions_validation,
+    # 5.0 - Contrôle Refac M M-1 par CCT
+    refac_cct_purchases,
+    refac_cct_purchases_export,
+    refac_cct_validation,
     # RFA
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
@@ -293,6 +297,24 @@ urlpatterns = [
             "subscriptions_validation/",
             subscriptions_validation,
             name="subscriptions_validation",
+        ),
+    ],
+    # 5.0 - Contrôle Refac M M-1 par CCT
+    *[
+        path(
+            "refac_cct_purchases/",
+            refac_cct_purchases,
+            name="refac_cct_purchases",
+        ),
+        path(
+            "refac_cct_purchases_export/",
+            refac_cct_purchases_export,
+            name="refac_cct_purchases_export",
+        ),
+        path(
+            "refac_cct_validation/",
+            refac_cct_validation,
+            name="refac_cct_validation",
         ),
     ],
     # MENU CONTROLES RFA
