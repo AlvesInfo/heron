@@ -10,6 +10,7 @@
     <table id=""
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
+
         <thead>
             <tr>
                 <th style="width: 8.05%;">Enseigne</th>
@@ -32,12 +33,12 @@
                     <td>{{ client.country_name }}</td>
                     <td style="text-align: left;">{{ client.cct_name }}</td>
                     <td>{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
-                    <td>{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
+                    <td style="background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
                     <td style="text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
                     <td style="text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
                     <td style="text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
                     <td style="text-align: right;">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
-                    <td style="text-align: right;color: {% if client.variation < 0%}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
+                    <td style="text-align: right;color: {% if client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
                 </tr>
             {% endfor %}
         </tbody>*
