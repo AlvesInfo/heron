@@ -163,7 +163,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
     maison_exists = models.BooleanField(null=True, default=False)
     article_exists = models.BooleanField(null=True, default=False)
     axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
-    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
+    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=35)
     # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
 
     big_category = models.ForeignKey(
@@ -386,7 +386,7 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCo
     maison_exists = models.BooleanField(null=True, default=False)
     article_exists = models.BooleanField(null=True, default=False)
     axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
-    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=10)
+    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=35)
     # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
 
     big_category = models.ForeignKey(
