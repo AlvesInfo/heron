@@ -2,11 +2,44 @@
 
 {% load static %}
 {% load filters_tags %}
-
+<div class="ui equal width grid center">
+    <h1>CCT</h1>
+</div>
 {% block table %}
-    {% include "heron/scroll_to_top.html" %}
 
-    <div class="sixteen wide column">
+    <div class="two wide column"></div>
+    <div class="twelve wide column">
+
+        <table id=""
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Client</th>
+                    <th style="width: 12.5%;">Enseigne</th>
+                    <th style="width: 12.5%;">Pays</th>
+                    <th style="width: 12.5%;">Date<br>Ouverture</th>
+                    <th style="width: 12.5%;">Date<br>Fermeture</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr class="hide_plans">
+                    <td>{{ clients.0.cct_name }}</td>
+                    <td style="text-align: center;">{{ maison.sign_board.name }}</td>
+                    <td style="text-align: center;">{{ maison.pays.country_name }}</td>
+                    <td style="text-align: center;">{{ maison.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
+                    <td style="text-align: center;">{{ maison.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
+
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+    <div class="two wide column"></div>
+    <div class="two wide column"></div>
+    <div class="twelve wide column">
 
         <table id=""
            class="ui celled table"
@@ -14,27 +47,25 @@
 
             <thead>
                 <tr>
-                    <th style="width: 8.05%;">Enseigne</th>
-                    <th style="width: 7.38%;">Pays</th>
-                    <th style="width: 34.25%;">Client</th>
-                    <th style="width: 6.71%;">Date<br>Ouverture</th>
-                    <th style="width: 6.71%;">Date<br>Ouverture</th>
-                    <th style="width: 7.38%;">{{ mois_dict.M3|safe }}</th>
-                    <th style="width: 7.38%;">{{ mois_dict.M2|safe }}</th>
-                    <th style="width: 7.38%;">{{ mois_dict.M1|safe }}</th>
-                    <th style="width: 7.38%;">{{ mois_dict.M0|safe }}</th>
-                    <th style="width: 7.38%;">Variation</th>
+                    <th style="width: 5%;"></th>
+                    <th style="width: 45%;">Tiers</th>
+                    <th style="width: 10%;">{{ mois_dict.M3|safe }}</th>
+                    <th style="width: 10%;">{{ mois_dict.M2|safe }}</th>
+                    <th style="width: 10%;">{{ mois_dict.M1|safe }}</th>
+                    <th style="width: 10%;">{{ mois_dict.M0|safe }}</th>
+                    <th style="width: 10%;">Variation</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for client in clients %}
                     <tr class="hide_plans">
-                        <td>{{ client.signboard }}</td>
-                        <td>{{ client.country_name }}</td>
-                        <td style="text-align: left;">{{ client.cct_name }}</td>
-                        <td>{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
-                        <td style="background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
+                        <td style="text-align: center;width: 5%;">
+                            <a href="{% url 'validation_purchases:third_suppliers_m_purchases' client=client.cct third_party_num=client.third_party_num %}">
+                                <i class="eye icon modification"></i>
+                            </a>
+                        </td>
+                        <td style="text-align: left;">{{ client.tiers }}</td>
                         <td style="text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
                         <td style="text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
                         <td style="text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
@@ -42,7 +73,7 @@
                         <td style="text-align: right;color: {% if client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
                     </tr>
                 {% endfor %}
-            </tbody>*
+            </tbody>
 
         </table>
 

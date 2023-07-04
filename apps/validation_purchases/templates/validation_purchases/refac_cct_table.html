@@ -4,7 +4,6 @@
 {% load filters_tags %}
 
 {% block table %}
-    {% include "heron/scroll_to_top.html" %}
 
     <div class="sixteen wide column">
 
@@ -19,7 +18,7 @@
                     <th style="width: 7.38%;">Pays</th>
                     <th style="width: 32.25%;">Client</th>
                     <th style="width: 6.71%;">Date<br>Ouverture</th>
-                    <th style="width: 6.71%;">Date<br>Ouverture</th>
+                    <th style="width: 6.71%;">Date<br>Fermeture</th>
                     <th style="width: 7.38%;">{{ mois_dict.M3|safe }}</th>
                     <th style="width: 7.38%;">{{ mois_dict.M2|safe }}</th>
                     <th style="width: 7.38%;">{{ mois_dict.M1|safe }}</th>
@@ -48,7 +47,7 @@
                         <td style="text-align: right;color: {% if client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
                     </tr>
                 {% endfor %}
-            </tbody>*
+            </tbody>
 
         </table>
 

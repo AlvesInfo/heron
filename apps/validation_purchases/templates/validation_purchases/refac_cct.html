@@ -34,8 +34,9 @@
 
     {% if user.is_authenticated %}
 
-            {% include "validation_purchases/refac_cct_entete.html" %}
-            {% include "validation_purchases/refac_cct_table.html" %}
+        {% include "heron/scroll_to_top.html" %}
+        {% include "validation_purchases/refac_cct_entete.html" %}
+        {% include "validation_purchases/refac_cct_table.html" %}
 
         <div class="ui equal width grid center"></div>
 

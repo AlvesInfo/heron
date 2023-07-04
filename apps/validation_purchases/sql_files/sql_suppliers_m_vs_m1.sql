@@ -104,9 +104,9 @@ with "maisons" as (
     from "invoices_details"
 )
 select
+    "cct_name",
     "signboard",
     "country_name",
-    "cct_name",
     "opening_date",
     "closing_date",
     "aa"."third_party_num" || ' - ' || "bs"."name" as "tiers",
@@ -116,7 +116,8 @@ select
     sum("M_00") as "M_00",
     sum("M_00" - "M_01")::numeric as "variation",
     '' as "comment",
-    "cct"
+    "cct",
+    "aa"."third_party_num"
 from "alls" "aa"
 join "book_society" "bs"
 on "aa"."third_party_num" = "bs"."third_party_num"

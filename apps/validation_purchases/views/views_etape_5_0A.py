@@ -8,7 +8,7 @@ from apps.core.functions.functions_http_response import response_file, CONTENT_T
 from apps.validation_purchases.excel_outputs.excel_suppliers_m_vs_m1 import (
     excel_suppliers_m_vs_m1,
 )
-from apps.edi.models import EdiValidation
+from apps.centers_clients.models import Maison
 
 
 # CONTROLES ETAPE 5.A - Contrôle Fournisseurs M vs M-1
@@ -24,7 +24,7 @@ def suppliers_m_purchases(request, client):
         mois_dict = {}
         mois = 4
 
-        for _ in range(6, 10):
+        for _ in range(4):
             mois_dict[f"M{mois-1}"] = (
                 (
                     pendulum.now()
@@ -39,10 +39,11 @@ def suppliers_m_purchases(request, client):
 
         context = {
             "titre_table": "5.A - Contrôle Fournisseurs M vs M-1",
-            "suppliers_validation": EdiValidation.objects.filter(final=False).first(),
             "clients": elements,
             "cct_client": client,
+            "maison": Maison.objects.get(cct=client),
             "mois_dict": mois_dict,
+            "chevron_retour": reverse("validation_purchases:refac_cct_purchases"),
         }
 
     return render(request, "validation_purchases/suppliers_m_vs_m1.html", context=context)
@@ -57,7 +58,7 @@ def suppliers_m_purchases_export(request, client):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "CONTROLE_FOURNISSEUR_M_VS_M-1_"
+                f"CONTROLE_{client}_M_VS_M-1_"
                 f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
 

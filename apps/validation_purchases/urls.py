@@ -52,6 +52,9 @@ from apps.validation_purchases.views import (
     # 5.A - Contrôle Fournisseurs M vs M-1
     suppliers_m_purchases,
     suppliers_m_purchases_export,
+    # 5.B - Contrôle Details Fournisseurs M vs M-1
+    third_suppliers_m_purchases,
+    third_suppliers_m_purchases_export,
     # 5.1
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
@@ -307,6 +310,19 @@ urlpatterns = [
             "suppliers_m_purchases_export/<str:client>/",
             suppliers_m_purchases_export,
             name="suppliers_m_purchases_export",
+        ),
+    ],
+    # 5.B - Contrôle Details Fournisseurs M vs M-1
+    *[
+        path(
+            "third_suppliers_m_purchases/<str:client>/<str:third_party_num>/",
+            third_suppliers_m_purchases,
+            name="third_suppliers_m_purchases",
+        ),
+        path(
+            "third_suppliers_m_purchases_export/<str:client>/<str:third_party_num>/",
+            third_suppliers_m_purchases_export,
+            name="third_suppliers_m_purchases_export",
         ),
     ],
     # 5.1 -

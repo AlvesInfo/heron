@@ -1,0 +1,46 @@
+{% extends "heron/table_courant.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block table %}
+
+    <div class="sixteen wide column">
+
+        <table id=""
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+
+            <thead>
+                <tr>
+                    <th style="width: 8%;">CCT</th>
+                    <th style="width: 16%;">CLIENT</th>
+                    <th style="width: 32%;">Tiers</th>
+                    <th style="width: 12%;">N° Facture</th>
+                    <th style="width: 8%;">Date<br>Facture</th>
+                    <th style="width: 8%;">Mois<br>Facture</th>
+                    <th style="width: 8%;">Montant TTC</th>
+                    <th style="width: 8%;">Montant HT</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for client in clients %}
+                    <tr class="hide_plans">
+                        <td>{{ client.cct }}</td>
+                        <td style="text-align: left;">{{ client.cct_name }}</td>
+                        <td style="text-align: left;">{{ client.tiers }}</td>
+                        <td style="text-align: left;">{{ client.invoice_number }}</td>
+                        <td>{{ client.invoice_date|date:"d/m/Y" }}</td>
+                        <td>{{ client.invoice_month|date:"d/m/Y" }}</td>
+                        <td style="text-align: right;">{{ client.amount_with_vat|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.net_amount|numbers_format:2|default_if_zero }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>*
+
+        </table>
+
+    </div>
+
+{% endblock table %}
