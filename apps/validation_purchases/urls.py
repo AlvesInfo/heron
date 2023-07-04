@@ -25,11 +25,6 @@ from apps.validation_purchases.views import (
     # 2.2 - FACTURES SANS CCT
     without_cct_purchases,
     without_cct_purchases_export,
-    # Soldes
-    balance_suppliers_purchases,
-    balance_suppliers_purchases_export,
-    invoices_suppliers_purchases,
-    invoices_purchases_export_globals,
     # 3.1 - FAMILLES ARTICLES
     families_invoices_purchases,
     families_invoices_purchases_export,
@@ -54,6 +49,14 @@ from apps.validation_purchases.views import (
     refac_cct_purchases,
     refac_cct_purchases_export,
     refac_cct_validation,
+    # 5.A - Contrôle Fournisseurs M vs M-1
+    suppliers_m_purchases,
+    suppliers_m_purchases_export,
+    # 5.1
+    balance_suppliers_purchases,
+    balance_suppliers_purchases_export,
+    invoices_suppliers_purchases,
+    invoices_purchases_export_globals,
     # RFA
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
@@ -184,30 +187,6 @@ urlpatterns = [
             name="without_cct_purchases_export",
         ),
     ],
-    # Soldes
-    *[
-        path(
-            "balance_suppliers_purchases/",
-            balance_suppliers_purchases,
-            name="balance_suppliers_purchases",
-        ),
-        path(
-            "balance_suppliers_purchases_export/",
-            balance_suppliers_purchases_export,
-            name="balance_suppliers_purchases_export",
-        ),
-        # Factures
-        path(
-            "invoices_suppliers_purchases/",
-            invoices_suppliers_purchases,
-            name="invoices_suppliers_purchases",
-        ),
-        path(
-            "invoices_purchases_export_globals/",
-            invoices_purchases_export_globals,
-            name="invoices_purchases_export_globals",
-        ),
-    ],
     # 3.1 - FAMILLES ARTICLES
     *[
         # Familles des Factures
@@ -315,6 +294,43 @@ urlpatterns = [
             "refac_cct_validation/",
             refac_cct_validation,
             name="refac_cct_validation",
+        ),
+    ],
+    # 5.A - Contrôle Fournisseurs M vs M-1
+    *[
+        path(
+            "suppliers_m_purchases/<str:client>/",
+            suppliers_m_purchases,
+            name="suppliers_m_purchases",
+        ),
+        path(
+            "suppliers_m_purchases_export/<str:client>/",
+            suppliers_m_purchases_export,
+            name="suppliers_m_purchases_export",
+        ),
+    ],
+    # 5.1 -
+    *[
+        path(
+            "balance_suppliers_purchases/",
+            balance_suppliers_purchases,
+            name="balance_suppliers_purchases",
+        ),
+        path(
+            "balance_suppliers_purchases_export/",
+            balance_suppliers_purchases_export,
+            name="balance_suppliers_purchases_export",
+        ),
+        # Factures
+        path(
+            "invoices_suppliers_purchases/",
+            invoices_suppliers_purchases,
+            name="invoices_suppliers_purchases",
+        ),
+        path(
+            "invoices_purchases_export_globals/",
+            invoices_purchases_export_globals,
+            name="invoices_purchases_export_globals",
         ),
     ],
     # MENU CONTROLES RFA

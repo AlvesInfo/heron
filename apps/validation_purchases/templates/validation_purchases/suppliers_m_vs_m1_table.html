@@ -14,10 +14,9 @@
 
             <thead>
                 <tr>
-                    <th style="width: 2%;"></th>
                     <th style="width: 8.05%;">Enseigne</th>
                     <th style="width: 7.38%;">Pays</th>
-                    <th style="width: 32.25%;">Client</th>
+                    <th style="width: 34.25%;">Client</th>
                     <th style="width: 6.71%;">Date<br>Ouverture</th>
                     <th style="width: 6.71%;">Date<br>Ouverture</th>
                     <th style="width: 7.38%;">{{ mois_dict.M3|safe }}</th>
@@ -31,11 +30,6 @@
             <tbody>
                 {% for client in clients %}
                     <tr class="hide_plans">
-                        <td style="text-align: center;">
-                            <a href="{% url 'validation_purchases:suppliers_m_purchases' client=client.cct %}">
-                                <i class="eye icon modification"></i>
-                            </a>
-                        </td>
                         <td>{{ client.signboard }}</td>
                         <td>{{ client.country_name }}</td>
                         <td style="text-align: left;">{{ client.cct_name }}</td>

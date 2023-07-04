@@ -10,7 +10,7 @@ modified at: 2022-05-12
 modified by: Paulo ALVES
 """
 import io
-from typing import Dict
+from typing import Dict, AnyStr
 from pathlib import Path
 
 import pendulum
@@ -28,7 +28,7 @@ from apps.core.excel_outputs.excel_writer import (
     rows_writer,
 )
 
-COLUMNS = [
+COLUMNS_CLIENT = [
     {
         "entete": "Enseigne",
         "f_entete": {
@@ -110,6 +110,25 @@ COLUMNS = [
             },
         },
         "width": 10,
+    },
+]
+
+COLUMNS = [
+    {
+        "entete": "Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 15,
     },
     {
         "entete": "M-3",
@@ -225,13 +244,13 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    titre = f"5.0 - Contrôle Refac M M-1 par CCT"
-    list_excel = [file_io, ["REFAC PAR CCT"]]
+def excel_suppliers_m_vs_m1(file_io: io.BytesIO, file_name: AnyStr, client: AnyStr) -> dict:
+    """Fonction de génération du fichier de Contrôle Fournisseurs M vs M-1"""
+    titre = f"5.A - Contrôle Fournisseurs M vs M-1"
+    list_excel = [file_io, ["CCT FOUNRISSEURS"]]
     excel = GenericExcel(list_excel)
-    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_refac_cct.sql")
-    get_clean_rows = [row[:-1] for row in get_rows(file_path)]
+    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_suppliers_m_vs_m1.sql")
+    get_clean_rows = [row[:-1] for row in get_rows(file_path, {"client": client})]
     mois = 4
 
     for i, column_dict in enumerate(COLUMNS, 1):

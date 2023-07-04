@@ -264,14 +264,14 @@ def get_accounts_alls() -> AccountSage.objects:
     queryset = AccountSage.objects.annotate(
         str_search=Concat(
             "account",
-            Value("|"),
+            Value(" - "),
             "code_plan_sage",
             output_field=CharField(),
         ),
         pk=F("uuid_identification"),
         model=Concat(
             "account",
-            Value("|"),
+            Value(" - "),
             "code_plan_sage",
             output_field=CharField(),
         ),

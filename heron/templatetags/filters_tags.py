@@ -391,9 +391,7 @@ def get_account(value):
     :param value: thid_party_num
     :return: nom
     """
-
     try:
-        UUID(value)
         return str(AccountSage.objects.get(uuid_identification=value))
 
     except (ValueError, TypeError, AccountSage.DoesNotExist):

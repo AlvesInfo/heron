@@ -12,6 +12,7 @@ with "maisons" as (
     on "cm"."sign_board" = "sb"."code"
     left join "countries_country" "co"
     on "cm"."pays" = "co"."country"
+    where "cct" = %(client)s
 ),
 "edi_details" as (
     select
@@ -21,6 +22,7 @@ with "maisons" as (
         "cc"."cct",
         "cc"."opening_date",
         "cc"."closing_date",
+        "ee"."third_party_num",
         "ee"."net_amount" as "M_00",
         0 as "M_01",
         0 as "M_02",
@@ -39,6 +41,7 @@ with "maisons" as (
         "cc"."cct",
         "cc"."opening_date",
         "cc"."closing_date",
+        "ii"."third_party_num",
         0 as "M_00",
         case
             when (
@@ -88,12 +91,14 @@ with "maisons" as (
 "alls" as (
     select
         "signboard", "country_name", "cct", "cct_name", "opening_date", "closing_date",
+        "third_party_num",
         "M_00", "M_01", "M_02", "M_03",
         ("M_00" - "M_01")::numeric as "variation"
     from "edi_details"
     union all
     select
         "signboard", "country_name", "cct", "cct_name", "opening_date", "closing_date",
+        "third_party_num",
         "M_00", "M_01", "M_02", "M_03",
         ("M_00" - "M_01")::numeric as "variation"
     from "invoices_details"
@@ -104,6 +109,7 @@ select
     "cct_name",
     "opening_date",
     "closing_date",
+    "aa"."third_party_num" || ' - ' || "bs"."name" as "tiers",
     sum("M_03") as "M_03",
     sum("M_02") as "M_02",
     sum("M_01") as "M_01",
@@ -111,13 +117,15 @@ select
     sum("M_00" - "M_01")::numeric as "variation",
     '' as "comment",
     "cct"
-from "alls"
+from "alls" "aa"
+join "book_society" "bs"
+on "aa"."third_party_num" = "bs"."third_party_num"
 group by "signboard",
          "country_name",
          "cct",
          "cct_name",
          "opening_date",
-         "closing_date"
-order by "signboard",
-         "country_name",
-         "cct_name"
+         "closing_date",
+         "aa"."third_party_num",
+         "bs"."name"
+order by "aa"."third_party_num"

@@ -25,7 +25,7 @@ def refac_cct_purchases(request):
         mois_dict = {}
         mois = 4
 
-        for i in range(6, 10):
+        for _ in range(6, 10):
             mois_dict[f"M{mois-1}"] = (
                 (
                     pendulum.now()
