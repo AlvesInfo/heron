@@ -196,7 +196,6 @@ def articles_news_export_list(_):
         return response_file(excel_liste_articles_news, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        print('exception("view : articles_news_export_list")')
         LOGGER_EXPORT_EXCEL.exception("view : articles_news_export_list")
 
     return redirect(reverse("articles:new_articles_list"))

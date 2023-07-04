@@ -32,7 +32,7 @@ def articles_without_account_list(request):
     update_axes_edi()
 
     limit = 200
-    print(str(articles_without_account_queryset.query))
+    # print(str(articles_without_account_queryset.query))
     paginator = Paginator(articles_without_account_queryset, limit)
     page = request.GET.get("page")
 
