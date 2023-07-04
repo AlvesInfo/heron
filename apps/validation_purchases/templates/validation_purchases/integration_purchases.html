@@ -46,7 +46,7 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-
+            {% include "heron/scroll_to_top.html" %}
             {% include "validation_purchases/integration_purchases_entete.html" %}
 
             {% if not en_cours %}
