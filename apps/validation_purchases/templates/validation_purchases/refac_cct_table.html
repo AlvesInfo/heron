@@ -4,47 +4,48 @@
 {% load filters_tags %}
 
 {% block table %}
-<div class="sixteen wide column">
-{% regroup invoices_famillies by third_party_num as supplier_list %}
+    {% include "heron/scroll_to_top.html" %}
 
-    <table id=""
-       class="ui celled table"
-       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+    <div class="sixteen wide column">
 
-        <thead>
-            <tr>
-                <th style="width: 8.05%;">Enseigne</th>
-                <th style="width: 7.38%;">Pays</th>
-                <th style="width: 34.25%;">Client</th>
-                <th style="width: 6.71%;">Date<br>Ouverture</th>
-                <th style="width: 6.71%;">Date<br>Ouverture</th>
-                <th style="width: 7.38%;">{{ mois_dict.M3|safe }}</th>
-                <th style="width: 7.38%;">{{ mois_dict.M2|safe }}</th>
-                <th style="width: 7.38%;">{{ mois_dict.M1|safe }}</th>
-                <th style="width: 7.38%;">{{ mois_dict.M0|safe }}</th>
-                <th style="width: 7.38%;">Variation</th>
-            </tr>
-        </thead>
-    
-        <tbody>
-            {% for client in clients %}
-                <tr class="hide_plans">
-                    <td>{{ client.signboard }}</td>
-                    <td>{{ client.country_name }}</td>
-                    <td style="text-align: left;">{{ client.cct_name }}</td>
-                    <td>{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
-                    <td style="background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
-                    <td style="text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
-                    <td style="text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
-                    <td style="text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
-                    <td style="text-align: right;background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
-                    <td style="text-align: right;color: {% if client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
+        <table id=""
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+
+            <thead>
+                <tr>
+                    <th style="width: 8.05%;">Enseigne</th>
+                    <th style="width: 7.38%;">Pays</th>
+                    <th style="width: 34.25%;">Client</th>
+                    <th style="width: 6.71%;">Date<br>Ouverture</th>
+                    <th style="width: 6.71%;">Date<br>Ouverture</th>
+                    <th style="width: 7.38%;">{{ mois_dict.M3|safe }}</th>
+                    <th style="width: 7.38%;">{{ mois_dict.M2|safe }}</th>
+                    <th style="width: 7.38%;">{{ mois_dict.M1|safe }}</th>
+                    <th style="width: 7.38%;">{{ mois_dict.M0|safe }}</th>
+                    <th style="width: 7.38%;">Variation</th>
                 </tr>
-            {% endfor %}
-        </tbody>*
+            </thead>
 
-    </table>
+            <tbody>
+                {% for client in clients %}
+                    <tr class="hide_plans">
+                        <td>{{ client.signboard }}</td>
+                        <td>{{ client.country_name }}</td>
+                        <td style="text-align: left;">{{ client.cct_name }}</td>
+                        <td>{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
+                        <td style="background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
+                        <td style="text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;background-color: {% if client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;color: {% if client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>*
 
-</div>
+        </table>
+
+    </div>
 
 {% endblock table %}

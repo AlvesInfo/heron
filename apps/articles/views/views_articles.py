@@ -112,7 +112,7 @@ class ArticlesList(ListView):
 
 
 class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Categories"""
+    """CreateView de création d'Articles"""
 
     model = Article
     form_class = ArticleForm
@@ -223,7 +223,7 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+    """UpdateView pour modification des Articles"""
 
     model = Article
     form_class = ArticleForm

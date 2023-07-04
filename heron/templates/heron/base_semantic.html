@@ -27,7 +27,7 @@
         {% block head_css %}
         {% endblock head_css %}
 
-        <script type="text/javascript" src="{% static 'pdfmake/pdfmake.min.js' %}"></script>
+{#        <script type="text/javascript" src="{% static 'pdfmake/pdfmake.min.js' %}"></script>#}
         <script type="text/javascript" src="{% static 'vfs_fonts/vfs_fonts.js' %}"></script>
         <script type="text/javascript" src="{% static 'datatables/datatables.min.js' %}"></script>
 
@@ -160,6 +160,10 @@
                 $('#jmenu').popup({popup: '#j', inline: true, on: 'click'});
                 $('#kmenu').popup({popup: '#k', inline: true, on: 'click'});
                 $('#lmenu').popup({popup: '#l', inline: true, on: 'click'});
+
+                if ($(document).height() < 1250) {
+                    $(`.scrollToTop`).hide();
+                }
 
             });
 

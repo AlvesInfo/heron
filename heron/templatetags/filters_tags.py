@@ -1,5 +1,6 @@
 import re
 from decimal import Decimal
+from uuid import UUID
 
 import pendulum
 import lxml.html as html
@@ -392,9 +393,10 @@ def get_account(value):
     """
 
     try:
+        UUID(value)
         return str(AccountSage.objects.get(uuid_identification=value))
 
-    except AccountSage.DoesNotExist:
+    except (ValueError, TypeError, AccountSage.DoesNotExist):
         pass
 
     return ""

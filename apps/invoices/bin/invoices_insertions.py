@@ -94,13 +94,17 @@ def set_sales_details(cursor: connection.cursor) -> None:
     cursor.execute(SQL_SALES_DETAILS)
 
 
-def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyStr]:
+def set_purchases_invoices(
+    cursor: connection.cursor, user: User, invoice_date_iso: AnyStr
+) -> [bool, AnyStr]:
     """
     Remplissage du fichier io pour insertion en base des factures de vente
     :param cursor: cursor django pour la db
     :param user: utilisateur qui a lancé la commande
+    :param invoice_date_iso: mois d'intégration de la facture au format isoformat
     :return:
     """
+    integration_month = pendulum.parse(invoice_date_iso).date().start_of("month").isoformat()
     model = Invoice
     file_name = "select ..."
     trace_name = "Insertion des factures d'achat"
@@ -121,6 +125,7 @@ def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyS
 
         for line in cursor.fetchall():
             *line_to_write, auuid = list(line)
+            # invoice_sage_number
             line_to_write[5] = (
                 f"{line_to_write[15]}"
                 f"{str(line_to_write[10])[-2:]}"
@@ -128,9 +133,14 @@ def set_purchases_invoices(cursor: connection.cursor, user: User) -> [bool, AnyS
                 f"{get_purchase_num()}"
             )[-20:]
             # print(get_due_date(str(line_to_write[8]), auuid))
+            # date_echeance
             line_to_write[17] = get_due_date(str(line_to_write[8]), auuid)
+            # created_by
             line_to_write[25] = user.uuid_identification
+            # modified by
             line_to_write[26] = user.uuid_identification
+            # Mois d'intégration = période de facturation
+            line_to_write[26] = integration_month
             # print(dict(zip(COLS_PURCHASE_DICT, line_to_write)))
 
             csv_writer.writerow(line_to_write)
@@ -413,7 +423,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             # On insère les factures d'achats
             LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
-            error, to_print = set_purchases_invoices(cursor, user)
+            error, to_print = set_purchases_invoices(cursor, user, invoice_date)
             print(f"set_purchases_invoices :{time.time()-start} s")
             start = time.time()
 

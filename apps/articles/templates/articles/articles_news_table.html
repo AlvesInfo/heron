@@ -1,6 +1,7 @@
 {% extends "heron/table_courant.html" %}
 
 {% block table %}
+    {% include "heron/scroll_to_top.html" %}
 
     <div class="sixteen wide column">
         {% if articles.has_other_pages %}

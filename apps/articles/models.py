@@ -204,7 +204,7 @@ class Article(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["third_party_num", "reference"]
+        ordering = ["third_party_num", "-created_at", "reference"]
         unique_together = (("third_party_num", "reference"),)
 
 
