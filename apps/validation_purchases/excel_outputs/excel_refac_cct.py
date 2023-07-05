@@ -1,4 +1,4 @@
-# pylint: disable=E0401,W0702,W1203
+# pylint: disable=E0401,W0702,W1203,R0914
 """Module d'export du fichier excel pour les factures du tiers pas mois
 
 Commentaire:
@@ -14,6 +14,7 @@ from typing import Dict
 from pathlib import Path
 
 import pendulum
+from xlsxwriter.utility import xl_rowcol_to_cell
 from django.db import connection
 from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -227,9 +228,9 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
 
 def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    titre = f"5.0 - Contrôle Refac M M-1 par CCT"
+    titre = "5.0 - Contrôle Refac M M-1 par CCT"
     list_excel = [file_io, ["REFAC PAR CCT"]]
-    excel = GenericExcel(list_excel)
+    excel = GenericExcel(list_excel, in_memory=True)
     file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_refac_cct.sql")
     get_clean_rows = [row[:-1] for row in get_rows(file_path)]
     mois = 4
@@ -257,6 +258,30 @@ def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
             {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
+
+        # Pose des conditions pour avoir les cellules en rouge si la maison est fermée
+        # et qu'il y a de la facturation dessus
+        style = {"font_color": "#FFFFFF", "bg_color": "red", "bold": True}
+        nb_rows = 5 + len(get_clean_rows)
+
+        for i in range(5, nb_rows):
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"E{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(I{i}=0,False,IF(E{i}="",False,True))',
+                style=style,
+            )
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"I{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(I{i}=0,False,IF(E{i}="",False,True))',
+                style=style,
+            )
+
         sheet_formatting(
             excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
         )

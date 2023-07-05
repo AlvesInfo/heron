@@ -587,12 +587,14 @@ class GenericExcel:
         wsexcel = self.worksheets[feuille]
         wsexcel.set_tab_color(color)
 
-    def conditional_value(self, num_sheet, str_plage, valeur, style=None):
+    def conditional_value(self, num_sheet, str_plage, valeur, type_format="cell", criteria="<", style=None):
         """
         Fonction qui pose des conditions
             :param num_sheet: Numéro de la feuille débute à 1
             :param str_plage: Plage de la feuille conditionnelle
             :param valeur: valeur conditionnelle
+            :param type_format: type de formatage cell, formula, ....
+            :param criteria: Critère
             :param style: Style
             :return: None
         """
@@ -601,11 +603,11 @@ class GenericExcel:
         if style:
             f_m = self.workbook.add_format(style)
             self.worksheets[feuille].conditional_format(
-                cellule, {"type": "cell", "criteria": "<", "value": valeur, "format": f_m}
+                cellule, {"type": type_format, "criteria": criteria, "value": valeur, "format": f_m}
             )
         else:
             self.worksheets[feuille].conditional_format(
-                cellule, {"type": "cell", "criteria": "<", "value": valeur}
+                cellule, {"type": type_format, "criteria": criteria, "value": valeur}
             )
 
     def excel_close(self):
