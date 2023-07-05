@@ -377,13 +377,13 @@ def main(model_list):
 
 if __name__ == "__main__":
     main([])
-    # main(MODELS_ACCOUNTANCY)
-    # main(MODELS_BOOK)
-    main(MODELS_PARAMETERS)
+    main(MODELS_ACCOUNTANCY)
+    main(MODELS_BOOK)
+    # main(MODELS_PARAMETERS)
     # main(MODELS_PERIODE)
     # main(MODELS_ARTICLES)
     # main(MODELS_CENTER_PURCHASING)
-    # main(MODELS_CENTER_CLIENTS)
+    main(MODELS_CENTER_CLIENTS)
     # main(MODELS_COMPTA)
     # main(MODELS_COUNTRY)
     # main(MODELS_EDI)

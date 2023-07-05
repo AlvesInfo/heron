@@ -46,7 +46,7 @@ def get_clean_rows(date_debut: str, date_fin: str) -> iter:
             sale_dict.get("pv_net_unitaire", ""),
             sale_dict.get("ca_ht_avt_remise", ""),
             sale_dict.get("ca_ht_ap_remise", ""),
-            sale_dict.get("taux_change", ""),
+            sale_dict.get("taux_change_moyen", ""),
             sale_dict.get("ca_ht_avt_remise_eur", ""),
             sale_dict.get("ca_ht_ap_remise_eur", ""),
             sale_dict.get("maj_stock", ""),
@@ -63,7 +63,7 @@ def get_clean_rows(date_debut: str, date_fin: str) -> iter:
             "pv_net_unitaire",
             "ca_ht_avt_remise",
             "ca_ht_ap_remise",
-            "taux_change",
+            "taux_change_moyen",
             "ca_ht_avt_remise_eur",
             "ca_ht_ap_remise_eur",
             "maj_stock",
@@ -86,7 +86,7 @@ def excel_sales_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: s
     date_fin_texte = date_fin.format("DD/MM/YYYY", locale="fr")
     titre = f"VENTES COSIUM DU {date_debut_texte} AU {date_fin_texte}"
     list_excel = [file_io, ["VENTES COSIUM"]]
-    excel = GenericExcel(list_excel)
+    excel = GenericExcel(list_excel, in_memory=True)
     columns = columns_sales_cosium
 
     try:
