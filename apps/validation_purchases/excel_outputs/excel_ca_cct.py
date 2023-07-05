@@ -28,6 +28,45 @@ from apps.core.excel_outputs.excel_writer import (
     rows_writer,
 )
 
+COLUMNS_TITRES = [
+    {
+        "entete": "M",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+    },
+    {
+        "entete": "M1",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+    },
+    {
+        "entete": "TRIMESTRE GLISSANT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+    },
+    {
+        "entete": "12 MOIS GLISSANTS",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+    },
+]
+
 COLUMNS = [
     {
         "entete": "Enseigne",
@@ -75,10 +114,10 @@ COLUMNS = [
                 "align": "left",
             },
         },
-        "width": 51,
+        "width": 12,
     },
     {
-        "entete": "Date\nOuverture",
+        "entete": "Nom Client",
         "f_entete": {
             **f_entetes,
             **{
@@ -88,31 +127,13 @@ COLUMNS = [
         "f_ligne": {
             **f_ligne,
             **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
+                "align": "left",
             },
         },
-        "width": 10,
+        "width": 25,
     },
     {
-        "entete": "Date\nFermeture",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
-        },
-        "width": 10,
-    },
-    {
-        "entete": "M-3",
+        "entete": "CA\nCOSIUM\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -128,7 +149,7 @@ COLUMNS = [
         "width": 10,
     },
     {
-        "entete": "M-2",
+        "entete": "VENTES\nHERON\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -144,7 +165,23 @@ COLUMNS = [
         "width": 10,
     },
     {
-        "entete": "M-1",
+        "entete": "Taux\nAchats",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00%",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "CA\nCOSIUM\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -160,7 +197,7 @@ COLUMNS = [
         "width": 10,
     },
     {
-        "entete": "M",
+        "entete": "VENTES\nHERON\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -176,7 +213,23 @@ COLUMNS = [
         "width": 10,
     },
     {
-        "entete": "Variation\nM vs M-1",
+        "entete": "Taux\nAchats",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00%",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "CA\nCOSIUM\nHT",
         "f_entete": {
             **f_entetes,
             **{
@@ -189,7 +242,87 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 14,
+        "width": 10,
+    },
+    {
+        "entete": "VENTES\nHERON\nHT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Taux\nAchats",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00%",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "CA\nCOSIUM\nHT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "VENTES\nHERON\nHT",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Taux\nAchats",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "num_format": "#,##0.00%",
+            },
+        },
+        "width": 10,
     },
     {
         "entete": "Commentaire",
@@ -225,17 +358,16 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
-    titre = "5.0 - Contrôle Refac M M-1 par CCT"
-    list_excel = [file_io, ["REFAC PAR CCT"]]
+def excel_ca_cct(file_io: io.BytesIO, file_name: str) -> dict:
+    """Fonction de 5.3 - Contrôle CA Cosium / Ventes Héron"""
+    titre = "5.3 - Contrôle CA Cosium / Ventes Héron"
+    list_excel = [file_io, ["CA CCT"]]
     excel = GenericExcel(list_excel, in_memory=True)
-    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_refac_cct.sql")
-    get_clean_rows = [row[:-1] for row in get_rows(file_path)]
-    mois = 4
+    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_ca_cct.sql")
+    mois = 1
 
-    for i, column_dict in enumerate(COLUMNS, 1):
-        if 5 < i < 10:
+    for i, column_dict in enumerate(COLUMNS_TITRES, 1):
+        if i < 3:
             column_dict["entete"] = (
                 (
                     pendulum.now()
@@ -243,44 +375,31 @@ def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
                     .start_of("month")
                     .format("MMMM YYYY", locale="fr")
                 )
-                .capitalize()
-                .replace(" ", "\n")
+                .upper()
             )
-            mois -= 1
+            mois += 1
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
         output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, COLUMNS)
+        row = 3
+        col = 4
+        for entete_dict in COLUMNS_TITRES:
+            excel.write_merge_h(
+                1, row, col, col + 2, entete_dict.get("entete"), style=entete_dict.get("f_entete")
+            )
+            col += 3
+
+        row += 1
+        columns_headers_writer(excel, 1, row, 0, COLUMNS)
+
         f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
         f_lignes_odd = [
             {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
         ]
-        rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
 
-        # Pose des conditions pour avoir les cellules en rouge si la maison est fermée
-        # et qu'il y a de la facturation dessus
-        style = {"font_color": "#FFFFFF", "bg_color": "red", "bold": True}
-        nb_rows = 5 + len(get_clean_rows)
-
-        for i in range(5, nb_rows):
-            excel.conditional_value(
-                num_sheet=1,
-                str_plage=f"E{i}",
-                valeur=0,
-                type_format="formula",
-                criteria=f'=IF(I{i}=0,False,IF(E{i}="",False,True))',
-                style=style,
-            )
-            excel.conditional_value(
-                num_sheet=1,
-                str_plage=f"I{i}",
-                valeur=0,
-                type_format="formula",
-                criteria=f'=IF(I{i}=0,False,IF(E{i}="",False,True))',
-                style=style,
-            )
-
+        row += 1
+        rows_writer(excel, 1, row, 0, get_rows(file_path), f_lignes, f_lignes_odd)
         sheet_formatting(
             excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
         )

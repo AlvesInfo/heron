@@ -59,6 +59,10 @@ from apps.validation_purchases.views import (
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
     balance_suppliers_purchases_validation,
+    # 5.3 - Contrôle CA Cosium / Ventes Héron
+    ca_cct,
+    ca_cct_export,
+    ca_cct_validation,
     # 5.5
     invoices_purchases_export_globals,
     # RFA
@@ -343,6 +347,25 @@ urlpatterns = [
             "balance_suppliers_purchases_validation/",
             balance_suppliers_purchases_validation,
             name="balance_suppliers_purchases_validation",
+        ),
+    ],
+    # 5.3 - Contrôle CA Cosium / Ventes Héron
+    *[
+        path(
+            "ca_cct/",
+            ca_cct,
+            name="ca_cct",
+        ),
+        path(
+            "ca_cct_export/",
+            ca_cct_export,
+            name="ca_cct_export",
+        ),
+        # Factures
+        path(
+            "ca_cct_validation/",
+            ca_cct_validation,
+            name="ca_cct_validation",
         ),
     ],
     # 5.5 -

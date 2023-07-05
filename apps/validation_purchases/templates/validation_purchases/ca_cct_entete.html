@@ -1,0 +1,24 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block left_side %}
+    <div id="id_ca_cct_validation"
+         class="ui {% if ca_cct_validation.validation_ca %}green{% else %}red{% endif %} label"
+         data-value="{% if ca_cct_validation.validation_ca %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if ca_cct_validation.validation_ca %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if ca_cct_validation.validation_ca %}red{% else %}green{% endif %} basic button"
+            onclick="caCctValidation(`id_ca_cct_validation`, `{{ ca_cct_validation.uuid_identification }}`)"
+            name="ca_cct_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if ca_cct_validation.validation_ca %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'validation_purchases:ca_cct_export' %}">
+       <button class="ui green basic button" name="ca_cct_export" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+{% endblock right_side %}

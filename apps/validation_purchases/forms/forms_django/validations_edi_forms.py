@@ -261,3 +261,16 @@ class SuppliersValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["suppliers"].required = False
+
+
+class CaCctValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    validation_ca = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["validation_ca"].required = False

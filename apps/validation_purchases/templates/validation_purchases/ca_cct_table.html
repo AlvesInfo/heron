@@ -1,0 +1,79 @@
+{% extends "heron/table_courant.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block table %}
+
+    <div class="sixteen wide column">
+
+        <table id=""
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+
+            <thead>
+                <tr>
+                    <th colspan="5" style="background: lightgray;">CLIENTS</th>
+                    <th colspan="3" style="background: lightgray;">{{ mois_dict.M0 }}</th>
+                    <th colspan="3" style="background: lightgray;">{{ mois_dict.M1 }}</th>
+                    <th colspan="3" style="background: lightgray;">TRIMESTRE GLISSANT</th>
+                    <th colspan="3" style="background: lightgray;">12 MOIS GLISSANTS</th>
+                </tr>
+            </thead>
+
+            <thead>
+                <tr>
+                    <th style="width: 1.6%;"></th>
+                    <th style="width: 5.51%;">Enseigne</th>
+                    <th style="width: 5.51%;">Pays</th>
+                    <th style="width: 4.72%;">CCT</th>
+                    <th style="width: 16.54%;">CLIENT</th>
+                    <th style="width: 5.51%;">CA COSIUM HT</th>
+                    <th style="width: 5.51%;">VENTES HERON HT</th>
+                    <th style="width: 5.51%;">TAUX D'ACHAT</th>
+                    <th style="width: 5.51%;">CA COSIUM HT</th>
+                    <th style="width: 5.51%;">VENTES HERON HT</th>
+                    <th style="width: 5.51%;">TAUX D'ACHAT</th>
+                    <th style="width: 5.51%;">CA COSIUM HT</th>
+                    <th style="width: 5.51%;">VENTES HERON HT</th>
+                    <th style="width: 5.51%;">TAUX D'ACHAT</th>
+                    <th style="width: 5.51%;">CA COSIUM HT</th>
+                    <th style="width: 5.51%;">VENTES HERON HT</th>
+                    <th style="width: 5.51%;">TAUX D'ACHAT</th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for client in clients %}
+                    <tr class="hide_plans">
+                        <td style="text-align: center;">
+{#                            <a href="{% url 'validation_purchases:suppliers_m_purchases' client=client.cct %}">#}
+{#                                <i class="eye icon modification"></i>#}
+{#                            </a>#}
+                        </td>
+                        <td>{{ client.signboard }}</td>
+                        <td>{{ client.country_name }}</td>
+                        <td>{{ client.cct}}</td>
+                        <td style="text-align: left;">{{ client.intitule }}</td>
+                        <td style="text-align: right;">{{ client.MC|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.M|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{% if client.PM %}{{ client.PM|percentage }}{% endif %}</td>
+                        <td style="text-align: right;">{{ client.M0C|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.M0|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{% if client.P0M %}{{ client.P0M|percentage }}{% endif %}</td>
+                        <td style="text-align: right;">{{ client.TRIC|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.TRI|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{% if client.PTM %}{{ client.PTM|percentage }}{% endif %}</td>
+                        <td style="text-align: right;">{{ client.ANC|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ client.AN|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{% if client.PAM %}{{ client.PAM|percentage }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+
+{% endblock table %}
