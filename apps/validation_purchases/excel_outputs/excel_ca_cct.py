@@ -146,7 +146,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "VENTES\nHERON\nHT",
@@ -162,7 +162,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Taux\nAchats",
@@ -178,7 +178,7 @@ COLUMNS = [
                 "num_format": "#,##0.00%",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "CA\nCOSIUM\nHT",
@@ -194,7 +194,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "VENTES\nHERON\nHT",
@@ -210,7 +210,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Taux\nAchats",
@@ -226,7 +226,7 @@ COLUMNS = [
                 "num_format": "#,##0.00%",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "CA\nCOSIUM\nHT",
@@ -242,7 +242,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "VENTES\nHERON\nHT",
@@ -258,7 +258,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Taux\nAchats",
@@ -274,7 +274,7 @@ COLUMNS = [
                 "num_format": "#,##0.00%",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "CA\nCOSIUM\nHT",
@@ -290,7 +290,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "VENTES\nHERON\nHT",
@@ -306,7 +306,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Taux\nAchats",
@@ -322,7 +322,7 @@ COLUMNS = [
                 "num_format": "#,##0.00%",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Commentaire",
