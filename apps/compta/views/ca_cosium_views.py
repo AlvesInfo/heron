@@ -38,9 +38,11 @@ def export_sales_cosium(request):
             )
             return response_file(excel_sales_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
+        if form.errors:
+            LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+
     except Exception as error:
-        print(error)
-        LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+        LOGGER_VIEWS.exception(f"erreur export_sales_cosium : {error!r}")
 
     context = {
         "titre_table": "VENTES COSIUM PAR PERIODE",
@@ -68,9 +70,11 @@ def export_ca_cosium(request):
             )
             return response_file(excel_ca_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
+        if form.errors:
+            LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+
     except Exception as error:
-        print(error)
-        LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+        LOGGER_VIEWS.exception(f"erreur export_ca_cosium : {error!r}")
 
     context = {
         "titre_table": "CA MAISONS/FAMILLES PAR PERIODE",
@@ -131,7 +135,7 @@ def reset_exhange_rates_in_sales(request):
             messages.add_message(request, 20, message)
             return redirect(reverse("compta:export_sales_cosium"))
 
-        LOGGER_VIEWS.exception(f"erreur form reset_ca : {str(form.data)!r}")
+        LOGGER_VIEWS.exception(f"erreur form reset_exhange_rates_in_sales : {str(form.data)!r}")
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des Ventes !")
 
@@ -168,7 +172,7 @@ def reset_sales(request):
 
             return redirect("compta:export_sales_cosium")
 
-        LOGGER_VIEWS.exception(f"erreur form reset_ca : {str(form.data)!r}")
+        LOGGER_VIEWS.exception(f"erreur form reset_sales : {str(form.data)!r}")
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des Ventes !")
 
