@@ -55,10 +55,11 @@ from apps.validation_purchases.views import (
     # 5.B - Contrôle Details Fournisseurs M vs M-1
     third_suppliers_m_purchases,
     third_suppliers_m_purchases_export,
-    # 5.1
+    # 5.1 Fournisseurs M vs M-1
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
-    invoices_suppliers_purchases,
+    balance_suppliers_purchases_validation,
+    # 5.5
     invoices_purchases_export_globals,
     # RFA
     rfa_cct_invoices_purchases,
@@ -299,7 +300,7 @@ urlpatterns = [
             name="refac_cct_validation",
         ),
     ],
-    # 5.A - Contrôle Fournisseurs M vs M-1
+    # 5.A - Contrôle Refac Fournisseurs M vs M-1
     *[
         path(
             "suppliers_m_purchases/<str:client>/",
@@ -312,7 +313,7 @@ urlpatterns = [
             name="suppliers_m_purchases_export",
         ),
     ],
-    # 5.B - Contrôle Details Fournisseurs M vs M-1
+    # 5.B - Contrôle Refac Details Fournisseurs M vs M-1
     *[
         path(
             "third_suppliers_m_purchases/<str:client>/<str:third_party_num>/",
@@ -325,7 +326,7 @@ urlpatterns = [
             name="third_suppliers_m_purchases_export",
         ),
     ],
-    # 5.1 -
+    # 5.1 - Fournisseurs M vs M-1
     *[
         path(
             "balance_suppliers_purchases/",
@@ -339,10 +340,13 @@ urlpatterns = [
         ),
         # Factures
         path(
-            "invoices_suppliers_purchases/",
-            invoices_suppliers_purchases,
-            name="invoices_suppliers_purchases",
+            "balance_suppliers_purchases_validation/",
+            balance_suppliers_purchases_validation,
+            name="balance_suppliers_purchases_validation",
         ),
+    ],
+    # 5.5 -
+    *[
         path(
             "invoices_purchases_export_globals/",
             invoices_purchases_export_globals,

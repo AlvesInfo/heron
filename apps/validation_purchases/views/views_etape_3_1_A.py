@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from django.db import connection
 from django.shortcuts import render
-from django.db.models import CharField, Value, Case, When, Q, F
+from django.db.models import Q
 
 from apps.core.functions.functions_postgresql import query_file_yield_dict_cursor
 

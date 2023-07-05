@@ -1,49 +1,45 @@
 {% extends "heron/table_courant.html" %}
 
+{% load static %}
+{% load filters_tags %}
+
 {% block table %}
 
-<div class="two wide column"></div>
+    <div class="two wide column"></div>
+    <div class="twelve wide column">
 
-<div class="sixteen wide column">
+        <table id=""
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
 
-    <table id="table_document"
-       class="ui celled table"
-       style="font-size: 12px !important;text-align: center;font-weight: 900;">
-        <thead>
-            <tr>
-                {% if not details %}
-                    <th>Fournisseur</th>
-                {% else %}
-                    <th>Fournisseur</th>
-                {% endif %}
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Tiers</th>
+                    <th style="width: 40%;">Nom du tiers</th>
+                    <th style="width: 10%;">{{ mois_dict.M3|safe }}</th>
+                    <th style="width: 10%;">{{ mois_dict.M2|safe }}</th>
+                    <th style="width: 10%;">{{ mois_dict.M1|safe }}</th>
+                    <th style="width: 10%;">{{ mois_dict.M0|safe }}</th>
+                    <th style="width: 10%;">Variation</th>
+                </tr>
+            </thead>
 
-                <th>Code</th>
-                <th>M-3</th>
-                <th>M-2</th>
-                <th>M-1</th>
-                <th>M</th>
-                <th>Variation</th>
-                <th>Commentaire</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for export in controles_exports %}
-            <tr id="id_{{ export.pk }}" class="hide_plans">
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-                <td>{{ export.pays }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <tbody>
+                {% for invoice in invoices_suppliers %}
+                    <tr class="hide_plans">
+                        <td style="text-align: left;">{{ invoice.third_party_num }}</td>
+                        <td style="text-align: left;">{{ invoice.tiers }}</td>
+                        <td style="text-align: right;">{{ invoice.M_03|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ invoice.M_02|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ invoice.M_01|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;">{{ invoice.M_00|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;color: {% if invoice.variation < 0 %}red{% else %}black{% endif %};">{{ invoice.variation|numbers_format:2|default_if_zero }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
 
-</div>
+        </table>
 
-<div class="two wide column"></div>
+    </div>
 
 {% endblock table %}

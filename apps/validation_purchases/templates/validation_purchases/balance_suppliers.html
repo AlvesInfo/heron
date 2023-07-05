@@ -7,12 +7,33 @@
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
 
+{% block head_js %}
+    <script type="text/javascript">
+        function suppliersValidation(idButton, uuid_control) {
+            $(`.datatable-chargement`).show();
+            let formData = {
+                uuid_identification: uuid_control,
+                suppliers: $(`#${idButton}`).data("value"),
+            };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'validation_purchases:balance_suppliers_purchases_validation' %}",
+                data: formData,
+                encode: true,
+            }).done(function (data) {
+                window.location.reload()
+            });
+        }
+    </script>
+{% endblock head_js %}
+
 {% block content %}
 
     {% if user.is_authenticated %}
 
-            {% include "validation_purchases/balance_suppliers_entete.html" %}
-            {% include "validation_purchases/balance_suppliers_table.html" %}
+        {% include "heron/scroll_to_top.html" %}
+        {% include "validation_purchases/balance_suppliers_entete.html" %}
+        {% include "validation_purchases/balance_suppliers_table.html" %}
 
         <div class="ui equal width grid center"></div>
 
@@ -37,7 +58,7 @@
 
         $(document).ready(function () {
 
-            {% include "heron/base_data_table.html" %}
+            $(`.datatable-chargement`).hide();
 
         });
 
