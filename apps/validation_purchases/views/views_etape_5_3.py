@@ -35,7 +35,7 @@ def ca_cct(request):
             mois += 1
 
         context = {
-            "titre_table": "5.0 - Contrôle ca M M-1 par CCT",
+            "titre_table": "5.3 - Contrôle CA Cosium / Ventes Héron",
             "ca_cct_validation": EdiValidation.objects.filter(final=False).first(),
             "clients": elements,
             "mois_dict": mois_dict,
