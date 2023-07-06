@@ -5,6 +5,7 @@ Filtres pour des recherches dans les views
 from django import forms
 from django.db.models import Exists, OuterRef, Count
 import django_filters
+from django.db import models
 
 from apps.articles.models import Article, ArticleAccount
 from apps.book.models import Society
@@ -12,26 +13,6 @@ from apps.book.models import Society
 
 class ArticleFilter(django_filters.FilterSet):
     """Filtre des articles"""
-
-    third_party_num = django_filters.MultipleChoiceFilter(
-        choices=[(None, "----")]
-        + [
-            (row.get("third_party_num"), f'{row.get("third_party_num")} - {row.get("name")}')
-            for row in (
-                Society.objects.annotate(
-                    in_articles=Exists(
-                        Article.objects.values("third_party_num__third_party_num")
-                        .annotate(nbre=Count("third_party_num__third_party_num"))
-                        .values("third_party_num__third_party_num")
-                        .filter(third_party_num__third_party_num=OuterRef("third_party_num"))
-                    )
-                )
-                .exclude(in_articles=False)
-                .values("third_party_num", "name")
-            )
-        ],
-        widget=forms.Select(attrs={"class": "ui fluid search dropdown"}),
-    )
 
     class Meta:
         """class Meta django"""

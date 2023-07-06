@@ -4,17 +4,17 @@
 
     <div class="sixteen wide column">
         {% if articles.has_other_pages %}
-        <div class="ui segment">
-            <div class="ui grid">
-                <div class="four wide column" style="text-align: left;">
-                </div>
-                <div class="twelve wide column" style="text-align: right;">
-                          <div id="pagination" class="ui small #efefff buttons">
-                            {{ pagination|safe }}
-                          </div>
+            <div class="ui segment">
+                <div class="ui grid">
+                    <div class="four wide column" style="text-align: left;">
+                    </div>
+                    <div class="twelve wide column" style="text-align: right;">
+                              <div id="pagination" class="ui small #efefff buttons">
+                                {{ pagination|safe }}
+                              </div>
+                    </div>
                 </div>
             </div>
-        </div>
         {% endif %}
 
         <table id="table_document"
@@ -23,15 +23,12 @@
             <thead>
                 <tr>
                     <th class="no-sort" style="width: 2%">Edit</th>
-                    <th style="width: 5%">Centrale</th>
-                    <th style="width: 15%">Tiers</th>
-                    <th style="width: 42%">Article</th>
-                    <th style="width: 5%">Axe PRO</th>
+                    <th style="width: 15%">Tiers X3</th>
+                    <th style="width: 12%">Référence</th>
+                    <th style="width: 35%">Libelle</th>
+                    <th style="width: 12%">Axe PRO</th>
                     <th style="width: 12%">Grande Cétégorie</th>
                     <th style="width: 12%">Rubrique Presta</th>
-                    <th style="width: 2%">TVA</th>
-                    <th style="width: 2.5%">Débit</th>
-                    <th style="width: 2.5%">Crédit</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,32 +41,23 @@
                             <i class="edit icon modification"></i>
                         </a>
                     </td>
-                    <td style="text-align: center;">
-                        {{ article.child_center__code|default_if_none:'' }}
+                    <td style="text-align: left;">
+                        {{ article.third_party_num|default_if_none:'' }}{% if article.third_party_num and article.third_party_num__name %} - {% endif %}{{ article.third_party_num__name|default_if_none:'' }}
                     </td>
                     <td style="text-align: left;">
-                        {{ article.article__third_party_num|default_if_none:'' }} - {{ article.article__third_party_num__short_name|default_if_none:'' }}
+                        {{ article.reference|default_if_none:'' }}
                     </td>
                     <td style="text-align: left;">
-                        {{ article.article__reference|default_if_none:'' }} - {{ article.libelle_article|default_if_none:'' }}
+                        {% if article.libelle_heron %}{{ article.libelle_heron|default_if_none:'' }}{% else %}{{ article.libelle|default_if_none:'' }}{% endif %}
                     </td>
-                    <td style="{% if not article.article__axe_pro__section %}background-color: #ffdae0;{% endif %}">
-                        {{ article.article__axe_pro__section|default_if_none:'' }}
-                    </td>
-                    <td style="">
-                          {{ article.article__big_category__name|default_if_none:'' }}
+                    <td style="{% if not article.axe_pro__section %}background-color: #ffdae0;{% endif %}">
+                        {{ article.axe_pro__section|default_if_none:'' }}
                     </td>
                     <td style="">
-                          {{ article.sub_categoryc|default_if_none:'' }}
+                          {{ article.big_category_n|default_if_none:'' }}
                     </td>
                     <td style="">
-                          {{ article.vat|default_if_none:'' }}
-                    </td>
-                    <td style="">
-                          {{ article.purchase_account|default_if_none:'' }}
-                    </td>
-                    <td style="">
-                          {{ article.sale_account|default_if_none:'' }}
+                          {{ article.sub_category_n|default_if_none:'' }}
                     </td>
                 </tr>
             {% endfor %}

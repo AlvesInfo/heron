@@ -6,7 +6,7 @@ import pendulum
 from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
-from django.db.models import Count
+from django.db.models import Count, F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 
@@ -303,8 +303,27 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def articles_search_list(request):
     """Affichage de la page de recherche des articles"""
     limit = 50
-    articles_filter = ArticleFilter(request.GET, queryset=Article.objects.all())
-    # print(articles_filter, str(articles_filter.qs.query), "\n", dir(articles_filter))
+    queryset = Article.objects.annotate(
+        big_category_n=F("big_category__name"),
+        sub_category_n=F("sub_category__name")
+    ).values(
+        "third_party_num",
+        "third_party_num__name",
+        "reference",
+        "libelle",
+        "libelle_heron",
+        "big_category_n",
+        "sub_category_n",
+        "axe_pro__section"
+    ).order_by(
+        "third_party_num",
+        "reference",
+        "big_category_n",
+        "sub_category_n",
+        "axe_pro__section"
+    )
+    articles_filter = ArticleFilter(request.GET, queryset=queryset)
+    attrs_filter = {key: row for key, row in articles_filter.data.items()}
     paginator = Paginator(articles_filter.qs, limit)
     page = request.GET.get("page")
 
@@ -315,7 +334,7 @@ def articles_search_list(request):
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
 
-    count = Article.objects.all().count()
+    count = articles_filter.qs.count()
     titre_count = ""
 
     if count == 1:
@@ -325,7 +344,7 @@ def articles_search_list(request):
         titre_count = f" ({str(count)} articles)"
 
     context = {
-        "articles": articles,
+        "articles": paginator.get_page(page),
         "filter": articles_filter,
         "pagination": get_pagination_buttons(
             articles.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
@@ -337,6 +356,7 @@ def articles_search_list(request):
         "titre_table": f'11. Recherche Articles<span style="font-size: .8em;">{titre_count}</span>',
         # "url_validation": reverse("articles:articles_new_validation"),
         "url_redirect": reverse("articles:articles_search_list"),
+        "attrs_filter": attrs_filter,
     }
     return render(request, "articles/articles_search.html", context=context)
 
