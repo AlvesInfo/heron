@@ -37,7 +37,7 @@
 
                     <td data-value="{{ pk }}"
                         style="text-align: center;">
-                        <a href="/">
+                        <a href="{% url 'articles:article_update' third_party_num=article.third_party_num pk=article.pk %}">
                             <i class="edit icon modification"></i>
                         </a>
                     </td>

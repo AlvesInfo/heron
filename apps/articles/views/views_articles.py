@@ -305,9 +305,12 @@ def articles_search_list(request):
     limit = 50
     queryset = (
         Article.objects.annotate(
-            big_category_n=F("big_category__name"), sub_category_n=F("sub_category__name")
+            big_category_n=F("big_category__name"),
+            sub_category_n=F("sub_category__name"),
+            pk=F("id"),
         )
         .values(
+            "pk",
             "third_party_num",
             "third_party_num__name",
             "reference",
@@ -322,7 +325,7 @@ def articles_search_list(request):
         )
     )
     articles_filter = ArticleFilter(request.GET, queryset=queryset)
-    attrs_filter = {key: row for key, row in articles_filter.data.items()}
+    attrs_filter = dict(articles_filter.data.items())
     paginator = Paginator(articles_filter.qs, limit)
     page = request.GET.get("page")
     form = ArticleSearchForm(attrs_filter)
