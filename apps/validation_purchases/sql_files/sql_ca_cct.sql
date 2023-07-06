@@ -129,28 +129,28 @@ with "maisons" as (
 		case
 			when sum("MC") = 0
 			then 0
-			else round(sum("M")/sum("MC"), 2)::numeric
+			else (sum("M")/sum("MC"))::numeric
 		end as "PM",
 		sum("M0C") as "M0C",
 		sum("M0") as "M0",
 		case
 			when sum("M0C") = 0
 			then 0
-			else round(sum("M0")/sum("M0C"), 2)::numeric
+			else (sum("M0")/sum("M0C"))::numeric
 		end as "POM",
 		sum("TRIC") as "TRIC",
 		sum("TRI") as "TRI",
 		case
 			when sum("TRIC") = 0
 			then 0
-			else round(sum("TRI")/sum("TRIC"), 2)::numeric
+			else (sum("TRI")/sum("TRIC"))::numeric
 		end as "PTM",
 		sum("ANC") as "ANC",
 		sum("AN") as "AN",
 		case
 			when sum("ANC") = 0
 			then 0
-			else round(sum("AN")/sum("ANC"), 2)::numeric
+			else (sum("AN")/sum("ANC"))::numeric
 		end as "PAM"
 	from "alls"
 	group by "cct"
