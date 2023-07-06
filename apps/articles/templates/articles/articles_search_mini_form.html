@@ -1,13 +1,11 @@
-
-
-<div class="ui segment" style="padding: padding: 10px 10px 0;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
+<div class="ui segment" style="padding: 10px 10px 0;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
     <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
         <div class="fields" style="">
-            <div class="four wide field">
+            <div class="five wide field">
                 <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
                 {{ form.third_party_num }}
             </div>
-            <div class="four wide field">
+            <div class="three wide field">
                 <label for="id_reference__icontains" style="text-align: left;">Référence&nbsp;:</label>
                   {{ form.reference__icontains }}
             </div>
@@ -22,6 +20,9 @@
         </div>
 
         <div class="fields" style="">
+            <div class="eight wide field">
+
+            </div>
             <div class="four wide field">
                 <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
                   {{ form.big_category }}
