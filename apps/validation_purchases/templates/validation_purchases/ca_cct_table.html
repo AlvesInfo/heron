@@ -61,7 +61,7 @@
                         <td style="text-align: center;background: lavender;">{% if client.PM %}{{ client.PM|percentage }}{% endif %}</td>
                         <td style="text-align: right;">{{ client.M0C|numbers_format:2|default_if_zero }}</td>
                         <td style="text-align: right;">{{ client.M0|numbers_format:2|default_if_zero }}</td>
-                        <td style="text-align: center;background: lavender;">{{ client.P0M }}{% if client.P0M %}{{ client.P0M|percentage }}{% endif %}</td>
+                        <td style="text-align: center;background: lavender;">{% if client.POM %}{{ client.POM|percentage }}{% endif %}</td>
                         <td style="text-align: right;">{{ client.TRIC|numbers_format:2|default_if_zero }}</td>
                         <td style="text-align: right;">{{ client.TRI|numbers_format:2|default_if_zero }}</td>
                         <td style="text-align: center;background: lavender;">{% if client.PTM %}{{ client.PTM|percentage }}{% endif %}</td>
