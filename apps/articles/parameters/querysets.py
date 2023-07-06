@@ -18,7 +18,9 @@ from apps.edi.models import EdiImport
 
 articles_with_account_queryset = (
     ArticleAccount.objects.annotate(
-        sub_categoryc=Coalesce(Cast("article__sub_category", output_field=CharField()), Value("")),
+        sub_categoryc=Coalesce(
+            Cast("article__sub_category__name", output_field=CharField()), Value("")
+        ),
         libelle_article=Case(
             When(
                 Q(article__libelle_heron__isnull=True) | Q(article__libelle_heron=""),
