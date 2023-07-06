@@ -21,7 +21,7 @@ from apps.articles.bin.sub_category import check_sub_category
 from apps.book.models import Society
 from apps.parameters.models import Category
 from apps.articles.models import Article
-from apps.articles.forms import ArticleForm
+from apps.articles.forms import ArticleForm, ArticleSearchForm
 from apps.edi.models import EdiImport
 from apps.centers_purchasing.bin.update_account_article import set_update_articles_account
 from apps.articles.filters import ArticleFilter
@@ -303,29 +303,29 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def articles_search_list(request):
     """Affichage de la page de recherche des articles"""
     limit = 50
-    queryset = Article.objects.annotate(
-        big_category_n=F("big_category__name"),
-        sub_category_n=F("sub_category__name")
-    ).values(
-        "third_party_num",
-        "third_party_num__name",
-        "reference",
-        "libelle",
-        "libelle_heron",
-        "big_category_n",
-        "sub_category_n",
-        "axe_pro__section"
-    ).order_by(
-        "third_party_num",
-        "reference",
-        "big_category_n",
-        "sub_category_n",
-        "axe_pro__section"
+    queryset = (
+        Article.objects.annotate(
+            big_category_n=F("big_category__name"), sub_category_n=F("sub_category__name")
+        )
+        .values(
+            "third_party_num",
+            "third_party_num__name",
+            "reference",
+            "libelle",
+            "libelle_heron",
+            "big_category_n",
+            "sub_category_n",
+            "axe_pro__section",
+        )
+        .order_by(
+            "third_party_num", "reference", "big_category_n", "sub_category_n", "axe_pro__section"
+        )
     )
     articles_filter = ArticleFilter(request.GET, queryset=queryset)
     attrs_filter = {key: row for key, row in articles_filter.data.items()}
     paginator = Paginator(articles_filter.qs, limit)
     page = request.GET.get("page")
+    form = ArticleSearchForm(attrs_filter)
 
     try:
         articles = paginator.page(page)
@@ -338,10 +338,10 @@ def articles_search_list(request):
     titre_count = ""
 
     if count == 1:
-        titre_count = " (1 article)"
+        titre_count = " (1 article trouvé)"
 
     if count > 1:
-        titre_count = f" ({str(count)} articles)"
+        titre_count = f" ({str(count)} articles trouvés)"
 
     context = {
         "articles": paginator.get_page(page),
@@ -354,9 +354,9 @@ def articles_search_list(request):
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
         "titre_table": f'11. Recherche Articles<span style="font-size: .8em;">{titre_count}</span>',
-        # "url_validation": reverse("articles:articles_new_validation"),
         "url_redirect": reverse("articles:articles_search_list"),
         "attrs_filter": attrs_filter,
+        "form": form,
     }
     return render(request, "articles/articles_search.html", context=context)
 

@@ -1,49 +1,36 @@
 
-<form method="get">
-<div class="ui segment" style="padding: 10px;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
-    <h3 class="ui floated header" style="margin-bottom: 5px;">Recherche:</h3>
 
-    <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
-
+<div class="ui segment" style="padding: padding: 10px 10px 0;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
     <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
         <div class="fields" style="">
-            <div class="six wide field">
-                <input type="submit" value="rechercher"/>
-            </div>
-        </div>
-        <div class="fields" style="">
-            <div class="six wide field">
+            <div class="four wide field">
                 <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
-                {{ filter.form.third_party_num }}
+                {{ form.third_party_num }}
             </div>
-            <div class="six wide field">
+            <div class="four wide field">
                 <label for="id_reference__icontains" style="text-align: left;">Référence&nbsp;:</label>
-                  {{ filter.form.reference__icontains }}
+                  {{ form.reference__icontains }}
             </div>
-        </div>
-
-        <div class="fields" style="">
-            <div class="six wide field">
+            <div class="four wide field">
                 <label for="id_libelle__icontains" style="text-align: left;">Libellé&nbsp;:</label>
-                  {{ filter.form.libelle__icontains }}
+                  {{ form.libelle__icontains }}
             </div>
-            <div class="six wide field">
+            <div class="four wide field">
                 <label for="id_libelle_heron__icontains" style="text-align: left;">Libellé Héron&nbsp;:</label>
-                  {{ filter.form.libelle_heron__icontains }}
+                  {{ form.libelle_heron__icontains }}
             </div>
         </div>
 
         <div class="fields" style="">
-            <div class="six wide field">
+            <div class="four wide field">
                 <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
-                  {{ filter.form.big_category }}
+                  {{ form.big_category }}
             </div>
-            <div class="six wide field">
+            <div class="four wide field">
                 <label for="id_sub_category" style="text-align: left;">Ribrique Presta&nbsp;:</label>
-                  {{ filter.form.sub_category }}
+                  {{ form.sub_category }}
             </div>
         </div>
 
     </div>
   </div>
-</form>

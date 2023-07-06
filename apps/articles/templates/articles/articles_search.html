@@ -17,11 +17,11 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-
-        {% include "articles/articles_search_entete.html" %}
-        {% include "articles/articles_search_mini_form.html" %}
-        {% include "articles/articles_search_table.html" %}
-
+        <form method="get">
+            {% include "articles/articles_search_entete.html" %}
+            {% include "articles/articles_search_mini_form.html" %}
+            {% include "articles/articles_search_table.html" %}
+        </form>
     {% else %}
 
         <br>

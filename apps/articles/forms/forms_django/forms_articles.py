@@ -67,3 +67,46 @@ class ArticleForm(forms.ModelForm):
             "axe_rfa": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "customs_unit_weight": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
+
+
+class ArticleSearchForm(forms.ModelForm):
+    """Pour le Filtre de recherche des articles"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        reference_icontains = forms.CharField(
+            label="Référence",
+            required=False,
+        )
+        self.fields["reference__icontains"] = reference_icontains
+        self.fields["reference__icontains"].required = False
+
+        libelle_icontains = forms.CharField(
+            label="Référence",
+            required=False,
+        )
+        self.fields["libelle__icontains"] = libelle_icontains
+        self.fields["libelle__icontains"].required = False
+
+        libelle_heron_icontains = forms.CharField(
+            label="Référence",
+            required=False,
+        )
+        self.fields["libelle_heron__icontains"] = libelle_heron_icontains
+        self.fields["libelle_heron__icontains"].required = False
+
+        self.fields["third_party_num"].required = False
+        self.fields["big_category"].required = False
+        self.fields["sub_category"].required = False
+
+    class Meta:
+        """class Meta django"""
+
+        model = Article
+        fields = ("third_party_num", "big_category", "sub_category")
+        widgets = {
+            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "sub_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }
