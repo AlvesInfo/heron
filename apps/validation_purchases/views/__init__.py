@@ -14,6 +14,7 @@ from .views_etape_5_0A import *
 from .views_etape_5_0B import *
 from .views_etape_5_1 import *
 from .views_etape_5_3 import *
+from .views_etape_5_3A import *
 from .views_etape_5_5 import *
 from .views_etape_rfa import *
 from .views_without_third_party_num import *

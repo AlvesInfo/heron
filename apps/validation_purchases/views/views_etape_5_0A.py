@@ -43,7 +43,7 @@ def suppliers_m_purchases(request, client):
             "cct_client": client,
             "maison": Maison.objects.get(cct=client),
             "mois_dict": mois_dict,
-            "chevron_retour": reverse("validation_purchases:refac_cct_purchases"),
+            "chevron_retour": reverse("validation_purchases:ca_cct"),
         }
 
     return render(request, "validation_purchases/suppliers_m_vs_m1.html", context=context)
@@ -58,8 +58,7 @@ def suppliers_m_purchases_export(request, client):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                f"CONTROLE_{client}_M_VS_M-1_"
-                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"CONTROLE_{client}_M_VS_M-1_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
 
             return response_file(

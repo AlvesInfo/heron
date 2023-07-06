@@ -63,6 +63,9 @@ from apps.validation_purchases.views import (
     ca_cct,
     ca_cct_export,
     ca_cct_validation,
+    # 5.3A - Contrôle CA Cosium / Ventes Héron par familles
+    ca_familly_cct,
+    ca_familly_cct_export,
     # 5.5
     invoices_purchases_export_globals,
     # RFA
@@ -361,11 +364,23 @@ urlpatterns = [
             ca_cct_export,
             name="ca_cct_export",
         ),
-        # Factures
         path(
             "ca_cct_validation/",
             ca_cct_validation,
             name="ca_cct_validation",
+        ),
+    ],
+    # 5.3A - Contrôle CA Cosium / Ventes Héron par familles
+    *[
+        path(
+            "ca_familly_cct/<str:client>/",
+            ca_familly_cct,
+            name="ca_familly_cct",
+        ),
+        path(
+            "ca_familly_cct_export/<str:client>/",
+            ca_familly_cct_export,
+            name="ca_familly_cct_export",
         ),
     ],
     # 5.5 -

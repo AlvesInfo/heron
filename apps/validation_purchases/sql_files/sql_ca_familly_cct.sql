@@ -10,17 +10,27 @@ with "maisons" as (
     on "cm"."sign_board" = "sb"."code"
     left join "countries_country" "co"
     on "cm"."pays" = "co"."country"
+    where "cct" = %(client)s
+),
+"familles" as (
+	select
+		"uuid_identification",
+		"section",
+		"name" as "axe_pro"
+	from "accountancy_sectionsage"
+	where "axe" = 'PRO'
 ),
 "ventes_heron" as (
 	select
 		"cct",
+		"fa"."axe_pro",
 	    case
             when (
                 "invoice_month"
                 =
                 (date_trunc('month', now()) - interval '1 month')::date
             )
-            then "invoice_amount_without_tax"
+            then "net_amount"
             else 0
         end as "M",
         0 as "MC",
@@ -30,7 +40,7 @@ with "maisons" as (
                 =
                 (date_trunc('month', now()) - interval '2 month')::date
             )
-            then "invoice_amount_without_tax"
+            then "net_amount"
             else 0
         end as "M0",
         0 as "M0C",
@@ -42,7 +52,7 @@ with "maisons" as (
                 	(date_trunc('month', now()) - interval '3 month')::date
                 )
             )
-            then "invoice_amount_without_tax"
+            then "net_amount"
             else 0
         end as "TRI",
         0 as "TRIC",
@@ -54,15 +64,20 @@ with "maisons" as (
                 	(date_trunc('month', now()) - interval '12 month')::date
                 )
             )
-            then "invoice_amount_without_tax"
+            then "net_amount"
             else 0
         end as "AN",
         0 as "ANC"
-	from "invoices_saleinvoice"
+	from "invoices_saleinvoice" "si"
+	join "invoices_saleinvoicedetail" "sd"
+	  on "si"."uuid_identification" = "sd"."uuid_invoice"
+	left join "familles" "fa"
+	  on "sd"."axe_pro" = "fa"."section"
 ),
 "ca_cosium" as (
 	select
 		"cct",
+		"fa"."axe_pro",
         0 as "M",
 	  	case
 			when (
@@ -110,20 +125,23 @@ with "maisons" as (
 	from "compta_caclients" "cc"
 	join "centers_clients_maison" "cm"
 	  on "cc"."cct_uuid_identification" = "cm"."uuid_identification"
+	left join "familles" "fa"
+	  on "cc"."axe_pro" = "fa"."uuid_identification"
 ),
 "alls" as (
 	select
-		"cct", "M", "MC", "M0", "M0C", "TRI", "TRIC", "AN", "ANC"
+		"cct", "axe_pro", "M", "MC", "M0", "M0C", "TRI", "TRIC", "AN", "ANC"
 	from "ventes_heron"
 	union all
 
 	select
-		"cct", "M", "MC", "M0", "M0C", "TRI", "TRIC", "AN", "ANC"
+		"cct", "axe_pro", "M", "MC", "M0", "M0C", "TRI", "TRIC", "AN", "ANC"
 	from "ca_cosium"
 ),
 "sum_alls" as (
 	select
 		"cct",
+		"axe_pro",
 		sum("MC") as "MC",
 		sum("M") as "M",
 		case
@@ -153,13 +171,15 @@ with "maisons" as (
 			else round(sum("AN")/sum("ANC"), 2)::numeric
 		end as "PAM"
 	from "alls"
-	group by "cct"
+	group by "cct",
+			 "axe_pro"
 )
 select
     "mm"."signboard",
     "mm"."country_name",
 	"sa"."cct",
     "mm"."intitule",
+	"axe_pro",
     "MC",
     "M",
     "PM",
@@ -171,11 +191,11 @@ select
     "PTM",
     "ANC",
     "AN",
-    "PAM",
-    '' as "comment"
+    "PAM"
 from "sum_alls" "sa"
 join "maisons" "mm"
   on "sa"."cct" = "mm"."cct"
 order by "mm"."signboard",
 		 "mm"."country_name",
-		 "sa"."cct"
+		 "sa"."cct",
+		 "axe_pro"
