@@ -398,3 +398,20 @@ def get_account(value):
         pass
 
     return ""
+
+
+@register.filter(name="get_in_child_center")
+def get_in_child_center(value, user_child_center):
+    """
+    Retourne True si l'utilisateur fait partie d'une centrale fille
+    :param value: user
+    :param user_child_center:
+    :return: nom
+    """
+    try:
+        return value in user_child_center.split("|")
+
+    except:
+        pass
+
+    return False

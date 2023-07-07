@@ -25,6 +25,8 @@ class MaisonForm(forms.ModelForm):
         self.fields["code_cosium"].required = False
         self.fields["reference_cosium"].required = False
         self.fields["code_bbgr"].required = False
+        self.fields["credit_account"].required = True
+        self.fields["debit_account"].required = True
 
     class Meta:
         model = Maison

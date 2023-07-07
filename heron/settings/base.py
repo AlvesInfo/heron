@@ -181,6 +181,12 @@ TEMPLATES = [
                 "heron.processors.domain_site",
                 "heron.processors.domain_debug",
                 "heron.processors.user_paulo",
+                "heron.processors.in_acuitis",
+                "heron.processors.in_ari",
+                "heron.processors.in_do",
+                "heron.processors.in_ga",
+                "heron.processors.in_maa",
+                "heron.processors.in_unisson",
             ]
         },
     }

@@ -92,6 +92,66 @@ def groupes_processor(request):
     return dic
 
 
+def in_acuitis(reqquest):
+    """
+    Retoune True si l'user appartient à la centrale fille Acuitis
+    :param reqquest: request au sens django
+    :return: bool
+    """
+    centers_list = reqquest.user.code_child_center.split("|")
+    return {"in_acuitis": "ACF" in centers_list or "*" in centers_list}
+
+
+def in_ari(reqquest):
+    """
+    Retoune True si l'user appartient à la centrale fille ARI
+    :param reqquest: request au sens django
+    :return: bool
+    """
+    centers_list = reqquest.user.code_child_center.split("|")
+    return {"in_ari": "ARI" in centers_list or "*" in centers_list}
+
+
+def in_do(reqquest):
+    """
+    Retoune True si l'user appartient à la centrale fille DO
+    :param reqquest: request au sens django
+    :return: bool
+    """
+    centers_list = reqquest.user.code_child_center.split("|")
+    return {"in_do": "DO" in centers_list or "*" in centers_list}
+
+
+def in_ga(reqquest):
+    """
+    Retoune True si l'user appartient à la centrale fille Grand Audition
+    :param reqquest: request au sens django
+    :return: bool
+    """
+    centers_list = reqquest.user.code_child_center.split("|")
+    return {"in_ga": "GAF" in centers_list or "*" in centers_list}
+
+
+def in_maa(reqquest):
+    """
+    Retoune True si l'user appartient à la centrale fille MAA
+    :param reqquest: request au sens django
+    :return: bool
+    """
+    centers_list = reqquest.user.code_child_center.split("|")
+    return {"in_maa": "MAA" in centers_list or "*" in centers_list}
+
+
+def in_unisson(reqquest):
+    """
+    Retoune True si l'user appartient à la centrale fille Unisson
+    :param reqquest: request au sens django
+    :return: bool
+    """
+    centers_list = reqquest.user.code_child_center.split("|")
+    return {"in_unisson": "UNI" in centers_list or "*" in centers_list}
+
+
 def date_du_jour(request):
     """Retourne le dictionnaire de context la date du jour
         :param request: object request
