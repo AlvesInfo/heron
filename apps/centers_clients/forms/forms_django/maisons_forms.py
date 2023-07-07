@@ -32,7 +32,7 @@ class MaisonForm(forms.ModelForm):
         model = Maison
         fields = [
             "cct",
-            "center_purchase",
+            # "center_purchase",
             "sign_board",
             "intitule",
             "intitule_court",

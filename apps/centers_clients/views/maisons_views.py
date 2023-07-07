@@ -25,7 +25,7 @@ from apps.accountancy.models import CctSage
 from apps.book.models import Society
 from apps.centers_clients.models import Maison, MaisonBi
 from apps.centers_clients.forms import MaisonForm, ImportMaisonBiForm
-
+from apps.centers_purchasing.models import ChildCenterPurchase
 from apps.centers_clients.bin.gestion_cct import update_supplier_cct_reference_cosium
 
 
@@ -97,6 +97,12 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
         """
         form.instance.created_by = self.request.user
+
+        try:
+            form.instance.center_purchase = ChildCenterPurchase.objects.get(code="ACF")
+        except ChildCenterPurchase.DoesNotExist:
+            pass
+
         self.request.session["level"] = 20
 
         try:
@@ -146,6 +152,12 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         form.instance.axe_bu = form.cleaned_data.get("axe_bu")
+
+        try:
+            form.instance.center_purchase = ChildCenterPurchase.objects.get(code="ACF")
+        except ChildCenterPurchase.DoesNotExist:
+            pass
+
         self.request.session["level"] = 20
 
         if form.instance.reference_cosium:
