@@ -35,6 +35,8 @@ articles_with_account_queryset = (
         "article__third_party_num",
         "article__third_party_num__short_name",
         "article__reference",
+        "article__libelle",
+        "article__libelle_heron",
         "libelle_article",
         "article__axe_pro__section",
         "article__big_category__name",

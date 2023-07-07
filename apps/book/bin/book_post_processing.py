@@ -133,7 +133,17 @@ def adress_sage_post_processing():
         sql_adress_1 = """
         update "book_society" "bs" 
         set "address_code" = "ba"."address_code",
-            "immeuble" = coalesce("ba"."immeuble", '') || ' - ' || coalesce("ba"."immeuble_02", ''),
+            "immeuble" = case 
+                            when "ba"."immeuble_02" isnull 
+                            then coalesce("ba"."immeuble", '')
+                            when "ba"."immeuble" isnull
+                            then coalesce("ba"."immeuble_02", '')
+                            else (
+                                coalesce("ba"."immeuble", '') 
+                                || ' - ' || 
+                                coalesce("ba"."immeuble_02", '')
+                            )
+                        end,
             "adresse" =  coalesce("ba"."adresse", ''),
             "code_postal" = coalesce("ba"."code_postal", ''),
             "ville" = coalesce("ba"."ville", ''),

@@ -21,7 +21,7 @@ from apps.articles.parameters.querysets import articles_with_account_queryset
 # ECRANS DES ARTICLES AVEC DES COMPTES =============================================================
 def articles_account_list(request):
     """Affichage de tous les articles ayant des comptes comptables X3"""
-    limit = 100
+    limit = 50
 
     paginator = Paginator(articles_with_account_queryset, limit)
     page = request.GET.get("page")
