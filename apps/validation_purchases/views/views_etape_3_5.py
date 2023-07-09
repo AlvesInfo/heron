@@ -19,12 +19,10 @@ def subscriptions_purchases(request):
     """View de l'étape 3.5 des écrans de contrôles"""
     context = {
         "titre_table": "3.5 - Contrôle des Abonnements",
-        "subscriptions_validation": EdiValidation.objects.filter(final=False).first()
+        "subscriptions_validation": EdiValidation.objects.filter(final=False).first(),
     }
 
-    return render(
-        request, "validation_purchases/subscriptions.html", context=context
-    )
+    return render(request, "validation_purchases/subscriptions.html", context=context)
 
 
 def subscriptions_purchases_export(request):
@@ -34,9 +32,7 @@ def subscriptions_purchases_export(request):
     try:
         if request.method == "GET":
             today = pendulum.now()
-            file_name = (
-                "CONTROLE_ABONNEMENTS_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
-            )
+            file_name = "CONTROLE_ABONNEMENTS_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
 
             return response_file(
                 excel_subscriptions,
@@ -60,9 +56,7 @@ def subscriptions_validation(request):
     request.session["level"] = 50
     message = "Il y a eu une erreur pendant la validation"
 
-    data = {
-        "success": "ko"
-    }
+    data = {"success": "ko"}
 
     form = SubscriptionsValidationForm(request.POST or None)
 
@@ -88,7 +82,9 @@ def subscriptions_validation(request):
                 message = "Le contrôle des abonnements est maintenant invalidé"
 
         except:
-            LOGGER_VIEWS.exception(f"Views : subscriptions_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception(
+                f"Views : subscriptions_validation error : {form.cleaned_data!r}"
+            )
 
     else:
         LOGGER_VIEWS.exception(
