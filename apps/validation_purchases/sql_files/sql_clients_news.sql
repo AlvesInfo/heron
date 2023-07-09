@@ -113,6 +113,7 @@
         select
             "cct_name",
             "opening_date",
+            "cct_name",
             "tiers",
             sum("M_05") as "M_05",
             sum("M_04") as "M_04",

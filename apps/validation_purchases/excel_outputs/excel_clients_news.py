@@ -29,6 +29,22 @@ from apps.core.excel_outputs.excel_writer import (
 
 COLUMNS = [
     {
+        "entete": "Client",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 50,
+    },
+    {
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
@@ -42,7 +58,7 @@ COLUMNS = [
                 "align": "left",
             },
         },
-        "width": 51,
+        "width": 30,
     },
     {
         "entete": "M-5",
@@ -250,7 +266,7 @@ def excel_clients_news(file_io: io.BytesIO, file_name: str) -> dict:
         mois = 6
 
         for i, column_dict in enumerate(COLUMNS, 1):
-            if 1 < i < 8:
+            if 2 < i < 9:
                 column_dict["entete"] = (
                     (
                         pendulum.now()

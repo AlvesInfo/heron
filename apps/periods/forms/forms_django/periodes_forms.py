@@ -6,8 +6,33 @@ from typing import Dict
 
 import pendulum
 from django import forms
+from django.db.models import Min
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
+from apps.invoices.models import SaleInvoice
+
+
+def get_year_passed_choices() -> Dict:
+    """Retourne les choix possibles pour la période mois et la valeur initiale.
+    Les valeurs retournées sont depuis qu'il y a des factures au mois précédent
+    :return:
+    """
+    year_dict = {"initial": None, "periods": []}
+
+    fisrt_year = (
+        SaleInvoice.objects.values("invoice_year")
+        .annotate(year=Min("invoice_year"))
+        .values_list("year", flat=True)[0]
+    )
+    year = pendulum.now().year
+
+    for i in range(fisrt_year, year + 1):
+        year_dict["periods"].append((i, i))
+
+        if i == year:
+            year_dict["initial"] = (i, i)
+
+    return year_dict
 
 
 def get_month_choices() -> Dict:
