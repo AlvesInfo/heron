@@ -29,6 +29,22 @@ from apps.core.excel_outputs.excel_writer import (
 
 COLUMNS = [
     {
+        "entete": "Article Abonnement",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "left",
+            },
+        },
+        "width": 50,
+    },
+    {
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
@@ -42,7 +58,7 @@ COLUMNS = [
                 "align": "left",
             },
         },
-        "width": 51,
+        "width": 50,
     },
     {
         "entete": "Enseigne",
@@ -343,22 +359,24 @@ def write_rows(excel: GenericExcel, f_lignes: List, f_lignes_odd: List, get_clea
     for rows in get_clean_rows:
         subcription, *line = rows
         line = [value or "" for value in line]
-        closing_date = line[2]
-        mois = line[14]
+        nb_closing_date = 3
+        closing_date = line[nb_closing_date]
+        nb_mois = 15
+        mois = line[nb_mois]
 
         if closing_date:
-            line[2] = pendulum.parse(closing_date).date()
+            line[nb_closing_date] = pendulum.parse(closing_date).date()
 
         if closing_date and mois:
-            f_lignes[2]["bg_color"] = "red"
-            f_lignes_odd[2]["bg_color"] = "red"
-            f_lignes[14]["bg_color"] = "red"
-            f_lignes_odd[14]["bg_color"] = "red"
+            f_lignes[nb_closing_date]["bg_color"] = "red"
+            f_lignes_odd[nb_closing_date]["bg_color"] = "red"
+            f_lignes[nb_mois]["bg_color"] = "red"
+            f_lignes_odd[nb_mois]["bg_color"] = "red"
         else:
-            f_lignes[2]["bg_color"] = "white"
-            f_lignes_odd[2]["bg_color"] = "#D9D9D9"
-            f_lignes[14]["bg_color"] = "white"
-            f_lignes_odd[14]["bg_color"] = "#D9D9D9"
+            f_lignes[nb_closing_date]["bg_color"] = "white"
+            f_lignes_odd[nb_closing_date]["bg_color"] = "#D9D9D9"
+            f_lignes[nb_mois]["bg_color"] = "white"
+            f_lignes_odd[nb_mois]["bg_color"] = "#D9D9D9"
 
         if current_subcription != subcription:
             if row > 4:
@@ -392,7 +410,7 @@ def excel_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
         mois = 12
 
         for i, column_dict in enumerate(COLUMNS, 1):
-            if 3 < i < 16:
+            if 4 < i < 17:
                 column_dict["entete"] = (
                     (
                         pendulum.now()

@@ -237,7 +237,7 @@
             ) "rr"
         )
         select
-            "ma"."tiers", "ma"."cct_name", "ma"."signboard", "ma"."closing_date",
+            "ma"."tiers", "ma"."tiers", "ma"."cct_name", "ma"."signboard", "ma"."closing_date",
             "M_11", "M_10", "M_09", "M_08", "M_07", "M_06", "M_05",
             "M_04", "M_03", "M_02", "M_01", "M_00", "M6_MONTH", "comment"
         from "maisons_alls" "ma"
