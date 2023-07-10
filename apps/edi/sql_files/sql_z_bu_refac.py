@@ -21,7 +21,6 @@ post_z_bu_refac = {
             "gross_unit_price" = "net_unit_price",
             "gross_amount" = ("qty" * "net_unit_price")::numeric,
             "net_amount" = ("qty" * "net_unit_price")::numeric,
-            "vat_regime" = 'FRA',
             "sale_invoice" = true,
             "purchase_invoice" = false,
             "manual_entry" = false,

@@ -17,7 +17,7 @@ from functools import lru_cache
 
 from django.db import connection
 
-from apps.accountancy.models import SectionSage, AccountSage
+from apps.accountancy.models import SectionSage, AccountSage, VatSage
 
 
 @lru_cache(maxsize=256)
@@ -72,6 +72,18 @@ def get_uuid_rfa(rfa: str) -> Union[None, UUID]:
     rfa_dict = dict(SectionSage.objects.rfa_section().values_list("section", "uuid_identification"))
 
     return rfa_dict.get(rfa) or rfa_dict.get("NAF")
+
+
+@lru_cache(maxsize=256)
+def get_vat_regime(vat: str) -> Union[None, UUID]:
+    """Retourne le vat regime en fonction de la tva"""
+
+    try:
+        vat_regime = VatSage.objects.get(vat=vat).vat_regime
+    except VatSage.DoesNotExist:
+        vat_regime = 'FRA'
+
+    return vat_regime
 
 
 @lru_cache(maxsize=256)
