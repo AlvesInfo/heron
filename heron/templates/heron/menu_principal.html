@@ -243,23 +243,14 @@
                             <a href="{% url 'compta:meuleuse_launch' %}" class="item">03. Meuleuses</a>
                             <a href="{% url 'compta:publicity_launch' %}" class="item">04. Publicité</a>
                             <a href="{% url 'compta:services_launch' %}" class="item">05. Prestations</a>
-{#                            <a href="/" class="item">1. Marchandises</a>#}
-{#                            <a href="/" class="item">2. RFA</a>#}
-{#                            <a href="/" class="item">3. Redevances</a>#}
-{#                            <a href="/" class="item">4. Publicité</a>#}
-{#                            <a href="/" class="item">5. Formations</a>#}
-{#                            <a href="/" class="item">6. Personnel</a>#}
-{#                            <a href="/" class="item">7. Matériel</a>#}
-{#                            <a href="/" class="item">8. Prestations</a>#}
-{#                            <a href="/" class="item">9. Abonnements</a>#}
-{#                            <a href="/" class="item">10. Divers</a>#}
+
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="ui popup" id="d">
-                <div class="ui three column relaxed equal divided grid" style="width: 28em;">
+                <div class="ui one column relaxed equal divided grid" style="width: 12em;">
 
 {#              1. Marchandises ================================================================  #}
                     <div class="column">
@@ -267,6 +258,7 @@
                             <a href="{% url 'edi:create_hand_invoices' category='marchandises' %}" class="item">01. Factures</a>
                             <a href="{% url 'edi:create_hand_invoices' category='formation' %}" class="item">02. Formation</a>
                             <a href="{% url 'edi:create_hand_invoices' category='personnel' %}" class="item">03. Personnel</a>
+                            <a href="{% url 'invoices:invoice_search_list' %}" class="item">04. Réaffectation</a>
                         </div>
                     </div>
                 </div>

@@ -625,6 +625,13 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
         related_name="edi_control_invoice",
         db_column="uuid_control",
     )
+    third_party_num = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="common_society",
+        db_column="third_party_num",
+    )
 
     class Meta:
         """class Meta du modèle django"""

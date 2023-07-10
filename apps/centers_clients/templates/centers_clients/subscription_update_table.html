@@ -22,8 +22,8 @@
                 <label for="id_qty" style="text-align: left;">Qty&nbsp;:</label>
                 <input type="number"
                      name="qty"
-                     value="{{ form.qty.value|numbers:0 }}"
-                     step="1"
+                     value="{{ form.qty.value|numbers:2 }}"
+                     step="0.01"
                      id="id_qty"
                      style="text-align: right;">
               </div>

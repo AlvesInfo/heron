@@ -266,6 +266,8 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
         verbose_name="type de personnel",
     )
 
+    third_party_num = models.CharField(null=True, max_length=15, verbose_name="tiers X3")
+
     # pour vérifier si les factures sont multi magasins
     is_multi_store = models.BooleanField(null=True)
 

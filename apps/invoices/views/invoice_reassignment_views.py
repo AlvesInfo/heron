@@ -29,72 +29,62 @@ from apps.articles.excel_outputs.output_excel_articles_list import (
 from apps.articles.bin.sub_category import check_sub_category
 from apps.book.models import Society
 from apps.parameters.models import Category
-from apps.articles.models import Article
-from apps.articles.forms import ArticleForm, ArticleSearchForm
-from apps.edi.models import EdiImport
-from apps.centers_purchasing.bin.update_account_article import set_update_articles_account
-from apps.articles.filters import ArticleFilter
+from apps.invoices.models import InvoiceCommonDetails
+from apps.invoices.forms import InvoiceSearchForm
+from apps.invoices.filters import InvoiceFilter
 
 
 def invoice_search_list(request):
     """Affichage de la page de recherche des Factures pour la réaffectation"""
     limit = 50
     queryset = (
-        Article.objects.annotate(
-            big_category_n=F("big_category__name"),
-            sub_category_n=F("sub_category__name"),
-            pk=F("id"),
-        )
-        .values(
-            "pk",
+        InvoiceCommonDetails.objects.values(
+            "import_uuid_identification",
             "third_party_num",
             "third_party_num__name",
-            "reference",
-            "libelle",
-            "libelle_heron",
-            "big_category_n",
-            "sub_category_n",
-            "axe_pro__section",
+            "invoice_number",
+            "invoice_year",
+            "cct",
         )
         .order_by(
-            "third_party_num", "reference", "big_category_n", "sub_category_n", "axe_pro__section"
+            "third_party_num", "invoice_number", "cct",
         )
     )
-    articles_filter = ArticleFilter(request.GET, queryset=queryset)
-    attrs_filter = dict(articles_filter.data.items())
-    paginator = Paginator(articles_filter.qs, limit)
+    invoices_filter = InvoiceFilter(request.GET, queryset=queryset)
+    attrs_filter = dict(invoices_filter.data.items())
+    paginator = Paginator(invoices_filter.qs, limit)
     page = request.GET.get("page")
-    form = ArticleSearchForm(attrs_filter)
+    form = InvoiceSearchForm(attrs_filter)
 
     try:
-        articles = paginator.page(page)
+        invoices = paginator.page(page)
     except PageNotAnInteger:
-        articles = paginator.page(1)
+        invoices = paginator.page(1)
     except EmptyPage:
-        articles = paginator.page(paginator.num_pages)
+        invoices = paginator.page(paginator.num_pages)
 
-    count = articles_filter.qs.count()
+    count = invoices_filter.qs.count()
     titre_count = ""
 
     if count == 1:
-        titre_count = " (1 article trouvé)"
+        titre_count = " (1 Facture trouvé)"
 
     if count > 1:
-        titre_count = f" ({str(count)} articles trouvés)"
+        titre_count = f" ({str(count)} Facture trouvés)"
 
     context = {
-        "articles": paginator.get_page(page),
-        "filter": articles_filter,
+        "invoices": paginator.get_page(page),
+        "filter": invoices_filter,
         "pagination": get_pagination_buttons(
-            articles.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
+            invoices.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
         ),
         "num_items": paginator.count,
         "num_pages": paginator.num_pages,
-        "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
-        "end_index": articles.end_index(),
-        "titre_table": f'11. Recherche Articles<span style="font-size: .8em;">{titre_count}</span>',
-        "url_redirect": reverse("articles:articles_search_list"),
+        "start_index": (invoices.start_index() - 1) if invoices.start_index() else 0,
+        "end_index": invoices.end_index(),
+        "titre_table": f'Recherche réaffectation Facture <span style="font-size: .8em;">{titre_count}</span>',
+        "url_redirect": reverse("invoices:invoice_search_list"),
         "attrs_filter": attrs_filter,
         "form": form,
     }
-    return render(request, "articles/articles_search.html", context=context)
+    return render(request, "invoices/invoices_search.html", context=context)

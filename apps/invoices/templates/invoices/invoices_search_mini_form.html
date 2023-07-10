@@ -1,0 +1,23 @@
+<div class="ui segment" style="padding: 10px 10px 0;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
+    <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+        <div class="fields" style="">
+            <div class="five wide field">
+                <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
+                {{ form.third_party_num }}
+            </div>
+            <div class="three wide field">
+                <label for="id_invoice_number__icontains" style="text-align: left;">N° Facture&nbsp;:</label>
+                  {{ form.invoice_number__icontains }}
+            </div>
+            <div class="two wide field">
+                <label for="id_invoice_year" style="text-align: left;">Année Facture&nbsp;:</label>
+                  {{ form.invoice_year }}
+            </div>
+            <div class="four wide field">
+                <label for="id_cct" style="text-align: left;">Libellé Héron&nbsp;:</label>
+                  {{ form.cct }}
+            </div>
+        </div>
+
+    </div>
+  </div>

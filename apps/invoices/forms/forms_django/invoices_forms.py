@@ -13,47 +13,32 @@ modified by: Paulo ALVES
 from django import forms
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
-from apps.invoices.models import SaleInvoice
+from apps.invoices.models import InvoiceCommonDetails
 
 
 class InvoiceSearchForm(forms.ModelForm):
-    """Pour le Filtre de recherche des articles"""
+    """Pour le Filtre de recherche des factures"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        reference_icontains = forms.CharField(
-            label="Référence",
+        invoice_number__icontains = forms.CharField(
+            label="N° Facture",
             required=False,
         )
-        self.fields["reference__icontains"] = reference_icontains
-        self.fields["reference__icontains"].required = False
-
-        libelle_icontains = forms.CharField(
-            label="Référence",
-            required=False,
-        )
-        self.fields["libelle__icontains"] = libelle_icontains
-        self.fields["libelle__icontains"].required = False
-
-        libelle_heron_icontains = forms.CharField(
-            label="Référence",
-            required=False,
-        )
-        self.fields["libelle_heron__icontains"] = libelle_heron_icontains
-        self.fields["libelle_heron__icontains"].required = False
+        self.fields["invoice_number__icontains"] = invoice_number__icontains
+        self.fields["invoice_number__icontains"].required = False
 
         self.fields["third_party_num"].required = False
-        self.fields["big_category"].required = False
-        self.fields["sub_category"].required = False
+        self.fields["invoice_year"].required = False
+        self.fields["cct"].required = False
 
     class Meta:
         """class Meta django"""
 
-        model = SaleInvoice
-        fields = ("third_party_num", "big_category", "sub_category")
+        model = InvoiceCommonDetails
+        fields = ("third_party_num", "invoice_year", "cct")
         widgets = {
             "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "sub_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "cct": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }

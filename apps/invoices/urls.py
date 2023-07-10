@@ -17,6 +17,8 @@ from apps.invoices.views import (
     generate_invoices_insertions,
     generate_pdf_invoice,
     send_email_pdf_invoice,
+    # Réaffectations de factures
+    invoice_search_list,
 )
 
 app_name = "apps.invoices"
@@ -65,5 +67,13 @@ urlpatterns = (
         ),
         path("generate_pdf_invoice/", generate_pdf_invoice, name="generate_pdf_invoice"),
         path("send_email_pdf_invoice/", send_email_pdf_invoice, name="send_email_pdf_invoice"),
+    ]
+    # Réaffectations de factures
+    + [
+        path(
+            "invoice_search_list/",
+            invoice_search_list,
+            name="invoice_search_list",
+        ),
     ]
 )
