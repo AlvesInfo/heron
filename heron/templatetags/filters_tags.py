@@ -280,7 +280,7 @@ def get_address(adresse):
 
 @register.filter
 def percentage(value):
-    return f"{value:.1%}"
+    return "" if value is None else f"{value:.1%}"
 
 
 @register.filter(name="due_dates")
