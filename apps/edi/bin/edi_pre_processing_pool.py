@@ -27,7 +27,7 @@ from apps.core.bin.get_sage_elements import (
     get_uuid_prj,
     get_uuid_bu,
     get_uuid_rfa,
-    get_vat_regime,
+    # get_vat_regime,
 )
 from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.data_flux.postgres_save import get_random_name
@@ -317,6 +317,11 @@ def z_bu_refac_file(file: Path) -> Path:
 
                 vat_sage = ("000" + str(tva))[-3:]
 
+                if vat_sage in {"001", "002"}:
+                    vat_sage = vat_sage
+                else:
+                    vat_sage="001"
+
                 list_to_write = [
                     tiers,
                     bl,
@@ -334,7 +339,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     vat_sage,
                     libelle,
                     " ".join([str(value) for value in unit_weight]).strip(),
-                    get_vat_regime(vat_sage),
+                    "FRA" # vat_regime,
                 ]
                 csv_writer.writerow(list_to_write)
 
