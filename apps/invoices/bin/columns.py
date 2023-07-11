@@ -40,8 +40,8 @@ COLS_PURCHASE_DICT = {
     "adresse_tiers_paye": False,
     "created_by": False,
     "modified_by": False,
-    "fcy": False,
     "cpy": False,
+    "fcy": False,
     "integration_month": False,
     "code_plan_sage": False
 }

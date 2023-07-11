@@ -44,7 +44,7 @@ def generate_invoices_insertions(request):
             "invoices_insertions_launch",
             kwargs={
                 "user_uuid": user_uuid,
-                "invoice_date": pendulum.date(2023, 5, 31).isoformat(),
+                "invoice_date": pendulum.date(2023, 6, 30).isoformat(),
             },
         ).delay()
         insertion = True

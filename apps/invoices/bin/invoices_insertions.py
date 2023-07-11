@@ -140,7 +140,8 @@ def set_purchases_invoices(
             # modified by
             line_to_write[26] = user.uuid_identification
             # Mois d'intégration = période de facturation
-            line_to_write[26] = integration_month
+            line_to_write[29] = integration_month
+            # print(line_to_write)
             # print(dict(zip(COLS_PURCHASE_DICT, line_to_write)))
 
             csv_writer.writerow(line_to_write)
@@ -506,7 +507,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
 if __name__ == "__main__":
     utilisateur = User.objects.get(last_name="ALVES")
-    to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-05-31")
+    to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-06-30")
     # set_purchases_invoices (cur, utilisateur)
     # if to_print_:
     #     print(to_print_)
