@@ -392,6 +392,7 @@ def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
     """
     cursor.execute(sql_initialize)
     LOGGER_INVOICES.warning(rf"{str([r for r in cursor.fetchall()])}")
+    LOGGER_INVOICES.warning(rf"{cursor.mogrify(sql_initialize, {}).decode()}")
     num = (cursor.fetchone())[0]
     LOGGER_INVOICES.warning(rf"{str(num)}")
     try:
