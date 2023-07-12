@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from operator import itemgetter
 
-from apps.core.functions.functions_setups import connection, settings
+from apps.core.functions.functions_setups import connections, settings
 from apps.invoices.bin.invoives_nums import get_bispar_num
 from apps.invoices.bin.base_export_x3_functions import (
     get_rows,
@@ -32,6 +32,7 @@ def write_bispar(fcy, nb_fac=5000):
     :param nb_fac: nombre de factures max par fichiers
     :return: generateur des lignes de la requête
     """
+    connection = connections["heron"]
     rows = get_rows(connection, settings.APPS_DIR, fcy, "sql_export_x3_purchase_incoices")
 
     try:

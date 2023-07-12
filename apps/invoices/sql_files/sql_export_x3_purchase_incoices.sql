@@ -89,7 +89,7 @@ select
 	-- E
 	'E' as "E", -- Indicateur model import
 	'1' as "DUDLIG", -- Numéro échéance
-	"isi"."date_echeance"  as "DUDDAT", -- Date échéance
+	TO_CHAR("isi"."date_echeance"::date, 'DDMMYY') as "DUDDAT", -- Date échéance
 	"isi"."mode_reglement" as "PAM", -- Mode de règlement
 	'1' as "PAMTYP", -- Type de règlement
 	case
