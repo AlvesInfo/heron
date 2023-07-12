@@ -361,9 +361,10 @@ def delete_pdf_files(cursor: connection.cursor) -> bool:
     cursor.execute(sql_pdf_delete)
 
     for file in cursor.fetchall():
-        print(file)
         file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file[0]
-        print(file_path)
+
+        if file_path.is_file():
+            file_path.unlink()
 
 
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
@@ -530,11 +531,11 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
 
 if __name__ == "__main__":
-    # utilisateur = User.objects.get(last_name="ALVES")
-    # to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-06-30")
+    utilisateur = User.objects.get(last_name="ALVES")
+    to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-06-30")
     # set_purchases_invoices (cur, utilisateur)
     # if to_print_:
     #     print(to_print_)
     #     raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
-    with connection.cursor() as cursor:
-        delete_pdf_files(cursor)
+    # with connection.cursor() as cur:
+    #     delete_pdf_files(cur)
