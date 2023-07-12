@@ -391,8 +391,9 @@ def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
     from "invoices_invoice"
     """
     cursor.execute(sql_initialize)
+    LOGGER_INVOICES.warning(rf"{str([r for r in cursor.fetchall()])}")
     num = (cursor.fetchone())[0]
-
+    LOGGER_INVOICES.warning(rf"{str(num)}")
     try:
         numerotation = CounterNums.objects.get(
             counter__uuid_identification=UUID("ad95c27f-9800-46d4-8e63-55191023f0a4")
@@ -426,6 +427,7 @@ def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
     from "invoices_saleinvoice"
     """
     cursor.execute(sql_initialize)
+
     num = (cursor.fetchone())[0]
 
     try:
