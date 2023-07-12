@@ -91,7 +91,7 @@ def integration_purchases(request):
             ),
             "margin_table": 50,
             "margin_rep": 50,
-            "nb_paging": 100,
+            "nb_paging": 300,
             "legende": IconOriginChoice.objects.all(),
             "uuid_validation": uuid_validation,
             "alls": alls,
