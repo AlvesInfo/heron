@@ -442,6 +442,42 @@ def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
         pass
 
 
+def sanitaze_imports():
+    """
+    Suppression et nettoyage des factures non finalisées
+    :return: None
+    """
+
+    with connection.cursor() as cursor:
+        # On supprime les factures pdf dont les factures sont à "final" = false
+        delete_pdf_files(cursor)
+
+        # On supprime les éxistant non définitifs
+        cursor.execute(
+            "delete from invoices_invoicecommondetails "
+            'where ("final" isnull or "final" = false)'
+        )
+
+        cursor.execute(
+            'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
+        )
+
+        cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
+
+        cursor.execute(
+            'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
+        )
+
+        cursor.execute(
+            'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
+        )
+
+    with connection.cursor() as cursor:
+        # On réinitialise les compteurs de numérotation, pour qu'il n'y ai pas de décalages
+        reinitialize_purchase_invoices_nums(cursor)
+        reinitialize_sales_invoices_nums(cursor)
+
+
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
@@ -476,6 +512,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     alls_print = ""
 
     try:
+
+        # On nettoie les factures non finalisées
+        sanitaze_imports()
+
+        print(f"suppression :{time.time()-start} s")
+        start = time.time()
+
         with connection.cursor() as cursor, transaction.atomic():
             LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
             # On met les import_uuid_identification au cas où il en manque
@@ -489,36 +532,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
             process_update()
 
-            # On supprime les factures pdf dont les factures sont à "final" = false
-            delete_pdf_files(cursor)
-
             print(f"process_update :{time.time()-start} s")
-            start = time.time()
-
-            # On supprime les éxistant non définitifs
-            cursor.execute(
-                "delete from invoices_invoicecommondetails "
-                'where ("final" isnull or "final" = false)'
-            )
-
-            cursor.execute(
-                'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
-            )
-
-            cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
-
-            cursor.execute(
-                'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
-            )
-
-            cursor.execute(
-                'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
-            )
-            # On réinitialise les compteurs de numérotation, pour qu'il n'y ai pas de décalages
-            reinitialize_purchase_invoices_nums(cursor)
-            reinitialize_sales_invoices_nums(cursor)
-
-            print(f"suppression :{time.time()-start} s")
             start = time.time()
 
             # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
