@@ -19,7 +19,7 @@ SQL_HEADER = sql.SQL(
         "ii"."libelle", 
         "ii"."serial_number",
         case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
-        case when "sd"."vat_rate" = 0.55 then "sd"."net_amount" else 0 end as "mont_05",
+        case when "sd"."vat_rate" = 0.055 then "sd"."net_amount" else 0 end as "mont_05",
         case when "sd"."vat_rate" = 0.2 then "sd"."net_amount" else 0 end as "mont_20",
         "sd"."net_amount",
         "sd"."vat_amount",
@@ -49,15 +49,15 @@ SQL_RESUME_HEADER = sql.SQL(
     from (
         select 
             case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
-            case when "sd"."vat_rate" = 0.55 then "sd"."net_amount" else 0 end as "mont_05",
+            case when "sd"."vat_rate" = 0.055 then "sd"."net_amount" else 0 end as "mont_05",
             case when "sd"."vat_rate" = 0.2 then "sd"."net_amount" else 0 end as "mont_20",
             "sd"."net_amount",
             case when "sd"."vat_rate" = 0 then "sd"."vat_amount" else 0 end as "vat_00",
-            case when "sd"."vat_rate" = 0.55 then "sd"."vat_amount" else 0 end as "vat_05",
+            case when "sd"."vat_rate" = 0.055 then "sd"."vat_amount" else 0 end as "vat_05",
             case when "sd"."vat_rate" = 0.2 then "sd"."vat_amount" else 0 end as "vat_20",
             "sd"."vat_amount",
             case when "sd"."vat_rate" = 0 then "sd"."amount_with_vat" else 0 end as "ttc_vat_00",
-            case when "sd"."vat_rate" = 0.55 then "sd"."amount_with_vat" else 0 end as "ttc_vat_05",
+            case when "sd"."vat_rate" = 0.055 then "sd"."amount_with_vat" else 0 end as "ttc_vat_05",
             case when "sd"."vat_rate" = 0.2 then "sd"."amount_with_vat" else 0 end as "ttc_vat_20",
             "sd"."amount_with_vat"
         from "invoices_saleinvoicedetail" "sd"

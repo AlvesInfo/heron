@@ -536,7 +536,7 @@ columns_list_articles_without_account = [
             **f_ligne,
             **{},
         },
-        "width": 10,
+        "width": 35,
     },
     {
         "entete": "Centrale\nFille",
@@ -555,7 +555,21 @@ columns_list_articles_without_account = [
         "width": 10,
     },
     {
-        "entete": "Founrisseur",
+        "entete": "Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 10,
+    },
+    {
+        "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
             **{
@@ -566,10 +580,10 @@ columns_list_articles_without_account = [
             **f_ligne,
             **{},
         },
-        "width": 35,
+        "width": 22,
     },
     {
-        "entete": "Article",
+        "entete": "Référence",
         "f_entete": {
             **f_entetes,
             **{
@@ -580,7 +594,21 @@ columns_list_articles_without_account = [
             **f_ligne,
             **{"align": "left", "text_wrap": True},
         },
-        "width": 100,
+        "width": 30,
+    },
+    {
+        "entete": "Libellé",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "left", "text_wrap": True},
+        },
+        "width": 70,
     },
     {
         "entete": "Axe PRO",
@@ -596,7 +624,7 @@ columns_list_articles_without_account = [
                 "align": "center",
             },
         },
-        "width": 15,
+        "width": 9,
     },
     {
         "entete": "Grande catégorie",
@@ -612,7 +640,7 @@ columns_list_articles_without_account = [
                 "align": "center",
             },
         },
-        "width": 20,
+        "width": 16,
     },
     {
         "entete": "Rubrique Presta",
@@ -642,7 +670,21 @@ columns_list_articles_without_account = [
             **f_ligne,
             **{"align": "center", "num_format": "@"},
         },
-        "width": 11,
+        "width": 6,
+    },
+    {
+        "entete": "régime\nTVA",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "num_format": "@"},
+        },
+        "width": 7,
     },
     {
         "entete": "Compte\nau\nDébit",

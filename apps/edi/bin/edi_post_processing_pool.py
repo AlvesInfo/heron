@@ -626,11 +626,13 @@ def technidis_post_insert(uuid_identification: AnyStr):
     """
     sql_update = post_technidis_dict.get("sql_update")
     sql_update_units = post_technidis_dict.get("sql_update_units")
+    sql_net_amount = post_technidis_dict.get("sql_net_amount")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_net_amount, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
 
 

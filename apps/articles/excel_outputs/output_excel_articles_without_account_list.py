@@ -29,28 +29,41 @@ from apps.articles.parameters.querysets import articles_without_account_queryset
 def get_clean_rows() -> iter:
     """Retourne les lignes à écrire"""
 
+    query_columns = {
+        "code_center",
+        "third_party_num",
+        "tiers",
+        "reference",
+        "libelle",
+        "pro",
+        "category",
+        "rubrique",
+        "article",
+        "vat_vat",
+        "vat_reg"
+    }
+    rows = [
+        {key: value for key, value in row.__dict__.items() if key in query_columns}
+        for row in articles_without_account_queryset
+    ]
+
     return [
         (
-            row.get("article", ""),
+            str(row.get("article", "")),
             row.get("code_center", ""),
-            (
-                f"{row.get('third_party_num', '')}"
-                f"{' -' if row.get('supplierm') else ''}"
-                f"{row.get('supplierm', '')}"
-            ),
-            (
-                f"{row.get('reference_article', '')}"
-                f"{' -' if row.get('libellem') else ''}"
-                f"{row.get('libellem', '')}"
-            ),
-            row.get("axe_pro__section", ""),
-            row.get("big_category__name", ""),
-            row.get("sub_category__name", ""),
-            row.get("vat", ""),
+            row.get('third_party_num', ''),
+            row.get('tiers', ''),
+            row.get('reference', ''),
+            row.get('libelle', ''),
+            row.get("pro", ""),
+            row.get("category", ""),
+            row.get("rubrique", ""),
+            row.get("vat_vat", ""),
+            row.get("vat_reg", ""),
             "",
             "",
         )
-        for row in articles_without_account_queryset
+        for row in rows
     ]
 
 

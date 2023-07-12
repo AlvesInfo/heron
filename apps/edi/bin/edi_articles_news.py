@@ -1,4 +1,4 @@
-# pylint: disable=E0401,C0303
+# pylint: disable=E0401,C0303,C0413
 """
 FR : Module de traitement des nouveaux articles pour dans la table articles avec new_article = true
 EN : New article processing module for in articles table with new_article = true
@@ -377,7 +377,7 @@ def set_stat_definitions(third_party_num: AnyStr, stat_name: AnyStr, cursor: con
       and "edi"."reference_article" = "req_stat"."reference_article"
     """
     cursor.execute(sql_set_stat, {"third_party_num": third_party_num, "stat_name": stat_name})
-    print(f"fin stat_definitions : {third_party_num} - {stat_name} : {cursor.rowcount}")
+    # print(f"fin stat_definitions : {third_party_num} - {stat_name} : {cursor.rowcount}")
 
 
 def insert_new_articles(cursor: connection.cursor):
@@ -478,12 +478,9 @@ def insert_new_articles(cursor: connection.cursor):
     on conflict do nothing   
     """
     cursor.execute(sql_insert)
-
-    nb_inserts = cursor.rowcount
+    # print(f"fin insertion des nouveaux articles : {cursor.rowcount}")
 
     cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
-
-    print(f"fin insertion des nouveaux articles : {nb_inserts}")
 
 
 def set_edi_ediimport_articles(cursor: connection.cursor):
@@ -515,7 +512,11 @@ def set_edi_ediimport_articles(cursor: connection.cursor):
             "aa"."axe_rfa",
             "aa"."uuid_big_category",
             "aa"."uuid_sub_big_category",
-            case when "aa"."unit_weight" is null then 1 else "aa"."unit_weight" end as "unit_weight",
+            case 
+                when "aa"."unit_weight" is null 
+                then 1 
+                else "aa"."unit_weight" 
+            end as "unit_weight",
             "aa"."item_weight",
             "aa"."customs_code"
         from "edi_ediimport" "ee" 
@@ -540,7 +541,7 @@ def set_edi_ediimport_articles(cursor: connection.cursor):
       and "edi"."reference_article" = "maj"."reference_article"
     """
     cursor.execute(sql_update)
-    print(f"fin update des articles : {cursor.rowcount}")
+    # print(f"fin update des articles : {cursor.rowcount}")
 
 
 def set_axes_with_regex() -> None:

@@ -28,9 +28,9 @@
                     <th style="width: 15%">Tiers</th>
                     <th style="width: 44%">Article</th>
                     <th style="width: 7%">Axe PRO</th>
-                    <th style="width: 11%">Grande Cétégorie</th>
-                    <th style="width: 11%">Rubrique Presta</th>
-                    <th style="width: 4%">TVA</th>
+                    <th style="width: 10%">Grande Cétégorie</th>
+                    <th style="width: 10%">Rubrique Presta</th>
+                    <th style="width: 6%">TVA</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,22 +47,22 @@
                         {{ article.code_center|default_if_none:'' }}
                     </td>
                     <td style="text-align: left;">
-                        {{ article.third_party_num|default_if_none:'' }} - {{ article.supplierm|default_if_none:'' }}
+                        {{ article.third_party_num|default_if_none:'' }} - {{ article.tiers|default_if_none:'' }}
                     </td>
                     <td style="text-align: left;">
-                        {{ article.reference_article|default_if_none:'' }} - {{ article.libellem|default_if_none:'' }}
+                        {{ article.reference|default_if_none:'' }} - {{ article.libelle|default_if_none:'' }}
                     </td>
-                    <td style="{% if not article.axe_pro__section %}background-color: #ffdae0;{% endif %}">
-                        {{ article.axe_pro__section|default_if_none:'' }}
-                    </td>
-                    <td style="">
-                          {{ article.big_category__name|default_if_none:'' }}
+                    <td style="{% if not article.axe_pro %}background-color: #ffdae0;{% endif %}">
+                        {{ article.pro|default_if_none:'' }}
                     </td>
                     <td style="">
-                          {{ article.sub_category__name|default_if_none:'' }}
+                          {{ article.category|default_if_none:'' }}
                     </td>
                     <td style="">
-                          {{ article.vat|default_if_none:'' }}
+                          {{ article.rubrique|default_if_none:'' }}
+                    </td>
+                    <td style="">
+                          {{ article.vat_vat|default_if_none:'' }} - {{ article.vat_reg|default_if_none:'' }}
                     </td>
                 </tr>
             {% endfor %}

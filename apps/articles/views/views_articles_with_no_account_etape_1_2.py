@@ -24,17 +24,18 @@ def articles_without_account_list(request):
     """Affichage de tous les articles qui n'ont pas de comptes comptables X3, présents
     dans les imports
     """
+    page = request.GET.get("page")
 
-    # On met à jour les comptes comptable des articles
-    set_update_articles_confict_account()
+    if page is None:
+        # On met à jour les comptes comptable des articles
+        set_update_articles_confict_account()
 
-    # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
-    update_axes_edi()
+        # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
+        update_axes_edi()
 
-    limit = 200
+    limit = 100
     # print(str(articles_without_account_queryset.query))
     paginator = Paginator(articles_without_account_queryset, limit)
-    page = request.GET.get("page")
 
     try:
         articles = paginator.page(page)
@@ -42,15 +43,6 @@ def articles_without_account_list(request):
         articles = paginator.page(1)
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
-
-    count = articles_without_account_queryset.count()
-    titre_count = ""
-
-    if count == 1:
-        titre_count = " (1 article sans comptes)"
-
-    if count > 1:
-        titre_count = f" ({str(count)} articles sans comptes)"
 
     context = {
         "articles": articles,
@@ -62,7 +54,7 @@ def articles_without_account_list(request):
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
         "titre_table": (
-            f'1.2 - Articles sans comptes <span style="font-size: .8em;">{titre_count}</span>'
+            f'1.2 - Articles sans comptes'
         ),
         # "url_validation": reverse("articles:articles_new_validation"),
         "url_redirect": reverse("articles:articles_without_account_list"),

@@ -18,6 +18,7 @@ from apps.core.functions.functions_http_response import response_file, CONTENT_T
 from apps.core.functions.functions_http import get_pagination_buttons
 from apps.core.models import ChangesTrace
 from apps.edi.bin.edi_articles_news import (
+    insert_new_articles,
     SQL_FLAG_ERROR_SUB_CATEGORY,
     SQL_FLAG_WITHOUT_AXES,
     SQL_EDI_IMPORT_ARTICLES,
@@ -41,6 +42,7 @@ def new_articles_list(request):
 
     # On met à jour les articles sans axes ou en erreur de rubrique presta avant affichage
     with connection.cursor() as cursor:
+        insert_new_articles(cursor)
         cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
         cursor.execute(SQL_FLAG_WITHOUT_AXES)
         cursor.execute(SQL_AXE_BU)

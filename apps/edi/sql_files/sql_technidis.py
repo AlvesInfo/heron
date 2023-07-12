@@ -45,7 +45,6 @@ post_technidis_dict = {
                         else "qty" 
                     end,
             "gross_unit_price" = abs("gross_unit_price"),
-            "net_unit_price" = abs("net_unit_price"),
             "gross_amount" = case 
                                 when "net_amount" = 0 then 0
                                 when "net_amount" < 0 
@@ -66,6 +65,14 @@ post_technidis_dict = {
                                     end,
             "origin" = 1,
             "item_weight"= 0
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        """
+    ),
+    "sql_net_amount": sql.SQL(
+        """
+        update "edi_ediimport"
+        set "net_unit_price" = abs("net_amount"::numeric / "qty"::numeric)::numeric 
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
