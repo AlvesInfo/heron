@@ -18,6 +18,7 @@ import platform
 import sys
 import csv
 import time
+from pathlib import Path
 
 import django
 
@@ -33,6 +34,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 import pendulum
+from django.conf import settings
 from django.utils import timezone
 from django.db.models import Count
 
@@ -342,6 +344,28 @@ def num_full_sales_invoices():
         )
 
 
+def delete_pdf_files(cursor: connection.cursor) -> bool:
+    """
+    Supprime les fichiers pdf, des factures devant être supprimées
+    :param cursor: cursor django pour la db
+    :return: False if OK else True
+    """
+
+    sql_pdf_delete = """
+    select 
+        global_invoice_file
+    from invoices_saleinvoice
+    where "final" = false
+    group by global_invoice_file
+    """
+    cursor.execute(sql_pdf_delete)
+
+    for file in cursor.fetchall():
+        print(file)
+        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file[0]
+        print(file_path)
+
+
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
@@ -506,9 +530,11 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
 
 if __name__ == "__main__":
-    utilisateur = User.objects.get(last_name="ALVES")
-    to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-06-30")
+    # utilisateur = User.objects.get(last_name="ALVES")
+    # to_print_ = invoices_insertion(utilisateur.uuid_identification, "2023-06-30")
     # set_purchases_invoices (cur, utilisateur)
     # if to_print_:
     #     print(to_print_)
     #     raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+    with connection.cursor() as cursor:
+        delete_pdf_files(cursor)
