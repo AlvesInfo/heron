@@ -414,6 +414,10 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
             process_update()
+
+            # On supprime les factures pdf dont les factures sont à "final" = false
+            delete_pdf_files(cursor)
+
             print(f"process_update :{time.time()-start} s")
             start = time.time()
 
