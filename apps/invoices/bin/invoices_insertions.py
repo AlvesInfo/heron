@@ -19,6 +19,7 @@ import sys
 import csv
 import time
 from pathlib import Path
+from uuid import UUID
 
 import django
 
@@ -68,6 +69,7 @@ from apps.invoices.bin.columns import COLS_PURCHASE_DICT, COL_SALES_DICT
 from apps.invoices.bin.invoives_nums import get_purchase_num, get_invoice_num
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.centers_purchasing.bin.update_account_article import update_axes_edi
+from apps.parameters.models import CounterNums
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -351,7 +353,6 @@ def delete_pdf_files(cursor: connection.cursor) -> bool:
     :param cursor: cursor django pour la db
     :return: False if OK else True
     """
-
     sql_pdf_delete = """
     select 
         global_invoice_file
@@ -366,6 +367,76 @@ def delete_pdf_files(cursor: connection.cursor) -> bool:
 
         if file_path.is_file():
             file_path.unlink()
+
+
+def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
+    """
+    Réinitialise la numérotation des factures de d'achat après suppressions
+    :param cursor: cursor django pour la db
+    :return: False if OK else True
+    """
+    sql_initialize = """
+    select 
+        max(
+            right(
+                "invoice_sage_number",
+                (
+                    select 
+                        "lpad_num" 
+                    from "parameters_counter" "pc" 
+                    where "uuid_identification" = 'ad95c27f-9800-46d4-8e63-55191023f0a4'::uuid
+                )
+            )::int
+        ) + 1 as "nums"
+    from "invoices_invoice"
+    """
+    cursor.execute(sql_initialize)
+    num = (cursor.fetchone())[0]
+
+    try:
+        numerotation = CounterNums.objects.get(
+            counter__uuid_identification=UUID("ad95c27f-9800-46d4-8e63-55191023f0a4")
+        )
+        numerotation.num = num
+        numerotation.save()
+
+    except CounterNums.DoesNotExist:
+        pass
+
+
+def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
+    """
+    Réinitialise la numérotation des factures de ventes après suppressions
+    :param cursor: cursor django pour la db
+    :return: False if OK else True
+    """
+    sql_initialize = """
+    select 
+        max(
+            right(
+                "invoice_number",
+                (
+                    select 
+                        "lpad_num" 
+                    from "parameters_counter" "pc" 
+                    where "uuid_identification" = '8aad17a2-90a8-4a72-a8c6-caccdadf5a8b'::uuid
+                )
+            )::int
+        ) + 1 as "nums"
+    from "invoices_saleinvoice"
+    """
+    cursor.execute(sql_initialize)
+    num = (cursor.fetchone())[0]
+
+    try:
+        numerotation = CounterNums.objects.get(
+            counter__uuid_identification=UUID("8aad17a2-90a8-4a72-a8c6-caccdadf5a8b")
+        )
+        numerotation.num = num
+        numerotation.save()
+
+    except CounterNums.DoesNotExist:
+        pass
 
 
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
@@ -440,6 +511,10 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             cursor.execute(
                 'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
             )
+            # On réinitialise les compteurs de numérotation, pour qu'il n'y ai pas de décalages
+            reinitialize_purchase_invoices_nums(cursor)
+            reinitialize_sales_invoices_nums(cursor)
+
             print(f"suppression :{time.time()-start} s")
             start = time.time()
 
