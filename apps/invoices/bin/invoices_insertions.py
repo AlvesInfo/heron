@@ -50,6 +50,7 @@ from apps.invoices.models import Invoice, SaleInvoice
 from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.data_flux.models import Trace
 from apps.invoices.sql_files.sql_invoices_insertions import (
+    SQL_FIX_ARTICLES,
     SQL_FIX_IMPORT_UUID,
     SQL_COMMON_DETAILS,
     SQL_PURCHASES_INVOICES,
@@ -407,6 +408,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             set_fix_uuid(cursor)
             print(f"set_fix_uuid :{time.time()-start} s")
             start = time.time()
+
+            # Mise à jour des articles
+            cursor.execute(SQL_FIX_ARTICLES)
 
             # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
             process_update()

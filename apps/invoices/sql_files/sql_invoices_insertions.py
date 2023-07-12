@@ -13,6 +13,47 @@ modified by: Paulo ALVES
 """
 from psycopg2 import sql
 
+SQL_FIX_ARTICLES = sql.SQL(
+    """
+    update "edi_ediimport" edi 
+    set 
+        "axe_bu" = maj."axe_bu",
+        "axe_prj" = maj."axe_prj",
+        "axe_pro" = maj."axe_pro",
+        "axe_pys"  = maj."axe_pys",
+        "axe_rfa" = maj."axe_rfa",
+        "uuid_big_category" = maj."uuid_big_category",
+        "uuid_sub_big_category" = maj."uuid_sub_big_category",
+        "unit_weight" = maj."unit_weight",
+        "item_weight" = maj."item_weight",
+        "customs_code" = maj."customs_code"
+    from (
+        select 
+            ee."id", 
+            aa."axe_bu", 
+            aa."axe_prj", 
+            aa."axe_pro", 
+            aa."axe_pys", 
+            aa."axe_rfa",
+            aa."uuid_big_category",
+            aa."uuid_sub_big_category",
+            aa."unit_weight",
+            aa."item_weight",
+            aa."customs_code"
+        from "edi_ediimport" ee 
+        join "articles_article" aa 
+        on ee."reference_article" = aa."reference" 
+        and ee."third_party_num" = aa."third_party_num"
+        where (
+            ee."uuid_big_category" is null
+            or 
+            ee."axe_pro" isnull 
+        )
+    ) maj
+    where edi."id" = maj."id" 
+    """
+)
+
 
 SQL_FIX_IMPORT_UUID = sql.SQL(
     # insertion d'un uuid si il est manquant

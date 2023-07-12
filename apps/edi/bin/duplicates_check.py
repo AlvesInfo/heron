@@ -88,10 +88,13 @@ def suppliers_invoices_duplicate_check():
             trace_comment = first_comment + ",<br>".join(errors_array) + last_comment
 
             # On ajoute l'erreur à la trace
-            trace = Trace.objects.get(uuid_identification=uuid_identification)
-            trace.errors = True
-            trace.comment = trace.comment + trace_comment
-            trace.save()
+            try:
+                trace = Trace.objects.get(uuid_identification=uuid_identification)
+                trace.errors = True
+                trace.comment = trace.comment + trace_comment
+                trace.save()
+            except Trace.DoesNotExist:
+                pass
 
         # on marque à delete dans la table EdiImport (edi_edi_import)
         cursor.execute(sql_invoices_duplicates_delete)
