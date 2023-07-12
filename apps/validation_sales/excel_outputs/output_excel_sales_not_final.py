@@ -63,7 +63,7 @@ def excel_heron_sales_not_final(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier des ventes Héron non finalisées"""
     titre = f"VENTES HERON A FINALISER"
     list_excel = [file_io, ["VENTES HERON"]]
-    excel = GenericExcel(list_excel)
+    excel = GenericExcel(list_excel, in_memory=True)
     columns = columns_sales_heron
     global num_ligne
 

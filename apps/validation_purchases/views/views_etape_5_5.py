@@ -49,6 +49,7 @@ def validation_purchases_export_familles(request):
     context = {"titre_table": "Export Excel"}
     return render(request, "validation_purchases/sage_controls.html", context=context)
 
+
 def invoices_purchases_export_globals(request):
     """View de l'étape 5.5 B des écrans de contrôles"""
     """

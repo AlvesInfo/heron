@@ -269,7 +269,7 @@ def excel_balance_suppliers_purchases(file_io: io.BytesIO, file_name: AnyStr) ->
     """Fonction de génération du fichier de Contrôle 5.1 Fournisseurs M vs M-1"""
     titre = f"5.1 Fournisseurs M vs M-1"
     list_excel = [file_io, ["FOURNISSEURS"]]
-    excel = GenericExcel(list_excel)
+    excel = GenericExcel(list_excel, in_memory=True)
     file_path = Path(
         f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
     )
