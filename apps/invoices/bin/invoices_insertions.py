@@ -442,7 +442,7 @@ def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
         pass
 
 
-def sanitaze_imports():
+def sanitaze_before():
     """
     Suppression et nettoyage des factures non finalisées
     :return: None
@@ -514,7 +514,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     try:
 
         # On nettoie les factures non finalisées
-        sanitaze_imports()
+        sanitaze_before()
 
         print(f"suppression :{time.time()-start} s")
         start = time.time()
