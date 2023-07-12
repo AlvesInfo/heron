@@ -391,10 +391,8 @@ def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
     from "invoices_invoice"
     """
     cursor.execute(sql_initialize)
-    LOGGER_INVOICES.warning(rf"{str([r for r in cursor.fetchall()])}")
-    LOGGER_INVOICES.warning(rf"{cursor.mogrify(sql_initialize, {}).decode()}")
     num = (cursor.fetchone())[0]
-    LOGGER_INVOICES.warning(rf"{str(num)}")
+
     try:
         numerotation = CounterNums.objects.get(
             counter__uuid_identification=UUID("ad95c27f-9800-46d4-8e63-55191023f0a4")
@@ -442,40 +440,37 @@ def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
         pass
 
 
-def sanitaze_before():
+def sanitaze_before(cursor):
     """
     Suppression et nettoyage des factures non finalisées
     :return: None
     """
+    # On supprime les factures pdf dont les factures sont à "final" = false
+    delete_pdf_files(cursor)
 
-    with connection.cursor() as cursor:
-        # On supprime les factures pdf dont les factures sont à "final" = false
-        delete_pdf_files(cursor)
+    # On supprime les éxistant non définitifs
+    cursor.execute(
+        "delete from invoices_invoicecommondetails "
+        'where ("final" isnull or "final" = false)'
+    )
 
-        # On supprime les éxistant non définitifs
-        cursor.execute(
-            "delete from invoices_invoicecommondetails "
-            'where ("final" isnull or "final" = false)'
-        )
+    cursor.execute(
+        'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
+    )
 
-        cursor.execute(
-            'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
-        )
+    cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
 
-        cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
+    cursor.execute(
+        'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
+    )
 
-        cursor.execute(
-            'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
-        )
+    cursor.execute(
+        'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
+    )
 
-        cursor.execute(
-            'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
-        )
-
-    with connection.cursor() as cursor:
-        # On réinitialise les compteurs de numérotation, pour qu'il n'y ai pas de décalages
-        reinitialize_purchase_invoices_nums(cursor)
-        reinitialize_sales_invoices_nums(cursor)
+    # On réinitialise les compteurs de numérotation, pour qu'il n'y ai pas de décalages
+    reinitialize_purchase_invoices_nums(cursor)
+    reinitialize_sales_invoices_nums(cursor)
 
 
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
@@ -513,13 +508,13 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
     try:
 
-        # On nettoie les factures non finalisées
-        sanitaze_before()
-
-        print(f"suppression :{time.time()-start} s")
-        start = time.time()
-
         with connection.cursor() as cursor, transaction.atomic():
+            LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
+            # On nettoie les factures non finalisées
+            sanitaze_before(cursor)
+            print(f"suppression :{time.time()-start} s")
+            start = time.time()
+
             LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
             # On met les import_uuid_identification au cas où il en manque
             set_fix_uuid(cursor)
