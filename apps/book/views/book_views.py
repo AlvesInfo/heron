@@ -132,7 +132,7 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def export_list_societies(_, file_name: str):
     """
     Export Excel de la liste des Sociétés
-    :param request: Request Django
+    :param _: Request Django
     :param file_name: Nom du fichier à downloader
     :return: response_file
     """

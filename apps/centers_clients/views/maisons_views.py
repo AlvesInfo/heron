@@ -142,8 +142,7 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         )
         context["adresse_principale_sage"] = (
             context.get("object")
-            .third_party_num.society_society.filter(default_adress=True)
-            .first()
+            .third_party_num.society_society.filter(address_code="1").first()
         )
 
         return context

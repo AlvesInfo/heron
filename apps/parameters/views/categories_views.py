@@ -276,6 +276,6 @@ def axe_articles_defaut_export_list(_):
         return response_file(excel_list_axe_article_defaut, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_EXPORT_EXCEL.exception("view : export_list_societies")
+        LOGGER_EXPORT_EXCEL.exception("view : axe_articles_defaut_export_list")
 
     return redirect(reverse("book:societies_list"))
