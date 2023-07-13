@@ -179,9 +179,10 @@ with "real_purchase" as(
 	  on "isi"."invoice_type_name" = "cpt"."invoice_name"
 	 and "cpt"."child_center" = 'GAF'
 
-	-- "export" = false
+	-- type de client 1 : "VENTE" , "export" = false
 	where not "isi"."export"
-	 and "isi"."third_party_num" = 'GAUDF'
+	  and "isi"."type_x3" = 1
+	  and "isi"."third_party_num" = 'GAUDF'
 
 	group by
 	        -- T
