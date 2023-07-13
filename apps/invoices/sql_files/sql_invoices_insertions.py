@@ -723,6 +723,7 @@ SQL_SALES_INVOICES = sql.SQL(
         where "eee"."sale_invoice" = true
           and "eee"."valid" = true
           and "ccm"."type_x3" in (1, 2)
+          and "eee"."cct_uuid_identification" = '60ad106d-c4b8-4b22-944a-aa657ea9f171'::uuid
     ) 
     select 
         now() as "created_at",
