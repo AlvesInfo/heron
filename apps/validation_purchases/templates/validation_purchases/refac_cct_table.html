@@ -36,17 +36,17 @@
                                 <i class="eye icon modification"></i>
                             </a>
                         </td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}">{{ client.signboard }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}">{{ client.country_name }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}text-align: left;">{{ client.cct_name }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}">{{ client.type_vente }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}">{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
-                        <td style="background-color: {% if client.type_vente == 'BLOCAGE' %}red{% elif client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.type_vente == 'BLOCAGE' %}white{% elif client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;color: white;{% endif %}text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
-                        <td style="text-align: right;background-color: {% if client.type_vente == 'BLOCAGE' %}red{% elif client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.type_vente == 'BLOCAGE' %}white{% elif client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
-                        <td style="{% if client.type_vente == 'BLOCAGE' %}background-color: red;{% endif %}text-align: right;color: {% if client.type_vente == 'BLOCAGE' %}white{% elif client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}">{{ client.signboard }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}">{{ client.country_name }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}text-align: left;">{{ client.cct_name }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}">{{ client.type_vente }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}">{{ client.opening_date|default_if_none:''|date:"d/m/Y" }}</td>
+                        <td style="background-color: {% if client.type_vente == 'BLOCAGE' and client.M_00 %}red{% elif client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.type_vente == 'BLOCAGE' and client.M_00 %}white{% elif client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.closing_date|default_if_none:''|date:"d/m/Y" }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}text-align: right;">{{ client.M_03|numbers_format:2|default_if_zero }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}text-align: right;">{{ client.M_02|numbers_format:2|default_if_zero }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;color: white;{% endif %}text-align: right;">{{ client.M_01|numbers_format:2|default_if_zero }}</td>
+                        <td style="text-align: right;background-color: {% if client.type_vente == 'BLOCAGE' and client.M_00 %}red{% elif client.closing_date and client.M_00 %}red{% else %}white{% endif %};color: {% if client.type_vente == 'BLOCAGE' and client.M_00 %}white{% elif client.closing_date and client.M_00 %}white{% else %}black{% endif %};">{{ client.M_00|numbers_format:2|default_if_zero }}</td>
+                        <td style="{% if client.type_vente == 'BLOCAGE' and client.M_00 %}background-color: red;{% endif %}text-align: right;color: {% if client.type_vente == 'BLOCAGE' and client.M_00 %}white{% elif client.variation < 0 %}red{% else %}black{% endif %};">{{ client.variation|numbers_format:2|default_if_zero }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
