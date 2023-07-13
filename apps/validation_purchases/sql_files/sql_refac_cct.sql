@@ -6,7 +6,8 @@ with "maisons" as (
         "opening_date",
         "uuid_identification",
         "sb"."name" as "signboard",
-        "co"."country_name"
+        "co"."country_name",
+        "cm"."type_x3"
     from "centers_clients_maison" "cm"
     join "centers_purchasing_signboard" "sb"
     on "cm"."sign_board" = "sb"."code"
@@ -24,7 +25,8 @@ with "maisons" as (
         "ee"."net_amount" as "M_00",
         0 as "M_01",
         0 as "M_02",
-        0 as "M_03"
+        0 as "M_03",
+        "cc"."type_x3"
     from "edi_ediimport" "ee"
     join "maisons" "cc"
     on "ee"."cct_uuid_identification" = "cc"."uuid_identification"
@@ -66,7 +68,8 @@ with "maisons" as (
             )
             then "iv"."net_amount"
             else 0
-        end as "M_03"
+        end as "M_03",
+        "cc"."type_x3"
 
     from "invoices_invoice" "ii"
     join "invoices_invoicedetail" "iv"
@@ -89,19 +92,22 @@ with "maisons" as (
     select
         "signboard", "country_name", "cct", "cct_name", "opening_date", "closing_date",
         "M_00", "M_01", "M_02", "M_03",
-        ("M_00" - "M_01")::numeric as "variation"
+        ("M_00" - "M_01")::numeric as "variation",
+        "type_x3"
     from "edi_details"
     union all
     select
         "signboard", "country_name", "cct", "cct_name", "opening_date", "closing_date",
         "M_00", "M_01", "M_02", "M_03",
-        ("M_00" - "M_01")::numeric as "variation"
+        ("M_00" - "M_01")::numeric as "variation",
+        "type_x3"
     from "invoices_details"
 )
 select
     "signboard",
     "country_name",
     "cct_name",
+    "ct"."name" as "type_vente",
     "opening_date",
     "closing_date",
     sum("M_03") as "M_03",
@@ -111,13 +117,16 @@ select
     sum("M_00" - "M_01")::numeric as "variation",
     '' as "comment",
     "cct"
-from "alls"
+from "alls" "al"
+left join "centers_clients_typevente" "ct"
+  on "al"."type_x3" = "ct"."num"
 group by "signboard",
          "country_name",
          "cct",
          "cct_name",
          "opening_date",
-         "closing_date"
+         "closing_date",
+    	 "ct"."name"
 order by "signboard",
          "country_name",
          "cct_name"

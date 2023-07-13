@@ -78,6 +78,22 @@ COLUMNS = [
         "width": 51,
     },
     {
+        "entete": "Type",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 10,
+    },
+    {
         "entete": "Date\nOuverture",
         "f_entete": {
             **f_entetes,
@@ -125,7 +141,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "M-2",
@@ -141,7 +157,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "M-1",
@@ -157,7 +173,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "M",
@@ -173,7 +189,7 @@ COLUMNS = [
                 "num_format": "#,##0.00",
             },
         },
-        "width": 10,
+        "width": 11,
     },
     {
         "entete": "Variation\nM vs M-1",
@@ -235,7 +251,7 @@ def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
     mois = 4
 
     for i, column_dict in enumerate(COLUMNS, 1):
-        if 5 < i < 10:
+        if 6 < i < 11:
             column_dict["entete"] = (
                 (
                     pendulum.now()
@@ -266,20 +282,61 @@ def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
         for i in range(5, nb_rows):
             excel.conditional_value(
                 num_sheet=1,
-                str_plage=f"E{i}",
+                str_plage=f"F{i}",
                 valeur=0,
                 type_format="formula",
-                criteria=f'=IF(I{i}=0,False,IF(E{i}="",False,True))',
+                criteria=f'=IF(J{i}=0,False,IF(F{i}="",False,True))',
                 style=style,
             )
             excel.conditional_value(
                 num_sheet=1,
-                str_plage=f"I{i}",
+                str_plage=f"J{i}",
                 valeur=0,
                 type_format="formula",
-                criteria=f'=IF(I{i}=0,False,IF(E{i}="",False,True))',
+                criteria=f'=IF(J{i}=0,False,IF(F{i}="",False,True))',
                 style=style,
             )
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"A{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(J{i}=0,False,IF(D{i}="BLOCAGE",True,False))',
+                style=style,
+            )
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"B{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(J{i}=0,False,IF(D{i}="BLOCAGE",True,False))',
+                style=style,
+            )
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"C{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(J{i}=0,False,IF(D{i}="BLOCAGE",True,False))',
+                style=style,
+            )
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"D{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(J{i}=0,False,IF(D{i}="BLOCAGE",True,False))',
+                style=style,
+            )
+            excel.conditional_value(
+                num_sheet=1,
+                str_plage=f"J{i}",
+                valeur=0,
+                type_format="formula",
+                criteria=f'=IF(J{i}=0,False,IF(D{i}="BLOCAGE",True,False))',
+                style=style,
+            )
+
 
         sheet_formatting(
             excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
