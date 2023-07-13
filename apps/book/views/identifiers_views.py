@@ -128,7 +128,7 @@ def change_supplier_cct_unit(request):
     if form.is_valid() and form.cleaned_data:
         cct_identifier = form.cleaned_data.get("cct_identifier")
 
-        if cct_identifier[-1] != "|":
+        if cct_identifier is not None and cct_identifier[-1] != "|":
             cct_identifier = f"{cct_identifier}|"
 
         get_supplier_cct = SupplierCct.objects.get(id=request.POST.get("pk"))
