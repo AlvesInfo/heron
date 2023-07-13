@@ -468,7 +468,7 @@ def sanitaze_before(cursor):
         'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
     )
 
-    # On réinitialise les compteurs de numérotation, pour qu'il n'y ai pas de décalages
+    # On réinitialise les compteurs de numérotation, pour qu'il n'y ait pas de décalages
     reinitialize_purchase_invoices_nums(cursor)
     reinitialize_sales_invoices_nums(cursor)
 

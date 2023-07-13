@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 from operator import itemgetter
 
 from apps.core.functions.functions_setups import connections, settings
-from apps.invoices.bin.invoives_nums import get_bispa_num
+from apps.invoices.bin.invoives_nums import get_bispar_num
 from apps.invoices.bin.base_export_x3_functions import (
     get_rows,
     get_t,
@@ -40,14 +40,14 @@ def write_bispar(fcy, nb_fac=5000):
     except StopIteration:
         return
 
-    file = get_file(settings.EXPORT_DIR, fcy, get_bispa_num)
+    file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
     invoice_number, *line_to_write, test_a = row
     invoice = invoice_number
     slicing_bispar = itemgetter(
         slice(0, 17, None),
         slice(17, 30, None),
-        slice(30, 44, None),
-        slice(44, len(line_to_write), None),
+        slice(30, 46, None),
+        slice(46, len(line_to_write), None),
     )
     line_t, line_d, line_a, line_e = split_line(line_to_write, slicing_bispar)
     invoice_d = str(line_d)
@@ -80,7 +80,7 @@ def write_bispar(fcy, nb_fac=5000):
                 if not file.closed:
                     file.close()
 
-                file = get_file(settings.EXPORT_DIR, fcy, get_bispa_num)
+                file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
                 i = 1
 
             else:
