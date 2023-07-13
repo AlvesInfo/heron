@@ -509,6 +509,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     try:
 
         with connection.cursor() as cursor, transaction.atomic():
+            user = User.objects.get(uuid_identification=user_uuid)
             # LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
             # # On nettoie les factures non finalisées
             # sanitaze_before(cursor)
@@ -539,8 +540,6 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             # set_common_details(cursor)
             # print(f"set_common_details :{time.time()-start} s")
             # start = time.time()
-            #
-            # user = User.objects.get(uuid_identification=user_uuid)
             #
             # # On insère les factures d'achats
             # LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
