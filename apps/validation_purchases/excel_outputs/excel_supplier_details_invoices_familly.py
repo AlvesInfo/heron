@@ -526,7 +526,7 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
 
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        # print(cursor.mogrify(query, parmas_dict).decode())
+        print(cursor.mogrify(query, parmas_dict).decode())
         # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
         # print(query)
         cursor.execute(query, parmas_dict)
@@ -543,7 +543,13 @@ def excel_supplier_details_invoice(file_io: io.BytesIO, file_name: str, attr_dic
         f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_invoice_supplier_details.sql"
     )
     get_clean_rows = [line[: len(COLUMNS)] for line in get_rows(file_path, attr_dict)]
-    titre = f"ETAPE 3.1.A: CONTROLES DE FAMILLES : {third_party_num} - {get_clean_rows[0][1]}"
+
+    try:
+        supplier = get_clean_rows[0][1]
+    except IndexError:
+        supplier = ""
+
+    titre = f"ETAPE 3.1.A: CONTROLES DE FAMILLES : {third_party_num} - {supplier}"
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
