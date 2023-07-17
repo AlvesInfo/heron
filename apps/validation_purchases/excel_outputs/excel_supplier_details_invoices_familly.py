@@ -526,7 +526,7 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
 
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        print(cursor.mogrify(query, parmas_dict).decode())
+        # print(cursor.mogrify(query, parmas_dict).decode())
         # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
         # print(query)
         cursor.execute(query, parmas_dict)
