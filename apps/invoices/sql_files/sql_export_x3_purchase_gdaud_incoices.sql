@@ -219,9 +219,7 @@ with "real_purchase" as(
 	select
 		"uuid_invoice",
 		"invoice_number",
-		"invoice_amount_with_tax",
-		sum("net_amount"),
-		("invoice_amount_with_tax" - sum("delta_ttc")) as "d_ttc"
+		round(("invoice_amount_with_tax" - sum("delta_ttc"))::numeric, 2) as "d_ttc"
 	from (
 		select
 		    "uuid_invoice",
@@ -311,8 +309,8 @@ with "real_purchase" as(
 		'' as "BPRLIN", -- Tiers
 			case
 				when "isi"."invoice_type_name" = 'Facture'
-				then round(("isi"."invoice_amount_with_tax" - sum("d_ttc"))::numeric, 2)
-				else -round(("isi"."invoice_amount_with_tax" - sum("d_ttc"))::numeric, 2)
+				then sum("d_ttc")
+				else -sum("d_ttc")
 			end as "AMTNOTLIN", -- Montant HT
 			'0' as "QTY_L", -- Quantité
 			'004' as  "VAT", -- Taxe X3
@@ -344,7 +342,11 @@ with "real_purchase" as(
         'NAF' as  "CCE_03",
         'FR' as  "CCE_04",
         'NAF' as  "CCE_05",
-        0 as "AMT",
+		case
+			when "isi"."invoice_type_name" = 'Facture'
+			then sum("d_ttc")
+			else -sum("d_ttc")
+		end as "AMT",
 		'0' as "QTY_A", -- Quantité
 
 		-- E
@@ -390,7 +392,7 @@ with "real_purchase" as(
           isi.invoice_type_name,
           isi.invoice_amount_with_tax
 
--- 		having "isi"."invoice_amount_with_tax" - sum("d_ttc") != 0
+ 		having "isi"."invoice_amount_with_tax" - sum("d_ttc") != 0
 ),
 "alls" as (
     select
