@@ -1,4 +1,4 @@
-# pylint: disable=R0913
+# pylint: disable=E0401,R0913
 """Module de simplification de l'écriture des titres de feuilles, date d'édition du fichier et
 entêtes
 
@@ -8,11 +8,9 @@ par : Paulo ALVES
 modifié le : 22/11/2020
 par : Paulo ALVES
 """
-from pathlib import Path
 
 import pendulum
 
-from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_excel import get_paper_size
 
 # ==========================================================================================
@@ -48,13 +46,13 @@ f_ligne = {
 
 def logo_writer(excel, logo_path, sheet, row, col, dict_args=None):
     """Fonction d'écriture du logo
-        :param excel: feuille excel ou écrire
-        :param logo_path: path du logo
-        :param sheet: N° de la feuille excel ou écrire
-        :param row: ligne
-        :param col: colonnes
-        :param dict_args: dictionnaire des arguments supplémentaires
-        :return: None
+    :param excel: feuille excel ou écrire
+    :param logo_path: path du logo
+    :param sheet: N° de la feuille excel ou écrire
+    :param row: ligne
+    :param col: colonnes
+    :param dict_args: dictionnaire des arguments supplémentaires
+    :return: None
     """
     if logo_path.is_file():
         if dict_args:
@@ -64,15 +62,15 @@ def logo_writer(excel, logo_path, sheet, row, col, dict_args=None):
 
 
 def titre_page_writer(excel, sheet, row, col, columns_list, titre, merge=False):
-    """Ecriture sur la feuille excel, du titre de la feuille
-        :param excel: feuille excel
-        :param sheet: n° de feuille excel
-        :param row: ligne
-        :param col: colonne
-        :param columns_list: liste des colonnes
-        :param titre: titre à écrire
-        :param merge: si le titre doit être mergé
-        :return: None
+    """Ecriture sur la feuille excel, du titre général
+    :param excel: feuille excel
+    :param sheet: n° de feuille excel
+    :param row: ligne
+    :param col: colonne
+    :param columns_list: liste des colonnes
+    :param titre: titre à écrire
+    :param merge: si le titre doit être mergé
+    :return: None
     """
     nb_col = len(columns_list)
 
@@ -87,12 +85,12 @@ def titre_page_writer(excel, sheet, row, col, columns_list, titre, merge=False):
 
 def output_day_writer(excel, sheet, row, col, dict_format=None):
     """Mise en place de la date d'édition
-        :param excel: feuille excel
-        :param sheet: n° de feuille excel
-        :param row: ligne
-        :param col: colonne
-        :param dict_format: dictionnaire des formats souhaités
-        :return: None
+    :param excel: feuille excel
+    :param sheet: n° de feuille excel
+    :param row: ligne
+    :param col: colonne
+    :param dict_format: dictionnaire des formats souhaités
+    :return: None
     """
     formatage = dict_format or f_edit
     edite = f"Edité, le {pendulum.today().format('DD MMMM YYYY', locale='fr')}"
@@ -100,20 +98,34 @@ def output_day_writer(excel, sheet, row, col, dict_format=None):
 
 
 def columns_headers_writer(excel, sheet: int, num_row: int, num_col: int, columns_list):
-    """Ecriture sur la feuille excel, du titre de la feuille
-    """
+    """Ecriture sur la feuille excel, du titre de la feuille"""
     entetes_list = [dict_row.get("entete") for dict_row in columns_list]
     formats_list = [dict_row.get("f_entete") for dict_row in columns_list]
     excel.write_rows(sheet, num_row, num_col, entetes_list, formats_list)
 
 
+def merge_headers_writer(excel, sheet: int, num_row: int, columns_list):
+    """Ecriture sur la feuille excel, du titre de la feuille"""
+    entetes_list = [dict_row.get("entete") for dict_row in columns_list]
+    formats_list = [dict_row.get("f_entete") for dict_row in columns_list]
+    cols_list = [(dict_row.get("col_01"), dict_row.get("col_02")) for dict_row in columns_list]
+
+    for i, _ in enumerate(columns_list):
+        col_01 = cols_list[i][0]
+        col_02 = cols_list[i][1]
+        if col_01 == col_02:
+            excel.write_row(sheet, num_row, col_01, entetes_list[i], formats_list[i])
+        else:
+            excel.write_merge_h(sheet, num_row, col_01, col_02, entetes_list[i], formats_list[i])
+
+
 def sheet_formatting(excel, sheet: int, columns_list, dict_args=None):
     """Formatage des largeurs de colonnes et du format à l'impression
-        :param excel:
-        :param sheet:
-        :param columns_list:
-        :param dict_args:
-        :return:
+    :param excel:
+    :param sheet:
+    :param columns_list:
+    :param dict_args:
+    :return:
     """
     if dict_args is None:
         dict_args = {}

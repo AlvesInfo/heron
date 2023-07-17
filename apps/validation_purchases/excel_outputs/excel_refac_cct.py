@@ -337,7 +337,6 @@ def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
                 style=style,
             )
 
-
         sheet_formatting(
             excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
         )

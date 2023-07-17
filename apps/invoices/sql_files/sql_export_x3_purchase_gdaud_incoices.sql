@@ -218,16 +218,20 @@ with "real_purchase" as(
 "delta_invoices" as (
 	select
 		"uuid_invoice",
-		    "invoice_number",
-		"d_ttc"
+		"invoice_number",
+		"invoice_amount_with_tax",
+		sum("net_amount"),
+		("invoice_amount_with_tax" - sum("delta_ttc")) as "d_ttc"
 	from (
 		select
 		    "uuid_invoice",
 		    "iii"."invoice_number",
 		    "acc"."vat",
 		    "vat_rate",
--- 		    round(sum("net_amount")::numeric * (1+ "vat_rate"::numeric)::numeric, 2) as "d_ttc"
-		    "iii"."invoice_amount_with_tax" as "d_ttc"
+		    "acc"."purchase_account",
+ 		    round(sum("net_amount")::numeric * (1+ "vat_rate"::numeric)::numeric, 2) as "delta_ttc",
+ 		    sum("net_amount") as "net_amount",
+		    "iii"."invoice_amount_with_tax"
 		from "invoices_saleinvoicedetail" "idd"
 		join "invoices_saleinvoice" "iii"
 		on "iii"."uuid_identification" = "idd"."uuid_invoice"
@@ -254,11 +258,12 @@ with "real_purchase" as(
 		    "iii"."invoice_number",
 		    "acc"."vat",
 		    "vat_rate",
+		    "acc"."purchase_account",
 		    "iii"."invoice_amount_with_tax"
 	) det
 	group by "uuid_invoice",
 		    "invoice_number",
-		    "d_ttc"
+		    "invoice_amount_with_tax"
 ),
 "delta" as (
 	select
@@ -325,7 +330,7 @@ with "real_purchase" as(
 		) as "DES_L", --Commentaire
 
 		-- A (les DIE et CCE ont un ordre précis BU, CCT, PRO, PRJ, PYS RFA)
-		'' as "A", -- Indicateur model import
+		'A' as "A", -- Indicateur model import
 		'1' as "ANALIG", -- Numéro d'ordre
 		'BU' as "DIE", -- Code axe BU
 		'CCT' as "DIE_01", -- Code axe CCT
@@ -333,12 +338,12 @@ with "real_purchase" as(
 		'PRJ' as "DIE_03", -- Code axe PRJ
 		'PYS' as "DIE_04", -- Code axe PYS
 		'RFA' as "DIE_05", -- Code axe RFA
-        '' as  "CCE",
-        '' as  "CCE_01",
-        '' as  "CCE_02",
-        '' as  "CCE_03",
-        '' as  "CCE_04",
-        '' as  "CCE_05",
+        'REFAC' as  "CCE",
+        'DIV' as  "CCE_01",
+        'DIV' as  "CCE_02",
+        'NAF' as  "CCE_03",
+        'FR' as  "CCE_04",
+        'NAF' as  "CCE_05",
         0 as "AMT",
 		'0' as "QTY_A", -- Quantité
 
@@ -363,7 +368,7 @@ with "real_purchase" as(
 		'1' as "BPARAY", -- Adresse tiers
 
 		-- Test Analytique
-		false as "test_a"
+		true as "test_a"
 
 	from "invoices_saleinvoice" "isi"
 	join "delta_invoices" "sa"
