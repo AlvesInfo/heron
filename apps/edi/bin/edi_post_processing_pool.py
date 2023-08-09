@@ -444,10 +444,11 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def generique_post_insert(uuid_identification: AnyStr):
+def generique_post_insert(uuid_identification: AnyStr, post=None):
     """
     Mise à jour des champs vides à l'import du fichier EyeConfort
     :param uuid_identification: uuid_identification
+    :param post: si l'on veut appliquer le post général
     """
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
@@ -462,7 +463,9 @@ def generique_post_insert(uuid_identification: AnyStr):
         # cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mg_developpemnt, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
-        post_general(uuid_identification, cursor)
+
+        if post is None:
+            post_general(uuid_identification, cursor)
 
 
 def generique_post_insert_internal(uuid_identification: AnyStr):
@@ -476,6 +479,7 @@ def generique_post_insert_internal(uuid_identification: AnyStr):
     with connection.cursor() as cursor:
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        post_general(uuid_identification, cursor)
 
 
 def hearing_post_insert(uuid_identification: AnyStr):

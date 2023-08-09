@@ -450,7 +450,7 @@ def generique_internal(file_path: Path):
         model, flow_name, file_path, trace, validator, params_dict_loader
     )
     trace.save()
-    generique_post_insert(trace.uuid_identification)
+    generique_post_insert(trace.uuid_identification, post=False)
     generique_post_insert_internal(trace.uuid_identification)
 
     return trace, to_print
