@@ -111,12 +111,12 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         form.instance.curency_base = "EUR"
         form.instance.rate_month = self.kwargs.get("month")
         self.request.session["level"] = 20
-
         return super().form_valid(form)
 
     def form_updated(self):
         """Action à faire après form_valid save"""
-        set_exchanges_sales_cosium(self.object.rate_month, self.object.currency_change)
+        print(self.object.rate_month, self.object.currency_change)
+        set_exchanges_sales_cosium(str(self.object.rate_month), self.object.currency_change)
 
 
 class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):

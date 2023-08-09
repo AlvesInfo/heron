@@ -39,7 +39,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '1 month')::date
+                        (date_trunc('month', now()) - interval '2 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -48,7 +48,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '2 month')::date
+                        (date_trunc('month', now()) - interval '3 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -57,7 +57,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '3 month')::date
+                        (date_trunc('month', now()) - interval '4 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -66,7 +66,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '4 month')::date
+                        (date_trunc('month', now()) - interval '5 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -75,7 +75,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '5 month')::date
+                        (date_trunc('month', now()) - interval '6 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -84,7 +84,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '6 month')::date
+                        (date_trunc('month', now()) - interval '7 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -93,7 +93,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '7 month')::date
+                        (date_trunc('month', now()) - interval '8 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -102,7 +102,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '8 month')::date
+                        (date_trunc('month', now()) - interval '9 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -111,7 +111,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '9 month')::date
+                        (date_trunc('month', now()) - interval '10 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -120,7 +120,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '10 month')::date
+                        (date_trunc('month', now()) - interval '11 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
@@ -129,7 +129,7 @@
                     when (
                         "ii"."integration_month"
                         =
-                        (date_trunc('month', now()) - interval '11 month')::date
+                        (date_trunc('month', now()) - interval '12 month')::date
                     )
                     then "iv"."net_amount"
                     else 0
