@@ -531,7 +531,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             start = time.time()
 
             LOGGER_INVOICES.warning(r"Copie de la table edi_ediimport")
-            # On copy la table edi_ediimport par sécurité si il y a des éléments dans celle-ci
+            # On copie la table edi_ediimport par sécurité si il y a des éléments dans celle-ci
             copy_edi_import(cursor)
             print(f"Copie :{time.time()-start} s")
             start = time.time()
