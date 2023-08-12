@@ -107,7 +107,7 @@ SQL_SUBSCRIPTIONS = sql.SQL(
         %(flow_name)s as "famille",
         case
             when "ccm"."unit_weight" = 12
-            then round("qty" / 100, 2)::numeric
+            then round("qty" / 100, 5)::numeric
             else "qty"
         end as "qty",
         case
