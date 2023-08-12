@@ -45,6 +45,7 @@ from apps.core.functions.functions_setups import connection, transaction
 from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
 from apps.data_flux.trace import get_trace
 from apps.users.models import User
+from apps.edi.models import EdiImport
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.invoices.bin.pre_controls import control_alls_missings
 from apps.invoices.models import Invoice, SaleInvoice
@@ -473,6 +474,19 @@ def sanitaze_before(cursor):
     reinitialize_sales_invoices_nums(cursor)
 
 
+def copy_edi_import(cursor):
+    """
+    On copie la table edi_import avec toutes ses données (si la table n'est pas vide),
+    afin d'avoir une sauvegarde fraiche avant de faire les insertions
+    :return: None
+    """
+    if EdiImport.objects.exists():
+        sql_delete_copy = "DROP TABLE IF EXISTS edi_ediimport_copy"
+        cursor.execute(sql_delete_copy)
+        sql_copy = "CREATE TABLE edi_ediimport_copy AS TABLE edi_ediimport"
+        cursor.execute(sql_copy)
+
+
 def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
@@ -514,6 +528,12 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             # On nettoie les factures non finalisées
             sanitaze_before(cursor)
             print(f"suppression :{time.time()-start} s")
+            start = time.time()
+
+            LOGGER_INVOICES.warning(r"Copie de la table edi_ediimport")
+            # On copy la table edi_ediimport par sécurité si il y a des éléments dans celle-ci
+            copy_edi_import(cursor)
+            print(f"Copie :{time.time()-start} s")
             start = time.time()
 
             LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
