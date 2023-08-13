@@ -113,7 +113,24 @@ SQL_COMMON_DETAILS = sql.SQL(
         "purchase_invoice",
         "sale_invoice",
         "invoice_year",
-        "uuid_control"
+        "uuid_control",
+        "article_exists", 
+        "axe_pro_supplier", 
+        "axe_pro_supplier_exists", 
+        "code_center", 
+        "code_fournisseur", 
+        "code_maison", 
+        "maison",
+        "code_signboard", 
+        "invoice_type", 
+        "maison_exists", 
+        "siret_payeur", 
+        "supplier_exists", 
+        "supplier_ident", 
+        "supplier_name", 
+        "uuid_big_category", 
+        "uuid_identification", 
+        "uuid_sub_big_category"
     )
     (
         select 
@@ -167,7 +184,24 @@ SQL_COMMON_DETAILS = sql.SQL(
             "purchase_invoice",
             "sale_invoice",
             "ee"."invoice_year",
-            "ee"."uuid_control"
+            "ee"."uuid_control",
+            "ee"."article_exists", 
+            "ee"."axe_pro_supplier", 
+            "ee"."axe_pro_supplier_exists", 
+            "ee"."code_center", 
+            "ee"."code_fournisseur", 
+            "ee"."code_maison", 
+            "ee"."maison",
+            "ee"."code_signboard", 
+            "ee"."invoice_type", 
+            "ee"."maison_exists", 
+            "ee"."siret_payeur", 
+            "ee"."supplier_exists", 
+            "ee"."supplier_ident", 
+            "ee"."supplier_name", 
+            "ee"."uuid_big_category", 
+            "ee"."uuid_identification", 
+            "ee"."uuid_sub_big_category"
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
                 on "aa"."reference" = "ee"."reference_article" 

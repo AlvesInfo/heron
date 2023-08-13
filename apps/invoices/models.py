@@ -632,6 +632,28 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
         related_name="common_society",
         db_column="third_party_num",
     )
+    article_exists = models.BooleanField(null=True, default=False)
+    axe_pro_supplier = models.CharField(null=True, blank=True, max_length=35)
+    axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
+    code_center = models.CharField(null=True, max_length=15, verbose_name="code centrale fille")
+    code_fournisseur = models.CharField(null=True, blank=True, max_length=30)
+    code_maison = models.CharField(null=True, blank=True, max_length=30)
+    maison = models.CharField(null=True, blank=True, max_length=80, verbose_name="libellé maison")
+    code_signboard = models.CharField(null=True, max_length=15, verbose_name="code enseigne")
+    invoice_type = models.CharField(
+        null=True,
+        blank=True,
+        max_length=10,
+        verbose_name="FA:380, AV:381",
+    )
+    maison_exists = models.BooleanField(null=True, default=False)
+    siret_payeur = models.CharField(null=True, blank=True, max_length=20)
+    supplier_exists = models.BooleanField(null=True, default=False)
+    supplier_ident = models.CharField(null=True, blank=True, max_length=20)
+    supplier_name = models.CharField(null=True, blank=True, max_length=80)
+    uuid_big_category = models.UUIDField(null=True)
+    uuid_identification = models.UUIDField(null=True)
+    uuid_sub_big_category = models.UUIDField(null=True)
 
     class Meta:
         """class Meta du modèle django"""

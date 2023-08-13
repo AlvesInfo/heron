@@ -162,8 +162,8 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
     supplier_exists = models.BooleanField(null=True, default=False)
     maison_exists = models.BooleanField(null=True, default=False)
     article_exists = models.BooleanField(null=True, default=False)
-    axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
     axe_pro_supplier = models.CharField(null=True, blank=True, max_length=35)
+    axe_pro_supplier_exists = models.BooleanField(null=True, default=False)
     # regex stats edi : ^(?P<tp>[\d]).{2}(?P<stat>.{2})
 
     big_category = models.ForeignKey(
