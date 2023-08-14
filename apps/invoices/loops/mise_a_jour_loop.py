@@ -173,9 +173,7 @@ def parties_invoices_update():
                                         "ccm"."invoice_entete" isnull 
                                         or 
                                         "ccm"."invoice_entete" = '' 
-                                    then "ccm"."intitule"
-                                    else "ccm"."invoice_entete"
-                                end,
+                                    then "ccm"."intitule",
             "immeuble" = case 
                     when "ccm"."immeuble" isnull or UPPER("ccm"."immeuble") = 'NONE' 
                     then '' 
@@ -203,11 +201,7 @@ def parties_invoices_update():
         slq_update_bs = """
         update "book_society" "bs"
         set 
-            "invoice_entete" = case 
-                                when "bs"."invoice_entete" isnull or "bs"."invoice_entete" = '' 
-                                then  case when "bs"."name" isnull then '' else "bs"."name" end 
-                                else "bs"."invoice_entete"
-                              end,
+            "invoice_entete" =  case when "bs"."name" isnull then '' else "bs"."name" end,
             "immeuble" = case 
                             when "bs"."immeuble" isnull or UPPER("bs"."immeuble") = 'NONE'
                             then '' 
