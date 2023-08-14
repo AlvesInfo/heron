@@ -16,7 +16,11 @@ from psycopg2 import sql
 SQL_HEADER = sql.SQL(
     """
     select 
-        "bs"."name", 
+        case 
+            when coalesce("bs"."invoice_entete", '') = ''
+            then "bs"."name"
+            else coalesce("bs"."invoice_entete", '')
+        end as "supplier_name",
         "ii"."libelle",
         case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
         case when "sd"."vat_rate" = 0.055 then "sd"."net_amount" else 0 end as "mont_05",

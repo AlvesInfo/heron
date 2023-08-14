@@ -16,7 +16,7 @@ from psycopg2 import sql
 SQL_HEADER = sql.SQL(
     """
     select 
-    "ii"."libelle",
+        "ii"."libelle",
         case 
             when "ii"."unit_weight" = '%%'
             then ("ii"."qty" * 100)::numeric 
