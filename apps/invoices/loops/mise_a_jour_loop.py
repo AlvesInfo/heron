@@ -174,6 +174,7 @@ def parties_invoices_update():
                                         or 
                                         "ccm"."invoice_entete" = '' 
                                     then "ccm"."intitule"
+                                    else "ccm"."invoice_entete"
                                 end,
             "immeuble" = case 
                     when "ccm"."immeuble" isnull or UPPER("ccm"."immeuble") = 'NONE' 
@@ -202,7 +203,11 @@ def parties_invoices_update():
         slq_update_bs = """
         update "book_society" "bs"
         set 
-            "invoice_entete" =  case when "bs"."name" isnull then '' else "bs"."name" end,
+            "invoice_entete" = case 
+                                when "bs"."invoice_entete" isnull or "bs"."invoice_entete" = '' 
+                                then  case when "bs"."name" isnull then '' else "bs"."name" end 
+                                else "bs"."invoice_entete"
+                              end,
             "immeuble" = case 
                             when "bs"."immeuble" isnull or UPPER("bs"."immeuble") = 'NONE'
                             then '' 
@@ -256,7 +261,7 @@ def parties_invoices_update():
             coalesce("isi"."uuid_identification", gen_random_uuid()) as "uuid_identification",
             -- CCT
             "ccm"."cct",
-            "ccm"."invoice_entete" as "name_cct", 
+            "ccm"."intitule" as "name_cct", 
             "ccm"."immeuble" as "immeuble_cct",
             "ccm"."adresse" as "adresse_cct",
             "ccm"."code_postal" as "code_postal_cct",
@@ -264,7 +269,7 @@ def parties_invoices_update():
             "com"."country_name" as "pays_cct",
             -- Tiers facturé à qui appartient le CCT
             "bs"."third_party_num",
-            "bs"."invoice_entete" as "name_third_party",
+            "bs"."name" as "name_third_party",
             "bs"."immeuble" "immeuble_third_party",
             "bs"."adresse" as "adresse_third_party",
             "bs"."code_postal" as "code_postal_third_party",
