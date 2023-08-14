@@ -220,7 +220,7 @@
                                  id="id_qty"
                                  readonly
                                  style="background-color: #efefff;text-align: right;padding-left: 4px;padding-right: 4px;"
-                                 value="{% if invoice.unit_weight.num == 12 %}{% widthratio invoice.qty 1 100 %}{% else %}{{ invoice.qty|numbers:2 }}{% endif %}">
+                                 value="{% if invoice.unit_weight.num == 12 %}{{ invoice.qty|numbersp:2 }}{% else %}{{ invoice.qty|numbers:2 }}{% endif %}">
                         </div>
                         <div class="two wide field">
                             <input type="text"

@@ -173,6 +173,38 @@ def numbers(value, num):
     return (return_value[::-1] + centimes_part).strip()
 
 
+@register.filter(name="numbersp")
+def numbersp(valueh, num):
+    if not valueh:
+        return "0"
+    value = str(valueh*100)
+    list_values = str(value).split(".")
+
+    if len(list_values) == 0:
+        nombre = "0"
+        centimes = ""
+
+    elif len(list_values) == 1:
+        nombre = str(value)
+        centimes = ""
+
+    else:
+        nombre, centimes, *_ = list_values
+
+    centimes += "0" * 99
+    return_value = ""
+
+    for i, value in enumerate(nombre[::-1], 1):
+        return_value += value
+
+    if num:
+        centimes_part = "." + centimes[:num]
+    else:
+        centimes_part = ""
+
+    return (return_value[::-1] + centimes_part).strip()
+
+
 @register.filter(name="default_if_zero")
 def default_if_zero(value):
     if str(value) == "0":
