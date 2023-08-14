@@ -84,7 +84,11 @@ SQL_RESUME_HEADER = sql.SQL(
 SQL_RESUME_SUPPLIER = sql.SQL(
     """
     select 
-        "bs"."name" as "supplier_name",
+        case 
+            when coalesce("bs"."invoice_entete", '') = ''
+            then "bs"."name"
+            else coalesce("bs"."invoice_entete", '')
+        end as "supplier_name",
         sum("sd"."net_amount") as "net_amount",
         sum("sd"."vat_amount") as "vat_amount",
         sum("sd"."amount_with_vat") as "amount_with_vat"
@@ -94,7 +98,7 @@ SQL_RESUME_SUPPLIER = sql.SQL(
     join "book_society" "bs"
     on "bs"."third_party_num" = "ii"."third_party_num" 
     where "uuid_invoice" = %(uuid_invoice)s
-    group by "bs"."name"
+    group by "bs"."name", coalesce("bs"."invoice_entete", '')
     order by "bs"."name"
     """
 )
@@ -103,7 +107,11 @@ SQL_DETAILS = sql.SQL(
     """
     with details as (
         select 
-            "bs"."name" as "supplier_name",
+            case 
+                when coalesce("bs"."invoice_entete", '') = ''
+                then "bs"."name"
+                else coalesce("bs"."invoice_entete", '')
+            end as "supplier_name",
             "ii"."invoice_number",
             "ii"."invoice_date",
             case 
@@ -209,7 +217,11 @@ SQL_DETAILS = sql.SQL(
 SQL_SUB_DETAILS = sql.SQL(
     """
     select 
-        "bs"."name" as "supplier_name",
+        case 
+            when coalesce("bs"."invoice_entete", '') = ''
+            then "bs"."name"
+            else coalesce("bs"."invoice_entete", '')
+        end as "supplier_name",
         "ii"."invoice_number",
         "ii"."invoice_date",
         "ii"."delivery_number",
