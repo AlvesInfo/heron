@@ -173,7 +173,8 @@ def parties_invoices_update():
                                         "ccm"."invoice_entete" isnull 
                                         or 
                                         "ccm"."invoice_entete" = '' 
-                                    then "ccm"."intitule",
+                                    then "ccm"."intitule"
+                                end,
             "immeuble" = case 
                     when "ccm"."immeuble" isnull or UPPER("ccm"."immeuble") = 'NONE' 
                     then '' 
