@@ -11,11 +11,11 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
-import pendulum
 from django.shortcuts import render
 from django.contrib import messages
 
 from heron import celery_app
+from apps.periods.forms import MonthForm
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.edi.models import EdiImport
 from apps.invoices.models import SaleInvoice
@@ -24,13 +24,20 @@ from apps.invoices.models import SaleInvoice
 def generate_invoices_insertions(request):
     """Vue de l'intégration des factures définitives"""
 
-    titre_table = "Insertion des factures intégrées"
+    titre_table = "Génération de la facturation"
     edi_invoices_exists = EdiImport.objects.filter(valid=True).exists()
-    context = {"margin_table": 50, "titre_table": titre_table, "news": edi_invoices_exists}
+    form = MonthForm(request.POST or None)
+    context = {
+        "margin_table": 50,
+        "titre_table": titre_table,
+        "news": edi_invoices_exists,
+        "form": form,
+        "titre_periode": "MOIS DE FACTURATION",
+    }
 
     if not edi_invoices_exists:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucune facture à intégrer !")
+        messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
         context["en_cours"] = True
 
         return render(request, "invoices/insertion_invoices.html", context=context)
@@ -38,19 +45,28 @@ def generate_invoices_insertions(request):
     insertion, pdf_invoices = get_invoices_in_progress()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
-    if all([request.method == "POST", not insertion, not pdf_invoices]):
+    if all([request.method == "POST", not insertion, not pdf_invoices, form.is_valid()]):
         user_uuid = request.user.uuid_identification
+
+        # On récupère la date de facturation
+        periode_dict = form.cleaned_data
+        date_facturation = str(periode_dict.get("periode")).split("_")[1]
+
+        # On lance la génération des factures de vente et d'achat
         celery_app.signature(
             "invoices_insertions_launch",
             kwargs={
                 "user_uuid": user_uuid,
-                "invoice_date": pendulum.date(2023, 7, 31).isoformat(),
+                "invoice_date": date_facturation,
             },
         ).delay()
         insertion = True
 
     if insertion:
-        titre_table = "INSERTION DES FACTURES EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"
+        titre_table = (
+            "INSERTION DES FACTURES EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"
+            "(N'OUBLIEZ PAS DE REGARDER LES TRACES APRES LA GENERATION)"
+        )
 
     if pdf_invoices:
         titre_table = "GENERATION DES PDF EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"

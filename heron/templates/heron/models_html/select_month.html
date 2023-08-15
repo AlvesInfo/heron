@@ -1,7 +1,7 @@
 <div class="ui vertical menu" style="width: {% firstof sel_box_width 220 %}px !important;">
     <div class="active item"
          style="margin: 0 !important;height: 30px !important;padding: 8px 16px !important;font-size: 14px !important;">
-        MOIS
+        {% if not titre_mois %}MOIS{% else %}{{ titre_mois }}{% endif %}
     </div>
     <div class="item">
         <label for="{{ form.mois.id_for_label }}" style="width: {% firstof sel_label_width 40%}px !important;
