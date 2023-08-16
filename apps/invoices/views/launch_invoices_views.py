@@ -34,6 +34,8 @@ def generate_invoices_insertions(request):
         "form": form,
         "titre_periode": "MOIS DE FACTURATION",
     }
+    # TODO: Vérifier avant insertion si il y a des mails envoyés.
+    #       Si c'est le cas ne rien faire et masquer le boutton de génération
 
     if not edi_invoices_exists:
         request.session["level"] = 50
