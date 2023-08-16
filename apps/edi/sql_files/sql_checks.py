@@ -183,7 +183,7 @@ sql_invoices_duplicates = sql.SQL(
            and "ee"."invoice_year" = "sii"."invoice_year"
            -- Ajouter car si l'on importe après une première génération 
            -- cela efface toute la table
-           and "sii"."valid" = true
+           and "sii"."final" = true
     )
     select 
         "uuid_identification", 
@@ -229,7 +229,7 @@ sql_invoices_duplicates_delete = sql.SQL(
                and "ee"."invoice_year" = "sii"."invoice_year"
                -- Ajouter car si l'on importe après une première génération 
                -- cela efface toute la table
-               and "sii"."valid" = true
+               and "sii"."final" = true
         ) "re" 
         where "ei"."uuid_identification" = "re"."uuid_identification"
         and "ei"."third_party_num" = "re"."third_party_num"
