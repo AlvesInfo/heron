@@ -237,6 +237,19 @@ class SubscriptionsValidationForm(forms.Form):
         self.fields["subscriptions"].required = False
 
 
+class RfaValidationForm(forms.Form):
+    """Validation des intégrations"""
+
+    uuid_identification = forms.UUIDField()
+    rfa = forms.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        """Ajout ou transformation des champs de formulaires"""
+        super().__init__(*args, **kwargs)
+
+        self.fields["rfa"].required = False
+
+
 class RefacCctValidationForm(forms.Form):
     """Validation des intégrations"""
 

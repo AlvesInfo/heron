@@ -72,6 +72,9 @@ class EdiValidation(FlagsTable):
     # Validation sur Ecran 3.5 Abonnements
     subscriptions = models.BooleanField(null=True, default=False)
 
+    # Validation sur Ecran 3.6 Contrôle période RFA
+    rfa = models.BooleanField(null=True, default=False)
+
     # Validation sur Ecran 5.0 Contrôle Refac par CCT
     refac_cct = models.BooleanField(null=True, default=False)
 

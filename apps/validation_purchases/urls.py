@@ -45,6 +45,10 @@ from apps.validation_purchases.views import (
     subscriptions_purchases,
     subscriptions_purchases_export,
     subscriptions_validation,
+    # 3.6 - Contrôle période RFA
+    control_rfa_period,
+    control_rfa_period_export,
+    control_rfa_period_validation,
     # 5.0 - Contrôle Refac M M-1 par CCT
     refac_cct_purchases,
     refac_cct_purchases_export,
@@ -287,6 +291,24 @@ urlpatterns = [
             "subscriptions_validation/",
             subscriptions_validation,
             name="subscriptions_validation",
+        ),
+    ],
+    # 3.6 - Contrôle période RFA
+    *[
+        path(
+            "control_rfa_period/",
+            control_rfa_period,
+            name="control_rfa_period",
+        ),
+        path(
+            "control_rfa_period_export/",
+            control_rfa_period_export,
+            name="control_rfa_period_export",
+        ),
+        path(
+            "control_rfa_period_validation/",
+            control_rfa_period_validation,
+            name="control_rfa_period_validation",
         ),
     ],
     # 5.0 - Contrôle Refac M M-1 par CCT

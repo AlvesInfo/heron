@@ -1,0 +1,24 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block left_side %}
+    <div id="id_rfa_validation"
+         class="ui {% if rfa_validation.rfa %}green{% else %}red{% endif %} label"
+         data-value="{% if rfa_validation.rfa %}false{% else %}true{% endif %}"
+         style="padding: 7px 10px;margin: 10px;font-size: 11px;width: 80px;text-align: center;">
+        {% if rfa_validation.rfa %}Validé{% else %}Invalide{% endif %}
+    </div>
+    <button class="ui {% if rfa_validation.rfa %}red{% else %}green{% endif %} basic button"
+            onclick="rfaValidation(`id_rfa_validation`, `{{ rfa_validation.uuid_identification }}`)"
+            name="rfa_validation"
+            style="padding: 7px 10px;margin: 10px;font-size: 11px">
+        {% if rfa_validation.rfa %}Invalidation{% else %}Validation{% endif %}
+    </button>
+{% endblock left_side %}
+
+{% block right_side %}
+    <a class="item" href="{% url 'validation_purchases:control_rfa_period_export' %}">
+       <button class="ui green basic button" name="control_rfa_period_export" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          EXPORT EXCEL
+       </button>
+    </a>
+{% endblock right_side %}

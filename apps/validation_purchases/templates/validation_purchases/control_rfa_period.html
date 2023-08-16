@@ -1,0 +1,74 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+
+
+{% block head_js %}
+    <script type="text/javascript">
+        function rfaValidation(idButton, uuid_control) {
+            $(`.datatable-chargement`).show();
+            let formData = {
+                uuid_identification: uuid_control,
+                rfa: $(`#${idButton}`).data("value"),
+            };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'validation_purchases:control_rfa_period_validation' %}",
+                data: formData,
+                encode: true,
+            }).done(function (data) {
+                window.location.reload()
+            });
+        }
+    </script>
+{% endblock head_js %}
+
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% include "heron/scroll_to_top.html" %}
+        {% include "validation_purchases/control_rfa_period_entete.html" %}
+
+        <div style="padding: 10px 0;margin-top: 10px;margin-left: {% if margin_rep %}{{ margin_rep }}{% else %}50{% endif %}px;margin-right: {% if margin_rep %}{{ margin_rep }}{% else %}50{% endif %}px;">
+
+            {% include "validation_purchases/control_rfa_period_table.html" %}
+
+            <div class="ui equal width grid center"></div>
+        </div>
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+
+            {% include "heron/base_data_table.html" %}
+            {% include "heron/change_category_js.html" %}
+
+            $('.menu .item').tab();
+
+        });
+
+    </script>
+
+{% endblock script %}
