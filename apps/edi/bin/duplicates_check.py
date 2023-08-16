@@ -129,7 +129,10 @@ def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoic
                 from "invoices_invoicecommondetails" "ii" 
                 where "ii"."third_party_num"= %(third_party_num)s
                 and "ii"."invoice_number" = %(invoice_number)s
-                and "ii"."invoice_year" = %(invoice_year)s
+                and "ii"."invoice_year" = %(invoice_year)s           
+                -- Ajouter car si l'on importe après une première génération 
+                -- cela efface toute la table
+                and "ii"."final"= true
                 limit 1
             )
         ) "doublons"
