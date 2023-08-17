@@ -2,6 +2,7 @@ import pendulum
 from django.contrib import messages
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
@@ -19,7 +20,9 @@ def cct_franchiseurs_purchases(request):
     """View de l'étape 3.2 des écrans de contrôles"""
     context = {
         "titre_table": "3.2 - Contrôle des CCT/franchiseurs (MARK, INFO, etc…)",
-        "franchiseurs_validation": EdiValidation.objects.filter(final=False).first(),
+        "franchiseurs_validation": EdiValidation.objects.filter(
+            Q(final=False) | Q(final__isnull=True)
+        ).first(),
     }
 
     return render(request, "validation_purchases/cct_franchiseurs.html", context=context)

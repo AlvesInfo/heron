@@ -3,6 +3,7 @@ from django.db import connection
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -40,14 +41,14 @@ def refac_cct_purchases(request):
 
         context = {
             "titre_table": "5.0 - Contrôle Refac M M-1 par CCT",
-            "refac_cct_validation": EdiValidation.objects.filter(final=False).first(),
+            "refac_cct_validation": EdiValidation.objects.filter(
+                Q(final=False) | Q(final__isnull=True)
+            ).first(),
             "clients": elements,
             "mois_dict": mois_dict,
         }
 
-    return render(
-        request, "validation_purchases/refac_cct.html", context=context
-    )
+    return render(request, "validation_purchases/refac_cct.html", context=context)
 
 
 def refac_cct_purchases_export(request):
@@ -83,9 +84,7 @@ def refac_cct_validation(request):
     request.session["level"] = 50
     message = "Il y a eu une erreur pendant la validation"
 
-    data = {
-        "success": "ko"
-    }
+    data = {"success": "ko"}
 
     form = RefacCctValidationForm(request.POST or None)
 

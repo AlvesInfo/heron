@@ -130,7 +130,9 @@ SQL_COMMON_DETAILS = sql.SQL(
         "supplier_name", 
         "uuid_big_category", 
         "uuid_identification", 
-        "uuid_sub_big_category"
+        "uuid_sub_big_category",
+        "uuid_validation",
+        "billing_date"
     )
     (
         select 
@@ -201,7 +203,23 @@ SQL_COMMON_DETAILS = sql.SQL(
             "ee"."supplier_name", 
             "ee"."uuid_big_category", 
             "ee"."uuid_identification", 
-            "ee"."uuid_sub_big_category"
+            "ee"."uuid_sub_big_category",
+            -- on ajoute a common_details l'uuid et la billig_date 
+            -- de la table edi_validation en cours
+            (
+                select 
+                "uuid_identification" 
+                from "edi_edivalidation" 
+                where "final"=false 
+                limit 1
+            ) as "uuid_validation",
+            (                
+                select 
+                "billing_date" 
+                from "edi_edivalidation" 
+                where "final"=false 
+                limit 1    
+            ) as "billing_date"
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
                 on "aa"."reference" = "ee"."reference_article" 

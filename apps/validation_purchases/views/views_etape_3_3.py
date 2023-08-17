@@ -2,6 +2,7 @@ import pendulum
 from django.contrib import messages
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
@@ -19,12 +20,12 @@ def clients_news_purchases(request):
     """View de l'étape 3.3 des écrans de contrôles"""
     context = {
         "titre_table": "3.3 - Contrôle des nouveaux clients",
-        "clients_news_validation": EdiValidation.objects.filter(final=False).first()
+        "clients_news_validation": EdiValidation.objects.filter(
+            Q(final=False) | Q(final__isnull=True)
+        ).first(),
     }
 
-    return render(
-        request, "validation_purchases/clients_news.html", context=context
-    )
+    return render(request, "validation_purchases/clients_news.html", context=context)
 
 
 def clients_news_purchases_export(request):
@@ -59,9 +60,7 @@ def clients_news_validation(request):
     level = 50
     request.session["level"] = 50
     message = "Il y a eu une erreur pendant la validation"
-    data = {
-        "success": "ko"
-    }
+    data = {"success": "ko"}
 
     form = ClientsNewsValidationForm(request.POST or None)
 

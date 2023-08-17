@@ -3,6 +3,7 @@ from django.db import connection
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -26,7 +27,9 @@ def control_rfa_period(request):
 
         context = {
             "titre_table": "3.6 - Contrôle période RFA",
-            "rfa_validation": EdiValidation.objects.filter(final=False).first(),
+            "rfa_validation": EdiValidation.objects.filter(
+                Q(final=False) | Q(final__isnull=True)
+            ).first(),
             "rfa": elements,
             "legende": IconOriginChoice.objects.all(),
             "margin_table": 50,
@@ -34,9 +37,7 @@ def control_rfa_period(request):
             "nb_paging": 300,
         }
 
-    return render(
-        request, "validation_purchases/control_rfa_period.html", context=context
-    )
+    return render(request, "validation_purchases/control_rfa_period.html", context=context)
 
 
 def control_rfa_period_export(request):
@@ -46,9 +47,7 @@ def control_rfa_period_export(request):
     try:
         if request.method == "GET":
             today = pendulum.now()
-            file_name = (
-                "CONTROLE_PERIODE_RFA" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
-            )
+            file_name = "CONTROLE_PERIODE_RFA" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
 
             return response_file(
                 control_rfa_period_excel,
@@ -72,9 +71,7 @@ def control_rfa_period_validation(request):
     request.session["level"] = 50
     message = "Il y a eu une erreur pendant la validation"
 
-    data = {
-        "success": "ko"
-    }
+    data = {"success": "ko"}
 
     form = RfaValidationForm(request.POST or None)
 

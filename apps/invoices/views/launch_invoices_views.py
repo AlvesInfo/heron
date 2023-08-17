@@ -44,7 +44,7 @@ def generate_invoices_insertions(request):
 
         return render(request, "invoices/insertion_invoices.html", context=context)
 
-    insertion, pdf_invoices = get_invoices_in_progress()
+    insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if all([request.method == "POST", not insertion, not pdf_invoices, form.is_valid()]):

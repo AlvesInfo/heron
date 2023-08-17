@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.db import connection
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
@@ -46,7 +47,9 @@ def balance_suppliers_purchases(request):
         context = {
             "titre_table": "5.1 - Contrôle des fournisseurs M vs M-1",
             "invoices_suppliers": invoices_suppliers,
-            "suppliers_validation": EdiValidation.objects.filter(final=False).first(),
+            "suppliers_validation": EdiValidation.objects.filter(
+                Q(final=False) | Q(final__isnull=True)
+            ).first(),
             "mois_dict": mois_dict,
         }
 

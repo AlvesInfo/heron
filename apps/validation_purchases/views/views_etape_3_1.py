@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.db import connection
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
@@ -33,7 +34,9 @@ def families_invoices_purchases(request):
             "titre_table": "3.1 - Contrôle des familles - Achats",
             "invoices_famillies": invoices_famillies,
             "nb_paging": 100,
-            "family_validation": EdiValidation.objects.filter(final=False).first()
+            "family_validation": EdiValidation.objects.filter(
+                Q(final=False) | Q(final__isnull=True)
+            ).first(),
         }
 
         return render(
@@ -129,9 +132,7 @@ def families_validation(request):
             LOGGER_VIEWS.exception(f"Views : families_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(
-            f"Views : families_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.exception(f"Views : families_validation error, form invalid : {form.errors!r}")
 
     messages.add_message(request, level, message)
 

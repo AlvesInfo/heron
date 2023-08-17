@@ -37,7 +37,7 @@ django.setup()
 import pendulum
 from django.conf import settings
 from django.utils import timezone
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
 from apps.core.bin.echeances import get_payment_method_elements, get_due_date
@@ -71,6 +71,7 @@ from apps.invoices.bin.invoives_nums import get_purchase_num, get_invoice_num
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.centers_purchasing.bin.update_account_article import update_axes_edi
 from apps.parameters.models import CounterNums
+from apps.edi.models import EdiValidation
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -502,6 +503,10 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
         "Invoices_Insertion",
         "",
     )
+    # On met à jour la billing date dans la table edi_edivalidation
+    edi_validations = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    edi_validations.billing_date = invoice_date
+    edi_validations.save()
 
     # On update dabord les cct puis les centrales et enseignes
     update_cct_edi_import()

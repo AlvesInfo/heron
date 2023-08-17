@@ -2,6 +2,7 @@ import pendulum
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
@@ -19,7 +20,9 @@ def subscriptions_purchases(request):
     """View de l'étape 3.5 des écrans de contrôles"""
     context = {
         "titre_table": "3.5 - Contrôle des Abonnements",
-        "subscriptions_validation": EdiValidation.objects.filter(final=False).first(),
+        "subscriptions_validation": EdiValidation.objects.filter(
+            Q(final=False) | Q(final__isnull=True)
+        ).first(),
     }
 
     return render(request, "validation_purchases/subscriptions.html", context=context)

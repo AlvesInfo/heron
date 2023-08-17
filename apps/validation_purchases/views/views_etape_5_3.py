@@ -3,6 +3,7 @@ from django.db import connection
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
+from django.db.models import Q
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -36,7 +37,9 @@ def ca_cct(request):
 
         context = {
             "titre_table": "5.3 - Contrôle CA Cosium / Ventes Héron",
-            "ca_cct_validation": EdiValidation.objects.filter(final=False).first(),
+            "ca_cct_validation": EdiValidation.objects.filter(
+                Q(final=False) | Q(final__isnull=True)
+            ).first(),
             "clients": elements,
             "mois_dict": mois_dict,
         }

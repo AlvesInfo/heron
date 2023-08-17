@@ -654,6 +654,10 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
     uuid_big_category = models.UUIDField(null=True)
     uuid_identification = models.UUIDField(null=True)
     uuid_sub_big_category = models.UUIDField(null=True)
+    uuid_validation = models.UUIDField(null=True)
+
+    # Date de la facture pour la période de facturation
+    billing_date = models.DateField(null=True)
 
     class Meta:
         """class Meta du modèle django"""
