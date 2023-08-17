@@ -1,0 +1,12 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+    {% if export %}
+        <a class="item" href="{% url 'invoices:generate_exports_X3' %}">
+            <button class="ui blue basic button" name="launch_exports_X3" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                GENERER
+            </button>
+        </a>
+    {% endif %}
+{% endblock right_side %}
+

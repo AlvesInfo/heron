@@ -14,6 +14,7 @@ from apps.compta.bin.validations_subscriptions import (
 )
 from apps.parameters.bin.core import get_in_progress
 from apps.edi.loops.imports_loop_pool import import_launch_subscriptions
+from apps.invoices.bin.pre_controls import control_insertion
 
 
 def royalties_launch(request):
@@ -21,6 +22,25 @@ def royalties_launch(request):
     :param request: Request Django
     :return:
     """
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas générer de Royalties, "
+                "car la facturation est déjà envoyée par mail, mais non finalisée"
+            ),
+        )
+        context = {
+            "titre_table": "Génération des factures de Royalties",
+            "not_finalize": True,
+        }
+        return render(request, "compta/update_sales_launch.html", context=context)
+
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
 
@@ -72,6 +92,25 @@ def meuleuse_launch(request):
     :param request: Request Django
     :return:
     """
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas générer de factures de Meuleuses, "
+                "car la facturation est déjà envoyée par mail, mais non finalisée"
+            ),
+        )
+        context = {
+            "titre_table": "Génération des factures de Meuleuses",
+            "not_finalize": True,
+        }
+        return render(request, "compta/update_sales_launch.html", context=context)
+
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
 
@@ -123,6 +162,25 @@ def publicity_launch(request):
     :param request: Request Django
     :return:
     """
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas générer de factures de Publicité, "
+                "car la facturation est déjà envoyée par mail, mais non finalisée"
+            ),
+        )
+        context = {
+            "titre_table": "Génération des factures de Publicité",
+            "not_finalize": True,
+        }
+        return render(request, "compta/update_sales_launch.html", context=context)
+
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
 
@@ -174,6 +232,25 @@ def services_launch(request):
     :param request: Request Django
     :return:
     """
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas générer de factures de Prestations, "
+                "car la facturation est déjà envoyée par mail, mais non finalisée"
+            ),
+        )
+        context = {
+            "titre_table": "Génération des factures de Prestations",
+            "not_finalize": True,
+        }
+        return render(request, "compta/update_sales_launch.html", context=context)
+
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
 

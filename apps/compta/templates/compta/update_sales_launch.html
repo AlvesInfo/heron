@@ -20,8 +20,9 @@
             {% csrf_token %}
 
             {% include "compta/subscriptions_launch_entete.html" %}
-            {% include "compta/subscriptions_launch_table.html" %}
-
+            {% if not not_finalize %}
+                {% include "compta/subscriptions_launch_table.html" %}
+            {% endif %}
         </form>
     {% else %}
 

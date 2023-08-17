@@ -19,8 +19,10 @@
     {% if user.is_authenticated %}
         <form method="get">
             {% include "invoices/invoices_search_entete.html" %}
-            {% include "invoices/invoices_search_mini_form.html" %}
-            {% include "invoices/invoices_search_table.html" %}
+            {% if not not_finalize %}
+                {% include "invoices/invoices_search_mini_form.html" %}
+                {% include "invoices/invoices_search_table.html" %}
+            {% endif %}
         </form>
     {% else %}
 

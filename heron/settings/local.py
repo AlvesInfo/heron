@@ -173,6 +173,7 @@ LOGGING = {
         "postgres_save": {"handlers": ["postgres_save_logfile_flux"], "propagate": True},
         "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
         "send_email": {"handlers": ["invoices_flux"], "propagate": True},
+        "export_x3": {"handlers": ["invoices_flux"], "propagate": True},
     },
 }
 

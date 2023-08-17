@@ -12,7 +12,9 @@
     {% if user.is_authenticated %}
 
             {% include "edi/edi_import_entete.html" %}
-            {% include "edi/edi_import_table.html" %}
+            {% if not not_finalize %}
+                {% include "edi/edi_import_table.html" %}
+            {% endif %}
 
         <div class="ui equal width grid center"></div>
 

@@ -18,6 +18,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.db.models import Count, F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
+from django.contrib import messages
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
@@ -32,11 +33,34 @@ from apps.parameters.models import Category
 from apps.invoices.models import InvoiceCommonDetails
 from apps.invoices.forms import InvoiceSearchForm
 from apps.invoices.filters import InvoiceFilter
+from apps.invoices.bin.pre_controls import control_insertion
 
 
 def invoice_search_list(request):
     """Affichage de la page de recherche des Factures pour la réaffectation"""
     limit = 50
+
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas ré-affecter des factures, "
+                "car la facturation est déjà envoyée par mail, mais non finalisée"
+            ),
+        )
+        context = {
+            "margin_table": 50,
+            "titre_table": f'Recherche ré-affectation Facture',
+            "not_finalize": True,
+            "chevron_retour": reverse("home"),
+        }
+        return render(request, "invoices/invoices_search.html", context=context)
+
     queryset = (
         InvoiceCommonDetails.objects.values(
             "import_uuid_identification",

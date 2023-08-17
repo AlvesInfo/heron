@@ -7,7 +7,7 @@ Commentaire:
 created at: 2023-06-13
 created by: Paulo ALVES
 
-modified at: 2023-06-13
+modified at: 2023-08-17
 modified by: Paulo ALVES
 """
 import os
@@ -29,6 +29,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from django.db.models import Q
+from django.utils import timezone
 
 from apps.invoices.models import (
     Invoice,
@@ -39,36 +40,27 @@ from apps.invoices.models import (
 )
 
 
-def finalize_global_invoices():
-    """Finalisation de la facturation par flag des champs,
-    "final", "export", "printed" et "send_email"
-    """
-    Invoice.objects.filter(
-        Q(final__isnull=True) | Q(final=False) | Q(export__isnull=True) | Q(export=False)
-    ).update(final=True, export=True)
+def finalize_global_invoices(user):
+    """Finalisation de la facturation par flag des champs "final" """
+    Invoice.objects.filter(Q(final__isnull=True) | Q(final=False)).update(
+        final=True, final_at=timezone.now(), modified_by=user, modified_at=timezone.now()
+    )
 
-    InvoiceDetail.objects.filter(
-        Q(final__isnull=True) | Q(final=False) | Q(export__isnull=True) | Q(export=False)
-    ).update(final=True, export=True)
+    InvoiceDetail.objects.filter(Q(final__isnull=True) | Q(final=False)).update(
+        final=True, final_at=timezone.now(), modified_by=user, modified_at=timezone.now()
+    )
 
-    InvoiceCommonDetails.objects.filter(
-        Q(final__isnull=True) | Q(final=False) | Q(export__isnull=True) | Q(export=False)
-    ).update(final=True, export=True)
+    InvoiceCommonDetails.objects.filter(Q(final__isnull=True) | Q(final=False)).update(
+        final=True, final_at=timezone.now(), modified_by=user, modified_at=timezone.now()
+    )
 
-    SaleInvoice.objects.filter(
-        Q(final__isnull=True)
-        | Q(final=False)
-        | Q(export__isnull=True)
-        | Q(export=False)
-        | Q(printed__isnull=True)
-        | Q(printed=False)
-        | Q(send_email__isnull=True)
-        | Q(send_email=False)
-    ).update(final=True, export=True, printed=True, send_email=True)
+    SaleInvoice.objects.filter(Q(final__isnull=True) | Q(final=False)).update(
+        final=True, final_at=timezone.now(), modified_by=user, modified_at=timezone.now()
+    )
 
-    SaleInvoiceDetail.objects.filter(
-        Q(final__isnull=True) | Q(final=False) | Q(export__isnull=True) | Q(export=False)
-    ).update(final=True, export=True)
+    SaleInvoiceDetail.objects.filter(Q(final__isnull=True) | Q(final=False)).update(
+        final=True, final_at=timezone.now(), modified_by=user, modified_at=timezone.now()
+    )
 
 
 def finalize_emails_invoices():

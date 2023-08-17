@@ -1,0 +1,12 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+    {% if not_finalize %}
+            <a class="item" href="{% url 'invoices:finalize_period' %}">
+                <button class="ui blue basic button" name="finalize_period" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                    FINALISER
+                </button>
+            </a>
+    {% endif %}
+{% endblock right_side %}
+

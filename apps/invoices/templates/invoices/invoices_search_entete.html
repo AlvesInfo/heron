@@ -1,7 +1,9 @@
 {% extends "heron/list_table_courant.html" %}
 
 {% block right_side %}
-    <button class="ui teal basic button" id="id_rechercher" name="rechercher" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-        Rechercher
-    </button>
+    {% if not not_finalize %}
+        <button class="ui teal basic button" id="id_rechercher" name="rechercher" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            Rechercher
+        </button>
+    {% endif %}
 {% endblock right_side %}

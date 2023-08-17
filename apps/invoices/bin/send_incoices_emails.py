@@ -108,6 +108,7 @@ def invoices_send_by_email(context_dict: Dict):
           and "si"."invoice_month" = %(invoice_month)s
         """
         cursor.execute(sql_context, context_dict)
+
         for i, row in enumerate(cursor.fetchall()):
             (
                 cct_name,

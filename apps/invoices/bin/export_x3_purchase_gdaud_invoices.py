@@ -26,7 +26,7 @@ from apps.invoices.bin.base_export_x3_functions import (
 )
 
 
-def write_bispar(fcy, nb_fac=5000):
+def write_bispar_gdaud(fcy, nb_fac=5000):
     """Fonction iter les lignes à écrire
     :param fcy: société pour laquelle le fichier est à générer
     :param nb_fac: nombre de factures max par fichiers
@@ -111,4 +111,4 @@ def write_bispar(fcy, nb_fac=5000):
 
 
 if __name__ == "__main__":
-    write_bispar("GA00")
+    write_bispar_gdaud("GA00")

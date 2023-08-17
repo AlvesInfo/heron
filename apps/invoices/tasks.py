@@ -21,7 +21,7 @@ from celery import group
 from django.db.models import Count
 from bs4 import BeautifulSoup
 
-from heron.loggers import LOGGER_INVOICES
+from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
@@ -30,6 +30,7 @@ from apps.invoices.bin.send_incoices_emails import invoices_send_by_email
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
+from apps.invoices.bin.export_x3 import export_files_x3
 
 
 @shared_task(name="invoices_insertions_launch")
@@ -189,19 +190,6 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
         "email_text": BeautifulSoup(str(email.email_body), "lxml").get_text(),
     }
 
-    # envoi de toutes les factures imprimées en pdf et non finales, et non envoyées
-    cct_invoices_list = (
-        SaleInvoice.objects.filter(
-            final=False,
-            printed=True,
-            type_x3__in=(1, 2),
-            send_email=False,
-        )
-        .values("cct", "global_invoice_file", "invoice_month")
-        .annotate(dcount=Count("cct"))
-        .order_by("cct")
-    )
-
     # Si l'on demande un cct on doit avoir la période pour filtrer et ne pas tout envoyer
     if cct and period:
         cct_invoices_list = (
@@ -216,13 +204,27 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
             .order_by("cct")
         )
 
+    else:
+        # envoi de toutes les factures imprimées en pdf et non finales, et non envoyées
+        cct_invoices_list = (
+            SaleInvoice.objects.filter(
+                final=False,
+                printed=True,
+                type_x3__in=(1, 2),
+                send_email=False,
+            )
+            .values("cct", "global_invoice_file", "invoice_month")
+            .annotate(dcount=Count("cct"))
+            .order_by("cct")
+        )
+
     try:
         tasks_list = []
         for cct_dict in cct_invoices_list:
             tasks_list.append(
                 celery_app.signature(
                     "send_invoice_email",
-                    kwargs={"context_dict": {**context_dict, **cct_dict}, "user_pk": str(user_pk)}
+                    kwargs={"context_dict": {**context_dict, **cct_dict}, "user_pk": str(user_pk)},
                 )
             )
 
@@ -276,7 +278,8 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print + (
+        to_print
+        + (
             f"Envoie de la facture par mail {context_dict.get('cct')} "
             f": {time.time() - start_initial} s "
         )
@@ -287,3 +290,56 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
             f"cct : {str(context_dict.get('cct'))} " f"- {time.time() - start_initial} s"
         )
     }
+
+
+@shared_task(name="launch_export_x3")
+def launch_export_x3(export_type, centrale, user_pk: int):
+    """
+    Envoi d'une facture par mail
+    :param export_type: type d'export odana, sale, purchase, gdaud
+    :param centrale: centrale pour laquelle on lance l'export
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    """
+
+    start_initial = time.time()
+
+    error = False
+    trace = None
+    to_print = ""
+
+    try:
+        user = User.objects.get(pk=user_pk)
+        trace, to_print = export_files_x3(export_type, centrale)
+        trace.created_by = user
+
+    except TypeError as except_error:
+        error = True
+        to_print += f"TypeError : {except_error}\n"
+        LOGGER_X3.exception(f"TypeError : {except_error!r}")
+
+    except Exception as except_error:
+        error = True
+        LOGGER_X3.exception(
+            f"Exception Générale: launch_export_x3 : "
+            f"{export_type} - {centrale} - user : {str(user_pk)}\n{except_error!r}"
+        )
+
+    finally:
+        if error and trace:
+            trace.errors = True
+            trace.comment = (
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+            )
+
+        if trace is not None:
+            trace.save()
+
+    LOGGER_X3.warning(
+        to_print
+        + (
+            f"Génération des fichiers  {export_type}, pour la société {centrale} "
+            f": {time.time() - start_initial} s "
+        )
+    )
+
+    return trace.errors

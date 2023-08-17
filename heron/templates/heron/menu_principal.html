@@ -293,9 +293,11 @@
                 {% if user.email == "paulo@alves.ovh" %}
                     <div class="column">
                         <div class="ui link list">
-                            <a href="{% url 'invoices:generate_invoices_insertions' %}" class="item">Génération facturation</a>
-                            <a href="{% url 'invoices:generate_pdf_invoice' %}" class="item">Génération de pdf de ventes</a>
-                            <a href="{% url 'invoices:send_email_pdf_invoice' %}" class="item">Envoi email factures vente</a>
+                            <a href="{% url 'invoices:generate_invoices_insertions' %}" class="item">Génération des écritures de la facturation</a>
+                            <a href="{% url 'invoices:generate_pdf_invoice' %}" class="item">Génération pdf des factures de vente</a>
+                            <a href="{% url 'invoices:send_email_pdf_invoice' %}" class="item">Envoi global des factures de vente</a>
+                            <a href="{% url 'invoices:generate_exports_X3' %}" class="item">Génération fichiers X3 de la facturation</a>
+                            <a href="{% url 'invoices:finalize_period' %}" class="item">Finalisation de la période de facturation</a>
                         </div>
                     </div>
                 {% endif %}

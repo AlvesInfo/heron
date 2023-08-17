@@ -13,7 +13,9 @@
         <form action="" method="post">
             {% csrf_token %}
             {% include "invoices/generate_pdf_invoices_entete.html" %}
-            {% include "invoices/generate_pdf_invoices_table.html" %}
+            {% if not not_finalize %}
+                {% include "invoices/generate_pdf_invoices_table.html" %}
+            {% endif %}
         </form>
         <div class="ui equal width grid center"></div>
 

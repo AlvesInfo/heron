@@ -12,9 +12,9 @@
     {% if user.is_authenticated %}
         <form action="" method="post">
             {% csrf_token %}
-            {% include "invoices/insertion_invoices_entete.html" %}
-            {% if not not_finalize %}
-                {% include "invoices/insertion_invoices_table.html" %}
+            {% include "invoices/export_x3_invoices_entete.html" %}
+            {% if export %}
+                {% include "invoices/export_x3_invoices_table.html" %}
             {% endif %}
         </form>
         <div class="ui equal width grid center"></div>

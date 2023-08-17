@@ -24,12 +24,33 @@ from apps.edi.loops.imports_loop_pool import (
     get_files_celery,
     get_retours_valid,
 )
+from apps.invoices.bin.pre_controls import control_insertion
 
 
 def import_edi_invoices(request):
     """Bouton d'import des factures edi"""
-
     request.session["level"] = 20
+
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas importer, car la facturation est déjà envoyée par mail, "
+                "mais non finalisée"
+            ),
+        )
+        context = {
+            "margin_table": 50,
+            "titre_table": "Import des factures founisseurs EDI",
+            "not_finalize": True
+        }
+        return render(request, "edi/edi_import.html", context=context)
+
     in_action = get_in_progress()
     have_statment = get_have_statment()
     have_monthly = get_have_monthly()

@@ -1,4 +1,4 @@
-<div class="ui vertical menu" style="width: 250px !important;">
+<div class="ui vertical menu" style="width: {% if select_width %}{{ select_width }}{% else %}250{% endif %}px !important;">
     <div class="active item"
          style="margin: 0 !important;height: 30px !important;padding: 8px 16px !important;font-size: 14px !important;">
         {% if not titre_periode %}PERIODE{% else %}{{ titre_periode }}{% endif %}

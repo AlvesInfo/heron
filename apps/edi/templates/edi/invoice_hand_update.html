@@ -16,18 +16,21 @@
             {% csrf_token %}
             {% include "edi/invoice_handupdate_entete.html" %}
 
-            {% if category == "marchandises" %}
+            {% if not not_finalize %}
 
-                {% include "edi/invoice_update_marchandise_table.html" %}
+                {% if category == "marchandises" %}
 
-            {% elif category == "formation"%}
+                    {% include "edi/invoice_update_marchandise_table.html" %}
 
-                {% include "edi/invoice_update_formation_table.html" %}
+                {% elif category == "formation"%}
 
-            {% elif category == "personnel"%}
+                    {% include "edi/invoice_update_formation_table.html" %}
 
-                {% include "edi/invoice_update_personnel_table.html" %}
+                {% elif category == "personnel"%}
 
+                    {% include "edi/invoice_update_personnel_table.html" %}
+
+                {% endif %}
             {% endif %}
 
     {% else %}

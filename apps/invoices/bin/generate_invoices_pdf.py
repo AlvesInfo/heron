@@ -61,7 +61,7 @@ def get_invoices_in_progress():
         status="STARTED", task_name="launch_generate_pdf_invoices"
     ).exists()
     in_action_email_invoices = TaskResult.objects.filter(
-        status="STARTED", task_name="celery_send_invoices_emails"
+        status="STARTED", task_name="send_invoice_email"
     ).exists()
 
     return in_action_insertion, in_action_pdf_invoices, in_action_email_invoices

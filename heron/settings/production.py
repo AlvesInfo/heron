@@ -101,6 +101,18 @@ LOGGING = {
             ),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
+        "export_x3": {
+            "format": (
+                "[send_email] : "
+                "[%(asctime)s] %(levelname)s : %(message)s : "
+                "%(filename)s : "
+                "%(funcName)s : "
+                "[ligne : %(lineno)s] : "
+                "%(process)d : "
+                "%(thread)d"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
     },
     "handlers": {
         # Send in console
@@ -193,6 +205,13 @@ LOGGING = {
             "filename": f"{str(LOG_DIR)}/send_email.log",
             "formatter": "send_email",
         },
+        # export files X3
+        "export_x3": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": f"{str(LOG_DIR)}/export_files_x3.log",
+            "formatter": "export_x3",
+        },
     },
     "loggers": {
         # all messages
@@ -211,6 +230,7 @@ LOGGING = {
         "postgres_save": {"handlers": ["postgres_save_logfile_flux"], "propagate": True},
         "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
         "send_email": {"handlers": ["send_email"], "propagate": True},
+        "export_x3": {"handlers": ["export_x3"], "propagate": True},
     },
 }
 

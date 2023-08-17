@@ -1,11 +1,11 @@
 {% extends "heron/list_courant.html" %}
 
 {% block right_side %}
-
-    <a class="item" href="">
-        <button class="ui teal basic button" id="id_royalties_launch" name="royalties_launch" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-            VALIDER
-        </button>
-    </a>
-
+    {% if not not_finalize %}
+        <a class="item" href="">
+            <button class="ui teal basic button" id="id_royalties_launch" name="royalties_launch" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                VALIDER
+            </button>
+        </a>
+    {% endif %}
 {% endblock right_side %}

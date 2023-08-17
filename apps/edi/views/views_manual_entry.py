@@ -39,6 +39,7 @@ from apps.edi.forms import (
     # CreateBaseRfaForm,
     # CreateRfaInvoiceForm,
 )
+from apps.invoices.bin.pre_controls import control_insertion
 
 # 1. CREATION DE FACTURES DE MARCHANDISES
 
@@ -108,6 +109,29 @@ def create_hand_invoices(request, category):
         category
     ).values()
     data = {"success": "ko"}
+
+    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    not_finalize = control_insertion()
+
+    if not_finalize:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            (
+                "Vous ne pouvez pas saisir de factures, "
+                "car la facturation est déjà envoyée par mail, mais non finalisée"
+            ),
+        )
+        context = {
+            "margin_table": 50,
+            "titre_table": titre_table,
+            "not_finalize": True,
+            "nb_display": nb_display,
+            "range_display": range(1, nb_display + 1),
+            "chevron_retour": reverse("home"),
+        }
+        return render(request, "edi/invoice_hand_update.html", context=context)
 
     if request.is_ajax() and request.method == "POST":
         user = request.user

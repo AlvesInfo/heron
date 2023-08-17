@@ -32,6 +32,7 @@ from apps.invoices.sql_files.sql_controls import (
 from apps.articles.models import Article
 from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
 from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
+from apps.edi.bin.reset_import import reset_all_imports
 
 
 def control_articles_axes():
@@ -250,7 +251,7 @@ def control_alls_missings():
         cursor.execute(SQL_VAT_REGIME_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
         controls_dict["regimes"] = (
-            "Vous avez des manquants sur les régimes de TAX, dans les imports ou les saisies"
+            "Vous avez des manquants sur les régimes de TVA, dans les imports ou les saisies"
             if missing_list
             else ""
         )
@@ -320,6 +321,57 @@ def control_alls_missings():
         )
 
     return {key: value for key, value in controls_dict.items() if value}
+
+
+def control_insertion():
+    """
+    Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
+    :return: True si non finalisé, false si finalisé
+    """
+    sql_control = """
+    select 
+        1
+    from "invoices_invoicecommondetails" "ii"
+    join (
+        select 
+            "uuid_identification"
+        from "edi_edivalidation"
+        where "final" = false 
+        and articles_news = true
+        and articles_without_account = true
+        and integration = true
+        and cct = true
+        and families = true
+        and franchiseurs = true
+        and clients_news = true
+        and subscriptions = true
+        and refac_cct = true
+        and suppliers = true
+        and validation_ca = true
+        and rfa = true
+        limit 1 
+    ) "ev" 
+    on "ii"."uuid_validation" ="ev"."uuid_identification"
+    join "invoices_saleinvoicedetail" "sd" 
+    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
+    join "invoices_saleinvoice" "sa"
+    on "sd"."uuid_invoice" = "sa"."uuid_identification"
+    where "sa"."send_email" = true
+    limit 1
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_control)
+        control = cursor.fetchone()
+
+    if control:
+        # S'il y a des factures envoyées par mail et non finalisées,
+        # alors on supprime tous les imports
+        reset_all_imports()
+
+        return True
+
+    return False
 
 
 def control_validations():
