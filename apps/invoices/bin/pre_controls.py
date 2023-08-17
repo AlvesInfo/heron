@@ -12,6 +12,7 @@ modified at: 2023-03-12
 modified by: Paulo ALVES
 """
 from django.db import connection
+from django.db.models import Q
 
 from apps.invoices.sql_files.sql_controls import (
     SQL_ARTCILES_EDI_CONTROL,
@@ -28,6 +29,9 @@ from apps.invoices.sql_files.sql_controls import (
     SQL_SIGNBOARD_CONTROL,
     SQL_SALES_AXE_BU,
 )
+from apps.articles.models import Article
+from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
+from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
 
 
 def control_articles_axes():
@@ -204,16 +208,14 @@ def control_axe_bu_od_ana():
         missing_list = [missings[0] for missings in cursor.fetchall()]
 
         if missing_list:
-            return (
-                "Vous avez des axe bu manquants sur les Clients en OD ANA"
-            )
+            return "Vous avez des axe bu manquants sur les Clients en OD ANA"
 
     return ""
 
 
 def control_alls_missings():
     """
-    Contrôle de tous les manques dans edi_ediimport
+    Contrôle de tous les manquants dans edi_ediimport
     """
     controls_dict = {}
 
@@ -314,9 +316,67 @@ def control_alls_missings():
         cursor.execute(SQL_SALES_AXE_BU)
         missing_list = [missings[0] for missings in cursor.fetchall()]
         controls_dict["axe_bu"] = (
-            "Vous avez des axe bu manquants sur les Clients en OD ANA"
-            if missing_list
-            else ""
+            "Vous avez des axe bu manquants sur les Clients en OD ANA" if missing_list else ""
         )
 
     return {key: value for key, value in controls_dict.items() if value}
+
+
+def control_validations():
+    """
+    Contrôle que toutes les validations sont faites
+    """
+    controls_list = []
+    imports_validation = EdiImportControl.objects.filter(
+        Q(valid=False) | Q(valid__isnull=True)
+    ).exists()
+
+    if imports_validation:
+        controls_list.append("Vous avez des imports non validés")
+
+    edi_validations = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+
+    # Mise à jour du contrôle des nouveaux articles
+    if Article.objects.filter(
+        Q(new_article=True)
+        | Q(error_sub_category=True)
+        | Q(axe_bu__isnull=True)
+        | Q(axe_prj__isnull=True)
+        | Q(axe_pro__isnull=True)
+        | Q(axe_pys__isnull=True)
+        | Q(axe_rfa__isnull=True)
+        | Q(big_category__isnull=True)
+    ).exists():
+        edi_validations.articles_news = False
+    else:
+        edi_validations.articles_news = True
+
+    # Mise à jour du contrôle des articles sans comptes
+    if EdiImport.objects.raw(articles_acuitis_without_accounts):
+        edi_validations.articles_without_account = False
+    else:
+        edi_validations.articles_without_account = True
+
+    edi_validations.save()
+
+    validations = {
+        "articles_news": "La Validation sur Ecran 1.1 Nouveaux Articles",
+        "articles_without_account": "La Validation sur Ecran 1.2 Articles sans Comptes",
+        "integration": "La Validation sur Ecran 2.1 Intégrations",
+        "cct": "La Validation sur Ecran 2.2 Contrôle CCT",
+        "families": "La Validation sur Ecran 3.1 Contrôles Familles",
+        "franchiseurs": "La Validation sur Ecran 3.2 Contrôle Franchiseurs",
+        "clients_news": "La Validation sur Ecran 3.3 Nouveaux CLients",
+        "subscriptions": "La Validation sur Ecran 3.5 Abonnements",
+        "rfa": "La Validation sur Ecran 3.6 Contrôle période RFA",
+        "refac_cct": "La Validation sur Ecran 5.0 Contrôle Refac par CCT",
+        "suppliers": "La Validation sur Ecran 5.1 Contrôle Fournisseurs",
+        "validation_ca": "La Validation sur Ecran 5.3 Comparaison CA/Ventes",
+    }
+
+    for key, value in edi_validations.__dict__.items():
+        if key in validations and not value:
+            controls_list.append(validations.get(key))
+
+    print(controls_list)
+    return controls_list

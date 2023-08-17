@@ -84,7 +84,11 @@ class EdiValidation(FlagsTable):
     # Validation sur Ecran 5.3 Comparaison CA/Ventes
     validation_ca = models.BooleanField(null=True, default=False)
 
+    # Période de facturation à laquelle à commencer la validation
     billing_period = models.DateField()
+
+    # Date de la facture pour la période de facturation
+    billing_date = models.DateField(null=True)
 
     final = models.BooleanField(null=True, default=False)
 

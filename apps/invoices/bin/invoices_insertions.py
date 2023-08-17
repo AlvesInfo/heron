@@ -584,6 +584,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
                 )
                 raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
+            # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
+            #  EX.: TVA, REGIME DE TVA, COLLECTIF....
+
             print(f"control_sales_insertion :{time.time()-start} s")
             start = time.time()
 
@@ -618,6 +621,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
 
             print(f"control_sales_insertion :{time.time()-start} s")
             start = time.time()
+
+            # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
+            #  EX.: TVA, REGIME DE TVA, COLLECTIF....
 
         # On insère les numérotations des factures globales
         LOGGER_INVOICES.warning(r"insertion numérotation globale")
