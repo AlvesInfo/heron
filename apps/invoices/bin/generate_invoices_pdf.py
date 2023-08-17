@@ -107,7 +107,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         # On génère le pdf du sommaire
         summary_invoice_pdf(cct, file_path)
 
-        sales_incoices_list = (
+        sales_invoices_list = (
             SaleInvoice.objects.filter(
                 cct=cct,
                 global_invoice_file=num_file,
@@ -120,7 +120,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         )
 
         # On boucle sur le différent type de factures
-        for sale in sales_incoices_list:
+        for sale in sales_invoices_list:
             cct_name, uuid_identification, big_category_slug_name, invoice_number = sale
 
             generation_pdf = generation_pdf_dict.get(big_category_slug_name)

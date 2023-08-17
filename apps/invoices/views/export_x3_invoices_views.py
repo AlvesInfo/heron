@@ -12,13 +12,16 @@ modified at: 2023-08-17
 modified by: Paulo ALVES
 """
 from django.db.models import Q
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render
 from django.contrib import messages
 from celery import group
 
 from heron import celery_app
+from heron.loggers import LOGGER_X3
 from apps.invoices.models import Invoice, SaleInvoice
-from heron.loggers import LOGGER_INVOICES, LOGGER_X3
+from apps.invoices.bin.invoives_nums import get_gaspar_num
+from apps.invoices.bin.invoives_nums import get_bispar_num
+from apps.invoices.bin.invoives_nums import get_bicpar_num
 
 
 def generate_exports_X3(request):
@@ -59,6 +62,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "odana",
                     "centrale": "AC00",
+                    "file_name": f"AC00_{str(get_gaspar_num())}.txt",
                     "user_pk": str(user_pk)},
             ),
             celery_app.signature(
@@ -66,6 +70,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "sale",
                     "centrale": "AC00",
+                    "file_name": f"AC00_{str(get_bicpar_num())}.txt",
                     "user_pk": str(user_pk)},
             ),
             celery_app.signature(
@@ -73,6 +78,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "purchase",
                     "centrale": "AC00",
+                    "file_name": f"AC00_{str(get_bispar_num())}.txt",
                     "user_pk": str(user_pk)},
             ),
             celery_app.signature(
@@ -80,6 +86,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "gdaud",
                     "centrale": "GA00",
+                    "file_name": f"GA00_{str(get_bispar_num())}.txt",
                     "user_pk": str(user_pk)},
             ),
         ]

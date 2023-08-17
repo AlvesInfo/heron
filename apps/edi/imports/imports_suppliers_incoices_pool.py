@@ -94,7 +94,7 @@ def bbgr_bulk(file_path: Path):
     validator = BbgrBulkSchema
     file_name = file_path.name
     trace_name = "Import BBGR Bulk"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrBulk"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -124,7 +124,7 @@ def bbgr_statment():
     Insertion depuis B.I des factures BBGR Statment
     """
     trace_name = "Import BBGR Statment"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrStatment"
     comment = ""
     trace = get_trace(
@@ -157,7 +157,7 @@ def bbgr_monthly():
     Insertion depuis B.I des factures BBGR Monthly
     """
     trace_name = "Import BBGR Monthly"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrMonthly"
     comment = ""
     trace = get_trace(
@@ -193,7 +193,7 @@ def bbgr_retours():
     Insertion depuis B.I des factures Monthly Retours
     """
     trace_name = "Import BBGR Retours"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrRetours"
     comment = ""
     trace = get_trace(
@@ -229,7 +229,7 @@ def bbgr_receptions():
     Insertion depuis B.I des factures BBGR Monthly
     """
     trace_name = "Import BBGR Receptions"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrReceptions"
     comment = ""
     trace = get_trace(
@@ -263,7 +263,7 @@ def cosium(file_path: Path):
     validator = CosiumSchema
     file_name = file_path.name
     trace_name = "Import Cosium"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Cosium"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -291,7 +291,7 @@ def cosium_achats(file_path: Path):
     validator = CosiumSchema
     file_name = file_path.name
     trace_name = "Import Cosium Achats"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "CosiumAchats"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -319,7 +319,7 @@ def transfert_cosium(file_path: Path):
     validator = CosiumTransfertSchema
     file_name = file_path.name
     trace_name = "Import Transferts Cosium"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Transfert"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -348,7 +348,7 @@ def edi(file_path: Path):
     validator = EdiSchema
     file_name = file_path.name
     trace_name = "Import Edi - tiers : "
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Edi"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -376,7 +376,7 @@ def eye_confort(file_path: Path):
     validator = EyeConfortSchema
     file_name = file_path.name
     trace_name = "Import EyeConfort"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "EyeConfort"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -405,7 +405,7 @@ def generique(file_path: Path):
     validator = GeneriqueSchema
     file_name = file_path.name
     trace_name = "Import Génerique - tiers : "
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Generique"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -433,7 +433,7 @@ def generique_internal(file_path: Path):
     validator = GeneriqueSchema
     file_name = file_path.name
     trace_name = "Import Génerique internal- tiers : "
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Generique_internal"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -462,7 +462,7 @@ def hearing(file_path: Path):
     validator = HearingSchema
     file_name = file_path.name
     trace_name = "Import Hearing"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Hearing"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -491,7 +491,7 @@ def interson(file_path: Path):
     validator = IntersonSchema
     file_name = file_path.name
     trace_name = "Import Interson"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Interson"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -521,7 +521,7 @@ def johnson(file_path: Path):
     validator = JohnsonSchema
     file_name = file_path.name
     trace_name = "Import Johnson"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Johnson"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -553,7 +553,7 @@ def lmc(file_path: Path):
     validator = LmcSchema
     file_name = file_path.name
     trace_name = "Import Lmc"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Lmc"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -582,7 +582,7 @@ def newson(file_path: Path):
     validator = NewsonSchema
     file_name = file_path.name
     trace_name = "Import Newson"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Newson"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -611,7 +611,7 @@ def phonak(file_path: Path):
     validator = PhonakSchema
     file_name = file_path.name
     trace_name = "Import Phonak"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Phonak"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -640,7 +640,7 @@ def prodition(file_path: Path):
     validator = ProditionSchema
     file_name = file_path.name
     trace_name = "Import Prodition"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Prodition"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -669,7 +669,7 @@ def signia(file_path: Path):
     validator = SigniaSchema
     file_name = file_path.name
     trace_name = "Import Signia"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Signia"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -698,7 +698,7 @@ def starkey(file_path: Path):
     validator = StarkeySchema
     file_name = file_path.name
     trace_name = "Import Starkey"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Starkey"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -727,7 +727,7 @@ def technidis(file_path: Path):
     validator = TechnidisSchema
     file_name = file_path.name
     trace_name = "Import Technidis"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Technidis"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -756,7 +756,7 @@ def unitron(file_path: Path):
     validator = UnitronSchema
     file_name = file_path.name
     trace_name = "Import Unitron"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Unitron"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -785,7 +785,7 @@ def widex(file_path: Path):
     validator = WidexSchema
     file_name = file_path.name
     trace_name = "Import Widex"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Widex"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -814,7 +814,7 @@ def widex_ga(file_path: Path):
     validator = WidexGaSchema
     file_name = file_path.name
     trace_name = "Import WidexGa"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "WidexGa"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
@@ -843,7 +843,7 @@ def z_bu_refac(file_path: Path):
     validator = ZBuRefacSageSchema
     file_name = file_path.name
     trace_name = "Import ZBuRefacSage"
-    application_name = "edi_imports_suppliers_incoices_pool"
+    application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Zburefac"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)

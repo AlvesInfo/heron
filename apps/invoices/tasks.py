@@ -26,7 +26,7 @@ from heron import celery_app
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
-from apps.invoices.bin.send_incoices_emails import invoices_send_by_email
+from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email

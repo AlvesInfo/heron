@@ -20,7 +20,7 @@ from uuid import UUID
 from celery import shared_task
 
 from heron.loggers import LOGGER_EDI
-from apps.edi.imports.imports_suppliers_incoices_pool import (
+from apps.edi.imports.imports_suppliers_invoices_pool import (
     bbgr_bulk,
     bbgr_statment,
     bbgr_monthly,

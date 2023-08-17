@@ -42,7 +42,7 @@ from apps.core.functions.functions_setups import settings
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
 from apps.users.models import User
-from apps.edi.imports.imports_suppliers_incoices_pool import (
+from apps.edi.imports.imports_suppliers_invoices_pool import (
     bbgr_bulk,
     cosium,
     cosium_achats,
