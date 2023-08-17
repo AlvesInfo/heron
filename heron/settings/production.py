@@ -103,7 +103,7 @@ LOGGING = {
         },
         "export_x3": {
             "format": (
-                "[send_email] : "
+                "[export_x3] : "
                 "[%(asctime)s] %(levelname)s : %(message)s : "
                 "%(filename)s : "
                 "%(funcName)s : "
