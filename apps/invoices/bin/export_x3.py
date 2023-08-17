@@ -36,10 +36,11 @@ from apps.invoices.bin.export_x3_purchase_invoices import write_bispar
 from apps.invoices.bin.export_x3_purchase_gdaud_invoices import write_bispar_gdaud
 
 
-def export_files_x3(export_type, centrale):
+def export_files_x3(export_type, centrale, file_name):
     """
     Export des fichiers X3, pour insertion de la facturation dans Sage
     :param export_type: type d'export odana, sale, purchase, gdaud
+    :param file_name: nom du fichier à générer
     :param centrale: centrale pour laquelle on lance l'export
     """
     start = time.time()
@@ -66,7 +67,7 @@ def export_files_x3(export_type, centrale):
 
         function = functions_dict.get(export_type)
         LOGGER_X3.warning(f"{export_type} - {centrale} - {function}")
-        function(centrale)
+        function(centrale, file_name)
 
     except Exception as except_error:
         error = True

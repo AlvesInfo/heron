@@ -293,11 +293,12 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
 
 @shared_task(name="launch_export_x3")
-def launch_export_x3(export_type, centrale, user_pk: int):
+def launch_export_x3(export_type, centrale, file_name, user_pk: int):
     """
     Envoi d'une facture par mail
     :param export_type: type d'export odana, sale, purchase, gdaud
     :param centrale: centrale pour laquelle on lance l'export
+    :param file_name: nom du fichier à générer
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
 
@@ -309,7 +310,7 @@ def launch_export_x3(export_type, centrale, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        trace, to_print = export_files_x3(export_type, centrale)
+        trace, to_print = export_files_x3(export_type, centrale, file_name)
         trace.created_by = user
 
     except TypeError as except_error:
