@@ -56,13 +56,17 @@ def generate_exports_X3(request):
     if request.method == "POST":
         # On lance la génération des factures de vente et d'achat
         user_pk = request.user.pk
+        file_name_odana = f"AC00_{str(get_gaspar_num())}.txt"
+        file_name_sale = f"AC00_{str(get_bicpar_num())}.txt"
+        file_name_purchase = f"AC00_{str(get_bispar_num())}.txt"
+        file_name_gdaud = f"GA00_{str(get_bispar_num())}.txt"
         tasks_list = [
             celery_app.signature(
                 "launch_export_x3",
                 kwargs={
                     "export_type": "odana",
                     "centrale": "AC00",
-                    "file_name": f"AC00_{str(get_gaspar_num())}.txt",
+                    "file_name": file_name_odana,
                     "user_pk": str(user_pk)},
             ),
             celery_app.signature(
@@ -70,7 +74,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "sale",
                     "centrale": "AC00",
-                    "file_name": f"AC00_{str(get_bicpar_num())}.txt",
+                    "file_name": file_name_sale,
                     "user_pk": str(user_pk)},
             ),
             celery_app.signature(
@@ -78,7 +82,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "purchase",
                     "centrale": "AC00",
-                    "file_name": f"AC00_{str(get_bispar_num())}.txt",
+                    "file_name": file_name_purchase,
                     "user_pk": str(user_pk)},
             ),
             celery_app.signature(
@@ -86,12 +90,11 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "gdaud",
                     "centrale": "GA00",
-                    "file_name": f"GA00_{str(get_bispar_num())}.txt",
+                    "file_name": file_name_gdaud,
                     "user_pk": str(user_pk)},
             ),
         ]
         result = group(*tasks_list)().get(3600)
-        print(result)
-        LOGGER_X3.warning(str(result), str(all(result)))
+        LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
 
     return render(request, "invoices/export_x3_invoices.html", context=context)
