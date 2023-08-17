@@ -342,4 +342,4 @@ def launch_export_x3(export_type, centrale, user_pk: int):
         )
     )
 
-    return trace.errors
+    return not trace.errors
