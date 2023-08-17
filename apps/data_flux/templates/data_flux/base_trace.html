@@ -24,7 +24,7 @@
             </div>
         </div>
 
-    {% for trace in traces %}
+    {% for trace in traces|slice:":100" %}
 
       <div class="ui segment {% if trace.errors %}error{% else %}success{% endif %}" style="padding: 5px 20px;">
 

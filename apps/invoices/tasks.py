@@ -164,7 +164,6 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
             )
 
         if trace is not None:
-            trace.invoices = True
             trace.save()
 
     LOGGER_INVOICES.warning(
@@ -274,7 +273,6 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
             )
 
         if trace is not None:
-            trace.invoices = True
             trace.save()
 
     LOGGER_INVOICES.warning(
