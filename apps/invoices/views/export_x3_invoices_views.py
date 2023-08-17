@@ -11,6 +11,8 @@ created by: Paulo ALVES
 modified at: 2023-08-17
 modified by: Paulo ALVES
 """
+from pathlib import Path
+
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib import messages
@@ -18,6 +20,7 @@ from celery import group
 
 from heron import celery_app
 from heron.loggers import LOGGER_X3
+from apps.core.functions.functions_setups import settings
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.invoices.bin.invoives_nums import get_gaspar_num
 from apps.invoices.bin.invoives_nums import get_bispar_num
@@ -96,6 +99,28 @@ def generate_exports_X3(request):
         ]
         result = group(*tasks_list)().get(3600)
 
+        file_odana = Path(settings.EXPORT_DIR) / file_name_odana
+        file_sale = Path(settings.EXPORT_DIR) / file_name_sale
+        file_purchase = Path(settings.EXPORT_DIR) / file_name_purchase
+        file_gdaud = Path(settings.EXPORT_DIR) / file_name_gdaud
+
+        # On check si il y a eu des erreurs
+        if all([*result, False]):
+            # Si on a pas d'erreur on enregistre les fichiers dans la table
+            ...
+        else:
+            # En cas d'erreur on supprime les fichiers générés
+            if file_odana.is_file():
+                file_odana.unlink()
+
+            if file_sale.is_file():
+                file_sale.unlink()
+
+            if file_purchase.is_file():
+                file_purchase.unlink()
+
+            if file_gdaud.is_file():
+                file_gdaud.unlink()
 
         LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
 
