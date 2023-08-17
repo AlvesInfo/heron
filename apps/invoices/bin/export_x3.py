@@ -47,7 +47,7 @@ def export_files_x3(export_type, centrale, file_name):
     error = False
     trace = get_trace(
         trace_name="Export file X3",
-        file_name="",
+        file_name=file_name,
         application_name="export_files_x3",
         flow_name="export_files_x3",
         comment="",

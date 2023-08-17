@@ -95,6 +95,8 @@ def generate_exports_X3(request):
             ),
         ]
         result = group(*tasks_list)().get(3600)
+
+
         LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
 
     return render(request, "invoices/export_x3_invoices.html", context=context)

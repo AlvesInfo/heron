@@ -145,7 +145,7 @@ def get_rows(start_index: int, end_index: int):
     :return: resultats de la requête
     """
 
-    rows = Trace.objects.all()[start_index:end_index]
+    rows = Trace.objects.all().order_by("-created_at")[start_index:end_index]
 
     return [
         (

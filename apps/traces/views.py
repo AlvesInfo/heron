@@ -12,7 +12,7 @@ from apps.traces.excel_outputs.edi_traces_exports import excel_edi_traces
 def trace_edi_list(request):
     """Affichage de toutes les traces présentes en base par pagination de 50"""
     limit = 50
-    paginator = Paginator(Trace.objects.all(), limit)
+    paginator = Paginator(Trace.objects.all().order_by("-created_at"), limit)
     page = request.GET.get("page")
 
     try:

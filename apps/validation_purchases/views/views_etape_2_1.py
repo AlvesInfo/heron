@@ -88,7 +88,7 @@ def integration_purchases(request):
             "traces": Trace.objects.filter(
                 modified_at__gte=pendulum.now().start_of("month").subtract(days=16),
                 invoices=True,
-            ),
+            ).order_by("-created_at"),
             "margin_table": 50,
             "margin_rep": 50,
             "nb_paging": 300,
