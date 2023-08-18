@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-08-17
 modified by: Paulo ALVES
 """
+from zipfile import ZipFile
 from pathlib import Path
 
 from django.db import transaction
@@ -32,7 +33,6 @@ from apps.invoices.bin.invoives_nums import (
     get_zip_num,
 )
 from apps.edi.models import EdiValidation
-from zipfile import ZipFile
 
 
 @transaction.atomic

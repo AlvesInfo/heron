@@ -11,15 +11,18 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
+import zipfile
+from zipfile import ZipFile
 from pathlib import Path
 
 import pendulum
 from django.shortcuts import render, redirect, reverse, HttpResponse
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.db import transaction
-from django.views.generic import ListView
 
 from heron import celery_app
 from heron.loggers import LOGGER_VIEWS
@@ -181,27 +184,84 @@ def generate_pdf_invoice(request):
     return render(request, "invoices/generate_pdf_invoices.html", context=context)
 
 
-class InvoicesPdfFiles(ListView):
-    """View pour download des fihiers X3 générés"""
+def invoices_pdf_files(request):
+    """View pour download les factures pdf"""
+    edi_validation = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(months=1)
+    dte_d = initial_period.start_of("month").date().isoformat()
+    dte_f = initial_period.end_of("month").date().isoformat()
+    initial_value = f"{dte_d}_{dte_f}"
+    form = MonthForm(request.POST or None, initial={"periode": initial_value})
 
-    model = EdiValidation
-    context_object_name = "exports"
-    template_name = "invoices/export_x3_list.html"
-    extra_context = {"titre_table": "Fichiers X3"}
+    if request.method == "POST" and form.is_valid():
+        periode_dict = form.cleaned_data
+        dte_d, dte_f = str(periode_dict.get("periode")).split("_")
+
+    pdf_invoices = (
+        SaleInvoice.objects.exclude(global_invoice_file__isnull=True)
+        .exclude(global_invoice_file="")
+        .filter(invoice_date__range=(dte_d, dte_f))
+        .values("cct", "parties__name_cct", "invoice_month", "global_invoice_file")
+        .annotate(dcount=Count("cct"))
+    )
+    file_name_zip = f"PDF_ALLS_{dte_d}_{dte_f}.zip"
+    alls = {
+        "cct": " ",
+        "parties__name_cct": "Fichier zip de toutes les factures",
+        "global_invoice_file": file_name_zip,
+        "dcount": 1,
+    }
+    context = {
+        "margin_table": 50,
+        "titre_table": "Factures de vente",
+        "form": form,
+        "alls": alls,
+        "invoices": pdf_invoices,
+    }
+
+    if request.method == "POST":
+        data = {"html": render_to_string("invoices/invoices_pdf_list_table.html", context)}
+        return JsonResponse(data)
+
+    return render(request, "invoices/invoices_pdf_list.html", context=context)
 
 
-def get_export_x3_file(request, file_name):
-    """Récupération des fichiers d'export X3 produits
+def get_pdf_file(request, file_name):
+    """Récupération des fichiers pdf des factures de ventes générées
     :param request: Request Django
     :param file_name: Paramètres get du nom du fichier à télécharger
     :return: response_file
     """
     try:
         if request.method == "GET":
-            file_path = Path(settings.EXPORT_DIR) / file_name
+            if file_name.startswith("PDF_ALLS"):
+                _, _, dte_d, dte_f, *_ = file_name.split("_")
+                dte_f = dte_f.replace(".zip", "")
+
+                pdf_invoices = (
+                    SaleInvoice.objects.exclude(global_invoice_file__isnull=True)
+                    .exclude(global_invoice_file="")
+                    .filter(invoice_date__range=(dte_d, dte_f))
+                    .values("cct", "parties__name_cct", "invoice_month", "global_invoice_file")
+                    .annotate(dcount=Count("cct"))
+                )
+                compression = zipfile.ZIP_DEFLATED
+                with ZipFile(
+                    (Path(settings.SALES_INVOICES_FILES_DIR) / file_name), "w"
+                ) as zip_file:
+                    for pdf_invoice in pdf_invoices:
+
+                        file = (
+                            Path(settings.SALES_INVOICES_FILES_DIR)
+                            / pdf_invoice.get("global_invoice_file")
+                        )
+                        zip_file.write(file, file.name, compress_type=compression, compresslevel=9)
+
+            file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file_name
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
             response = HttpResponse(file_path.open("rb").read(), content_type=content_type)
             response["Content-Disposition"] = f"attachment; filename={file_name}"
+
             return response
 
     except:

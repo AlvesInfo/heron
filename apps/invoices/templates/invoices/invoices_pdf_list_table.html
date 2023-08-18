@@ -1,0 +1,43 @@
+{% extends "heron/table_courant.html" %}
+{% load static %}
+{% load filters_tags %}
+
+{% block table %}
+    <div class="three wide column"></div>
+<div class="ten wide column">
+    {% include "heron/models_html/month_period.html" %}
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th style="width: 40%">Clients</th>
+                <th style="width: 60%">Facture pdf globale</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for invoice in invoices %}
+            {% if forloop.counter == 1 %}
+                <tr>
+                    <td style="text-align: left;">_{{ alls|get_item:"parties__name_cct" }}</td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'invoices:get_pdf_file' file_name=alls|get_item:'global_invoice_file' %}">{{ alls|get_item:'global_invoice_file' }}</a>
+                    </td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td style="text-align: left;">{{ invoice.cct }} - {{ invoice.parties__name_cct }}</td>
+                <td style="text-align: center;">
+                    <a href="{% url 'invoices:get_pdf_file' file_name=invoice.global_invoice_file %}">{{ invoice.global_invoice_file }}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock table %}
