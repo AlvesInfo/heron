@@ -90,3 +90,20 @@ def get_bispa_num():
     )
 
     return fac_num
+
+
+def get_zip_num():
+    """Génération d'un numéro du fichier zip de l'export total
+    :return:
+    """
+    counter = Counter.objects.get(name="generic")
+    zip_num = get_counter_num(
+        counter_instance=counter,
+        attr_instance_dict={
+            "prefix": "ZIP",
+            "suffix": str(pendulum.now().date().isoformat()).replace("-", "_"),
+            "separateur": "_",
+        },
+    )
+
+    return zip_num

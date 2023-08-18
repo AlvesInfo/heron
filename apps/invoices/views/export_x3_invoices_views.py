@@ -22,10 +22,14 @@ from heron import celery_app
 from heron.loggers import LOGGER_X3
 from apps.core.functions.functions_setups import settings
 from apps.invoices.models import Invoice, SaleInvoice, ExportX3
-from apps.invoices.bin.invoives_nums import get_gaspar_num
-from apps.invoices.bin.invoives_nums import get_bispar_num
-from apps.invoices.bin.invoives_nums import get_bicpar_num
+from apps.invoices.bin.invoives_nums import (
+    get_gaspar_num,
+    get_bispar_num,
+    get_bicpar_num,
+    get_zip_num,
+)
 from apps.edi.models import EdiValidation
+from zipfile import ZipFile
 
 
 def generate_exports_X3(request):
@@ -64,6 +68,7 @@ def generate_exports_X3(request):
         file_name_sale = f"AC00_{str(get_bicpar_num())}.txt"
         file_name_purchase = f"AC00_{str(get_bispar_num())}.txt"
         file_name_gdaud = f"GA00_{str(get_bispar_num())}.txt"
+        file_name_zip = f"AC00_{str(get_zip_num())}.zip"
         tasks_list = [
             celery_app.signature(
                 "launch_export_x3",
@@ -108,10 +113,12 @@ def generate_exports_X3(request):
         ]
         result_list = group(*tasks_list)().get(3600)
 
-        file_odana = Path(settings.EXPORT_DIR) / file_name_odana
-        file_sale = Path(settings.EXPORT_DIR) / file_name_sale
-        file_purchase = Path(settings.EXPORT_DIR) / file_name_purchase
-        file_gdaud = Path(settings.EXPORT_DIR) / file_name_gdaud
+        files_list = [
+            (Path(settings.EXPORT_DIR) / file_name_odana),
+            (Path(settings.EXPORT_DIR) / file_name_sale),
+            (Path(settings.EXPORT_DIR) / file_name_purchase),
+            (Path(settings.EXPORT_DIR) / file_name_gdaud),
+        ]
 
         # On check si il y a eu des erreurs
         if all(result_list):
@@ -120,27 +127,25 @@ def generate_exports_X3(request):
                 Q(final=False) | Q(final__isnull=True)
             ).first()
             export_x3, _ = ExportX3.objects.get_or_create(uuid_edi_validation=edi_validations)
+
+            with ZipFile((Path(settings.EXPORT_DIR) / file_name_zip), "w") as zip_file:
+                for file in files_list:
+                    zip_file.write(file)
+
             export_x3.odana_file = file_name_odana
             export_x3.sale_file = file_name_sale
             export_x3.purchase_file = file_name_purchase
             export_x3.ga_file = file_name_gdaud
+            export_x3.alls_zip_file = file_name_zip
             export_x3.save()
             request.session["level"] = 20
             messages.add_message(request, 20, "Les fichiers d'import X3 ont bien été générés !")
 
         else:
             # En cas d'erreur, on supprime les fichiers générés
-            if file_odana.is_file():
-                file_odana.unlink()
-
-            if file_sale.is_file():
-                file_sale.unlink()
-
-            if file_purchase.is_file():
-                file_purchase.unlink()
-
-            if file_gdaud.is_file():
-                file_gdaud.unlink()
+            for file in files_list:
+                if file.is_file():
+                    file.unlink()
 
             request.session["level"] = 50
             messages.add_message(
