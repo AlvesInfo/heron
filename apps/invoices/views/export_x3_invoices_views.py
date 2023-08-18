@@ -116,19 +116,19 @@ def generate_exports_X3(request):
         if all([*result, False]):
             # Si on a pas d'erreur on enregistre les fichiers dans la table
             ...
-        # else:
-        #     # En cas d'erreur on supprime les fichiers générés
-        #     if file_odana.is_file():
-        #         file_odana.unlink()
-        #
-        #     if file_sale.is_file():
-        #         file_sale.unlink()
-        #
-        #     if file_purchase.is_file():
-        #         file_purchase.unlink()
-        #
-        #     if file_gdaud.is_file():
-        #         file_gdaud.unlink()
+        else:
+            # En cas d'erreur on supprime les fichiers générés
+            if file_odana.is_file():
+                file_odana.unlink()
+
+            if file_sale.is_file():
+                file_sale.unlink()
+
+            if file_purchase.is_file():
+                file_purchase.unlink()
+
+            if file_gdaud.is_file():
+                file_gdaud.unlink()
 
         LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
 
