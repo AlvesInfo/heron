@@ -114,11 +114,11 @@ def generate_exports_X3(request):
 
         # On check si il y a eu des erreurs
         if all([*[result_list], False]):
-            # Si on a pas d'erreur on enregistre les fichiers dans la table
+            # Si on n'a pas d'erreur, on enregistre les fichiers dans la table
             request.session["level"] = 20
             messages.add_message(request, 20, "Les fichiers d'import X3 ont bien été générés !")
         else:
-            # En cas d'erreur on supprime les fichiers générés
+            # En cas d'erreur, on supprime les fichiers générés
             if file_odana.is_file():
                 file_odana.unlink()
 
@@ -136,6 +136,6 @@ def generate_exports_X3(request):
                 request, 50, "Une erreur c'est produite veuillez consulter les traces !"
             )
 
-        LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
+        LOGGER_X3.warning(f"{str(result_list)}, {str(all(result_list))}, {str(type(result_list))}")
 
     return render(request, "invoices/export_x3_invoices.html", context=context)
