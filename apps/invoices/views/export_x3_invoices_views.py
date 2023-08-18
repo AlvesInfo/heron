@@ -70,7 +70,9 @@ def generate_exports_X3(request):
                     "export_type": "odana",
                     "centrale": "AC00",
                     "file_name": file_name_odana,
-                    "user_pk": str(user_pk)},
+                    "user_pk": str(user_pk),
+                    "nb_fac": 50_000,
+                },
             ),
             celery_app.signature(
                 "launch_export_x3",
@@ -78,7 +80,9 @@ def generate_exports_X3(request):
                     "export_type": "sale",
                     "centrale": "AC00",
                     "file_name": file_name_sale,
-                    "user_pk": str(user_pk)},
+                    "user_pk": str(user_pk),
+                    "nb_fac": 50_000,
+                },
             ),
             celery_app.signature(
                 "launch_export_x3",
@@ -86,7 +90,9 @@ def generate_exports_X3(request):
                     "export_type": "purchase",
                     "centrale": "AC00",
                     "file_name": file_name_purchase,
-                    "user_pk": str(user_pk)},
+                    "user_pk": str(user_pk),
+                    "nb_fac": 50_000,
+                },
             ),
             celery_app.signature(
                 "launch_export_x3",
@@ -94,7 +100,9 @@ def generate_exports_X3(request):
                     "export_type": "gdaud",
                     "centrale": "GA00",
                     "file_name": file_name_gdaud,
-                    "user_pk": str(user_pk)},
+                    "user_pk": str(user_pk),
+                    "nb_fac": 50_000,
+                },
             ),
         ]
         result = group(*tasks_list)().get(3600)
@@ -108,19 +116,19 @@ def generate_exports_X3(request):
         if all([*result, False]):
             # Si on a pas d'erreur on enregistre les fichiers dans la table
             ...
-        else:
-            # En cas d'erreur on supprime les fichiers générés
-            if file_odana.is_file():
-                file_odana.unlink()
-
-            if file_sale.is_file():
-                file_sale.unlink()
-
-            if file_purchase.is_file():
-                file_purchase.unlink()
-
-            if file_gdaud.is_file():
-                file_gdaud.unlink()
+        # else:
+        #     # En cas d'erreur on supprime les fichiers générés
+        #     if file_odana.is_file():
+        #         file_odana.unlink()
+        #
+        #     if file_sale.is_file():
+        #         file_sale.unlink()
+        #
+        #     if file_purchase.is_file():
+        #         file_purchase.unlink()
+        #
+        #     if file_gdaud.is_file():
+        #         file_gdaud.unlink()
 
         LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
 
