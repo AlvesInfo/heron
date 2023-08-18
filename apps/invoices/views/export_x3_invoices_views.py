@@ -114,7 +114,7 @@ def generate_exports_X3(request):
         file_gdaud = Path(settings.EXPORT_DIR) / file_name_gdaud
 
         # On check si il y a eu des erreurs
-        if all([*[result_list], False]):
+        if all(result_list):
             # Si on n'a pas d'erreur, on enregistre les fichiers dans la table
             edi_validations = EdiValidation.objects.filter(
                 Q(final=False) | Q(final__isnull=True)
