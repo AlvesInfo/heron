@@ -120,7 +120,7 @@ def generate_exports_X3(request):
                 Q(final=False) | Q(final__isnull=True)
             ).first()
             export_x3, _ = ExportX3.objects.get_or_create(uuid_edi_validation=edi_validations)
-            export_x3.odana = file_name_odana
+            export_x3.odana_file = file_name_odana
             export_x3.sale_file = file_name_sale
             export_x3.purchase_file = file_name_purchase
             export_x3.ga_file = file_name_gdaud
