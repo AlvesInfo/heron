@@ -14,12 +14,13 @@ modified by: Paulo ALVES
 from pathlib import Path
 
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse, redirect, reverse
 from django.contrib import messages
 from celery import group
 
 from heron import celery_app
-from heron.loggers import LOGGER_X3
+from heron.loggers import LOGGER_X3, LOGGER_VIEWS
+from apps.core.bin.content_types import CONTENT_TYPE_FILE
 from apps.core.functions.functions_setups import settings
 from apps.invoices.models import Invoice, SaleInvoice, ExportX3
 from apps.invoices.bin.invoives_nums import (
@@ -155,3 +156,23 @@ def generate_exports_X3(request):
         LOGGER_X3.warning(f"{str(result_list)}, {str(all(result_list))}, {str(type(result_list))}")
 
     return render(request, "invoices/export_x3_invoices.html", context=context)
+
+
+def get_export_x3_file(request, file_name):
+    """Récupération des fichiers d'export X3 produits
+    :param request: Request Django
+    :param file_name: Paramètres get du nom du fichier à télécharger
+    :return: response_file
+    """
+    try:
+        if request.method == "GET":
+            file_path = Path(settings.EXPORT_DIR) / file_name
+            content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
+            response = HttpResponse(file_path.open().read(), content_type=content_type)
+            response["Content-Disposition"] = f"attachment; filename={file_name}"
+            return response
+
+    except:
+        LOGGER_VIEWS.exception("view : get_export_x3_file")
+
+    return redirect(reverse("home"))
