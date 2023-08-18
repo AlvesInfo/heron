@@ -139,7 +139,7 @@ def generate_exports_X3(request):
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
             request.session["level"] = 20
-            messages.add_message(request, 20, "Les fichiers d'import X3 ont bien été générés !")
+            messages.add_message(request, 20, "Les fichiers d'export X3 ont bien été générés !")
 
         else:
             # En cas d'erreur, on supprime les fichiers générés
