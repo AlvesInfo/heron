@@ -105,7 +105,7 @@ def generate_exports_X3(request):
                 },
             ),
         ]
-        result = group(*tasks_list)().get(3600)
+        result_list = group(*tasks_list)().get(3600)
 
         file_odana = Path(settings.EXPORT_DIR) / file_name_odana
         file_sale = Path(settings.EXPORT_DIR) / file_name_sale
@@ -113,9 +113,10 @@ def generate_exports_X3(request):
         file_gdaud = Path(settings.EXPORT_DIR) / file_name_gdaud
 
         # On check si il y a eu des erreurs
-        if all([*result, False]):
+        if all([*[result_list], False]):
             # Si on a pas d'erreur on enregistre les fichiers dans la table
-            ...
+            request.session["level"] = 20
+            messages.add_message(request, 20, "Les fichiers d'import X3 ont bien été générés !")
         else:
             # En cas d'erreur on supprime les fichiers générés
             if file_odana.is_file():
@@ -129,6 +130,11 @@ def generate_exports_X3(request):
 
             if file_gdaud.is_file():
                 file_gdaud.unlink()
+
+            request.session["level"] = 50
+            messages.add_message(
+                request, 50, "Une erreur c'est produite veuillez consulter les traces !"
+            )
 
         LOGGER_X3.warning(f"{str(result)}, {str(all(result))}, {str(type(result))}")
 
