@@ -290,7 +290,6 @@
 
             <div class="ui popup" id="f">
                 <div class="ui one column relaxed divided grid" style="width: 30em;">
-                {% if user.email == "paulo@alves.ovh" %}
                     <div class="column">
                         <div class="ui link list">
                             <a href="{% url 'invoices:generate_invoices_insertions' %}" class="item">Génération des écritures de la facturation</a>
@@ -301,7 +300,6 @@
                             <a href="{% url 'invoices:finalize_period' %}" class="item">Finalisation de la période de facturation</a>
                         </div>
                     </div>
-                {% endif %}
                 </div>
             </div>
 
