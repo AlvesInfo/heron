@@ -21,10 +21,11 @@ from celery import group
 from heron import celery_app
 from heron.loggers import LOGGER_X3
 from apps.core.functions.functions_setups import settings
-from apps.invoices.models import Invoice, SaleInvoice
+from apps.invoices.models import Invoice, SaleInvoice, ExportX3
 from apps.invoices.bin.invoives_nums import get_gaspar_num
 from apps.invoices.bin.invoives_nums import get_bispar_num
 from apps.invoices.bin.invoives_nums import get_bicpar_num
+from apps.edi.models import EdiValidation
 
 
 def generate_exports_X3(request):
@@ -115,8 +116,18 @@ def generate_exports_X3(request):
         # On check si il y a eu des erreurs
         if all([*[result_list], False]):
             # Si on n'a pas d'erreur, on enregistre les fichiers dans la table
+            edi_validations = EdiValidation.objects.filter(
+                Q(final=False) | Q(final__isnull=True)
+            ).first()
+            export_x3, _ = ExportX3.objects.get_or_create(uuid_edi_validation=edi_validations)
+            export_x3.odana = file_name_odana
+            export_x3.sale_file = file_name_sale
+            export_x3.purchase_file = file_name_purchase
+            export_x3.ga_file = file_name_gdaud
+            export_x3.save()
             request.session["level"] = 20
             messages.add_message(request, 20, "Les fichiers d'import X3 ont bien été générés !")
+
         else:
             # En cas d'erreur, on supprime les fichiers générés
             if file_odana.is_file():

@@ -49,7 +49,7 @@ PROCESSING_SUPPLIERS_DIR = (
 Path.mkdir(PROCESSING_SUPPLIERS_DIR, exist_ok=True)
 
 # REPERTOIRE DES FICHIERS A EXPORTER
-EXPORT_DIR = (Path(FILES_BASE_DIR) / "files/export").resolve()
+EXPORT_DIR = (Path(FILES_BASE_DIR) / "files/media/export").resolve()
 Path.mkdir(EXPORT_DIR, exist_ok=True)
 
 # REPERTOIRE DES SORTIES EXCEL

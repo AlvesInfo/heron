@@ -19,7 +19,7 @@ from heron.models import FlagExport, FlagsTable
 from apps.parameters.models import BaseInvoiceDetailsTable, BaseInvoiceTable, BaseCommonDetailsTable
 from apps.accountancy.models import CctSage, SectionSage
 from apps.book.models import Society
-from apps.edi.models import EdiImportControl
+from apps.edi.models import EdiImportControl, EdiValidation
 
 
 class CentersInvoices(models.Model):
@@ -729,3 +729,22 @@ class AxesDetails(FlagsTable):
 
 class ExportX3(FlagExport):
     """class pour les fichiers export X3"""
+
+    uuid_edi_validation = models.ForeignKey(
+        EdiValidation,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="validation_export",
+        verbose_name="Période de validation",
+        db_column="uuid_edi_validation",
+    )
+    odana_file = models.FileField(null=True, upload_to="export")
+    sale_file = models.FileField(null=True, upload_to="export")
+    purchase_file = models.FileField(null=True, upload_to="export")
+    acuitis_file = models.FileField(null=True, upload_to="export")
+    ga_file = models.FileField(null=True, upload_to="export")
+    do_file = models.FileField(null=True, upload_to="export")
+    ari_file = models.FileField(null=True, upload_to="export")
+    maa_file = models.FileField(null=True, upload_to="export")
+    uni_file = models.FileField(null=True, upload_to="export")
+    alls_zip_file = models.FileField(null=True, upload_to="export")
