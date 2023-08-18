@@ -130,7 +130,7 @@ def generate_exports_X3(request):
 
             with ZipFile((Path(settings.EXPORT_DIR) / file_name_zip), "w") as zip_file:
                 for file in files_list:
-                    zip_file.write(file)
+                    zip_file.write(file, file.name)
 
             export_x3.odana_file = file_name_odana
             export_x3.sale_file = file_name_sale
