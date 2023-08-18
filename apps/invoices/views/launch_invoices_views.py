@@ -187,7 +187,7 @@ def generate_pdf_invoice(request):
 def invoices_pdf_files(request):
     """View pour download les factures pdf"""
     edi_validation = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
-    initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(months=1)
+    initial_period = pendulum.parse(edi_validation.billing_period.isoformat())
     dte_d = initial_period.start_of("month").date().isoformat()
     dte_f = initial_period.end_of("month").date().isoformat()
     initial_value = f"{dte_d}_{dte_f}"
