@@ -183,15 +183,7 @@ def send_email_pdf_invoice(request):
 
     if not_finalize:
         request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            (
-                "Vous ne pouvez pas Envoyer par mail les pdf, "
-                "car ils ont déjà été envoyées, "
-                "mais non finalisée"
-            ),
-        )
+        messages.add_message(request, 50, "Il n'y a aucune facture pdf à envoyer !")
         context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
         return render(request, "invoices/send_email_invoices.html", context=context)
 
@@ -203,7 +195,7 @@ def send_email_pdf_invoice(request):
 
     if not sales_invoices_exists:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucune facture à envoyer !")
+        messages.add_message(request, 50, "Il n'y a aucune facture pdf à envoyer !")
         context["en_cours"] = False
 
         return render(request, "invoices/send_email_invoices.html", context=context)
