@@ -11,14 +11,20 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
+from pathlib import Path
+
 import pendulum
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.contrib import messages
 from django.db.models import Q
 from django.utils import timezone
 from django.db import transaction
+from django.views.generic import ListView
 
 from heron import celery_app
+from heron.loggers import LOGGER_VIEWS
+from apps.core.bin.content_types import CONTENT_TYPE_FILE
+from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
 from apps.periods.forms import MonthForm
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
@@ -64,7 +70,8 @@ def generate_invoices_insertions(request):
     if not edi_invoices_exists:
         request.session["level"] = 50
         messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
-        context["en_cours"] = True
+        # context["en_cours"] = True
+        context["not_finalize"] = True
 
         return render(request, "invoices/insertion_invoices.html", context=context)
 
@@ -143,7 +150,7 @@ def generate_pdf_invoice(request):
 
     if not sales_invoices_exists:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
+        messages.add_message(request, 50, "Il n'y a aucun pdf à générer !")
         context["en_cours"] = False
 
         return render(request, "invoices/generate_pdf_invoices.html", context=context)
@@ -172,6 +179,35 @@ def generate_pdf_invoice(request):
     context["titre_table"] = titre_table
 
     return render(request, "invoices/generate_pdf_invoices.html", context=context)
+
+
+class InvoicesPdfFiles(ListView):
+    """View pour download des fihiers X3 générés"""
+
+    model = EdiValidation
+    context_object_name = "exports"
+    template_name = "invoices/export_x3_list.html"
+    extra_context = {"titre_table": "Fichiers X3"}
+
+
+def get_export_x3_file(request, file_name):
+    """Récupération des fichiers d'export X3 produits
+    :param request: Request Django
+    :param file_name: Paramètres get du nom du fichier à télécharger
+    :return: response_file
+    """
+    try:
+        if request.method == "GET":
+            file_path = Path(settings.EXPORT_DIR) / file_name
+            content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
+            response = HttpResponse(file_path.open("rb").read(), content_type=content_type)
+            response["Content-Disposition"] = f"attachment; filename={file_name}"
+            return response
+
+    except:
+        LOGGER_VIEWS.exception("view : get_export_x3_file")
+
+    return redirect(reverse("home"))
 
 
 def send_email_pdf_invoice(request):
