@@ -1,0 +1,48 @@
+{% extends "heron/table_courant.html" %}
+{% load static %}
+{% load filters_tags %}
+
+{% block table %}
+
+<div class="sixteen wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 10%">Période</th>
+                <th style="width: 18%">Factures Clients</th>
+                <th style="width: 18%">Factures Fournisseurs</th>
+                <th style="width: 18%">OD ANA SUCC</th>
+                <th style="width: 18%">Factures GDAUD</th>
+                <th style="width: 18%">Tous</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for export in exports %}
+            <tr>
+                <td style="text-align: center;">{{ export.uuid_edi_validation.billing_period|date:"F Y" }}</td>
+                <td style="text-align: center;">
+                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.sale_file %}">{{ export.sale_file }}</a>
+                </td>
+                <td style="text-align: center;">
+                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.purchase_file %}">{{ export.purchase_file }}</a>
+                </td>
+                <td style="text-align: center;">
+                    <a href={% url 'invoices:get_export_x3_file' file_name=export.odana_file %}>{{ export.odana_file }}</a>
+                </td>
+                <td style="text-align: center;">
+                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.ga_file %}">{{ export.ga_file }}</a>
+                </td>
+                <td style="text-align: center;">
+                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.alls_zip_file %}">{{ export.alls_zip_file }}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock table %}

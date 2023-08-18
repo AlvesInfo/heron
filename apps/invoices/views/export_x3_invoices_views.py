@@ -13,10 +13,12 @@ modified by: Paulo ALVES
 """
 from pathlib import Path
 
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render, HttpResponse, redirect, reverse
 from django.contrib import messages
 from celery import group
+from django.views.generic import ListView
 
 from heron import celery_app
 from heron.loggers import LOGGER_X3, LOGGER_VIEWS
@@ -33,6 +35,7 @@ from apps.edi.models import EdiValidation
 from zipfile import ZipFile
 
 
+@transaction.atomic
 def generate_exports_X3(request):
     """
     View de lancement des exports X3, (GASPAR - OD, BICPAR - Clients, BISPAR - Fournisseurs)
@@ -49,13 +52,10 @@ def generate_exports_X3(request):
         "titre_table": titre_table,
         "export": True,
     }
+    sales = SaleInvoice.objects.filter(Q(export__isnull=True) | Q(export=False))
+    purchases = Invoice.objects.filter(Q(export__isnull=True) | Q(export=False))
 
-    if not any(
-        [
-            SaleInvoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
-            Invoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
-        ]
-    ):
+    if not any([sales.exists(), purchases.exists()]):
         context["export"] = False
         request.session["level"] = 50
         messages.add_message(request, 50, "Il n'y a rien a exporter")
@@ -139,6 +139,8 @@ def generate_exports_X3(request):
             export_x3.ga_file = file_name_gdaud
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
+            sales.update(export=True)
+            purchases.update(export=True)
             request.session["level"] = 20
             messages.add_message(request, 20, "Les fichiers d'export X3 ont bien été générés !")
 
@@ -158,6 +160,15 @@ def generate_exports_X3(request):
     return render(request, "invoices/export_x3_invoices.html", context=context)
 
 
+class ExportX3Files(ListView):
+    """View pour download des fihiers X3 générés"""
+
+    model = ExportX3
+    context_object_name = "exports"
+    template_name = "invoices/export_x3_list.html"
+    extra_context = {"titre_table": "Fichiers X3"}
+
+
 def get_export_x3_file(request, file_name):
     """Récupération des fichiers d'export X3 produits
     :param request: Request Django
@@ -168,7 +179,7 @@ def get_export_x3_file(request, file_name):
         if request.method == "GET":
             file_path = Path(settings.EXPORT_DIR) / file_name
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
-            response = HttpResponse(file_path.open().read(), content_type=content_type)
+            response = HttpResponse(file_path.open("rb").read(), content_type=content_type)
             response["Content-Disposition"] = f"attachment; filename={file_name}"
             return response
 

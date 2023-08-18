@@ -748,3 +748,8 @@ class ExportX3(FlagExport):
     maa_file = models.FileField(null=True, upload_to="export")
     uni_file = models.FileField(null=True, upload_to="export")
     alls_zip_file = models.FileField(null=True, upload_to="export")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["-created_at"]

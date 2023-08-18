@@ -18,6 +18,7 @@ from apps.invoices.views import (
     generate_pdf_invoice,
     send_email_pdf_invoice,
     generate_exports_X3,
+    ExportX3Files,
     get_export_x3_file,
     finalize_period,
     # Réaffectations de factures
@@ -71,6 +72,7 @@ urlpatterns = (
         path("generate_pdf_invoice/", generate_pdf_invoice, name="generate_pdf_invoice"),
         path("send_email_pdf_invoice/", send_email_pdf_invoice, name="send_email_pdf_invoice"),
         path("generate_exports_X3/", generate_exports_X3, name="generate_exports_X3"),
+        path("export_x3_files/", ExportX3Files.as_view(), name="export_x3_files"),
         path("get_export_x3_file/<str:file_name>", get_export_x3_file, name="get_export_x3_file"),
         path("finalize_period/", finalize_period, name="finalize_period"),
     ]
