@@ -300,7 +300,7 @@ def finalize_period(request):
             50,
             (
                 "Vous ne pouvez pas finaliser la facturation, "
-                "car il y a des fichiers d'imports X3 qui n'ont pas été générés!"
+                "car les fichiers d'imports X3 n'ont pas été générés!"
             ),
         )
 
