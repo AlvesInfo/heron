@@ -68,7 +68,7 @@ def export_files_x3(export_type, centrale, file_name, nb_fac):
 
         function = functions_dict.get(export_type)
         LOGGER_X3.warning(f"{export_type} - {centrale} - {function}")
-        function(centrale, file_name, nbfac)
+        function(centrale, file_name, nb_fac)
 
     except Exception as except_error:
         error = True
