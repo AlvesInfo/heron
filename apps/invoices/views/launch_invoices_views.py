@@ -203,6 +203,7 @@ def invoices_pdf_files(request):
         .filter(invoice_date__range=(dte_d, dte_f))
         .values("cct", "parties__name_cct", "invoice_month", "global_invoice_file")
         .annotate(dcount=Count("cct"))
+        .order_by("cct")
     )
     file_name_zip = f"PDF_ALLS_{dte_d}_{dte_f}.zip"
     alls = {
