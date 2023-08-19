@@ -20,6 +20,11 @@
                 <i class="dropdown icon"></i>
             </a>
 
+            <a class="browse item bold" data-target="#k" id="kmenu">
+                Tiers
+                <i class="dropdown icon"></i>
+            </a>
+
             <a class="browse item bold" data-target="#b" id="bmenu">
                 Articles
                 <i class="dropdown icon"></i>
@@ -146,45 +151,36 @@
                         </div>
                     </div>
 
+
+
+                    {% if user.email == 'paulo@alves.ovh' %}
+                        <div class="column">
+                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>
+                            <div class="ui link list">
+                                <a class="item">Users</a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="ui popup" id="k">
+                <div class="ui one column relaxed divided grid" style="width: 18em;">
                     <div class="column" style="padding-left: 10px;padding-right: 5px;">
-                        <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
-                            <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'centers_clients:exclusions_list' %}" class="item">Exclusions Tiers/Clients</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'centers_clients:exclusions_country_list' %}" class="item">Exclusions Tiers/Pays Client</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'centers_clients:subscriptions_list' %}" class="item">Abonnements</a>
+                            <h4 class="ui header" style="font-size: 1em;margin-bottom: 5px;">CLIENTS</h4>
+                            <a href="{% url 'centers_clients:maisons_list' %}" class="item">1.1 Clients</a>
+                            <a href="{% url 'centers_clients:exclusions_list' %}" class="item">1.2 Exclusions Tiers/Clients</a>
+                            <a href="{% url 'centers_clients:exclusions_country_list' %}" class="item">1.3 Exclusions Tiers/Pays Client</a>
+                            <a href="{% url 'centers_clients:subscriptions_list' %}" class="item">1.4 Abonnements</a>
+                            <div class="ui divider" style="margin: 5px 0"></div>
+                            <h4 class="ui header" style="font-size: 1em;margin-top: 10px;margin-bottom: 5px;">TIERS</h4>
+                            <a href="{% url 'book:societies_list_in_use' %}" class="item">2.1 Tiers X3 - Courants</a>
+                            <a href="{% url 'book:societies_list' %}" class="item">2.2 Tiers X3</a>
+                            <a href="{% url 'book:statistiques_list' %}" class="item">2.3 Familles/Axes</a>
                         </div>
                     </div>
-
-                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
-                        <h4 class="ui header" style="font-size: 1em;">TIERS</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'book:societies_list_in_use' %}" class="item">Tiers X3 - Courants</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'book:societies_list' %}" class="item">Tiers X3</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'book:statistiques_list' %}" class="item">Familles/Axes</a>
-                        </div>
-
-                    </div>
-
-{#                    {% if user.is_superuser %}#}
-{#                        <div class="column">#}
-{#                            <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>#}
-{#                            <div class="ui link list">#}
-{#                                <a class="item">Users</a>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    {% endif %}#}
-
                 </div>
             </div>
 
@@ -194,38 +190,16 @@
                     <div class="column">
                         <div class="ui link list">
                             <a href="{% url 'articles:new_articles_list' %}" class="item">00. Nouveaux Articles</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='marchandises' %}" class="item">01. Marchandises</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='rfa' %}" class="item">02. RFA</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='redevances' %}" class="item">03. Redevances</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='redevances-de-publicite' %}" class="item">04. Publicité</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='formation' %}" class="item">05. Formations</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='personnel' %}" class="item">06. Personnel</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='materiel' %}" class="item">07. Matériel</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='prestation' %}" class="item">08. Prestations/Abonnements</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">09. Divers</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:articles_search_list' %}" class="item">10. Recherches</a>
-                        </div>
-                        <div class="ui link list">
                             <a href="{% url 'articles:articles_account_list' %}" class="item">11. Article / Comptes</a>
                         </div>
                     </div>
@@ -268,7 +242,7 @@
                 <div class="ui one column relaxed divided grid" style="width: 21em;">
 
                     <div class="column">
-                        <h4 class="ui header">Achats</h4>
+                        <h4 class="ui header" style="font-size: 1em;margin-bottom: 5px;">Achats</h4>
                         <div class="ui link list">
                             <a href="{% url 'articles:new_articles_list' %}" class="item">1.1 &nbsp;&nbsp;&nbsp;&nbsp;Nouveaux Articles</a>
                             <a href="{% url 'articles:articles_without_account_list' %}" class="item">1.2 &nbsp;&nbsp;&nbsp;&nbsp;Articles sans Comptes</a>
@@ -314,17 +288,17 @@
             </div>
 
             <div class="ui popup" id="g">
-                <div class="ui two column relaxed divided grid" style="width: 30em;">
+                <div class="ui one column relaxed divided grid" style="width: 18em;">
 
                     <div class="column">
-                        <h4 class="ui header">COSIUM</h4>
+                        <h4 class="ui header" style="font-size: 1em;margin-bottom: 5px;">COSIUM</h4>
                         <div class="ui link list">
-                            <a href="{% url 'compta:export_sales_cosium' %}" class="item">Ventes Cosium</a>
-                            <a href="{% url 'compta:export_ca_cosium' %}" class="item">CA Cosium</a>
-                            <a href="{% url 'compta:reset_clients_in_sales' %}" class="item">Reset des CCT</a>
-                            <a href="{% url 'compta:reset_exhange_rates_in_sales' %}" class="item">Reset des Taux de change</a>
-                            <a href="{% url 'compta:reset_sales' %}" class="item">Reset des Ventes</a>
-                            <a href="{% url 'compta:reset_ca' %}" class="item">Reset du CA</a>
+                            <a href="{% url 'compta:export_sales_cosium' %}" class="item">01. Ventes Cosium</a>
+                            <a href="{% url 'compta:export_ca_cosium' %}" class="item">02. CA Cosium</a>
+                            <a href="{% url 'compta:reset_clients_in_sales' %}" class="item">03. Reset des CCT</a>
+                            <a href="{% url 'compta:reset_exhange_rates_in_sales' %}" class="item">04. Reset des Taux de change</a>
+                            <a href="{% url 'compta:reset_sales' %}" class="item">05. Reset des Ventes</a>
+                            <a href="{% url 'compta:reset_ca' %}" class="item">06. Reset du CA</a>
                         </div>
                     </div>
 
@@ -340,7 +314,7 @@
             </div>
 
 {#            <div class="ui popup" id="h">#}
-{#                <div class="ui two column relaxed divided grid" style="width: 30em;">#}
+{#                <div class="ui two column relaxed divided grid" style="width: 18em;">#}
 {#                    <div class="column">#}
 {#                        <h4 class="ui header">Sage</h4>#}
 {#                        <div class="ui link list">#}
@@ -355,7 +329,7 @@
 {#            </div>#}
 
 {#            <div class="ui popup" id="i">#}
-{#                <div class="ui two column relaxed divided grid" style="width: 24em;">#}
+{#                <div class="ui two column relaxed divided grid" style="width: 18em;">#}
 {##}
 {#                    <div class="column">#}
 {#                        <div class="ui link list">#}
@@ -370,7 +344,7 @@
 {#            </div>#}
 
             <div class="ui popup" id="j">
-                <div class="ui two column relaxed divided grid" style="width: 30em;">
+                <div class="ui one column relaxed divided grid" style="width: 18em;">
 
                     <div class="column">
                         <h4 class="ui header" style="font-size: 1em;"></h4>

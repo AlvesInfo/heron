@@ -193,7 +193,8 @@ def invoices_pdf_files(request):
 
     else:
         edi_validation = EdiValidation.objects.filter(
-            Q(final=False) | Q(final__isnull=True)).first()
+            Q(final=False) | Q(final__isnull=True)
+        ).first()
         initial_period = pendulum.parse(edi_validation.billing_period.isoformat())
         dte_d = initial_period.start_of("month").date().isoformat()
         dte_f = initial_period.end_of("month").date().isoformat()
@@ -241,7 +242,6 @@ def get_pdf_file(request, file_name):
     """
     try:
         if request.method == "GET":
-
             # Si la demande est pour le zip global, on zippe à la volée toutes les factures
             if file_name.startswith("PDF_ALLS"):
                 _, _, dte_d, dte_f, *_ = file_name.split("_")
@@ -262,9 +262,8 @@ def get_pdf_file(request, file_name):
                 ) as zip_file:
                     # On itère sur les pdf pour les zipper
                     for pdf_invoice in pdf_invoices:
-                        file = (
-                            Path(settings.SALES_INVOICES_FILES_DIR)
-                            / pdf_invoice.get("global_invoice_file")
+                        file = Path(settings.SALES_INVOICES_FILES_DIR) / pdf_invoice.get(
+                            "global_invoice_file"
                         )
                         zip_file.write(file, file.name, compress_type=compression, compresslevel=9)
 
@@ -386,7 +385,17 @@ def finalize_period(request):
 
         return redirect(reverse("invoices:finalize_period"))
 
-    if any(
+    if not not_finalize:
+        exist_message = [message for message in messages.get_messages(request)]
+
+        if not exist_message:
+            request.session["level"] = 50
+            messages.add_message(
+                request,
+                50,
+                "il n'y a rien à finaliser!",
+            )
+    elif any(
         [
             SaleInvoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
             Invoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
@@ -403,16 +412,6 @@ def finalize_period(request):
             ),
         )
 
-    elif not not_finalize:
-        exist_message = [message for message in messages.get_messages(request)]
-
-        if not exist_message:
-            request.session["level"] = 50
-            messages.add_message(
-                request,
-                50,
-                "il n'y a rien à finaliser!",
-            )
     else:
         titre_table = (
             titre_table
