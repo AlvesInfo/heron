@@ -2,42 +2,69 @@
 {% load static %}
 {% load filters_tags %}
 
+{% block search_elements %}
+
+    <div class="ui segment" style="margin: 0;padding: 10px;text-align: center">
+        <div class="ui equal width grid center">
+            <div class="ui datatable-chargement active inverted dimmer">
+                <div class="ui medium text loader">Chargement</div>
+            </div>
+            <div class="three wide column"></div>
+
+            <div class="three wide column">
+                {% include "heron/models_html/month_period.html" %}
+            </div>
+
+            <div class="three wide column" style="display: flex;">
+                <a class="item" href="" style="padding-top: 40px;">
+                    <button class="ui blue basic button" name="get_sales_invoices_pdf" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                        RECHERCHER
+                    </button>
+                </a>
+            </div>
+
+            <div class="three wide column"></div>
+        </div>
+    </div>
+
+{% endblock search_elements %}
+
 {% block table %}
+
     <div class="three wide column"></div>
-<div class="ten wide column">
-    {% include "heron/models_html/month_period.html" %}
+    <div class="ten wide column">
 
-    <table id="table_document"
-       class="ui celled table"
-       style="font-size: 12px !important;text-align: center;font-weight: 900;">
-        <thead>
-            <tr>
-                <th style="width: 40%">Clients</th>
-                <th style="width: 60%">Facture pdf globale</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-        {% for invoice in invoices %}
-            {% if forloop.counter == 1 %}
+        <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
                 <tr>
-                    <td style="text-align: left;">_{{ alls|get_item:"parties__name_cct" }}</td>
+                    <th style="width: 40%">Clients</th>
+                    <th style="width: 60%">Facture pdf globale - période du {{ dte_d|date:"d/m/Y" }} au {{ dte_f|date:"d/m/Y" }}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for invoice in invoices %}
+                {% if forloop.counter == 1 %}
+                    <tr>
+                        <td style="text-align: left;">_{{ alls|get_item:"parties__name_cct" }}</td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'invoices:get_pdf_file' file_name=alls|get_item:'global_invoice_file' %}">{{ alls|get_item:'global_invoice_file' }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td style="text-align: left;">{{ invoice.cct }} - {{ invoice.parties__name_cct }}</td>
                     <td style="text-align: center;">
-                        <a href="{% url 'invoices:get_pdf_file' file_name=alls|get_item:'global_invoice_file' %}">{{ alls|get_item:'global_invoice_file' }}</a>
+                        <a href="{% url 'invoices:get_pdf_file' file_name=invoice.global_invoice_file %}">{{ invoice.global_invoice_file }}</a>
                     </td>
                 </tr>
-            {% endif %}
-            <tr>
-                <td style="text-align: left;">{{ invoice.cct }} - {{ invoice.parties__name_cct }}</td>
-                <td style="text-align: center;">
-                    <a href="{% url 'invoices:get_pdf_file' file_name=invoice.global_invoice_file %}">{{ invoice.global_invoice_file }}</a>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            {% endfor %}
+            </tbody>
+        </table>
 
-</div>
+    </div>
 
 {% endblock table %}

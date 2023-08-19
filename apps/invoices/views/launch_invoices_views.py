@@ -17,8 +17,6 @@ from pathlib import Path
 
 import pendulum
 from django.shortcuts import render, redirect, reverse, HttpResponse
-from django.http import JsonResponse
-from django.template.loader import render_to_string
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
@@ -186,17 +184,23 @@ def generate_pdf_invoice(request):
 
 def invoices_pdf_files(request):
     """View pour download les factures pdf"""
-    edi_validation = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
-    initial_period = pendulum.parse(edi_validation.billing_period.isoformat())
-    dte_d = initial_period.start_of("month").date().isoformat()
-    dte_f = initial_period.end_of("month").date().isoformat()
-    initial_value = f"{dte_d}_{dte_f}"
-    form = MonthForm(request.POST or None, initial={"periode": initial_value})
+    # On va récupérer les dates initiiales à l'arrivée sur la vue à la date de la période en cours
+    form = MonthForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
         periode_dict = form.cleaned_data
         dte_d, dte_f = str(periode_dict.get("periode")).split("_")
 
+    else:
+        edi_validation = EdiValidation.objects.filter(
+            Q(final=False) | Q(final__isnull=True)).first()
+        initial_period = pendulum.parse(edi_validation.billing_period.isoformat())
+        dte_d = initial_period.start_of("month").date().isoformat()
+        dte_f = initial_period.end_of("month").date().isoformat()
+        initial_value = f"{dte_d}_{dte_f}"
+        form = MonthForm(initial={"periode": initial_value})
+
+    # On récupère les pdf de la période
     pdf_invoices = (
         SaleInvoice.objects.exclude(global_invoice_file__isnull=True)
         .exclude(global_invoice_file="")
@@ -205,6 +209,8 @@ def invoices_pdf_files(request):
         .annotate(dcount=Count("cct"))
         .order_by("cct")
     )
+
+    # On va poser le zip de toutes les factures pdf
     file_name_zip = f"PDF_ALLS_{dte_d}_{dte_f}.zip"
     alls = {
         "cct": " ",
@@ -212,17 +218,17 @@ def invoices_pdf_files(request):
         "global_invoice_file": file_name_zip,
         "dcount": 1,
     }
+
+    # On remplit le contexte
     context = {
         "margin_table": 50,
         "titre_table": "Factures de vente",
         "form": form,
         "alls": alls,
         "invoices": pdf_invoices,
+        "dte_d": pendulum.parse(dte_d).date(),
+        "dte_f": pendulum.parse(dte_f).date(),
     }
-
-    if request.method == "POST":
-        data = {"html": render_to_string("invoices/invoices_pdf_list_table.html", context)}
-        return JsonResponse(data)
 
     return render(request, "invoices/invoices_pdf_list.html", context=context)
 
@@ -235,10 +241,13 @@ def get_pdf_file(request, file_name):
     """
     try:
         if request.method == "GET":
+
+            # Si la demande est pour le zip global, on zippe à la volée toutes les factures
             if file_name.startswith("PDF_ALLS"):
                 _, _, dte_d, dte_f, *_ = file_name.split("_")
                 dte_f = dte_f.replace(".zip", "")
 
+                # On récupère les pdf de la période
                 pdf_invoices = (
                     SaleInvoice.objects.exclude(global_invoice_file__isnull=True)
                     .exclude(global_invoice_file="")
@@ -247,11 +256,12 @@ def get_pdf_file(request, file_name):
                     .annotate(dcount=Count("cct"))
                 )
                 compression = zipfile.ZIP_DEFLATED
+
                 with ZipFile(
                     (Path(settings.SALES_INVOICES_FILES_DIR) / file_name), "w"
                 ) as zip_file:
+                    # On itère sur les pdf pour les zipper
                     for pdf_invoice in pdf_invoices:
-
                         file = (
                             Path(settings.SALES_INVOICES_FILES_DIR)
                             / pdf_invoice.get("global_invoice_file")
@@ -266,7 +276,7 @@ def get_pdf_file(request, file_name):
             return response
 
     except:
-        LOGGER_VIEWS.exception("view : get_export_x3_file")
+        LOGGER_VIEWS.exception("view : get_pdf_file")
 
     return redirect(reverse("home"))
 

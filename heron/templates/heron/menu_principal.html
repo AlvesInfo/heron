@@ -55,10 +55,10 @@
 {#                <i class="dropdown icon"></i>#}
 {#            </a>#}
 
-            <a class="browse item bold" data-target="#i" id="imenu">
-                Factures
-                <i class="dropdown icon"></i>
-            </a>
+{#            <a class="browse item bold" data-target="#i" id="imenu">#}
+{#                Factures#}
+{#                <i class="dropdown icon"></i>#}
+{#            </a>#}
 
             <a class="browse item bold" data-target="#j" id="jmenu">
                 Logs / Traces
@@ -76,7 +76,7 @@
             <div class="ui popup" id="a">
                 <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 80em;">
 
-                    <div class="column">
+                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">DIVERS</h4>
                         <div class="ui link list">
                             <a href="{% url 'parameters:natures_list' %}" class="item">Natures/Genres</a>
@@ -100,7 +100,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="column">
+                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">CENTRALES</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:meres_list' %}" class="item">Centrales Mère</a>
@@ -116,7 +116,7 @@
                         </div>
                     </div>
 
-                    <div class="column">
+                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">FACTURATION</h4>
                         <div class="ui link list">
                             <a href="{% url 'parameters:axes_articles_defaut' slug_name='axes_articles' %}" class="item">Axes Par Défaut</a>
@@ -146,7 +146,7 @@
                         </div>
                     </div>
 
-                    <div class="column">
+                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">CLIENTS</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_clients:maisons_list' %}" class="item">Clients</a>
@@ -162,7 +162,7 @@
                         </div>
                     </div>
 
-                    <div class="column">
+                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">TIERS</h4>
                         <div class="ui link list">
                             <a href="{% url 'book:societies_list_in_use' %}" class="item">Tiers X3 - Courants</a>
@@ -189,7 +189,7 @@
             </div>
 
             <div class="ui popup" id="b">
-                <div class="ui one column relaxed divided grid" style="width: 20em;">
+                <div class="ui one column relaxed divided grid" style="width: 18em;">
 
                     <div class="column">
                         <div class="ui link list">
@@ -223,10 +223,10 @@
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">09. Divers</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:articles_search_list' %}" class="item">11. Recherches</a>
+                            <a href="{% url 'articles:articles_search_list' %}" class="item">10. Recherches</a>
                         </div>
                         <div class="ui link list">
-                            <a href="{% url 'articles:articles_account_list' %}" class="item">12. Article / Comptes</a>
+                            <a href="{% url 'articles:articles_account_list' %}" class="item">11. Article / Comptes</a>
                         </div>
                     </div>
 
@@ -234,7 +234,7 @@
             </div>
 
             <div class="ui popup" id="c">
-                <div class="ui two column relaxed divided grid" style="width: 24em;">
+                <div class="ui one column relaxed divided grid" style="width: 18em;">
 
                     <div class="column">
                         <div class="ui link list">
@@ -250,7 +250,7 @@
             </div>
 
             <div class="ui popup" id="d">
-                <div class="ui one column relaxed equal divided grid" style="width: 12em;">
+                <div class="ui one column relaxed equal divided grid" style="width: 18em;">
 
 {#              1. Marchandises ================================================================  #}
                     <div class="column">
@@ -265,20 +265,23 @@
             </div>
 
             <div class="ui popup" id="e">
-                <div class="ui one column relaxed divided grid" style="width: 30em;">
+                <div class="ui one column relaxed divided grid" style="width: 21em;">
 
                     <div class="column">
                         <h4 class="ui header">Achats</h4>
                         <div class="ui link list">
                             <a href="{% url 'articles:new_articles_list' %}" class="item">1.1 &nbsp;&nbsp;&nbsp;&nbsp;Nouveaux Articles</a>
                             <a href="{% url 'articles:articles_without_account_list' %}" class="item">1.2 &nbsp;&nbsp;&nbsp;&nbsp;Articles sans Comptes</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
                             <a href="{% url 'validation_purchases:integration_purchases' %}" class="item">2.1 &nbsp;&nbsp;&nbsp;&nbsp;Intégrations</a>
                             <a href="{% url 'validation_purchases:without_cct_purchases' %}" class="item">2.2 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle CCT</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
                             <a href="{% url 'validation_purchases:families_invoices_purchases' %}" class="item">3.1 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Familles</a>
                             <a href="{% url 'validation_purchases:cct_franchiseurs_purchases' %}" class="item">3.2 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle CCT/Franchiseurs</a>
                             <a href="{% url 'validation_purchases:clients_news_purchases' %}" class="item">3.3 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Nouveaux Clients</a>
                             <a href="{% url 'validation_purchases:subscriptions_purchases' %}" class="item">3.5 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Abonnements</a>
                             <a href="{% url 'validation_purchases:control_rfa_period' %}" class="item">3.6 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle période RFA</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
                             <a href="{% url 'validation_purchases:refac_cct_purchases' %}" class="item">5.0 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Refac M/M-1 CCT</a>
                             <a href="{% url 'validation_purchases:balance_suppliers_purchases' %}" class="item">5.1 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle Fournisseurs M/M-1</a>
                             <a href="{% url 'validation_purchases:ca_cct' %}" class="item">5.3 &nbsp;&nbsp;&nbsp;&nbsp;Contrôle CA Cosium/Ventes Héron</a>
@@ -289,16 +292,22 @@
             </div>
 
             <div class="ui popup" id="f">
-                <div class="ui one column relaxed divided grid" style="width: 30em;">
+                <div class="ui one column relaxed divided grid" style="width: 21em;">
                     <div class="column">
                         <div class="ui link list">
-                            <a href="{% url 'invoices:generate_invoices_insertions' %}" class="item">Génération des écritures de la facturation</a>
-                            <a href="{% url 'invoices:generate_pdf_invoice' %}" class="item">Génération pdf des factures de vente</a>
-                            <a href="{% url 'invoices:invoices_pdf_files' %}" class="item">Factures pdf de vente</a>
-                            <a href="{% url 'invoices:send_email_pdf_invoice' %}" class="item">Envoi global des factures de vente</a>
-                            <a href="{% url 'invoices:generate_exports_X3' %}" class="item">Génération fichiers X3 de la facturation</a>
-                            <a href="{% url 'invoices:export_x3_files' %}" class="item">Fichiers X3</a>
-                            <a href="{% url 'invoices:finalize_period' %}" class="item">Finalisation de la période de facturation</a>
+                            <a href="{% url 'invoices:generate_invoices_insertions' %}" class="item">1.1 Génération écritures facturation</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
+                            <a href="{% url 'validation_purchases:invoices_purchases_export_globals' %}" class="item">2.1 Achats en cours</a>
+                            <a href="{% url 'validation_sales:invoices_sales_export_globals' %}" class="item">2.2 Ventes en cours</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
+                            <a href="{% url 'invoices:generate_pdf_invoice' %}" class="item">3.1 Génération pdf factures de vente</a>
+                            <a href="{% url 'invoices:invoices_pdf_files' %}" class="item">3.2 Factures pdf de vente</a>
+                            <a href="{% url 'invoices:send_email_pdf_invoice' %}" class="item">3.4 Envoi global des factures de vente</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
+                            <a href="{% url 'invoices:generate_exports_X3' %}" class="item">4.1 Génération écritures X3 facturation</a>
+                            <a href="{% url 'invoices:export_x3_files' %}" class="item">4.2 Fichiers X3</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
+                            <a href="{% url 'invoices:finalize_period' %}" class="item">5.0 Finalisation période facturation</a>
                         </div>
                     </div>
                 </div>
@@ -345,21 +354,20 @@
 {#                </div>#}
 {#            </div>#}
 
-            <div class="ui popup" id="i">
-                <div class="ui two column relaxed divided grid" style="width: 24em;">
-
-                    <div class="column">
-                        <div class="ui link list">
-                            <a href="{% url 'validation_purchases:invoices_purchases_export_globals' %}" class="item">01. Achats</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'validation_sales:invoices_sales_export_globals' %}" class="item">02. Ventes</a>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
+{#            <div class="ui popup" id="i">#}
+{#                <div class="ui two column relaxed divided grid" style="width: 24em;">#}
+{##}
+{#                    <div class="column">#}
+{#                        <div class="ui link list">#}
+{#                        </div>#}
+{#                        <div class="ui link list">#}
+{##}
+{#                        </div>#}
+{##}
+{#                    </div>#}
+{##}
+{#                </div>#}
+{#            </div>#}
 
             <div class="ui popup" id="j">
                 <div class="ui two column relaxed divided grid" style="width: 30em;">

@@ -3,28 +3,6 @@
 {% load static %}
 {% load filters_tags %}
 
-{% block head_js %}
-    <script type="text/javascript">
-        function getSaleInvoicesPdf() {
-            $(`.datatable-chargement`).show();
-            let formData = {
-                periode: $('.ui.dropdown').dropdown('get value')[1],
-            };
-            $.ajax({
-                type: "POST",
-                url: "{% url 'invoices:invoices_pdf_files' %}",
-                data: formData,
-                encode: true,
-            }).done(function (data) {
-                $("#pdfFiles").replaceWith(data.html)
-                $(`.datatable-chargement`).hide();
-            });
-        }
-
-    </script>
-{% endblock head_js %}
-
-
 {% block menu_principal %}
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
@@ -32,10 +10,11 @@
 {% block content %}
 
     {% if user.is_authenticated %}
+        <form action="" method="post">
+        {% csrf_token %}
             {% include "invoices/invoices_pdf_list_entete.html" %}
-        <div id="pdfFiles" style="padding: 0;margin: 0;">
             {% include "invoices/invoices_pdf_list_table.html" %}
-        </div>
+        </form>
         <div class="ui equal width grid center"></div>
 
     {% else %}
