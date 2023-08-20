@@ -49,7 +49,7 @@ class SocietiesInUseList(ListView):
     extra_context = {
         "titre_table": "Tiers X3",
         "in_use": "in_use",
-        "nb_paging": 50,
+        "nb_paging": 100,
     }
     queryset = (
         Society.objects.filter(Q(is_client=True) | Q(is_supplier=True))
