@@ -21,6 +21,16 @@ class MaisonForm(forms.ModelForm):
         """Ajout ou transformation des champs de formulaires"""
         super().__init__(*args, **kwargs)
 
+        # TIERS X3 - on ne récupère que les clients et non tous les tiers ==========================
+        third_party_num_choices = [("", "")] + [
+            (
+                society.get("third_party_num"),
+                f"{society.get('third_party_num')} - {society.get('name')}",
+            )
+            for society in Society.objects.filter(is_client=True).values("third_party_num", "name")
+        ]
+        self.fields["third_party_num"].choices = third_party_num_choices
+
         self.fields["code_maison"].required = False
         self.fields["code_cosium"].required = False
         self.fields["reference_cosium"].required = False
@@ -83,8 +93,8 @@ class MaisonForm(forms.ModelForm):
 
         widgets = {
             "cct": forms.Select(attrs=SELECT_FLUIDE_DICT),
-            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "pays": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "third_party_num": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "center_purchase": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "sign_board": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "client_familly": forms.Select(attrs=SELECT_FLUIDE_DICT),

@@ -9,6 +9,7 @@ from django.conf import settings
 
 from heron.loggers import LOGGER_VIEWS
 from apps.edi.models import EdiImport
+from apps.accountancy.bin.api_get_models_accountacy import get_vat_alls, get_vat
 from apps.core.bin.api_get_models import (
     get_articles_alls,
     get_articles,
@@ -19,8 +20,6 @@ from apps.core.bin.api_get_models import (
     get_maisons_in_use,
     get_unity_alls,
     get_unity,
-    get_vat_alls,
-    get_vat,
     get_account,
 )
 

@@ -48,7 +48,7 @@
                     <div class="ten wide field">
                     </div>
                     <div class="two wide field">
-                        <label for="id_net_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL HT</label>
+                        <label for="id_tot_net_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL HT</label>
                         <input type="number"
                                class="amount"
                                name="tot_net_amount"
@@ -59,7 +59,7 @@
                                value="0">
                     </div>
                     <div class="two wide field">
-                        <label for="id_vat_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL TVA</label>
+                        <label for="id_tot_vat_amount" style="display: none;text-align: right;margin-right: 14px">TOTAL TVA</label>
                         <input type="number"
                                class="amount"
                                name="tot_vat_amount"
@@ -70,7 +70,7 @@
                                value="0">
                     </div>
                     <div class="two wide field">
-                        <label for="id_amount_with_vat" style="display: none;text-align: right;margin-right: 14px">TOTAL TTC</label>
+                        <label for="id_tot_amount_with_vat" style="display: none;text-align: right;margin-right: 14px">TOTAL TTC</label>
                         <input type="number"
                                class="amount"
                                name="tot_amount_with_vat"
@@ -129,7 +129,7 @@
                                        style="text-align: left;">Date Livraison</label>
                                 <input type="date"
                                      name="delivery_date"
-                                     id="id_delivery_date"
+                                     id="id_delivery_date_{{ num }}"
                                      value="">
                             </div>
                             <div class="four wide field">
@@ -174,111 +174,22 @@
                                        id="id_net_unit_price_{{ num }}">
                             </div>
                             <div class="two wide field">
-                                <label for="id_vat_{{ num }}">TVA X3</label>
+                                <label for="id_vat_{{ num }}" style="text-align: right">TVA X3</label>
                                 <div class="ui fluid search dropdown selection">
-                                    <select name="vat" class="amount" required="" id="id_vat_{{ num }}">
-                                  <option value="">---------</option>
-                                  <option value="001" selected="">001 - FRA</option>
-                                  <option value="002">002 - FRA</option>
-                                  <option value="003">003 - FRA</option>
-                                  <option value="004">004 - FRA</option>
-                                  <option value="005">005 - FRA</option>
-                                  <option value="006">006 - FRA</option>
-                                  <option value="007">007 - FRA</option>
-                                  <option value="008">008 - FRA</option>
-                                  <option value="009">009 - FRA</option>
-                                  <option value="010">010 - CEE</option>
-                                  <option value="011">011 - CEE</option>
-                                  <option value="012">012 - CEE</option>
-                                  <option value="013">013 - CEE</option>
-                                  <option value="014">014 - CEE</option>
-                                  <option value="015">015 - CEE</option>
-                                  <option value="016">016 - CEE</option>
-                                  <option value="017">017 - CEE</option>
-                                  <option value="018">018 - CEE</option>
-                                  <option value="021">021 - CPI</option>
-                                  <option value="031">031 - EXP</option>
-                                  <option value="032">032 - SPT</option>
-                                  <option value="033">033 - None</option>
-                                  <option value="041">041 - DOM</option>
-                                  <option value="042">042 - DOM</option>
-                                  <option value="050">050 - CEE</option>
-                                  <option value="051">051 - CEE</option>
-                                  <option value="052">052 - None</option>
-                                  <option value="053">053 - CEE</option>
-                                  <option value="054">054 - CEE</option>
-                                  <option value="055">055 - CEE</option>
-                                  <option value="056">056 - CEE</option>
-                                  <option value="057">057 - CEE</option>
-                                  <option value="058">058 - CEE</option>
-                                  <option value="059">059 - CEE</option>
-                                  <option value="060">060 - CEE</option>
-                                  <option value="061">061 - CEE</option>
-                                  <option value="062">062 - CEE</option>
-                                  <option value="063">063 - CEE</option>
-                                  <option value="064">064 - CEE</option>
-                                  <option value="065">065 - CEE</option>
-                                  <option value="066">066 - CEE</option>
-                                  <option value="067">067 - CEE</option>
-                                  <option value="068">068 - CEE</option>
-                                  <option value="069">069 - CEE</option>
-                                  <option value="070">070 - CEE</option>
-                                  <option value="071">071 - CEE</option>
-                                  <option value="072">072 - CEE</option>
-                                  <option value="GST51">GST51 - GST</option>
+                                    <select name="vat" class="amount" required="" id="id_vat_{{ num }}" style="text-align: right;">
+                                    {% for vat, _, vat_regime in vat_list %}
+                                        <option value="{{ vat }}" {% if vat == "001" %}selected=""{% endif %} >{{ vat }} - {{ vat_regime }}</option>
+                                    {% endfor %}
                                 </select>
                                     <i class="dropdown icon"></i>
-                                    <input class="search" autocomplete="off" tabindex="0">
+                                    <label for="id_search" style="display: none;"></label>
+                                    <input id="id_search" class="search" autocomplete="off" tabindex="0">
                                     <div class="text">001 - FRA</div>
                                     <div class="menu" tabindex="-1">
                                         <div class="item active selected" data-value="001">001 - FRA</div>
-                                        <div class="item" data-value="002">002 - FRA</div>
-                                        <div class="item" data-value="003">003 - FRA</div>
-                                        <div class="item" data-value="004">004 - FRA</div>
-                                        <div class="item" data-value="005">005 - FRA</div>
-                                        <div class="item" data-value="006">006 - FRA</div>
-                                        <div class="item" data-value="007">007 - FRA</div>
-                                        <div class="item" data-value="008">008 - FRA</div>
-                                        <div class="item" data-value="009">009 - FRA</div>
-                                        <div class="item" data-value="010">010 - CEE</div>
-                                        <div class="item" data-value="011">011 - CEE</div>
-                                        <div class="item" data-value="012">012 - CEE</div>
-                                        <div class="item" data-value="013">013 - CEE</div>
-                                        <div class="item" data-value="014">014 - CEE</div>
-                                        <div class="item" data-value="015">015 - CEE</div>
-                                        <div class="item" data-value="016">016 - CEE</div>
-                                        <div class="item" data-value="017">017 - CEE</div>
-                                        <div class="item" data-value="018">018 - CEE</div>
-                                        <div class="item" data-value="021">021 - CPI</div>
-                                        <div class="item" data-value="031">031 - EXP</div>
-                                        <div class="item" data-value="032">032 - SPT</div>
-                                        <div class="item" data-value="033">033 - None</div>
-                                        <div class="item" data-value="041">041 - DOM</div>
-                                        <div class="item" data-value="042">042 - DOM</div>
-                                        <div class="item" data-value="050">050 - CEE</div>
-                                        <div class="item" data-value="051">051 - CEE</div>
-                                        <div class="item" data-value="052">052 - None</div>
-                                        <div class="item" data-value="053">053 - CEE</div>
-                                        <div class="item" data-value="054">054 - CEE</div>
-                                        <div class="item" data-value="055">055 - CEE</div>
-                                        <div class="item" data-value="056">056 - CEE</div>
-                                        <div class="item" data-value="057">057 - CEE</div>
-                                        <div class="item" data-value="058">058 - CEE</div>
-                                        <div class="item" data-value="059">059 - CEE</div>
-                                        <div class="item" data-value="060">060 - CEE</div>
-                                        <div class="item" data-value="061">061 - CEE</div>
-                                        <div class="item" data-value="062">062 - CEE</div>
-                                        <div class="item" data-value="063">063 - CEE</div>
-                                        <div class="item" data-value="064">064 - CEE</div>
-                                        <div class="item" data-value="065">065 - CEE</div>
-                                        <div class="item" data-value="066">066 - CEE</div>
-                                        <div class="item" data-value="067">067 - CEE</div>
-                                        <div class="item" data-value="068">068 - CEE</div>
-                                        <div class="item" data-value="069">069 - CEE</div>
-                                        <div class="item" data-value="070">070 - CEE</div>
-                                        <div class="item" data-value="071">071 - CEE</div>
-                                        <div class="item" data-value="072">072 - CEE</div>
-                                        <div class="item" data-value="GST51">GST51 - GST</div>
+                                    {% for vat, _, vat_regime in vat_list %}
+                                        <div class="item{% if vat == "001" %} active selected{% endif %}" data-value="{{ vat }}"  >{{ vat }} - {{ vat_regime }}</div>
+                                    {% endfor %}
                                     </div>
                                 </div>
                             </div>

@@ -107,18 +107,19 @@ def set_hand_invoice(
                 line_dict["qty"] = f"-{line_dict['qty']}"
 
             net_unit_price = Decimal(line_dict["net_unit_price"])
-            vat_regime, vat_rate = vat_dict.get(line_dict["vat"])
-            vat_rate = round(Decimal(vat_rate), 3)
+            vat = line_dict["vat"] or "001"
+            vat_regime, vat_rate = vat_dict.get(vat)
+            vat_rate = round(Decimal(vat_rate), 5)
             net_amount = round(qty * net_unit_price, 2)
 
-            if line_dict.get("vat_amount", "0") != "0":
+            if line_dict.get("vat_amount") and line_dict.get("vat_amount", "0") != "0":
                 vat_amount = (qty / abs(qty)) * Decimal(
                     line_dict.get("vat_amount").replace(",", ".")
                 )
             else:
                 vat_amount = round(net_amount * vat_rate, 2)
 
-            if line_dict.get("amount_with_vat", "0") != "0":
+            if line_dict.get("amount_with_vat") and line_dict.get("amount_with_vat", "0") != "0":
                 amount_with_vat = (qty / abs(qty)) * Decimal(
                     line_dict.get("amount_with_vat").replace(",", ".")
                 )
@@ -147,7 +148,7 @@ def set_hand_invoice(
 
             if form.is_valid():
                 line_to_insert.update(form.cleaned_data)
-                vat_regime, _ = vat_dict.get(line_dict.get("vat"))
+                vat_regime, _ = vat_dict.get(vat)
                 maison = form.cleaned_data.get("cct_uuid_identification")
                 multistore_set.add(maison.cct)
                 line_to_insert.update(

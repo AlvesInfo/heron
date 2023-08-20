@@ -99,7 +99,8 @@ def get_youngests_vat_rate():
         sql_youngests_vat_rate = """
         select distinct
             "vd"."vat", 
-            round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
+            round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate",
+            "vd"."vat_regime"
         from "accountancy_vatratsage" "vtr"
         join (
             select
@@ -111,6 +112,7 @@ def get_youngests_vat_rate():
         ) "vd"
         on "vtr"."vat" = "vd"."vat"
         and "vtr"."vat_start_date" = "vd"."vat_start_date"
+        order by "vd"."vat"
         """
         cursor.execute(sql_youngests_vat_rate)
 

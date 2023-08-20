@@ -57,7 +57,7 @@
 
             let nbDisplay = {{ nb_display }};
 
-            const vatRates = {{%  for vat, rate in vat_list %}
+            const vatRates = {{%  for vat, rate, _ in vat_list %}
                 '{{ vat }}': {{ rate|point }},
             {% endfor %}};
 

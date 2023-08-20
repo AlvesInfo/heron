@@ -221,41 +221,6 @@ def get_unity(str_query: AnyStr) -> UnitChoices.objects:
     return queryset.filter(str_search__icontains=str_query)
 
 
-def get_vat_alls() -> VatSage.objects:
-    """
-    Recherche par API des VatSage
-    :return: queryset of dict
-    """
-    queryset = VatSage.objects.annotate(
-        str_search=Concat(
-            "vat",
-            Value("|"),
-            "vat_regime",
-            output_field=CharField(),
-        ),
-        pk=F("vat"),
-        model=Concat(
-            "vat",
-            Value(" - "),
-            "vat_regime",
-            output_field=CharField(),
-        ),
-    ).values("vat", "vat_regime")
-
-    return queryset
-
-
-def get_vat(str_query: AnyStr) -> VatSage.objects:
-    """
-    Recherche par API des VatSage
-    :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
-    """
-    queryset = get_vat_alls()
-
-    return queryset.filter(str_search__icontains=str_query)
-
-
 def get_accounts_alls() -> AccountSage.objects:
     """
     Recherche par API des Comptes Sage X3
