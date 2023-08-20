@@ -613,8 +613,6 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             print(f"set_sales_details :{time.time()-start} s")
             start = time.time()
 
-            # TODO: PREVOIR DE REMPLIR LA DATE D'ECHEANCE EN FONCTION DU mode_reglement
-
             # On contrôle l'insertion
             LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
             if control_sales_insertion(cursor):

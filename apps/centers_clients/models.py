@@ -131,6 +131,7 @@ class Maison(FlagsTable):
         related_name="tiers_maison",
         verbose_name="tiers X3",
         db_column="third_party_num",
+        limit_choices_to={"is_client": True},
     )
     center_purchase = models.ForeignKey(
         ChildCenterPurchase,
@@ -215,6 +216,7 @@ class Maison(FlagsTable):
         related_name="credit_account",
         verbose_name="compte X3 par défaut au crédit",
         db_column="credit_account",
+        limit_choices_to={"collective": True},
     )
     debit_account = models.ForeignKey(
         AccountSage,
@@ -225,6 +227,7 @@ class Maison(FlagsTable):
         related_name="debit_account",
         verbose_name="compte X3 par défaut au débit",
         db_column="debit_account",
+        limit_choices_to={"collective": True},
     )
     prov_account = models.ForeignKey(
         AccountSage,
@@ -396,15 +399,17 @@ class Maison(FlagsTable):
             raise ValidationError(
                 {
                     "axe_bu": _(
-                        "Si vous avez sélectionné OD SUCC dans le type de Refac, "
+                        "Si vous avez sélectionné OD-ANA dans type Vente, "
                         "Alors l'axe BU est obligatoire!"
                     )
                 }
             )
 
+        # Si le type n'est pas OD-ANA alors il ne faut pas d'axe BU
         if self.type_x3 != 2:
             self.axe_bu = None
 
+        # Vérifiaction de l'unicité sur la référence Cosium
         if self.reference_cosium:
             exist_list = Maison.objects.filter(reference_cosium=self.reference_cosium).values_list(
                 "cct", flat=True
@@ -413,10 +418,40 @@ class Maison(FlagsTable):
                 raise ValidationError(
                     {
                         "reference_cosium": _(
-                            f"La référence Cosium existe déjà dans le Client {exist_list[0]}"
+                            f"La référence Cosium existe déjà {exist_list[0]}"
                         )
                     }
                 )
+
+        # On vérifie que le compte au crédit soit bien un compte collectif
+        if not self.credit_account.collective:
+            raise ValidationError(
+                    {
+                        "credit_account": _(
+                            f"Le compte au crédit choisi, doit être un compte collectif !"
+                        )
+                    }
+            )
+
+        # On vérifie que le compte au débit soit bien un compte collectif
+        if not self.debit_account.collective:
+            raise ValidationError(
+                    {
+                        "debit_account": _(
+                            f"Le compte au débit choisi, doit être un compte collectif !"
+                        )
+                    }
+            )
+
+        # On s'assure que le Tiers X3 client soit bien un client
+        if not self.third_party_num.is_client:
+            raise ValidationError(
+                    {
+                        "third_party_num": _(
+                            f"Le Tiers Client X3 doît être un client dans Sage X3 !"
+                        )
+                    }
+            )
 
     def save(self, *args, **kwargs):
         """
