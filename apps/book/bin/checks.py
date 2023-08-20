@@ -44,9 +44,11 @@ def check_cct_identifier(cleaned_data: dict):
     before = str(before_cct_identifier).split("|")
 
     after_cct_identifier = cleaned_data.get("cct_identifier")
-    after_cct_identifier = (
-        after_cct_identifier[:-1] if after_cct_identifier[-1] == "|" else after_cct_identifier
-    )
+
+    if after_cct_identifier:
+        after_cct_identifier = (
+            after_cct_identifier[:-1] if after_cct_identifier[-1] == "|" else after_cct_identifier
+        )
 
     after = str(after_cct_identifier).split("|")
 
