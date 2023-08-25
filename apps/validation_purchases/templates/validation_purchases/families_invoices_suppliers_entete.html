@@ -19,7 +19,7 @@
        <button class="ui green basic button"
                id="maisons_export_list"
                name="maisons_export_list"
-               onclick="DownloadFile(`{{ domain_site }}/{% url 'validation_purchases:families_invoices_purchases_export' %}`)"
+               onclick="DownloadFile(`{{ domain_site }}{% url 'validation_purchases:families_invoices_purchases_export' %}`)"
                style="padding: 7px 10px;margin: 10px;font-size: 11px">
           EXPORT EXCEL
        </button>
