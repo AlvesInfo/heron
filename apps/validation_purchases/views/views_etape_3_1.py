@@ -52,7 +52,7 @@ def families_invoices_purchases_export(request):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "FACTURES_CONTROLE_FAMILLES_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                "FACTURES_CONTROLE_FAMILLES_" f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
             )
 
             return response_file(

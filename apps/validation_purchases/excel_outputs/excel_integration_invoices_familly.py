@@ -168,11 +168,11 @@ def excel_integration_invoices_familly(file_io: io.BytesIO, file_name: str) -> d
 
             for i, column in enumerate(COLUMNS):
                 if i == 3:
-                    column["entete"] = column["entete"] + mois_2
+                    column["entete"] = f"Mois-2\n{mois_2}"
                 if i == 4:
-                    column["entete"] = column["entete"] + mois_1
+                    column["entete"] = f"Mois-1\n{mois_1}"
                 if i == 5:
-                    column["entete"] = column["entete"] + mois_m
+                    column["entete"] = f"Mois M\n{mois_m}"
 
             titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
             output_day_writer(excel, 1, 1, 0)
