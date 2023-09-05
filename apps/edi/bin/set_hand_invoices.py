@@ -32,6 +32,7 @@ from apps.edi.bin.edi_utilites import (
 )
 from apps.edi.models import EdiImport
 from apps.book.models import Society
+from apps.parameters.models import UnitChoices
 
 
 @transaction.atomic
@@ -191,6 +192,9 @@ def set_hand_invoice(
             results_dict = dict()
             results_dict.update(entete_dict)
             results_dict.update(line_dict)
+
+            if not results_dict.get("results_dict"):
+                results_dict["unit_weight"] = UnitChoices.objects.get(unity="U")
 
             # On ajoute les éléments manquants
             results_dict.update(

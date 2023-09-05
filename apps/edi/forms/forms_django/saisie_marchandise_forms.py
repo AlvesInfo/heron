@@ -115,6 +115,7 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
         self.fields["sub_category"].required = False
         self.fields["delivery_number"].required = False
         self.fields["delivery_date"].required = False
+        self.fields["unit_weight"].required = False
 
     class Meta:
         """class Meta"""
