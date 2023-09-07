@@ -62,8 +62,7 @@ WHERE exists (
     FROM "parameters_subcategory" "pp" 
     WHERE "pp"."uuid_big_category" = "art"."uuid_big_category"
 )
-or 
-"error_sub_category" isnull
+or ("error_sub_category" isnull or "error_sub_category" = true)
 """
 
 SQL_FLAG_WITHOUT_AXES = """
