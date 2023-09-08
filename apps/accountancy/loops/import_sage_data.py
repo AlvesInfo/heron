@@ -51,6 +51,7 @@ if __name__ == "__main__":
         minute = maintenant.minute
 
         if heure == 6 and minute == 30:
+            print("===============================================================================")
             print("lancement import sage : ", maintenant)
             main()
 
