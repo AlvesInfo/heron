@@ -96,7 +96,6 @@ def insert_ventes_cosium():
         cursor.execute(sql_id)
 
         min_id = cursor.fetchone()[0] or HISTORIC_VENTES_ID
-        print("intégration des lignes de ventes Cosium")
         sql_insert_ventes = sql.SQL(
             """
             insert into "compta_ventescosium" 

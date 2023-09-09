@@ -33,7 +33,6 @@ django.setup()
 from apps.countries.loops.imports_loop import process as process_countries
 from apps.accountancy.loops.imports_loop import process as process_accountancy
 from apps.book.loops.imports_loop import process as process_book
-from apps.centers_clients.imports.import_maisons_bi import import_maisons_bi
 
 
 def main():
@@ -41,7 +40,6 @@ def main():
     process_countries()
     process_accountancy()
     process_book()
-    import_maisons_bi()
 
 
 if __name__ == "__main__":
@@ -52,7 +50,7 @@ if __name__ == "__main__":
 
         if heure == 6 and minute == 30:
             print("===============================================================================")
-            print("lancement import sage : ", maintenant)
+            print(f"[{maintenant}] : lancement import sage")
             main()
 
         time.sleep(60)

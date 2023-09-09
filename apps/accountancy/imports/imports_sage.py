@@ -277,7 +277,7 @@ def tab_div_sage(file_path: Path):
     return trace, to_print
 
 
-def category_sage(file_path: Path):
+def category_sage_client(file_path: Path):
     """
     Import du fichier des Catégories Clients et Fournisseurs Sage X3
     :param file_path: Path du fichier à traiter
@@ -287,8 +287,33 @@ def category_sage(file_path: Path):
     file_name = file_path.name
     trace_name = "Mise à jour Catégories Clients et Fournisseurs Sage"
     application_name = "accountacy_imports_import_sage"
-    flow_name = "CategorySage"
-    comment = f"import journalier {file_name} des Catégories Clients et Fournisseurs Sage"
+    flow_name = "CategorySageClient"
+    comment = f"import journalier {file_name} des Catégories Clients Sage"
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+
+    return trace, to_print
+
+
+def category_sage_supplier(file_path: Path):
+    """
+    Import du fichier des Catégories Clients et Fournisseurs Sage X3
+    :param file_path: Path du fichier à traiter
+    """
+    model = CategorySage
+    validator = CategorySageSchema
+    file_name = file_path.name
+    trace_name = "Mise à jour Catégories Clients et Fournisseurs Sage"
+    application_name = "accountacy_imports_import_sage"
+    flow_name = "CategorySageSupplier"
+    comment = f"import journalier {file_name} des Catégories Fournisseurs Sage"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,

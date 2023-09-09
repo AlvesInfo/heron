@@ -171,8 +171,8 @@ if __name__ == "__main__":
         heure = maintenant.hour
         minute = maintenant.minute
 
-        if heure == 7 and minute == 00:
-            print("lancement import maisons_bi : ", maintenant)
+        if heure == 7 and minute == 0:
+            print(f"[{maintenant}] : lancement import maisons_bi", )
             import_maisons_bi()
 
         time.sleep(60)

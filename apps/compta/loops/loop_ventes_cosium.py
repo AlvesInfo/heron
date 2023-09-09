@@ -44,7 +44,7 @@ def process():
     error = False
     trace = Trace(
         trace_name="Import Ventes Cosium",
-        file_name="insert into (...) selec ... from heron_bi_ventes_cosium",
+        file_name="insert into (...) select ... from heron_bi_ventes_cosium",
         application_name="insert_ventes_cosium",
         flow_name="VentesCosium",
         comment="Import journalier des ventes Cosium depuis la B.I.",
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         minute = maintenant.minute
 
         if heure == 10 and minute == 00:
-            print("lancement import ventes Cosium: ", maintenant)
+            print(f"[{maintenant}] : lancement import ventes Cosium")
             process()
 
         time.sleep(60)

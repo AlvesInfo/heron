@@ -360,8 +360,8 @@ if __name__ == "__main__":
 
         if heure == 7 and minute == 30:
             print(
-                "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices : ",
-                maintenant,
+                f"[{maintenant}] : "
+                f"Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices"
             )
             process_update()
 

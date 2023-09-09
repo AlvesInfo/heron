@@ -26,7 +26,8 @@ from apps.accountancy.imports.imports_sage import (
     mode_reglement,
     payement_condition,
     tab_div_sage,
-    category_sage,
+    category_sage_client,
+    category_sage_supplier,
 )
 from apps.accountancy.imports.extraction_cct import update_cct_sage
 from apps.accountancy.imports.extraction_code_plan import update_code_plan
@@ -41,8 +42,8 @@ processing_dict = {
     "ZBIREG_journalier.heron": vat_regime_sage,
     "ZBIPTE_journalier.heron": payement_condition,
     "ZBIDIV_journalier.heron": tab_div_sage,
-    "ZBICATC_journalier.heron": category_sage,
-    "ZBICATS_journalier.heron": category_sage,
+    "ZBICATC_journalier.heron": category_sage_client,
+    "ZBICATS_journalier.heron": category_sage_supplier,
 }
 
 

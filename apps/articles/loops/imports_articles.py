@@ -67,7 +67,7 @@ if __name__ == "__main__":
         minute = maintenant.minute
 
         if heure == 9 and minute == 30:
-            print("lancement import articles Acuitis : ", maintenant)
+            print(f"[{maintenant}] : lancement import articles Acuitis")
             main()
 
         time.sleep(60)
