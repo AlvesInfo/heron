@@ -161,7 +161,7 @@ def import_maisons_bi():
                         }
                     )
 
-        print(i, "maisons importées ou mises à jour")
+        return f"{str(i)} maisons importées ou mises à jour"
 
 
 if __name__ == "__main__":
@@ -172,7 +172,7 @@ if __name__ == "__main__":
         minute = maintenant.minute
 
         if heure == 7 and minute == 0:
-            print(f"[{maintenant}] : lancement import maisons_bi", )
-            import_maisons_bi()
+            maisons_maj = import_maisons_bi()
+            print(f"[{maintenant}] : lancement import maisons_bi : {maisons_maj}")
 
         time.sleep(60)

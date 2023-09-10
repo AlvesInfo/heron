@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
+from datetime import datetime
 import time
 
 import django
@@ -85,7 +86,7 @@ def process():
 
 if __name__ == "__main__":
     while True:
-        maintenant = pendulum.now()
+        maintenant = datetime.now()
         heure = maintenant.hour
         minute = maintenant.minute
 
