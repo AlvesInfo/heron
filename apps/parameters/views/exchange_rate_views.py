@@ -115,8 +115,7 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def form_updated(self):
         """Action à faire après form_valid save"""
-        print(self.object.rate_month, self.object.currency_change)
-        set_exchanges_sales_cosium(str(self.object.rate_month), self.object.currency_change)
+        set_exchanges_sales_cosium(str(self.object.rate_month), self.object.currency_change.code)
 
 
 class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -144,7 +143,6 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        print(self.object.rate_month)
         return reverse("parameters:exchanges_list", kwargs={"month": self.object.rate_month})
 
     def form_valid(self, form, **kwargs):

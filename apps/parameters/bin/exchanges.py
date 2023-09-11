@@ -114,8 +114,15 @@ def set_exchanges_sales_cosium(sale_month, currency_change):
     """
 
     with connection.cursor() as cursor:
-        print(f"execution : {sale_month} - {currency_change}")
-        print(cursor.mogrify(sql_update_sales, {"sale_month": sale_month, "currency_change": currency_change}).decode())
+        # print(f"execution : {sale_month} - {currency_change}")
+        # print(f"type(sale_month) : {type(sale_month)}")
+        # print(f"type(currency_change) : {type(currency_change)}")
+        # print(
+        #     cursor.mogrify(
+        #         sql_update_sales,
+        #         {"sale_month": sale_month, "currency_change": currency_change}
+        #     ).decode()
+        # )
         cursor.execute(
             sql_update_sales, {"sale_month": sale_month, "currency_change": currency_change}
         )
