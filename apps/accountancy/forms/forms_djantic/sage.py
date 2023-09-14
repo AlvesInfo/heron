@@ -69,6 +69,7 @@ class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
 
 class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
     chargeable: bool = None
+    active: bool = None
     now = timezone.now()
     axe: str
     created_at: datetime.datetime = now

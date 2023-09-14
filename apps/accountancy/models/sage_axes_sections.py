@@ -149,6 +149,7 @@ class SectionSage(FlagsTable):
     Refacturable    | chargeable  | CACCE       | XFLREFAC
     Regroupement    | regroup_01  | CACCE       | ZREG1
     Regroupement    | regroup_02  | CACCE       | ZREG2
+    actif           | active      | CACCE       | ENAFLG
     ========================================================
     """
 
@@ -167,6 +168,7 @@ class SectionSage(FlagsTable):
     chargeable = models.BooleanField(null=True, default=True)
     regroup_01 = models.CharField(null=True, blank=True, max_length=15)
     regroup_02 = models.CharField(null=True, blank=True, max_length=15)
+    active = models.BooleanField(null=True, default=True)
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -244,6 +246,7 @@ class SectionSage(FlagsTable):
             "chargeable": 4,
             "regroup_01": 5,
             "regroup_02": 6,
+            "active": 7,
         }
 
     @staticmethod
