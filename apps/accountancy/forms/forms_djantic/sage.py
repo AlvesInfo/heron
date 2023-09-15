@@ -75,6 +75,7 @@ class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
+    cpy_fcy: str = None
 
     class Config:
         model = SectionSage

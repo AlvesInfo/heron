@@ -150,6 +150,7 @@ class SectionSage(FlagsTable):
     Regroupement    | regroup_01  | CACCE       | ZREG1
     Regroupement    | regroup_02  | CACCE       | ZREG2
     actif           | active      | CACCE       | ENAFLG
+    Société/Site    | cpy_fcy     | CACCE       | FCY
     ========================================================
     """
 
@@ -169,6 +170,7 @@ class SectionSage(FlagsTable):
     regroup_01 = models.CharField(null=True, blank=True, max_length=15)
     regroup_02 = models.CharField(null=True, blank=True, max_length=15)
     active = models.BooleanField(null=True, default=True)
+    cpy_fcy = models.CharField(null=True, max_length=5, verbose_name="Société ou Site X3")
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -247,6 +249,7 @@ class SectionSage(FlagsTable):
             "regroup_01": 5,
             "regroup_02": 6,
             "active": 7,
+            "cpy_fcy": 8,
         }
 
     @staticmethod
