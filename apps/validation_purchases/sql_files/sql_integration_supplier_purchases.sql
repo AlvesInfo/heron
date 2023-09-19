@@ -77,6 +77,7 @@ where ee.third_party_num = %(third_party_num)s
   and date_trunc('month', invoice_date)::date = %(invoice_month)s
   and (ee."delete" = false or ee."delete" isnull)
   and ee."valid" = true
+  and "ee"."flow_name" = %(flow_name)s
 group by supplier,
          invoice_number,
          invoice_date,
@@ -88,6 +89,7 @@ group by supplier,
          ee.uuid_identification,
          ee.invoice_year,
          ee."invoice_type",
-         ee."is_multi_store"
+         ee."is_multi_store",
+        "ee"."flow_name"
 order by ee."invoice_type" desc,
          "invoice_number"

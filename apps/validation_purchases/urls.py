@@ -174,7 +174,7 @@ urlpatterns = [
     # 2.1.B - DETAILS FACTURES
     *[
         path(
-            "details_purchase/<str:enc_param>/",
+            "details_purchase/<str:flow_name>/<str:enc_param>/",
             details_purchase,
             name="details_purchase",
         ),

@@ -29,11 +29,12 @@ from apps.validation_purchases.excel_outputs.excel_supplier_invoices_number impo
 # CONTROLES ETAPE 2.1.B - DETAILS FACTURES
 
 
-def details_purchase(request, enc_param):
+def details_purchase(request, enc_param, flow_name):
     """View de l'étape 2.B des écrans de contrôles
     Visualisation des détails des lignes d'une facture pour un fournisseur
     :param request: Request Django
     :param enc_param: paramètres encodés en base 64
+    :param flow_name: flow_name pour le retour chevron
     :return: view
     """
     third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
@@ -57,12 +58,12 @@ def details_purchase(request, enc_param):
     )
 
     context = {
-        "titre_table": f"Contrôle : {supplier} - INVOICE N° {invoice_number}",
+        "titre_table": f"Contrôle ({flow_name}) : {supplier} - INVOICE N° {invoice_number}",
         "invoices": invoices,
         "chevron_retour": reverse(
             "validation_purchases:integration_supplier_purchases",
             kwargs={
-                "enc_param": set_base_64_list([third_party_num, supplier, invoice_month]),
+                "enc_param": set_base_64_list([third_party_num, supplier, invoice_month, flow_name]),
             },
         ),
         "form": ChangeBigCategoryForm(),

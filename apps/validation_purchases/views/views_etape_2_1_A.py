@@ -27,7 +27,7 @@ def integration_supplier_purchases(request, enc_param):
     :return: view
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
-    third_party_num, supplier, invoice_month = get_base_64(enc_param)
+    third_party_num, supplier, invoice_month, flow_name = get_base_64(enc_param)
 
     with connection.cursor() as cursor:
         elements = query_file_dict_cursor(
@@ -37,6 +37,7 @@ def integration_supplier_purchases(request, enc_param):
                 "third_party_num": third_party_num,
                 "supplier": supplier,
                 "invoice_month": invoice_month,
+                "flow_name": flow_name,
             },
         )
 
@@ -46,13 +47,14 @@ def integration_supplier_purchases(request, enc_param):
         mois = pendulum.parse(invoice_month).format("MMMM YYYY", locale="fr").capitalize()
 
         context = {
-            "titre_table": f"Contrôle : {third_party_num}  - {supplier}  - {mois}",
+            "titre_table": f"Contrôle ({flow_name}) : {third_party_num}  - {supplier}  - {mois}",
             "controles_exports": elements,
             "chevron_retour": reverse("validation_purchases:integration_purchases"),
             "nature": "La facture n° ",
             "nb_paging": 25,
             "cct_form": ChangeCttForm(),
             "enc_param": enc_param,
+            "flow_name": flow_name,
         }
 
     return render(request, "validation_purchases/listing_invoices_suppliers.html", context=context)

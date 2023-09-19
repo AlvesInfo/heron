@@ -23,7 +23,15 @@ select
 	    else false
 	end as "error",
     "uuid_identification",
-    "third_party_num" || '||' || coalesce("supplier", '') || '||' || invoice_month as "enc_param",
+    (
+        "third_party_num"
+        || '||' ||
+        coalesce("supplier", '')
+        || '||' ||
+        "invoice_month"
+        || '||' ||
+        "flow_name"
+    ) as "enc_param",
     "pk",
     (
         '{"third_party_num": "'
@@ -66,7 +74,8 @@ from (
         case when "ee"."origin" isnull then 'question circle' else "pic"."icon" end as "icon",
         case when "ee"."origin" isnull then 0 else "ee"."origin" end as "origin",
         case when "ee"."origin" isnull then 'INCONNUE' else "pic"."origin_name" end as "origin_name",
-        "ec"."valid" as "validation"
+        "ec"."valid" as "validation",
+        "ee"."flow_name"
     from "edi_ediimport" "ee"
     left join "edi_ediimportcontrol" "ec"
     on "ee"."uuid_control" = "ec"."uuid_identification"
@@ -98,7 +107,8 @@ from (
              "ee"."origin",
              "pic"."icon",
         	 "pic"."origin_name",
-        	 "ec"."uuid_identification"
+        	 "ec"."uuid_identification",
+             "ee"."flow_name"
 ) edi
 group by "supplier",
          "invoice_month",
@@ -115,7 +125,8 @@ group by "supplier",
          "icon",
          "origin_name",
     	 "validation",
-    	 "uuid_control"
+    	 "uuid_control",
+    	 "flow_name"
 order by third_party_num,
          "supplier",
          "invoice_month"

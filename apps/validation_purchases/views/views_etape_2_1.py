@@ -86,7 +86,7 @@ def integration_purchases(request):
             "nature": "les factures du fournisseur",
             "addition": True,
             "traces": Trace.objects.filter(
-                modified_at__gte=pendulum.now().start_of("month").subtract(days=16),
+                modified_at__gte=pendulum.now().start_of("month").subtract(days=15),
                 invoices=True,
             ).order_by("-created_at"),
             "margin_table": 50,
@@ -123,7 +123,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
     def get_attributes(self, kwargs):
         """Décode-les parammètres de la variable enc_param passés en base64"""
         enc_param = get_base_64(kwargs.get("enc_param"))
-        self.third_party_num, self.supplier, invoice_month = enc_param
+        self.third_party_num, self.supplier, invoice_month, self.flow_name = enc_param
         self.invoice_month = pendulum.parse(invoice_month)
         self.month = self.invoice_month.format("MMMM YYYY", locale="fr")
         self.success_message = (
@@ -147,6 +147,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         context["third_party_num"] = self.third_party_num
         context["supplier"] = self.supplier
         context["invoice_month"] = self.invoice_month.format("MMMM YYYY", locale="fr")
+        context["flow_name"] = self.flow_name
         return context
 
     def get_success_url(self):
@@ -172,6 +173,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
             supplier=self.supplier,
             invoice_month=self.invoice_month,
             valid=True,
+            flow_name=self.flow_name,
         ).update(uuid_control=instance.uuid_identification)
 
         return super().form_valid(form)
@@ -197,7 +199,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     def get_attributes(self, kwargs):
         """Décode-les parammètres de la variable enc_param passés en base64"""
         enc_param = get_base_64(kwargs.get("enc_param"))
-        self.third_party_num, self.supplier, invoice_month = enc_param
+        self.third_party_num, self.supplier, invoice_month, self.flow_name = enc_param
         self.invoice_month = pendulum.parse(invoice_month)
         self.month = self.invoice_month.format("MMMM YYYY", locale="fr")
         self.success_message = (
@@ -227,6 +229,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         context["third_party_num"] = self.third_party_num
         context["supplier"] = self.supplier
         context["invoice_month"] = self.invoice_month.format("MMMM YYYY", locale="fr")
+        context["flow_name"] = self.flow_name
 
         return context
 
@@ -244,6 +247,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
             supplier=self.supplier,
             invoice_month=self.invoice_month,
             valid=True,
+            flow_name=self.flow_name
         ).update(uuid_control=instance.uuid_identification)
 
         return super().form_valid(form)
