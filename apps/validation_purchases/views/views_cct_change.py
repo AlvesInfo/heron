@@ -55,14 +55,11 @@ def cct_change(request):
 
             else:
                 # On va updater si la facture est multi sociétés
-                print("AVANT : set_is_multi_store")
                 set_is_multi_store(
                     data_dict.get("third_party_num"),
                     data_dict.get("invoice_number"),
                     data_dict.get("invoice_year"),
                 )
-                print("APRES : set_is_multi_store")
-
                 message = (
                     f"La Facture n° {data_dict.get('invoice_number')}, a bien comme nouveau CCT :"
                     f"{cct}."

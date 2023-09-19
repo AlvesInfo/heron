@@ -52,23 +52,8 @@ class ChangeCttForm(forms.ModelForm):
         """Ajout ou transformation des champs de formulaires"""
         super().__init__(*args, **kwargs)
 
-        self.cct_choices = [("", "")] + [
-            (
-                maison.cct,
-                f"{maison.cct}-" f"{maison.intitule}-" f"{maison.adresse[:50]}-" f"{maison.ville}",
-            )
-            for maison in Maison.objects.all()
-        ]
-        cct = forms.ChoiceField(
-            choices=self.cct_choices,
-            label="CCT X3",
-            required=True,
-        )
-        self.fields["cct"] = cct
-
-        uuid_identification = forms.UUIDField()
-        self.fields["uuid_identification"] = uuid_identification
-
+        self.fields["cct"] = forms.CharField()
+        self.fields["uuid_identification"] = forms.UUIDField()
         self.fields["id"] = forms.IntegerField(initial=0, required=False)
 
     class Meta:

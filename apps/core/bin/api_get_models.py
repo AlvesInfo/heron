@@ -233,10 +233,7 @@ def get_cct_in_use_active(str_query: AnyStr) -> Maison.objects:
             ),
         )
         .values("pk", "model")
-        .filter(
-            closing_date__isnull=True,
-
-            str_search__icontains=str_query)
+        .filter(cct__active=True, closing_date__isnull=True, str_search__icontains=str_query)
     )
 
     return queryset[:50]

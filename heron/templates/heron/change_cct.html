@@ -11,22 +11,31 @@
             <h4 id="headerTiers" class="ui dividing header"></h4>
               <div class="fields">
                     <div class="one wide field" style="display: none;">
-{#                        {{ cct_form.id }}#}
-{#                        {{ cct_form.uuid_identification }}#}
-{#                        {{ cct_form.third_party_num }}#}
-{#                        {{ cct_form.invoice_number }}#}
-{#                        {{ cct_form.invoice_year }}#}
+                        {{ cct_form.id }}
+                        {{ cct_form.uuid_identification }}
+                        {{ cct_form.third_party_num }}
+                        {{ cct_form.invoice_number }}
+                        {{ cct_form.invoice_year }}
                     </div>
                     <div class="fourteen wide field">
-                        <label for="id_cct"
-                               style="text-align: left;">CCT X3</label>
-                        <select id="id_cct"
-                                name="cct"
-                                class="ui fluid search dropdown">
+                        <div class="field remote search">
+                           <label for="id_cct">CCT X3</label>
+                           <select name="cct"
+                                   class="ui search dropdown search-model"
+                                   data-models="cct_in_use_active"
+                                   id="id_cct">
+                           </select>
+                        </div>
+{#                        AVANT APPEL PAR API                                                     #}
+{#                        <label for="id_cct"#}
+{#                               style="text-align: left;">CCT X3</label>#}
+{#                        <select id="id_cct"#}
+{#                                name="cct"#}
+{#                                class="ui fluid search dropdown">#}
 {#                            {% for value, label in cct_form.cct_choices %}#}
 {#                                <option value="{{ value }}" name="{{ value }}">{{ label }}</option>#}
 {#                            {% endfor %}#}
-                        </select>
+{#                        </select>#}
                     </div>
               </div>
           </div>
