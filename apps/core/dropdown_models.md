@@ -84,7 +84,7 @@ def api_models_query(request, models, query):
 
 Va renvoyer les élements au dropdown, par un appel à la function qui sera nommée dans un dictionnaire ou la clé est le nom donné au "data-models" du select, dans le template HTML.
 
-Un exemple de fonction pourrait ête :
+Un exemple de fonction pourrait être :
 ```python
 from typing import AnyStr
 

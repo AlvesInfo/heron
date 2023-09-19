@@ -196,6 +196,52 @@ def get_maisons_in_use(str_query: AnyStr) -> Maison.objects:
     return queryset.filter(closing_date__isnull=True, str_search__icontains=str_query)[:50]
 
 
+def get_cct_in_use_active(str_query: AnyStr) -> Maison.objects:
+    """
+    Recherche par API des CCT / Maisons des maisons non fermées ou inactives
+    :param str_query: Texte à rechercher pour l'api dropdown
+    :return: queryset of dict
+    """
+    queryset = (
+        Maison.objects.annotate(
+            str_search=Concat(
+                "cct",
+                Value("|"),
+                "third_party_num",
+                Value("|"),
+                "intitule",
+                Value("|"),
+                "immeuble",
+                Value("|"),
+                "adresse",
+                Value("|"),
+                "ville",
+                Value("|"),
+                "pays__country_name",
+                output_field=CharField(),
+            ),
+            pk=F("cct"),
+            model=Concat(
+                "cct",
+                Value(" - "),
+                "intitule",
+                Value(" - "),
+                "adresse",
+                Value(" - "),
+                "ville",
+                output_field=CharField(),
+            ),
+        )
+        .values("pk", "model")
+        .filter(
+            closing_date__isnull=True,
+
+            str_search__icontains=str_query)
+    )
+
+    return queryset[:50]
+
+
 def get_unity_alls() -> UnitChoices.objects:
     """
     Recherche par API des Unitées

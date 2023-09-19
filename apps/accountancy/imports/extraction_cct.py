@@ -13,6 +13,23 @@ created by: Paulo ALVES
 modified at: 2022-04-08
 modified by: Paulo ALVES
 """
+import os
+import sys
+import platform
+
+import django
+
+BASE_DIR = r"/"
+
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
+
+sys.path.append(BASE_DIR)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
+django.setup()
+
 from apps.accountancy.models import SectionSage, CctSage
 
 
@@ -28,6 +45,7 @@ def update_cct_sage():
             cct.chargeable = cct_section.chargeable
             cct.regroup_01 = cct_section.regroup_01
             cct.regroup_02 = cct_section.regroup_02
+            cct.active = cct_section.active
             cct.save()
 
         except CctSage.DoesNotExist:
@@ -39,6 +57,7 @@ def update_cct_sage():
                 regroup_01=cct_section.regroup_01,
                 regroup_02=cct_section.regroup_02,
                 uuid_identification=cct_section.uuid_identification,
+                active=cct_section.active
             )
             cct.save()
 
