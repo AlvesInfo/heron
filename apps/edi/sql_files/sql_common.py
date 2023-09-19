@@ -69,6 +69,7 @@ BASE_SQL_CCT = sql.SQL(
             on bsp."cct_uuid_identification" = ac."uuid_identification" 
             join "centers_clients_maison" ccm
             on ac."cct" = ccm."cct"
+            where ac."active" = true
         ) bs
         on ee."third_party_num" = bs."third_party_num"
         where ee."third_party_num" = bs."third_party_num"
