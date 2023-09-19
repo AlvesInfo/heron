@@ -47,6 +47,7 @@ class MaisonsList(ListView):
         "type_x3__name",
         "credit_account__account",
         "debit_account__account",
+        "cct__active"
     )
     context_object_name = "maisons"
     template_name = "centers_clients/clients_list.html"
@@ -144,6 +145,7 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             context.get("object")
             .third_party_num.society_society.filter(address_code="1").first()
         )
+        context["cct__active"] = context.get("object").cct.active
 
         return context
 

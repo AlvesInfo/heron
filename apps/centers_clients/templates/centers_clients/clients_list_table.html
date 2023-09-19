@@ -12,7 +12,7 @@
                 <th class="no-sort" style="text-align: center;width: 3%">Edit</th>
                 <th style="width: 6%">CCT</th>
                 <th style="width: 6%">Tiers X3</th>
-                <th style="width: 27%;text-align: left;">Intitulé</th>
+                <th style="width: 24%;text-align: left;">Intitulé</th>
                 <th style="width: 6%">Centrale</th>
                 <th style="width: 6%">Enseigne</th>
                 <th style="width: 6%">Devise</th>
@@ -21,6 +21,7 @@
                 <th style="width: 8%;text-align: center;">Type Vente</th>
                 <th style="width: 9%;text-align: center;">Compte Débit</th>
                 <th style="width: 9%;text-align: center;">Compte Crédit</th>
+                <th style="width: 3%;text-align: center;">Actif X3</th>
             </tr>
         </thead>
         <tbody>
@@ -86,6 +87,7 @@
                     {{ maison.credit_account__account }}
                   {% endif %}
                 </td>
+                <td style="text-align: center;background-color: {% if maison.cct__active %}lightgreen{% else %}lightpink;{% endif %}"></td>
             </tr>
         {% endfor %}
         </tbody>

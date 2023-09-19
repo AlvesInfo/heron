@@ -60,10 +60,12 @@
                   <label for="id_type_x3" style="text-align: left;">Type Vente</label>
                     {{ form.type_x3 }}
               </div>
-{#              <div class="two wide field">#}
-{#                <label for="id_chargeable" style="text-align: center;">A Refacturer</label>#}
-{#                {{ form.chargeable }}#}
-{#              </div>#}
+              <div class="four wide field">
+                  {% if not cct__active %}
+                    <label for="id_cct_actif" style="text-align: left;">Actif X3</label>
+                    <input id="id_cct_actif" type="text" value="Attention ce CCT n'est pas actif dans X3" readonly style="font-weight: bold;text-align: center;background-color: lightpink;">
+                  {% endif %}
+              </div>
 {#              <div class="two wide field">#}
 {#                <label for="id_od_ana" style="text-align: center;">OD SUCC</label>#}
 {#                {{ form.od_ana }}#}
