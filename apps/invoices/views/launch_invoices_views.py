@@ -127,21 +127,21 @@ def generate_pdf_invoice(request):
     titre_table = "Génération des factures de ventes en pdf"
 
     # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
-    not_finalize = control_insertion()
-
-    if not_finalize:
-        request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            (
-                "Vous ne pouvez pas Générer les pdf, "
-                "car les factures sont déjà envoyées par mail, "
-                "mais non finalisée"
-            ),
-        )
-        context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
-        return render(request, "invoices/generate_pdf_invoices.html", context=context)
+    # not_finalize = control_insertion()
+    #
+    # if not_finalize:
+    #     request.session["level"] = 50
+    #     messages.add_message(
+    #         request,
+    #         50,
+    #         (
+    #             "Vous ne pouvez pas Générer les pdf, "
+    #             "car les factures sont déjà envoyées par mail, "
+    #             "mais non finalisée"
+    #         ),
+    #     )
+    #     context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
+    #     return render(request, "invoices/generate_pdf_invoices.html", context=context)
 
     # On contrôle qu'il y ait des pdf à générer
     sales_invoices_exists = SaleInvoice.objects.filter(
