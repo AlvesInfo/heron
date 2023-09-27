@@ -211,6 +211,33 @@
                 </div>
             </div>
 
+
+            <div class="ui popup" id="g">
+                <div class="ui one column relaxed divided grid" style="width: 18em;">
+
+                    <div class="column">
+                        <h4 class="ui header" style="font-size: 1em;margin-bottom: 5px;">COSIUM</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'compta:export_sales_cosium' %}" class="item">01. Ventes Cosium</a>
+                            <a href="{% url 'compta:export_ca_cosium' %}" class="item">02. CA Cosium</a>
+                            <a href="{% url 'compta:reset_clients_in_sales' %}" class="item">03. Reset des CCT</a>
+                            <a href="{% url 'compta:reset_exhange_rates_in_sales' %}" class="item">04. Reset des Taux de change</a>
+                            <a href="{% url 'compta:reset_sales' %}" class="item">05. Reset des Ventes</a>
+                            <a href="{% url 'compta:reset_ca' %}" class="item">06. Reset du CA</a>
+                        </div>
+                    </div>
+
+{#                    <div class="column">#}
+{#                        <h4 class="ui header">HERON</h4>#}
+{#                        <div class="ui link list">#}
+{#                            <a href="{% url 'validation_sales:compare_turnover_sales' %}" class="item">Ventes vs CA</a>#}
+{#                            <a href="{% url 'validation_sales:controls_cct_sales' %}" class="item">Ventes par CCT</a>#}
+{#                        </div>#}
+{#                    </div>#}
+
+                </div>
+            </div>
+
             <div class="ui popup" id="c">
                 <div class="ui one column relaxed divided grid" style="width: 18em;">
 
@@ -290,32 +317,6 @@
                             <a href="{% url 'invoices:finalize_period' %}" class="item">5.0 Finalisation période facturation</a>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="ui popup" id="g">
-                <div class="ui one column relaxed divided grid" style="width: 18em;">
-
-                    <div class="column">
-                        <h4 class="ui header" style="font-size: 1em;margin-bottom: 5px;">COSIUM</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'compta:export_sales_cosium' %}" class="item">01. Ventes Cosium</a>
-                            <a href="{% url 'compta:export_ca_cosium' %}" class="item">02. CA Cosium</a>
-                            <a href="{% url 'compta:reset_clients_in_sales' %}" class="item">03. Reset des CCT</a>
-                            <a href="{% url 'compta:reset_exhange_rates_in_sales' %}" class="item">04. Reset des Taux de change</a>
-                            <a href="{% url 'compta:reset_sales' %}" class="item">05. Reset des Ventes</a>
-                            <a href="{% url 'compta:reset_ca' %}" class="item">06. Reset du CA</a>
-                        </div>
-                    </div>
-
-{#                    <div class="column">#}
-{#                        <h4 class="ui header">HERON</h4>#}
-{#                        <div class="ui link list">#}
-{#                            <a href="{% url 'validation_sales:compare_turnover_sales' %}" class="item">Ventes vs CA</a>#}
-{#                            <a href="{% url 'validation_sales:controls_cct_sales' %}" class="item">Ventes par CCT</a>#}
-{#                        </div>#}
-{#                    </div>#}
-
                 </div>
             </div>
 
