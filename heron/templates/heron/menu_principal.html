@@ -82,30 +82,6 @@
                 <div class="ui {% if user.is_superuser %}five{% else %}four{% endif %} column relaxed equal divided grid" style="width: 80em;">
 
                     <div class="column" style="padding-left: 10px;padding-right: 5px;">
-                        <h4 class="ui header" style="font-size: 1em;">DIVERS</h4>
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:natures_list' %}" class="item">Natures/Genres</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:emails_list' %}" class="item">Emails</a>
-                        </div>
-                        <div class="ui link list">
-                            <a href="{% url 'parameters:period_select_exchange' %}" class="item">Taux de Change Moyen</a>
-                        </div>
-                        {% if user.email == "paulo@alves.ovhi" %}
-                            <div class="ui link list">
-                                <a href="{% url 'parameters:functions_list' %}" class="item" style="color: red">Fonctions</a>
-                            </div>
-                            <div class="ui link list">
-                                <a href="{% url 'parameters:numberings_list' %}" class="item" style="color: red">Numérotations</a>
-                            </div>
-                            <div class="ui link list">
-                                <a href="{% url 'data_flux:processing_files' function_name='ACCOUNTS' %}" class="item" style="color: red">Import Axe PRO/Comptes</a>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">CENTRALES</h4>
                         <div class="ui link list">
                             <a href="{% url 'centers_purchasing:meres_list' %}" class="item">Centrales Mère</a>
@@ -151,6 +127,30 @@
                         <div class="ui link list">
                             <a href="{% url 'invoices:axes_details_list' %}" class="item">Axe PRO/Entêtes Détails</a>
                         </div>
+                    </div>
+
+                    <div class="column" style="padding-left: 10px;padding-right: 5px;">
+                        <h4 class="ui header" style="font-size: 1em;">DIVERS</h4>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:natures_list' %}" class="item">Natures/Genres</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:emails_list' %}" class="item">Emails</a>
+                        </div>
+                        <div class="ui link list">
+                            <a href="{% url 'parameters:period_select_exchange' %}" class="item">Taux de Change Moyen</a>
+                        </div>
+                        {% if user.email == "paulo@alves.ovhi" %}
+                            <div class="ui link list">
+                                <a href="{% url 'parameters:functions_list' %}" class="item" style="color: red">Fonctions</a>
+                            </div>
+                            <div class="ui link list">
+                                <a href="{% url 'parameters:numberings_list' %}" class="item" style="color: red">Numérotations</a>
+                            </div>
+                            <div class="ui link list">
+                                <a href="{% url 'data_flux:processing_files' function_name='ACCOUNTS' %}" class="item" style="color: red">Import Axe PRO/Comptes</a>
+                            </div>
+                        {% endif %}
                     </div>
 
 
