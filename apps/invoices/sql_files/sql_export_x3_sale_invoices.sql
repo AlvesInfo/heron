@@ -50,7 +50,7 @@ with "real_sales" as(
 		end as "AMTNOTLIN", -- Montant HT
 		'0' as "QTY_D", -- Quantité
 		"isd"."vat" as "VAT", -- Taxe X3
-				left(
+		left(
 			coalesce(
 				(
 					"isi"."code_signboard"

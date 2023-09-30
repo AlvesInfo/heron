@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 from uuid import uuid4
 from pathlib import Path
+import time
 
 from django.utils import timezone
 
@@ -146,6 +147,7 @@ def vat_regime_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
+    time.sleep(4)
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print

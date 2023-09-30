@@ -62,7 +62,7 @@ def get_processing_files():
 
 def process():
     """
-    Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage
+    Intégration des fichiers en fonction de ceux présents dans le répertoire de processing/sage
     """
     processing_files = get_processing_files()
 
