@@ -166,7 +166,7 @@ urlpatterns = [
             name="delete_invoice_purchase",
         ),
         path(
-            "integration_supplier_purchases_export/<str:enc_param>/",
+            "integration_supplier_purchases_export/<str:flow_name>/<str:enc_param>/",
             integration_supplier_purchases_export,
             name="integration_supplier_purchases_export",
         ),

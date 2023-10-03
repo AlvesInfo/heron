@@ -29,7 +29,7 @@ from apps.validation_purchases.excel_outputs.excel_supplier_invoices_number impo
 # CONTROLES ETAPE 2.1.B - DETAILS FACTURES
 
 
-def details_purchase(request, enc_param, flow_name):
+def details_purchase(request, flow_name, enc_param):
     """View de l'étape 2.B des écrans de contrôles
     Visualisation des détails des lignes d'une facture pour un fournisseur
     :param request: Request Django
@@ -37,6 +37,7 @@ def details_purchase(request, enc_param, flow_name):
     :param flow_name: flow_name pour le retour chevron
     :return: view
     """
+    # print(get_base_64(enc_param))
     third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
     invoices = (
         EdiImport.objects.annotate(

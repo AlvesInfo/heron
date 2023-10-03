@@ -4,9 +4,9 @@
 
 {% block right_side %}
     {% if not details %}
-        <a class="item" href="{% url 'validation_purchases:integration_supplier_purchases_export' controles_exports.0.enc_param|encode_b64_str %}">
+        <a class="item" href="{% url 'validation_purchases:integration_supplier_purchases_export' flow_name=flow_name enc_param=controles_exports.0.enc_param|encode_b64_str %}">
     {% else %}
-        <a class="item" href="{% url 'validation_purchases:integration_supplier_purchases_export' controles_exports.0.enc_param|encode_b64_str %}">
+        <a class="item" href="{% url 'validation_purchases:integration_supplier_purchases_export' flow_name=flow_name enc_param=controles_exports.0.enc_param|encode_b64_str %}">
     {% endif %}
        <button class="ui green basic button" name="maisons_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
           EXPORT EXCEL

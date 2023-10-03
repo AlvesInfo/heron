@@ -26,6 +26,7 @@ def integration_supplier_purchases(request, enc_param):
     :param enc_param: paramètres encodés en base 64
     :return: view
     """
+    # print(get_base_64(enc_param))
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
     third_party_num, supplier, invoice_month, flow_name = get_base_64(enc_param)
 
@@ -94,14 +95,16 @@ def delete_invoice_purchase(request):
     return JsonResponse(data)
 
 
-def integration_supplier_purchases_export(request, enc_param):
+def integration_supplier_purchases_export(request, flow_name, enc_param):
     """Export Excel de la liste des montants par Factures pour le fournisseur demandé
     :param request: Request Django
+    :param flow_name: flow_name de l'import edi
     :param enc_param: paramètres au format base64
     :return: response_file
     """
     try:
         if request.method == "GET":
+            # print(get_base_64(enc_param))
             third_party_num, supplier, invoice_month, *_ = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (
@@ -112,6 +115,7 @@ def integration_supplier_purchases_export(request, enc_param):
                 "third_party_num": third_party_num,
                 "supplier": supplier,
                 "invoice_month": invoice_month,
+                "flow_name": flow_name,
             }
             return response_file(
                 excel_transfers_cosium

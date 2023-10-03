@@ -60,4 +60,5 @@ left join "accountancy_sectionsage" "arfa"
 where "ee"."third_party_num" = %(third_party_num)s
   and "ee"."invoice_month" = %(invoice_month)s
   and "ee"."supplier" = %(supplier)s
+  and "ee"."flow_name" = %(flow_name)s
 order by "ee"."id"

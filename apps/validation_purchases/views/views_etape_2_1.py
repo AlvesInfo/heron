@@ -367,7 +367,8 @@ def alls_details_purchases_export(request, enc_param):
     """
     try:
         if request.method == "GET":
-            third_party_num, supplier, invoice_month = get_base_64(enc_param)
+            print(get_base_64(enc_param))
+            third_party_num, supplier, invoice_month, flow_name = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (
                 f"{third_party_num}_{supplier}_"
@@ -377,6 +378,7 @@ def alls_details_purchases_export(request, enc_param):
                 "third_party_num": third_party_num,
                 "supplier": supplier,
                 "invoice_month": invoice_month,
+                "flow_name": flow_name,
             }
             return response_file(
                 excel_invoice_details,
