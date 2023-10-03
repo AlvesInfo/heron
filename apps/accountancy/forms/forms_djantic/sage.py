@@ -91,6 +91,7 @@ class VatRegimeSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseB
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
+    legislation: str = ""
 
     class Config:
         model = VatRegimeSage

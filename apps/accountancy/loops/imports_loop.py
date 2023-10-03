@@ -34,11 +34,11 @@ from apps.accountancy.imports.extraction_code_plan import update_code_plan
 
 processing_dict = {
     "ZBIVAT_journalier.heron": vat_sage,
-    "ZBIRATVAT_journalier.heron": vat_rat_sage,
     "ZBIACCOUNT_journalier.heron": account_sage,
     "ZBIAXES_journalier.heron": axe_sage,
     "ZBICCE_journalier.heron": section_sage,
     "ZBIMODREG_journalier.heron": mode_reglement,
+    "ZBIRATVAT_journalier.heron": vat_rat_sage,
     "ZBIREG_journalier.heron": vat_regime_sage,
     "ZBIPTE_journalier.heron": payement_condition,
     "ZBIDIV_journalier.heron": tab_div_sage,

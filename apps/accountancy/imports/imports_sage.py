@@ -147,7 +147,6 @@ def vat_regime_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    time.sleep(4)
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
@@ -198,6 +197,7 @@ def vat_rat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
+    time.sleep(10)
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
