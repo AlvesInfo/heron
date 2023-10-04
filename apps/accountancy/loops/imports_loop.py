@@ -38,12 +38,12 @@ processing_dict = {
     "ZBIAXES_journalier.heron": axe_sage,
     "ZBICCE_journalier.heron": section_sage,
     "ZBIMODREG_journalier.heron": mode_reglement,
-    "ZBIRATVAT_journalier.heron": vat_rat_sage,
     "ZBIREG_journalier.heron": vat_regime_sage,
     "ZBIPTE_journalier.heron": payement_condition,
     "ZBIDIV_journalier.heron": tab_div_sage,
     "ZBICATC_journalier.heron": category_sage_client,
     "ZBICATS_journalier.heron": category_sage_supplier,
+    "ZBIRATVAT_journalier.heron": vat_rat_sage,
 }
 
 

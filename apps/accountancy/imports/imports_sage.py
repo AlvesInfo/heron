@@ -197,7 +197,7 @@ def vat_rat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    time.sleep(10)
+    time.sleep(5)
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
