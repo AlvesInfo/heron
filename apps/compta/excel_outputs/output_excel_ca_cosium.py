@@ -168,7 +168,7 @@ def excel_ca_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str)
     date_fin = pendulum.parse(dte_f)
     date_fin_texte = date_fin.format("DD/MM/YYYY", locale="fr")
     titre = f"CHIFFRE D'AFFAIRES COSIUM DU {date_debut_texte} AU {date_fin_texte}"
-    list_excel = [file_io, ["VENTES COSIUM"]]
+    list_excel = [file_io, ["CA COSIUM"]]
     excel = GenericExcel(list_excel, in_memory=True)
     columns = columns_ca_cosium
     global num_ligne
