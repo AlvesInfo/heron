@@ -60,6 +60,7 @@ from apps.edi.forms.forms_djantic.forms_invoices import (
     EdiSchema,
     EyeConfortSchema,
     GeneriqueSchema,
+    HansatonSchema,
     HearingSchema,
     IntersonSchema,
     JohnsonSchema,
@@ -613,6 +614,37 @@ def phonak(file_path: Path):
     trace_name = "Import Phonak"
     application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "Phonak"
+    comment = ""
+    trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
+    params_dict_loader = {
+        "trace": trace,
+        "add_fields_dict": {
+            "flow_name": flow_name,
+            "supplier": get_supplier(flow_name),
+            "supplier_ident": get_ident(flow_name),
+            "uuid_identification": trace.uuid_identification,
+            "created_at": timezone.now(),
+            "modified_at": timezone.now(),
+        },
+    }
+    to_print = make_insert_edi_files(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
+    phonak_post_insert(trace.uuid_identification)
+
+    return trace, to_print
+
+
+def hansaton(file_path: Path):
+    """Import du fichier des factures Hansaton.
+    Reprise de la fonction de Phonack, car faisant parti du même groupe
+    """
+    model = EdiImport
+    validator = HansatonSchema
+    file_name = file_path.name
+    trace_name = "Import Hansaton"
+    application_name = "edi_imports_suppliers_invoices_pool"
+    flow_name = "Hansaton"
     comment = ""
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {

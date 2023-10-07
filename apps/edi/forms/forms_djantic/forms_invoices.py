@@ -366,6 +366,33 @@ class PhonakSchema(
         ]
 
 
+class HansatonSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+    TvaGenerique,
+):
+    """Schema Djantic pour validation du modèle Hansaton.
+    Reprise de la fonction de Phonack, car faisant parti du même groupe
+    """
+
+    uuid_identification: uuid.UUID
+    supplier: str
+    supplier_ident: str
+
+    class Config:
+        """Config"""
+
+        model = EdiImport
+        include = list(get_columns(ColumnDefinition, "Hansaton")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+            "created_at",
+            "modified_at",
+        ]
+
+
 class ProditionSchema(
     ModelSchema,
     ValidateFieldsBase,
