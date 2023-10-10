@@ -70,6 +70,38 @@ post_generic_dict = {
           and ("valid" = false or "valid" isnull)
     """
     ),
+    "sql_vat": sql.SQL(
+        """
+        update "edi_ediimport" "edi" 
+        set "vat" =  rvat."vat"
+        from (
+            select 
+                "vat",
+                "vat_regime",
+                "vat_rate"
+            from (
+                select 
+                    vs."vat", 
+                    vs."vat_regime", 
+                    (vsr."rate" / 100)::numeric as "vat_rate",
+                    ROW_NUMBER() OVER(
+                        partition by vs."vat", vs."vat_regime"
+                        order by vs."vat", vsr."vat_start_date" desc
+                    ) as "vat_index",
+                    vsr."vat_start_date"
+                from "accountancy_vatsage" vs
+                join "accountancy_vatratsage" vsr 
+                on vs."vat" = vsr."vat" 
+            ) req
+            where "vat_index" = 1
+            and "vat_regime" = 'FRA'
+        ) "rvat"
+        where "edi"."uuid_identification" = %(uuid_identification)s
+          and "edi"."vat_rate" = rvat."vat_rate" 
+          and "edi"."vat" isnull
+          and ("edi"."valid" = false or "edi"."valid" isnull)
+          """
+    ),
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 

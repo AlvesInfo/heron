@@ -452,6 +452,7 @@ def generique_post_insert(uuid_identification: AnyStr, post=None):
     """
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
+    sql_vat = post_generic_dict.get("sql_vat")
     # sql_maison = post_generic_dict.get("sql_maison")
     sql_mg_developpemnt = post_generic_dict.get("sql_mg_developpemnt")
     sql_edi_generique = post_generic_dict.get("sql_edi_generique")
@@ -460,6 +461,7 @@ def generique_post_insert(uuid_identification: AnyStr, post=None):
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         # cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mg_developpemnt, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
