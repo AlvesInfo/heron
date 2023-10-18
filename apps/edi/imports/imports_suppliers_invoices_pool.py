@@ -130,7 +130,7 @@ def bbgr_statment():
     comment = ""
     trace = get_trace(
         trace_name,
-        "insert into (...) selec ... from heron_bi_factures_billstatement",
+        "insert into bill (a) select a from heron_bi_factures_billstatement",
         application_name,
         flow_name,
         comment,
@@ -163,10 +163,10 @@ def bbgr_monthly():
     comment = ""
     trace = get_trace(
         trace_name,
-        (
-            "insert into (...) selec ... from heron_bi_factures_monthlydelivery "
-            "where type_article not in ('FRAIS_RETOUR', 'DECOTE')"
-        ),
+        """
+        insert into mothn (a) select a from heron_bi_factures_monthlydelivery
+        where type_article not in ('FRAIS_RETOUR', 'DECOTE')
+        """,
         application_name,
         flow_name,
         comment,
@@ -199,10 +199,10 @@ def bbgr_retours():
     comment = ""
     trace = get_trace(
         trace_name,
-        (
-            "insert into (...) selec ... from heron_bi_factures_monthlydelivery "
-            "where type_article in ('FRAIS_RETOUR', 'DECOTE')"
-        ),
+        """
+        insert into mothn (a) select a from heron_bi_factures_monthlydelivery
+        where type_article in ('FRAIS_RETOUR', 'DECOTE')
+        """,
         application_name,
         flow_name,
         comment,
@@ -235,7 +235,7 @@ def bbgr_receptions():
     comment = ""
     trace = get_trace(
         trace_name,
-        "insert into (...) selec ... from heron_bi_receptions_bbgr ",
+        "insert into bbge (a) select a from heron_bi_receptions_bbgr ",
         application_name,
         flow_name,
         comment,
@@ -637,7 +637,7 @@ def phonak(file_path: Path):
 
 def hansaton(file_path: Path):
     """Import du fichier des factures Hansaton.
-    Reprise de la fonction de Phonack, car faisant parti du même groupe
+    Reprise de la fonction de Phonack, car faisant partie du même groupe
     """
     model = EdiImport
     validator = HansatonSchema
