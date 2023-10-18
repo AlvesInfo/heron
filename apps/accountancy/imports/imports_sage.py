@@ -182,6 +182,7 @@ def vat_rat_sage(file_path: Path):
     Import du fichier des Taux de Taxes Sage X3
     :param file_path: Path du fichier à traiter
     """
+    time.sleep(15)
     model = VatRatSage
     validator = VatRatSageSchema
     file_name = file_path.name
@@ -197,7 +198,6 @@ def vat_rat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    time.sleep(5)
     to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
