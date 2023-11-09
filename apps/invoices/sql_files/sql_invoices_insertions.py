@@ -771,9 +771,17 @@ SQL_SALES_INVOICES = sql.SQL(
         and "parts"."third_party_num" = "ccm"."third_party_num"
         left join "parameters_category" "pcc" 
         on "pcc"."uuid_identification" = "eee"."uuid_big_category" 
+        left join (
+            select 
+                "ac"."uuid_identification",
+                "ac"."section" as "bu"
+            from "accountancy_sectionsage" "ac"
+        ) "acs"
+        on "eee"."axe_bu" = "acs"."uuid_identification"
         where "eee"."sale_invoice" = true
           and "eee"."valid" = true
           and "ccm"."type_x3" in (1, 2)
+          and "ccm"."cct" != "acs"."bu"
     ) 
     select 
         now() as "created_at",
@@ -1205,6 +1213,7 @@ SQL_SALES_DETAILS = sql.SQL(
              on "gr"."axe_pro" = "eee"."axe_pro"
             where "eee"."sale_invoice" = true
               and "eee"."valid" = true
+              and "ccm"."cct" != "abu"."section"
         ) det 
         join (
             select 
