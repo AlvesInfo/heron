@@ -1,21 +1,22 @@
 #! /home/paulo/.envs/heron/bin/python3
-# from pathlib import Path
-#
-# with Path("test.txt").open("w") as file:
-#     file.write("test passé")
-
+import os
+import platform
 import sys
-import subprocess
 
+import django
 
-def get_status_output(*args, **kwargs):
-    p = subprocess.Popen(*args, **kwargs)
-    stdout, stderr = p.communicate()
-    return p.returncode, stdout
+BASE_DIR = r"/"
 
+if platform.uname().node not in ["PauloMSI", "MSI"]:
+    BASE_DIR = "/home/paulo/heron"
 
-status, output = get_status_output("monit status")
+sys.path.append(BASE_DIR)
 
-print("%s" % output)
-if status != 0:
-    sys.exit(status)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+
+django.setup()
+
+from apps.accountancy.loops.import_sage_data import main
+
+if __name__ == '__main__':
+    main()
