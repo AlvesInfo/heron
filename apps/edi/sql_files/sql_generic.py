@@ -73,7 +73,8 @@ post_generic_dict = {
     "sql_vat": sql.SQL(
         """
         update "edi_ediimport" "edi" 
-        set "vat" =  rvat."vat"
+        set "vat" =  rvat."vat",
+            "vat_regime" = "rvat"."vat_regime"
         from (
             select 
                 "vat",
@@ -135,7 +136,8 @@ post_generic_internal_dict = {
     "sql_vat": sql.SQL(
         """
         update "edi_ediimport" "edi" 
-        set "vat" =  rvat."vat"
+        set "vat" =  rvat."vat",
+            "vat_regime" = "rvat"."vat_regime"
         from (
             select 
                 "vat",

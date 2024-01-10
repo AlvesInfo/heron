@@ -12,6 +12,7 @@ modified at: 2023-01-19
 modified by: Paulo ALVES
 """
 SELECT_FLUIDE_DICT = {"class": "ui fluid search dropdown", "style": "font-weight: bold"}
+SELECT_MULTIPLE_FLUIDE_DICT = {"class": "ui fluid search dropdown", "multiple": ""}
 CHECK_BOX_DICT = {
     "style": "font-weight: bold;width: 25px;height: 25px;margin-left: 0;margin-top: 5px"
 }
