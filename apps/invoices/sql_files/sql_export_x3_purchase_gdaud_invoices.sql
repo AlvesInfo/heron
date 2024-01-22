@@ -431,6 +431,8 @@ from "alls"
 order by
 		"invoice_number",
 		"ACC_00",
+		"AMTNOTLIN",
+		"VAT",
         "CCE",
 		"CCE_01",
         "CCE_02",
