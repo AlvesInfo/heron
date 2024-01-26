@@ -159,7 +159,7 @@ TEMPLATES = [
             # Path(PROJECT_DIR) / "templates",
             # Path(CORE_DIR) / "templates",
             # Path(APPS_DIR) / "templates",
-            # Path(BASE_DIR) / "heron/templates/heron",
+            Path(BASE_DIR) / "heron/templates/heron",
             Path(BASE_DIR)
             / "apps/data_flux/templates",
         ],

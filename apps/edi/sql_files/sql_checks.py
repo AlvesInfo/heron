@@ -70,19 +70,32 @@ sql_edi_import_duplicates = sql.SQL(
               and "ma"."invoice_year" = "al"."invoice_year"
               and "ma"."created_at" = "al"."created_at"
         )
-   )
-   select 
-        "uuid_identification", 
-        array_agg(
-            (
-                '(Tiers : '||"third_party_num"||
-                ' - Fac. N° : '||"invoice_number"||
-                ' - Année : '||"invoice_year"||')'
-            )
-        ) as "commentaire",
-        array_agg(("third_party_num"||'||'||"invoice_number"||'||'|| "invoice_year")) as "couples"
-   from "results"
-   group by "uuid_identification"
+    ),
+    results_ident as (
+        select 
+            "uuid_identification", 
+            array_agg(
+                (
+                    '(Tiers : '||"third_party_num"||
+                    ' - Fac. N° : '||"invoice_number"||
+                    ' - Année : '||"invoice_year"||')'
+                )
+            ) as "commentaire",
+            array_agg(
+                ("third_party_num"||'||'||"invoice_number"||'||'|| "invoice_year")
+            ) as "couples"
+        from "results"
+        group by "uuid_identification"
+    )
+    select 
+    "uuid_identification", 
+    "commentaire",
+    "couples"
+    from results_ident
+    group by     
+    "uuid_identification", 
+    "commentaire",
+    "couples"
 """
 )
 
@@ -184,19 +197,30 @@ sql_invoices_duplicates = sql.SQL(
            -- Ajouter car si l'on importe après une première génération 
            -- cela efface toute la table
            and "sii"."final" = true
+    ),
+    results_ident as (
+        select 
+            "uuid_identification", 
+            array_agg(
+                (
+                    '(Tiers : '||"third_party_num"||
+                    ' - Fac. N° : '||"invoice_number"||
+                    ' - Année : '|| "invoice_year"||')'
+                )
+            ) as commentaire,
+            array_agg(("third_party_num"||'||'||"invoice_number"||'||'||"invoice_year")) as couples
+        from "results"
+        group by "uuid_identification"
     )
     select 
         "uuid_identification", 
-        array_agg(
-            (
-                '(Tiers : '||"third_party_num"||
-                ' - Fac. N° : '||"invoice_number"||
-                ' - Année : '|| "invoice_year"||')'
-            )
-        ) as commentaire,
-        array_agg(("third_party_num"||'||'||"invoice_number"||'||'||"invoice_year")) as couples
-   from "results"
-   group by "uuid_identification"
+        "commentaire",
+        "couples"
+    from results_ident
+    group by     
+        "uuid_identification", 
+        "commentaire",
+        "couples"
 """
 )
 
