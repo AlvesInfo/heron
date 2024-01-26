@@ -35,6 +35,8 @@ def edi_import_duplicate_check():
         for row in cursor.fetchall():
             uuid_identification, errors_array, _ = row
 
+            errors_array = sorted(list(set(errors_array)))
+
             first_comment = (
                 "L'ensemble (<div style='padding-left: 20px;'>"
                 if len(errors_array) == 1
@@ -71,6 +73,8 @@ def suppliers_invoices_duplicate_check():
 
         for row in cursor.fetchall():
             uuid_identification, errors_array, couples = row
+
+            errors_array = sorted(list(set(errors_array)))
 
             first_comment = (
                 "L'ensemble (<div style='padding-left: 20px;'>"
