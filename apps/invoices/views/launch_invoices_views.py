@@ -345,7 +345,7 @@ def finalize_period(request):
     # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
     not_finalize = control_insertion()
     edi_validation = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("id").first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
     )
     initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(months=1)
     initial_value = (

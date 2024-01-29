@@ -133,7 +133,9 @@ def create_edi_validation():
     Création de la validation pour la facturation en cours si elle n'existe pas
     :return:
     """
-    edi_validation = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    edi_validation = (
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    )
 
     try:
         if not edi_validation:

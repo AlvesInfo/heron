@@ -386,7 +386,9 @@ def control_validations():
     if imports_validation:
         controls_list.append("Vous avez des imports non validés")
 
-    edi_validations = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    edi_validations = (
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    )
 
     # Mise à jour du contrôle des nouveaux articles
     if Article.objects.filter(

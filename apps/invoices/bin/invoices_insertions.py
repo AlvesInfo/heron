@@ -452,13 +452,10 @@ def sanitaze_before(cursor):
 
     # On supprime les éxistant non définitifs
     cursor.execute(
-        "delete from invoices_invoicecommondetails "
-        'where ("final" isnull or "final" = false)'
+        "delete from invoices_invoicecommondetails " 'where ("final" isnull or "final" = false)'
     )
 
-    cursor.execute(
-        'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
-    )
+    cursor.execute('delete from invoices_invoicedetail where ("final" isnull or "final" = false)')
 
     cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
 
@@ -466,9 +463,7 @@ def sanitaze_before(cursor):
         'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
     )
 
-    cursor.execute(
-        'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
-    )
+    cursor.execute('delete from invoices_saleinvoice where ("final" isnull or "final" = false)')
 
     # On réinitialise les compteurs de numérotation, pour qu'il n'y ait pas de décalages
     reinitialize_purchase_invoices_nums(cursor)
@@ -504,7 +499,9 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
         "",
     )
     # On met à jour la billing date dans la table edi_edivalidation
-    edi_validations = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    edi_validations = (
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    )
     edi_validations.billing_date = invoice_date
     edi_validations.save()
 
@@ -526,7 +523,6 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     alls_print = ""
 
     try:
-
         with connection.cursor() as cursor, transaction.atomic():
             user = User.objects.get(uuid_identification=user_uuid)
             LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
