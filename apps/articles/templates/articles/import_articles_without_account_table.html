@@ -1,0 +1,22 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+    {% include "heron/scroll_to_top.html" %}
+
+    <div class="sixteen wide column">
+        <div class="ui segment">
+            <div class="ui grid">
+                <div class="sixteen wide column" style="text-align: center;">
+                    {% if messages_errors %}
+                        <h4 style="color: red;">{{ messages_errors }}</h4>
+                    {% endif %}
+                    {% if messages_ok %}
+                        <h4 style="color: green;">{{ messages_ok }}</h4>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock table %} %}

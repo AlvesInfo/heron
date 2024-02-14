@@ -324,6 +324,28 @@ class ArticleAccount(DatesTable):
     purchase_account = models.CharField(max_length=35)
     sale_account = models.CharField(max_length=35)
 
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "article": 0,
+            "child_center": 1,
+            "vat": 2,
+            "purchase_account": 3,
+            "sale_account": 4,
+        }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"child_center", "article", "vat"}
+
     class Meta:
         """class Meta du modèle django"""
 

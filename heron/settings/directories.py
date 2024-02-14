@@ -48,6 +48,12 @@ PROCESSING_SUPPLIERS_DIR = (
 ).resolve()
 Path.mkdir(PROCESSING_SUPPLIERS_DIR, exist_ok=True)
 
+# REPERTOIRE DE TRAITEMENT DES IMPORTS DES ARTICLES SANS COMPTES
+PROCESSING_WITHOUT_ACCOUNT_DIR = (
+    Path(FILES_BASE_DIR) / "files/processing/suppliers_invoices_files/ARTICLES_SANS_COMPTES"
+).resolve()
+Path.mkdir(PROCESSING_WITHOUT_ACCOUNT_DIR, exist_ok=True)
+
 # REPERTOIRE DES FICHIERS A EXPORTER
 EXPORT_DIR = (Path(FILES_BASE_DIR) / "files/media/export").resolve()
 Path.mkdir(EXPORT_DIR, exist_ok=True)

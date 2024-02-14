@@ -539,65 +539,7 @@ columns_list_articles_without_account = [
         "width": 35,
     },
     {
-        "entete": "Compte\nau\nDébit",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "align": "center",
-            },
-        },
-        "width": 12,
-    },
-    {
-        "entete": "Compte\nau\nCrédit",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{"align": "center", "num_format": "@"},
-        },
-        "width": 12,
-    },
-    {
-        "entete": "Référence",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{"align": "left", "text_wrap": True},
-        },
-        "width": 30,
-    },
-    {
-        "entete": "TVA",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{"align": "center", "num_format": "@"},
-        },
-        "width": 6,
-    },
-    {
-        "entete": "Centrale\nFille",
+        "entete": "Centrale Fille",
         "f_entete": {
             **f_entetes,
             **{
@@ -639,6 +581,20 @@ columns_list_articles_without_account = [
             **{},
         },
         "width": 22,
+    },
+    {
+        "entete": "Référence",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "left", "text_wrap": True},
+        },
+        "width": 30,
     },
     {
         "entete": "Libellé",
@@ -703,7 +659,21 @@ columns_list_articles_without_account = [
         "width": 15,
     },
     {
-        "entete": "régime\nTVA",
+        "entete": "TVA",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "num_format": "@"},
+        },
+        "width": 6,
+    },
+    {
+        "entete": "régime TVA",
         "f_entete": {
             **f_entetes,
             **{
@@ -715,5 +685,35 @@ columns_list_articles_without_account = [
             **{"align": "center", "num_format": "@"},
         },
         "width": 7,
+    },
+    {
+        "entete": "Compte au Débit",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+            },
+        },
+        "width": 12,
+    },
+    {
+        "entete": "Compte au Crédit",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center", "num_format": "@"},
+        },
+        "width": 12,
     },
 ]

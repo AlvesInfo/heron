@@ -1,5 +1,15 @@
 {% extends "heron/list_table_courant.html" %}
 
+{% block left_side %}
+{#    {% if articles.has_other_pages %}#}
+        <a class="item" href="{% url 'articles:update_articles_without_account' %}">
+           <button class="ui orange basic button" name="articles_news_export_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+              Import articles sans comptes
+           </button>
+        </a>
+{#    {% endif %}#}
+{% endblock left_side %}
+
 {% block right_side %}
 
     <a class="item" href="{% url 'articles:articles_without_account_export_list' %}">

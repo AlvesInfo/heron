@@ -352,7 +352,7 @@ class PostgresDjangoUpsert:
         """
         insert_table, from_table = self.get_base_insert
         sql_insert = sql.SQL(
-            "INSERT INTO {insert_table} ({fields}) " "SELECT {fields} FROM {form_table} "
+            "INSERT INTO {insert_table} ({fields})  SELECT {fields} FROM {form_table} "
         ).format(insert_table=insert_table, form_table=from_table, fields=self.get_fields())
         return sql_insert
 
@@ -481,15 +481,19 @@ class PostgresDjangoUpsert:
                 fields = self.get_fields()
                 delimiter = sql.SQL(delimiter)
                 quote_character = sql.SQL(quote_character)
+                get_null_field = (
+                    f"{self.get_null_fields()}{', ' if self.get_null_fields() else ''} "
+                )
                 sql_expert = (
                     "COPY {table} ({fields}) "
                     "FROM STDIN "
                     "WITH ("
                     "DELIMITER '{delimiter}', "
-                    f"{self.get_null_fields()}, "
+                    f"{get_null_field}"
                     "QUOTE '{quote_character}', "
                     "FORMAT CSV )"
                 )
+                # print("sql_expert :", sql_expert)
                 if insert_mode == "insert":
                     # copy direct dans la table définitive
                     table = sql.Identifier(self.table_name)

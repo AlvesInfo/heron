@@ -38,8 +38,6 @@ def get_clean_rows() -> iter:
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
         # print(cursor.mogrify(query).decode())
-        # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
-        # print(query)
         cursor.execute(query)
         return cursor.fetchall()
 

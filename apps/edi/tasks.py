@@ -138,8 +138,6 @@ def launch_suppliers_import(process_objects, user_pk):
         elif file.is_file():
             file.unlink()
 
-        # TODO : faire une fonction d'envoie de mails
-
     LOGGER_EDI.warning(
         to_print
         + f"Validation {file.name} in : {time.time() - start_initial} s"

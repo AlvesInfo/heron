@@ -15,6 +15,7 @@ from apps.articles.views import (
     # ARTICLES SANS COMPTES
     articles_without_account_list,
     articles_without_account_export_list,
+    update_articles_without_account,
     # ARTICLES AVEC COMPTES
     articles_account_list
 )
@@ -84,6 +85,11 @@ urlpatterns = [
             "articles_without_account_export_list/",
             articles_without_account_export_list,
             name="articles_without_account_export_list",
+        ),
+        path(
+            "update_articles_without_account/",
+            update_articles_without_account,
+            name="update_articles_without_account",
         ),
     ],
     # ARTICLES AVEC COMPTES

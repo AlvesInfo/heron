@@ -14,3 +14,15 @@ class LaunchDoesNotExistsError(Exception):
 
 class EmailException(Exception):
     """Exception niveau module pour les smails"""
+
+
+class ArticlesWithoutAccountException(Exception):
+    """Exception niveau module pour les artilces sans comptes"""
+
+
+class ArticlesAccountValidationException(Exception):
+    """Exception niveau module pour les artilces sans comptes"""
+
+
+class ArticlesAccountException(Exception):
+    """Exception niveau module pour les artilces sans comptes"""

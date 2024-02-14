@@ -55,9 +55,7 @@ def articles_without_account_list(request):
         "num_pages": paginator.num_pages,
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
-        "titre_table": (
-            f'1.2 - Articles sans comptes'
-        ),
+        "titre_table": "1.2 - Articles sans comptes",
         # "url_validation": reverse("articles:articles_new_validation"),
         "url_redirect": reverse("articles:articles_without_account_list"),
     }
@@ -83,3 +81,21 @@ def articles_without_account_export_list(_):
         LOGGER_EXPORT_EXCEL.exception("view : articles_without_account_export_list")
 
     return redirect(reverse("articles:articles_without_account_list"))
+
+
+def update_articles_without_account(request):
+    """import de tous les articles qui n'ont pas de comptes comptables X3"""
+    from apps.articles.imports.articles_without_account import import_articles_without_account
+    messages_errors = ""
+    messages_ok = ""
+
+    if request.method == "POST":
+        messages_errors, messages_ok = import_articles_without_account()
+
+    context = {
+        "titre_table": "Import des articles sans comptes",
+        "messages_errors": messages_errors,
+        "messages_ok": messages_ok,
+    }
+
+    return render(request, "articles/import_articles_without_account.html", context=context)

@@ -141,18 +141,18 @@
     )
     select
         "article"::varchar,
-        '' as "debit",
-        '' as "credit",
-        "reference",
-        "vat_vat",
         "code_center",
         "third_party_num",
         "tiers",
+        "reference",
         "libelle",
         "pro",
         "category",
         "rubrique",
-        "vat_reg"
+        "vat_vat",
+        "vat_reg",
+        '' as "debit",
+        '' as "credit"
     from "alls"
     group by "code_center",
              "third_party_num",
