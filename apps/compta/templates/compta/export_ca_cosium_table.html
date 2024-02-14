@@ -4,4 +4,12 @@
     <div style="margin: auto;padding: 20px;">
         {% include "heron/models_html/month_period.html" %}
     </div>
+    <div class="cloumn" style="text-align: center;width: 100% !important;padding-bottom: 20px;">
+        {% if message_ca %}
+            <h4 style="color: red; font-weight: bold">
+                {{ message_ca }}
+            </h4>
+        {% endif %}
+
+    </div>
 {% endblock table %}

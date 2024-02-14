@@ -58,17 +58,23 @@ def export_sales_cosium(request):
 def export_ca_cosium(request):
     """Export des ventes Cosium par périodes"""
     form = MonthForm(request.POST or None)
+    message_ca = ""
 
     try:
         if request.method == "POST" and form.is_valid():
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            ca_exists = CaClients.objects.filter(date_ca__range=(dte_d, dte_f)).exists()
 
-            today = pendulum.now()
-            file_name = (
-                f"CA_PAR_MAISONS_FAMILLES_{dte_d}_{dte_f}_"
-                f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-            )
-            return response_file(excel_ca_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
+            if ca_exists:
+                today = pendulum.now()
+                file_name = (
+                    f"CA_PAR_MAISONS_FAMILLES_{dte_d}_{dte_f}_"
+                    f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                )
+                return response_file(excel_ca_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
+
+            else:
+                message_ca = "Le CA pour cette période, semble ne pas avoir été importé"
 
         if form.errors:
             LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
@@ -82,6 +88,7 @@ def export_ca_cosium(request):
         "state": (
             CaClients.objects.values("pk").filter(cct_uuid_identification__isnull=True).exists()
         ),
+        "message_ca": message_ca
     }
 
     return render(request, "compta/export_ca_cosium.html", context=context)
