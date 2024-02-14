@@ -10,7 +10,11 @@ modified at: 2022-05-29
 modified by: Paulo ALVES
 """
 import io
+from pathlib import Path
 
+from django.db import connection
+
+from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
@@ -23,48 +27,21 @@ from apps.core.excel_outputs.excel_writer import (
 from apps.articles.excel_outputs.output_excel_articles_columns import (
     columns_list_articles_without_account,
 )
-from apps.articles.parameters.querysets import articles_without_account_queryset
 
 
 def get_clean_rows() -> iter:
     """Retourne les lignes à écrire"""
+    file_path = Path(
+        f"{str(APPS_DIR)}/articles/sql/articles_wihout_account_list.sql"
+    )
 
-    query_columns = {
-        "code_center",
-        "third_party_num",
-        "tiers",
-        "reference",
-        "libelle",
-        "pro",
-        "category",
-        "rubrique",
-        "article",
-        "vat_vat",
-        "vat_reg"
-    }
-    rows = [
-        {key: value for key, value in row.__dict__.items() if key in query_columns}
-        for row in articles_without_account_queryset
-    ]
-
-    return [
-        (
-            str(row.get("article", "")),
-            row.get("code_center", ""),
-            row.get('third_party_num', ''),
-            row.get('tiers', ''),
-            row.get('reference', ''),
-            row.get('libelle', ''),
-            row.get("pro", ""),
-            row.get("category", ""),
-            row.get("rubrique", ""),
-            row.get("vat_vat", ""),
-            row.get("vat_reg", ""),
-            "",
-            "",
-        )
-        for row in rows
-    ]
+    with file_path.open("r") as sql_file, connection.cursor() as cursor:
+        query = sql_file.read()
+        # print(cursor.mogrify(query).decode())
+        # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
+        # print(query)
+        cursor.execute(query)
+        return cursor.fetchall()
 
 
 def excel_liste_articles_without_account(file_io: io.BytesIO, file_name: str) -> dict:
