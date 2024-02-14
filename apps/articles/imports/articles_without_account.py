@@ -37,7 +37,7 @@ def insert_articles_without_account(file_path: Path) -> (AnyStr, AnyStr):
     model = ArticleAccount
     validator = ArticleAccountSageSchema
     file_name = file_path.name
-    trace_name = "Mise à jour Comptes Sage"
+    trace_name = "Mise à jour Comptes manquant pour les articles"
     application_name = "import_articles_without_account"
     flow_name = "Articles_without_account"
     comment = f"import {file_name} des articles sans comptes"
