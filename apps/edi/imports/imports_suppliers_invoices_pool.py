@@ -350,7 +350,6 @@ def transfert_cosium(file_path: Path):
         )
         trace.invoices = True
         trace.save()
-        file_path.unlink(missing_ok=True)
         raise EdiException("transfert_cosium") from error
 
     return trace, to_print
