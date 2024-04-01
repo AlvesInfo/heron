@@ -1,0 +1,45 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {% include "centers_clients/import_abonnements_par_maisons_entete.html" %}
+        </form>
+        {% include "centers_clients/import_abonnements_par_maisons_table.html" %}
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+            $(`.datatable-chargement`).hide();
+        });
+
+    </script>
+
+{% endblock script %}

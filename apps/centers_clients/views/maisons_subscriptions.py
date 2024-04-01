@@ -5,7 +5,7 @@ Views des Abonnements
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect, reverse, render
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
@@ -21,6 +21,7 @@ from apps.centers_clients.forms import (
     MaisonSubcriptionForm,
     DeleteMaisonSubcriptionForm,
 )
+from apps.centers_clients.imports.import_subcriptions import import_abonnements_par_maisons
 
 
 # ECRANS DES ABONNEMENTS ===========================================================================
@@ -146,3 +147,20 @@ def subscription_delete(request):
         LOGGER_VIEWS.exception(f"subscription_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
+
+
+def insert_or_update_subscriptions(request):
+    """Import de tous les articles qui n'ont pas de comptes comptables X3"""
+    messages_errors = ""
+    messages_ok = ""
+
+    if request.method == "POST":
+        messages_errors, messages_ok = import_abonnements_par_maisons()
+
+    context = {
+        "titre_table": "Import ou Mise à Jour des abonnement par maisons",
+        "messages_errors": messages_errors,
+        "messages_ok": messages_ok,
+    }
+
+    return render(request, "centers_clients/import_abonnements_par_maisons.html", context=context)

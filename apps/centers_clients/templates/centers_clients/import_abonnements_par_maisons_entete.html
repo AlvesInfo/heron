@@ -1,0 +1,11 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+
+    <a class="item" href="{% url 'centers_clients:insert_or_update_subscriptions' %}">
+       <button class="ui green basic button" name="import_insert_or_subscriptions" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          IMPORT
+       </button>
+    </a>
+
+{% endblock right_side %}

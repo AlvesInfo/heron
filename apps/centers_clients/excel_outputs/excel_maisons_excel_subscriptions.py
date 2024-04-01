@@ -27,6 +27,20 @@ from apps.centers_clients.models import MaisonSubcription
 
 columns = [
     {
+        "entete": "CODE MAISON",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 9,
+    },
+    {
         "entete": "MAISON",
         "f_entete": {
             **f_entetes,
@@ -142,7 +156,8 @@ def get_clean_rows():
 
     return [
         (
-            row_dict.get("maison", "") + " - " + row_dict.get("maison__intitule", ""),
+            row_dict.get("maison", ""),
+            row_dict.get("maison__intitule", ""),
             row_dict.get("article__reference", ""),
             row_dict.get("qty", ""),
             row_dict.get("unit_weight__unity", ""),

@@ -2,7 +2,7 @@ import platform
 
 from heron.settings.base import *
 
-if platform.uname().node in {"DESKP082", "PauloMSI", "MSI", "FR07123475L"}:
+if platform.uname().node in {"DESKP082", "PauloMSI", "MSI", "FR07123475L", "MSI_PAULO"}:
     # print("LOCAL_SETTINGS")
     from heron.settings.local import *
 

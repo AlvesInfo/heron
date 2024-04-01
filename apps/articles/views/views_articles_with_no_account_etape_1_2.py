@@ -84,7 +84,7 @@ def articles_without_account_export_list(_):
 
 
 def update_articles_without_account(request):
-    """import de tous les articles qui n'ont pas de comptes comptables X3"""
+    """Import de tous les articles qui n'ont pas de comptes comptables X3"""
     from apps.articles.imports.articles_without_account import import_articles_without_account
     messages_errors = ""
     messages_ok = ""

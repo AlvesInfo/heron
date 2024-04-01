@@ -1,3 +1,4 @@
+{% load filters_tags %}
 {% block head_js %}
     <script type="text/javascript">
         let url = `{% url 'traces:edi_traces' %}`;
@@ -29,7 +30,7 @@
       <div class="ui segment {% if trace.errors %}error{% else %}success{% endif %}" style="padding: 5px 20px;">
 
         <div class="content">
-            <div class="header" style="color: {% if trace.errors %}red{% else %}green{% endif %};">>- Trace N° {{ trace.uuid_identification }} - <span>Date import&nbsp;: {{ trace.created_at|date:"d/m/Y - H:m:s" }}</span></div>
+            <div class="header" style="color: {% if trace.errors %}red{% else %}green{% endif %};">>- Trace N° {{ trace.uuid_identification }} - <span>Date import&nbsp;: {{ trace.created_at|date:"d/m/Y - H:i:s" }}</span></div>
             <div class="description" style="padding-left: 20px;font-size: .8em;margin: -2px 0;">Fichier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ trace.file_name }}</div>
             <div class="description" style="padding-left: 20px;font-size: .8em;margin: -2px 0;">Traitement&nbsp;&nbsp;&nbsp;&nbsp;: {{ trace.trace_name }}</div>
             {% if trace.errors %}

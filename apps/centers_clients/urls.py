@@ -26,6 +26,7 @@ from apps.centers_clients.views import (
     MaisonSubcriptionUpdate,
     subscriptions_export_list,
     subscription_delete,
+    insert_or_update_subscriptions,
 )
 
 app_name = "apps.centers_clients"
@@ -100,8 +101,11 @@ urlpatterns = (
             subscriptions_export_list,
             name="subscriptions_export_list",
         ),
+        path("subscription_delete/", subscription_delete, name="subscription_delete"),
         path(
-            "subscription_delete/", subscription_delete, name="subscription_delete"
+            "insert_or_update_subscriptions/",
+            insert_or_update_subscriptions,
+            name="insert_or_update_subscriptions",
         ),
     ]
 )

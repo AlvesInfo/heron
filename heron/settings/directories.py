@@ -54,6 +54,12 @@ PROCESSING_WITHOUT_ACCOUNT_DIR = (
 ).resolve()
 Path.mkdir(PROCESSING_WITHOUT_ACCOUNT_DIR, exist_ok=True)
 
+# REPERTOIRE DE TRAITEMENT DES IMPORTS DESABONNEMENTS PAR MAISONS
+PROCESSING_CLIENS_SUBSCRIPTION = (
+    Path(FILES_BASE_DIR) / "files/processing/suppliers_invoices_files/ABONNEMENTS_PAR_MAISONS"
+).resolve()
+Path.mkdir(PROCESSING_CLIENS_SUBSCRIPTION, exist_ok=True)
+
 # REPERTOIRE DES FICHIERS A EXPORTER
 EXPORT_DIR = (Path(FILES_BASE_DIR) / "files/media/export").resolve()
 Path.mkdir(EXPORT_DIR, exist_ok=True)

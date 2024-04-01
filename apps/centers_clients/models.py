@@ -428,7 +428,7 @@ class Maison(FlagsTable):
             raise ValidationError(
                     {
                         "credit_account": _(
-                            f"Le compte au crédit choisi, doit être un compte collectif !"
+                            "Le compte au crédit choisi, doit être un compte collectif !"
                         )
                     }
             )
@@ -438,17 +438,17 @@ class Maison(FlagsTable):
             raise ValidationError(
                     {
                         "debit_account": _(
-                            f"Le compte au débit choisi, doit être un compte collectif !"
+                            "Le compte au débit choisi, doit être un compte collectif !"
                         )
                     }
             )
 
-        # On s'assure que le Tiers X3 client soit bien un client
+        # On s'assure que le Tiers X3 client est bien un client
         if not self.third_party_num.is_client:
             raise ValidationError(
                     {
                         "third_party_num": _(
-                            f"Le Tiers Client X3 doît être un client dans Sage X3 !"
+                            "Le Tiers Client X3 doît être un client dans Sage X3 !"
                         )
                     }
             )
@@ -854,6 +854,30 @@ class MaisonSubcription(FlagsTable):
         db_column="for_signboard",
         default="ACF",
     )
+
+    @staticmethod
+    def get_columns_import():
+        """
+        FR : Retourne la position des colonnes
+        EN : Returns the position of the columns
+        """
+        return {
+            "maison": 0,
+            "article": 1,
+            "qty": 2,
+            "unit_weight": 3,
+            "net_unit_price": 4,
+            "function": 5,
+            "for_signboard": 6,
+        }
+
+    @staticmethod
+    def get_uniques():
+        """
+        FR : Retourne les champs uniques de la table
+        EN: Returns the unique fields of the table
+        """
+        return {"maison", "article", "function", "for_signboard"}
 
     @staticmethod
     def get_absolute_url():
