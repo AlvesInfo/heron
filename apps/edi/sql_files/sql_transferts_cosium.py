@@ -161,7 +161,7 @@ post_transfert_cosium_dict = {
                 select 
                     regex_match, axe_pro, uuid_big_category , uuid_sub_big_category 
                 from book_supplierfamilyaxes 
-                where stat_name = 'ZTRANSFERT'
+                where stat_name = 'COSI001'
             ) bs 
             on ee.famille = bs.regex_match
         ) maj
