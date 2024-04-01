@@ -16,6 +16,7 @@ from pathlib import Path
 from django.utils import timezone
 
 from heron.loggers import LOGGER_EDI
+from apps.edi.exceptions import EdiException
 from apps.edi.bin.make_insertion_suppliers_invoices import (
     get_ident,
     get_supplier,
@@ -334,11 +335,22 @@ def transfert_cosium(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    new_file_path = transferts_cosium_file(file_path)
-    to_print = make_insert_edi_files(
-        model, flow_name, new_file_path, trace, validator, params_dict_loader
-    )
-    tansferts_cosium_post_insert(trace.uuid_identification)
+    try:
+        new_file_path = transferts_cosium_file(file_path)
+        to_print = make_insert_edi_files(
+            model, flow_name, new_file_path, trace, validator, params_dict_loader
+        )
+        tansferts_cosium_post_insert(trace.uuid_identification)
+
+    except Exception as error:
+        trace.errors = True
+        trace.comment = (
+            f"Une erreur c'est produite à l'import du fichier des Transferts veuillez consulter "
+            f"les logs : \n{error!r}"
+        )
+        trace.invoices = True
+        trace.save()
+        raise EdiException("transfert_cosium") from error
 
     return trace, to_print
 

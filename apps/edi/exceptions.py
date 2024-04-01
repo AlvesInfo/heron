@@ -9,3 +9,7 @@ created by: Paulo ALVES
 modified at: 2021-10-30
 modified by: Paulo ALVES
 """
+
+
+class EdiException(Exception):
+    """Récupération des erreurs EDI"""
