@@ -317,10 +317,8 @@ def z_bu_refac_file(file: Path) -> Path:
 
                 vat_sage = ("000" + str(tva))[-3:]
 
-                if vat_sage in {"001", "002"}:
-                    vat_sage = vat_sage
-                else:
-                    vat_sage="001"
+                if vat_sage not in {"001", "002"}:
+                    vat_sage = "001"
 
                 list_to_write = [
                     tiers,
@@ -339,7 +337,7 @@ def z_bu_refac_file(file: Path) -> Path:
                     vat_sage,
                     libelle,
                     " ".join([str(value) for value in unit_weight]).strip(),
-                    "FRA" # vat_regime,
+                    "FRA"  # vat_regime,
                 ]
                 csv_writer.writerow(list_to_write)
 
