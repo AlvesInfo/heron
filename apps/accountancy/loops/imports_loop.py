@@ -65,8 +65,9 @@ def process():
     Intégration des fichiers en fonction de ceux présents dans le répertoire de processing/sage
     """
     processing_files = get_processing_files()
-    to_process_files = {sage_file: i for i, sage_file in enumerate(processing_dict)}
 
+    # on met la liste des fichiers à traiter dans l'ordre souhaité pour les interdépendances
+    to_process_files = {sage_file: i for i, sage_file in enumerate(processing_dict)}
     processing_files = sorted(
         [(to_process_files.get(file.name), file) for file in processing_files]
     )
