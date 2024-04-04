@@ -139,7 +139,6 @@ def write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd):
     debut_maison = num_ligne
 
     for clean_row in clean_rows:
-
         if maison != clean_row[col_maison]:
             write_sum(excel, sheet, debut_maison, f"SOUS TOTAL {maison}")
             maison = clean_row[col_maison]
@@ -183,7 +182,19 @@ def excel_ca_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str)
         ]
         num_ligne = 4
         sheet = 1
-        write_board(excel, sheet, get_clean_rows(date_debut, date_fin), f_lignes, f_lignes_odd)
+        clean_rows = get_clean_rows(date_debut, date_fin)
+
+        if not clean_rows:
+            excel.write_row(
+                sheet,
+                num_ligne,
+                0,
+                "Le chiffre d'affaires par maisons/familles, n'a pas été généré",
+                {"bold": True, "font_size": 14, "font_color": "red"},
+            )
+        else:
+            write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd)
+
         sheet_formatting(
             excel, 1, columns, {"sens": "portrait", "repeat_row": (0, 5), "fit_page": (1, 0)}
         )
