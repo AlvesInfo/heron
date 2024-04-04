@@ -33,7 +33,6 @@ from apps.accountancy.imports.extraction_cct import update_cct_sage
 from apps.accountancy.imports.extraction_code_plan import update_code_plan
 
 processing_dict = {
-    "ZBIVAT_journalier.heron": vat_sage,
     "ZBIACCOUNT_journalier.heron": account_sage,
     "ZBIAXES_journalier.heron": axe_sage,
     "ZBICCE_journalier.heron": section_sage,
@@ -43,6 +42,7 @@ processing_dict = {
     "ZBIDIV_journalier.heron": tab_div_sage,
     "ZBICATC_journalier.heron": category_sage_client,
     "ZBICATS_journalier.heron": category_sage_supplier,
+    "ZBIVAT_journalier.heron": vat_sage,
     "ZBIRATVAT_journalier.heron": vat_rat_sage,
 }
 
@@ -65,15 +65,19 @@ def process():
     Intégration des fichiers en fonction de ceux présents dans le répertoire de processing/sage
     """
     processing_files = get_processing_files()
+    to_process_files = {sage_file: i for i, sage_file in enumerate(processing_dict)}
 
-    for file in processing_files:
+    processing_files = sorted(
+        [(to_process_files.get(file.name), file) for file in processing_files]
+    )
+
+    for _, file in processing_files:
         error = False
         trace = None
 
         try:
-            trace, to_print = processing_dict.get(file.name)(file)
-            # print("trace : ", trace.pk, trace)
-            # print("to_print : ", to_print)
+            trace, _ = processing_dict.get(file.name)(file)
+            # print("trace : ", trace.pk, trace) print("to_print : ", _)
             destination = Path(settings.BACKUP_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
 
