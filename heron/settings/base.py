@@ -79,7 +79,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 LOG_DIR = (
     (Path(BASE_DIR) / config("LOG_BASE_PATH", default=None)).resolve()
     if config("LOG_BASE_PATH", default=None) is not None
-    else Path("/var/log/heron").resolve()
+    else Path(f"/var/log/{BASE_DIR.name}").resolve()
 )
 Path.mkdir(LOG_DIR, exist_ok=True)
 
