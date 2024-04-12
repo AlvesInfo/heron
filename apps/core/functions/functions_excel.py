@@ -13,6 +13,7 @@ import shutil
 from bs4 import BeautifulSoup
 import xlsxwriter
 import pandas as pd
+import openpyxl
 
 from apps.core.functions.functions_dates import date_string_series, time_string_series
 from apps.core.functions.functions_logs import LOG_FILE, write_log
@@ -86,7 +87,11 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
     success = []
 
     try:
-        xls = pd.ExcelFile(fichier_excel)
+        try:
+            xls = pd.ExcelFile(fichier_excel)
+        except ValueError:
+            xls = pd.ExcelFile(fichier_excel, engine=openpyxl)
+
         if sheets is None:
             data = pd.read_excel(xls)
             data.to_csv(

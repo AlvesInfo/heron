@@ -36,8 +36,8 @@ class LogError(Exception):
 
 def write_log(fichier=None, line_to_write=None):
     """
-    Fonction pour écrire une ligne de log dans un fichier
-        :param fichier: Fichier ou écrire la ligne
+    Fonction pour écrire une ligne de log dans un fichier.
+        :param fichier: Fichier ou écrire la ligne.
         :param line_to_write: Ligne à écrire
         :return: None
     """
@@ -89,3 +89,7 @@ def log_dispatch(log, dir_log=LOG_FILE):
     """
     envoi_mail_erreur(log)
     write_log(dir_log, log)
+
+
+if __name__ == "__main__":
+    envoi_mail_erreur("test d'envoie de message suite au passage à google", "erreur mail")
