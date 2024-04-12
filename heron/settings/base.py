@@ -71,6 +71,8 @@ WHITELIST = config("ALLOWED_HOSTS", cast=Csv())
 
 DOMAIN = config("DOMAIN", default="acuitis.com")
 
+TYPE_OF_BASE = config("TYPE_OF_BASE", default="")
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # REPERTOIRE DES LOGS
@@ -187,6 +189,7 @@ TEMPLATES = [
                 "heron.processors.in_ga",
                 "heron.processors.in_maa",
                 "heron.processors.in_unisson",
+                "heron.processors.type_of_base"
             ]
         },
     }
