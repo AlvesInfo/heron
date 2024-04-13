@@ -28,4 +28,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-DOMAIN = "http://10.9.2.109" if BASE_DIR == "/home/paulo/heron" else "http://127.0.0.1:8000"
+from django.conf import settings
+
+URL_DOMAIN = "http://10.9.2.109" if settings.BASE_DIR.name == "heron" else "http://10.9.2.109:8080"
+
+DOMAIN = (
+    URL_DOMAIN
+    if BASE_DIR in {"/home/paulo/heron", "/home/paulo/heron_formation"}
+    else "http://127.0.0.1:8000"
+)

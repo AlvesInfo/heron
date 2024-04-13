@@ -8,7 +8,7 @@ gc.set_threshold(100_000, g1*5, g2*10)
 
 DEBUG = False
 
-DOMAINS_WHITELIST = ["10.9.2.109", "localhost", "127.0.0.1", WHITELIST]
+DOMAINS_WHITELIST = ["10.9.2.109", "localhost", "127.0.0.1", WHITELIST, "10.9.2.109:8080", "localhost:8080", "127.0.0.1:8080"]
 
 THIRD_PARTY_APPS = [
     "django_clamd",
