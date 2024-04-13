@@ -8,7 +8,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
 
 port = settings.REDIS_PORT if settings.BASE_DIR.name == "heron" else 6740
 
-BROKER_URL = f"redis://{settings.REDIS_HOST}:{port}/0"
+BROKER_URL = f"redis://:heron@{settings.REDIS_HOST}:{port}/0"
 
 app = Celery('heron', broker=BROKER_URL)
 
