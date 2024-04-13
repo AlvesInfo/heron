@@ -6,7 +6,7 @@ from django.conf import settings
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
 
-port = settings.REDIS_HOST if settings.BASE_DIR.name == "heron" else 6740
+port = settings.REDIS_PORT if settings.BASE_DIR.name == "heron" else 6740
 base = 0 if settings.BASE_DIR.name == "heron" else 1
 
 # BROKER_URL = f"redis://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
