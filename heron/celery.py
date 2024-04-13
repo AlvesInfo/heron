@@ -6,6 +6,8 @@ from django.conf import settings
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
 
+base = settings.REDIS_HOST if settings.BASE_DIR.name == "heron" else 6740
+
 BROKER_URL = f"redis://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
 
 app = Celery(settings.BASE_DIR.name, broker=BROKER_URL)
