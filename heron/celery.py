@@ -7,18 +7,16 @@ from django.conf import settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
 
 port = settings.REDIS_PORT if settings.BASE_DIR.name == "heron" else 6740
-base = 0 if settings.BASE_DIR.name == "heron" else 1
 
-# BROKER_URL = f"redis://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
-BROKER_URL = f"redis://:@{settings.REDIS_HOST}:{port}/{base}"
+BROKER_URL = f"redis://:@{settings.REDIS_HOST}:{port}/0"
 
-app = Celery(settings.BASE_DIR.name, broker=BROKER_URL)
+app = Celery('heron', broker=BROKER_URL)
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys
 #   should have a `CELERY_` prefix.
-app.config_from_object('django.conf:settings', namespace=f'CELERY_{settings.BASE_DIR.name}')
+app.config_from_object('django.conf:settings', namespace=f'CELERY')
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
