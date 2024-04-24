@@ -22,27 +22,27 @@ from apps.validation_purchases.forms import SuppliersValidationForm
 def balance_suppliers_purchases(request):
     """View de l'étape 5.1 Fournisseurs M vs M-1"""
     sql_context_file = "apps/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
+    billing_period = (
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first().billing_period
+    )
 
     with connection.cursor() as cursor:
         invoices_suppliers = query_file_dict_cursor(
             cursor,
             file_path=sql_context_file,
+            parmas_dict={"initial_date": billing_period},
         )
-        mois_dict = {}
-        mois = 4
 
-        for _ in range(4):
-            mois_dict[f"M{mois-1}"] = (
-                (
-                    pendulum.now()
-                    .subtract(months=mois)
-                    .start_of("month")
-                    .format("MMMM YYYY", locale="fr")
-                )
+        start_date = pendulum.parse(billing_period.isoformat())
+
+        mois_dict = {}
+
+        for i in range(-3, 1):
+            mois_dict[f"M{abs(i)}"] = (
+                (start_date.add(months=i).start_of("month").format("MMMM YYYY", locale="fr"))
                 .capitalize()
                 .replace(" ", "<br>")
             )
-            mois -= 1
 
         context = {
             "titre_table": "5.1 - Contrôle des fournisseurs M vs M-1",
