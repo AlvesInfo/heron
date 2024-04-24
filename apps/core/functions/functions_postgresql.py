@@ -743,7 +743,7 @@ def query_file_dict_cursor(
 
     # print(cursor.mogrify(query, parmas.decode())
     if parmas_dict:
-        print(cursor.mogrify(query, parmas_dict).decode())
+        # print(cursor.mogrify(query, parmas_dict).decode())
         cursor.execute(query, parmas_dict)
     else:
         # print(cursor.mogrify(query).decode())

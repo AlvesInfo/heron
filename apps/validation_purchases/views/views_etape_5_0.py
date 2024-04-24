@@ -20,24 +20,27 @@ from apps.validation_purchases.forms import RefacCctValidationForm
 
 def refac_cct_purchases(request):
     """View de l'étape 5.0 - Contrôle Refac M M-1 par CCT"""
+    billing_period = (
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first().billing_period
+    )
+
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_refac_cct.sql"
-        elements = query_file_dict_cursor(cursor, file_path=sql_context_file)
-        mois_dict = {}
-        mois = 4
+        elements = query_file_dict_cursor(
+            cursor,
+            file_path=sql_context_file,
+            parmas_dict={"initial_date": billing_period},
+        )
+        start_date = pendulum.parse(billing_period.isoformat())
 
-        for _ in range(4):
-            mois_dict[f"M{mois-1}"] = (
-                (
-                    pendulum.now()
-                    .subtract(months=mois)
-                    .start_of("month")
-                    .format("MMMM YYYY", locale="fr")
-                )
+        mois_dict = {}
+
+        for i in range(-3, 1):
+            mois_dict[f"M{abs(i)}"] = (
+                (start_date.add(months=i).start_of("month").format("MMMM YYYY", locale="fr"))
                 .capitalize()
                 .replace(" ", "<br>")
             )
-            mois -= 1
 
         context = {
             "titre_table": "5.0 - Contrôle Refac M M-1 par CCT",

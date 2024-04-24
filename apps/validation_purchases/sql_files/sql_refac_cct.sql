@@ -41,12 +41,20 @@ with "maisons" as (
         "cc"."cct",
         "cc"."opening_date",
         "cc"."closing_date",
-        0 as "M_00",
         case
             when (
                 "ii"."integration_month"
                 =
-                (date_trunc('month', now()) - interval '2 month')::date
+                (date_trunc('month', %(initial_date)s) - interval '0 month')::date
+            )
+            then "iv"."net_amount"
+            else 0
+        end as "M_00",
+        case
+            when (
+                "ii"."integration_month"
+                =
+                (date_trunc('month', %(initial_date)s) - interval '1 month')::date
             )
             then "iv"."net_amount"
             else 0
@@ -55,7 +63,7 @@ with "maisons" as (
             when (
                 "ii"."integration_month"
                 =
-                (date_trunc('month', now()) - interval '3 month')::date
+                (date_trunc('month', %(initial_date)s) - interval '2 month')::date
             )
             then "iv"."net_amount"
             else 0
@@ -64,11 +72,11 @@ with "maisons" as (
             when (
                 "ii"."integration_month"
                 =
-                (date_trunc('month', now()) - interval '4 month')::date
+                (date_trunc('month', %(initial_date)s) - interval '3 month')::date
             )
             then "iv"."net_amount"
             else 0
-        end as "M_03",
+        end as "M_03"
         "cc"."type_x3"
 
     from "invoices_invoice" "ii"
@@ -82,7 +90,7 @@ with "maisons" as (
         "ii"."integration_month"
         >
         (
-            date_trunc('month', now()) - interval '5 month' + interval '1 month - 1 day'
+            date_trunc('month', %(initial_date)s) - interval '4 month' + interval '1 month - 1 day'
         )::date
     )
     and "iv"."net_amount" <> 0
