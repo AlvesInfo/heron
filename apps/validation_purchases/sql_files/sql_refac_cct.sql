@@ -76,7 +76,7 @@ with "maisons" as (
             )
             then "iv"."net_amount"
             else 0
-        end as "M_03"
+        end as "M_03",
         "cc"."type_x3"
 
     from "invoices_invoice" "ii"
