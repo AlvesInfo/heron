@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pendulum
 from django.db import connection
+from django.db.models import Q
 
 from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -28,6 +29,7 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
+from apps.edi.models import EdiValidation
 
 COLUMNS_CLIENT = [
     {
@@ -266,7 +268,9 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_balance_suppliers_purchases(file_io: io.BytesIO, file_name: AnyStr) -> dict:
+def excel_balance_suppliers_purchases(
+    file_io: io.BytesIO, file_name: AnyStr, params_dict: Dict
+) -> Dict:
     """Fonction de génération du fichier de Contrôle 5.1 Fournisseurs M vs M-1"""
     titre = f"5.1 Fournisseurs M vs M-1"
     list_excel = [file_io, ["FOURNISSEURS"]]
@@ -274,21 +278,21 @@ def excel_balance_suppliers_purchases(file_io: io.BytesIO, file_name: AnyStr) ->
     file_path = Path(
         f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
     )
-    mois = 4
+    mois = -3
+    start_date = pendulum.parse(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .first()
+        .billing_period.isoformat()
+    )
 
     for i, column_dict in enumerate(COLUMNS, 1):
         if 2 < i < 7:
             column_dict["entete"] = (
-                (
-                    pendulum.now()
-                    .subtract(months=mois)
-                    .start_of("month")
-                    .format("MMMM YYYY", locale="fr")
-                )
+                (start_date.add(months=mois).start_of("month").format("MMMM YYYY", locale="fr"))
                 .capitalize()
                 .replace(" ", "\n")
             )
-            mois -= 1
+            mois += 1
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
@@ -300,7 +304,7 @@ def excel_balance_suppliers_purchases(file_io: io.BytesIO, file_name: AnyStr) ->
 
         # MISE EN PLACE DES LIGNES DES FOURNISSEURS
         columns_headers_writer(excel, 1, 3, 0, COLUMNS)
-        rows_writer(excel, 1, 4, 0, get_rows(file_path), f_lignes, f_lignes_odd)
+        rows_writer(excel, 1, 4, 0, get_rows(file_path, params_dict), f_lignes, f_lignes_odd)
         sheet_formatting(
             excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
         )

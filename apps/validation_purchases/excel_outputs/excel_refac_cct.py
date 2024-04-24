@@ -15,6 +15,8 @@ from pathlib import Path
 
 import pendulum
 from django.db import connection
+from django.db.models import Q
+
 from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_excel import GenericExcel
@@ -27,6 +29,7 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
+from apps.edi.models import EdiValidation
 
 COLUMNS = [
     {
@@ -241,28 +244,28 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_refac_cct(file_io: io.BytesIO, file_name: str) -> dict:
+def excel_refac_cct(file_io: io.BytesIO, file_name: str, params_dict: Dict) -> Dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
     titre = "5.0 - Contrôle Refac M M-1 par CCT"
     list_excel = [file_io, ["REFAC PAR CCT"]]
     excel = GenericExcel(list_excel, in_memory=True)
     file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_refac_cct.sql")
-    get_clean_rows = [row[:-1] for row in get_rows(file_path)]
-    mois = 4
+    get_clean_rows = [row[:-1] for row in get_rows(file_path, params_dict)]
+    mois = -3
+    start_date = pendulum.parse(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .first()
+        .billing_period.isoformat()
+    )
 
     for i, column_dict in enumerate(COLUMNS, 1):
         if 6 < i < 11:
             column_dict["entete"] = (
-                (
-                    pendulum.now()
-                    .subtract(months=mois)
-                    .start_of("month")
-                    .format("MMMM YYYY", locale="fr")
-                )
+                (start_date.add(months=mois).start_of("month").format("MMMM YYYY", locale="fr"))
                 .capitalize()
                 .replace(" ", "\n")
             )
-            mois -= 1
+            mois += 1
 
     try:
         titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)

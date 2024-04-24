@@ -68,11 +68,16 @@ def balance_suppliers_purchases_export(request):
                 "CONTROLE_FACTURES_FOURNISSEURS_"
                 f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
+            billing_period = (
+                EdiValidation.objects.filter(
+                    Q(final=False) | Q(final__isnull=True)).first().billing_period
+            )
 
             return response_file(
                 excel_balance_suppliers_purchases,
                 file_name,
                 CONTENT_TYPE_EXCEL,
+                {"initial_date": billing_period},
             )
 
     except:

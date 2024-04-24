@@ -64,11 +64,15 @@ def refac_cct_purchases_export(request):
             file_name = (
                 "CONTROLE_REFAC_M-1_M_PAR_CCT_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
-
+            billing_period = (
+                EdiValidation.objects.filter(
+                    Q(final=False) | Q(final__isnull=True)).first().billing_period
+            )
             return response_file(
                 excel_refac_cct,
                 file_name,
                 CONTENT_TYPE_EXCEL,
+                {"initial_date": billing_period}
             )
 
     except:
