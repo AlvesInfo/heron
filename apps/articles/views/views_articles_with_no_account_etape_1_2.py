@@ -90,7 +90,12 @@ def update_articles_without_account(request):
     messages_ok = ""
 
     if request.method == "POST":
-        messages_errors, messages_ok = import_articles_without_account()
+        try:
+            messages_errors, messages_ok = import_articles_without_account()
+
+        except Exception as error:
+            print('exception("view : update_articles_without_account")')
+            LOGGER_EXPORT_EXCEL.exception(f"view : update_articles_without_account\n\n{error!r}")
 
     context = {
         "titre_table": "Import des articles sans comptes",
