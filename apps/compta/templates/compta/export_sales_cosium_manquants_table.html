@@ -1,0 +1,26 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+    <div class="five wide column"></div>
+    <div class="six wide column">
+
+        <table
+               class="ui celled table"
+               style="font-size: 12px !important;text-align: center;font-weight: 900;">
+                <thead>
+                    <tr>
+                        <th style="width: 50%">Code maison dans B.I</th>
+                        <th style="width: 50%">Code Cosium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for value in state %}
+                    <tr>
+                        <td>{{ value.code_maison }}</td>
+                        <td>{{ value.code_cosium }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+    </div>
+{% endblock table %}

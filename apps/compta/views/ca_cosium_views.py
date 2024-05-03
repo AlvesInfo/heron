@@ -4,6 +4,7 @@ Views des Abonnements
 """
 import pendulum
 from django.db import connection
+from django.db.models import Count
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 
@@ -44,12 +45,18 @@ def export_sales_cosium(request):
     except Exception as error:
         LOGGER_VIEWS.exception(f"erreur export_sales_cosium : {error!r}")
 
+    state = (
+            VentesCosium.objects.values("code_maison", "code_cosium")
+            .filter(cct_uuid_identification__isnull=True)
+            .annotate(dcount=Count("code_maison"))
+            .order_by("code_cosium")
+        )
+
     context = {
         "titre_table": "VENTES COSIUM PAR PERIODE",
         "form": form,
-        "state": (
-            VentesCosium.objects.values("pk").filter(cct_uuid_identification__isnull=True).exists()
-        ),
+        "state": state,
+        "nb_paging": state.count() + 18
     }
 
     return render(request, "compta/export_sales_cosium.html", context=context)
@@ -88,7 +95,7 @@ def export_ca_cosium(request):
         "state": (
             CaClients.objects.values("pk").filter(cct_uuid_identification__isnull=True).exists()
         ),
-        "message_ca": message_ca
+        "message_ca": message_ca,
     }
 
     return render(request, "compta/export_ca_cosium.html", context=context)

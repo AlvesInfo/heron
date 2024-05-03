@@ -1,6 +1,6 @@
 # pylint: disable=E0401,C0413
 """
-FR : Module de lancement de la boucle d'import des articles Acuitis
+FR : Module de lancement de la boucle d'import des articles Acuitis par supervisor
 EN : Module for launching the articles Acuitis import loop by supervisor
 
 Commentaire:
