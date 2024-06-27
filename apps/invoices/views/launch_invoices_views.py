@@ -31,7 +31,7 @@ from apps.core.functions.functions_dates import get_date_apostrophe, long_date_s
 from apps.periods.forms import MonthForm
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.invoices.models import Invoice, SaleInvoice
-from apps.edi.models import EdiImport, EdiValidation
+from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion
 from apps.invoices.bin.finalize import finalize_global_invoices
 from apps.articles.models import Article
@@ -362,7 +362,6 @@ def finalize_period(request):
     )
 
     if new_articles:
-        exist_message = [message for message in messages.get_messages(request)]
         request.session["level"] = 50
         messages.add_message(
             request,
@@ -375,19 +374,48 @@ def finalize_period(request):
         edi_validation.save()
 
     without_accounts = EdiImport.objects.raw(articles_acuitis_without_accounts)
-    print(without_accounts)
+    # print(without_accounts)
 
     if without_accounts:
-        exist_message = [message for message in messages.get_messages(request)]
         request.session["level"] = 50
         messages.add_message(
             request,
             50,
-            "il reste des nouveaux articles, à compléter!",
+            "il reste des nouveaux comptes, à compléter!",
         )
-        return redirect(reverse("articles:new_articles_list"))
+        return redirect(reverse("articles:articles_without_account_list"))
     else:
         edi_validation.articles_without_account = True
+        edi_validation.save()
+
+    integration_valid = EdiImportControl.objects.filter(Q(valid=False) | Q(valid__isnull=True))
+    # print(integration_valid)
+
+    if integration_valid:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            "Les Intégration ne sont pas toutes validées",
+        )
+        return redirect(reverse("validation_purchases:integration_purchases"))
+    else:
+        edi_validation.integration = True
+        edi_validation.save()
+
+    not_cct = EdiImport.objects.filter(cct_uuid_identification__isnull=True)
+    # print(integration_valid)
+
+    if not_cct:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            "Ils manquent des cct dans les factures!",
+        )
+        return redirect(reverse("validation_purchases:without_cct_purchases"))
+    else:
+        edi_validation.cct = True
         edi_validation.save()
 
     # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
