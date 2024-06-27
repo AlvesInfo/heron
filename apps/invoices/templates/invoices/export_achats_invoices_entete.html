@@ -1,12 +1,31 @@
-finalize_invoices_table.html{% extends "heron/list_table_courant.html" %}
+<div class="ui segment" style="padding: 0;margin: 10px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 0;">
+    <div class="ui datatable-chargement active inverted dimmer">
+        <div class="ui text loader" style="margin-top: 6px;"></div>
+    </div>
+    <div class="ui three column grid">
+        <div class="column" style="text-align: left;padding-right: 5px;">
+        </div>
 
-{% block right_side %}
-    {% if not_finalize %}
+        <div class="column" style="text-align: center;padding-left: 5px;padding-right: 5px;">
+            <h3 id="id_titre_table" style="padding: 10px 0;{% if en_cours %}color: teal;font-weight: bold;{% endif %}font-family: system-ui;">{{ titre_table|safe }}</h3>
+        </div>
+
+        <div class="column" style="text-align: right;padding-left: 5px;">
             <a class="item" href="{% url 'invoices:export_achats' %}">
                 <button class="ui blue basic button" name="finalize_period" style="padding: 7px 10px;margin: 10px;font-size: 11px">
                     EXPORT ACHATS
                 </button>
             </a>
-    {% endif %}
-{% endblock right_side %}
+        </div>
+    </div>
+</div>
+
+<!-- Messages ---------------------------------------------------------- -->
+{% include 'heron/messages_delete.html' %}
+{% include 'heron/messages_forms.html' %}
+{% include 'heron/messages_imports.html' %}
+{% include 'heron/messages_inline_forms.html' %}
+{% include 'heron/messages_messages.html' %}
+<!-- end --------------------------------------------------------------- -->
+
 

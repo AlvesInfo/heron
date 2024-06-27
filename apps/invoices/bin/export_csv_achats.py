@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 import django
+import pendulum
 from psycopg2 import sql
 
 BASE_DIR = r"C:\SitesWeb\heron"
@@ -34,7 +35,7 @@ from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
 
 
-def get_achats(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str):
+def get_achats(file_io: io.BytesIO, file_name: str, dte_d: pendulum, dte_f: pendulum):
     """Rempli le stream StringIO de la requête postgresql
     :param file_io: stream de type StringIO
     :param file_name: name of file
@@ -46,16 +47,15 @@ def get_achats(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str):
         file_path = Path(f"{str(APPS_DIR)}/invoices/sql_files/sql_export_achats.sql")
 
         with file_path.open("r") as sql_file, connection.cursor() as cursor:
-            query = sql.SQL(sql_file.read()).format(dte_d, dte_f)
-            sql_copy = (
-                "COPY ({query}) "
-                "TO STDOUT "
-                "WITH "
-                "DELIMITER AS '{delimiter}' "
-                "CSV "
-                "QUOTE AS '{quote_character}'"
+            query = (
+                sql_file.read()
+                .replace("#dte_d", dte_d.date().isoformat())
+                .replace("#dte_f", dte_f.date().isoformat())
             )
-            sql_expert = sql.SQL(sql_copy).format(query=query, delimiter=";", quote_character='"')
+            sql_copy = (
+                """COPY ({query}) TO STDOUT WITH CSV HEADER DELIMITER AS ';' QUOTE AS '"'"""
+            )
+            sql_expert = sql_copy.format(query=query)
             cursor.copy_expert(sql=sql_expert, file=file_io)
 
     except:

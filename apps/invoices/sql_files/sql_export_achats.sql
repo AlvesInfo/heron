@@ -1,26 +1,38 @@
 select
-	ii.supplier,
-	iv.invoice_number,
-	ii.cct,
-	ii.code_maison,
-	ii.maison,
-	ii.reference_article,
-	ii.supplier_initial_libelle as libelle,
-	case
-		when aa.famille isnull
-		then dt.axe_pro
-		else aa.famille
-	end as famille_article,
-	case
-		when co.famille_cosium is null
-		then cv.famille_cosium
-		else co.famille_cosium
-	end as famille_cosium,
-	case
-		when co.famille_cosium is null
-		then cv.rayon_cosium
-		else co.rayon_cosium
-	end as rayon_cosium,
+	replace(ii.supplier, ';', ' ') as supplier,
+	replace(iv.invoice_number, ';', ' ') as invoice_number,
+	replace(ii.cct, ';', ' ') as cct,
+	replace(ii.code_maison, ';', ' ') as code_maison,
+	replace(ii.maison, ';', ' ') as maison,
+	replace(ii.reference_article, ';', ' ') as reference_article,
+	replace(ii.supplier_initial_libelle, ';', ' ')  as libelle,
+	replace(
+        case
+            when aa.famille isnull
+            then dt.axe_pro
+            else aa.famille
+        end,
+        ';',
+        ' '
+    ) as famille_article,
+	replace(
+	    case
+            when co.famille_cosium is null
+            then cv.famille_cosium
+            else co.famille_cosium
+        end,
+	    ';',
+	    ' '
+	) as famille_cosium,
+	replace(
+	    case
+	    	when co.famille_cosium is null
+	    	then cv.rayon_cosium
+	    	else co.rayon_cosium
+	    end,
+	    ';',
+	    ' '
+	) as rayon_cosium,
 	ii.qty,
 	dt.gross_unit_price as pu_brut,
 	dt.net_unit_price as pu_net,
@@ -56,4 +68,4 @@ left join (
 	group by code_ean
 ) cv
 on ii.reference_article = cv.art_verre
-where iv.invoice_date between {dted} and {dtef}
+where iv.invoice_date between '#dte_d' and '#dte_f'

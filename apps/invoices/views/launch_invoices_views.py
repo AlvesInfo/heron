@@ -476,6 +476,9 @@ def valid_export_achats(request):
     titre_table = "EXPORT DES ACHATS AUX DATES DE LA DERNIERE FINALISATION VALIDE"
     context = {"margin_table": 50, "titre_table": titre_table}
 
+    if request.method == "POST":
+        return redirect(reverse("invoices:export_achats"))
+
     return render(request, "invoices/export_achats_invoices.html", context=context)
 
 
@@ -491,9 +494,8 @@ def export_achats(_):
         dte_f = dte_d.last_of("month")
         file_name = (
             f"ACHATS_HERON_PERIOD_"
-            f"{dte_d.format('Y_M_D')}_TO_{dte_f.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            f"{dte_d.format('Y_M_D')}_TO_{dte_f.format('Y_M_D')}_{today.int_timestamp}.csv"
         )
-
         return response_file(get_achats, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
     except:
