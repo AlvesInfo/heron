@@ -23,6 +23,8 @@ from apps.invoices.views import (
     ExportX3Files,
     get_export_x3_file,
     finalize_period,
+    valid_export_achats,
+    export_achats,
     # Réaffectations de factures
     invoice_search_list,
 )
@@ -79,6 +81,8 @@ urlpatterns = (
         path("export_x3_files/", ExportX3Files.as_view(), name="export_x3_files"),
         path("get_export_x3_file/<str:file_name>", get_export_x3_file, name="get_export_x3_file"),
         path("finalize_period/", finalize_period, name="finalize_period"),
+        path("valid_export_achats/", valid_export_achats, name="valid_export_achats"),
+        path("export_achats/", export_achats, name="export_achats"),
     ]
     # Réaffectations de factures
     + [

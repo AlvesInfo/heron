@@ -133,7 +133,7 @@ def register_view(request):
 
         user.save()
 
-        # Pour chacun des groupes on va créer l'entrée
+        # Pour chacun des groupes, on va créer l'entrée
         for group_name in groupes:
             group = Group.objects.get(name=group_name)
             group.user_set.add(user)

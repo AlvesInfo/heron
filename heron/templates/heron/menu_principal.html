@@ -315,6 +315,10 @@
                             <a href="{% url 'invoices:export_x3_files' %}" class="item">4.2 Fichiers X3</a>
                             <div class="ui divider" style="margin: 5px 0;"></div>
                             <a href="{% url 'invoices:finalize_period' %}" class="item">5.0 Finalisation période facturation</a>
+                            <div class="ui divider" style="margin: 5px 0;"></div>
+                            {% if user.email == 'paulo@alves.ovhi' %}
+                                <a href="{% url 'invoices:valid_export_achats' %}" class="item">5.0 Export Achats</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

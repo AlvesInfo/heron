@@ -25,6 +25,7 @@ from django.db import transaction
 from heron import celery_app
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.content_types import CONTENT_TYPE_FILE
+from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
 from apps.periods.forms import MonthForm
@@ -33,6 +34,9 @@ from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation
 from apps.invoices.bin.pre_controls import control_insertion
 from apps.invoices.bin.finalize import finalize_global_invoices
+from apps.articles.models import Article
+from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
+from apps.invoices.bin.export_csv_achats import get_achats
 
 
 def generate_invoices_insertions(request):
@@ -341,12 +345,53 @@ def finalize_period(request):
     :return:
     """
     titre_table = "Finalisation de la période de facturation "
-
-    # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
-    not_finalize = control_insertion()
     edi_validation = (
         EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
     )
+
+    # on va vérifier qu'il n'y a pas de nouveaux articles
+    new_articles = Article.objects.filter(
+        Q(new_article=True)
+        | Q(error_sub_category=True)
+        | Q(axe_bu__isnull=True)
+        | Q(axe_prj__isnull=True)
+        | Q(axe_pro__isnull=True)
+        | Q(axe_pys__isnull=True)
+        | Q(axe_rfa__isnull=True)
+        | Q(big_category__isnull=True)
+    )
+
+    if new_articles:
+        exist_message = [message for message in messages.get_messages(request)]
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            "il reste des nouveaux articles, à compléter!",
+        )
+        return redirect(reverse("articles:new_articles_list"))
+    else:
+        edi_validation.articles_news = True
+        edi_validation.save()
+
+    without_accounts = EdiImport.objects.raw(articles_acuitis_without_accounts)
+    print(without_accounts)
+
+    if without_accounts:
+        exist_message = [message for message in messages.get_messages(request)]
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            "il reste des nouveaux articles, à compléter!",
+        )
+        return redirect(reverse("articles:new_articles_list"))
+    else:
+        edi_validation.articles_without_account = True
+        edi_validation.save()
+
+    # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
+    not_finalize = control_insertion()
     initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(months=1)
     initial_value = (
         f"{initial_period.start_of('month').date().isoformat()}"
@@ -424,3 +469,34 @@ def finalize_period(request):
     context["titre_table"] = titre_table
 
     return render(request, "invoices/finalize_invoices.html", context=context)
+
+
+def valid_export_achats(request):
+    """Vue d'export des achats pour Eric Martinet"""
+    titre_table = "EXPORT DES ACHATS AUX DATES DE LA DERNIERE FINALISATION VALIDE"
+    context = {"margin_table": 50, "titre_table": titre_table}
+
+    return render(request, "invoices/export_achats_invoices.html", context=context)
+
+
+def export_achats(_):
+    """
+    Export du csv achats pour Eric Martinet
+    :return:
+    """
+    try:
+        today = pendulum.now()
+        edi_validation = EdiValidation.objects.filter(final=True).order_by("-id").first()
+        dte_d = pendulum.parse(edi_validation.billing_period.isoformat())
+        dte_f = dte_d.last_of("month")
+        file_name = (
+            f"ACHATS_HERON_PERIOD_"
+            f"{dte_d.format('Y_M_D')}_TO_{dte_f.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+        )
+
+        return response_file(get_achats, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
+
+    except:
+        LOGGER_VIEWS.exception("view : export_achats")
+
+    return redirect(reverse("invoices:export_achats"))
