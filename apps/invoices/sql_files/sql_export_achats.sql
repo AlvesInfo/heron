@@ -3,6 +3,15 @@ select
 	replace(iv.invoice_number, ';', ' ') as invoice_number,
 	replace(ii.cct, ';', ' ') as cct,
 	replace(ii.code_maison, ';', ' ') as code_maison,
+	replace(
+		case
+			when ccm.code_cosium isnull
+			then ccm.code_maison
+			else ccm.code_cosium
+		end,
+		';',
+		' '
+	) as  code_cosium,
 	replace(ii.maison, ';', ' ') as maison,
 	replace(ii.reference_article, ';', ' ') as reference_article,
 	replace(ii.supplier_initial_libelle, ';', ' ')  as libelle,
@@ -40,7 +49,8 @@ select
 	dt.net_amount as montant_net,
 	dt.vat_rate as taux_tva,
 	dt.vat_amount as montant_tva,
-	dt.amount_with_vat as montant_ttc
+	dt.amount_with_vat as montant_ttc,
+	replace(ii.serial_number, ';', '|') as num_serie
 
 from invoices_invoice iv
 join invoices_invoicedetail dt
@@ -68,4 +78,6 @@ left join (
 	group by code_ean
 ) cv
 on ii.reference_article = cv.art_verre
+left join centers_clients_maison ccm
+on ii.cct = ccm.cct
 where iv.invoice_date between '#dte_d' and '#dte_f'
