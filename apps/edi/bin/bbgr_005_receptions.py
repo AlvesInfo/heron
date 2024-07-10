@@ -63,7 +63,7 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
             limit 1
             """
         )
-        cursor.execute(sql_id, {"historic_id": HISTORIC_RECEPTIONS_ID})
+        cursor.execute(sql_id, {"historic_id": min_id})
         test_have_lines = cursor.fetchone()
         print("vérification BBGR Réceptions")
 

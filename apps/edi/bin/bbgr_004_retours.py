@@ -64,7 +64,7 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
             limit 1
             """
         )
-        cursor.execute(sql_id, {"historic_id": HISTORIC_RETOURS_ID})
+        cursor.execute(sql_id, {"historic_id": min_id})
         test_have_lines = cursor.fetchone()
         print("vérification BBGR Retours")
 
