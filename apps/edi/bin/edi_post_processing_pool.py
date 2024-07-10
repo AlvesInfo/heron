@@ -119,6 +119,13 @@ def post_processing_all():
     set_signboard()
     set_axes_with_regex()
 
+    sql_update_bu = post_all_dict.get("sql_update_bu")
+    sql_update_bu_articles = post_all_dict.get("sql_update_bu_articles")
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql_update_bu)
+        cursor.execute(sql_update_bu_articles)
+
 
 def post_vacuum():
     """Mise à jour de l'ensemble des factures après tous les imports et parsing"""

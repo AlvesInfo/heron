@@ -66,4 +66,33 @@ post_all_dict = {
         where "valid" isnull
     """
     ),
+    "sql_update_bu": sql.SQL(
+        """
+        update "edi_ediimport" "edi" 
+        set "axe_bu" = (
+            select 
+                "acs"."uuid_identification"
+            from "accountancy_sectionsage" "acs"
+            where "acs"."axe" = 'BU'
+              and "acs"."section" = 'REFAC0'
+            limit 1
+        )
+        where "edi"."third_party_num" = 'ZREFAC0' 
+        """
+    ),
+    "sql_update_bu_articles": sql.SQL(
+        """
+        update "articles_article" "aa" 
+        set "axe_bu" = (
+            select 
+                "acs"."uuid_identification"
+            from "accountancy_sectionsage" "acs"
+            where "acs"."axe" = 'BU'
+              and "acs"."section" = 'REFAC0'
+            limit 1
+        )
+        where "aa"."third_party_num" = 'ZREFAC0' 
+          and "aa"."new_article" = true
+        """
+    )
 }
