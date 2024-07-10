@@ -165,5 +165,21 @@ post_generic_internal_dict = {
           and "edi"."vat" isnull
           and ("edi"."valid" = false or "edi"."valid" isnull)
           """
+    ),
+    "sql_update_bu": sql.SQL(
+        """
+        update "edi_ediimport" "edi" 
+        set "axe_bu" = (
+            select 
+                "acs"."uuid_identification"
+            from "accountancy_sectionsage" "acs"
+            where "acs"."axe" = 'BU'
+              and "acs"."section" = 'REFAC0'
+            limit 1
+        )
+        where "edi"."uuid_identification" = %(uuid_identification)s
+          and "edi"."third_party_num" = 'ZREFAC0' 
+          and ("edi"."valid" = false or "edi"."valid" isnull)
+        """
     )
 }

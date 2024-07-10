@@ -477,10 +477,12 @@ def generique_post_insert_internal(uuid_identification: AnyStr):
     """
     sql_vat = post_generic_internal_dict.get("sql_vat")
     sql_update = post_generic_internal_dict.get("sql_update")
+    sql_update_bu = post_generic_internal_dict.get("sql_update_bu")
 
     with connection.cursor() as cursor:
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_update_bu, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
 
 
