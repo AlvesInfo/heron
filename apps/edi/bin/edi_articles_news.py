@@ -287,7 +287,18 @@ def set_stat_definitions(third_party_num: AnyStr, stat_name: AnyStr, cursor: con
     sql_set_stat = """
     update edi_ediimport edi
     set 
-        "axe_bu" = "req_stat"."axe_bu",
+        "axe_bu" = case 
+                    when "edi"."third_party_num" = 'ZREFAC0' 
+                    then (
+                        select 
+                            "acs"."uuid_identification"
+                        from "accountancy_sectionsage" "acs"
+                        where "acs"."axe" = 'BU'
+                          and "acs"."section" = 'REFAC0'
+                        limit 1
+                    )
+                    else "req_stat"."axe_bu"
+                   end,
         "axe_prj" = "req_stat"."axe_prj",
         "axe_pro" = "req_stat"."axe_pro",
         "axe_pys" = "req_stat"."axe_pys",
