@@ -43,10 +43,8 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                 union all 
                 select 
                     coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from invoices_invoice sii 
-                join invoices_invoicedetail sii2 
-                on sii.uuid_identification  = sii2.uuid_invoice 
-                where sii2.flow_name = 'BbgrStatment'
+                from invoices_invoicecommondetails 
+                where flow_name = 'BbgrStatment'
             ) req
             """
         )
