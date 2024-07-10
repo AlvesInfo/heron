@@ -515,7 +515,18 @@ def set_edi_ediimport_articles(cursor: connection.cursor):
         select 
             "aa"."third_party_num",
             "aa"."reference" as "reference_article", 
-            "aa"."axe_bu", 
+            case 
+                when "ee"."third_party_num" = 'ZREFAC0' 
+                then (
+                    select 
+                        "acs"."uuid_identification"
+                    from "accountancy_sectionsage" "acs"
+                    where "acs"."axe" = 'BU'
+                      and "acs"."section" = 'REFAC0'
+                    limit 1
+                )
+                else "aa"."axe_bu"
+            end "axe_bu", 
             "aa"."axe_prj", 
             "aa"."axe_pro", 
             "aa"."axe_pys", 
