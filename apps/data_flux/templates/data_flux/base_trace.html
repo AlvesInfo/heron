@@ -39,7 +39,7 @@
                         <div class="ui accordion field">
                           <div class="title description">
                             <i class="icon dropdown"></i>
-                            {{ trace.comment|truncate:100|safe }}
+                            {{ trace.comment|truncatewords:100|safe }}
                           </div>
                           <div class="content field">
                               <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
