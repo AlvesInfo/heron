@@ -18,7 +18,7 @@ SQL_FORMATION = sql.SQL(
     select 
         "ii"."initial_date",
         "ii"."final_date",
-        "ii"."libelle" as "formation", 
+        "ii"."supplier_initial_libelle" as "formation", 
         "ii"."first_name",
         "ii"."last_name",
         "ii"."heures_formation",

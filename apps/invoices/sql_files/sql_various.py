@@ -16,7 +16,7 @@ from psycopg2 import sql
 SQL_HEADER = sql.SQL(
     """
     select 
-        "ii"."libelle", 
+        "ii"."supplier_initial_libelle" as "libelle", 
         "ii"."serial_number",
         case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
         case when "sd"."vat_rate" = 0.055 then "sd"."net_amount" else 0 end as "mont_05",

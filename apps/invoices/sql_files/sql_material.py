@@ -21,7 +21,7 @@ SQL_HEADER = sql.SQL(
             then "bs"."name"
             else coalesce("bs"."invoice_entete", '')
         end as "supplier_name",
-        "ii"."libelle",
+        "ii"."supplier_initial_libelle" as "libelle",
         case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
         case when "sd"."vat_rate" = 0.055 then "sd"."net_amount" else 0 end as "mont_05",
         case when "sd"."vat_rate" = 0.2 then "sd"."net_amount" else 0 end as "mont_20",
