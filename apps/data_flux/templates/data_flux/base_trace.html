@@ -36,7 +36,16 @@
             {% if trace.errors %}
                     <div style="padding-left: 20px;color: red;font-size: .8em;">
                     <div class="description">Erreurs&nbsp;:</div>
-                        <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
+                        <div class="ui accordion field">
+                          <div class="title description">
+                            <i class="icon dropdown"></i>
+                            {{ trace.comment|truncate:100|safe }}
+                          </div>
+                          <div class="content field">
+                              <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
+                          </div>
+                        </div>
+
                         {% if trace.line_trace.all %}
                             <br>
                             <div class="description" style="padding-left: 20px;">Le Fichier a été rejeté, suite aux erreurs suivantes :</div>
