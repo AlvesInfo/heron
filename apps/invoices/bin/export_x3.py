@@ -32,7 +32,7 @@ from heron.loggers import LOGGER_X3
 from apps.data_flux.trace import get_trace
 from apps.invoices.bin.export_x3_odana_invoices import write_odana
 from apps.invoices.bin.export_x3_sale_invoices import write_bicpar
-from apps.invoices.bin.export_x3_purchase_invoices import write_bispar
+from apps.invoices.bin.export_x3_purchase_invoices import write_bispard
 from apps.invoices.bin.export_x3_purchase_gdaud_invoices import write_bispar_gdaud
 
 
@@ -58,7 +58,7 @@ def export_files_x3(export_type, centrale, file_name, nb_fac):
     functions_dict = {
         "odana": write_odana,
         "sale": write_bicpar,
-        "purchase": write_bispar,
+        "purchase": write_bispard,
         "gdaud": write_bispar_gdaud,
     }
 

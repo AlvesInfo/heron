@@ -36,34 +36,43 @@
             {% if trace.errors %}
                     <div style="padding-left: 20px;color: red;font-size: .8em;">
                     <div class="description">Erreurs&nbsp;:</div>
-                            <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
-                        {% if trace.line_trace.all %}
-                            <br>
-                            <div class="description" style="padding-left: 20px;">Le Fichier a été rejeté, suite aux erreurs suivantes :</div>
-                        {% endif %}
-                        {% for line in trace.line_trace.all %}
-                            <br>
-                            <div class="description" style="padding-left: 40px;">- ligne n°
-                                <span style="font-weight: bold;">{{ line.num_line }}</span>
-                                - {{ line.designation }} :
-                                {% for error in line.error_line.all %}
+                        <div class="ui accordion field">
+                          <div class="title">
+                            <i class="icon dropdown"></i>
+                            {{ trace.comment|truncatewords:200|safe }}
+                          </div>
+                          <div class="content field">
+                                <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
+                                {% if trace.line_trace.all %}
                                     <br>
-                                    <span style="padding-left: 20px;">- Champ en erreur : {{ error.attr_name }}</span>
+                                    <div class="description" style="padding-left: 20px;">Le Fichier a été rejeté, suite aux erreurs suivantes :</div>
+                                {% endif %}
+                                {% for line in trace.line_trace.all %}
                                     <br>
-                                    <span style="padding-left: 20px;">- Colonne du fichier : {{ error.file_column }}</span>
-                                    <br>
-                                    <span style="padding-left: 20px;">- Erreur : {{ error.message }}</span>
-                                    {% if error.data_expected %}
-                                        <br>
-                                        <span style="padding-left: 20px;">- Attendu : {{ error.data_expected }}</span>
-                                    {% endif %}
-                                    {% if error.data_received %}
-                                        <br>
-                                        <span style="padding-left: 20px;">- Reçu : {{ error.data_received }}</span>
-                                    {% endif %}
+                                    <div class="description" style="padding-left: 40px;">- ligne n°
+                                        <span style="font-weight: bold;">{{ line.num_line }}</span>
+                                        - {{ line.designation }} :
+                                        {% for error in line.error_line.all %}
+                                            <br>
+                                            <span style="padding-left: 20px;">- Champ en erreur : {{ error.attr_name }}</span>
+                                            <br>
+                                            <span style="padding-left: 20px;">- Colonne du fichier : {{ error.file_column }}</span>
+                                            <br>
+                                            <span style="padding-left: 20px;">- Erreur : {{ error.message }}</span>
+                                            {% if error.data_expected %}
+                                                <br>
+                                                <span style="padding-left: 20px;">- Attendu : {{ error.data_expected }}</span>
+                                            {% endif %}
+                                            {% if error.data_received %}
+                                                <br>
+                                                <span style="padding-left: 20px;">- Reçu : {{ error.data_received }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
                                 {% endfor %}
-                            </div>
-                        {% endfor %}
+                          </div>
+                        </div>
+
                     </div>
                 {% else %}
                     {% if trace.comment %}

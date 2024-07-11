@@ -29,6 +29,7 @@ from apps.invoices.models import Invoice, SaleInvoice, ExportX3
 from apps.invoices.bin.invoives_nums import (
     get_gaspar_num,
     get_bispar_num,
+    get_bispard_num,
     get_bicpar_num,
     get_zip_num,
 )
@@ -44,7 +45,7 @@ def generate_exports_X3(request):
     """
     titre_table = (
         "Génération des fichiers pour imports X3 <br>"
-        "(GASPAR - OD, BICPAR - Clients, BISPAR - Fournisseurs)"
+        "(GASPAR - OD, BICPAR - Clients, BISPARD - Fournisseurs)"
     )
 
     context = {
@@ -67,7 +68,7 @@ def generate_exports_X3(request):
         user_pk = request.user.pk
         file_name_odana = f"AC00_{str(get_gaspar_num())}.txt"
         file_name_sale = f"AC00_{str(get_bicpar_num())}.txt"
-        file_name_purchase = f"AC00_{str(get_bispar_num())}.txt"
+        file_name_purchase = f"AC00_{str(get_bispard_num())}.txt"
         file_name_gdaud = f"GA00_{str(get_bispar_num())}.txt"
         file_name_zip = f"AC00_{str(get_zip_num())}.zip"
         tasks_list = [
