@@ -11,17 +11,20 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
+
+                <th style="text-align: center;width: 5%">ID</th>
                 <th class="no-sort" style="text-align: center;width: 10%">Période</th>
-                <th style="width: 18%">Factures Clients</th>
-                <th style="width: 18%">Factures Fournisseurs</th>
-                <th style="width: 18%">OD ANA SUCC</th>
-                <th style="width: 18%">Factures GDAUD</th>
-                <th style="width: 18%">Tous</th>
+                <th style="width: 17%">Factures Clients</th>
+                <th style="width: 17%">Factures Fournisseurs</th>
+                <th style="width: 17%">OD ANA SUCC</th>
+                <th style="width: 17%">Factures GDAUD</th>
+                <th style="width: 17%">Tous</th>
             </tr>
         </thead>
         <tbody>
         {% for export in exports %}
             <tr>
+                <td style="text-align: center;">{{ export.uuid_edi_validation.id }}</td>
                 <td style="text-align: center;">{{ export.uuid_edi_validation.billing_period|date:"F Y" }}</td>
                 <td style="text-align: center;">
                     <a href="{% url 'invoices:get_export_x3_file' file_name=export.sale_file %}">{{ export.sale_file }}</a>
