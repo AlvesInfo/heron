@@ -103,7 +103,7 @@ class UpdateProfilForm(forms.Form):
         username = forms.CharField(required=False, initial=utilisateur.username or "")
         self.fields["username"] = username
 
-        fonction = forms.CharField(required=False, initial=utilisateur.fonction or "")
+        fonction = forms.CharField(required=False, initial=utilisateur.function or "")
         self.fields["fonction"] = fonction
 
         first_name = forms.CharField(required=False, initial=utilisateur.first_name or "")

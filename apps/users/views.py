@@ -122,7 +122,7 @@ def register_view(request):
         password = form.cleaned_data.get("password")
         groupes = form.cleaned_data.get("groups") or []
         user = User.objects.create_user(
-            username, email, password, first_name=first_name, last_name=last_name, fonction=fonction
+            username, email, password, first_name=first_name, last_name=last_name, function=fonction
         )
         user.is_staff = False
         user.is_superuser = False
