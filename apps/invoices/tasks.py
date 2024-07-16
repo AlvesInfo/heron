@@ -14,6 +14,8 @@ modified by: Paulo ALVES
 
 import time
 from typing import AnyStr, Dict
+import smtplib
+import ssl
 
 import pendulum
 from celery import shared_task
@@ -23,6 +25,8 @@ from bs4 import BeautifulSoup
 
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
+from apps.core.exceptions import EmailException
+from apps.core.functions.functions_setups import settings
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
@@ -31,6 +35,11 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
 from apps.invoices.bin.export_x3 import export_files_x3
+
+EMAIL_HOST = settings.EMAIL_HOST
+EMAIL_PORT = settings.EMAIL_PORT
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
 
 @shared_task(name="invoices_insertions_launch")
@@ -220,15 +229,26 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
 
     try:
         tasks_list = []
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.starttls(context=ssl.create_default_context())
+        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
         for cct_dict in cct_invoices_list:
             tasks_list.append(
                 celery_app.signature(
                     "send_invoice_email",
-                    kwargs={"context_dict": {**context_dict, **cct_dict}, "user_pk": str(user_pk)},
+                    kwargs={
+                        "context_dict": {**context_dict, **cct_dict},
+                        "user_pk": str(user_pk),
+                        "server": server,
+                    },
                 )
             )
 
         group(*tasks_list).apply_async()
+
+    except (smtplib.SMTPException, ValueError) as error:
+        raise EmailException("Erreur envoi email") from error
 
     except Exception as error:
         print("Error : ", error)
@@ -238,11 +258,12 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
 
 
 @shared_task(name="send_invoice_email")
-def send_invoice_email(context_dict: Dict, user_pk: int):
+def send_invoice_email(context_dict: Dict, user_pk: int, server: smtplib.SMTP):
     """
     Envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param server: serveur emails
     """
 
     start_initial = time.time()
@@ -253,7 +274,7 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        trace, to_print = invoices_send_by_email(context_dict)
+        trace, to_print = invoices_send_by_email(context_dict, server)
         trace.created_by = user
     except TypeError as except_error:
         error = True

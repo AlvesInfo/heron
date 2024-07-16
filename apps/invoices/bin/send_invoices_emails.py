@@ -41,10 +41,11 @@ from apps.core.bin.emails import send_mass_mail
 from apps.invoices.models import SaleInvoice
 
 
-def invoices_send_by_email(context_dict: Dict):
+def invoices_send_by_email(context_dict: Dict, server):
     """
     Envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
+    :param server: server emails
 
     CCT	    Période	    Synthèse	Factures	Service	    Centrale Fille
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
@@ -162,7 +163,8 @@ def invoices_send_by_email(context_dict: Dict):
                             file_path,
                         ],
                     )
-                ]
+                ],
+                server
             )
             trace.file_name = f"send email invoice : {file_path.name}"
             to_print = f"Have send invoice email : {file_path.name} - "

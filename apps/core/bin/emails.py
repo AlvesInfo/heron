@@ -11,7 +11,6 @@ modified at: 2023-06-13
 modified by: Paulo ALVES
 """
 import smtplib
-import ssl
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -41,7 +40,7 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
 
     subject_mail = subject.format(**context)
     translate_email_html = email_html.format(**context)
-    translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text()
+    translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text() or email_text
 
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
@@ -49,7 +48,7 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
     body.attach(MIMEText(translate_email_html, "html"))
 
 
-def send_mass_mail(email_list=None):
+def send_mass_mail(email_list, server):
     """Envoi des mails en masse"""
     if email_list is None:
         email_list = []
@@ -57,11 +56,7 @@ def send_mass_mail(email_list=None):
     if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
-    server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-
     try:
-        server.starttls(context=ssl.create_default_context())
-        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
         for email_to_send in email_list:
             mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
