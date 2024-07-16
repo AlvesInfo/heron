@@ -308,7 +308,7 @@ def send_invoice_email(context_dict: Dict, user_pk: int, server: smtplib.SMTP):
 
     return {
         "Envoie de la facture par mail : ": (
-            f"cct : {str(context_dict.get('cct'))} " f"- {time.time() - start_initial} s"
+            f"cct : {str(context_dict.get('cct'))} - {time.time() - start_initial} s"
         )
     }
 
