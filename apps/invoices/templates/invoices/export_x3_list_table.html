@@ -27,19 +27,29 @@
                 <td style="text-align: center;">{{ export.uuid_edi_validation.id }}</td>
                 <td style="text-align: center;">{{ export.uuid_edi_validation.billing_period|date:"F Y" }}</td>
                 <td style="text-align: center;">
-                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.sale_file %}">{{ export.sale_file }}</a>
+                    {% if  export.sale_file %}
+                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.sale_file %}">{{ export.sale_file }}</a>
+                    {% endif %}
                 </td>
                 <td style="text-align: center;">
-                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.purchase_file %}">{{ export.purchase_file }}</a>
+                    {% if  export.purchase_file %}
+                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.purchase_file %}">{{ export.purchase_file }}</a>
+                    {% endif %}
                 </td>
                 <td style="text-align: center;">
-                    <a href={% url 'invoices:get_export_x3_file' file_name=export.odana_file %}>{{ export.odana_file }}</a>
+                    {% if  export.odana_file %}
+                        <a href={% url 'invoices:get_export_x3_file' file_name=export.odana_file %}>{{ export.odana_file }}</a>
+                    {% endif %}
                 </td>
                 <td style="text-align: center;">
-                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.ga_file %}">{{ export.ga_file }}</a>
+                    {% if  export.ga_file %}
+                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.ga_file %}">{{ export.ga_file }}</a>
+                    {% endif %}
                 </td>
                 <td style="text-align: center;">
-                    <a href="{% url 'invoices:get_export_x3_file' file_name=export.alls_zip_file %}">{{ export.alls_zip_file }}</a>
+                    {% if  export.alls_zip_file %}
+                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.alls_zip_file %}">{{ export.alls_zip_file }}</a>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
