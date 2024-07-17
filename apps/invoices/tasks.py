@@ -15,7 +15,6 @@ modified by: Paulo ALVES
 import time
 from typing import AnyStr, Dict
 import smtplib
-import ssl
 
 import pendulum
 from celery import shared_task
@@ -26,7 +25,6 @@ from bs4 import BeautifulSoup
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
 from apps.core.exceptions import EmailException
-from apps.core.functions.functions_setups import settings
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
@@ -35,36 +33,6 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
 from apps.invoices.bin.export_x3 import export_files_x3
-
-EMAIL_HOST = settings.EMAIL_HOST
-EMAIL_PORT = settings.EMAIL_PORT
-EMAIL_HOST_USER = settings.EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
-
-
-class SmtpLogin:
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(SmtpLogin, cls).__new__(cls, *args, **kwargs)
-            cls.smtp_connection = cls.server()
-
-        return cls._instance
-
-    @staticmethod
-    def server():
-        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server.starttls(context=ssl.create_default_context())
-        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-        return server
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.smtp_connection.close()
-        return False
 
 
 @shared_task(name="invoices_insertions_launch")
@@ -284,7 +252,6 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
     Envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
-    :param server: serveur emails
     """
 
     start_initial = time.time()
