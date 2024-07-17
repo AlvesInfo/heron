@@ -39,13 +39,13 @@ from apps.core.exceptions import EmailException
 from apps.data_flux.trace import get_trace
 from apps.core.bin.emails import send_mass_mail
 from apps.invoices.models import SaleInvoice
+from apps.invoices.tasks import SmtpLogin
 
 
-def invoices_send_by_email(context_dict: Dict, server):
+def invoices_send_by_email(context_dict: Dict):
     """
     Envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
-    :param server: server emails
 
     CCT	    Période	    Synthèse	Factures	Service	    Centrale Fille
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
@@ -149,6 +149,8 @@ def invoices_send_by_email(context_dict: Dict, server):
 
     try:
         mail_to_list = [mail for mail in mail_to_list if mail]
+
+        server = SmtpLogin().smtp_connection
 
         if mail_to_list:
             send_mass_mail(

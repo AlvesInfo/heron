@@ -42,6 +42,31 @@ EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
 
+class SmtpLogin:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(SmtpLogin, cls).__new__(cls, *args, **kwargs)
+            cls.smtp_connection = cls.server()
+
+        return cls._instance
+
+    @staticmethod
+    def server():
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.starttls(context=ssl.create_default_context())
+        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+        return server
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.smtp_connection.close()
+        return False
+
+
 @shared_task(name="invoices_insertions_launch")
 def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
     """
@@ -229,9 +254,6 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
 
     try:
         tasks_list = []
-        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server.starttls(context=ssl.create_default_context())
-        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
         for cct_dict in cct_invoices_list:
             tasks_list.append(
@@ -240,7 +262,6 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
                     kwargs={
                         "context_dict": {**context_dict, **cct_dict},
                         "user_pk": str(user_pk),
-                        "server": server,
                     },
                 )
             )
@@ -258,7 +279,7 @@ def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period
 
 
 @shared_task(name="send_invoice_email")
-def send_invoice_email(context_dict: Dict, user_pk: int, server: smtplib.SMTP):
+def send_invoice_email(context_dict: Dict, user_pk: int):
     """
     Envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
@@ -274,7 +295,7 @@ def send_invoice_email(context_dict: Dict, user_pk: int, server: smtplib.SMTP):
 
     try:
         user = User.objects.get(pk=user_pk)
-        trace, to_print = invoices_send_by_email(context_dict, server)
+        trace, to_print = invoices_send_by_email(context_dict)
         trace.created_by = user
     except TypeError as except_error:
         error = True
