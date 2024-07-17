@@ -752,4 +752,4 @@ class ExportX3(FlagExport):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["-uuid_edi_validation__id"]
+        ordering = ["-pk"]
