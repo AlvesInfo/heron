@@ -179,7 +179,7 @@ class ExportX3Files(ListView):
     context_object_name = "exports"
     template_name = "invoices/export_x3_list.html"
     extra_context = {"titre_table": "Fichiers X3"}
-    queryset = ExportX3.objects.all().order_by("-pk")
+    queryset = ExportX3.objects.all().order_by("-uuid_edi_validation__id")
 
 
 def get_export_x3_file(request, file_name):
