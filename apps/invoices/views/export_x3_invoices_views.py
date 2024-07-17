@@ -135,10 +135,20 @@ def generate_exports_X3(request):
                     if file.is_file():
                         zip_file.write(file, file.name)
 
-            export_x3.odana_file = file_name_odana
-            export_x3.sale_file = file_name_sale
-            export_x3.purchase_file = file_name_purchase
-            export_x3.ga_file = file_name_gdaud
+            export_x3.odana_file = (
+                file_name_odana if (Path(settings.EXPORT_DIR) / file_name_odana).is_file() else None
+            )
+            export_x3.sale_file = (
+                file_name_sale if (Path(settings.EXPORT_DIR) / file_name_sale).is_file() else None
+            )
+            export_x3.purchase_file = (
+                file_name_purchase
+                if (Path(settings.EXPORT_DIR) / file_name_purchase).is_file()
+                else None
+            )
+            export_x3.ga_file = (
+                file_name_gdaud if (Path(settings.EXPORT_DIR) / file_name_gdaud).is_file() else None
+            )
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
             sales.update(export=True)
