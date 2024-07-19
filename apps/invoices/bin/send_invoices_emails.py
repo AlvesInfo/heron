@@ -33,37 +33,12 @@ django.setup()
 from django.conf import settings
 from django.db import connection
 import pendulum
-import smtplib
-import ssl
 
 from heron.loggers import LOGGER_EMAIL
 from apps.core.exceptions import EmailException
 from apps.data_flux.trace import get_trace
 from apps.core.bin.emails import send_mass_mail
 from apps.invoices.models import SaleInvoice
-
-EMAIL_HOST = settings.EMAIL_HOST
-EMAIL_PORT = settings.EMAIL_PORT
-EMAIL_HOST_USER = settings.EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
-
-
-class SmtpLogin:
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(SmtpLogin, cls).__new__(cls, *args, **kwargs)
-            cls.smtp_connection = cls.server()
-
-        return cls._instance
-
-    @staticmethod
-    def server():
-        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server.starttls(context=ssl.create_default_context())
-        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-        return server
 
 
 def invoices_send_by_email(context_dict: Dict):
@@ -174,8 +149,6 @@ def invoices_send_by_email(context_dict: Dict):
     try:
         mail_to_list = [mail for mail in mail_to_list if mail]
 
-        server = SmtpLogin().smtp_connection
-
         if mail_to_list:
             send_mass_mail(
                 [
@@ -190,7 +163,6 @@ def invoices_send_by_email(context_dict: Dict):
                         ],
                     )
                 ],
-                server
             )
             trace.file_name = f"send email invoice : {file_path.name}"
             to_print = f"Have send invoice email : {file_path.name} - "

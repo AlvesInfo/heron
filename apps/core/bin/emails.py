@@ -33,6 +33,71 @@ DOMAIN = settings.DOMAIN
 DKIM_PEM_FILE = settings.DKIM_PEM_FILE
 
 
+class SmtpServer:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(SmtpServer, cls).__new__(cls, *args, **kwargs)
+
+        return cls._instance
+
+    def __init__(
+        self,
+        host: str = EMAIL_HOST,
+        port: int = EMAIL_PORT,
+        username: str = EMAIL_HOST_USER,
+        password: str = EMAIL_HOST_PASSWORD,
+        cls_smtp: smtplib.SMTP = smtplib.SMTP,
+        use_starttls: bool = True,
+        **kwargs,
+    ):
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.use_starttls = use_starttls
+        self.cls_smtp = cls_smtp
+        self.kws_smtp = kwargs or {}
+        self.connection = None
+
+    def __enter__(self):
+        self.connect()
+
+    def __exit__(self, *args):
+        self.close()
+
+    def connect(self):
+        """Connect to the SMTP Server"""
+        self.connection = self.get_server()
+
+    def close(self):
+        """Close (quit) the connection"""
+        if self.connection:
+            self.connection.quit()
+            self.connection = None
+
+    def get_server(self) -> smtplib.SMTP:
+        """Connect and get the SMTP Server"""
+        user = self.username
+        password = self.password
+
+        server = self.cls_smtp(self.host, self.port, **self.kws_smtp)
+
+        if self.use_starttls:
+            server.starttls()
+
+        if user is not None or password is not None:
+            server.login(user, password)
+
+        return server
+
+    @property
+    def is_alive(self):
+        """bool: Check if there is a connection to the SMTP server"""
+        return self.connection is not None
+
+
 def prepare_mail(message, body, subject, email_text="", email_html="", context=None):
     """Préparation smtp mail pour l'envoie du mail"""
     if not context:
@@ -48,7 +113,7 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
     body.attach(MIMEText(translate_email_html, "html"))
 
 
-def send_mass_mail(email_list, server):
+def send_mass_mail(email_list):
     """Envoi des mails en masse"""
     if email_list is None:
         email_list = []
@@ -57,28 +122,12 @@ def send_mass_mail(email_list, server):
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     try:
-
-        for email_to_send in email_list:
-            mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
-            send_mail(
-                server,
-                mail_to,
-                subject,
-                email_text,
-                email_html,
-                context,
-                attachement_file_list,
-            )
+        with SmtpServer() as server:
+            for email_to_send in email_list:
+                send_mail(server, *email_to_send)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
-
-    finally:
-        if server:
-            try:
-                server.close()
-            except AttributeError:
-                pass
 
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 
@@ -91,7 +140,7 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
     prepare_mail(message, body, subject, email_text, email_html, context)
     message["To"] = ";".join(mail_to)
     message.attach(body)
-    
+
     for file in attachement_file_list:
         payload = MIMEBase("application", "octet-stream")
 
