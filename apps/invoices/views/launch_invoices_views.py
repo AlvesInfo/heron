@@ -345,9 +345,6 @@ def finalize_period(request):
     :return:
     """
     titre_table = "Finalisation de la période de facturation "
-    edi_validation = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
-    )
 
     # on va vérifier qu'il n'y a pas de nouveaux articles
     new_articles = Article.objects.filter(
@@ -369,9 +366,6 @@ def finalize_period(request):
             "il reste des nouveaux articles, à compléter!",
         )
         return redirect(reverse("articles:new_articles_list"))
-    else:
-        edi_validation.articles_news = True
-        edi_validation.save()
 
     without_accounts = EdiImport.objects.raw(articles_acuitis_without_accounts)
     # print(without_accounts)
@@ -384,9 +378,6 @@ def finalize_period(request):
             "il reste des nouveaux comptes, à compléter!",
         )
         return redirect(reverse("articles:articles_without_account_list"))
-    else:
-        edi_validation.articles_without_account = True
-        edi_validation.save()
 
     integration_valid = EdiImportControl.objects.filter(Q(valid=False) | Q(valid__isnull=True))
     # print(integration_valid)
@@ -399,9 +390,6 @@ def finalize_period(request):
             "Les Intégration ne sont pas toutes validées",
         )
         return redirect(reverse("validation_purchases:integration_purchases"))
-    else:
-        edi_validation.integration = True
-        edi_validation.save()
 
     not_cct = EdiImport.objects.filter(cct_uuid_identification__isnull=True)
     # print(integration_valid)
@@ -414,9 +402,16 @@ def finalize_period(request):
             "Ils manquent des cct dans les factures!",
         )
         return redirect(reverse("validation_purchases:without_cct_purchases"))
-    else:
-        edi_validation.cct = True
-        edi_validation.save()
+
+    # On met à True les validations vérifiées
+    edi_validation = (
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    )
+    edi_validation.articles_news = True
+    edi_validation.articles_without_account = True
+    edi_validation.integration = True
+    edi_validation.cct = True
+    edi_validation.save()
 
     # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
     not_finalize = control_insertion()
