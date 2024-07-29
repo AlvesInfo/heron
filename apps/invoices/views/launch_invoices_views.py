@@ -445,7 +445,9 @@ def finalize_period(request):
         edi_validation.final = True
         edi_validation.save()
 
-        edi_validation = EdiValidation.objects.create(billing_period=periode_facturation)
+        edi_validation = EdiValidation.objects.create(
+            billing_period=periode_facturation, created_by=request.user
+        )
 
         # On met final = true dans toutes les tables de facturation
         finalize_global_invoices(request.user)
