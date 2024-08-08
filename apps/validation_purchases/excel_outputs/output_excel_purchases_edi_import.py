@@ -102,7 +102,9 @@ def csv_heron_purchases_edi_import(emplacement: Path) -> dict:
             Path(settings.APPS_DIR) / "validation_purchases/sql_files/sql_current_purchases_csv.sql"
         )
         with emplacement.open("w", encoding="cp1252"):
-            pass
+            ...
+
+        emplacement.chmod(0o777)
 
         with connection.cursor() as cursor, sql_file.open("r") as sql_file:
             # print(cursor.mogrify(sql.SQL(sql_file.read())))
