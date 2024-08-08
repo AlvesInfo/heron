@@ -21,7 +21,7 @@
         {% for parameter in rfa_parameters %}
             <tr id="id_{{ forloop.counter }}" class="hide_plans">
                 <td>
-                    <a href="{% url 'rfa:signboard_exclusion_update' category_pk=object.pk pk=parameter.pk%}">
+                    <a href="{% url 'rfa:signboard_exclusion_update' pk=parameter.pk%}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>

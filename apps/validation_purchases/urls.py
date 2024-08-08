@@ -72,6 +72,9 @@ from apps.validation_purchases.views import (
     ca_familly_cct_export,
     # 5.5
     invoices_purchases_export_globals,
+    # 6.0 Export achats fournisseurs EDI
+    suppliers_edi_purchases,
+    edi_import_purchases_export,
     # RFA
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
@@ -309,6 +312,19 @@ urlpatterns = [
             "control_rfa_period_validation/",
             control_rfa_period_validation,
             name="control_rfa_period_validation",
+        ),
+    ],
+    # 6.0 Export achats fournisseurs EDI
+    *[
+        path(
+            "suppliers_edi_purchases/",
+            suppliers_edi_purchases,
+            name="suppliers_edi_purchases",
+        ),
+        path(
+            "edi_import_purchases_export/",
+            edi_import_purchases_export,
+            name="edi_import_purchases_export",
         ),
     ],
     # 5.0 - Contrôle Refac M M-1 par CCT

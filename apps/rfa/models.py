@@ -27,7 +27,7 @@ class SignboardExclusion(FlagsTable):
     FR : Table des exclusions Rfa par enseignes
     EN : Table of RFA exclusions by brand
     """
-    signboard = models.ForeignKey(
+    signboard = models.OneToOneField(
         Signboard,
         on_delete=models.PROTECT,
         null=True,
@@ -36,6 +36,7 @@ class SignboardExclusion(FlagsTable):
         verbose_name="centrale fille",
         related_name="signboard_rfa",
         db_column="signboard",
+        unique=True
     )
 
 
@@ -45,7 +46,7 @@ class ClientExclusion(FlagsTable):
     FR : Table des maisons à exclure des rfa
     EN : Table of clients to exclude from RFA
     """
-    cct = models.ForeignKey(
+    cct = models.OneToOneField(
         Maison,
         on_delete=models.PROTECT,
         null=True,
@@ -54,6 +55,7 @@ class ClientExclusion(FlagsTable):
         verbose_name="cct/maison",
         related_name="cct_rfa",
         db_column="cct",
+        unique=True
     )
 
 
@@ -63,7 +65,7 @@ class RateSupplier(FlagsTable):
     FR : Table des taux de rfa par fournisseurs
     EN : Table of RFA rates by suppliers
     """
-    supplier = models.ForeignKey(
+    supplier = models.OneToOneField(
         Society,
         on_delete=models.PROTECT,
         null=True,
@@ -72,6 +74,7 @@ class RateSupplier(FlagsTable):
         verbose_name="fournisseur",
         related_name="supplier_rfa",
         db_column="supplier",
+        unique=True
     )
     rfa_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
 
@@ -82,7 +85,7 @@ class SectionRfa(FlagsTable):
     FR : Table des Rfa par section rfa Sage
     EN : Table of RFA by section RFA Sage
     """
-    axe_rfa = models.ForeignKey(
+    axe_rfa = models.OneToOneField(
         SectionSage,
         on_delete=models.PROTECT,
         null=True,
@@ -91,6 +94,7 @@ class SectionRfa(FlagsTable):
         verbose_name="axe RFA",
         related_name="section_rfa_rfa",
         db_column="axe_rfa",
+        unique=True
     )
 
 
@@ -100,7 +104,7 @@ class SectionProExclusion(FlagsTable):
     FR : Table des exclusions Rfa par section Pro Sage
     EN : Table of Rfa exclusions by Sage section Pro
     """
-    axe_pro = models.ForeignKey(
+    axe_pro = models.OneToOneField(
         SectionSage,
         on_delete=models.PROTECT,
         null=True,
@@ -109,4 +113,5 @@ class SectionProExclusion(FlagsTable):
         verbose_name="section Pro",
         related_name="section_pro_rfa",
         db_column="axe_pro",
+        unique=True
     )

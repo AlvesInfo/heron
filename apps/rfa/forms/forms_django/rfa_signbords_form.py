@@ -19,7 +19,7 @@ class SignboardExclusionForm(forms.ModelForm):
             "signboard",
         )
         widgets = {
-            "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "signboard": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 

@@ -25,7 +25,7 @@ class SignboardExclusionList(ListView):
     model = SignboardExclusion
     context_object_name = "rfa_parameters"
     template_name = "rfa/signboards_exclusions_list.html"
-    extra_context = {"titre_table": "Enseignes"}
+    extra_context = {"titre_table": "ENSEIGNES A EXCLURE DU CALCUL DES RFA"}
 
 
 class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -34,7 +34,7 @@ class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
     model = SignboardExclusion
     form_class = SignboardExclusionForm
     form_class.use_required_attribute = False
-    template_name = "rfa/rfa_parameter_update.html"
+    template_name = "rfa/signboards_exclusions_update.html"
     success_message = "L'Exclusion de l'Enseigne %(name)s a été créé avec success"
     error_message = "L'Exclusion de l'Enseigne %(name)s n'a pu être créé, une erreur c'est produite"
 
@@ -46,12 +46,28 @@ class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
         context["titre_table"] = "Création d'une nouvelle Exclusion Enseigne pour les RFA"
         return context
 
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("rfa:signboards_exclusion_list")
+
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
+        import pdb;pdb.set_trace()
+
+        # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
+        # On lance sa methode form_error
+        if hasattr(self, "form_error"):
+            form_error = getattr(self, "form_error")
+            form_error()
+
+        return super().form_invalid(form)
 
 
 class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -60,7 +76,7 @@ class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     model = SignboardExclusion
     form_class = SignboardExclusionForm
     form_class.use_required_attribute = False
-    template_name = "rfa/rfa_parameter_update.html"
+    template_name = "rfa/signboards_exclusions_update.html"
     success_message = "L'Exclusion de l'Enseigne %(name)s a été modifiée avec success"
     error_message = "L'Exclusion de l'Enseigne %(name)s n'a pu être modifiée, une erreur c'est produite"
 
@@ -71,6 +87,10 @@ class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         context["titre_table"] = "Mise à jour Exclusion Enseigne"
         context["chevron_retour"] = reverse("rfa:signboards_exclusion_list")
         return super().get_context_data(**context)
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse("rfa:signboards_exclusion_list")
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à L'sauvegarde du formulaire"""
