@@ -145,6 +145,13 @@ urlpatterns = [
                 namespace="data_flux",
             ),
         ),
+        path(
+            "rfa/",
+            include(
+                ("apps.rfa.urls", "apps.rfa"),
+                namespace="rfa",
+            ),
+        ),
     ],
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
