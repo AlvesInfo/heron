@@ -58,15 +58,15 @@ def edi_import_purchases_export_csv(request):
     :return: response_file
     """
     try:
-        file_name = f"FACTURES FOURNISSEURS.csv"
+        file_name = "FACTURES FOURNISSEURS.csv"
         emplacement = Path(MEDIA_EXCEL_FILES_DIR) / file_name
         csv_heron_purchases_edi_import(emplacement)
+
         response = FileResponse(
             emplacement.open("rb"),
             filename=emplacement.name,
             as_attachment=True,
             content_type=CONTENT_TYPE_CSV,
-            charset="ascii",
         )
         return response
 

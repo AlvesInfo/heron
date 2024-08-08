@@ -101,13 +101,13 @@ def csv_heron_purchases_edi_import(emplacement: Path) -> dict:
         sql_file = (
             Path(settings.APPS_DIR) / "validation_purchases/sql_files/sql_current_purchases_csv.sql"
         )
-        with emplacement.open("w", encoding="cp1252"):
+        with emplacement.open("w", encoding="utf8"):
             ...
 
         emplacement.chmod(0o777)
 
         with connection.cursor() as cursor, sql_file.open("r") as sql_file:
-            # print(cursor.mogrify(sql.SQL(sql_file.read())))
+            # print(cursor.mogrify(sql_file.read(), {"to_csv": str(emplacement)}).decode("utf8"))
             cursor.execute(sql_file.read(), {"to_csv": str(emplacement)})
 
     except:

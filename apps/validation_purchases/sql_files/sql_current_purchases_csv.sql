@@ -124,4 +124,4 @@ COPY (
              "si"."invoice_number",
              "cm"."cct",
              "si"."reference_article"
-) TO %(to_csv)s DELIMITER ';' CSV HEADER NULL '' ENCODING 'WIN1252'
+) TO %(to_csv)s DELIMITER ';' CSV HEADER NULL '' QUOTE '"' ENCODING 'UTF8';
