@@ -15,6 +15,7 @@ from pathlib import Path
 from psycopg2 import sql
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
+from heron.settings import MEDIA_EXCEL_FILES_DIR
 from apps.core.functions.functions_setups import settings, connection
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
@@ -61,7 +62,7 @@ def write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd):
 
 def excel_heron_purchases_edi_import(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier de liste achats fournisseurs imports edi"""
-    titre = f"ACHATS FOURNISSEUR IMPORT EDI"
+    titre = "ACHATS FOURNISSEUR IMPORT EDI"
     list_excel = [file_io, ["ACHATS FOURNISSEURS"]]
     excel = GenericExcel(list_excel, in_memory=True)
     columns = columns_purchases_edi
@@ -90,3 +91,23 @@ def excel_heron_purchases_edi_import(file_io: io.BytesIO, file_name: str) -> dic
         excel.excel_close()
 
     return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+
+
+def csv_heron_purchases_edi_import(emplacement: Path) -> dict:
+    """Fonction de génération du fichier csvde liste achats fournisseurs imports edi"""
+
+    try:
+
+        sql_file = (
+            Path(settings.APPS_DIR) / "validation_purchases/sql_files/sql_current_purchases_csv.sql"
+        )
+
+        with connection.cursor() as cursor, sql_file.open("r") as sql_file:
+            # print(cursor.mogrify(sql.SQL(sql_file.read())))
+            cursor.execute(sql.SQL(sql_file.read()), {"to_csv": emplacement.name})
+
+    except:
+        LOGGER_EXPORT_EXCEL.exception(f"{emplacement.name!r}")
+        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
+
+    return {"OK": f"GENERATION DU FICHIER {emplacement.name} TERMINEE AVEC SUCCES"}

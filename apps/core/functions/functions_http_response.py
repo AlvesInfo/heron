@@ -19,6 +19,7 @@ from django.shortcuts import HttpResponse
 from heron.settings import DEBUG
 
 CONTENT_TYPE_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+CONTENT_TYPE_CSV = "text/csv"
 
 
 def response_file(function_file, file_name, content_type, *args, **kwargs):
