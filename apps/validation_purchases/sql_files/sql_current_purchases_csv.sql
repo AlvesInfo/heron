@@ -76,4 +76,4 @@ COPY (
              "si"."invoice_number",
              "cm"."cct",
              "si"."reference_article"
-) TO %(to_csv)s DELIMITER ';' CSV HEADER;
+) TO %(to_csv)s DELIMITER ';' CSV HEADER NULL '' ENCODING 'UTF8';

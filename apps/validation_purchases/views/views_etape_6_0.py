@@ -1,4 +1,6 @@
 from pathlib import Path
+
+import io
 import pendulum
 from django.shortcuts import render, HttpResponse
 
@@ -8,6 +10,7 @@ from heron.settings import MEDIA_EXCEL_FILES_DIR
 from apps.core.functions.functions_http_response import (
     response_file,
     CONTENT_TYPE_EXCEL,
+    CONTENT_TYPE_CSV,
 )
 from apps.validation_purchases.excel_outputs.output_excel_purchases_edi_import import (
     excel_heron_purchases_edi_import,
@@ -62,17 +65,19 @@ def edi_import_purchases_export_csv(request):
         if emplacement.is_file():
             emplacement.unlink()
 
-        with emplacement.open("w"):
+        with emplacement.open("w", encoding="utf8"):
             # creation du fichier
             ...
 
         csv_heron_purchases_edi_import(emplacement)
-
-        with open(emplacement, 'r') as f:
-            file_data = f.read()
-
-            response = HttpResponse(file_data, content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = f'attachment; filename="{emplacement.name}"'
+        file_io = io.BytesIO()
+        print(emplacement.read_text(encoding="utf8"))
+        print(emplacement.read_text(encoding="utf8").encode("cp1252"))
+        file_io.write(emplacement.read_text(encoding="utf8").encode("cp1252"))
+        file_io.seek(0)
+        response = HttpResponse(file_io.read(), content_type=CONTENT_TYPE_CSV)
+        response["Content-Disposition"] = f"attachment; filename={file_name}"
+        # file_io.close()
 
         return response
 
