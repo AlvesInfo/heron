@@ -28,15 +28,13 @@ def edi_import_purchases_export(request):
     :return: response_file
     """
     try:
-        import pdb;pdb.set_trace()
-        if request.method == "POST":
-            today = pendulum.now()
-            file_name = f"FACTURES FOURNISSEURS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-            return response_file(excel_heron_purchases_edi_import, file_name, CONTENT_TYPE_EXCEL)
+        today = pendulum.now()
+        file_name = f"FACTURES FOURNISSEURS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+        return response_file(excel_heron_purchases_edi_import, file_name, CONTENT_TYPE_EXCEL)
 
     except:
         LOGGER_VIEWS.exception("view : edi_import_purchases_export")
 
-    context = {"titre_table": f"ACHATS HERON EDI IMPORT FOURNISSEURS"}
+    context = {"titre_table": "6.0 - Export des achats fichiers fournisseurs intégrés"}
 
     return render(request, "validation_purchases/heron_purchases_edi.html", context=context)

@@ -11,10 +11,7 @@
 
     {% if user.is_authenticated %}
 
-        <form action="" method="post">
-            {% csrf_token %}
-            {% include "validation_purchases/heron_purchases_edi_entete.html" %}
-        </form>
+        {% include "validation_purchases/heron_purchases_edi_entete.html" %}
 
         <div class="ui equal width grid center"></div>
 
