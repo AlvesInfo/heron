@@ -1,8 +1,8 @@
 from pathlib import Path
 
-import io
 import pendulum
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
+from django.http import FileResponse
 
 from heron.loggers import LOGGER_VIEWS
 from heron.settings import MEDIA_EXCEL_FILES_DIR
@@ -58,27 +58,16 @@ def edi_import_purchases_export_csv(request):
     :return: response_file
     """
     try:
-        today = pendulum.now()
-        file_name = f"FACTURES FOURNISSEURS_{today.format('Y_M_D')}_{today.int_timestamp}.csv"
+        file_name = f"FACTURES FOURNISSEURS.csv"
         emplacement = Path(MEDIA_EXCEL_FILES_DIR) / file_name
-
-        if emplacement.is_file():
-            emplacement.unlink()
-
-        with emplacement.open("w", encoding="utf8"):
-            # creation du fichier
-            ...
-
         csv_heron_purchases_edi_import(emplacement)
-        file_io = io.BytesIO()
-        print(emplacement.read_text(encoding="utf8"))
-        print(emplacement.read_text(encoding="utf8").encode("cp1252"))
-        file_io.write(emplacement.read_text(encoding="utf8").encode("cp1252"))
-        file_io.seek(0)
-        response = HttpResponse(file_io.read(), content_type=CONTENT_TYPE_CSV)
-        response["Content-Disposition"] = f"attachment; filename={file_name}"
-        # file_io.close()
-
+        response = FileResponse(
+            emplacement.open("rb"),
+            filename=emplacement.name,
+            as_attachment=True,
+            content_type=CONTENT_TYPE_CSV,
+            charset="ascii",
+        )
         return response
 
     except:
