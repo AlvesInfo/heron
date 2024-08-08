@@ -108,7 +108,7 @@ def csv_heron_purchases_edi_import(emplacement: Path) -> dict:
 
         with connection.cursor() as cursor, sql_file.open("r") as sql_file:
             # print(cursor.mogrify(sql.SQL(sql_file.read())))
-            cursor.execute(sql.SQL(sql_file.read()), {"to_csv": str(emplacement)})
+            cursor.execute(sql_file.read(), {"to_csv": str(emplacement)})
 
     except:
         LOGGER_EXPORT_EXCEL.exception(f"{emplacement.name!r}")
