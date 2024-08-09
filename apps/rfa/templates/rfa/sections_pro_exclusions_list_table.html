@@ -12,7 +12,7 @@
         <thead>
             <tr>
                 <th style="width: 5%">Edit</th>
-                <th style="width: 90%">Enseigne</th>
+                <th style="width: 90%">Axe PRO</th>
                 <th style="width: 5%">delete</th>
             </tr>
         </thead>
@@ -20,14 +20,14 @@
         {% for parameter in rfa_parameters %}
             <tr id="id_{{ forloop.counter }}" class="hide_plans">
                 <td>
-                    <a href="{% url 'rfa:signboard_exclusion_update' pk=parameter.pk%}">
+                    <a href="{% url 'rfa:section_pro_exclusion_update' pk=parameter.pk%}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
-                <td>{{parameter.signboard}}</td>
+                <td>{{parameter.axe_pro}}</td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.code }} - {{ parameter.signboard.name }}`, `{% url 'rfa:signboard_exclusion_delete' %}`, `l'exclusion pour l'enseigne`)"></i>
+                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.axe_pro }} - {{ parameter.axe_pro.section }}`, `{% url 'rfa:section_pro_exlusion_delete' %}`, `l'axe PRO à exclure`)"></i>
                     </div>
                 </td>
             </tr>

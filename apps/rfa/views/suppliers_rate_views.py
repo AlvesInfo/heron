@@ -1,6 +1,6 @@
 # pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
-Views des exclusions des rfa pour les enseignes
+Views des taux de RFA par founisseurs
 """
 import pendulum
 from django.db import transaction
@@ -13,47 +13,48 @@ from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.rfa.models import SignboardExclusion
-from apps.rfa.excel_outputs.rfa_signboards_exclusion import excel_list_rfa_signboards_exclusion
-from apps.rfa.forms import SignboardExclusionForm, DeleteSignboardExclusionForm
+from apps.rfa.models import SupplierRate
+from apps.rfa.excel_outputs.rfa_suppliers_rate import excel_list_suppliers_rate
+from apps.rfa.forms import SupplierRateForm, DeleteSupplierRateForm
 
 
-# ECRANS DES ENSEIGNES ============================================================================
-class SignboardExclusionList(ListView):
-    """View de la liste des Exclusions RFA des Enseignes"""
+# ECRANS DES TAUX RFA ==============================================================================
+class SupplierRateList(ListView):
+    """View de la liste des Taux de RFA Fournisseurs"""
 
-    model = SignboardExclusion
+    model = SupplierRate
     context_object_name = "rfa_parameters"
-    template_name = "rfa/signboards_exclusions_list.html"
-    extra_context = {"titre_table": "ENSEIGNES A EXCLURE DU CALCUL DES RFA"}
+    template_name = "rfa/suppliers_rate_list.html"
+    extra_context = {"titre_table": "Taux de RFA Fournisseurs"}
 
 
-class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des exclusions rfa des Enseignes"""
+class SupplierRateCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
+    """CreateView des Taux de RFA Fournisseurs"""
 
-    model = SignboardExclusion
-    form_class = SignboardExclusionForm
+    model = SupplierRate
+    form_class = SupplierRateForm
     form_class.use_required_attribute = False
-    template_name = "rfa/signboards_exclusions_update.html"
-    success_message = "L'Exclusion de l'Enseigne %(signboard)s a été créé avec success"
+    template_name = "rfa/suppliers_rate_update.html"
+    success_message = "Le taux de rfa pour le fournisseur %(supplier)s a été créé avec success"
     error_message = (
-        "L'Exclusion de l'Enseigne %(signboard)s n'a pu être créé, une erreur c'est produite"
+        "Le taux de RFA pour le fournisseur %(supplier)s "
+        "n'a pu être créé, une erreur c'est produite"
     )
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["create"] = True
-        context["chevron_retour"] = reverse("rfa:signboards_exclusion_list")
-        context["titre_table"] = "Création d'une nouvelle Exclusion Enseigne pour les RFA"
+        context["chevron_retour"] = reverse("rfa:suppliers_rate_list")
+        context["titre_table"] = "Création taux de RFA par fournisseur pour le calcul de RFA"
         return context
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse("rfa:signboards_exclusion_list")
+        return reverse("rfa:suppliers_rate_list")
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout d'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -70,32 +71,33 @@ class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
         return super().form_invalid(form)
 
 
-class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView des exclusions rfa des Enseignes"""
+class SupplierRateUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+    """UpdateView des Taux de RFA Fournisseurs"""
 
-    model = SignboardExclusion
-    form_class = SignboardExclusionForm
+    model = SupplierRate
+    form_class = SupplierRateForm
     form_class.use_required_attribute = False
-    template_name = "rfa/signboards_exclusions_update.html"
-    success_message = "L'Exclusion de l'Enseigne %(signboard)s a été modifiée avec success"
+    template_name = "rfa/suppliers_rate_update.html"
+    success_message = "Le taux de rfa pour le fournisseur %(supplier)s a été modifiée avec success"
     error_message = (
-        "L'Exclusion de l'Enseigne %(signboard)s n'a pu être modifiée, une erreur c'est produite"
+        "Le taux de rfa pour le fournisseur %(supplier)s "
+        "n'a pu être modifiée, une erreur c'est produite"
     )
 
     def get_context_data(self, **kwargs):
         """Insert the form into the context dict."""
 
         context = super().get_context_data(**kwargs)
-        context["titre_table"] = "Mise à jour Exclusion Enseigne"
-        context["chevron_retour"] = reverse("rfa:signboards_exclusion_list")
+        context["titre_table"] = "Mise à jour taux de RFA par fournisseur pour le calcul de RFA"
+        context["chevron_retour"] = reverse("rfa:suppliers_rate_list")
         return super().get_context_data(**context)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse("rfa:signboards_exclusion_list")
+        return reverse("rfa:suppliers_rate_list")
 
     def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout d'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -113,8 +115,8 @@ class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 
 
 @transaction.atomic
-def signboard_exclusion_delete(request):
-    """Suppression des exclusions d'Enseignes pour les RFA
+def supplier_rate_delete(request):
+    """Suppression des taux de RFA par fournisseur pour le calcul de RFA
     :param request: Request Django
     :return: view
     """
@@ -124,26 +126,26 @@ def signboard_exclusion_delete(request):
 
     data = {"success": "ko"}
     id_pk = request.POST.get("pk")
-    form = DeleteSignboardExclusionForm({"id": id_pk})
+    form = DeleteSupplierRateForm({"id": id_pk})
 
     if form.is_valid():
         trace_mark_delete(
             request=request,
-            django_model=SignboardExclusion,
+            django_model=SupplierRate,
             data_dict={"id": id_pk},
             force_delete=True,
         )
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_signboard_exclusion, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"supplier_rate_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
 
-def signboard_exclusion_export_list(_):
+def supplier_rate_export_list(_):
     """
-    Export Excel de la liste des Exclusions RFA des Enseignes
+    Export Excel de la liste des taux de RFA par fournisseur pour le calcul de RFA
     :param _: Request Django
     :return: response_file
     """
@@ -151,13 +153,13 @@ def signboard_exclusion_export_list(_):
 
         today = pendulum.now()
         file_name = (
-            "LISTING_DES_EXCLUSIONS_RFA_ENSEIGNES_"
+            "LISTING_DES_TAUX_RFA_FOURNISSEURS_"
             f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 
-        return response_file(excel_list_rfa_signboards_exclusion, file_name, CONTENT_TYPE_EXCEL)
+        return response_file(excel_list_suppliers_rate, file_name, CONTENT_TYPE_EXCEL)
 
     except:
-        LOGGER_EXPORT_EXCEL.exception("view : signboard_exclusion_export_list")
+        LOGGER_EXPORT_EXCEL.exception("view : supplier_rate_export_list")
 
-    return redirect(reverse("rfa:signboards_exclusion_list"))
+    return redirect(reverse("rfa:suppliers_rate_list"))

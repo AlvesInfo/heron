@@ -1,5 +1,5 @@
 # pylint: disable=W0702,W1203,E1101
-"""Module d'export du fichier excel pour les exclusion des rfa des clients
+"""Module d'export du fichier excel des taux de RFA par founisseurs
 
 Commentaire:
 
@@ -23,12 +23,12 @@ from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.rfa.models import ClientExclusion
+from apps.rfa.models import SupplierRate
 
 
 columns_list = [
     {
-        "entete": "Client/CCT",
+        "entete": "Code Tiers",
         "f_entete": {
             **f_entetes,
             **{
@@ -44,7 +44,7 @@ columns_list = [
         "width": 11,
     },
     {
-        "entete": "Intitulé",
+        "entete": "Nom Tiers",
         "f_entete": {
             **f_entetes,
             **{
@@ -59,6 +59,23 @@ columns_list = [
         },
         "width": 25,
     },
+    {
+        "entete": "Taux RFA",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#DCE7F5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{
+                "align": "center",
+                "num_format": "#,##0.00",
+            },
+        },
+        "width": 10,
+    },
 ]
 
 
@@ -67,21 +84,23 @@ def get_row():
 
     yield from [
         (
-            row.get("cct__cct"),
-            row.get("cct__intitule"),
+            row.get("supplier__third_party_num"),
+            row.get("supplier__name"),
+            row.get("rate"),
         )
-        for row in ClientExclusion.objects.all()
-        .order_by("cct__cct")
+        for row in SupplierRate.objects.all()
+        .order_by("supplier__third_party_num")
         .values(
-            "cct__cct",
-            "cct__intitule",
+            "supplier__third_party_num",
+            "supplier__name",
+            "rate",
         )
-        .order_by("cct__cct")
+        .order_by("supplier__third_party_num")
     ]
 
 
-def excel_list_rfa_clients_exclusion(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Clients/CCT à exclure des RFA"""
+def excel_list_suppliers_rate(file_io: io.BytesIO, file_name: str) -> dict:
+    """Fonction de génération du fichier de liste des taux de RFA par founisseurs"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     list_excel = [file_io, [titre[:30]]]

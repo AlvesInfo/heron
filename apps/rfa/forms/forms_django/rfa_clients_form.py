@@ -1,33 +1,33 @@
 # pylint: disable=E0401,R0903
 """
-Forms des Parameters
+Forms des rfa ClientExclusion
 """
 from django import forms
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
-from apps.rfa.models import SignboardExclusion
+from apps.rfa.models import ClientExclusion
 
 
-class SignboardExclusionForm(forms.ModelForm):
-    """Form pour les exclusions d'Enseignes"""
+class ClientExclusionForm(forms.ModelForm):
+    """Form pour les exclusions des clients"""
 
     class Meta:
         """class Meta"""
 
-        model = SignboardExclusion
+        model = ClientExclusion
         fields = (
-            "signboard",
+            "cct",
         )
         widgets = {
-            "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "cct": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 
-class DeleteSignboardExclusionForm(forms.ModelForm):
-    """Form pour la suppression des exclusions d'Enseignes"""
+class DeleteClientExclusionForm(forms.ModelForm):
+    """Form pour la suppression des exclusions des clients"""
 
     class Meta:
         """class Meta"""
 
-        model = SignboardExclusion
+        model = ClientExclusion
         fields = ("id", )

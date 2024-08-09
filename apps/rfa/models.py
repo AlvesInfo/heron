@@ -33,7 +33,7 @@ class SignboardExclusion(FlagsTable):
         null=True,
         blank=True,
         to_field="code",
-        verbose_name="centrale fille",
+        verbose_name="enseigne",
         related_name="signboard_rfa",
         db_column="signboard",
         unique=True
@@ -55,11 +55,12 @@ class ClientExclusion(FlagsTable):
         verbose_name="cct/maison",
         related_name="cct_rfa",
         db_column="cct",
-        unique=True
+        unique=True,
+        limit_choices_to={'type_x3': (1, 2), "cct__active": True}
     )
 
 
-class RateSupplier(FlagsTable):
+class SupplierRate(FlagsTable):
     """
     Table des taux de rfa par fournisseurs
     FR : Table des taux de rfa par fournisseurs
@@ -74,7 +75,8 @@ class RateSupplier(FlagsTable):
         verbose_name="fournisseur",
         related_name="supplier_rfa",
         db_column="supplier",
-        unique=True
+        unique=True,
+        limit_choices_to={'in_use': True}
     )
     rfa_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
 
@@ -94,7 +96,8 @@ class SectionRfa(FlagsTable):
         verbose_name="axe RFA",
         related_name="section_rfa_rfa",
         db_column="axe_rfa",
-        unique=True
+        unique=True,
+        limit_choices_to={'axe': "RFA"}
     )
 
 
@@ -113,5 +116,6 @@ class SectionProExclusion(FlagsTable):
         verbose_name="section Pro",
         related_name="section_pro_rfa",
         db_column="axe_pro",
-        unique=True
+        unique=True,
+        limit_choices_to={'axe': "PRO"}
     )

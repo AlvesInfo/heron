@@ -1,5 +1,5 @@
 # pylint: disable=W0702,W1203,E1101
-"""Module d'export du fichier excel pour les exclusion des rfa des clients
+"""Module d'export du fichier excel pour des axe pro à exclure
 
 Commentaire:
 
@@ -23,12 +23,12 @@ from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.rfa.models import ClientExclusion
+from apps.rfa.models import SectionProExclusion
 
 
 columns_list = [
     {
-        "entete": "Client/CCT",
+        "entete": "Section",
         "f_entete": {
             **f_entetes,
             **{
@@ -67,21 +67,21 @@ def get_row():
 
     yield from [
         (
-            row.get("cct__cct"),
-            row.get("cct__intitule"),
+            row.get("axe_pro__section"),
+            row.get("axe_pro__name"),
         )
-        for row in ClientExclusion.objects.all()
-        .order_by("cct__cct")
+        for row in SectionProExclusion.objects.all()
+        .order_by("axe_pro__section")
         .values(
-            "cct__cct",
-            "cct__intitule",
+            "axe_pro__section",
+            "axe_pro__name",
         )
-        .order_by("cct__cct")
+        .order_by("axe_pro__section")
     ]
 
 
-def excel_list_rfa_clients_exclusion(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Clients/CCT à exclure des RFA"""
+def excel_list_rfa_sections_pro_exclusions(file_io: io.BytesIO, file_name: str) -> dict:
+    """Fonction de génération du fichier de liste des sections pro à exclure des RFA"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     list_excel = [file_io, [titre[:30]]]

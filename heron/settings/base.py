@@ -45,6 +45,9 @@ HOST_DATABASE = config("HOST_DATABASE")
 HOST_DATABASE_HERON = config("HOST_DATABASE_HERON")
 PORT_DATABASE = config("PORT_DATABASE")
 PORT_DATABASE_HERON = config("PORT_DATABASE_HERON", default=PORT_DATABASE)
+NAME_DATABASE_FORMATION = config("NAME_DATABASE_FORMATION")
+HOST_DATABASE_FORMATION = config("HOST_DATABASE_FORMATION")
+PORT_DATABASE_FORMATION = config("PORT_DATABASE_FORMATION")
 
 # CNX_STRING pour le pool de connexion
 CNX_STRING = (
@@ -217,6 +220,15 @@ DATABASES = {
         "PASSWORD": PASSWORD_DATABASE,
         "HOST": HOST_DATABASE_HERON,
         "PORT": PORT_DATABASE_HERON,
+        "client_encoding": "UTF8",
+    },
+    "formation": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": NAME_DATABASE_FORMATION,
+        "USER": USER_DATABASE,
+        "PASSWORD": PASSWORD_DATABASE,
+        "HOST": HOST_DATABASE_FORMATION,
+        "PORT": PORT_DATABASE_FORMATION,
         "client_encoding": "UTF8",
     },
     "bi_bdd": {

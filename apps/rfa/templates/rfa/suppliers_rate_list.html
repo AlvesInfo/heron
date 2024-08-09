@@ -9,14 +9,12 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
+    {% if user.is_authenticated %}
 
+            {% include "rfa/suppliers_rate_list_entete.html" %}
+            {% include "rfa/suppliers_rate_list_table.html" %}
 
-        <form action="" method="post">
-            {% csrf_token %}
-            {% include "rfa/signboards_exclusions_update_entete.html" %}
-            {% include "rfa/signboards_exclusions_update_table.html" %}
-        </form>
+        <div class="ui equal width grid center"></div>
 
     {% else %}
 
@@ -35,15 +33,14 @@
 
 {% block script %}
 
-    <script type="text/javascript">
+    <script>
 
         $(document).ready(function () {
 
-            $('table').tablesort();
-            $('.menu .item').tab();
-            $(`.datatable-chargement`).hide();
+            {% include "heron/base_data_table.html" %}
 
         });
+
     </script>
 
 {% endblock script %}

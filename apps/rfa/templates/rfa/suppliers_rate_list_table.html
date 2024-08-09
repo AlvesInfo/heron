@@ -2,9 +2,9 @@
 
 {% block table %}
 
-<div class="four wide column"></div>
+<div class="three wide column"></div>
 
-<div class="eight wide column">
+<div class="ten wide column">
 
     <table id="table_document"
            class="ui celled table"
@@ -12,7 +12,8 @@
         <thead>
             <tr>
                 <th style="width: 5%">Edit</th>
-                <th style="width: 90%">Enseigne</th>
+                <th style="width: 70%">Fournisseur</th>
+                <th style="width: 20%">Taux</th>
                 <th style="width: 5%">delete</th>
             </tr>
         </thead>
@@ -20,14 +21,15 @@
         {% for parameter in rfa_parameters %}
             <tr id="id_{{ forloop.counter }}" class="hide_plans">
                 <td>
-                    <a href="{% url 'rfa:signboard_exclusion_update' pk=parameter.pk%}">
+                    <a href="{% url 'rfa:supplier_rate_update' pk=parameter.pk%}">
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
-                <td>{{parameter.signboard}}</td>
+                <td>{{parameter.supplier}}</td>
+                <td>{{parameter.rfa_rate}}</td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.code }} - {{ parameter.signboard.name }}`, `{% url 'rfa:signboard_exclusion_delete' %}`, `l'exclusion pour l'enseigne`)"></i>
+                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.supplier }} - {{ parameter.rfa_rate }}`, `{% url 'rfa:supplier_rate_delete' %}`, `Le taux pour le fournisseur`)"></i>
                     </div>
                 </td>
             </tr>

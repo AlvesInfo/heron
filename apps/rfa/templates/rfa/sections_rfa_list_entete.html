@@ -1,0 +1,17 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+
+    <a class="item" href="{% url 'rfa:section_rfa_create' %}">
+        <button class="ui blue basic button" name="create_section_rfa" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            CREATION
+        </button>
+    </a>
+
+    <a class="item" href="{% url 'rfa:section_rfa_export_list' %}">
+       <button class="ui green basic button" name="sections_rfa_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          LISTING AXE RFA
+       </button>
+    </a>
+
+{% endblock right_side %}
