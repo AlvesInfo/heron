@@ -86,14 +86,14 @@ def get_row():
         (
             row.get("supplier__third_party_num"),
             row.get("supplier__name"),
-            row.get("rate"),
+            row.get("rfa_rate"),
         )
         for row in SupplierRate.objects.all()
         .order_by("supplier__third_party_num")
         .values(
             "supplier__third_party_num",
             "supplier__name",
-            "rate",
+            "rfa_rate",
         )
         .order_by("supplier__third_party_num")
     ]
