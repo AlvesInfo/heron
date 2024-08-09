@@ -31,6 +31,8 @@ from apps.rfa.views import (
     SectionProExclusionUpdate,
     section_pro_exlusion_delete,
     section_pro_exclusions_export_list,
+    # RFA GENERATION
+    rfa_generation
 )
 
 app_name = "apps.rfa"
@@ -172,6 +174,14 @@ urlpatterns = [
             "section_pro_exclusions_export_list/",
             section_pro_exclusions_export_list,
             name="section_pro_exclusions_export_list",
+        ),
+    ],
+    # RFA GENERATION
+    *[
+        path(
+            "rfa_generation/",
+            rfa_generation,
+            name="rfa_generation",
         ),
     ],
 ]

@@ -38,9 +38,11 @@ def check_cct_identifier(cleaned_data: dict):
     :return: message
     """
     before_cct_identifier = cleaned_data.get("id").cct_identifier
+    import pdb;pdb.set_trace()
     before_cct_identifier = (
         before_cct_identifier[:-1] if before_cct_identifier[-1] == "|" else before_cct_identifier
-    )
+    ) if before_cct_identifier else ""
+
     before = str(before_cct_identifier).split("|")
 
     after_cct_identifier = cleaned_data.get("cct_identifier")
