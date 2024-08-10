@@ -39,6 +39,11 @@ class SignboardExclusion(FlagsTable):
         unique=True
     )
 
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["signboard"]
+
 
 class ClientExclusion(FlagsTable):
     """
@@ -58,6 +63,11 @@ class ClientExclusion(FlagsTable):
         unique=True,
         limit_choices_to={'type_x3': (1, 2), "cct__active": True}
     )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["cct"]
 
 
 class SupplierRate(FlagsTable):
@@ -80,6 +90,11 @@ class SupplierRate(FlagsTable):
     )
     rfa_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
 
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["supplier"]
+
 
 class SectionRfa(FlagsTable):
     """
@@ -100,6 +115,11 @@ class SectionRfa(FlagsTable):
         limit_choices_to={'axe': "RFA"}
     )
 
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["axe_rfa"]
+
 
 class SectionProExclusion(FlagsTable):
     """
@@ -119,3 +139,8 @@ class SectionProExclusion(FlagsTable):
         unique=True,
         limit_choices_to={'axe': "PRO"}
     )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["axe_pro"]

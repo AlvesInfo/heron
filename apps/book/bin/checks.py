@@ -39,9 +39,14 @@ def check_cct_identifier(cleaned_data: dict):
     """
     before_cct_identifier = cleaned_data.get("id").cct_identifier
 
-    before_cct_identifier = (
-        before_cct_identifier[:-1] if before_cct_identifier[-1] == "|" else before_cct_identifier
-    ) if before_cct_identifier else ""
+    if before_cct_identifier:
+        before_cct_identifier = (
+            before_cct_identifier[:-1]
+            if before_cct_identifier[-1] == "|"
+            else before_cct_identifier
+        )
+    else:
+        before_cct_identifier = ""
 
     before = str(before_cct_identifier).split("|")
 

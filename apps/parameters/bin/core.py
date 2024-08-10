@@ -161,6 +161,7 @@ def get_action(action: AnyStr = "import_edi_invoices"):
         "import_edi_invoices": "Executable pour l'import des fichiers edi des factures founisseurs",
         "insertion_invoices": "Insertion des factures achat et vente",
         "generate_pdf_invoices": "Génération de la facturation pdf",
+        "rfa_generation": "Génération des RFA mensuelles",
     }
 
     # Si l'action n'existe pas on la créée

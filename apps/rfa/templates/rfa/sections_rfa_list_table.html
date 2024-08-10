@@ -12,7 +12,7 @@
         <thead>
             <tr>
                 <th style="width: 5%">Edit</th>
-                <th style="width: 90%">Axe RFA</th>
+                <th style="width: 90%;text-align: left;">Axe RFA</th>
                 <th style="width: 5%">delete</th>
             </tr>
         </thead>
@@ -24,7 +24,7 @@
                         <i class="edit icon modification"></i>
                     </a>
                 </td>
-                <td>{{parameter.axe_rfa}}</td>
+                <td style="text-align: left;">{{parameter.axe_rfa}}</td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
                       <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.axe_rfa }} - {{ parameter.axe_rfa.section }}`, `{% url 'rfa:section_rfa_delete' %}`, `l'axe RFA`)"></i>
