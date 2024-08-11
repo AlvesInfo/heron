@@ -59,6 +59,15 @@ def rfa_generation(request):
     )
 
     if new_articles:
+        if have_rfa:
+            level = 50
+            request.session["level"] = level
+            messages.add_message(
+                request,
+                level,
+                "Vous ne pouvez pas re-générer de RFA, car il y a des nouveaux articles",
+            )
+
         return redirect(reverse("articles:new_articles_list"))
 
     if not in_action and have_rfa:
