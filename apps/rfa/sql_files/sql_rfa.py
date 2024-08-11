@@ -220,3 +220,19 @@ SQL_RFA_INSERTION = sql.SQL(
     order by "mm"."cct"
     """
 )
+
+SQL_INSERTION_ICON = sql.SQL(
+    """
+    insert into parameters_iconoriginchoice 
+    (
+        "origin",
+        "icon",
+        "origin_name"
+    )
+    select
+        12 as "origin",
+        'cut' as "icon",
+        'RFA MENSUELLE' as "origin_name"
+    on conflict do nothing 
+    """
+)

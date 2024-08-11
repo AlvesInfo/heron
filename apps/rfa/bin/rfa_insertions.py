@@ -21,7 +21,7 @@ from django.db.models import Q
 from apps.book.models import Society
 from apps.edi.models import EdiValidation
 from apps.core.functions.functions_dates import last_day_month
-from apps.rfa.sql_files.sql_rfa import SQL_RFA_INSERTION
+from apps.rfa.sql_files.sql_rfa import SQL_RFA_INSERTION, SQL_INSERTION_ICON
 
 
 def get_sql_kwars(
@@ -80,9 +80,9 @@ def insert_rfa(supplier_origin: AnyStr, period_rfa: AnyStr, uuid_identification:
     sql_kwargs = get_sql_kwars(supplier_origin, period_rfa, uuid_identification)
 
     with connection.cursor() as cursor:
-        query = SQL_RFA_INSERTION
-        # print(cursor.mogrify(query, sql_kwargs).decode())
-        cursor.execute(query, sql_kwargs)
+        cursor.execute(SQL_INSERTION_ICON)
+        # print(cursor.mogrify(SQL_RFA_INSERTION, sql_kwargs).decode())
+        cursor.execute(SQL_RFA_INSERTION, sql_kwargs)
         return cursor.rowcount
 
 
