@@ -70,14 +70,15 @@ def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: Any
         + "\n\n======================================================================="
         "======================================================================="
     )
+    sep = ":" if trace.comment else ""
+
+    if not error and "Erreur" not in to_print:
+        return {
+            "Génération des RFA": f"RFA intégrées avec sucess, en {trace.time_to_process} s"
+        }
 
     return {
         "Génération des RFA": (
-            f"RFA intégrées avec sucess, en {trace.time_to_process} s"
-            if not error and "Erreur" not in to_print
-            else (
-                f"Erreur - {to_print.replace('Erreur', '')} "
-                f"{':' if trace.comment else ''} {trace.comment!r}"
-            )
+            f"Erreur - {to_print.replace('Erreur', '')} {sep} {trace.comment!r}"
         )
     }
