@@ -16,6 +16,7 @@ from typing import AnyStr
 import time
 
 from celery import shared_task
+from django.utils import timezone
 
 from heron.loggers import LOGGER_EDI
 from apps.users.models import User
@@ -54,10 +55,12 @@ def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: Any
             trace.errors = True
             trace.comment = (
                 trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                + "\n. Error: Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
+            trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+            trace.final_at = timezone.now()
             trace.invoices = True
             trace.save()
 

@@ -35,28 +35,17 @@ def generate_rfa(supplier_origin: AnyStr, period_rfa: AnyStr):
         flow_name,
         comment,
     )
-    error = False
-    nb_insert = 0
-    try:
-        nb_insert = insert_rfa(
-            supplier_origin, period_rfa, uuid_identification=trace.uuid_identification
-        )
-    except Exception as except_error:
-        error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
-    if error:
-        trace.errors = True
-        trace.comment = (
-            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-        )
-    rfa_post_upadte(trace.uuid_identification)
+    nb_insert = insert_rfa(
+        supplier_origin, period_rfa, uuid_identification=trace.uuid_identification
+    )
 
-    to_print = f"Import : {flow_name}\n"
-    trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-    trace.final_at = timezone.now()
-    trace.invoices = True
     trace.created_numbers_records = nb_insert
     trace.save()
 
+    rfa_post_upadte(trace.uuid_identification)
+
+    to_print = f"Import : {flow_name}\n"
+
     return trace, to_print
+
