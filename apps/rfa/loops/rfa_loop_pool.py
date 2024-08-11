@@ -103,6 +103,9 @@ def rfa_generation_launch(user_pk: int, suppliers_list: List, period_rfa: AnyStr
     if isinstance(result, (list,)) and result:
         result = result[0]
 
-    info = result if isinstance(result, (str,)) else ". ".join(list(result.values()))
-
+    info = (
+        result.replace(r"\n", "")
+        if isinstance(result, (str,))
+        else ". ".join(list(result.values())).replace(r"\n", "")
+    )
     return "Erreur" in info, info
