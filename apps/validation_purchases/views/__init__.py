@@ -18,5 +18,6 @@ from .views_etape_5_3 import *
 from .views_etape_5_3A import *
 from .views_etape_5_5 import *
 from .views_etape_6_0 import *
+from .views_etape_6_1 import *
 from .views_etape_rfa import *
 from .views_without_third_party_num import *

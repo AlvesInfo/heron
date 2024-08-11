@@ -154,7 +154,7 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
             cursor.execute(sql_to_create)
 
 
-def update_edi_import_cct_uui_identifiaction(
+def update_edi_import_cct_uui_identification(
     force_update: bool = False, third_party_num: str = None
 ) -> None:
     """Mise à jour du champ cct_uui_identifiaction de la table edi_import,
@@ -223,11 +223,41 @@ def update_edi_import_cct_uui_identifiaction(
             {alls}
             """
         )
+        sql_update_signboard = sql.SQL(
+            """
+            update "edi_ediimport" "ee" 
+            set "code_signboard" = "req"."code_signboard"
+            from (
+                select 
+                    "ee"."cct_uuid_identification",  
+                    "si"."code" as "code_signboard"
+                from (
+                    select
+                        "cct_uuid_identification"
+                    from "edi_ediimport" 
+                    where "cct_uuid_identification" is not null
+                    group by "cct_uuid_identification"
+                ) "ee" 
+                left join "centers_clients_maison" "mm" 
+                on "ee"."cct_uuid_identification" = "mm"."uuid_identification" 
+                left join "centers_purchasing_signboard" "si" 
+                on "mm"."sign_board" = "si"."code"
+            ) "req" 
+            where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
+            and (
+                "ee"."code_signboard" isnull 
+                or
+                "ee"."code_signboard" != "req"."code_signboard"
+            )
+            """
+        )
 
         if third_party_num:
             cursor.execute(sql_update, {"third_party_num": third_party_num})
         else:
             cursor.execute(sql_update)
+
+        cursor.execute(sql_update_signboard)
 
 
 def set_signboard() -> None:

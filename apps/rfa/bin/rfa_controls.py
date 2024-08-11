@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2024-08-09
 modified by: Paulo ALVES
 """
+
 from typing import AnyStr
 
 import pendulum
@@ -139,7 +140,9 @@ def have_rfa_to_be_invoiced() -> AnyStr:
 
 def get_axe_rfa_period():
     """Récupération de l'axe rfa du mois de la période en cours"""
-    period = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    period = EdiValidation.objects.filter(
+        Q(final=False) | Q(final__isnull=True)
+    ).first()
 
     if not period:
         return f"{pendulum.now().year}RFA"

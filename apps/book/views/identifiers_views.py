@@ -16,7 +16,7 @@ from apps.core.bin.encoders import get_base_64
 from apps.book.bin.checks import check_cct_identifier
 from apps.edi.bin.set_suppliers_cct import (
     add_news_cct_sage,
-    update_edi_import_cct_uui_identifiaction,
+    update_edi_import_cct_uui_identification,
 )
 from apps.book.models import Society, SupplierCct
 from apps.book.forms import SupplierCctForm, SupplierCctUnitForm
@@ -94,7 +94,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
 
                             # Mise à jour du champ cct_uuid_identification
                             # dans edi_import quand il est null
-                            update_edi_import_cct_uui_identifiaction()
+                            update_edi_import_cct_uui_identification()
 
                 if not message:
                     messages.add_message(request, 50, "Vous n'avez rien modifié !")
@@ -167,7 +167,7 @@ def change_supplier_cct_unit(request):
                 messages.add_message(request, 20, message)
 
                 # Mise à jour du champ cct_uuid_identification dans edi_import quand il est null
-                update_edi_import_cct_uui_identifiaction(
+                update_edi_import_cct_uui_identification(
                     third_party_num=get_supplier_cct.third_party_num.third_party_num
                 )
 

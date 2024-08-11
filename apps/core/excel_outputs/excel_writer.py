@@ -136,6 +136,7 @@ def sheet_formatting(excel, sheet: int, columns_list, dict_args=None):
     center_horizontal = dict_args.get("centrer", True)
     repeat_row = dict_args.get("repeat_row")
     fit_page = dict_args.get("fit_page")
+    not_display_zero = dict_args.get("not_display_zero")
 
     # MISE EN PLACE DES LARGEUR DE COLONNES
     for i, dict_row in enumerate(columns_list):
@@ -158,6 +159,9 @@ def sheet_formatting(excel, sheet: int, columns_list, dict_args=None):
 
     if fit_page:
         excel.excel_sheet(sheet).fit_to_pages(*fit_page)
+
+    if not_display_zero:
+        excel.excel_sheet(sheet).hide_zero()
 
 
 def rows_writer(excel, sheet, row, col, clean_rows, formatage, formatage_odd=None):

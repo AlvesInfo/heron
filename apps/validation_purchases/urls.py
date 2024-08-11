@@ -76,6 +76,9 @@ from apps.validation_purchases.views import (
     suppliers_edi_purchases,
     edi_import_purchases_export,
     edi_import_purchases_export_csv,
+    # 6.1 Export RFA Mensuelles
+    rfa_mensuelles,
+    rfa_generated_export,
     # RFA
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
@@ -331,6 +334,19 @@ urlpatterns = [
             "edi_import_purchases_export_csv/",
             edi_import_purchases_export_csv,
             name="edi_import_purchases_export_csv",
+        ),
+    ],
+    # # 6.1 Export RFA Mensuelles
+    *[
+        path(
+            "rfa_mensuelles/",
+            rfa_mensuelles,
+            name="rfa_mensuelles",
+        ),
+        path(
+            "rfa_generated_export/",
+            rfa_generated_export,
+            name="rfa_generated_export",
         ),
     ],
     # 5.0 - Contrôle Refac M M-1 par CCT
