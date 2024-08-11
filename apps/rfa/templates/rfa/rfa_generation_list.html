@@ -7,6 +7,12 @@
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}
 
+{% block head_js %}
+    <script type="text/javascript">
+        drop_not_clearable = true
+    </script>
+{% endblock head_js %}
+
 {% block content %}
 
     {% if user.is_authenticated %}
@@ -38,8 +44,26 @@
     <script>
 
         $(document).ready(function () {
-            $('table').tablesort();
-            $('.menu .item').tab();
+            {% include "heron/base_data_table.html" %}
+
+            $(`#rfa_generation_launch`).click(function () {
+                $(this).hide()
+                $(`#generation_launch`).hide();
+                $(`#id_titre_table`).text("GENERATION EN COURS, PATIENTEZ...").css("color", "teal")
+            })
+
+            {% if en_cours %}
+                setTimeout(function() {
+                        location.href = "{% url 'rfa:rfa_generation' %}"
+                    },
+                    5000
+                )
+            {% endif %}
+            // slight update to account for browsers not supporting e.which
+            function disableF5(e) { if ((e.which || e.keyCode) === 116) e.preventDefault(); }
+            // To disable f5 jQuery >= 1.7
+            $(document).on("keydown", disableF5);
+
             $(`.datatable-chargement`).hide();
         });
 

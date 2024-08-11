@@ -1,39 +1,51 @@
-{% extends "heron/table_courant.html" %}
+{% extends "heron/update_create_courant.html" %}
 
 {% block table %}
+{% if not en_cours %}
+    <div class="four wide column"></div>
 
-<div class="four wide column"></div>
+    <div class="eight wide column">
 
-<div class="eight wide column">
-
-    <div class="five wide column"></div>
-    <div class="six wide column" style="padding: 0;margin: 10px;">
-        <div class="ui segment" style="">
-        <h4 class="ui header" style="text-align: left;">
-          <div class="content">
-            Il existe des RFA à générer pour les fournisseurs suivants:
-          </div>
-        </h4>
-            <div class="ui list">
-                {% for supplier in have_rfa %}
-                    <div class="item" style="text-align: left;padding-left: 20px;font-weight: bold;">{{ supplier }}</div>
-                {% endfor %}
+        <div class="five wide column"></div>
+        <div class="six wide column" style="padding: 0;margin: 10px;">
+            <div id="generation_launch">
+                {% if have_rfa %}
+                        <div class="ui segment" style="">
+                            <h4 class="ui header" style="text-align: left;">
+                              <div class="content">
+                                Il existe des RFA à générer pour les fournisseurs suivants:
+                              </div>
+                            </h4>
+                            <div class="ui list">
+                                {% for supplier in have_rfa %}
+                                    <div class="item" style="text-align: left;padding-left: 20px;font-weight: bold;">{{ supplier }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="ui segment" style="padding-bottom: 0;">
+                            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                                <div class="fields">
+                                    <div class="sixteen wide computer wide field">
+                                        <label for="id_section" style="text-align: left;">RFA&nbsp;:</label>
+                                        {{ form.section }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="ui segment" style="">
+                            <h4 class="ui header" style="text-align: center;color: red;">
+                              <div class="content">
+                                Il n'y a pas de RFA à générer, où elles ont déjà été générées
+                              </div>
+                            </h4>
+                        </div>
+                {% endif %}
             </div>
         </div>
-        <div class="ui segment" style="padding-bottom: 0;">
-            <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-                <div class="fields">
-                    <div class="sixteen wide computer wide field">
-                        <label for="id_section" style="text-align: left;">RFA&nbsp;:</label>
-                        {{ form.section }}
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 
-</div>
-
-<div class="two wide column"></div>
-
+    <div class="two wide column"></div>
+{% endif %}
 {% endblock table %}

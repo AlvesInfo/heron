@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2022-12-27
 modified by: Paulo ALVES
 """
+
 from typing import Any, AnyStr, Dict
 
 import pendulum
@@ -20,7 +21,12 @@ from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.core.functions.functions_utilitaires import get_module_object
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
-from apps.parameters.models import ActionInProgress, InvoiceFunctions, Counter, CounterNums
+from apps.parameters.models import (
+    ActionInProgress,
+    InvoiceFunctions,
+    Counter,
+    CounterNums,
+)
 
 
 def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
@@ -88,9 +94,11 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
                 return "_".join(name.split("_")[1:])
             else:
                 return (
-                    str(Society.objects.get(third_party_num=attr_instance).third_party_num).replace(
-                        " ", ""
-                    )
+                    str(
+                        Society.objects.get(
+                            third_party_num=attr_instance
+                        ).third_party_num
+                    ).replace(" ", "")
                     + "_"
                     + "_".join(name.split("_")[1:])
                 )
@@ -106,7 +114,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
                     "_".join(name.split("_")[:-1])
                     + "_"
                     + str(
-                        Society.objects.get(third_party_num=attr_instance).third_party_num
+                        Society.objects.get(
+                            third_party_num=attr_instance
+                        ).third_party_num
                     ).replace(" ", "")
                 )
         except Society.DoesNotExist:
@@ -117,9 +127,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
             if not attr_instance:
                 return ""
             else:
-                return str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(
-                    " ", ""
-                )
+                return str(
+                    Maison.objects.get(third_party_num=attr_instance).cct.cct
+                ).replace(" ", "")
         except Maison.DoesNotExist:
             return ""
 
@@ -129,7 +139,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
                 return "_".join(name.split("_")[1:])
             else:
                 return (
-                    str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(" ", "")
+                    str(
+                        Maison.objects.get(third_party_num=attr_instance).cct.cct
+                    ).replace(" ", "")
                     + "_"
                     + "_".join(name.split("_")[1:])
                 )
@@ -144,9 +156,9 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
                 return (
                     "_".join(name.split("_")[:-1])
                     + "_"
-                    + str(Maison.objects.get(third_party_num=attr_instance).cct.cct).replace(
-                        " ", ""
-                    )
+                    + str(
+                        Maison.objects.get(third_party_num=attr_instance).cct.cct
+                    ).replace(" ", "")
                 )
         except Maison.DoesNotExist:
             return name.split("_")[0]
@@ -190,6 +202,25 @@ def get_in_progress():
             celery_tasks = TaskResult.objects.filter(
                 task_name="apps.edi.tasks.start_edi_import"
             ).exclude(status__in=["SUCCESS", "FAILURE"])
+            in_action = celery_tasks.exists()
+
+    except ActionInProgress.DoesNotExist:
+        in_action = False
+
+    return in_action
+
+
+def get_actions_in_progress():
+    """Renvoi si un process est edi est en cours"""
+    try:
+        in_action_object = ActionInProgress.objects.filter(in_progress=True).first()
+        in_action = False if not in_action_object else True
+
+        # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
+        if in_action:
+            celery_tasks = TaskResult.objects.all().exclude(
+                status__in=["SUCCESS", "FAILURE", "REVOKED"]
+            )
             in_action = celery_tasks.exists()
 
     except ActionInProgress.DoesNotExist:
@@ -253,10 +284,14 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
     separateur = counter_instance.separateur or attr_instance_dict.get("separateur", "")
 
     if prefix:
-        str_num += get_pre_suf(name=prefix, attr_instance=attr_instance_prefix) + separateur
+        str_num += (
+            get_pre_suf(name=prefix, attr_instance=attr_instance_prefix) + separateur
+        )
 
     if suffix:
-        str_num += get_pre_suf(name=suffix, attr_instance=attr_instance_suffix) + separateur
+        str_num += (
+            get_pre_suf(name=suffix, attr_instance=attr_instance_suffix) + separateur
+        )
 
     str_num += str(counter_num_obj.num).zfill(ldap_num)
 

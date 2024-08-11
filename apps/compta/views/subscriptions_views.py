@@ -77,7 +77,7 @@ def royalties_launch(request):
     context = {
         "en_cours": in_action,
         "titre_table": (
-            "INTEGRATION EN COURS, PATIENTEZ..."
+            "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
             if in_action
             else "Génération des factures de Royalties"
         ),
@@ -147,7 +147,7 @@ def meuleuse_launch(request):
     context = {
         "en_cours": in_action,
         "titre_table": (
-            "INTEGRATION EN COURS, PATIENTEZ..."
+            "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
             if in_action
             else "Génération des factures de Meuleuses"
         ),
@@ -217,7 +217,7 @@ def publicity_launch(request):
     context = {
         "en_cours": in_action,
         "titre_table": (
-            "INTEGRATION EN COURS, PATIENTEZ..."
+            "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
             if in_action
             else "Génération des factures de Publicité"
         ),
@@ -287,7 +287,7 @@ def services_launch(request):
     context = {
         "en_cours": in_action,
         "titre_table": (
-            "INTEGRATION EN COURS, PATIENTEZ..."
+            "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
             if in_action
             else "Génération des factures de Prestations"
         ),

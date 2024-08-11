@@ -93,33 +93,41 @@ def have_rfa_to_be_invoiced() -> AnyStr:
     """Contrôle qu'il y ait des factures de RFA à générer"""
     sql_control = """
     select 
-        "ei"."third_party_num" as "signboard"
+        "ee"."third_party_num" as "signboard"
     from (
         select 
             "third_party_num",
             "code_signboard",
             "cct_uuid_identification",
+            "axe_pro",
+            "axe_rfa",
             case 
                 when "flow_name" = 'rfa_flow' 
                 then 1 
                 else 0
             end as "flow_count"
         from "edi_ediimport"
-    ) "ei" 
-    join "rfa_supplierrate" "rs" 
-    on "ei"."third_party_num" = "rs"."supplier"
+    ) "ee" 
+    join "centers_clients_maison" "mm"
+    on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
+    join "rfa_sectionproexclusion" "pro"
+    on "ee"."axe_pro" <> "pro"."axe_pro" 
+    join "rfa_sectionrfa" "rfa"
+    on "ee"."axe_rfa" <> "rfa"."axe_rfa" 
     join "rfa_signboardexclusion" "ens"
-    on "ei"."code_signboard" != "ens"."signboard"
-    join (
-        select 
-            "cen"."uuid_identification"
-        from "rfa_clientexclusion" "rfa"
-        join "centers_clients_maison" "cen"
-        on "rfa"."cct" = "cen"."cct" 
-    ) "cli"
-    on "ei"."cct_uuid_identification" != "cli"."uuid_identification"
-    group by "ei"."third_party_num"
-    having sum("ei"."flow_count") = 0
+    on "ee"."code_signboard" <> "ens"."signboard"
+    join "rfa_supplierrate" "rs" 
+    on "ee"."third_party_num" = "rs"."supplier"
+    where not exists (
+            select 
+                1
+            from "rfa_clientexclusion" "rf"
+            join "centers_clients_maison" "cen"
+            on "rf"."cct" = "cen"."cct"
+            where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
+    )
+    group by "ee"."third_party_num"
+    having sum("ee"."flow_count") = 0
     """
 
     with connection.cursor() as cursor:

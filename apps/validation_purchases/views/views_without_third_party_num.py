@@ -44,7 +44,7 @@ def purchase_without_suppliers(request):
 
     if get_in_progress():
         context["en_cours"] = True
-        context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ..."
+        context["titre_table"] = "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
 
     return render(
         request, "validation_purchases/integration_without_third_party_num.html", context=context

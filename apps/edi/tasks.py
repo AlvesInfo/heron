@@ -245,7 +245,8 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
     trace = None
     to_print = ""
     function = get_object(task_to_launch)
-    print(function.__name__)
+    # print(function.__name__)
+
     try:
         trace, to_print = function(dte_d, dte_f, user)
         trace.created_by = User.objects.get(uuid_identification=UUID(user))

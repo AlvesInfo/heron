@@ -483,6 +483,8 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
         # On initialise l'action comme en cours
         active_action.in_progress = True
         active_action.save()
+
+        # On regroupe les tâches celery à lancer
         result = group(
             *[
                 celery_app.signature(

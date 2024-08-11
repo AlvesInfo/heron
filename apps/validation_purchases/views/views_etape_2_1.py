@@ -99,7 +99,7 @@ def integration_purchases(request):
 
     if get_in_progress():
         context["en_cours"] = True
-        context["titre_table"] = "INTEGRATION EN COURS, PATIENTEZ..."
+        context["titre_table"] = "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
 
     return render(request, "validation_purchases/integration_purchases.html", context=context)
 
