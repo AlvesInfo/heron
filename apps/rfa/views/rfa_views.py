@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import render, redirect, reverse
 
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.articles.models import Article
 from apps.rfa.bin.rfa_controls import (
     supplier_control_validation,
@@ -16,10 +15,6 @@ from apps.rfa.bin.rfa_controls import (
 )
 from apps.rfa.forms import AxeRfaForm
 from apps.rfa.loops.rfa_loop_pool import rfa_generation_launch
-from apps.core.functions.functions_http_response import (
-    response_file,
-    CONTENT_TYPE_EXCEL,
-)
 from apps.parameters.bin.core import get_actions_in_progress
 
 # ECRANS DES GENERATION DES RFA ====================================================================
@@ -29,20 +24,6 @@ def redirect_validation(request):
     """Retourne le redirect uri si les validations ne passent pas"""
 
     error_level = 50
-
-    new_articles = Article.objects.filter(
-        Q(new_article=True)
-        | Q(error_sub_category=True)
-        | Q(axe_bu__isnull=True)
-        | Q(axe_prj__isnull=True)
-        | Q(axe_pro__isnull=True)
-        | Q(axe_pys__isnull=True)
-        | Q(axe_rfa__isnull=True)
-        | Q(big_category__isnull=True)
-    )
-
-    if new_articles:
-        return redirect(reverse("articles:new_articles_list"))
 
     message_control = supplier_control_validation()
 
@@ -65,6 +46,20 @@ def rfa_generation(request):
     in_action = get_actions_in_progress()
     form = AxeRfaForm(request.POST or None)
     have_rfa = have_rfa_to_be_invoiced()
+
+    new_articles = Article.objects.filter(
+        Q(new_article=True)
+        | Q(error_sub_category=True)
+        | Q(axe_bu__isnull=True)
+        | Q(axe_prj__isnull=True)
+        | Q(axe_pro__isnull=True)
+        | Q(axe_pys__isnull=True)
+        | Q(axe_rfa__isnull=True)
+        | Q(big_category__isnull=True)
+    )
+
+    if new_articles:
+        return redirect(reverse("articles:new_articles_list"))
 
     if not in_action and have_rfa:
         if request.method == "GET":
