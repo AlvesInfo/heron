@@ -50,15 +50,6 @@ def rfa_generation(request):
             )
 
             if new_articles:
-                request.session["level"] = error_level
-                messages.add_message(
-                    request,
-                    error_level,
-                    (
-                        "Vous ne pouvez pas générer les RFA, "
-                        "il reste des nouveaux articles, à compléter!"
-                    ),
-                )
                 return redirect(reverse("articles:new_articles_list"))
 
             message_control = supplier_control_validation()
