@@ -50,6 +50,7 @@
                 $(this).hide()
                 $(`#generation_launch`).hide();
                 $(`#id_titre_table`).text("GENERATION EN COURS, PATIENTEZ...").css("color", "teal")
+                $("#messages_messages").hide()
             })
 
             {% if en_cours %}
