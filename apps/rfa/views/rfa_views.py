@@ -65,7 +65,7 @@ def rfa_generation(request):
             messages.add_message(
                 request,
                 level,
-                "Vous ne pouvez pas re-générer de RFA, car il y a des nouveaux articles",
+                "Vous ne pouvez pas générer de RFA, car il y existe de nouveaux articles",
             )
 
         return redirect(reverse("articles:new_articles_list"))
