@@ -16,7 +16,7 @@ COPY (
         end as "Total HT",
         case
             when right(to_char("si"."invoice_amount_tax", 'FM99999D99'), 1) = ','
-            then replace(to_char("si"."invoice_amount_tax", 'FM99999D99'), ',', '')
+            then replace(to_char("si"."invoice_amount_tax", 'FM99999D99'), '.', '')
             else to_char("si"."invoice_amount_tax", 'FM99999D99')
         end as "Total TVA",
         case
@@ -40,6 +40,7 @@ COPY (
             then replace(to_char("si"."net_unit_price", 'FM99999D99'), ',', '')
             else to_char("si"."net_unit_price", 'FM99999D99')
         end as "PU Net",
+        "si"."net_unit_price",
         case
             when right(to_char("si"."net_amount", 'FM99999D99'), 1) = ','
             then replace(to_char("si"."net_amount", 'FM99999D99'), ',', '')

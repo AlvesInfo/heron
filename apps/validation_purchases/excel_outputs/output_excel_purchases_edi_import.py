@@ -15,7 +15,6 @@ from pathlib import Path
 from psycopg2 import sql
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
-from heron.settings import MEDIA_EXCEL_FILES_DIR
 from apps.core.functions.functions_setups import settings, connection
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
@@ -94,7 +93,7 @@ def excel_heron_purchases_edi_import(file_io: io.BytesIO, file_name: str) -> dic
 
 
 def csv_heron_purchases_edi_import(emplacement: Path) -> dict:
-    """Fonction de génération du fichier csvde liste achats fournisseurs imports edi"""
+    """Fonction de génération du fichier csv de liste achats fournisseurs imports edi"""
 
     try:
 
