@@ -203,17 +203,17 @@ SQL_RFA_INSERTION = sql.SQL(
             on "rf"."cct" = "cen"."cct"
             where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
     )
-    and exists (
-        select 
-            1
-        from "rfa_sectionrfa" "rfa"
-        where "ee"."axe_rfa"= "rfa"."axe_rfa"
-    )
     and not exists (
                 select 
             1
         from "rfa_sectionproexclusion" "pro"
         where "ee"."axe_pro" = "pro"."axe_pro"
+    )
+    and exists (
+        select 
+            1
+        from "rfa_sectionrfa" "rfa"
+        where "ee"."axe_rfa"= "rfa"."axe_rfa"
     )
     and not exists (
                 select 
