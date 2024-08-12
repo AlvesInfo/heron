@@ -937,22 +937,6 @@ columns_purchases_edi = [
         "width": 10,
     },
     {
-        "entete": "Montant\nNet",
-        "f_entete": {
-            **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
-        },
-        "f_ligne": {
-            **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
-        },
-        "width": 10,
-    },
-    {
         "entete": "VAT",
         "f_entete": {
             **f_entetes,
