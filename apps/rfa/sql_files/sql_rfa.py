@@ -194,6 +194,9 @@ SQL_RFA_INSERTION = sql.SQL(
     join "centers_clients_maison" "mm"
     on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
 
+    join "rfa_supplierrate" "rs" 
+    on "ee"."third_party_num" = "rs"."supplier"
+        
     where "ee"."third_party_num" = %(third_party_num)s
     and not exists (
             select 
@@ -204,7 +207,7 @@ SQL_RFA_INSERTION = sql.SQL(
             where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
     )
     and not exists (
-                select 
+        select 
             1
         from "rfa_sectionproexclusion" "pro"
         where "ee"."axe_pro" = "pro"."axe_pro"
@@ -216,16 +219,10 @@ SQL_RFA_INSERTION = sql.SQL(
         where "ee"."axe_rfa"= "rfa"."axe_rfa"
     )
     and not exists (
-                select 
+         select 
             1
         from "rfa_signboardexclusion" "ens"
         where "ee"."code_signboard" = "ens"."signboard"
-    )
-    and exists (
-                select 
-            1
-        from "rfa_supplierrate" "rs" 
-        where "ee"."third_party_num" = "rs"."supplier"
     )
     and "ee"."flow_name" <> 'rfa_flow'
     group by "mm"."cct", "mm"."intitule", "rs"."rfa_rate"
