@@ -147,7 +147,7 @@ SQL_RFA_INSERTION = sql.SQL(
             else  1
         end as "qty",
         round(
-            (sum("ee"."gross_unit_price") * "rs"."rfa_rate")::numeric, 
+            (sum("ee"."gross_amount"))::numeric, 
             2
         )::numeric as "gross_unit_price",
         round(
@@ -155,7 +155,7 @@ SQL_RFA_INSERTION = sql.SQL(
             2
         )::numeric as "net_unit_price",
         round(
-            (sum(-"ee"."gross_amount") * "rs"."rfa_rate")::numeric, 
+            (sum(-"ee"."gross_amount"))::numeric, 
             2
         )::numeric as "gross_amount",
         round(
