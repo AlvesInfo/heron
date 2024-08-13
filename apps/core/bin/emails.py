@@ -23,7 +23,6 @@ import dkim
 from bs4 import BeautifulSoup
 
 from apps.core.functions.functions_setups import settings
-from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from heron.loggers import LOGGER_EMAIL
 
