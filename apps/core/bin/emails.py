@@ -126,7 +126,7 @@ def send_mass_mail(email_list):
 
     try:
 
-        for emails_slice in iter_slice(email_list, 50):
+        for emails_slice in iter_slice(email_list, 14):
             with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
                 server.starttls(context=ssl.create_default_context())
                 server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
@@ -134,7 +134,7 @@ def send_mass_mail(email_list):
                 for email_to_send in emails_slice:
                     send_mail(server, *email_to_send)
 
-            time.sleep(2)
+            time.sleep(1)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
