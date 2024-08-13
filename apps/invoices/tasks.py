@@ -414,11 +414,10 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     try:
         tasks_list = []
 
-
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
             server.starttls()
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-
+            print("server_id", str(id(server)))
             for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
                 context_dict["email_list"] = mails_essis_dict.get(i)
 
@@ -448,11 +447,12 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
 
 
 @shared_task(name="send_invoice_email_essais")
-def send_invoice_email_essais(context_dict: Dict, user_pk: int):
+def send_invoice_email_essais(context_dict: Dict, user_pk: int, server_id):
     """
     Essais d'envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param server_id: id de l'objet serveur smtp
     """
 
     start_initial = time.time()
