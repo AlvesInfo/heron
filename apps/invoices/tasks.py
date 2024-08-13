@@ -43,8 +43,6 @@ EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
-server_instance = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-
 
 @shared_task(name="invoices_insertions_launch")
 def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
@@ -417,11 +415,6 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     try:
         tasks_list = []
 
-        global server_instance
-
-        server_instance = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server_instance.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-
         for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
             context_dict["email_list"] = mails_essis_dict.get(i)
 
@@ -438,9 +431,6 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
 
         result = group(*tasks_list)()().get(3600)
         print(result)
-        if server_instance:
-            server_instance.close()
-            server_instance = None
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
@@ -468,9 +458,12 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        global server_instance
-        trace, to_print = essais_send_by_email(server_instance, context_dict)
-        trace.created_by = user
+
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+            trace, to_print = essais_send_by_email(server, context_dict)
+            trace.created_by = user
 
     except TypeError as except_error:
         error = True

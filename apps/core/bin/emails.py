@@ -114,5 +114,4 @@ def send_mail(server, mail_to, subject, email_text, email_html, context, attache
         ).decode()
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
-    server.starttls()
     server.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
