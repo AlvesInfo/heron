@@ -429,7 +429,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
                     )
                 )
 
-        result = group(*tasks_list)()().get(3600)
+        result = group(*tasks_list)().get(3600)
         print(result)
 
     except (smtplib.SMTPException, ValueError) as error:
