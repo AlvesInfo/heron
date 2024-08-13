@@ -43,6 +43,8 @@ EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
+server_instance = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+
 
 @shared_task(name="invoices_insertions_launch")
 def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
@@ -286,7 +288,8 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
             server.starttls()
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
             trace, to_print = invoices_send_by_email(server, context_dict)
-        trace.created_by = user
+            trace.created_by = user
+
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
@@ -414,27 +417,31 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     try:
         tasks_list = []
 
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-            print("server_id", str(id(server)))
-            for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
-                context_dict["email_list"] = mails_essis_dict.get(i)
+        global server_instance
 
-                for _ in range_list:
-                    tasks_list.append(
-                        celery_app.signature(
-                            "send_invoice_email_essais",
-                            kwargs={
-                                "context_dict": {**context_dict},
-                                "user_pk": str(user_pk),
-                                "server_id": str(id(server))
-                            },
-                        )
+        server_instance = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server_instance.starttls()
+        server_instance.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
+        for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
+            context_dict["email_list"] = mails_essis_dict.get(i)
+
+            for _ in range_list:
+                tasks_list.append(
+                    celery_app.signature(
+                        "send_invoice_email_essais",
+                        kwargs={
+                            "context_dict": {**context_dict},
+                            "user_pk": str(user_pk),
+                        },
                     )
+                )
 
-            result = group(*tasks_list)()().get(3600)
-            print(result)
+        result = group(*tasks_list)()().get(3600)
+        print(result)
+        if server_instance:
+            server_instance.close()
+            server_instance = None
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
@@ -447,12 +454,11 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
 
 
 @shared_task(name="send_invoice_email_essais")
-def send_invoice_email_essais(context_dict: Dict, user_pk: int, server_id):
+def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     """
     Essais d'envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
-    :param server_id: id de l'objet serveur smtp
     """
 
     start_initial = time.time()
@@ -463,8 +469,8 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int, server_id):
 
     try:
         user = User.objects.get(pk=user_pk)
-        server = ctypes(int(server_id), ctypes.py_object)
-        trace, to_print = essais_send_by_email(server, context_dict)
+        global server_instance
+        trace, to_print = essais_send_by_email(server_instance, context_dict)
 
         trace.created_by = user
 
