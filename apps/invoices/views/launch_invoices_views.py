@@ -1,4 +1,5 @@
 # pylint: disable=E0401
+# ruff: noqa: E722
 """
 FR : View des lancements de la facturations
 EN : View of invoicing launches
@@ -11,6 +12,7 @@ created by: Paulo ALVES
 modified at: 2023-06-07
 modified by: Paulo ALVES
 """
+
 import zipfile
 from zipfile import ZipFile
 from pathlib import Path
@@ -25,7 +27,6 @@ from django.db import transaction
 from heron import celery_app
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.content_types import CONTENT_TYPE_FILE
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
 from apps.periods.forms import MonthForm
@@ -35,8 +36,9 @@ from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion
 from apps.invoices.bin.finalize import finalize_global_invoices
 from apps.articles.models import Article
-from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
-from apps.invoices.bin.export_csv_achats import get_achats
+from apps.centers_purchasing.sql_files.sql_elements import (
+    articles_acuitis_without_accounts,
+)
 
 
 def generate_invoices_insertions(request):
@@ -151,7 +153,11 @@ def generate_pdf_invoice(request):
     sales_invoices_exists = SaleInvoice.objects.filter(
         final=False, printed=False, type_x3__in=(1, 2)
     ).exists()
-    context = {"margin_table": 50, "titre_table": titre_table, "news": sales_invoices_exists}
+    context = {
+        "margin_table": 50,
+        "titre_table": titre_table,
+        "news": sales_invoices_exists,
+    }
 
     if not sales_invoices_exists:
         request.session["level"] = 50
@@ -163,9 +169,13 @@ def generate_pdf_invoice(request):
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
-    if all([request.method == "POST", not insertion, not pdf_invoices, not email_invoices]):
+    if all(
+        [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
+    ):
         user_pk = request.user.pk
-        celery_app.signature("celery_pdf_launch", kwargs={"user_pk": str(user_pk)}).apply_async()
+        celery_app.signature(
+            "celery_pdf_launch", kwargs={"user_pk": str(user_pk)}
+        ).apply_async()
         pdf_invoices = True
 
     if insertion:
@@ -256,7 +266,12 @@ def get_pdf_file(request, file_name):
                     SaleInvoice.objects.exclude(global_invoice_file__isnull=True)
                     .exclude(global_invoice_file="")
                     .filter(invoice_date__range=(dte_d, dte_f))
-                    .values("cct", "parties__name_cct", "invoice_month", "global_invoice_file")
+                    .values(
+                        "cct",
+                        "parties__name_cct",
+                        "invoice_month",
+                        "global_invoice_file",
+                    )
                     .annotate(dcount=Count("cct"))
                 )
                 compression = zipfile.ZIP_DEFLATED
@@ -266,14 +281,18 @@ def get_pdf_file(request, file_name):
                 ) as zip_file:
                     # On itère sur les pdf pour les zipper
                     for pdf_invoice in pdf_invoices:
-                        file = Path(settings.SALES_INVOICES_FILES_DIR) / pdf_invoice.get(
-                            "global_invoice_file"
+                        file = Path(
+                            settings.SALES_INVOICES_FILES_DIR
+                        ) / pdf_invoice.get("global_invoice_file")
+                        zip_file.write(
+                            file, file.name, compress_type=compression, compresslevel=9
                         )
-                        zip_file.write(file, file.name, compress_type=compression, compresslevel=9)
 
             file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file_name
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
-            response = HttpResponse(file_path.open("rb").read(), content_type=content_type)
+            response = HttpResponse(
+                file_path.open("rb").read(), content_type=content_type
+            )
             response["Content-Disposition"] = f"attachment; filename={file_name}"
 
             return response
@@ -301,7 +320,11 @@ def send_email_pdf_invoice(request):
     sales_invoices_exists = SaleInvoice.objects.filter(
         final=False, send_email=False, type_x3__in=(1, 2), printed=True
     ).exists()
-    context = {"margin_table": 50, "titre_table": titre_table, "news": sales_invoices_exists}
+    context = {
+        "margin_table": 50,
+        "titre_table": titre_table,
+        "news": sales_invoices_exists,
+    }
 
     if not sales_invoices_exists:
         request.session["level"] = 50
@@ -313,7 +336,9 @@ def send_email_pdf_invoice(request):
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
-    if all([request.method == "POST", not insertion, not pdf_invoices, not email_invoices]):
+    if all(
+        [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
+    ):
         user_pk = request.user.pk
         celery_app.signature(
             "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
@@ -379,7 +404,9 @@ def finalize_period(request):
         )
         return redirect(reverse("articles:articles_without_account_list"))
 
-    integration_valid = EdiImportControl.objects.filter(Q(valid=False) | Q(valid__isnull=True))
+    integration_valid = EdiImportControl.objects.filter(
+        Q(valid=False) | Q(valid__isnull=True)
+    )
     # print(integration_valid)
 
     if integration_valid:
@@ -405,7 +432,9 @@ def finalize_period(request):
 
     # On met à True les validations vérifiées
     edi_validation = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .order_by("-id")
+        .first()
     )
     edi_validation.articles_news = True
     edi_validation.articles_without_account = True
@@ -415,7 +444,9 @@ def finalize_period(request):
 
     # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
     not_finalize = control_insertion()
-    initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(months=1)
+    initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(
+        months=1
+    )
     initial_value = (
         f"{initial_period.start_of('month').date().isoformat()}"
         "_"
@@ -469,7 +500,9 @@ def finalize_period(request):
             )
     elif any(
         [
-            SaleInvoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
+            SaleInvoice.objects.filter(
+                Q(export__isnull=True) | Q(export=False)
+            ).exists(),
             Invoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
         ]
     ):
@@ -494,36 +527,3 @@ def finalize_period(request):
     context["titre_table"] = titre_table
 
     return render(request, "invoices/finalize_invoices.html", context=context)
-
-
-def valid_export_achats(request):
-    """Vue d'export des achats pour Eric Martinet"""
-    titre_table = "EXPORT DES ACHATS AUX DATES DE LA DERNIERE FINALISATION VALIDE"
-    context = {"margin_table": 50, "titre_table": titre_table}
-
-    if request.method == "POST":
-        return redirect(reverse("invoices:export_achats"))
-
-    return render(request, "invoices/export_achats_invoices.html", context=context)
-
-
-def export_achats(_):
-    """
-    Export du csv achats pour Eric Martinet
-    :return:
-    """
-    try:
-        today = pendulum.now()
-        edi_validation = EdiValidation.objects.filter(final=True).order_by("-id").first()
-        dte_d = pendulum.parse(edi_validation.billing_period.isoformat())
-        dte_f = dte_d.last_of("month")
-        file_name = (
-            f"ACHATS_HERON_PERIOD_"
-            f"{dte_d.format('Y_M_D')}_TO_{dte_f.format('Y_M_D')}_{today.int_timestamp}.csv"
-        )
-        return response_file(get_achats, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
-
-    except:
-        LOGGER_VIEWS.exception("view : export_achats")
-
-    return redirect(reverse("invoices:export_achats"))

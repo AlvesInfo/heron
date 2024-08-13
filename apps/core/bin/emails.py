@@ -11,6 +11,7 @@ modified at: 2023-06-13
 modified by: Paulo ALVES
 """
 import smtplib
+import ssl
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -21,6 +22,7 @@ import dkim
 from bs4 import BeautifulSoup
 
 from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from heron.loggers import LOGGER_EMAIL
 
@@ -122,9 +124,19 @@ def send_mass_mail(email_list):
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     try:
-        with SmtpServer() as server:
-            for email_to_send in email_list:
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.starttls(context=ssl.create_default_context())
+        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
+        for emails_slice in iter_slice(email_list, 50):
+            server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+            server.starttls(context=ssl.create_default_context())
+            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
+            for email_to_send in emails_slice:
                 send_mail(server, *email_to_send)
+
+            server.close()
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error

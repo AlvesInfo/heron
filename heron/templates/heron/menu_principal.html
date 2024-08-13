@@ -282,7 +282,7 @@
                             <a href="{% url 'edi:create_hand_invoices' category='marchandises' %}" class="item">01. Factures</a>
                             <a href="{% url 'edi:create_hand_invoices' category='formation' %}" class="item">02. Formation</a>
                             <a href="{% url 'edi:create_hand_invoices' category='personnel' %}" class="item">03. Personnel</a>
-                            {% if user.email == 'paulo@alves.ovhi' %}
+                            {% if user.email == 'paulo@alves.ovh' %}
                                 <a href="{% url 'invoices:invoice_search_list' %}" class="item">04. Réaffectation</a>
                             {% endif %}
                         </div>
@@ -339,7 +339,7 @@
                             <a href="{% url 'invoices:finalize_period' %}" class="item">5.0 Finalisation période facturation</a>
                             <div class="ui divider" style="margin: 5px 0;"></div>
                             {% if user.email == 'paulo@alves.ovh' %}
-                                <a href="{% url 'invoices:valid_export_achats' %}" class="item">5.1 Export Achats</a>
+                                <a href="{% url 'invoices:valid_export_achats' %}" class="item">5.1 Export Achats (Eric)</a>
                             {% endif %}
                         </div>
                     </div>

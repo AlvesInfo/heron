@@ -1,0 +1,39 @@
+{% block table %}
+
+<div class="ui segment" style="padding: 10px 10px 0;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
+    <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+        <div class="fields" style="">
+            <div class="five wide field">
+                <label for="id_third_party_num" style="text-align: left;">Période&nbsp;:</label>
+                {{ form.periode }}
+            </div>
+        </div>
+        <div class="fields" style="">
+            <div class="five wide field">
+                <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
+                {{ form.third_party_num }}
+            </div>
+            <div class="two wide field">
+                <label for="id_invoice_year" style="text-align: left;">Client/Maisons&nbsp;:</label>
+                  {{ form.maison }}
+            </div>
+        </div>
+        <div class="fields" style="">
+            <div class="three wide field">
+                <label for="id_invoice_number__icontains" style="text-align: left;">Familles&nbsp;:</label>
+                  {{ form.famille }}
+            </div>
+            <div class="four wide field">
+                <label for="id_cct" style="text-align: left;">Enseigne&nbsp;:</label>
+                  {{ form.signbord }}
+            </div>
+            <div class="four wide field">
+                <label for="id_cct" style="text-align: left;">Pays&nbsp;:</label>
+                  {{ form.pays }}
+            </div>
+        </div>
+
+    </div>
+  </div>
+
+{% endblock table %} %}
