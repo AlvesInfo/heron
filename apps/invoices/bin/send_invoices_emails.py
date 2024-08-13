@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-06-13
 modified by: Paulo ALVES
 """
+
 import os
 import sys
 import platform
@@ -41,7 +42,7 @@ from apps.core.bin.emails import send_mass_mail
 from apps.invoices.models import SaleInvoice
 
 
-def invoices_send_by_email(context_dict: Dict):
+def invoices_send_by_email(server, context_dict: Dict):
     """
     Envoi d'une facture par mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
@@ -50,7 +51,9 @@ def invoices_send_by_email(context_dict: Dict):
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
     """
     start = time.time()
-    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get("global_invoice_file")
+    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get(
+        "global_invoice_file"
+    )
     error = False
     trace = get_trace(
         trace_name="Send invoices mail",
@@ -143,15 +146,16 @@ def invoices_send_by_email(context_dict: Dict):
                 mail_to_list.append(email_06)
 
             context_email["factures"] += (
-                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">' f"{invoice}</p>"
+                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
+                f"{invoice}</p>"
             )
 
     mail_to_list = [mail for mail in mail_to_list if mail]
 
     try:
-
         if mail_to_list:
             send_mass_mail(
+                server,
                 [
                     (
                         mail_to_list,
@@ -170,13 +174,17 @@ def invoices_send_by_email(context_dict: Dict):
 
         else:
             error = True
-            trace.comment = f"Pas d'adresses mail pour le client : {context_email.get('ctt')}"
+            trace.comment = (
+                f"Pas d'adresses mail pour le client : {context_email.get('ctt')}"
+            )
             trace.file_name = f"Send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
     except EmailException as except_error:
         error = True
-        LOGGER_EMAIL.exception(f"Exception EmailException : {str(mail_to_list)}{except_error!r}")
+        LOGGER_EMAIL.exception(
+            f"Exception EmailException : {str(mail_to_list)}{except_error!r}"
+        )
 
     except Exception as except_error:
         error = True

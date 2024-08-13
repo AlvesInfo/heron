@@ -12,7 +12,6 @@ modified by: Paulo ALVES
 """
 import smtplib
 import ssl
-import time
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -115,7 +114,7 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
     body.attach(MIMEText(translate_email_html, "html"))
 
 
-def send_mass_mail(email_to_send):
+def send_mass_mail(server, email_to_send):
     """Envoi des mails en masse"""
     if email_to_send is None:
         email_to_send = []
@@ -125,12 +124,16 @@ def send_mass_mail(email_to_send):
 
     try:
 
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls(context=ssl.create_default_context())
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-            send_mail(server, *email_to_send)
-
-        time.sleep(1)
+        mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
+        send_mail(
+            server,
+            mail_to,
+            subject,
+            email_text,
+            email_html,
+            context,
+            attachement_file_list,
+        )
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
