@@ -420,7 +420,6 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         global server_instance
 
         server_instance = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server_instance.starttls()
         server_instance.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
         for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
