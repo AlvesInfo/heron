@@ -382,7 +382,6 @@ def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000
     return not trace.errors
 
 
-@shared_task(name="celery_send_emails_essais")
 def launch_celery_send_emails_essais(user_pk: AnyStr):
     """
     Essais d'envoi des factures par mails
@@ -429,7 +428,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
                     )
                 )
 
-        result = group(*tasks_list)
+        result = group(*tasks_list).get(3600)
         print(result)
 
     except (smtplib.SMTPException, ValueError) as error:
