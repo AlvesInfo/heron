@@ -37,11 +37,14 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
 from apps.invoices.bin.export_x3 import export_files_x3
+from apps.core.functions.functions_mails import SmtpServer
 
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
+
+server = SmtpServer(EMAIL_HOST, EMAIL_PORT)
 
 
 @shared_task(name="invoices_insertions_launch")
@@ -409,6 +412,9 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     }
     nb_iter = 30
     nb_mails = nb_iter * len(mails_essis_dict)
+    global server
+    server.starttls()
+    server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
     try:
         tasks_list = []
@@ -427,7 +433,8 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
                     )
                 )
 
-        group(*tasks_list).apply_async()
+        result = group(*tasks_list)()().get(3600)
+        print(result)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
@@ -437,6 +444,8 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.invoices.tasks.launch_celery_send_emails_essais()"
         )
+    finally:
+        server.close()
 
 
 @shared_task(name="send_invoice_email_essais")
@@ -446,7 +455,7 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
-
+    global server
     start_initial = time.time()
 
     error = False

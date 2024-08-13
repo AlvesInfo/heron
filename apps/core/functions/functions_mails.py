@@ -381,33 +381,3 @@ class SmtpServer(SMTP):
             cls._instance = super(SmtpServer, cls).__new__(cls, *args, **kwargs)
 
         return cls._instance
-
-    def __init__(
-        self,
-        host: str = EMAIL_HOST,
-        port: int = EMAIL_PORT,
-        username: str = EMAIL_HOST_USER,
-        password: str = EMAIL_HOST_PASSWORD,
-        use_starttls: bool = True,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-        self.use_starttls = use_starttls
-        self.kws_smtp = kwargs or {}
-        self.connection = None
-
-    def close(self):
-        """Close (quit) the connection"""
-        if self.connection:
-            self.connection.quit()
-            self.connection = None
-
-    @property
-    def is_alive(self):
-        """bool: Check if there is a connection to the SMTP server"""
-        return self.connection is not None
