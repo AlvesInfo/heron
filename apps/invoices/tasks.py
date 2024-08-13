@@ -406,7 +406,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         8: "gdaud@alves-info.fr",
         9: "saisie.sav.acuitis@alves-info.fr",
     }
-    nb_iter = 20
+    nb_iter = 30
     nb_mails = nb_iter * len(mails_essis_dict)
 
     try:
