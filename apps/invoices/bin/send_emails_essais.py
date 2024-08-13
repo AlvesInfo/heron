@@ -129,9 +129,8 @@ def essais_send_by_email(server, context_dict: Dict):
         f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">' f"{invoice}</p>"
     )
 
-    mail_to_list = [mail for mail in mail_to_list if mail]
-
     try:
+        print(mail_to_list)
         if mail_to_list:
             send_mass_mail(
                 server,
