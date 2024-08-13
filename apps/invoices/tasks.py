@@ -406,7 +406,6 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         7: "d.optiques@alves-info.fr",
         8: "gdaud@alves-info.fr",
         9: "saisie.sav.acuitis@alves-info.fr",
-        10: "defie@free.fr",
     }
     nb_iter = 20
     nb_mails = nb_iter * len(mails_essis_dict)
