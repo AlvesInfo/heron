@@ -127,7 +127,8 @@ def send_mass_mail(email_list):
     try:
 
         for emails_slice in iter_slice(email_list, 50):
-            with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT) as server:
+            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+                server.starttls(context=ssl.create_default_context())
                 server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
                 for email_to_send in emails_slice:
