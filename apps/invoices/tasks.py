@@ -454,7 +454,7 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     try:
         user = User.objects.get(pk=user_pk)
 
-        with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT) as server:
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
             server.starttls()
             server.ehlo("acuitis.com")
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
