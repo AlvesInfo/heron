@@ -26,11 +26,13 @@ from bs4 import BeautifulSoup
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
 from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
+from apps.invoices.bin.send_emails_essais import essais_send_by_email
 from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
@@ -76,7 +78,8 @@ def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -123,7 +126,11 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
             tasks_list.append(
                 celery_app.signature(
                     "launch_generate_pdf_invoices",
-                    kwargs={"cct": str(cct), "num_file": str(num_file), "user_pk": str(user_pk)},
+                    kwargs={
+                        "cct": str(cct),
+                        "num_file": str(num_file),
+                        "user_pk": str(user_pk),
+                    },
                 )
             )
 
@@ -170,7 +177,8 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -180,11 +188,15 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
         to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "
     )
 
-    return {"Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"}
+    return {
+        "Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"
+    }
 
 
 @shared_task(name="celery_send_invoices_emails")
-def launch_celery_send_invoice_mails(user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None):
+def launch_celery_send_invoice_mails(
+    user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None
+):
     """
     Main pour lancement de l'enoi des factures par mails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
@@ -290,7 +302,8 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -349,7 +362,8 @@ def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -364,3 +378,124 @@ def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000
     )
 
     return not trace.errors
+
+
+@shared_task(name="celery_send_emails_essais")
+def launch_celery_send_emails_essais(user_pk: AnyStr):
+    """
+    Essais d'envoi des factures par mails
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    """
+    # récupération du texte du corps de mail et sujet
+    email = Email.objects.get(name=0)
+    context_dict = {
+        "subject_email": str(email.subject),
+        "email_html": str(email.email_body),
+        "email_text": BeautifulSoup(str(email.email_body), "lxml").get_text(),
+        "cct": "cct général",
+        "invoice_month": "2000-01-01",
+        "global_invoice_file": "un.pdf",
+    }
+    mails_essis_dict = {
+        1: "paulo@alves-info.fr",
+        2: "admin.bi@acuitis.com",
+        3: "paulo@alves.ovh",
+        4: "paulo.alves@4a-info.fr",
+        5: "sav.acuitis@alves-info.fr",
+        6: "bi.acuitis@alves-info.fr",
+        7: "d.optiques@alves-info.fr",
+        8: "gdaud@alves-info.fr",
+        9: "saisie.sav.acuitis@alves-info.fr",
+        10: "defie@free.fr",
+    }
+    nb_iter = 20
+    nb_mails = nb_iter * len(mails_essis_dict)
+
+    try:
+        tasks_list = []
+
+        for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
+            context_dict["email_list"] = [mails_essis_dict.get(i)]
+            for _ in range_list:
+                tasks_list.append(
+                    celery_app.signature(
+                        "send_invoice_email_essais",
+                        kwargs={
+                            "context_dict": {**context_dict},
+                            "user_pk": str(user_pk),
+                        },
+                    )
+                )
+
+        group(*tasks_list).apply_async()
+
+    except (smtplib.SMTPException, ValueError) as error:
+        raise EmailException("Erreur envoi email") from error
+
+    except Exception as error:
+        print("Error : ", error)
+        LOGGER_INVOICES.exception(
+            "Erreur détectée dans apps.invoices.tasks.launch_celery_send_emails_essais()"
+        )
+
+
+@shared_task(name="send_invoice_email_essais")
+def send_invoice_email_essais(context_dict: Dict, user_pk: int):
+    """
+    Essais d'envoi d'une facture par mail
+    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    """
+
+    start_initial = time.time()
+
+    error = False
+    trace = None
+    to_print = ""
+
+    try:
+        user = User.objects.get(pk=user_pk)
+
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+            trace, to_print = essais_send_by_email(server, context_dict)
+
+        trace.created_by = user
+
+    except TypeError as except_error:
+        error = True
+        to_print += f"TypeError : {except_error}\n"
+        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+
+    except Exception as except_error:
+        error = True
+        LOGGER_INVOICES.exception(
+            f"Exception Générale: send_invoice_email_essais : "
+            f"{context_dict.get('cct')}\n{except_error!r}"
+        )
+
+    finally:
+        if error and trace:
+            trace.errors = True
+            trace.comment = (
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
+            )
+
+        if trace is not None:
+            trace.save()
+
+    LOGGER_INVOICES.warning(
+        to_print
+        + (
+            f"Envoie de la facture par mail {context_dict.get('cct')} "
+            f": {time.time() - start_initial} s "
+        )
+    )
+
+    return {
+        "Envoie de la facture par mail : ": (
+            f"cct : {str(context_dict.get('cct'))} - {time.time() - start_initial} s"
+        )
+    }

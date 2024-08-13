@@ -14,6 +14,12 @@ modified at: 2021-10-30
 modified by: Paulo ALVES
 """
 import io
+from pydantic import BaseModel, EmailStr
+
+
+class CheckEmail(BaseModel):
+    """Check un email par pydantic"""
+    email: EmailStr
 
 
 class InsertAllOrNothingTemplate:

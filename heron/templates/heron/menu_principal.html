@@ -99,7 +99,7 @@
 
                     <div class="column" style="padding-left: 10px;padding-right: 5px;">
                         <h4 class="ui header" style="font-size: 1em;">FACTURATION</h4>
-                        {% if user.email == "paulo@alves.ovhi" %}
+                        {% if user.email == "paulo@alves.ovh" %}
                         <div class="ui link list">
                             <a href="{% url 'parameters:axes_articles_defaut' slug_name='axes_articles' %}" class="item">Axes Par Défaut</a>
                         </div>
@@ -107,7 +107,7 @@
                         <div class="ui link list">
                             <a href="{% url 'parameters:categories_list' %}" class="item">Catégories</a>
                         </div>
-                        {% if user.email == "paulo@alves.ovhi" %}
+                        {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
                                 <a href="{% url 'centers_purchasing:grouping_goods_list' %}" class="item" style="color: red">Regroupements facturation</a>
                             </div>
@@ -159,7 +159,7 @@
                         <div class="ui link list">
                             <a href="{% url 'parameters:period_select_exchange' %}" class="item">Taux de Change Moyen</a>
                         </div>
-                        {% if user.email == "paulo@alves.ovhi" %}
+                        {% if user.email == "paulo@alves.ovh" %}
                             <div class="ui link list">
                                 <a href="{% url 'parameters:functions_list' %}" class="item" style="color: red">Fonctions</a>
                             </div>
@@ -174,7 +174,7 @@
 
 
 
-                    {% if user.email == 'paulo@alves.ovhi' %}
+                    {% if user.email == 'paulo@alves.ovh' %}
                         <div class="column">
                             <h4 class="ui header" style="font-size: 1em;">PERMISSIONS</h4>
                             <div class="ui link list">
@@ -221,7 +221,7 @@
                             <a href="{% url 'articles:suppliers_articles_list' category='prestation' %}" class="item">08. Prestations/Abonnements</a>
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">09. Divers</a>
                             <a href="{% url 'articles:articles_search_list' %}" class="item">10. Recherches</a>
-                            {% if user.email == 'paulo@alves.ovhi' %}
+                            {% if user.email == 'paulo@alves.ovh' %}
                                 <a href="{% url 'articles:articles_account_list' %}" class="item">11. Article / Comptes</a>
                             {% endif %}
                         </div>

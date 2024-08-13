@@ -32,7 +32,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from django.conf import settings
-from django.db import connection
 import pendulum
 from pydantic.error_wrappers import ValidationError
 
@@ -44,7 +43,7 @@ from apps.core.bin.emails import send_mass_mail
 from apps.invoices.models import SaleInvoice
 
 
-def invoices_send_by_email(server, context_dict: Dict):
+def essais_send_by_email(server, context_dict: Dict):
     """
     Envoi d'une facture par mail
     :param server: server de mail
@@ -54,9 +53,7 @@ def invoices_send_by_email(server, context_dict: Dict):
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
     """
     start = time.time()
-    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get(
-        "global_invoice_file"
-    )
+    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / "un.pdf"
     error = False
     trace = get_trace(
         trace_name="Send invoices mail",
@@ -72,94 +69,65 @@ def invoices_send_by_email(server, context_dict: Dict):
             .format("MMMM YYYY", locale="fr")
             .upper()
         ),
-        "factures": "",
+        "factures": "facttures",
     }
     mail_to_list = []
+    email = context_dict.get("email_list")
 
-    with connection.cursor() as cursor:
-        sql_context = """
-        select 
-            "si"."cct" || ' - ' || "ip"."name_cct" as "cct_name", 
-            'Synthèse : ' || "si"."global_invoice_file" as "synthese",
-            (
-                '- Facture de ' 
-                || 
-                "si"."big_category" 
-                || 
-                ' N°: '  
-                || 
-                "si"."invoice_sage_number"
-            ) as "invoice",
-            'Service Comptabilité' as "service",
-            'Centrale : '  || "cp"."name" as "center",
-            "bs"."email_01",
-            "bs"."email_02",
-            "bs"."email_03",
-            "bs"."email_04",
-            "bs"."email_05",
-            "cm"."email" as "email_06"
-        from "invoices_saleinvoice" "si" 
-        join "invoices_partiesinvoices" "ip"
-          on "si"."parties" = "ip"."uuid_identification"
-        join "invoices_centersinvoices" "ic"
-          on "si"."centers" = "ic"."uuid_identification"
-        join "centers_clients_maison" "cm"
-          on "ip"."cct" = "cm"."cct" 
-        left join "centers_purchasing_childcenterpurchase" "cp"
-        on "ic"."code_center" = "cp"."code"  
-        left join "book_society" "bs"
-          on "ip"."third_party_num" = "bs"."third_party_num"   
-        where "si"."cct"= %(cct)s
-          and "si"."global_invoice_file" = %(global_invoice_file)s
-          and "si"."invoice_month" = %(invoice_month)s
-        """
-        cursor.execute(sql_context, context_dict)
+    (
+        cct_name,
+        synthese,
+        invoice,
+        service,
+        center,
+        email_01,
+        email_02,
+        email_03,
+        email_04,
+        email_05,
+        email_06,
+    ) = [
+        "cct",
+        "synthèse",
+        "invoice",
+        "service",
+        "center",
+        email,
+        "",
+        None,
+        "test1",
+        "test1",
+        "test@defie.fr",
+    ]
 
-        for i, row in enumerate(cursor.fetchall()):
-            (
-                cct_name,
-                synthese,
-                invoice,
-                service,
-                center,
-                email_01,
-                email_02,
-                email_03,
-                email_04,
-                email_05,
-                email_06,
-            ) = row
+    context_email["cct"] = cct_name
+    context_email["synthese"] = (
+        f"<p "
+        f'style="'
+        f"padding: 0;"
+        f"margin: 0 0 10px 0;"
+        f'font-size: 11pt;">{synthese}</p>'
+    )
+    context_email["service"] = service
+    context_email["centrale"] = center
 
-            if i == 0:
-                context_email["cct"] = cct_name
-                context_email["synthese"] = (
-                    f"<p "
-                    f'style="'
-                    f"padding: 0;"
-                    f"margin: 0 0 10px 0;"
-                    f'font-size: 11pt;">{synthese}</p>'
-                )
-                context_email["service"] = service
-                context_email["centrale"] = center
+    for email in [
+        email_01,
+        email_02,
+        email_03,
+        email_04,
+        email_05,
+        email_06,
+    ]:
+        try:
+            CheckEmail(email=email)
+            mail_to_list.append(email)
+        except ValidationError:
+            pass
 
-                for email in [
-                    email_01,
-                    email_02,
-                    email_03,
-                    email_04,
-                    email_05,
-                    email_06,
-                ]:
-                    try:
-                        CheckEmail(email=email)
-                        mail_to_list.append(email)
-                    except ValidationError:
-                        pass
-
-            context_email["factures"] += (
-                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
-                f"{invoice}</p>"
-            )
+    context_email["factures"] += (
+        f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">' f"{invoice}</p>"
+    )
 
     mail_to_list = [mail for mail in mail_to_list if mail]
 
@@ -185,17 +153,13 @@ def invoices_send_by_email(server, context_dict: Dict):
 
         else:
             error = True
-            trace.comment = (
-                f"Pas d'adresses mail pour le client : {context_email.get('ctt')}"
-            )
+            trace.comment = f"Pas d'adresses mail pour le client : {context_email.get('ctt')}"
             trace.file_name = f"Send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
     except EmailException as except_error:
         error = True
-        LOGGER_EMAIL.exception(
-            f"Exception EmailException : {str(mail_to_list)}{except_error!r}"
-        )
+        LOGGER_EMAIL.exception(f"Exception EmailException : {str(mail_to_list)}{except_error!r}")
 
     except Exception as except_error:
         error = True

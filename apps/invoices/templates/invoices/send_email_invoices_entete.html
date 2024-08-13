@@ -10,4 +10,11 @@
             </a>
         {% endif %}
     {% endif %}
+    {% if user.email == "paulo@alves.ovh" %}
+        <a class="item" href="{% url 'invoices:send_email_essais' %}">
+            <button class="ui blue basic button" name="email_essais" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                TEST MAIL
+            </button>
+        </a>
+    {% endif %}
 {% endblock right_side %}

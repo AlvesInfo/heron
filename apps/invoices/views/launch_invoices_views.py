@@ -305,6 +305,10 @@ def get_pdf_file(request, file_name):
 
 def send_email_pdf_invoice(request):
     """Vue d'envoi de toutes les factures pdf, par mail"""
+
+    if request.method == "POST" and "email_essais" in request.POST:
+        return redirect(reverse("invoices:send_email_essais"))
+
     titre_table = "Envoi Global, par mail des factures de vente"
 
     # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
