@@ -428,8 +428,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
                     )
                 )
 
-        result = group(*tasks_list).get(3600)
-        print(result)
+        group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
