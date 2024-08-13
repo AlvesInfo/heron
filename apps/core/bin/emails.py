@@ -12,6 +12,7 @@ modified by: Paulo ALVES
 """
 import smtplib
 import ssl
+import time
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -125,15 +126,14 @@ def send_mass_mail(email_list):
 
     try:
 
-        for emails_slice in iter_slice(email_list, 14):
-            server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-            server.starttls(context=ssl.create_default_context())
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+        for emails_slice in iter_slice(email_list, 50):
+            with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT) as server:
+                server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
-            for email_to_send in emails_slice:
-                send_mail(server, *email_to_send)
+                for email_to_send in emails_slice:
+                    send_mail(server, *email_to_send)
 
-            server.close()
+            time.sleep(2)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
