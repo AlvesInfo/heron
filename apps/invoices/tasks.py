@@ -463,7 +463,7 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int, server_id):
 
     try:
         user = User.objects.get(pk=user_pk)
-        server = ctypes(int(context_dict.get("server_id")), ctypes.py_object)
+        server = ctypes(int(server_id), ctypes.py_object)
         trace, to_print = essais_send_by_email(server, context_dict)
 
         trace.created_by = user
