@@ -413,7 +413,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         tasks_list = []
 
         for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
-            context_dict["email_list"] = [mails_essis_dict.get(i)]
+            context_dict["email_list"] = mails_essis_dict.get(i)
 
             for _ in range_list:
                 tasks_list.append(
