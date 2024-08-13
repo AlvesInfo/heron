@@ -414,6 +414,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
 
         for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
             context_dict["email_list"] = [mails_essis_dict.get(i)]
+            print(context_dict)
             for _ in range_list:
                 tasks_list.append(
                     celery_app.signature(
