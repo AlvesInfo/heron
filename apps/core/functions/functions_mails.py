@@ -8,6 +8,14 @@ import zipfile
 from datetime import datetime
 import email
 import imaplib
+from smtplib import SMTP
+
+from apps.core.functions.functions_setups import settings
+
+EMAIL_HOST = settings.EMAIL_HOST
+EMAIL_PORT = settings.EMAIL_PORT
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
 
 class MailError(Exception):
@@ -363,3 +371,43 @@ class RecuperationDesPiecesJointesMails:
         self.suppression_fichiers_non_souhaite_recursif(log=False)
         self.a_garder_plus_recent(log=True)
         self.liste_des_fichiers_recuperes(log=False)
+
+
+class SmtpServer(SMTP):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(SmtpServer, cls).__new__(cls, *args, **kwargs)
+
+        return cls._instance
+
+    def __init__(
+        self,
+        host: str = EMAIL_HOST,
+        port: int = EMAIL_PORT,
+        username: str = EMAIL_HOST_USER,
+        password: str = EMAIL_HOST_PASSWORD,
+        use_starttls: bool = True,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.use_starttls = use_starttls
+        self.kws_smtp = kwargs or {}
+        self.connection = None
+
+    def close(self):
+        """Close (quit) the connection"""
+        if self.connection:
+            self.connection.quit()
+            self.connection = None
+
+    @property
+    def is_alive(self):
+        """bool: Check if there is a connection to the SMTP server"""
+        return self.connection is not None

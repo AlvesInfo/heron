@@ -11,7 +11,6 @@ modified at: 2023-06-13
 modified by: Paulo ALVES
 """
 import smtplib
-import ssl
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -32,71 +31,6 @@ EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 ENV_ROOT = settings.path_env
 DOMAIN = settings.DOMAIN
 DKIM_PEM_FILE = settings.DKIM_PEM_FILE
-
-
-class SmtpServer:
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(SmtpServer, cls).__new__(cls, *args, **kwargs)
-
-        return cls._instance
-
-    def __init__(
-        self,
-        host: str = EMAIL_HOST,
-        port: int = EMAIL_PORT,
-        username: str = EMAIL_HOST_USER,
-        password: str = EMAIL_HOST_PASSWORD,
-        cls_smtp: smtplib.SMTP = smtplib.SMTP,
-        use_starttls: bool = True,
-        **kwargs,
-    ):
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-        self.use_starttls = use_starttls
-        self.cls_smtp = cls_smtp
-        self.kws_smtp = kwargs or {}
-        self.connection = None
-
-    def __enter__(self):
-        self.connect()
-
-    def __exit__(self, *args):
-        self.close()
-
-    def connect(self):
-        """Connect to the SMTP Server"""
-        self.connection = self.get_server()
-
-    def close(self):
-        """Close (quit) the connection"""
-        if self.connection:
-            self.connection.quit()
-            self.connection = None
-
-    def get_server(self) -> smtplib.SMTP:
-        """Connect and get the SMTP Server"""
-        user = self.username
-        password = self.password
-
-        server = self.cls_smtp(self.host, self.port, **self.kws_smtp)
-
-        if self.use_starttls:
-            server.starttls()
-
-        if user is not None or password is not None:
-            server.login(user, password)
-
-        return server
-
-    @property
-    def is_alive(self):
-        """bool: Check if there is a connection to the SMTP server"""
-        return self.connection is not None
 
 
 def prepare_mail(message, body, subject, email_text="", email_html="", context=None):
