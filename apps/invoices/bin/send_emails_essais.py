@@ -72,7 +72,7 @@ def essais_send_by_email(server, context_dict: Dict):
         "factures": "facttures",
     }
     mail_to_list = []
-    print(context_dict)
+
     email = context_dict.get("email_list")
 
     (
@@ -131,7 +131,7 @@ def essais_send_by_email(server, context_dict: Dict):
     )
 
     try:
-        print(mail_to_list)
+
         if mail_to_list:
             send_mass_mail(
                 server,
