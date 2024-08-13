@@ -471,7 +471,6 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
         user = User.objects.get(pk=user_pk)
         global server_instance
         trace, to_print = essais_send_by_email(server_instance, context_dict)
-
         trace.created_by = user
 
     except TypeError as except_error:
