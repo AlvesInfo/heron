@@ -72,6 +72,7 @@ def essais_send_by_email(server, context_dict: Dict):
         "factures": "facttures",
     }
     mail_to_list = []
+    print(context_dict)
     email = context_dict.get("email_list")
 
     (
