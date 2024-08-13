@@ -456,8 +456,7 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     try:
         user = User.objects.get(pk=user_pk)
 
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL(EMAIL_HOST, 465) as server:
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
             trace, to_print = essais_send_by_email(server, context_dict)
 

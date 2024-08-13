@@ -48,31 +48,32 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
     body.attach(MIMEText(translate_email_html, "html"))
 
 
-def send_mass_mail(server, email_to_send):
+def send_mass_mail(server, email_list):
     """Envoi des mails en masse"""
-    if email_to_send is None:
-        email_to_send = []
+    if email_list is None:
+        email_list = []
 
-    if not email_to_send:
+    if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     try:
 
-        mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send[0]
-        send_mail(
-            server,
-            mail_to,
-            subject,
-            email_text,
-            email_html,
-            context,
-            attachement_file_list,
-        )
+        for email_to_send in email_list:
+            mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
+            send_mail(
+                server,
+                mail_to,
+                subject,
+                email_text,
+                email_html,
+                context,
+                attachement_file_list,
+            )
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
 
-    return {"Send invoices email : ", f"{len(email_to_send)} ont été envoyés"}
+    return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 
 
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
