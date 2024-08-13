@@ -116,30 +116,27 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
     body.attach(MIMEText(translate_email_html, "html"))
 
 
-def send_mass_mail(email_list):
+def send_mass_mail(email_to_send):
     """Envoi des mails en masse"""
-    if email_list is None:
-        email_list = []
+    if email_to_send is None:
+        email_to_send = []
 
-    if not email_list:
+    if not email_to_send:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     try:
 
-        for emails_slice in iter_slice(email_list, 10):
-            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-                server.starttls(context=ssl.create_default_context())
-                server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.starttls(context=ssl.create_default_context())
+            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+            send_mail(server, *email_to_send)
 
-                for email_to_send in emails_slice:
-                    send_mail(server, *email_to_send)
-
-            time.sleep(1)
+        time.sleep(1)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
 
-    return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
+    return {"Send invoices email : ", f"{len(email_to_send)} ont été envoyés"}
 
 
 def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
