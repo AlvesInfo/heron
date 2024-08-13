@@ -124,7 +124,7 @@ def send_mass_mail(server, email_to_send):
 
     try:
 
-        mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
+        mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send[0]
         send_mail(
             server,
             mail_to,

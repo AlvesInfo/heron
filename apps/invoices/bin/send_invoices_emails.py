@@ -45,6 +45,7 @@ from apps.invoices.models import SaleInvoice
 def invoices_send_by_email(server, context_dict: Dict):
     """
     Envoi d'une facture par mail
+    :param server: server de mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
 
     CCT	    Période	    Synthèse	Factures	Service	    Centrale Fille
