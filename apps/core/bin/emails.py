@@ -12,6 +12,7 @@ modified by: Paulo ALVES
 """
 import smtplib
 import ssl
+import time
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -22,6 +23,7 @@ import dkim
 from bs4 import BeautifulSoup
 
 from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from heron.loggers import LOGGER_EMAIL
 
@@ -124,12 +126,15 @@ def send_mass_mail(email_list):
 
     try:
 
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls(context=ssl.create_default_context())
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+        for emails_slice in iter_slice(email_list, 10):
+            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+                server.starttls(context=ssl.create_default_context())
+                server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
-            for email_to_send in email_list:
-                send_mail(server, *email_to_send)
+                for email_to_send in emails_slice:
+                    send_mail(server, *email_to_send)
+
+            time.sleep(1)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error

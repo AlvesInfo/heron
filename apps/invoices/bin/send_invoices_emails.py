@@ -35,7 +35,6 @@ from django.db import connection
 import pendulum
 
 from heron.loggers import LOGGER_EMAIL
-from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from apps.data_flux.trace import get_trace
 from apps.core.bin.emails import send_mass_mail
@@ -151,22 +150,20 @@ def invoices_send_by_email(context_dict: Dict):
         mail_to_list = [mail for mail in mail_to_list if mail]
 
         if mail_to_list:
-            for emails_slice in iter_slice(mail_to_list, 14):
-                send_mass_mail(
-                    [
-                        (
-                            emails_slice,
-                            context_dict.get("subject_email"),
-                            context_dict.get("email_text"),
-                            context_dict.get("email_html"),
-                            context_email,
-                            [
-                                file_path,
-                            ],
-                        )
-                    ],
-                )
-                time.sleep(1)
+            send_mass_mail(
+                [
+                    (
+                        mail_to_list,
+                        context_dict.get("subject_email"),
+                        context_dict.get("email_text"),
+                        context_dict.get("email_html"),
+                        context_email,
+                        [
+                            file_path,
+                        ],
+                    )
+                ],
+            )
             trace.file_name = f"send email invoice : {file_path.name}"
             to_print = f"Have send invoice email : {file_path.name} - "
 
