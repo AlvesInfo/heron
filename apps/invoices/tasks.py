@@ -281,9 +281,9 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls(context=ssl.create_default_context())
+        with smtplib.SMTP_SSL(EMAIL_HOST, 465) as server:
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+            server.ehlo("acuitis.com")
             trace, to_print = invoices_send_by_email(server, context_dict)
         trace.created_by = user
     except TypeError as except_error:
@@ -457,6 +457,7 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
 
         with smtplib.SMTP_SSL(EMAIL_HOST, 465) as server:
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+            server.ehlo("acuitis.com")
             trace, to_print = essais_send_by_email(server, context_dict)
 
         trace.created_by = user
