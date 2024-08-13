@@ -146,8 +146,9 @@ def invoices_send_by_email(context_dict: Dict):
                 f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">' f"{invoice}</p>"
             )
 
+    mail_to_list = [mail for mail in mail_to_list if mail]
+
     try:
-        mail_to_list = [mail for mail in mail_to_list if mail]
 
         if mail_to_list:
             send_mass_mail(
@@ -175,7 +176,7 @@ def invoices_send_by_email(context_dict: Dict):
 
     except EmailException as except_error:
         error = True
-        LOGGER_EMAIL.exception(f"Exception EmailException : {except_error!r}")
+        LOGGER_EMAIL.exception(f"Exception EmailException : {str(mail_to_list)}{except_error!r}")
 
     except Exception as except_error:
         error = True
