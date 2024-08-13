@@ -97,7 +97,7 @@ def essais_send_by_email(server, context_dict: Dict):
         None,
         "test1",
         "test1",
-        "test@defie.fr",
+        "aaa"
     ]
 
     context_email["cct"] = cct_name
