@@ -124,11 +124,8 @@ def send_mass_mail(email_list):
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     try:
-        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server.starttls(context=ssl.create_default_context())
-        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
-        for emails_slice in iter_slice(email_list, 50):
+        for emails_slice in iter_slice(email_list, 14):
             server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
             server.starttls(context=ssl.create_default_context())
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
