@@ -15,7 +15,7 @@ modified by: Paulo ALVES
 import time
 from typing import AnyStr, Dict
 import smtplib
-import ssl
+import ctypes
 
 import pendulum
 from celery import shared_task
@@ -37,14 +37,11 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
 from apps.invoices.bin.export_x3 import export_files_x3
-from apps.core.functions.functions_mails import SmtpServer
 
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
-
-server = SmtpServer(EMAIL_HOST, EMAIL_PORT)
 
 
 @shared_task(name="invoices_insertions_launch")
@@ -284,6 +281,7 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
+
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
             server.starttls()
             server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
@@ -412,29 +410,32 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     }
     nb_iter = 30
     nb_mails = nb_iter * len(mails_essis_dict)
-    global server
-    server.starttls()
-    server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
 
     try:
         tasks_list = []
 
-        for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
-            context_dict["email_list"] = mails_essis_dict.get(i)
 
-            for _ in range_list:
-                tasks_list.append(
-                    celery_app.signature(
-                        "send_invoice_email_essais",
-                        kwargs={
-                            "context_dict": {**context_dict},
-                            "user_pk": str(user_pk),
-                        },
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
+            for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
+                context_dict["email_list"] = mails_essis_dict.get(i)
+
+                for _ in range_list:
+                    tasks_list.append(
+                        celery_app.signature(
+                            "send_invoice_email_essais",
+                            kwargs={
+                                "context_dict": {**context_dict},
+                                "user_pk": str(user_pk),
+                                "server_id": str(id(server))
+                            },
+                        )
                     )
-                )
 
-        result = group(*tasks_list)()().get(3600)
-        print(result)
+            result = group(*tasks_list)()().get(3600)
+            print(result)
 
     except (smtplib.SMTPException, ValueError) as error:
         raise EmailException("Erreur envoi email") from error
@@ -444,8 +445,6 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.invoices.tasks.launch_celery_send_emails_essais()"
         )
-    finally:
-        server.close()
 
 
 @shared_task(name="send_invoice_email_essais")
@@ -455,7 +454,7 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     """
-    global server
+
     start_initial = time.time()
 
     error = False
@@ -464,11 +463,8 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-            trace, to_print = essais_send_by_email(server, context_dict)
+        server = ctypes(int(context_dict.get("server_id")), ctypes.py_object)
+        trace, to_print = essais_send_by_email(server, context_dict)
 
         trace.created_by = user
 

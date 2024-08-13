@@ -1,6 +1,7 @@
 """
 Fonction pour gérer la récupération des pièces jointes dans les mails
 """
+
 import os
 import sys
 import shutil
@@ -8,7 +9,6 @@ import zipfile
 from datetime import datetime
 import email
 import imaplib
-from smtplib import SMTP
 
 from apps.core.functions.functions_setups import settings
 
@@ -24,33 +24,33 @@ class MailError(Exception):
 
 class RecuperationDesPiecesJointesMails:
     """
-        Module qui récupère les pièces jointes voulues, de la boite mail et les placent dans un
-        répertoire
+    Module qui récupère les pièces jointes voulues, de la boite mail et les placent dans un
+    répertoire
 
-        exemple :
-            RecuperationDesPiecesJointesMails(  fournisseur_imap,
-                                                dossier_des_mails_a_recuperer,
-                                                adresse_email,
-                                                password_mail,
-                                                repertoire_provisoire,
-                                                fichiers_a_garder,
-                                                LOG_FILE
-                                            )
+    exemple :
+        RecuperationDesPiecesJointesMails(  fournisseur_imap,
+                                            dossier_des_mails_a_recuperer,
+                                            adresse_email,
+                                            password_mail,
+                                            repertoire_provisoire,
+                                            fichiers_a_garder,
+                                            LOG_FILE
+                                        )
 
-                fournisseur_imap : "imap.gmail.com"
-                dossier_des_mails_a_recuperer (imap) : "INBOX"
-                adresse_email : "exemple@gmail.com"
-                password_mail : "passwordexemple"
-                repertoire_provisoire : "/home/ubuntu/projet_ftp/pieces_jointes_provisoires"
-                fichiers_a_garder: dict : {  'ACUITIS_AVAI': (
-                                                         12,
-                                                         '.xls',
-                                                         '.xlsx',
-                                                         '/home/ubuntu/projet_ftp/fichiers_stocks/',
-                                                         True
-                                                         ),
-                                                    }
-                LOG_FILE : "/home/ubuntu/projet_ftp/depot_ftp_stock_csv.log"
+            fournisseur_imap : "imap.gmail.com"
+            dossier_des_mails_a_recuperer (imap) : "INBOX"
+            adresse_email : "exemple@gmail.com"
+            password_mail : "passwordexemple"
+            repertoire_provisoire : "/home/ubuntu/projet_ftp/pieces_jointes_provisoires"
+            fichiers_a_garder: dict : {  'ACUITIS_AVAI': (
+                                                     12,
+                                                     '.xls',
+                                                     '.xlsx',
+                                                     '/home/ubuntu/projet_ftp/fichiers_stocks/',
+                                                     True
+                                                     ),
+                                                }
+            LOG_FILE : "/home/ubuntu/projet_ftp/depot_ftp_stock_csv.log"
     """
 
     def __init__(
@@ -138,7 +138,6 @@ class RecuperationDesPiecesJointesMails:
         """
         try:
             for dossier, sous_dossiers, fichiers in os.walk(self.repertoire):
-
                 if dossier not in self.repertoire:
                     for fichier in fichiers:
                         deplacer_de = os.path.join(dossier, fichier)
@@ -194,7 +193,6 @@ class RecuperationDesPiecesJointesMails:
         """
         try:
             for value in self.selection_fichiers.values():
-
                 if value[4]:
                     liste_fichiers = []
                     dic_fichiers = {}
@@ -300,7 +298,6 @@ class RecuperationDesPiecesJointesMails:
                     # Utilisation de walk pour créer un générateur itérable
                     # des mails non récurrents
                     for part in mail.walk():
-
                         # pour sauter les conteneurs
                         if part.get_content_maintype() == "multipart":
                             continue
@@ -371,13 +368,3 @@ class RecuperationDesPiecesJointesMails:
         self.suppression_fichiers_non_souhaite_recursif(log=False)
         self.a_garder_plus_recent(log=True)
         self.liste_des_fichiers_recuperes(log=False)
-
-
-class SmtpServer(SMTP):
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(SmtpServer, cls).__new__(cls, *args, **kwargs)
-
-        return cls._instance
