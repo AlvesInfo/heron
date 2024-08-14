@@ -1033,7 +1033,8 @@ SQL_SALES_DETAILS = sql.SQL(
         "unit_weight",
         "account",
         "ranking",
-        "account_od_600"
+        "account_od_600",
+        "axe_prj_name"
     )
     (    
         select 
@@ -1073,7 +1074,8 @@ SQL_SALES_DETAILS = sql.SQL(
             "det"."unit_weight",
             "det"."account",
             "det"."ranking",
-            "det"."account_od_600"
+            "det"."account_od_600",
+            "det"."axe_prj_name"
         from (
             select 
                 "eee"."third_party_num",
@@ -1126,7 +1128,8 @@ SQL_SALES_DETAILS = sql.SQL(
                     then "eee"."import_uuid_identification"::varchar
                     else ''
                 end as "formation",
-                "ccm"."type_x3"
+                "ccm"."type_x3",
+                "prj"."name" as "axe_prj_name"
             from "edi_ediimport" "eee" 
             join "amounts" "amo"
               on "amo"."id" = "eee"."id"   

@@ -26,7 +26,12 @@ SQL_HEADER = sql.SQL(
         sum("net_amount") as "net_amount"
     from (
         select 
-            "is2"."axe_prj",
+            -- AFIN D'AFFICHER SIGNIA SUR L'AXE PRJ QUAND C'EST SIEMENS
+            case 
+                when "is2"."axe_prj" = 'SIEMENS' 
+                then "is2"."axe_prj_name" 
+                else "is2"."axe_prj" 
+            end as "axe_prj",
             "is2"."axe_rfa", 
             "grouping_goods", 
             case when "vat" not in ('001', '002') then "net_amount" else 0 end as "net_amount_00",

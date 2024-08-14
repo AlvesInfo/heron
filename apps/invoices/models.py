@@ -577,6 +577,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
 
     account = models.CharField(max_length=35)
     account_od_600 = models.CharField(max_length=35)
+    axe_prj_name = models.CharField(null=True, blank=True, max_length=30)
 
     class Meta:
         """class Meta du modèle django"""
