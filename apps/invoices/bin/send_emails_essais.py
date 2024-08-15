@@ -43,10 +43,9 @@ from apps.core.bin.emails import send_mass_mail
 from apps.invoices.models import SaleInvoice
 
 
-def essais_send_by_email(server, context_dict: Dict):
+def essais_send_by_email(context_dict: Dict):
     """
     Envoi d'une facture par mail
-    :param server: server de mail
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
 
     CCT	    Période	    Synthèse	Factures	Service	    Centrale Fille
@@ -134,7 +133,6 @@ def essais_send_by_email(server, context_dict: Dict):
 
         if mail_to_list:
             send_mass_mail(
-                server,
                 [
                     (
                         mail_to_list,
