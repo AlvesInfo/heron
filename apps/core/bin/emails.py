@@ -98,27 +98,31 @@ class SmtpServer(metaclass=SingletonMeta):
             self.server_mail.quit()
             self.server_mail = None
 
-    def connect(self):
-        if self.server_mail is None:
-            if settings.EMAIL_USE_SSL:
-                self.server_mail = smtplib.SMTP_SSL(
-                    settings.EMAIL_HOST, settings.EMAIL_PORT
-                )
+    def re_connect(self):
+        """Reconnexion au serveur SMTP"""
 
-            else:
-                self.server_mail = smtplib.SMTP(
-                    settings.EMAIL_HOST, settings.EMAIL_PORT
-                )
-
-            self.server_mail.ehlo()
-
-            if settings.EMAIL_USE_TLS:
-                self.server_mail.starttls()
-
-            self.server_mail.ehlo()
-            self.server_mail.login(
-                settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD
+        if settings.EMAIL_USE_SSL:
+            self.server_mail = smtplib.SMTP_SSL(
+                settings.EMAIL_HOST, settings.EMAIL_PORT
             )
+
+        else:
+            self.server_mail = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+
+        self.server_mail.ehlo()
+
+        if settings.EMAIL_USE_TLS:
+            self.server_mail.starttls()
+
+        self.server_mail.ehlo()
+        self.server_mail.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+    def connect(self, force: bool = False):
+        """Connection au serveur SMTP
+        :param force: pour forcer une connection après
+        """
+        if self.server_mail is None or force:
+            self.re_connect()
 
     def server(self):
         self.connect()
@@ -222,53 +226,54 @@ def send_mail(mail_to, subject, email_text, email_html, context, attachement_fil
             except smtplib.SMTPServerDisconnected as error:
                 if not attemps:
                     raise smtplib.SMTPServerDisconnected() from error
-                smtp.connect()
+                smtp.connect(force=True)
                 attemps -= 1
 
 
 if __name__ == "__main__":
-    a = SmtpServer()
-    print("1 ======")
-    print(a.nb_connect())
-    b = SmtpServer()
-    print("2 ======")
-    print(a.nb_connect())
-    print(b.nb_connect())
-
-    print("3 ======")
-    c = SmtpServer()
-    print(a.nb_connect())
-    print(b.nb_connect())
-    print(c.nb_connect())
-
-    print("4 ======")
-    a.quit()
-    print(a.nb_connect())
-    print(b.nb_connect())
-    print(c.nb_connect())
+    # a = SmtpServer()
+    # print("1 ======")
+    # print(a.nb_connect())
+    # b = SmtpServer()
+    # print("2 ======")
+    # print(a.nb_connect())
+    # print(b.nb_connect())
+    #
+    # print("3 ======")
+    # c = SmtpServer()
+    # print(a.nb_connect())
+    # print(b.nb_connect())
+    # print(c.nb_connect())
+    #
+    # print("4 ======")
+    # a.quit()
+    # print(a.nb_connect())
+    # print(b.nb_connect())
+    # print(c.nb_connect())
 
     with SmtpServer() as server:
         print("5 ======")
         print(server.nb_connect())
-        print(a.nb_connect())
-        print(b.nb_connect())
-        print(c.nb_connect())
+        server.quit()
+        # print(a.nb_connect())
+        # print(b.nb_connect())
+        # print(c.nb_connect())
 
-    print("6 ======")
-    print(a.nb_connect())
-    print(b.nb_connect())
-    print(c.nb_connect())
-
-    print("7 ======")
-
-    b.quit()
-    c.quit()
-    print(a.nb_connect())
-    print(b.nb_connect())
-    print(c.nb_connect())
-
-    print("8 ======")
-    a.quit()
-    print(a.nb_connect())
-    print(b.nb_connect())
-    print(c.nb_connect())
+    # print("6 ======")
+    # print(a.nb_connect())
+    # print(b.nb_connect())
+    # print(c.nb_connect())
+    #
+    # print("7 ======")
+    #
+    # b.quit()
+    # c.quit()
+    # print(a.nb_connect())
+    # print(b.nb_connect())
+    # print(c.nb_connect())
+    #
+    # print("8 ======")
+    # a.quit()
+    # print(a.nb_connect())
+    # print(b.nb_connect())
+    # print(c.nb_connect())
