@@ -394,16 +394,16 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     }
     mails_essis_dict = {
         1: "paulo@alves-info.fr",
-        # 2: "admin.bi@acuitis.com",
-        # 3: "paulo@alves.ovh",
-        # 4: "paulo.alves@4a-info.fr",
-        # 5: "sav.acuitis@alves-info.fr",
-        # 6: "bi.acuitis@alves-info.fr",
-        # 7: "d.optiques@alves-info.fr",
-        # 8: "gdaud@alves-info.fr",
-        # 9: "saisie.sav.acuitis@alves-info.fr",
+        2: "admin.bi@acuitis.com",
+        3: "paulo@alves.ovh",
+        4: "paulo.alves@4a-info.fr",
+        5: "sav.acuitis@alves-info.fr",
+        6: "bi.acuitis@alves-info.fr",
+        7: "d.optiques@alves-info.fr",
+        8: "gdaud@alves-info.fr",
+        9: "saisie.sav.acuitis@alves-info.fr",
     }
-    nb_iter = 5
+    nb_iter = 30
     nb_mails = nb_iter * len(mails_essis_dict)
 
     try:
