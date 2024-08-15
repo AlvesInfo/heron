@@ -280,13 +280,8 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        time.sleep(1)
-
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-            trace, to_print = invoices_send_by_email(context_dict)
-            trace.created_by = user
+        trace, to_print = invoices_send_by_email(context_dict)
+        trace.created_by = user
 
     except TypeError as except_error:
         error = True
@@ -456,13 +451,8 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
 
     try:
         user = User.objects.get(pk=user_pk)
-        time.sleep(1)
-
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-            trace, to_print = essais_send_by_email(context_dict)
-            trace.created_by = user
+        trace, to_print = essais_send_by_email(context_dict)
+        trace.created_by = user
 
     except TypeError as except_error:
         error = True
