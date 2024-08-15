@@ -108,12 +108,10 @@ class SmtpServer(metaclass=SingletonMeta):
         else:
             self.server_mail = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
 
-        self.server_mail.ehlo()
-
         if settings.EMAIL_USE_TLS:
             self.server_mail.starttls()
 
-        self.server_mail.ehlo()
+        self.server_mail.ehlo("acuitis.com")
         self.server_mail.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
 
     def connect(self, force: bool = False):
