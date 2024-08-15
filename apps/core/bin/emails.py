@@ -104,12 +104,13 @@ class SmtpServer(metaclass=SingletonMeta):
             self.server_mail = smtplib.SMTP_SSL(
                 settings.EMAIL_HOST, settings.EMAIL_PORT
             )
-
         else:
             self.server_mail = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
 
         if settings.EMAIL_USE_TLS:
             self.server_mail.starttls()
+
+        print(self.server_mail.ehlo())
 
         self.server_mail.ehlo("acuitis.com")
         self.server_mail.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
