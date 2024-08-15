@@ -94,7 +94,6 @@ class SmtpServer(metaclass=SingletonMeta):
             self.__class__._nb_instances -= 1
 
         if self.__class__._nb_instances == 0 and self.server_mail is not None:
-            self.server_mail.ehlo()
             self.server_mail.quit()
             self.server_mail = None
 
@@ -122,6 +121,11 @@ class SmtpServer(metaclass=SingletonMeta):
         :param force: pour forcer une connection après
         """
         if self.server_mail is None or force:
+            self.re_connect()
+
+        try:
+            self.server_mail.ehlo()
+        except (smtplib.SMTPServerDisconnected, smtplib.SMTPDataError):
             self.re_connect()
 
     def server(self):
