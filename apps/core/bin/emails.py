@@ -217,63 +217,52 @@ def send_mail(mail_to, subject, email_text, email_html, context, attachement_fil
             include_headers=[b"from", b"to"],
         ).decode()
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
-
-        attemps = 3
-
-        while True:
-            try:
-                smtp.server_mail.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
-            except smtplib.SMTPServerDisconnected as error:
-                if not attemps:
-                    raise smtplib.SMTPServerDisconnected() from error
-                smtp.connect(force=True)
-                attemps -= 1
+        smtp.server_mail.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
 
 
 if __name__ == "__main__":
-    # a = SmtpServer()
-    # print("1 ======")
-    # print(a.nb_connect())
-    # b = SmtpServer()
-    # print("2 ======")
-    # print(a.nb_connect())
-    # print(b.nb_connect())
-    #
-    # print("3 ======")
-    # c = SmtpServer()
-    # print(a.nb_connect())
-    # print(b.nb_connect())
-    # print(c.nb_connect())
-    #
-    # print("4 ======")
-    # a.quit()
-    # print(a.nb_connect())
-    # print(b.nb_connect())
-    # print(c.nb_connect())
+    a = SmtpServer()
+    print("1 ======")
+    print(a.nb_connect())
+    b = SmtpServer()
+    print("2 ======")
+    print(a.nb_connect())
+    print(b.nb_connect())
+
+    print("3 ======")
+    c = SmtpServer()
+    print(a.nb_connect())
+    print(b.nb_connect())
+    print(c.nb_connect())
+
+    print("4 ======")
+    a.quit()
+    print(a.nb_connect())
+    print(b.nb_connect())
+    print(c.nb_connect())
 
     with SmtpServer() as server:
         print("5 ======")
         print(server.nb_connect())
-        server.quit()
-        # print(a.nb_connect())
-        # print(b.nb_connect())
-        # print(c.nb_connect())
+        print(a.nb_connect())
+        print(b.nb_connect())
+        print(c.nb_connect())
 
-    # print("6 ======")
-    # print(a.nb_connect())
-    # print(b.nb_connect())
-    # print(c.nb_connect())
-    #
-    # print("7 ======")
-    #
-    # b.quit()
-    # c.quit()
-    # print(a.nb_connect())
-    # print(b.nb_connect())
-    # print(c.nb_connect())
-    #
-    # print("8 ======")
-    # a.quit()
-    # print(a.nb_connect())
-    # print(b.nb_connect())
-    # print(c.nb_connect())
+    print("6 ======")
+    print(a.nb_connect())
+    print(b.nb_connect())
+    print(c.nb_connect())
+
+    print("7 ======")
+
+    b.quit()
+    c.quit()
+    print(a.nb_connect())
+    print(b.nb_connect())
+    print(c.nb_connect())
+
+    print("8 ======")
+    a.quit()
+    print(a.nb_connect())
+    print(b.nb_connect())
+    print(c.nb_connect())
