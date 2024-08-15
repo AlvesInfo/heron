@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-06-13
 modified by: Paulo ALVES
 """
+
 import smtplib
 from pathlib import Path
 from email.mime.text import MIMEText
@@ -75,7 +76,8 @@ class SingletonMeta(type):
 
 class SmtpServer(metaclass=SingletonMeta):
     """Singleton du serveur de mail"""
-    server_mail: Union[smtplib.SMTP,smtplib.SMTP_SSL] = None
+
+    server_mail: Union[smtplib.SMTP, smtplib.SMTP_SSL] = None
 
     def __init__(self):
         """Initialisation"""
@@ -99,10 +101,14 @@ class SmtpServer(metaclass=SingletonMeta):
     def connect(self):
         if self.server_mail is None:
             if settings.EMAIL_USE_SSL:
-                self.server_mail = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
+                self.server_mail = smtplib.SMTP_SSL(
+                    settings.EMAIL_HOST, settings.EMAIL_PORT
+                )
 
             else:
-                self.server_mail = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+                self.server_mail = smtplib.SMTP(
+                    settings.EMAIL_HOST, settings.EMAIL_PORT
+                )
 
             self.server_mail.ehlo()
 
@@ -110,7 +116,9 @@ class SmtpServer(metaclass=SingletonMeta):
                 self.server_mail.starttls()
 
             self.server_mail.ehlo()
-            self.server_mail.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+            self.server_mail.login(
+                settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD
+            )
 
     def server(self):
         self.connect()
@@ -130,7 +138,9 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
 
     subject_mail = subject.format(**context)
     translate_email_html = email_html.format(**context)
-    translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text() or email_text
+    translate_email_text = (
+        BeautifulSoup(translate_email_html, "lxml").get_text() or email_text
+    )
 
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
@@ -147,9 +157,10 @@ def send_mass_mail(email_list):
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
     try:
-
         for email_to_send in email_list:
-            mail_to, subject, email_text, email_html, context, attachement_file_list = email_to_send
+            mail_to, subject, email_text, email_html, context, attachement_file_list = (
+                email_to_send
+            )
             send_mail(
                 mail_to,
                 subject,
@@ -203,10 +214,19 @@ def send_mail(mail_to, subject, email_text, email_html, context, attachement_fil
         ).decode()
         message["DKIM-Signature"] = sig.lstrip("DKIM-Signature: ")
 
-        smtp.server_mail.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
+        attemps = 3
+
+        while True:
+            try:
+                smtp.server_mail.sendmail(EMAIL_HOST_USER, mail_to, message.as_string())
+            except smtplib.SMTPServerDisconnected as error:
+                if not attemps:
+                    raise smtplib.SMTPServerDisconnected() from error
+                smtp.connect()
+                attemps -= 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     a = SmtpServer()
     print("1 ======")
     print(a.nb_connect())
@@ -252,4 +272,3 @@ if __name__ == '__main__':
     print(a.nb_connect())
     print(b.nb_connect())
     print(c.nb_connect())
-
