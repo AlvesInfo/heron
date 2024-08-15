@@ -121,11 +121,6 @@ class SmtpServer(metaclass=SingletonMeta):
         if self.server_mail is None or force:
             self.re_connect()
 
-        try:
-            self.server_mail.ehlo("acuitis.com")
-        except (smtplib.SMTPServerDisconnected, smtplib.SMTPDataError):
-            self.re_connect()
-
     def server(self):
         self.connect()
         return self.server_mail
