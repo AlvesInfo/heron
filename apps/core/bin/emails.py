@@ -110,8 +110,10 @@ class SmtpServer(metaclass=SingletonMeta):
         if settings.EMAIL_USE_TLS:
             self.server_mail.starttls()
 
-        print(self.server_mail.ehlo("acuitis.com"))
-        self.server_mail.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+        test = self.server_mail.ehlo("acuitis.com")[0]
+
+        if test == 250:
+            self.server_mail.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
 
     def connect(self, force: bool = False):
         """Connection au serveur SMTP
