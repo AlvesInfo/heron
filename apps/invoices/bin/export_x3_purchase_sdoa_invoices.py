@@ -77,7 +77,7 @@ def write_bispar_sdoa(fcy, file_name=None, nb_fac=5000):
         a_line += 1
         invoice_number, *line_to_write, test_a = row
         line_t, line_d, line_a, line_e = split_line(line_to_write, slicing_bispar)
-        print(line_d)
+
         if invoice != invoice_number:
             i += 1
 

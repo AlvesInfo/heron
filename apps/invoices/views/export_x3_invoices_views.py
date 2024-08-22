@@ -166,6 +166,7 @@ def generate_exports_X3(request):
             )
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
+            print(export_x3.__dict__)
             sales.update(export=True)
             purchases.update(export=True)
             request.session["level"] = 20
