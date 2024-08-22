@@ -744,6 +744,7 @@ class ExportX3(FlagExport):
     purchase_file = models.FileField(null=True, upload_to="export")
     acuitis_file = models.FileField(null=True, upload_to="export")
     ga_file = models.FileField(null=True, upload_to="export")
+    sd_file = models.FileField(null=True, upload_to="export")
     do_file = models.FileField(null=True, upload_to="export")
     ari_file = models.FileField(null=True, upload_to="export")
     maa_file = models.FileField(null=True, upload_to="export")
@@ -753,4 +754,4 @@ class ExportX3(FlagExport):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["-id"]
+        ordering = ["-uuid_edi_validation__created_at"]

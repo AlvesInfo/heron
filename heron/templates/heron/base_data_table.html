@@ -19,7 +19,7 @@ $("tr").promise().done(function() {
 
     $('#table_document').DataTable({
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"
+            "url": "https:://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"
         },
         "oLanguage": {
             "sSearch": ""
@@ -41,7 +41,7 @@ $("tr").promise().done(function() {
             };
             $(`.datatable-chargement`).hide();
         },
-
+        {{ datatable_ordering|safe }}
     }).on('order.dt', function() {
         $('.icon').each(function() {
             $(this).popup({

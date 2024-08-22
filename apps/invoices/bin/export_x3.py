@@ -34,6 +34,7 @@ from apps.invoices.bin.export_x3_odana_invoices import write_odana
 from apps.invoices.bin.export_x3_sale_invoices import write_bicpar
 from apps.invoices.bin.export_x3_purchase_invoices import write_bispard
 from apps.invoices.bin.export_x3_purchase_gdaud_invoices import write_bispar_gdaud
+from apps.invoices.bin.export_x3_purchase_sdoa_invoices import write_bispar_sdoa
 
 
 def export_files_x3(export_type, centrale, file_name, nb_fac):
@@ -60,14 +61,15 @@ def export_files_x3(export_type, centrale, file_name, nb_fac):
         "sale": write_bicpar,
         "purchase": write_bispard,
         "gdaud": write_bispar_gdaud,
+        "sdoa": write_bispar_sdoa,
     }
 
     try:
         if export_type not in functions_dict:
             raise Exception(f"la fonction {export_type!r}, n'existe pas !")
 
-        function = functions_dict.get(export_type)
-        function(centrale, file_name, nb_fac)
+        fonction = functions_dict.get(export_type)
+        fonction(centrale, file_name, nb_fac)
 
     except Exception as except_error:
         error = True

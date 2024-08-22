@@ -70,6 +70,7 @@ def generate_exports_X3(request):
         file_name_sale = f"AC00_{str(get_bicpar_num())}.txt"
         file_name_purchase = f"AC00_{str(get_bispard_num())}.txt"
         file_name_gdaud = f"GA00_{str(get_bispar_num())}.txt"
+        file_name_sdoa = f"SD00_{str(get_bispar_num())}.txt"
         file_name_zip = f"AC00_{str(get_zip_num())}.zip"
         tasks_list = [
             celery_app.signature(
@@ -112,6 +113,16 @@ def generate_exports_X3(request):
                     "nb_fac": 50_000,
                 },
             ),
+            celery_app.signature(
+                "launch_export_x3",
+                kwargs={
+                    "export_type": "sdoa",
+                    "centrale": "SD00",
+                    "file_name": file_name_gdaud,
+                    "user_pk": str(user_pk),
+                    "nb_fac": 50_000,
+                },
+            ),
         ]
         result_list = group(*tasks_list)().get(3600)
 
@@ -120,6 +131,7 @@ def generate_exports_X3(request):
             (Path(settings.EXPORT_DIR) / file_name_sale),
             (Path(settings.EXPORT_DIR) / file_name_purchase),
             (Path(settings.EXPORT_DIR) / file_name_gdaud),
+            (Path(settings.EXPORT_DIR) / file_name_sdoa),
         ]
 
         # On check si il y a eu des erreurs
@@ -148,6 +160,9 @@ def generate_exports_X3(request):
             )
             export_x3.ga_file = (
                 file_name_gdaud if (Path(settings.EXPORT_DIR) / file_name_gdaud).is_file() else None
+            )
+            export_x3.sd_file = (
+                file_name_sdoa if (Path(settings.EXPORT_DIR) / file_name_sdoa).is_file() else None
             )
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
@@ -179,7 +194,12 @@ class ExportX3Files(ListView):
     context_object_name = "exports"
     template_name = "invoices/export_x3_list.html"
     extra_context = {"titre_table": "Fichiers X3"}
-    queryset = ExportX3.objects.all().order_by("-uuid_edi_validation__id")
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["datatable_ordering"] = '''"order": [[ 1, 'desc' ]],'''
+        return context
 
 
 def get_export_x3_file(request, file_name):
