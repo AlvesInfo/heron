@@ -118,7 +118,7 @@ def generate_exports_X3(request):
                 kwargs={
                     "export_type": "sdoa",
                     "centrale": "SD00",
-                    "file_name": file_name_gdaud,
+                    "file_name": file_name_sdoa,
                     "user_pk": str(user_pk),
                     "nb_fac": 50_000,
                 },
