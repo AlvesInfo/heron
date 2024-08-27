@@ -15,7 +15,7 @@ with "real_purchase" as(
 	    'ACAF001' as "BPRRAY", -- Tiers Payeur
 	    TO_CHAR("isi"."date_depart_echeance"::date, 'DDMMYY') as "STRDUDDAT", -- Départ échéance
 	    'FRPRE30FM' as "PTE", -- Coniditions de paiement
-	    'FGA' as "VAC", -- Régime TVA
+	    'FRA' as "VAC", -- Régime TVA
 	    left("isi"."invoice_number", 30) as "BPRVCR", -- Document origine
 	    '1' as "PBPAINV", -- Adresse
 	    '1' as "BPAPAY", -- Adresse tiers payé
@@ -280,7 +280,7 @@ with "real_purchase" as(
 	    'ACAF001' as "BPRRAY", -- Tiers Payeur
 	    TO_CHAR("isi"."date_depart_echeance"::date, 'DDMMYY') as "STRDUDDAT", -- Départ échéance
 	    'FRPRE30FM' as "PTE", -- Coniditions de paiement
-	    'FGA' as "VAC", -- Régime TVA
+	    'FRA' as "VAC", -- Régime TVA
 	    left("isi"."invoice_number", 30) as "BPRVCR", -- Document origine
 	    '1' as "PBPAINV", -- Adresse
 	    '1' as "BPAPAY", -- Adresse tiers payé
