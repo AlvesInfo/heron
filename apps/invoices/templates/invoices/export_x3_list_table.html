@@ -52,7 +52,7 @@
                 </td>
                 <td style="text-align: center;">
                     {% if  export.sd_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.sd_file %}" style="font-size: 9px;">{{ export.sd_file }}</a>
+                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.do_file %}" style="font-size: 9px;">{{ export.do_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">

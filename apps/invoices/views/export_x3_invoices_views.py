@@ -179,7 +179,6 @@ def generate_exports_X3(request):
             export_x3.do_file = (
                 file_name_do if (Path(settings.EXPORT_DIR) / file_name_do).is_file() else None
             )
-            print(file_name_do, (Path(settings.EXPORT_DIR) / file_name_do).is_file())
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
             sales.update(export=True)
