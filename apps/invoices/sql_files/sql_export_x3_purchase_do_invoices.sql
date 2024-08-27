@@ -37,7 +37,7 @@ with "real_purchase" as(
 	   	'1' as "L_LIG", -- Numéro de ligne
 	    'DO00' as "L_FCYLIN", -- Site
 		'FRA' as "COA_00", -- Code plan
-		'AFR' as "COA_01", -- Code plan
+		'FRA' as "COA_01", -- Code plan
 		"iid"."call_code" as "SAC", --Collectif
 		"iid"."account" as "ACC_00", -- Comptes gÃ©nÃ©raux
 		"iid"."account" as "ACC_01", -- Comptes gÃ©nÃ©raux
@@ -302,7 +302,7 @@ with "real_purchase" as(
 	   	'1' as "L_LIG", -- Numéro de ligne
 	    'DO00' as "L_FCYLIN", -- Site
 		'FRA' as "COA_00", -- Code plan
-		'AFR' as "COA_01", -- Code plan
+		'FRA' as "COA_01", -- Code plan
 		'' as "SAC", --Collectif
 		'445660' as "ACC_00", -- Comptes généraux
 	    '445660' as "ACC_01", -- Comptes généraux
