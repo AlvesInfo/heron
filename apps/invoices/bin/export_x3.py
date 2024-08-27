@@ -35,6 +35,7 @@ from apps.invoices.bin.export_x3_sale_invoices import write_bicpar
 from apps.invoices.bin.export_x3_purchase_invoices import write_bispard
 from apps.invoices.bin.export_x3_purchase_gdaud_invoices import write_bispar_gdaud
 from apps.invoices.bin.export_x3_purchase_sdoa_invoices import write_bispar_sdoa
+from apps.invoices.bin.export_x3_purchase_do_invoices import write_bispar_do
 
 
 def export_files_x3(export_type, centrale, file_name, nb_fac):
@@ -62,6 +63,7 @@ def export_files_x3(export_type, centrale, file_name, nb_fac):
         "purchase": write_bispard,
         "gdaud": write_bispar_gdaud,
         "sdoa": write_bispar_sdoa,
+        "do": write_bispar_do,
     }
 
     try:

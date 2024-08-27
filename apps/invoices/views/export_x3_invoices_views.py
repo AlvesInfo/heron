@@ -71,6 +71,7 @@ def generate_exports_X3(request):
         file_name_purchase = f"AC00_{str(get_bispard_num())}.txt"
         file_name_gdaud = f"GA00_{str(get_bispar_num())}.txt"
         file_name_sdoa = f"SD00_{str(get_bispar_num())}.txt"
+        file_name_do = f"DO00_{str(get_bispar_num())}.txt"
         file_name_zip = f"AC00_{str(get_zip_num())}.zip"
         tasks_list = [
             celery_app.signature(
@@ -123,6 +124,16 @@ def generate_exports_X3(request):
                     "nb_fac": 50_000,
                 },
             ),
+            celery_app.signature(
+                "launch_export_x3",
+                kwargs={
+                    "export_type": "do",
+                    "centrale": "DO00",
+                    "file_name": file_name_do,
+                    "user_pk": str(user_pk),
+                    "nb_fac": 50_000,
+                },
+            ),
         ]
         result_list = group(*tasks_list)().get(3600)
 
@@ -132,6 +143,7 @@ def generate_exports_X3(request):
             (Path(settings.EXPORT_DIR) / file_name_purchase),
             (Path(settings.EXPORT_DIR) / file_name_gdaud),
             (Path(settings.EXPORT_DIR) / file_name_sdoa),
+            (Path(settings.EXPORT_DIR) / file_name_do),
         ]
 
         # On check si il y a eu des erreurs
@@ -163,6 +175,9 @@ def generate_exports_X3(request):
             )
             export_x3.sd_file = (
                 file_name_sdoa if (Path(settings.EXPORT_DIR) / file_name_sdoa).is_file() else None
+            )
+            export_x3.do_file = (
+                file_name_do if (Path(settings.EXPORT_DIR) / file_name_do).is_file() else None
             )
             export_x3.alls_zip_file = file_name_zip
             export_x3.save()
