@@ -160,7 +160,7 @@ with "real_purchase" as(
 	          on "acc"."purchase_account" = "aaa"."account"
 	         and "aaa"."code_plan_sage" = 'FRA'
 	        where not "idd"."export"
-			  and "idd"."third_party_num" = 'DIROF'
+			  and "idd"."third_party_num" = 'DOFR001'
 	        group by
 	            "uuid_invoice",
 	            "iii"."vat",
@@ -182,7 +182,7 @@ with "real_purchase" as(
 	-- type de client 1 : "VENTE" , "export" = false
 	where not "isi"."export"
 	  and "isi"."type_x3" = 1
-	  and "isi"."third_party_num" = 'DIROF'
+	  and "isi"."third_party_num" = 'DOFR001'
 
 	group by
 	        -- T
@@ -250,7 +250,7 @@ with "real_purchase" as(
 	 and "idd"."vat" = "acc"."vat"
 		where  "iii"."type_x3" = 1
 		  and not "iii"."export"
-		  and "iii"."third_party_num" = 'DIROF'
+		  and "iii"."third_party_num" = 'DOFR001'
 		group by
 		    "uuid_invoice",
 		    "iii"."invoice_number",
