@@ -52,7 +52,7 @@ with "real_purchase" as(
 		left(
 			coalesce(
 				(
-					coalesce("isd"."axe_prj" || '-' ||, '') ||
+					'AC00 - ' ||
 					"isi"."cct"::varchar
 					|| '- ' ||
 					TO_CHAR("isi"."invoice_date"::date, 'MM/YYYY')
@@ -287,7 +287,7 @@ with "real_purchase" as(
 		left(
 			coalesce(
 				(
-					coalesce("isd"."axe_prj" || '-' ||, '') ||
+					'AC00 - ' ||
 					"isi"."cct"::varchar
 					|| '-' ||
 					TO_CHAR("isi"."invoice_date"::date, 'MM/YYYY')
@@ -317,7 +317,7 @@ with "real_purchase" as(
 		left(
 			coalesce(
 				(
-					coalesce("isd"."axe_prj" || '-' ||, '') ||
+					'AC00 - ' ||
 					"isi"."cct"::varchar
 					|| '- ' ||
 					TO_CHAR("isi"."invoice_date"::date, 'MM/YYYY')
