@@ -71,7 +71,7 @@ with "real_purchase" as(
 		'PRJ' as "DIE_03", -- Code axe PRJ
 		'PYS' as "DIE_04", -- Code axe PYS
 		'RFA' as "DIE_05", -- Code axe RFA
-		'SUCC' as "CCE", -- Section analytique BU
+		'CDSCAP' as "CCE", -- Section analytique BU
 		"isi"."cct" as "CCE_01", -- Section analytique CCT
 		"isd"."axe_pro" as "CCE_02", -- Section analytique PRO
 		"isd"."axe_prj" as "CCE_03", -- Section analytique PRJ
@@ -336,7 +336,7 @@ with "real_purchase" as(
 		'PRJ' as "DIE_03", -- Code axe PRJ
 		'PYS' as "DIE_04", -- Code axe PYS
 		'RFA' as "DIE_05", -- Code axe RFA
-        'REFAC' as  "CCE",
+        'CDSCAP' as  "CCE",
         'DIV' as  "CCE_01",
         'DIV' as  "CCE_02",
         'NAF' as  "CCE_03",
