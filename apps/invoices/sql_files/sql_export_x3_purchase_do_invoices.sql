@@ -74,7 +74,7 @@ with "real_purchase" as(
 		'CDSCAP' as "CCE", -- Section analytique BU
 		"isi"."cct" as "CCE_01", -- Section analytique CCT
 		"isd"."axe_pro" as "CCE_02", -- Section analytique PRO
-		"isd"."axe_prj" as "CCE_03", -- Section analytique PRJ
+		'NAF' as "CCE_03", -- Section analytique PRJ
 		"isd"."axe_pys" as "CCE_04", -- Section analytique PYS
 		'' as "CCE_05", -- Section analytique RFA
 		case
