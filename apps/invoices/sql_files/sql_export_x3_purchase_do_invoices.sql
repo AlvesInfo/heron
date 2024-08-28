@@ -76,7 +76,7 @@ with "real_purchase" as(
 		"isd"."axe_pro" as "CCE_02", -- Section analytique PRO
 		"isd"."axe_prj" as "CCE_03", -- Section analytique PRJ
 		"isd"."axe_pys" as "CCE_04", -- Section analytique PYS
-		"isd"."axe_rfa" as "CCE_05", -- Section analytique RFA
+		'' as "CCE_05", -- Section analytique RFA
 		case
 			when "isi"."invoice_type_name" = 'Facture'
 			then sum(round("isd"."net_amount"::numeric, 2))::numeric
@@ -341,7 +341,7 @@ with "real_purchase" as(
         'DIV' as  "CCE_02",
         'NAF' as  "CCE_03",
         'FR' as  "CCE_04",
-        'NAF' as  "CCE_05",
+        '' as  "CCE_05",
 		case
 			when "isi"."invoice_type_name" = 'Facture'
 			then sum("d_ttc")
