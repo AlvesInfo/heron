@@ -14,7 +14,7 @@ with "real_purchase" as(
 	    "isi"."type_cours" as "CURTYP", -- Type de cours
 	    'ACAF001' as "BPRRAY", -- Tiers Payeur
 	    TO_CHAR("isi"."date_depart_echeance"::date, 'DDMMYY') as "STRDUDDAT", -- Départ échéance
-	    'FRPRE30FM' as "PTE", -- Coniditions de paiement
+	    'FRVIR45FM' as "PTE", -- Coniditions de paiement
 	    'FRA' as "VAC", -- Régime TVA
 	    left("isi"."invoice_number", 30) as "BPRVCR", -- Document origine
 	    '1' as "PBPAINV", -- Adresse
@@ -95,7 +95,7 @@ with "real_purchase" as(
 	        )::date,
 	        'DDMMYY'
         ) as "DUDDAT", -- Date échéance
-		'PRE' as "PAM", -- Mode de règlement
+		'VIR' as "PAM", -- Mode de règlement
 		'1' as "PAMTYP", -- Type de règlement
 		case
 			when "isi"."invoice_type_name" = 'Facture'
@@ -279,7 +279,7 @@ with "real_purchase" as(
 	    "isi"."type_cours" as "CURTYP", -- Type de cours
 	    'ACAF001' as "BPRRAY", -- Tiers Payeur
 	    TO_CHAR("isi"."date_depart_echeance"::date, 'DDMMYY') as "STRDUDDAT", -- Départ échéance
-	    'FRPRE30FM' as "PTE", -- Coniditions de paiement
+	    'FRVIR45FM' as "PTE", -- Coniditions de paiement
 	    'FRA' as "VAC", -- Régime TVA
 	    left("isi"."invoice_number", 30) as "BPRVCR", -- Document origine
 	    '1' as "PBPAINV", -- Adresse
@@ -360,7 +360,7 @@ with "real_purchase" as(
 	        )::date,
 	        'DDMMYY'
         ) as "DUDDAT", -- Date échéance
-		'PRE' as "PAM", -- Mode de règlement
+		'VIR' as "PAM", -- Mode de règlement
 		'1' as "PAMTYP", -- Type de règlement
 		case
 			when "isi"."invoice_type_name" = 'Facture'
