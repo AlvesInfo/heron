@@ -2,14 +2,19 @@
 """
 Views des Paramètres des Taux de change
 """
+
 import pendulum
 from django.shortcuts import redirect, reverse, render
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
+from django.shortcuts import get_object_or_404
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.parameters.bin.exchanges import set_base_exchange_rate, set_exchanges_sales_cosium
+from apps.parameters.bin.exchanges import (
+    set_base_exchange_rate,
+    set_exchanges_sales_cosium,
+)
 from apps.parameters.models import ExchangeRate
 from apps.periods.forms import MonthForm
 from apps.parameters.forms import ExchangeRateForm
@@ -35,7 +40,9 @@ def period_select_exchange(request):
         if request.method == "POST" and form.is_valid():
             dte_d, _ = form.cleaned_data.get("periode").split("_")
             set_base_exchange_rate(month=dte_d)
-            return redirect(reverse("parameters:exchanges_list", kwargs={"month": dte_d}))
+            return redirect(
+                reverse("parameters:exchanges_list", kwargs={"month": dte_d})
+            )
 
     except Exception as error:
         print(error)
@@ -84,7 +91,7 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     form_class = ExchangeRateForm
     form_class.use_required_attribute = False
     template_name = "parameters/exchange_update.html"
-    success_message = "Le Taux de change %(currency_change)s a été créé avec success"
+    success_message = "Le Taux de change %(currency_change)s a été créé avec succès"
     error_message = (
         "Le Taux de change %(currency_change)s n'a pu être créé, une erreur c'est produite"
     )
@@ -94,28 +101,50 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         mois = str(self.kwargs.get("month"))
         mois_change = (
-            pendulum.parse(str(self.kwargs.get("month"))).format("MMMM YYYY", locale="fr").upper()
+            pendulum.parse(str(self.kwargs.get("month")))
+            .format("MMMM YYYY", locale="fr")
+            .upper()
         )
-        context["chevron_retour"] = reverse("parameters:exchanges_list", kwargs={"month": mois})
+        context["chevron_retour"] = reverse(
+            "parameters:exchanges_list", kwargs={"month": mois}
+        )
         context["titre_table"] = f"Nouveau taux de change: {mois_change}"
 
         return context
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse("parameters:exchanges_list", kwargs={"month": self.kwargs.get("month")})
+        return reverse(
+            "parameters:exchanges_list", kwargs={"month": self.kwargs.get("month")}
+        )
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
+        currency_change = self.request.POST.get("currency_change")
+        try:
+            session = ExchangeRate.objects.get(
+                rate_month=self.kwargs.get("month"),
+                curency_base="EUR",
+                currency_change=currency_change,
+            )
+            form = ExchangeRateForm(self.request.POST, instance=session)
+            self.success_message = "Le Taux de change %(currency_change)s a été modifié avec succès"
+        except ExchangeRate.DoesNotExist:
+            form = ExchangeRateForm(self.request.POST)
+
         form.instance.created_by = self.request.user
         form.instance.curency_base = "EUR"
+        form.save()
+        form.instance.rate = form.instance.rate or 1
         form.instance.rate_month = self.kwargs.get("month")
         self.request.session["level"] = 20
         return super().form_valid(form)
 
     def form_updated(self):
         """Action à faire après form_valid save"""
-        set_exchanges_sales_cosium(str(self.object.rate_month), self.object.currency_change.code)
+        set_exchanges_sales_cosium(
+            str(self.object.rate_month), self.object.currency_change.code
+        )
 
 
 class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
@@ -125,15 +154,19 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     form_class = ExchangeRateForm
     form_class.use_required_attribute = False
     template_name = "parameters/exchange_update.html"
-    success_message = "Le Taux de change %(currency_change)s a été modifiée avec success"
-    error_message = (
-        "Le Taux de change %(currency_change)s n'a pu être modifiée, une erreur c'est produite"
+    success_message = (
+        "Le Taux de change %(currency_change)s a été modifiée avec success"
     )
+    error_message = "Le Taux de change %(currency_change)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        mois = pendulum.parse(str(self.object.rate_month)).format("MMMM YYYY", locale="fr").upper()
+        mois = (
+            pendulum.parse(str(self.object.rate_month))
+            .format("MMMM YYYY", locale="fr")
+            .upper()
+        )
         context["titre_table"] = f"Mise à jour taux de change: {mois}"
         context["chevron_retour"] = reverse(
             "parameters:exchanges_list", kwargs={"month": self.object.rate_month}
@@ -143,7 +176,9 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse("parameters:exchanges_list", kwargs={"month": self.object.rate_month})
+        return reverse(
+            "parameters:exchanges_list", kwargs={"month": self.object.rate_month}
+        )
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
@@ -156,4 +191,6 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def form_updated(self):
         """Action à faire après form_valid save"""
-        set_exchanges_sales_cosium(str(self.object.rate_month), self.object.currency_change.code)
+        set_exchanges_sales_cosium(
+            str(self.object.rate_month), self.object.currency_change.code
+        )
