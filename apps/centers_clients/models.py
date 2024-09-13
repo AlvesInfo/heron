@@ -424,7 +424,7 @@ class Maison(FlagsTable):
                 )
 
         # On vérifie que le compte au crédit soit bien un compte collectif
-        if not self.credit_account.collective:
+        if self.credit_account and not self.credit_account.collective:
             raise ValidationError(
                     {
                         "credit_account": _(
@@ -434,7 +434,7 @@ class Maison(FlagsTable):
             )
 
         # On vérifie que le compte au débit soit bien un compte collectif
-        if not self.debit_account.collective:
+        if self.debit_account and not self.debit_account.collective:
             raise ValidationError(
                     {
                         "debit_account": _(
@@ -444,7 +444,7 @@ class Maison(FlagsTable):
             )
 
         # On s'assure que le Tiers X3 client est bien un client
-        if not self.third_party_num.is_client:
+        if self.third_party_num and not self.third_party_num.is_client:
             raise ValidationError(
                     {
                         "third_party_num": _(
