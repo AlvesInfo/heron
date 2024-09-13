@@ -63,8 +63,6 @@ class TemplateDataLoader:
         self.params_dict = params_dict or {}
         self.trace = params_dict.get("trace")
 
-        # TODO : Implémenter une méthode pour les Traces du loader
-
     def __enter__(self):
         """Pré context manager"""
         return self
@@ -236,7 +234,7 @@ class FileLoader(TemplateDataLoader):
         Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel
         """
         try:
-            if self.source.suffix in {".xls", ".xlsx", ".XLS", "XLSX"}:
+            if str(self.source.suffix).lower() in {".xls", ".xlsx"}:
                 excel_file_to_csv_string_io(self.source, self.csv_io)
             else:
                 file_to_csv_string_io(self.source, self.csv_io, self.params_dict.get("encoding"))

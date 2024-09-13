@@ -238,9 +238,12 @@ def trace_mark_delete(
     model_object = django_model.objects.filter(**data_dict)
 
     if not model_object:
+
         LOGGER_VIEWS.exception(
             f"{function_call} error : les données ne retournent aucuns résultats :\n"
-            f"{str(data_dict)}"
+            f"\tdata_dict: {str(data_dict)}\n"
+            f"\tmodel    : {str(django_model)}\n"
+            f"\tforce    : {str(force_delete)}\n"
         )
         request.session["level"] = 50
 
