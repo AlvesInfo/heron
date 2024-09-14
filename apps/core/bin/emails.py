@@ -59,39 +59,34 @@ def send_mass_mail(email_list=None):
     if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
-    try:
+    for _ in range(3):
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-
-            for email_to_send in email_list:
-                (
-                    mail_to,
-                    subject,
-                    email_text,
-                    email_html,
-                    context,
-                    attachement_file_list,
-                ) = email_to_send
-                send_mail(
-                    server,
-                    mail_to,
-                    subject,
-                    email_text,
-                    email_html,
-                    context,
-                    attachement_file_list,
-                )
-
-    except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException("Erreur envoi email") from error
-
-    finally:
-        if server:
             try:
-                server.close()
-            except AttributeError:
-                pass
+                server.starttls()
+                server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+
+                for email_to_send in email_list:
+                    (
+                        mail_to,
+                        subject,
+                        email_text,
+                        email_html,
+                        context,
+                        attachement_file_list,
+                    ) = email_to_send
+                    send_mail(
+                        server,
+                        mail_to,
+                        subject,
+                        email_text,
+                        email_html,
+                        context,
+                        attachement_file_list,
+                    )
+                    break
+
+            except (smtplib.SMTPException, ValueError) as error:
+                raise EmailException("Erreur envoi email") from error
 
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 
