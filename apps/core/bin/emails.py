@@ -59,7 +59,7 @@ def send_mass_mail(email_list=None):
     if not email_list:
         return {"Send invoices email : Il n'y a rien à envoyer"}
 
-    for _ in range(3):
+    for _ in range(5):
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
             try:
                 server.starttls()
