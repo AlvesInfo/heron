@@ -30,6 +30,7 @@ from apps.invoices.sql_files.sql_controls import (
     SQL_SALES_AXE_BU,
 )
 from apps.articles.models import Article
+from apps.invoices.models import SaleInvoice
 from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
 from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
 from apps.edi.bin.reset_import import reset_all_imports
@@ -372,6 +373,21 @@ def control_insertion():
         return True
 
     return False
+
+
+def control_emails():
+    """
+    Contrôle qu'il y ait des factures à envoyer par mail
+    :return: True si il en reste, false sinon
+    """
+    emails_to_send = SaleInvoice.objects.filter(
+        final=False,
+        printed=True,
+        type_x3__in=(1, 2),
+        send_email=False,
+    )
+
+    return emails_to_send
 
 
 def control_validations():

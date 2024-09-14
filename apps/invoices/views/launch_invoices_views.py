@@ -33,7 +33,7 @@ from apps.periods.forms import MonthForm
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
-from apps.invoices.bin.pre_controls import control_insertion
+from apps.invoices.bin.pre_controls import control_insertion, control_emails
 from apps.invoices.bin.finalize import finalize_global_invoices
 from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
@@ -77,7 +77,6 @@ def generate_invoices_insertions(request):
     if not edi_invoices_exists:
         request.session["level"] = 50
         messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
-        # context["en_cours"] = True
         context["not_finalize"] = True
 
         return render(request, "invoices/insertion_invoices.html", context=context)
@@ -312,13 +311,13 @@ def send_email_pdf_invoice(request):
     titre_table = "Envoi Global, par mail des factures de vente"
 
     # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
-    not_finalize = control_insertion()
+    emails_to_send = control_emails()
 
-    # if not_finalize:
-    #     request.session["level"] = 50
-    #     messages.add_message(request, 50, "Il n'y a aucune facture pdf à envoyer !")
-    #     context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
-    #     return render(request, "invoices/send_email_invoices.html", context=context)
+    if not emails_to_send:
+        request.session["level"] = 50
+        messages.add_message(request, 50, "Il n'y a aucune facture pdf à envoyer !")
+        context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
+        return render(request, "invoices/send_email_invoices.html", context=context)
 
     # On contrôle qu'il y ait des pdf à envoyer par mail
     sales_invoices_exists = SaleInvoice.objects.filter(
