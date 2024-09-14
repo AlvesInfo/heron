@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-06-13
 modified by: Paulo ALVES
 """
+
 import smtplib
 import ssl
 from pathlib import Path
@@ -84,12 +85,16 @@ def send_mass_mail(email_list=None):
                 )
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException(f"Erreur envoi email send_mass_mail {str(email_list)!r}") from error
+        raise EmailException(
+            f"Erreur envoi email send_mass_mail {str(attachement_file_list[0].name)!r}"
+        ) from error
 
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 
 
-def send_mail(server, mail_to, subject, email_text, email_html, context, attachement_file_list):
+def send_mail(
+    server, mail_to, subject, email_text, email_html, context, attachement_file_list
+):
     """Envoi le mail avec le template souhaité"""
     message = MIMEMultipart()
     body = MIMEMultipart("alternative")
