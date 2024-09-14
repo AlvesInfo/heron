@@ -240,7 +240,6 @@ def launch_celery_send_invoice_mails(
 
     try:
         tasks_list = []
-
         for cct_dict in cct_invoices_list:
             tasks_list.append(
                 celery_app.signature(
@@ -316,7 +315,8 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
     return {
         "Envoie de la facture par mail : ": (
-            f"cct : {str(context_dict.get('cct'))} - {time.time() - start_initial} s"
+            f"cct : {str(context_dict.get('cct'))} "
+            f"- {time.time() - start_initial} s"
         )
     }
 
@@ -393,17 +393,10 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         "global_invoice_file": "un.pdf",
     }
     mails_essis_dict = {
-        1: "paulo@alves-info.fr",
-        2: "admin.bi@acuitis.com",
-        3: "paulo@alves.ovh",
-        4: "paulo.alves@4a-info.fr",
-        5: "sav.acuitis@alves-info.fr",
-        6: "bi.acuitis@alves-info.fr",
-        7: "d.optiques@alves-info.fr",
-        8: "gdaud@alves-info.fr",
-        9: "saisie.sav.acuitis@alves-info.fr",
+        1: "admin.bi@acuitis.com",
+        2: "sav.acuitis@alves-info.fr",
     }
-    nb_iter = 30
+    nb_iter = 3
     nb_mails = nb_iter * len(mails_essis_dict)
 
     try:

@@ -1,5 +1,4 @@
 # pylint: disable=E0401,E1101,C0303,R0913,C0413,R0914,W0718,W1203,R0915
-# ruff: noqa: E402
 """
 FR : Module d'envoi des factures par email
 EN : Send invoices by email module
@@ -11,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-06-13
 modified by: Paulo ALVES
 """
+
 import os
 import sys
 import platform
@@ -140,7 +140,6 @@ def invoices_send_by_email(context_dict: Dict):
                 )
                 context_email["service"] = service
                 context_email["centrale"] = center
-
                 for email in [
                     email_01,
                     email_02,
@@ -160,9 +159,9 @@ def invoices_send_by_email(context_dict: Dict):
                 f"{invoice}</p>"
             )
 
-    mail_to_list = [mail for mail in mail_to_list if mail]
-
     try:
+        mail_to_list = [mail for mail in mail_to_list if mail]
+
         if mail_to_list:
             send_mass_mail(
                 [
@@ -176,7 +175,7 @@ def invoices_send_by_email(context_dict: Dict):
                             file_path,
                         ],
                     )
-                ],
+                ]
             )
             trace.file_name = f"send email invoice : {file_path.name}"
             to_print = f"Have send invoice email : {file_path.name} - "
@@ -191,9 +190,7 @@ def invoices_send_by_email(context_dict: Dict):
 
     except EmailException as except_error:
         error = True
-        LOGGER_EMAIL.exception(
-            f"Exception EmailException : {str(mail_to_list)}{except_error!r}"
-        )
+        LOGGER_EMAIL.exception(f"Exception EmailException : {except_error!r}")
 
     except Exception as except_error:
         error = True
