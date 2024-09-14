@@ -84,7 +84,7 @@ def send_mass_mail(email_list=None):
                 )
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException("Erreur envoi email") from error
+        raise EmailException(f"Erreur envoi email send_mass_mail {str(email_list)!r}") from error
 
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 

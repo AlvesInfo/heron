@@ -254,7 +254,7 @@ def launch_celery_send_invoice_mails(
         group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException("Erreur envoi email") from error
+        raise EmailException("Erreur envoi email launch_celery_send_invoice_mails") from error
 
     except Exception as error:
         print("Error : ", error)
@@ -419,7 +419,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException("Erreur envoi email") from error
+        raise EmailException("Erreur envoi email launch_celery_send_emails_essais") from error
 
     except Exception as error:
         print("Error : ", error)
