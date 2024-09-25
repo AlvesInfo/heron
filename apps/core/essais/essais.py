@@ -196,5 +196,5 @@ def essais_inserts():
 
 
 if __name__ == "__main__":
-    # multiples_process()
+    multiples_process()
     essais_inserts()

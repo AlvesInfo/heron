@@ -45,7 +45,8 @@ on "si"."third_party_num" = "bs"."third_party_num"
 join "centers_clients_maison" "cm"
   on "ii"."cct" = "cm"."cct"
 
-where not "si"."final"
+where third_party_num in ('SIEM001')
+and invoice_date between '2023-09-01' and '2024-06-30'
 order by 
 	"si"."invoice_month",
 	"bs"."name",
