@@ -612,6 +612,7 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
             # On contrôle l'insertion
             LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
             if control_sales_insertion(cursor):
+                transaction.commit()
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures de vente, "
                     "les totaux ne correspondent pas"
