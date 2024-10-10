@@ -523,108 +523,107 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     alls_print = ""
 
     try:
-        # with connection.cursor() as cursor, transaction.atomic():
-        cursor = connection.cursor()
-        user = User.objects.get(uuid_identification=user_uuid)
-        LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
-        # On nettoie les factures non finalisées
-        sanitaze_before(cursor)
-        print(f"suppression :{time.time()-start} s")
-        start = time.time()
+        with connection.cursor() as cursor, transaction.atomic():
+            user = User.objects.get(uuid_identification=user_uuid)
+            LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
+            # On nettoie les factures non finalisées
+            sanitaze_before(cursor)
+            print(f"suppression :{time.time()-start} s")
+            start = time.time()
 
-        LOGGER_INVOICES.warning(r"Copie de la table edi_ediimport")
-        # On copie la table edi_ediimport par sécurité si il y a des éléments dans celle-ci
-        copy_edi_import(cursor)
-        print(f"Copie :{time.time()-start} s")
-        start = time.time()
+            LOGGER_INVOICES.warning(r"Copie de la table edi_ediimport")
+            # On copie la table edi_ediimport par sécurité si il y a des éléments dans celle-ci
+            copy_edi_import(cursor)
+            print(f"Copie :{time.time()-start} s")
+            start = time.time()
 
-        LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
-        # On met les import_uuid_identification au cas où il en manque
-        set_fix_uuid(cursor)
-        print(f"set_fix_uuid :{time.time()-start} s")
-        start = time.time()
+            LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
+            # On met les import_uuid_identification au cas où il en manque
+            set_fix_uuid(cursor)
+            print(f"set_fix_uuid :{time.time()-start} s")
+            start = time.time()
 
-        # Mise à jour des articles
-        cursor.execute(SQL_FIX_ARTICLES)
+            # Mise à jour des articles
+            cursor.execute(SQL_FIX_ARTICLES)
 
-        # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
-        process_update()
+            # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
+            process_update()
 
-        print(f"process_update :{time.time()-start} s")
-        start = time.time()
+            print(f"process_update :{time.time()-start} s")
+            start = time.time()
 
-        # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
-        update_axes_edi()
-        print(f"update_axes_edi :{time.time()-start} s")
-        start = time.time()
+            # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
+            update_axes_edi()
+            print(f"update_axes_edi :{time.time()-start} s")
+            start = time.time()
 
-        # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
-        set_common_details(cursor)
-        print(f"set_common_details :{time.time()-start} s")
-        start = time.time()
+            # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
+            set_common_details(cursor)
+            print(f"set_common_details :{time.time()-start} s")
+            start = time.time()
 
-        # On insère les factures d'achats
-        LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
-        error, to_print = set_purchases_invoices(cursor, user, invoice_date)
-        print(f"set_purchases_invoices :{time.time()-start} s")
-        start = time.time()
+            # On insère les factures d'achats
+            LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
+            error, to_print = set_purchases_invoices(cursor, user, invoice_date)
+            print(f"set_purchases_invoices :{time.time()-start} s")
+            start = time.time()
 
-        if error:
-            raise Exception
+            if error:
+                raise Exception
 
-        alls_print += to_print
-        cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
-        cursor.execute(SQL_PURCHASES_DETAILS)
-        cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
+            alls_print += to_print
+            cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
+            cursor.execute(SQL_PURCHASES_DETAILS)
+            cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
 
-        # On contrôle l'insertion des achats
-        LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
-        if control_sales_insertion(cursor):
-            alls_print = (
-                "Il y a eu une erreur à l'insertion des factures d'achat, "
-                "les totaux ne correspondent pas"
-            )
-            raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+            # On contrôle l'insertion des achats
+            LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
+            if control_sales_insertion(cursor):
+                alls_print = (
+                    "Il y a eu une erreur à l'insertion des factures d'achat, "
+                    "les totaux ne correspondent pas"
+                )
+                raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
-        # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
-        #  EX.: TVA, REGIME DE TVA, COLLECTIF....
+            # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
+            #  EX.: TVA, REGIME DE TVA, COLLECTIF....
 
-        print(f"control_sales_insertion :{time.time()-start} s")
-        start = time.time()
+            print(f"control_sales_insertion :{time.time()-start} s")
+            start = time.time()
 
-        # On insère les entêtes de factures de vente
-        error, to_print = set_sales_invoices(cursor, user, invoice_date)
+            # On insère les entêtes de factures de vente
+            error, to_print = set_sales_invoices(cursor, user, invoice_date)
 
-        if error:
-            raise Exception
+            if error:
+                raise Exception
 
-        print(f"set_sales_invoices :{time.time()-start} s")
-        start = time.time()
-        alls_print += to_print
-        cursor.execute(SQL_SALES_FOR_EXPORT_X3)
+            print(f"set_sales_invoices :{time.time()-start} s")
+            start = time.time()
+            alls_print += to_print
+            cursor.execute(SQL_SALES_FOR_EXPORT_X3)
 
-        # On insère les détails des factures de vente
-        LOGGER_INVOICES.warning(r"Insertion des détails des factures de vente")
-        set_sales_details(cursor)
+            # On insère les détails des factures de vente
+            LOGGER_INVOICES.warning(r"Insertion des détails des factures de vente")
+            set_sales_details(cursor)
 
-        print(f"set_sales_details :{time.time()-start} s")
-        start = time.time()
+            print(f"set_sales_details :{time.time()-start} s")
+            start = time.time()
 
-        # On contrôle l'insertion
-        LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
-        if control_sales_insertion(cursor):
-            transaction.commit()
-            alls_print = (
-                "Il y a eu une erreur à l'insertion des factures de vente, "
-                "les totaux ne correspondent pas"
-            )
-            raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+            # On contrôle l'insertion
+            LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
 
-        print(f"control_sales_insertion :{time.time()-start} s")
-        start = time.time()
+            if control_sales_insertion(cursor):
+                alls_print = (
+                    "Il y a eu une erreur à l'insertion des factures de vente, "
+                    "les totaux ne correspondent pas"
+                )
+                raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
 
-        # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
-        #  EX.: TVA, REGIME DE TVA, COLLECTIF....
+            print(f"control_sales_insertion :{time.time()-start} s")
+            start = time.time()
+
+            # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
+            #  EX.: TVA, REGIME DE TVA, COLLECTIF....
 
         # On insère les numérotations des factures globales
         LOGGER_INVOICES.warning(r"insertion numérotation globale")
