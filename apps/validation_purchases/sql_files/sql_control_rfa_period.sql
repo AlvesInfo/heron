@@ -27,7 +27,7 @@ with rfa as (
 			"section"
 		from "accountancy_sectionsage"
 		where "axe" = 'RFA'
-		and "section" <> 'NAF'
+		and "section" not in ('NAF', 'N/A')
 	) "aa"
 	on "ee"."axe_rfa" = "aa"."axe_rfa"
     where ("ee"."delete" = false or "ee"."delete" isnull)
