@@ -256,7 +256,7 @@ def parties_invoices_update():
             "vat_cee_number_cct",
             "vat_cee_number_client"
         )
-        select
+        select distinct
             now() as created_at,
             coalesce("isi"."uuid_identification", gen_random_uuid()) as "uuid_identification",
             -- CCT
