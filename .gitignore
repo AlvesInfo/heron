@@ -152,3 +152,4 @@ files/log/*
 /heron/.env_copie
 /supervisor.conf
 /files/excel
+.venv/
