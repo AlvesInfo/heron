@@ -440,7 +440,7 @@ SQL_PURCHASES_DETAILS = sql.SQL(
           and "ee"."code_center" = "ac"."child_center"
           and "ee"."vat" = "ac"."vat"
          join "invoices_invoice" "ii"
-           on "ii"."third_party_num" = "ii"."third_party_num"
+           on "ii"."third_party_num" = "ee"."third_party_num"
           and "ii"."invoice_number" = "ee"."invoice_number"
           and "ii"."invoice_year" = "ee"."invoice_year"
          left join "accountancy_sectionsage" "abu" 
