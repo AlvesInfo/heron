@@ -184,7 +184,7 @@ def excel_liste_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
     excel = GenericExcel(list_excel)
 
     try:
-        titre_page_writer(excel, 1, 0, 0, columns, "LISTE DES ABBONNEMENTS / CLIENTS")
+        titre_page_writer(excel, 1, 0, 0, columns, "LISTE DES ABONNEMENTS / CLIENTS")
         output_day_writer(excel, 1, 1, 0)
         columns_headers_writer(excel, 1, 3, 0, columns)
         f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
