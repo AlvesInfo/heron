@@ -85,5 +85,5 @@ STATIC_ROOT = (Path(FILES_BASE_DIR) / "files/static").resolve()
 Path.mkdir(STATIC_ROOT, exist_ok=True)
 
 # REPERTOIRES statics
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
 STATIC_ROOT = (Path(FILES_BASE_DIR) / "files/static").resolve()

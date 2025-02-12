@@ -79,7 +79,7 @@ def invoice_search_list(request):
     paginator = Paginator(invoices_filter.qs, limit)
     page = request.GET.get("page")
     form = InvoiceSearchForm(attrs_filter)
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     try:
         invoices = paginator.page(page)
     except PageNotAnInteger:

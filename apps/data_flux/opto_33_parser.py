@@ -19,6 +19,19 @@ from typing import AnyStr, Callable, Generator
 from pathlib import Path
 from copy import deepcopy
 
+# --------------------------------------------------------------------------------------------------
+# import os
+# import sys
+#
+# BASE_DIR = "/Users/paulo/SitesWeb/heron/"
+# sys.path.insert(0, BASE_DIR)
+# sys.path.append(BASE_DIR)
+# sys.path.insert(1, "/Users/paulo/SitesWeb/heron/apps")
+# sys.path.append("/Users/paulo/SitesWeb/heron/apps")
+#
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
+# --------------------------------------------------------------------------------------------------
+
 from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.exceptions import (
     OptoDateError,
@@ -751,3 +764,12 @@ class EdiOpoto33Parser:
                 "get_columns": INVOICE_DICT,
                 "count_invoices": footer_count_invoices,
             }
+
+
+# if __name__ == '__main__':
+#     file = Path("/Users/paulo/Downloads/@FR45517780870_ESC_FAC_esc-fac-ACUITIS_250203090239760FR45517780870.SND")
+#     e = EdiOpoto33Parser(file)
+#     content = e.parse()
+#     iv = content["invoices"]
+#     for l in iv:
+#         print(l)

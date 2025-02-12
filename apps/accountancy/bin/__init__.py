@@ -54,7 +54,7 @@
 #         # Remplacez par vos informations d'identification OAuth2
 #         creds = None
 #         try:
-#             creds = Credentials('votre_token_d_acces')
+#             creds = Credentials('AIzaSyDcDV19Kbo-5Y-LeeVbbZmwtmsWpd8vIfg')
 #         except Exception as e:
 #             print("Erreur lors de l'initialisation des informations d'identification OAuth2 :", e)
 #             return
@@ -66,8 +66,8 @@
 #             return
 #
 #         # Définissez les détails du message
-#         sender = "vous@example.com"
-#         to = "destinataire@example.com"
+#         sender = "comptabilite@acuitis.com"
+#         to = "paulo@alves.ovh;paulo.alves@4a-info.fr"
 #         subject = "E-mail HTML avec pièce jointe"
 #         html_content = """
 #         <html>
@@ -78,7 +78,7 @@
 #             </body>
 #         </html>
 #         """
-#         file_path = "chemin/vers/fichier.pdf"  # Chemin complet du fichier à envoyer
+#         file_path = "/Users/paulo/Downloads/Classeur2.pdf"  # Chemin complet du fichier à envoyer
 #
 #         # Créez le message HTML avec pièce jointe
 #         message = create_html_message_with_attachment(sender, to, subject, html_content, file_path)
@@ -98,5 +98,7 @@
 #     except Exception as e:
 #         print(f"Erreur globale dans le programme : {e}")
 #
-# # Exécuter la fonction
-# send_email_with_html_and_attachment()
+#
+# if __name__ == '__main__':
+#     # Exécuter la fonction
+#     send_email_with_html_and_attachment()
