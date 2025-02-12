@@ -90,7 +90,7 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
         try:
             xls = pd.ExcelFile(fichier_excel)
         except ValueError:
-            xls = pd.ExcelFile(fichier_excel, engine=openpyxl)
+            xls = pd.ExcelFile(fichier_excel, engine="calamine")
 
         if sheets is None:
             data = pd.read_excel(xls)
@@ -650,19 +650,27 @@ def nom_feuilles_excel(nom, majuscule=True):
 
 
 if __name__ == "__main__":
-    EXCEL_DIR = "D://SitesWeb//sav//files"
-    EXCEL_FILE = (
-        f"{EXCEL_DIR}//{'Test_Class_excel'}_{date_string_series()}" f"_{time_string_series()}.xlsx"
-    )
-    EXCEL_SHEETS = ["f_01", "f_02", "f_03", "f_04"]
-    E_X = [EXCEL_FILE, EXCEL_SHEETS]
-
-    EXCEL = GenericExcel(E_X)
-    EXCEL.write_row(1, 0, 0, "f_01", None)
-    EXCEL.write_rows(1, 8, 0, [1, 2, 3])
-    EXCEL.write_row(2, 0, 0, "f_02", None)
-    EXCEL.write_row(3, 0, 0, "f_03", None)
-    EXCEL.write_row(4, 0, 0, "f_04", None)
-    EXCEL.write_headers_h(1, 2, 0, ["e1", "e01", "e02", "e03"])
-    EXCEL.write_headers_v(1, 4, 0, ["e1", "e01", "e02", "e03"])
-    EXCEL.excel_close()
+    # EXCEL_DIR = "D://SitesWeb//sav//files"
+    # EXCEL_FILE = (
+    #     f"{EXCEL_DIR}//{'Test_Class_excel'}_{date_string_series()}" f"_{time_string_series()}.xlsx"
+    # )
+    # EXCEL_SHEETS = ["f_01", "f_02", "f_03", "f_04"]
+    # E_X = [EXCEL_FILE, EXCEL_SHEETS]
+    #
+    # EXCEL = GenericExcel(E_X)
+    # EXCEL.write_row(1, 0, 0, "f_01", None)
+    # EXCEL.write_rows(1, 8, 0, [1, 2, 3])
+    # EXCEL.write_row(2, 0, 0, "f_02", None)
+    # EXCEL.write_row(3, 0, 0, "f_03", None)
+    # EXCEL.write_row(4, 0, 0, "f_04", None)
+    # EXCEL.write_headers_h(1, 2, 0, ["e1", "e01", "e02", "e03"])
+    # EXCEL.write_headers_v(1, 4, 0, ["e1", "e01", "e02", "e03"])
+    # EXCEL.excel_close()
+    file = "/Users/paulo/Downloads/LISTING_DES_ARTICLES_SANS_COMPTES_2025_2_12.xlsx"
+    # try:
+    #     xls = pd.ExcelFile(file)
+    # except ValueError:
+    #     xls = pd.ExcelFile(file, engine="calamine")
+    #
+    # e = pd.read_excel(xls)
+    # import pdb;pdb.set_trace()
