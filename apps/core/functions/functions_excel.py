@@ -90,7 +90,7 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
         try:
             xls = pd.ExcelFile(fichier_excel)
         except ValueError:
-            xls = pd.ExcelFile(fichier_excel, engine="calamine")
+            xls = pd.ExcelFile(fichier_excel, engine="openpyxl")
 
         if sheets is None:
             data = pd.read_excel(xls)
