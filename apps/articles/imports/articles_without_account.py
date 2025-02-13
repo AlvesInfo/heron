@@ -87,16 +87,21 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
     new_file = Path("new_file")
 
     try:
-        # On transforme le fichier excel en csv
-        file = ExcelToCsv(
-            rep=str(file_excel_path.parents[0]),
-            header=False,
-            deletion=False,
-            file_name=str(file_excel_path.name),
-        ).make_csv()[0]
+        if file_excel_path.suffix == ".csv":
+            # On transforme le fichier excel en csv
+            file = ExcelToCsv(
+                rep=str(file_excel_path.parents[0]),
+                header=False,
+                deletion=False,
+                file_name=str(file_excel_path.name),
+            ).make_csv()[0]
 
-        csv_file = Path(file)
-        new_file = Path(file_excel_path.parent) / f"{file_excel_path.stem}.csv"
+            csv_file = Path(file)
+        else:
+            csv_file = Path(file_excel_path.parent) / f"copy_{file_excel_path.stem}.csv"
+            shutil.copy(str(file_excel_path), str(csv_file))
+
+        new_file = Path(file_excel_path.parent) / f"new_{file_excel_path.stem}.csv"
         informations = True
 
         with csv_file.open("r", encoding="utf8", errors="replace") as file_to_parse, new_file.open(
