@@ -171,7 +171,10 @@ def import_articles_without_account():
     messages_errors = ""
     messages_ok = ""
 
-    for excel_file in Path(settings.PROCESSING_WITHOUT_ACCOUNT_DIR).glob("*.xlsx"):
+    for excel_file in Path(settings.PROCESSING_WITHOUT_ACCOUNT_DIR).glob("*.*"):
+        if not excel_file.is_file():
+            continue
+
         error, errors_text = file_for_insert_excel_to_csv(excel_file)
 
         if error:
