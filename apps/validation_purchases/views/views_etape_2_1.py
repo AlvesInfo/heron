@@ -25,14 +25,13 @@ from apps.validation_purchases.bin.validations_utilities import (
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
-from apps.edi.models import EdiImport
+from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
 from apps.validation_purchases.forms import (
     DeleteEdiForm,
     EdiImportControlForm,
     ControlValidationForm,
     IntegrationValidationForm,
 )
-from apps.edi.models import EdiImportControl, EdiValidation
 from apps.parameters.models import IconOriginChoice
 from apps.validation_purchases.excel_outputs.excel_supplier_invoices_details import (
     excel_invoice_details,
@@ -80,8 +79,13 @@ def integration_purchases(request):
         if not elements:
             return redirect(reverse("edi:import_edi_invoices"))
 
+        periodes = EdiValidation.objects.filter(final=False).first().billing_period.isoformat()
+        periode = (
+            f"Période de facturation :  "
+            f"{pendulum.parse(periodes).format('MMMM YYYY', locale='FR')}"
+        )
         context = {
-            "titre_table": "2.1 - Contrôle des Intégrations - Achats",
+            "titre_table": f"2.1 - Contrôle des Intégrations - {periode} ",
             "integration_purchases": elements,
             "nature": "les factures du fournisseur",
             "addition": True,
