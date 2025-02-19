@@ -614,7 +614,7 @@ SQL_SALES_INVOICES = sql.SQL(
                 "vt"."net_amount"::numeric
             )::numeric as "amount_with_vat"
         from (
-            select
+            select distinct
                 "eee"."id", 
                 "eee"."net_amount",
                 case 
