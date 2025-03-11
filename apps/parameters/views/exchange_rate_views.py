@@ -66,6 +66,7 @@ class ExchangesList(ListView):
         mois = pendulum.parse(month).format("MMMM YYYY", locale="fr").upper()
         self.extra_context["titre_table"] = f"TAUX DE CHANGE MOYEN DU MOIS : {mois}"
 
+        # Si dans le mois demandé le taux de change EUR/EUR n'existe pas, on le crée
         try:
             ExchangeRate.objects.create(rate_month=month, rate=1, created_by=request.user)
         except DjangoIntegrityError:
