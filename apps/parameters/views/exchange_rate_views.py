@@ -14,6 +14,7 @@ from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.parameters.bin.exchanges import (
     set_base_exchange_rate,
     set_exchanges_sales_cosium,
+    set_exchange_euro
 )
 from apps.parameters.models import ExchangeRate
 from apps.periods.forms import MonthForm
@@ -65,6 +66,7 @@ class ExchangesList(ListView):
         month = self.kwargs.get("month")
         mois = pendulum.parse(month).format("MMMM YYYY", locale="fr").upper()
         self.extra_context["titre_table"] = f"TAUX DE CHANGE MOYEN DU MOIS : {mois}"
+        set_exchange_euro(month, request.user)
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):

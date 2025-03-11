@@ -13,9 +13,10 @@ modified by: Paulo ALVES
 """
 from typing import AnyStr
 
+
 from django.db import connection
 from django.db.models import Exists, OuterRef, Count, F
-
+from django.db.utils import IntegrityError as DjangoIntegrityError
 from apps.compta.models import VentesCosium
 from apps.countries.models import Currency
 from apps.parameters.models import ExchangeRate
@@ -54,6 +55,14 @@ def set_base_exchange_rate(month: AnyStr) -> None:
             )
         except Currency.DoesNotExist:
             pass
+
+
+def set_exchange_euro(rate_month, user):
+    """Va créer par défaut le taux de change euro"""
+    try:
+        ExchangeRate.objects.create(rate_month=rate_month, rate=1, created_by=user)
+    except DjangoIntegrityError:
+        pass
 
 
 def set_exchanges_sales_cosium(sale_month, currency_change):
