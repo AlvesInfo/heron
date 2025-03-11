@@ -57,14 +57,6 @@ def set_base_exchange_rate(month: AnyStr) -> None:
             pass
 
 
-def set_exchange_euro(rate_month, user):
-    """Va créer par défaut le taux de change euro"""
-    try:
-        ExchangeRate.objects.create(rate_month=rate_month, rate=1, created_by=user)
-    except DjangoIntegrityError:
-        pass
-
-
 def set_exchanges_sales_cosium(sale_month, currency_change):
     """
     Mise à jour des taux de change dans les ventes après mise à jour du taux

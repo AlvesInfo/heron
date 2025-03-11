@@ -7,14 +7,13 @@ import pendulum
 from django.shortcuts import redirect, reverse, render
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
-from django.shortcuts import get_object_or_404
+from django.db.utils import IntegrityError as DjangoIntegrityError
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.parameters.bin.exchanges import (
     set_base_exchange_rate,
     set_exchanges_sales_cosium,
-    set_exchange_euro
 )
 from apps.parameters.models import ExchangeRate
 from apps.periods.forms import MonthForm
@@ -66,7 +65,12 @@ class ExchangesList(ListView):
         month = self.kwargs.get("month")
         mois = pendulum.parse(month).format("MMMM YYYY", locale="fr").upper()
         self.extra_context["titre_table"] = f"TAUX DE CHANGE MOYEN DU MOIS : {mois}"
-        set_exchange_euro(month, request.user)
+
+        try:
+            ExchangeRate.objects.create(rate_month=month, rate=1, created_by=request.user)
+        except DjangoIntegrityError:
+            pass
+
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
