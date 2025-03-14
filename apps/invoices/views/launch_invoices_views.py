@@ -46,7 +46,7 @@ def generate_invoices_insertions(request):
 
     titre_table = "Génération de la facturation"
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y est pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
     if not_finalize:
@@ -83,7 +83,7 @@ def generate_invoices_insertions(request):
 
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
-    # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
+    # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
     if all(
         [
             request.method == "POST",
@@ -131,7 +131,7 @@ def generate_pdf_invoice(request):
     """Vue de génération des factures en pdf"""
     titre_table = "Génération des factures de ventes en pdf"
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y est pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
     if not_finalize:
@@ -167,7 +167,7 @@ def generate_pdf_invoice(request):
 
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
-    # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
+    # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
     if all(
         [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
     ):
@@ -310,7 +310,7 @@ def send_email_pdf_invoice(request):
 
     titre_table = "Envoi Global, par mail des factures de vente"
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y est pas des factures non finalisées, mais envoyées par mail
     emails_to_send = control_emails()
 
     if not emails_to_send:
@@ -338,7 +338,7 @@ def send_email_pdf_invoice(request):
 
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
-    # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
+    # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
     if all(
         [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
     ):
@@ -445,7 +445,7 @@ def finalize_period(request):
     edi_validation.cct = True
     edi_validation.save()
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées et envoyées par mail
+    # On contrôle qu'il n'y est pas des factures non finalisées et envoyées par mail
     not_finalize = control_insertion()
     initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(
         months=1

@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2022-04-08
 modified by: Paulo ALVES
 """
+
 from uuid import uuid4
 from pathlib import Path
 import time
@@ -20,6 +21,7 @@ from django.utils import timezone
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.make_inserts import make_insert
 from apps.accountancy.bin.sage_pre_processing import mode_reglement_file
+from apps.accountancy.bin.sage_post_processing import rat_vat_correction
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
@@ -70,7 +72,9 @@ def account_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -95,7 +99,9 @@ def axe_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -121,7 +127,9 @@ def section_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -147,7 +155,9 @@ def vat_regime_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -172,7 +182,9 @@ def vat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -198,8 +210,10 @@ def vat_rat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
-
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
+    rat_vat_correction()
     return trace, to_print
 
 
@@ -249,7 +263,9 @@ def payement_condition(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -274,7 +290,9 @@ def tab_div_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -299,7 +317,9 @@ def category_sage_client(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
 
@@ -324,6 +344,8 @@ def category_sage_supplier(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    to_print = make_insert(
+        model, flow_name, file_path, trace, validator, params_dict_loader
+    )
 
     return trace, to_print
