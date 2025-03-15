@@ -30,7 +30,7 @@ with "groupe_g" as (
 	   on "isi"."cct" = "cm"."cct"
 	 join "accountancy_sectionsage" "sa"
 	   on "cm"."axe_bu" = "sa"."uuid_identification"
-	-- type de client 2 : "OD ANA" , "export" = false
+	-- type de client 2 : "OD ANA", "export" = false
 	where "isi"."type_x3" = 2
 	  and not "isi"."export"
 	  and "isi"."fcy" = %(fcy)s

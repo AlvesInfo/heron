@@ -60,7 +60,7 @@ def write_odana(fcy, file_name=None, nb_fac=5000):
     d_line = 1
     a_line = 1
 
-    # On écrit les premières lignes, car nous avons enrobé rows de "iter"
+    # On écrit les premières lignes, car nous avons enrobé rows de "iter".
     get_t(file=file, t_line=line_t)
     get_d_od_ana(file=file, d_line=line_d)
     get_a(file=file, a_line=line_a, idtlin=a_line)

@@ -350,6 +350,23 @@ class SageDateFieldsBase(BaseModel):
         return value
 
 
+class ExcelDateFieldsBase(BaseModel):
+    """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyyyy"""
+
+    @validator("*", pre=True, always=True)
+    def sage_date(cls, value, field):
+
+        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+            value = str(value).strip()
+
+            if not value:
+                return None
+
+            value = datetime.datetime.strptime(value, "%d%m%Y")
+
+        return value
+
+
 class SageDefaultDateFieldsBase(BaseModel):
     """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyy"""
 

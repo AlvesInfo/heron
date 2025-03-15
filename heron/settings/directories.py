@@ -60,6 +60,12 @@ PROCESSING_CLIENS_SUBSCRIPTION = (
 ).resolve()
 Path.mkdir(PROCESSING_CLIENS_SUBSCRIPTION, exist_ok=True)
 
+# REPERTOIRE DE TRAITEMENT DES OD A PASSER
+PROCESSING_OD_A_PASSER = (
+    Path(FILES_BASE_DIR) / "files/processing/suppliers_invoices_files/OD_A_PASSER"
+).resolve()
+Path.mkdir(PROCESSING_OD_A_PASSER, exist_ok=True)
+
 # REPERTOIRE DES FICHIERS A EXPORTER
 EXPORT_DIR = (Path(FILES_BASE_DIR) / "files/media/export").resolve()
 Path.mkdir(EXPORT_DIR, exist_ok=True)

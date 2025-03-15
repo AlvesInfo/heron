@@ -43,6 +43,7 @@ USER_DATABASE = config("USER_DATABASE")
 PASSWORD_DATABASE = config("PASSWORD_DATABASE")
 HOST_DATABASE = config("HOST_DATABASE")
 HOST_DATABASE_HERON = config("HOST_DATABASE_HERON")
+NAME_DATABASE_HERON = config("NAME_DATABASE_HERON")
 PORT_DATABASE = config("PORT_DATABASE")
 PORT_DATABASE_HERON = config("PORT_DATABASE_HERON", default=PORT_DATABASE)
 NAME_DATABASE_FORMATION = config("NAME_DATABASE_FORMATION")
@@ -125,6 +126,7 @@ LOCAL_APPS = [
     "apps.compta",
     "apps.core",
     "apps.data_flux",
+    "apps.od",
     "apps.countries",
     "apps.edi",
     "apps.formations",
@@ -215,7 +217,7 @@ DATABASES = {
     },
     "heron": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": NAME_DATABASE,
+        "NAME": NAME_DATABASE_HERON,
         "USER": USER_DATABASE,
         "PASSWORD": PASSWORD_DATABASE,
         "HOST": HOST_DATABASE_HERON,
