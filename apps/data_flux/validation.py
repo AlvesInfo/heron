@@ -679,6 +679,7 @@ class PydanticValidation(ValidationTemplate):
             csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
 
         except (pydantic.error_wrappers.ValidationError, ValidationError) as except_error:
+            print(except_error)
             return except_error.errors(), data_dict
 
         return False

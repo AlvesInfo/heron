@@ -755,7 +755,7 @@ def get_decimal(value):
 
 
 def get_zero_decimal(value):
-    test_value = str(value).strip().replace(" ", "")
+    test_value = str(value).strip().replace(" ", "").replace("%", "")
     test_decimal = [
         val
         for val in test_value

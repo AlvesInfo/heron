@@ -11,19 +11,23 @@ created by: Paulo ALVES
 modified at: 2025-03-15
 modified by: Paulo ALVES
 """
+
 import datetime
 
 from django.utils import timezone
 from djantic import ModelSchema
 
 from apps.core.validations.pydantic_validators_base import (
+    ValidateFieldsBase,
     SageTruncateStrFieldsBase,
     ExcelDateFieldsBase,
 )
 from apps.od.models import ModelOd
 
 
-class OdSchema(ModelSchema, SageTruncateStrFieldsBase, ExcelDateFieldsBase):
+class OdSchema(
+    ModelSchema, ValidateFieldsBase, SageTruncateStrFieldsBase, ExcelDateFieldsBase
+):
     """Schema Djantic pour validation du modèle AccountSage"""
 
     now = timezone.now()

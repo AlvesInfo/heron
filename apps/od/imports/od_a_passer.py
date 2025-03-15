@@ -33,10 +33,10 @@ def import_od_a_passer(file_path: Path):
     model = ModelOd
     validator = OdSchema
     file_name = file_path.name
-    trace_name = "Mise à jour Comptes Sage"
-    application_name = "accountacy_imports_import_sage"
-    flow_name = "AccountSage"
-    comment = f"import journalier {file_name} des Comptes comptables Sage"
+    trace_name = "Import od à passer"
+    application_name = "import_od_a_passer"
+    flow_name = "ModelOd"
+    comment = f"import du fichier {file_name}, des OD à passer"
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     params_dict_loader = {
         "trace": trace,
@@ -46,7 +46,7 @@ def import_od_a_passer(file_path: Path):
         },
     }
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
+        model, flow_name, file_path, trace, validator, params_dict_loader, insert_mode="insert"
     )
 
     return trace, to_print
@@ -54,8 +54,14 @@ def import_od_a_passer(file_path: Path):
 
 def import_od_files():
     """Boucle d'import des fichiers pour générer les od"""
+    # On efface d'abord les données de la table
+    ModelOd.objects.all().delete()
+    to_prints = ""
+
     for file_path in proccessing_dir.glob("*.csv"):
-        print(file_path)
+        _, to_print = import_od_a_passer(file_path)
+        print(to_print)
+        to_prints += to_print
 
 
 if __name__ == "__main__":

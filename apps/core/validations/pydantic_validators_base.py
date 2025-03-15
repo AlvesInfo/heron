@@ -362,7 +362,7 @@ class ExcelDateFieldsBase(BaseModel):
             if not value:
                 return None
 
-            value = datetime.datetime.strptime(value, "%d%m%Y")
+            value = datetime.datetime.strptime(value, "%d/%m/%Y")
 
         return value
 

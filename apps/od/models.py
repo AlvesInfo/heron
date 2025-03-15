@@ -43,7 +43,7 @@ class ModelOd(DatesTable):
     axe_rfa = models.CharField(max_length=10)
     montant_ht = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     vat = models.CharField(max_length=5)
-    taux_tva = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    taux_tva = models.DecimalField(max_digits=20, decimal_places=5, default=0, null=True)
     montant_tva = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     montant_ttc = models.DecimalField(max_digits=20, decimal_places=5, default=0)
 
@@ -73,7 +73,7 @@ class ModelOd(DatesTable):
             "axe_rfa": "axe_rfa",
             "montant_ht": "montant_ht",
             "vat": "vat",
-            "taux_tva": "taux_tva",
+            # "taux_tva": "taux_tva",
             "montant_tva": "montant_tva",
             "montant_ttc": "montant_ttc",
         }
@@ -84,7 +84,7 @@ class ModelOd(DatesTable):
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return
+        return {}
 
     @property
     def get_import(self):
@@ -96,7 +96,7 @@ class ModelOd(DatesTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.libelle_od} - {self.journal} - {self.piece_origine}"
+        return f"{self.libelle_od} - {self.journal}"
 
     class Meta:
         """class Meta du modèle django"""
