@@ -17,15 +17,16 @@ from pathlib import Path
 from psycopg2 import sql
 
 
-def get_rows(connection, apps_dir, fcy, file_name):
+def get_rows(connection, apps_dir, fcy, file_name, app="invoices"):
     """Fonction qui renvoie les lignes du fichier d'export à remplir
     :param connection: connction django
     :param apps_dir: directory de l'application
     :param fcy: société pour laquelle le fichier est à générer
     :param file_name: nom du fichier à utiliser
+    :param app: nom de l'app par défaut
     :return: generateur des lignes de la requête
     """
-    sql_file = Path(apps_dir) / f"invoices/sql_files/{file_name}.sql"
+    sql_file = Path(apps_dir) / f"{app}/sql_files/{file_name}.sql"
 
     with connection.cursor() as cursor, sql_file.open("r") as sql_file:
         # print(cursor.mogrify(sql.SQL(sql_file.read()), {"fcy": fcy}).decode())

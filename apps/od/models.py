@@ -28,13 +28,15 @@ class ModelOd(DatesTable):
     libelle_od = models.TextField(blank=True, null=True)
     date_extourne = models.DateField()
     libelle_extourne = models.TextField(blank=True, null=True)
-    compte_produit = models.CharField(max_length=35)
-    compte_tva = models.CharField(max_length=35)
-    compte_collectif = models.CharField(max_length=35)
+    compte_produit = models.CharField(max_length=35, null=True)
+    compte_tva = models.CharField(max_length=35, null=True)
+    compte_collectif = models.CharField(max_length=35, null=True)
     code_plan = models.CharField(max_length=10)
     journal = models.CharField(max_length=15)
     type_ecriture = models.CharField(max_length=15)
+    facture_heron = models.CharField(max_length=20, null=True)
     libelle = models.CharField(max_length=30)
+    third_party_num = models.CharField(max_length=15)
     axe_bu = models.CharField(max_length=10)
     cct = models.CharField(max_length=10)
     axe_pro = models.CharField(max_length=10)
@@ -46,6 +48,7 @@ class ModelOd(DatesTable):
     taux_tva = models.DecimalField(max_digits=20, decimal_places=5, default=0, null=True)
     montant_tva = models.DecimalField(max_digits=20, decimal_places=5, default=0)
     montant_ttc = models.DecimalField(max_digits=20, decimal_places=5, default=0)
+    base_sage_invoice_number = models.CharField(max_length=20, null=True)
 
     @staticmethod
     def get_columns_import():
@@ -63,7 +66,9 @@ class ModelOd(DatesTable):
             "compte_collectif": "compte_collectif",
             "journal": "journal",
             "type_ecriture": "type_ecriture",
+            "facture_heron": "facture_heron",
             "libelle": "libelle",
+            "third_party_num": "tiers",
             "code_plan": "code_plan",
             "axe_bu": "axe_bu",
             "cct": "cct",
