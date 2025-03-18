@@ -19,7 +19,8 @@ with "model_od" as (
 		'' as "NUM", -- Numéro de pièce
 		%(fcy)s as "FCY", -- Site
 		'ODINV' as "JOU", -- Journal
-        TO_CHAR("isd"."date_od"::date, 'DDMMYY') as "ACCDAT",
+        TO_CHAR("isd"."date_od"::date, 'DDMMYY') as "ACCDAT_OD",
+        TO_CHAR("isd"."date_extourne"::date, 'DDMMYY') as "ACCDAT_EXT",
 		'STDCO' as "DACDIA", -- Transaction
 		'EUR' as "CUR_G", -- Devise de pièce
         left('ODINV - ' || "isd"."facture_heron" , 30) as "DESVCR_OD", -- Libellé
@@ -38,7 +39,7 @@ with "model_od" as (
 	    "isd"."TYP", -- Type de pièce
 		"isd"."FCY", -- Site
 		"isd"."JOU", -- Journal
-		"isd"."ACCDAT", -- Date comptable
+		"isd"."ACCDAT_OD" as "ACCDAT", -- Date comptable
 		"isd"."DACDIA", -- Transaction
 		"isd"."CUR_G", -- Devise de pièce
 		"isd"."DESVCR_OD" as "DESVCR", -- Libellé
@@ -104,7 +105,7 @@ with "model_od" as (
 	    "isd"."TYP", -- Type de pièce
 		"isd"."FCY", -- Site
 		"isd"."JOU", -- Journal
-		"isd"."ACCDAT", -- Date comptable
+		"isd"."ACCDAT_OD" as "ACCDAT", -- Date comptable
 		"isd"."DACDIA", -- Transaction
 		"isd"."CUR_G", -- Devise de pièce
 		"isd"."DESVCR_OD" as "DESVCR", -- Libellé
@@ -170,7 +171,7 @@ with "model_od" as (
 	    "isd"."TYP", -- Type de pièce
 		"isd"."FCY", -- Site
 		"isd"."JOU", -- Journal
-		"isd"."ACCDAT", -- Date comptable
+		"isd"."ACCDAT_OD" as "ACCDAT", -- Date comptable
 		"isd"."DACDIA", -- Transaction
 		"isd"."CUR_G", -- Devise de pièce
 		"isd"."DESVCR_OD" as "DESVCR", -- Libellé
@@ -258,7 +259,7 @@ all_od as (
 	    "isd"."TYP", -- Type de pièce
 		"isd"."FCY", -- Site
 		"isd"."JOU", -- Journal
-		"isd"."ACCDAT", -- Date comptable
+		"isd"."ACCDAT_EXT" as "ACCDAT", -- Date comptable
 		"isd"."DACDIA", -- Transaction
 		"isd"."CUR_G", -- Devise de pièce
 		"isd"."DESVCR_EXT" as "DESVCR", -- Libellé
@@ -324,7 +325,7 @@ all_od as (
 	    "isd"."TYP", -- Type de pièce
 		"isd"."FCY", -- Site
 		"isd"."JOU", -- Journal
-		"isd"."ACCDAT", -- Date comptable
+		"isd"."ACCDAT_EXT" as "ACCDAT", -- Date comptable
 		"isd"."DACDIA", -- Transaction
 		"isd"."CUR_G", -- Devise de pièce
 		"isd"."DESVCR_EXT" as "DESVCR", -- Libellé
@@ -390,7 +391,7 @@ all_od as (
 	    "isd"."TYP", -- Type de pièce
 		"isd"."FCY", -- Site
 		"isd"."JOU", -- Journal
-		"isd"."ACCDAT", -- Date comptable
+		"isd"."ACCDAT_EXT" as "ACCDAT", -- Date comptable
 		"isd"."DACDIA", -- Transaction
 		"isd"."CUR_G", -- Devise de pièce
 		"isd"."DESVCR_EXT" as "DESVCR", -- Libellé
