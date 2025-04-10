@@ -15,6 +15,7 @@ modified by: Paulo ALVES
 from typing import AnyStr, Dict
 from uuid import UUID, uuid4
 
+from psycopg2 import sql
 from django.utils import timezone
 
 from apps.core.functions.functions_setups import connection
@@ -24,6 +25,46 @@ from heron.loggers import LOGGER_EDI
 from apps.users.models import User
 from apps.compta.bin.generate_ca import set_ca
 from apps.invoices.sql_files.sql_subscriptions import SQL_SUBSCRIPTIONS
+
+
+def set_invoice_amounts(flow_name: str):
+    """Set des totaux par flow names, car il peut y avoir plusieurs fois le même type d'abonnement
+    par flow name
+    :param flow_name: non de l'abonnemment
+    :return:
+    """
+    with connection.cursor() as cursor:
+        # ID Minimum pour le premier import
+        sql_update = sql.SQL(
+            """
+            update "edi_ediimport" "ee"
+            set "invoice_amount_without_tax" = "req"."invoice_amount_without_tax",
+                "invoice_amount_tax" = "req"."invoice_amount_tax",
+                "invoice_amount_with_tax" = "req"."invoice_amount_with_tax"
+            from (
+                select
+                    "third_party_num",
+                    "flow_name",
+                    "supplier",
+                    "invoice_number",
+                    sum(net_amount) as invoice_amount_without_tax, 
+                    sum(vat_amount) as invoice_amount_tax, 
+                    sum(amount_with_vat) as invoice_amount_with_tax
+                from "edi_ediimport"
+                where "flow_name" = %(flow_name)s
+                group by 
+                        "third_party_num", 
+                        "flow_name",
+                        "supplier",
+                        "invoice_number"
+            ) "req"
+            where "req"."third_party_num" = "ee"."third_party_num"
+            and "req"."flow_name" = "ee"."flow_name"
+            and "req"."supplier" = "ee"."supplier"
+            and "req"."invoice_number" = "ee"."invoice_number"
+            """
+        )
+        cursor.execute(sql_update, {"flow_name": flow_name})
 
 
 def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
@@ -68,6 +109,7 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     try:
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
+        set_invoice_amounts(flow_name)
 
     except Exception as except_error:
         error = True
@@ -114,6 +156,7 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     try:
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
+        set_invoice_amounts(flow_name)
 
     except Exception as except_error:
         error = True
@@ -158,6 +201,7 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     try:
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
+        set_invoice_amounts(flow_name)
 
     except Exception as except_error:
         error = True
@@ -205,6 +249,7 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
 
     try:
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
+        set_invoice_amounts(flow_name)
 
     except Exception as except_error:
         error = True

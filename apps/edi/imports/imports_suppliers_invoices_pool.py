@@ -146,7 +146,9 @@ def bbgr_statment():
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = (
+            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        )
 
     to_print = f"Import : {flow_name}\n"
     bbgr_statment_post_insert(trace.uuid_identification)
@@ -182,7 +184,9 @@ def bbgr_monthly():
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = (
+            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        )
 
     to_print = f"Import : {flow_name}\n"
     bbgr_monthly_post_insert(trace.uuid_identification)
@@ -218,7 +222,9 @@ def bbgr_retours():
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = (
+            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        )
 
     to_print = f"Import : {flow_name}\n"
     bbgr_retours_post_insert(trace.uuid_identification)
@@ -251,7 +257,9 @@ def bbgr_receptions():
 
     if error:
         trace.errors = True
-        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        trace.comment = (
+            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+        )
 
     to_print = f"Import : {flow_name}\n"
     bbgr_reception_post_insert(trace.uuid_identification)
