@@ -106,36 +106,41 @@ def separate_edi():
     edi_files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / "EDI"
 
     for file in edi_files_directory.glob("*"):
-        encoding = encoding_detect(file) or "ascii"
-        una_test = False
+        if file.name.startswith("._"):
+            if file.is_file():
+                file.unlink()
 
-        with open(file, "r", encoding=encoding) as edi_file:
-            text = edi_file.read().strip()
-            split_text = re.split(r"(?=UNA:\+).*[\n|']", text)
+        else:
+            encoding = encoding_detect(file) or "ascii"
+            una_test = False
 
-            if len(split_text) > 2:
-                for text_edi_file in split_text:
-                    if text_edi_file:
-                        una_test = True
-                        file_name = (
-                            Path(settings.PROCESSING_SUPPLIERS_DIR)
-                            / f"EDI/{file.stem}.{get_random_name()}.edi"
-                        )
+            with open(file, "r", encoding=encoding) as edi_file:
+                text = edi_file.read().strip()
+                split_text = re.split(r"(?=UNA:\+).*[\n|']", text)
 
-                        # On s'assure que le nom du fichier n'existe pas
-                        while True:
-                            if not file_name.is_file():
-                                break
+                if len(split_text) > 2:
+                    for text_edi_file in split_text:
+                        if text_edi_file:
+                            una_test = True
+                            file_name = (
+                                Path(settings.PROCESSING_SUPPLIERS_DIR)
+                                / f"EDI/{file.stem}.{get_random_name()}.edi"
+                            )
 
-                        with open(
-                            file_name,
-                            "w",
-                            encoding=encoding,
-                        ) as file_to_write:
-                            file_to_write.write(text_edi_file)
+                            # On s'assure que le nom du fichier n'existe pas
+                            while True:
+                                if not file_name.is_file():
+                                    break
 
-        if una_test:
-            file.unlink()
+                            with open(
+                                file_name,
+                                "w",
+                                encoding=encoding,
+                            ) as file_to_write:
+                                file_to_write.write(text_edi_file)
+
+            if una_test:
+                file.unlink()
 
 
 def get_files_celery():
