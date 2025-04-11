@@ -153,3 +153,4 @@ files/log/*
 /supervisor.conf
 /files/excel
 .venv/
+files/sage/
