@@ -150,8 +150,13 @@ def get_files_celery():
         backup_dir = Path(settings.BACKUP_SUPPLIERS_DIR) / directory
 
         for file in files_directory.glob("*"):
-            backup_file = backup_dir / file.name
-            files_list.append((str(file), str(backup_file), directory))
+            if file.name.startswith("._"):
+                if file.is_file():
+                    file.unlink()
+            else:
+                backup_file = backup_dir / file.name
+                files_list.append((str(file), str(backup_file), directory))
+
     return files_list
 
 
