@@ -405,7 +405,7 @@ def celery_import_launch(user_pk: int):
                     "suppliers_import", kwargs={"process_objects": row_args, "user_pk": user_pk}
                 )
             )
-        print(tasks_list)
+        # print(tasks_list)
         result = group(*tasks_list)().get(3600)
         print("result : ", result)
         LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
