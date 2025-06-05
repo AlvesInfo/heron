@@ -8,6 +8,9 @@ from apps.articles.views import (
     ArticleUpdate,
     articles_search_list,
     articles_export_list,
+    ArticleAccountCreate,
+    ArticleAccountUpdate,
+    delete_articles_account_vat,
     # NOUVEAUX ARTICLES
     new_articles_list,
     articles_new_validation,
@@ -54,6 +57,22 @@ urlpatterns = [
             "articles_search_list/",
             articles_search_list,
             name="articles_search_list",
+        ),
+        # COMPTES PAR TAUX DE TVA ET CENTRALE DES ARTICLES
+        path(
+            "articles_account_vat_create/<int:article_pk>/",
+            ArticleAccountCreate.as_view(),
+            name="articles_account_vat_create",
+        ),
+        path(
+            "articles_account_vat_update/<int:article_pk>/<int:pk>/",
+            ArticleAccountUpdate.as_view(),
+            name="articles_account_vat_update",
+        ),
+        path(
+            "delete_articles_account_vat/",
+            delete_articles_account_vat,
+            name="delete_articles_account_vat",
         ),
     ],
     # NOUVEAUX ARTICLES

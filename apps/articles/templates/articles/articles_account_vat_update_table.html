@@ -1,0 +1,102 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h3 class="ui floated header" style="margin-bottom: 5px;">Nouveaux comptes</h3>
+                <div class="ui clearing divider">
+                </div>
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                            <div class="fields">
+                                <div class="one wide field">
+                                    <label for="id_ranking" style="text-align: left;">Centrale Fille&nbsp;:</label>
+                                        {{form.child_center}}
+                                </div>
+                                <div class="one wide field">
+                                    <label for="id_name" style="text-align: left;">Article&nbsp;:</label>
+                                    {{ form.article }}
+                                </div>
+                                <div class="six wide field">
+                                    <label for="id_name" style="text-align: left;">TVA&nbsp;:</label>
+                                    {{ form.vat }}
+                                </div>
+                                <div class="six wide field">
+                                    <label for="id_name" style="text-align: left;">Compte d'Achat&nbsp;:</label>
+                                    {{ form.purchase_account }}
+                                </div>
+                                <div class="six wide field">
+                                    <label for="id_name" style="text-align: left;">Compte de Vente&nbsp;:</label>
+                                    {{ form.sale_account }}
+                                </div>
+                                <div class="eight wide field" style="text-align: right;">
+                                    <a class="item" href="">
+                                        <button class="ui teal basic button" name="create_article_account" type="submit" style="padding: 7px 10px;margin: 30px 10px 0;font-size: 11px">
+                                            VALIDER
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                </form>
+            </div>
+            {% if not create %}
+                <div class="ui segment" style="padding-bottom: 0;">
+                    <div class="ui header" style="text-align: left;">
+                        <h4 style="margin-bottom: 5px;display: inline-block;">Rubriques Presta Associées</h4>
+                        <a class="item" href="{% url 'parameters:sub_category_create' category_pk=object.pk %}" style="display: inline-block">
+                            <input class="ui teal basic button" name="create_sub_category" type="button" style="padding: 7px 10px;margin: 0 10px 0 50px;font-size: 11px" value="Ajouter">
+                        </a>
+                    </div>
+                    <div class="ui clearing divider"></div>
+
+            {% endif %}
+
+                {% if not create and object.big_sub_category.all %}
+                    <div class="ui grid" style="margin: 10px">
+                        <div class="four wide column"></div>
+                        <div class="eight wide column">
+                            <table id="table_document"
+                                   class="ui celled table"
+                                   style="font-size: 12px !important;text-align: center;font-weight: 900;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 11%">Edit</th>
+                                            <th style="width: 16%">Ranking</th>
+                                            <th style="width: 16%">Code</th>
+                                            <th style="width: 41%">Intitulé</th>
+                                            <th style="width: 16%">delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for sub in object.big_sub_category.all %}
+                                        <tr id="id_{{ forloop.counter }}" class="hide_plans">
+                                            <td>
+                                                <a href="{% url 'parameters:sub_category_update' category_pk=object.pk pk=sub.pk%}">
+                                                    <i class="edit icon modification"></i>
+                                                </a>
+                                            </td>
+                                            <td>{{sub.ranking}}</td>
+                                            <td>{{sub.code}}</td>
+                                            <td>{{ sub.name }}</td>
+                                            <td class="tdDelete" style="text-align: center;">
+                                                <div style="cursor: pointer;">
+                                                  <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ sub.pk }}, `{{ sub.code }} - {{ sub.name }}`, `{% url 'parameters:delete_sub_category' %}`, `la rubrique presta`)"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock table %}

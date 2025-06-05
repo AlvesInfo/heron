@@ -2,7 +2,10 @@
 """
 Views des Articles
 """
+
 import pendulum
+from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import redirect, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
@@ -10,9 +13,12 @@ from django.db.models import Count, F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.functions.functions_http_response import (
+    response_file,
+    CONTENT_TYPE_EXCEL,
+)
 from apps.core.functions.functions_http import get_pagination_buttons
 from apps.articles.excel_outputs.output_excel_articles_list import (
     excel_liste_articles,
@@ -20,10 +26,17 @@ from apps.articles.excel_outputs.output_excel_articles_list import (
 from apps.articles.bin.sub_category import check_sub_category
 from apps.book.models import Society
 from apps.parameters.models import Category
-from apps.articles.models import Article
-from apps.articles.forms import ArticleForm, ArticleSearchForm
+from apps.articles.models import Article, ArticleAccount
+from apps.articles.forms import (
+    ArticleForm,
+    ArticleSearchForm,
+    ArticleAccountForm,
+    DeleteArticleAccountForm,
+)
 from apps.edi.models import EdiImport
-from apps.centers_purchasing.bin.update_account_article import set_update_articles_account
+from apps.centers_purchasing.bin.update_account_article import (
+    set_update_articles_account,
+)
 from apps.articles.filters import ArticleFilter
 
 
@@ -77,10 +90,12 @@ class ArticlesList(ListView):
         """add context in get request"""
         self.extra_context.update(kwargs)
         self.third_party_num = self.extra_context.get("third_party_num")
-        self.category = Category.objects.get(slug_name=self.extra_context.get("category"))
-        self.extra_context[
-            "titre_table"
-        ] = f"Articles : {self.category.name} du Tiers {self.third_party_num}"
+        self.category = Category.objects.get(
+            slug_name=self.extra_context.get("category")
+        )
+        self.extra_context["titre_table"] = (
+            f"Articles : {self.category.name} du Tiers {self.third_party_num}"
+        )
         self.extra_context["chevron_retour"] = reverse(
             "articles:suppliers_articles_list", args=(self.category.slug_name,)
         )
@@ -119,7 +134,9 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     form_class.use_required_attribute = False
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été créé avec success"
-    error_message = "L'Article %(reference)s n'a pu être créé, une erreur c'est produite"
+    error_message = (
+        "L'Article %(reference)s n'a pu être créé, une erreur c'est produite"
+    )
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
@@ -131,7 +148,9 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             self.base_create = True
         else:
             self.base_create = False
-            self.third_party_num = Society.objects.get(third_party_num=self.third_party_num)
+            self.third_party_num = Society.objects.get(
+                third_party_num=self.third_party_num
+            )
 
         self.object = None
         return self.render_to_response(self.get_context_data())
@@ -146,7 +165,9 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             self.base_create = True
         else:
             self.base_create = False
-            self.third_party_num = Society.objects.get(third_party_num=self.third_party_num)
+            self.third_party_num = Society.objects.get(
+                third_party_num=self.third_party_num
+            )
         self.object = None
         return super().post(request, *args, **kwargs)
 
@@ -155,6 +176,7 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["article"] = "Article :"
         context["base_create"] = self.base_create
+        context["create"] = True
 
         if not self.base_create:
             context["titre_table"] = (
@@ -231,7 +253,9 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     pk_url_kwarg = "pk"
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été modifié avec success"
-    error_message = "L'Article %(reference)s n'a pu être modifié, une erreur c'est produite"
+    error_message = (
+        "L'Article %(reference)s n'a pu être modifié, une erreur c'est produite"
+    )
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
@@ -321,7 +345,11 @@ def articles_search_list(request):
             "axe_pro__section",
         )
         .order_by(
-            "third_party_num", "reference", "big_category_n", "sub_category_n", "axe_pro__section"
+            "third_party_num",
+            "reference",
+            "big_category_n",
+            "sub_category_n",
+            "axe_pro__section",
         )
     )
     articles_filter = ArticleFilter(request.GET, queryset=queryset)
@@ -350,7 +378,10 @@ def articles_search_list(request):
         "articles": paginator.get_page(page),
         "filter": articles_filter,
         "pagination": get_pagination_buttons(
-            articles.number, paginator.num_pages, nbre_boutons=5, position_color="cadetblue"
+            articles.number,
+            paginator.num_pages,
+            nbre_boutons=5,
+            position_color="cadetblue",
         ),
         "num_items": paginator.count,
         "num_pages": paginator.num_pages,
@@ -374,10 +405,16 @@ def articles_export_list(_, third_party_num, category):
     """
     try:
         today = pendulum.now()
-        file_name = f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+        file_name = (
+            f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+        )
 
         return response_file(
-            excel_liste_articles, file_name, CONTENT_TYPE_EXCEL, third_party_num, category
+            excel_liste_articles,
+            file_name,
+            CONTENT_TYPE_EXCEL,
+            third_party_num,
+            category,
         )
 
     except:
@@ -385,6 +422,159 @@ def articles_export_list(_, third_party_num, category):
 
     return redirect(
         reverse(
-            "articles:articles_list", {"third_party_num": third_party_num, "category": category}
+            "articles:articles_list",
+            {"third_party_num": third_party_num, "category": category},
         )
     )
+
+
+# ECRANS DES COMPTES PAR TAUX DE TVA ARTICLES ======================================================
+class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
+    """CreateView de création des Catégories"""
+
+    model = ArticleAccount
+    form_class = ArticleAccountForm
+    form_class.use_required_attribute = False
+    template_name = "articles/articles_account_vat_update.html"
+    success_message = "Le compte par taux de tva %(article)s a été créé avec success"
+    error_message = (
+        "Le compte par taux de tva %(article)s "
+        "n'a pu être créé, une erreur c'est produite"
+    )
+
+    def get(self, request, *args, **kwargs):
+        """Ajout de self.article a l'instance de la vue"""
+        try:
+            self.article = Article.objects.get(pk=kwargs.get("article_pk"))
+        except Article.DoesNotExist:
+            pass
+        return self.render_to_response(self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        """Ajout de self.article a l'instance de la vue"""
+        self.object = None
+        try:
+            self.article = Article.objects.get(pk=kwargs.get("article_pk"))
+        except Article.DoesNotExist:
+            pass
+        return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["create"] = True
+        context["chevron_retour"] = reverse(
+            "articles:article_update", kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk}
+        )
+        context["titre_table"] = f"Article : {self.article}"
+        context["article"] = self.article
+        context["article_new"] = self.article.account_article.all().count() + 1
+        return context
+
+    def get_success_url(self):
+        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
+
+        return reverse("articles:article_update", kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk})
+
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.created_by = self.request.user
+        self.request.session["level"] = 20
+
+        return super().form_valid(form)
+
+
+class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+
+    model = ArticleAccount
+    form_class = ArticleAccountForm
+    form_class.use_required_attribute = False
+    template_name = "articles/articles_account_vat_update.html"
+    success_message = (
+        "Le compte par taux de tva %(article)s a été modifiée avec success"
+    )
+    error_message = (
+        "Le compte par taux de tva %(article)s "
+        "n'a pu être modifiée, une erreur c'est produite"
+    )
+
+    def get_context_data(self, **kwargs):
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        context = super().get_context_data(**kwargs)
+        context["create"] = True
+        context["chevron_retour"] = reverse(
+            "articles:article_update", kwargs={"pk": self.object.big_article.pk}
+        )
+        context["titre_table"] = "Modification de la Rubrique de Prestation"
+        context["article_new"] = self.object.ranking
+        context["article"] = self.object.big_article
+
+        return context
+
+    def get_success_url(self):
+        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
+
+        return reverse(
+            "articles:article_update", kwargs={"pk": self.object.big_article.pk}
+        )
+
+    def form_valid(self, form, **kwargs):
+        """Ajout de l'user à la sauvegarde du formulaire"""
+        form.instance.modified_by = self.request.user
+        self.request.session["level"] = 20
+
+        return super().form_valid(form)
+
+
+@transaction.atomic
+def delete_articles_account_vat(request):
+    """Suppression des rubriques prestas
+    :param request: Request Django
+    :return: view
+    """
+
+    if not request.is_ajax() and request.method != "POST":
+        return redirect("home")
+
+    data = {"success": "ko"}
+    id_pk = request.POST.get("pk")
+    form = DeleteArticleAccountForm({"id": id_pk})
+
+    if form.is_valid():
+        trace_mark_delete(
+            request=request,
+            django_model=ArticleAccount,
+            data_dict={"id": id_pk},
+            force_delete=True,
+        )
+        data = {"success": "success"}
+
+    else:
+        LOGGER_VIEWS.exception(
+            f"delete_articles_account_vat, form invalid : {form.errors!r}"
+        )
+
+    return JsonResponse(data)
+
+
+def articles_account_vat_export_list(_):
+    """
+    Export Excel de la liste des comptes par taux de tva des articles
+    :return: response_file articles_account_vat
+    """
+    try:
+        today = pendulum.now()
+        file_name = (
+            f"LISTING_DES_COMPTES_TVA_PAR_ARTICLES"
+            f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+        )
+
+        # return response_file(
+        #     excel_list_articles_account_vat, file_name, CONTENT_TYPE_EXCEL
+        # )
+
+    except:
+        LOGGER_EXPORT_EXCEL.exception("view : articles_account_vat_export_list")
+
+    return redirect(reverse("home"))

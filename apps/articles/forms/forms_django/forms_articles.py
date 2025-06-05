@@ -2,11 +2,13 @@
 """
 Forms des Parameters
 """
+
 from django import forms
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.articles.models import (
     Article,
+    ArticleAccount,
 )
 
 
@@ -110,3 +112,34 @@ class ArticleSearchForm(forms.ModelForm):
             "big_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "sub_category": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
+
+
+class ArticleAccountForm(forms.ModelForm):
+    """Form pour les comptes par taux de tva des articles"""
+
+    class Meta:
+        """class Meta"""
+
+        model = ArticleAccount
+        fields = (
+            "child_center",
+            "article",
+            "vat",
+            "purchase_account",
+            "sale_account",
+        )
+        widgets = {
+            "child_center": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "article": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
+        }
+
+
+class DeleteArticleAccountForm(forms.ModelForm):
+    """Form pour la suppression des comptes par taux de tva des articles"""
+
+    class Meta:
+        """class Meta"""
+
+        model = ArticleAccount
+        fields = ("id",)

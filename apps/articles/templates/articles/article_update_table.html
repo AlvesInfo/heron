@@ -4,181 +4,237 @@
 {% block table %}
 
     <div class="sixteen wide column" style="padding: 0;margin: 10px;">
-      <div class="ui segment" style="padding-bottom: 0;">
-        <h3 class="ui floated header" style="margin-bottom: 5px;">{{ article }}</h3>
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <h3 class="ui floated header" style="margin-bottom: 5px;">{{ article }}</h3>
 
-        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+                <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
 
-        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
-            <div class="fields" style="display: none;">
-              <div class="two wide field">
-                  <label for="id_new_article" style="text-align: left;">NEW ARTICLE&nbsp;:</label>
-                  <input type="text"
-                           name="new_article"
-                           value="false"
-                           id="id_new_article">
-              </div>
-            </div>
-            <div class="fields" style="">
-              <div class="six wide field">
-                  <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
-                  {{ form.third_party_num }}
-              </div>
-            </div>
+                <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                    <div class="fields" style="display: none;">
+                      <div class="two wide field">
+                          <label for="id_new_article" style="text-align: left;">NEW ARTICLE&nbsp;:</label>
+                          <input type="text"
+                                   name="new_article"
+                                   value="false"
+                                   id="id_new_article">
+                      </div>
+                    </div>
+                    <div class="fields" style="">
+                      <div class="six wide field">
+                          <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
+                          {{ form.third_party_num }}
+                      </div>
+                      <div class="three wide field">
+                        <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
+                          {{ form.big_category }}
+                      </div>
+                        <div class="three wide field">
+                            <label for="id_sub_category" style="text-align: left;">Rubriques Presta</label>
+                            {{ form.sub_category }}
+                        </div>
+                    </div>
 
-            <div class="fields">
-              <div class="three wide field">
-                <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
-                  {{ form.big_category }}
-              </div>
-                <div class="three wide field">
-                    <label for="id_sub_category" style="text-align: left;">Rubriques Presta</label>
-                    {{ form.sub_category }}
+                    <div class="fields">
+                      <div class="six wide field">
+                        <label for="id_reference" style="text-align: left;">Référence&nbsp;:</label>
+                          {{ form.reference }}
+                      </div>
+                      <div class="two wide field">
+                        <label for="id_ean_code" style="text-align: left;">Code EAN&nbsp;:</label>
+                          {{ form.ean_code }}
+                      </div>
+                      <div class="four wide field">
+                        <label for="id_brand" style="text-align: left;">Marque&nbsp;:</label>
+                          {{ form.brand }}
+                      </div>
+                      <div class="four wide field">
+                        <label for="id_manufacturer" style="text-align: left;">Fabricant&nbsp;:</label>
+                          {{ form.manufacturer }}
+                      </div>
+                  </div>
+
+                  <div class="fields">
+                      <div class="six wide field">
+                          <label for="id_libelle" style="text-align: left;">Libéllé&nbsp;:</label>
+                          {{ form.libelle }}
+                      </div>
+                      <div class="six wide field">
+                          <label for="id_libelle_heron" style="text-align: left;">Libéllé Héron&nbsp;:</label>
+                          {{ form.libelle_heron }}
+                      </div>
+                      <div class="four wide field">
+                          <label for="id_sub_familly" style="text-align: left;">Sous famille&nbsp;:</label>
+                          {{ form.sub_familly }}
+                      </div>
+
+                  </div>
+
+                  <div class="fields">
+                      <div class="four wide field">
+                          <label for="id_budget_code" style="text-align: left;">Code budget&nbsp;:</label>
+                          {{ form.budget_code }}
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_famille_supplier" style="text-align: left;">Famille Fournisseur&nbsp;:</label>
+                          {{ form.famille_supplier }}
+                      </div>
+                      <div class="three wide field">
+                          <label for="id_axe_pro_supplier" style="text-align: left;">Axe Pro Fournisseur&nbsp;:</label>
+                          {{ form.axe_pro_supplier }}
+                      </div>
+                      <div class="three wide field">
+                          <label for="id_made_in" style="text-align: left;">Made In&nbsp;:</label>
+                          {{ form.made_in }}
+                      </div>
+
+                  </div>
+                    <div class="fields">
+
+
+                      <div class="two wide field">
+                          <label for="id_catalog_price" style="text-align: left;">Prix Catalogue (€)&nbsp;:</label>
+                            <input type="number"
+                                   name="catalog_price"
+                                   value="{{ form.catalog_price.value|numbers:2 }}"
+                                   step="0.01"
+                                   id="id_catalog_price"
+                                   style="text-align: right;">
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_item_weight" style="text-align: left;">Poids&nbsp;:</label>
+                            <input type="number"
+                                   name="item_weight"
+                                   value="{{ form.item_weight.value|numbers:0 }}"
+                                   step="0.01"
+                                   id="id_item_weight"
+                                   style="text-align: right;">
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_unit_weight" style="text-align: left;">Unités&nbsp;:</label>
+                          {{ form.unit_weight }}
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_packaging_qty" style="text-align: left;">Unité de Packaging&nbsp;:</label>
+                            <input type="number"
+                                   name="packaging_qty"
+                                   value="{{ form.packaging_qty.value|numbers:0 }}"
+                                   step="1"
+                                   id="id_packaging_qty"
+                                   style="text-align: right;">
+                      </div>
+                    </div>
+                    <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+                    <h3 class="ui floated header" style="margin: 5px 0;">Axes</h3>
+                    <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+
+                  <div class="fields">
+                      <div class="three wide field">
+                          <label for="id_axe_bu" style="text-align: left;">AXE BU&nbsp;:</label>
+                          {{ form.axe_bu }}
+                      </div>
+                      <div class="three wide field">
+                          <label for="id_axe_prj" style="text-align: left;">AXE PRJ&nbsp;:</label>
+                          {{ form.axe_prj }}
+                      </div>
+                      <div class="three wide field">
+                          <label for="id_axe_pro" style="text-align: left;">AXE PRO&nbsp;:</label>
+                          {{ form.axe_pro }}
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_axe_pys" style="text-align: left;">AXE PYS&nbsp;:</label>
+                          {{ form.axe_pys }}
+                      </div>
+                      <div class="three wide field">
+                          <label for="id_axe_rfa" style="text-align: left;">AXE RFA&nbsp;:</label>
+                          {{ form.axe_rfa }}
+                      </div>
+
+                  </div>
+                    <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+                    <h3 class="ui floated header" style="margin: 5px 0;">Informations douanières</h3>
+                    <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
+                    <div class="fields">
+                      <div class="two wide field">
+                          <label for="id_customs_item_weight" style="text-align: left;">Qté douanière&nbsp;:</label>
+                            <input type="number"
+                                   name="customs_item_weight"
+                                   value="{{ form.customs_item_weight.value|numbers:2 }}"
+                                   step="0.01"
+                                   id="id_customs_item_weight"
+                                   style="text-align: right;">
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_unit_weight" style="text-align: left;">Unité douanière&nbsp;:</label>
+                          {{ form.customs_unit_weight }}
+                      </div>
+                      <div class="two wide field">
+                          <label for="id_customs_code" style="text-align: left;">Code douanier&nbsp;:</label>
+                          {{ form.customs_code }}
+                      </div>
+
+                    </div>
+
                 </div>
             </div>
+            <div class="ui segment" style="padding-bottom: 0;">
+                {% if not create %}
+                    <div class="ui segment" style="padding-bottom: 0;">
+                        <div class="ui header" style="text-align: left;">
+                            <h4 style="margin-bottom: 5px;display: inline-block;">COMPTES PAR TAUX DE TVA</h4>
+                            <a class="item" href="{% url 'articles:articles_account_vat_create' article_pk=object.pk %}" style="display: inline-block">
+                                <input class="ui teal basic button" name="create_sub_article" type="button" style="padding: 7px 10px;margin: 0 10px 0 50px;font-size: 11px" value="Ajouter">
+                            </a>
+                        </div>
+                        <div class="ui clearing divider"></div>
 
-            <div class="fields">
-              <div class="six wide field">
-                <label for="id_reference" style="text-align: left;">Référence&nbsp;:</label>
-                  {{ form.reference }}
-              </div>
-              <div class="two wide field">
-                <label for="id_ean_code" style="text-align: left;">Code EAN&nbsp;:</label>
-                  {{ form.ean_code }}
-              </div>
-              <div class="four wide field">
-                <label for="id_brand" style="text-align: left;">Marque&nbsp;:</label>
-                  {{ form.brand }}
-              </div>
-              <div class="four wide field">
-                <label for="id_manufacturer" style="text-align: left;">Fabricant&nbsp;:</label>
-                  {{ form.manufacturer }}
-              </div>
-          </div>
+                {% endif %}
 
-          <div class="fields">
-              <div class="six wide field">
-                  <label for="id_libelle" style="text-align: left;">Libéllé&nbsp;:</label>
-                  {{ form.libelle }}
-              </div>
-              <div class="six wide field">
-                  <label for="id_libelle_heron" style="text-align: left;">Libéllé Héron&nbsp;:</label>
-                  {{ form.libelle_heron }}
-              </div>
-              <div class="four wide field">
-                  <label for="id_sub_familly" style="text-align: left;">Sous famille&nbsp;:</label>
-                  {{ form.sub_familly }}
-              </div>
-
-          </div>
-
-          <div class="fields">
-              <div class="four wide field">
-                  <label for="id_budget_code" style="text-align: left;">Code budget&nbsp;:</label>
-                  {{ form.budget_code }}
-              </div>
-              <div class="two wide field">
-                  <label for="id_famille_supplier" style="text-align: left;">Famille Fournisseur&nbsp;:</label>
-                  {{ form.famille_supplier }}
-              </div>
-              <div class="three wide field">
-                  <label for="id_axe_pro_supplier" style="text-align: left;">Axe Pro Fournisseur&nbsp;:</label>
-                  {{ form.axe_pro_supplier }}
-              </div>
-              <div class="three wide field">
-                  <label for="id_made_in" style="text-align: left;">Made In&nbsp;:</label>
-                  {{ form.made_in }}
-              </div>
-
-          </div>
-            <div class="fields">
-
-
-              <div class="two wide field">
-                  <label for="id_catalog_price" style="text-align: left;">Prix Catalogue (€)&nbsp;:</label>
-                    <input type="number"
-                           name="catalog_price"
-                           value="{{ form.catalog_price.value|numbers:2 }}"
-                           step="0.01"
-                           id="id_catalog_price"
-                           style="text-align: right;">
-              </div>
-              <div class="two wide field">
-                  <label for="id_item_weight" style="text-align: left;">Poids&nbsp;:</label>
-                    <input type="number"
-                           name="item_weight"
-                           value="{{ form.item_weight.value|numbers:0 }}"
-                           step="0.01"
-                           id="id_item_weight"
-                           style="text-align: right;">
-              </div>
-              <div class="two wide field">
-                  <label for="id_unit_weight" style="text-align: left;">Unités&nbsp;:</label>
-                  {{ form.unit_weight }}
-              </div>
-              <div class="two wide field">
-                  <label for="id_packaging_qty" style="text-align: left;">Unité de Packaging&nbsp;:</label>
-                    <input type="number"
-                           name="packaging_qty"
-                           value="{{ form.packaging_qty.value|numbers:0 }}"
-                           step="1"
-                           id="id_packaging_qty"
-                           style="text-align: right;">
-              </div>
+                {% if not create and object.account_article.all %}
+                    <div class="ui grid" style="margin: 10px">
+                        <div class="one wide column"></div>
+                        <div class="fourteen wide column">
+                            <table id="table_document"
+                                   class="ui celled table"
+                                   style="font-size: 12px !important;text-align: center;font-weight: 900;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 7%">Edit</th>
+                                            <th style="width: 15%">Centrale Fille</th>
+                                            <th style="width: 41%">Article</th>
+                                            <th style="width: 8%">TVA</th>
+                                            <th style="width: 13%">Compte d'Achat</th>
+                                            <th style="width: 13%">Compte de Vente</th>
+                                            <th style="width: 7%">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for account in object.account_article.all %}
+                                        <tr id="id_{{ forloop.counter }}" class="hide_plans">
+                                            <td>
+{#                                                    <a href="{% url 'parameters:account_article_update' article_pk=object.pk pk=account.pk%}">#}
+                                                    <i class="edit icon modification"></i>
+{#                                                    </a>#}
+                                            </td>
+                                            <td>{{account.child_center}}</td>
+                                            <td>{{account.article}}</td>
+                                            <td>{{ account.vat }}</td>
+                                            <td>{{ account.purchase_account }}</td>
+                                            <td>{{ account.sale_account }}</td>
+                                            <td class="tdDelete" style="text-align: center;">
+                                                <div style="cursor: pointer;">
+{#                                                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ account.pk }}, `{{ account.code }} - {{ account.name }}`, `{% url 'parameters:delete_account_article' %}`, `la rubrique presta`)"></i>#}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-            <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
-            <h3 class="ui floated header" style="margin: 5px 0;">Axes</h3>
-            <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
-
-          <div class="fields">
-              <div class="three wide field">
-                  <label for="id_axe_bu" style="text-align: left;">AXE BU&nbsp;:</label>
-                  {{ form.axe_bu }}
-              </div>
-              <div class="three wide field">
-                  <label for="id_axe_prj" style="text-align: left;">AXE PRJ&nbsp;:</label>
-                  {{ form.axe_prj }}
-              </div>
-              <div class="three wide field">
-                  <label for="id_axe_pro" style="text-align: left;">AXE PRO&nbsp;:</label>
-                  {{ form.axe_pro }}
-              </div>
-              <div class="two wide field">
-                  <label for="id_axe_pys" style="text-align: left;">AXE PYS&nbsp;:</label>
-                  {{ form.axe_pys }}
-              </div>
-              <div class="three wide field">
-                  <label for="id_axe_rfa" style="text-align: left;">AXE RFA&nbsp;:</label>
-                  {{ form.axe_rfa }}
-              </div>
-
-          </div>
-            <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
-            <h3 class="ui floated header" style="margin: 5px 0;">Informations douanières</h3>
-            <div class="ui clearing divider" style="margin-bottom: 5px;"></div>
-            <div class="fields">
-              <div class="two wide field">
-                  <label for="id_customs_item_weight" style="text-align: left;">Qté douanière&nbsp;:</label>
-                    <input type="number"
-                           name="customs_item_weight"
-                           value="{{ form.customs_item_weight.value|numbers:2 }}"
-                           step="0.01"
-                           id="id_customs_item_weight"
-                           style="text-align: right;">
-              </div>
-              <div class="two wide field">
-                  <label for="id_unit_weight" style="text-align: left;">Unité douanière&nbsp;:</label>
-                  {{ form.customs_unit_weight }}
-              </div>
-              <div class="two wide field">
-                  <label for="id_customs_code" style="text-align: left;">Code douanier&nbsp;:</label>
-                  {{ form.customs_code }}
-              </div>
-
-            </div>
-
         </div>
-      </div>
     </div>
 
 {% endblock table %}
