@@ -180,6 +180,8 @@ class GeneriqueSchema(
     uuid_identification: uuid.UUID
     acuitis_order_date: datetime.datetime
     delivery_date: datetime.datetime
+    supplier_name: str
+    supplier_ident: str
 
     @validator('acuitis_order_date', pre=True)
     def check_acuitis_order_date(cls, value):
