@@ -106,35 +106,16 @@ post_generic_dict = {
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 
-        set "trace_name" = case 
-                when sup."supplier" = 'ZZZZZZZZZZZZZ'
-                then 'trace_name - Fournisseur Inconnu'
-                else left("trace_name" || sup."supplier", 160)
-            end,
-            "errors" = case 
-                when sup."supplier" = 'ZZZZZZZZZZZZZ'
-                then true
-                else false
-            end,
-            "comment" = case 
-                when sup."supplier" = 'ZZZZZZZZZZZZZ'
-                then 'Vérifier le nom du fournisseur ou son identifiant, dans le fichier'
-                else left("trace_name" || sup."supplier", 160)
-            end
+        set "trace_name" = left("trace_name" || sup."supplier", 160)
           from (
             select 
                 "uuid_identification", 
-                max(
-                    case 
-                        when "supplier" is null  or "supplier" = ''
-                        then 'ZZZZZZZZZZZZZ'
-                        else "supplier"
-                    end
-                ) as "supplier"
+                "supplier"
               from "edi_ediimport" ee 
              where "flow_name" = 'Generique'
                and "uuid_identification" = %(uuid_identification)s
-             group by "uuid_identification"
+             group by "uuid_identification", 
+                "supplier"
           ) sup 
         where dt."uuid_identification" = sup."uuid_identification"
           and ("valid" = false or "valid" isnull)

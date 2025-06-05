@@ -18,6 +18,7 @@ from functools import lru_cache
 
 import redis
 from django.utils import timezone
+from django.db.utils import IntegrityError
 from psycopg2 import sql
 
 from heron.loggers import LOGGER_EDI
@@ -273,6 +274,10 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
     except PostgresTypeError as except_error:
         error = True
         LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
+
+    except IntegrityError as except_error:
+        error = True
+        LOGGER_EDI.exception(f"IntegrityError (probably supplier None) : {except_error!r}")
 
     # Exception Générale ===========================================================================
     except Exception as except_error:
