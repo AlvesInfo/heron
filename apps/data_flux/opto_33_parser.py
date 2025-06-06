@@ -332,7 +332,10 @@ class EDIQualifierParser:
         :param data: list of values
         """
         try:
-            *_, code_article, type_code, _, line_type, _ = data
+            if data[-1] in {"20", "21"}:
+                *_, code_article, type_code, _, line_type = data
+            else:
+                *_, code_article, type_code, _, line_type, _ = data
 
         except ValueError as except_error:
             raise OptoQualifierError(
@@ -766,10 +769,13 @@ class EdiOpoto33Parser:
             }
 
 
-# if __name__ == '__main__':
-#     file = Path("/Users/paulo/Downloads/@FR45517780870_ESC_FAC_esc-fac-ACUITIS_250203090239760FR45517780870.SND")
-#     e = EdiOpoto33Parser(file)
-#     content = e.parse()
-#     iv = content["invoices"]
-#     for l in iv:
-#         print(l)
+if __name__ == '__main__':
+    """"""
+    # file = Path("/Users/paulo/Downloads/FR45517780870.txt")
+    # e = EdiOpoto33Parser(file)
+    # content = e.parse()
+    # iv = content["invoices"]
+    # for d in iv:
+    #     print(d.get("invoice_number"))
+    #     if not d.get("reference_article"):
+    #         print(d)
