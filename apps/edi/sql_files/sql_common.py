@@ -361,9 +361,9 @@ post_common_dict = {
                     "uuid_identification",
                     "invoice_number",
                     case 
-                        when "code_fournisseur" = '' or "code_fournisseur" is null 
-                        then "code_maison"
-                        else "code_fournisseur"
+                        when "code_maison" = '' or "code_maison" is null 
+                        then "code_fournisseur"
+                        else coalesce("code_maison", '')
                     end as "code_fournisseur"
                     
                 from "edi_ediimport"
@@ -374,10 +374,10 @@ post_common_dict = {
                     "uuid_identification",
                     "invoice_number",
                     case 
-                        when "code_fournisseur" = '' or "code_fournisseur" is null 
-                        then "code_maison"
-                        else "code_fournisseur"
-                    end 
+                        when "code_maison" = '' or "code_maison" is null 
+                        then "code_fournisseur"
+                        else coalesce("code_maison", '')
+                    end
              ) req 
              group by 
                     "third_party_num",
