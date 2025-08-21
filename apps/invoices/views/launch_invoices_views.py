@@ -34,7 +34,7 @@ from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion, control_emails
-from apps.invoices.bin.finalize import finalize_global_invoices
+from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
 from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
@@ -406,6 +406,8 @@ def finalize_period(request):
             "il reste des nouveaux comptes, à compléter!",
         )
         return redirect(reverse("articles:articles_without_account_list"))
+
+    set_validations()
 
     integration_valid = EdiImportControl.objects.filter(
         Q(valid=False) | Q(valid__isnull=True)
