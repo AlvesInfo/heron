@@ -577,7 +577,7 @@ class Opto33Loader(TemplateDataLoader):
                                 - Récupérer seulement les colonnes souhaitées par leur nom
                                     {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
 
-                                - Récupérer seulement les colonnes souhaitées par leur index
+                                - Récupérer uniquement les colonnes souhaitées par leur index
                                     (index commence à 0)
                                     {"db_col_1" : 3, "db_col" : 0, ..., }
         """
