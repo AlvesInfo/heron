@@ -76,7 +76,7 @@ class ClientSupplierExclusion(FlagsTable):
     FR : Table des maisons par founisseurs à exclure des rfa
     EN : Table of clients by suppliers to exclude from RFA
     """
-    cct = models.OneToOneField(
+    cct = models.ForeignKey(
         Maison,
         on_delete=models.PROTECT,
         to_field="cct",
