@@ -1,0 +1,17 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+
+    <a class="item" href="{% url 'rfa:client_supplier_exclusion_create' %}">
+        <button class="ui blue basic button" name="create_clients_exclusions" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            CREATION
+        </button>
+    </a>
+
+    <a class="item" href="{% url 'rfa:client_supplier_exclusion_export_list' %}">
+       <button class="ui green basic button" name="clients_exclusions_list" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+          LISTING EXCLUSIONS
+       </button>
+    </a>
+
+{% endblock right_side %}

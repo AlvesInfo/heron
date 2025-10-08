@@ -72,18 +72,17 @@ class ClientExclusion(FlagsTable):
 
 class ClientSupplierExclusion(FlagsTable):
     """
-    Table des maisons à exclure des rfa
+    Table des maisons par founisseurs  à exclure des rfa
     FR : Table des maisons par founisseurs à exclure des rfa
     EN : Table of clients by suppliers to exclude from RFA
     """
-    cct = models.ForeignKey(
+    maison = models.ForeignKey(
         Maison,
         on_delete=models.PROTECT,
-        to_field="cct",
         verbose_name="cct/maison",
-        related_name="cct_supplier_rfa",
-        db_column="cct",
-        limit_choices_to={'type_x3': (1, 2), "cct__active": True}
+        related_name="cct_suppliers_rfa",
+        db_column="maison_uuid",
+        to_field="uuid_identification",
     )
     supplier = models.ForeignKey(
         Society,
@@ -98,13 +97,13 @@ class ClientSupplierExclusion(FlagsTable):
     class Meta:
         """class Meta du modèle django"""
 
-        ordering = ["cct", "supplier"]
+        ordering = ["maison", "supplier"]
 
-        unique_together = (("cct", "supplier"),)
+        unique_together = (("maison", "supplier"),)
         indexes = [
-            models.Index(fields=["cct"]),
+            models.Index(fields=["maison"]),
             models.Index(fields=["supplier"]),
-            models.Index(fields=["cct", "supplier"]),
+            models.Index(fields=["maison", "supplier"]),
         ]
 
 

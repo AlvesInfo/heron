@@ -7,12 +7,18 @@ from apps.rfa.views import (
     SignboardExclusionUpdate,
     signboard_exclusion_delete,
     signboard_exclusion_export_list,
-    # # MaisonExclusion
+    # MaisonExclusion
     ClientExclusionList,
     ClientExclusionCreate,
     ClientExclusionUpdate,
     client_exclusion_delete,
     client_exclusion_export_list,
+    # ClientSupplierExclusion
+    ClientSupplierExclusionList,
+    ClientSupplierExclusionCreate,
+    ClientSupplierExclusionUpdate,
+    client_supplier_exclusion_delete,
+    client_supplier_exclusion_export_list,
     # RateSupplier
     SupplierRateList,
     SupplierRateCreate,
@@ -32,7 +38,7 @@ from apps.rfa.views import (
     section_pro_exlusion_delete,
     section_pro_exclusions_export_list,
     # RFA GENERATION
-    rfa_generation
+    rfa_generation,
 )
 
 app_name = "apps.rfa"
@@ -69,7 +75,9 @@ urlpatterns = [
     # MaisonExclusion
     *[
         path(
-            "clients_exclusion_list/", ClientExclusionList.as_view(), name="clients_exclusion_list"
+            "clients_exclusion_list/",
+            ClientExclusionList.as_view(),
+            name="clients_exclusion_list",
         ),
         path(
             "client_exclusion_create/",
@@ -90,6 +98,34 @@ urlpatterns = [
             "client_exclusion_export_list/",
             client_exclusion_export_list,
             name="client_exclusion_export_list",
+        ),
+    ],
+    # ClientSupplierExclusion
+    *[
+        path(
+            "clients_suppliers_exclusion_list/",
+            ClientSupplierExclusionList.as_view(),
+            name="clients_suppliers_exclusion_list",
+        ),
+        path(
+            "client_supplier_exclusion_create/",
+            ClientSupplierExclusionCreate.as_view(),
+            name="client_supplier_exclusion_create",
+        ),
+        path(
+            "client_supplier_exclusion_update/<int:pk>/",
+            ClientSupplierExclusionUpdate.as_view(),
+            name="client_supplier_exclusion_update",
+        ),
+        path(
+            "client_supplier_exclusion_delete/",
+            client_supplier_exclusion_delete,
+            name="client_supplier_exclusion_delete",
+        ),
+        path(
+            "client_supplier_exclusion_export_list/",
+            client_supplier_exclusion_export_list,
+            name="client_supplier_exclusion_export_list",
         ),
     ],
     # RateSupplier

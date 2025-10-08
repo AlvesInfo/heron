@@ -209,6 +209,13 @@ SQL_RFA_INSERTION = sql.SQL(
     and not exists (
         select 
             1
+        from "rfa_clientsupplierexclusion" "rcs"
+        where "ee"."third_party_num" = "rcs"."supplier"
+          and "ee"."cct_uuid_identification" = "rcs"."maison_uuid"
+    )
+    and not exists (
+        select 
+            1
         from "rfa_sectionproexclusion" "pro"
         where "ee"."axe_pro" = "pro"."axe_pro"
     )

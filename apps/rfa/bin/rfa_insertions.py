@@ -24,7 +24,7 @@ from apps.core.functions.functions_dates import last_day_month
 from apps.rfa.sql_files.sql_rfa import SQL_RFA_INSERTION, SQL_INSERTION_ICON
 
 
-def get_sql_kwars(
+def get_sql_kwargs(
     supplier_origin: AnyStr, period_rfa: AnyStr, uuid_identification: UUID
 ):
     """Retourne le dictionnaire des arguments de la requête
@@ -77,7 +77,7 @@ def insert_rfa(supplier_origin: AnyStr, period_rfa: AnyStr, uuid_identification:
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
-    sql_kwargs = get_sql_kwars(supplier_origin, period_rfa, uuid_identification)
+    sql_kwargs = get_sql_kwargs(supplier_origin, period_rfa, uuid_identification)
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_INSERTION_ICON)
