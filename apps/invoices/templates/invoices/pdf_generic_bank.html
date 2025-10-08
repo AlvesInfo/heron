@@ -1,13 +1,29 @@
-{% if invoices.0.centers.bank_center %}
+{% if center_puchase %}
     <table class="tableauFacturation" style="margin-top:10px;">
         <tr class="entete">
             <td>Nos références bancaires</td>
         </tr>
     </table>
 
-    <p>{{ invoices.0.centers.bank_center|default_if_none:"" }}<br>
-        IBAN : {{ invoices.0.centers.iban_center|default_if_none:"" }}
-        <br>
-        BIC : {{ invoices.0.centers.code_swift_center|default_if_none:"" }}
-    </p>
+    <!-- Adresses -->
+    <div class="addresses-section">
+        <div class="address-box">
+            <div class="address-title" style="font-weight: bold;">Bénéficiaire : </div>
+            <div class="address-content">
+                <span class="ligne-bank">{{ center_puchase.bank_account_holder }}</span><br>
+                <span class="ligne-bank">{{ center_puchase.adress_holder|default:""}}</span><br>
+                <span class="ligne-bank">{{ center_puchase.adress_2_holder|default:""}}</span><br>
+                <span class="ligne-bank">{{ center_puchase.postal_code_holder }} {{ center_puchase.city_holder }}</span>
+            </div>
+        </div>
+        <span style="margin: 0 5px;padding: 0;"></span>
+        <div class="address-box">
+            <div class="address-title" style="font-weight: bold;">Banque : </div>
+            <div class="address-content">
+                <span class="ligne-bank">Domiciliation : {{ center_puchase.bank }}</span><br>
+                <span class="ligne-bank">Code BIC : {{ center_puchase.swift_code }}</span><br>
+                <span class="ligne-bank">Iban : {{ center_puchase.iban }}</span>
+            </div>
+        </div>
+    </div>
 {% endif %}

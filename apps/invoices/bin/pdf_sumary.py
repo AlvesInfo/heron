@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-04-11
 modified by: Paulo ALVES
 """
+
 from typing import AnyStr
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from weasyprint.text.fonts import FontConfiguration
 
 from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
+from apps.centers_purchasing.models import ChildCenterPurchase
 
 
 def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
@@ -33,10 +35,19 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
     sale = SaleInvoice.objects.filter(
         cct=cct, final=False, printed=False, type_x3__in=(1, 2)
     ).order_by("cct", "big_category_ranking")
+
+    if sale:
+        center_puchase = ChildCenterPurchase.objects.get(
+            code=sale[0].signboard.code_signboard
+        )
+    else:
+        center_puchase = None
+
     context = {
         "invoices": sale,
         "logo": str(sale[0].signboard.logo_signboard).replace("logos/", ""),
         "domain": DOMAIN,
+        "center_puchase": center_puchase,
     }
     content = render_to_string("invoices/pdf_summary.html", context)
     font_config = FontConfiguration()
@@ -45,6 +56,6 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    cct_cct = "AF0514"
+    cct_cct = "AF0591"
     file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{cct_cct}_summary.pdf"
     summary_invoice_pdf(cct_cct, file_path)

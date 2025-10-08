@@ -92,4 +92,56 @@ tr.lignes-light > td {
     page-break-after: always;
 }
 
+/* Section adresses */
+.addresses-section {
+    display: flex;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.address-box {
+    flex: 1;
+    border: 1px solid rgba(34, 36, 38, 0.4);
+    border-radius: 0.28571429rem;
+    padding: 8px;
+    margin: 3mm 0 !important;
+}
+
+@media print {
+
+    @font-face {
+        font-family: "ClanMedium";
+        src: url('{{ domain }}/static/ClanMedium.otf');
+    }
+
+    @font-face {
+        font-family: "ClanBook";
+        src: url('{{ domain }}/static/ClanBook.otf');
+    }
+
+    @font-face {
+        font-family: "ClanThin";
+        src: url('{{ domain }}/static/ClanThin.otf');
+    }
+
+        /* Adresses */
+    .addresses-section {
+        break-inside: avoid !important;
+    }
+
+    .address-box {
+        -webkit-print-color-adjust: exact !important;
+        font-family:'ClanBook',sans-serif;
+	    font-size:11px;
+    }
+
+    .address-title {
+        margin-bottom: 2mm !important;
+    }
+
+    span.ligne-bank {
+        padding: 1mm 0 !important;
+        margin: 1mm 0 0 3mm !important;
+    }
+}
 </style>
