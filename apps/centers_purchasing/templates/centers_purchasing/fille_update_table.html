@@ -98,6 +98,63 @@
 
           </div>
 
+            <div class="ui segment">
+                    <h4 class="ui floated header">R.I.B</h4>
+                    <div class="ui clearing divider"></div>
+                    <div class="ui mini form">
+                      <!-- ===================================================================== -->
+                      <div class="fields" style="font-size: 12px;font-weight:bold;">
+
+                        <div class="four wide field">
+                              <label for="id_bank_account_holder" style="text-align: left;">Titulaire Compte&nbsp;:</label>
+                              {{ form.bank_account_holder }}
+                        </div>
+
+                        <div class="four wide field">
+                            <label for="id_adress_holder" style="text-align: left;">Immeuble&nbsp;:</label>
+                            {{ form.adress_holder }}
+                        </div>
+
+                        <div class="four wide field">
+                            <label for="id_adress_2_holder" style="text-align: left;">Adresse&nbsp;:</label>
+                            {{ form.adress_2_holder }}
+                        </div>
+
+                        <div class="one wide field">
+                            <label for="id_postal_code_holder" style="text-align: left;">Code Postal&nbsp;:</label>
+                            {{ form.postal_code_holder }}
+                        </div>
+
+                        <div class="three wide field">
+                            <label for="id_city_holder" style="text-align: left;">Ville&nbsp;:</label>
+                            {{ form.city_holder }}
+                        </div>
+
+                      </div>
+                      <!-- ===================================================================== -->
+                      <div class="fields" style="font-size: 12px;font-weight:bold;">
+
+                        <div class="four wide field">
+                            <label for="bank" style="text-align: left;">Domiciliation&nbsp;:</label>
+                            {{ form.bank }}
+                        </div>
+
+                        <div class="four wide field" style="text-align: left;">
+                              <label for="id_swift_code">Code swift&nbsp;:</label>
+                              {{ form.swift_code }}
+                        </div>
+
+                        <div class="four wide field" style="text-align: left;">
+                              <label for="id_iban">Iban&nbsp;:</label>
+                              {{ form.iban }}
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+
           <div class="fields">
 
               <div class="sixteen wide field">
@@ -106,6 +163,7 @@
               </div>
 
           </div>
+
         </div>
       </div>
     </div>

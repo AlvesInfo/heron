@@ -11,6 +11,8 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
+import re
 import uuid
 
 from django.db import models
@@ -89,13 +91,14 @@ class ChildCenterPurchase(FlagsTable):
     societe_cpy_x3 = models.CharField(max_length=5, verbose_name="Société X3")
     site_fcy_x3 = models.CharField(max_length=5, verbose_name="Site X3")
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
-    legal_notice = models.TextField(null=True, blank=True, verbose_name="mentions légales")
+    legal_notice = models.TextField(
+        null=True, blank=True, verbose_name="mentions légales"
+    )
     footer = models.TextField(null=True, blank=True, verbose_name="bas de page")
-    bank = models.CharField(null=True, blank=True, max_length=50)
-    iban = models.CharField(null=True, blank=True, max_length=50)
-    code_swift = models.CharField(null=True, blank=True, max_length=27)
     # email d'où sont envoyés les documents, ou bien qui reçoivent les mails
-    sending_email = models.EmailField(null=True, blank=True, verbose_name="email d'envoi")
+    sending_email = models.EmailField(
+        null=True, blank=True, verbose_name="email d'envoi"
+    )
     vat_regime_center = models.ForeignKey(
         VatRegimeSage,
         on_delete=models.PROTECT,
@@ -108,6 +111,16 @@ class ChildCenterPurchase(FlagsTable):
     member_num = models.CharField(null=True, blank=True, max_length=35)
     code_plan_sage = models.CharField(max_length=10)
 
+    # bank Information
+    bank_account_holder = models.CharField(null=True, blank=True, max_length=80)
+    adress_holder = models.CharField(null=True, blank=True, max_length=80)
+    adress_2_holder = models.CharField(null=True, blank=True, max_length=80)
+    postal_code_holder = models.CharField(null=True, blank=True, max_length=80)
+    city_holder = models.CharField(null=True, blank=True, max_length=80)
+    bank = models.CharField(null=True, blank=True, max_length=80)
+    swift_code = models.CharField(null=True, blank=True, max_length=80)
+    iban = models.CharField(null=True, blank=True, max_length=80)
+
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.name}"
@@ -116,6 +129,15 @@ class ChildCenterPurchase(FlagsTable):
     def get_absolute_url():
         """Url de retour après create ou Update"""
         return reverse("centers_purchasing:filles_list")
+
+    def save(self, *args, **kwargs):
+        # Nettoyer l'IBAN (enlever espaces et tirets)
+        iban_clean = re.sub(r"[\s-]", "", str(self.iban or "").strip())
+
+        # Formater par groupes de 4
+        self.iban = re.sub(r"(.{4})", r"\1 ", iban_clean)
+
+        super().save(*args, **kwargs)
 
     class Meta:
         """class Meta du modèle django"""
@@ -144,12 +166,16 @@ class Signboard(FlagsTable):
         db_column="uuid_sale_price_category",
     )
     name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
-    logo = models.ImageField(null=True, blank=True, upload_to="logos/", verbose_name="logo")
+    logo = models.ImageField(
+        null=True, blank=True, upload_to="logos/", verbose_name="logo"
+    )
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
     )
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
-    message = models.TextField(null=True, blank=True, verbose_name="message sur facture")
+    message = models.TextField(
+        null=True, blank=True, verbose_name="message sur facture"
+    )
     child_center = models.ForeignKey(
         ChildCenterPurchase,
         on_delete=models.PROTECT,
@@ -161,8 +187,12 @@ class Signboard(FlagsTable):
         db_column="child_center",
     )
     email_contact = models.EmailField(verbose_name="email de contact")
-    email_object = models.CharField(null=True, blank=True, max_length=255, verbose_name="objet")
-    email_template = models.TextField(null=True, blank=True, verbose_name="entete template")
+    email_object = models.CharField(
+        null=True, blank=True, max_length=255, verbose_name="objet"
+    )
+    email_template = models.TextField(
+        null=True, blank=True, verbose_name="entete template"
+    )
     email_corp = models.TextField(null=True, blank=True, verbose_name="corp de mail")
 
     def __str__(self):
@@ -195,8 +225,12 @@ class SignboardModel(FlagsTable):
         verbose_name="Enseigne",
     )
     name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
-    short_name = models.CharField(null=True, blank=True, max_length=20, verbose_name="Intitulé")
-    action = models.CharField(null=True, blank=True, max_length=80, verbose_name="action")
+    short_name = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="Intitulé"
+    )
+    action = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="action"
+    )
     comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
 
     def __str__(self):
@@ -223,7 +257,9 @@ class Translation(FlagsTable):
     """
 
     name = models.CharField(unique=True, max_length=80, verbose_name="nom")
-    short_name = models.CharField(null=True, blank=True, max_length=20, verbose_name="intitulé")
+    short_name = models.CharField(
+        null=True, blank=True, max_length=20, verbose_name="intitulé"
+    )
     french_text = models.TextField(verbose_name="français")
     german_text = models.TextField(null=True, blank=True, verbose_name="allemand")
     italian_text = models.TextField(null=True, blank=True, verbose_name="italien")
@@ -291,7 +327,9 @@ class SignboardModelTranslate(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -351,10 +389,14 @@ class GroupingGoods(FlagsTable):
 
     ranking = models.IntegerField()
     base = models.CharField(max_length=35, verbose_name="base refac")
-    grouping_goods = models.CharField(unique=True, max_length=35, verbose_name="regroupement")
+    grouping_goods = models.CharField(
+        unique=True, max_length=35, verbose_name="regroupement"
+    )
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -472,7 +514,9 @@ class AccountsAxeProCategory(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     @staticmethod
     def get_uniques():
@@ -502,7 +546,9 @@ class AccountsAxeProCategory(FlagsTable):
         """class Meta du modèle django"""
 
         ordering = ["child_center", "big_category", "sub_category", "axe_pro", "vat"]
-        unique_together = (("child_center", "big_category", "sub_category", "axe_pro", "vat"),)
+        unique_together = (
+            ("child_center", "big_category", "sub_category", "axe_pro", "vat"),
+        )
         indexes = [
             models.Index(fields=["child_center"]),
             models.Index(fields=["big_category"]),
@@ -555,7 +601,9 @@ class ApplicableProVat(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     class Meta:
         """class Meta du modèle django"""
@@ -593,7 +641,9 @@ class TypeFacture(models.Model):
         related_name="type_piece_centrale_fille",
         db_column="child_center",
     )
-    invoice_type = models.CharField(max_length=10, choices=InvType.choices, default=InvType.FA)
+    invoice_type = models.CharField(
+        max_length=10, choices=InvType.choices, default=InvType.FA
+    )
     invoice_name = models.CharField(null=True, max_length=15)
     purchase_type_facture = models.CharField(max_length=10)
     sale_type_facture = models.CharField(max_length=10)

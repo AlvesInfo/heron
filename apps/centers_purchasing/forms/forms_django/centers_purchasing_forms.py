@@ -40,6 +40,14 @@ class FillesForm(forms.ModelForm):
         self.fields['comment'].required = False
         self.fields['legal_notice'].required = False
         self.fields['footer'].required = False
+        self.fields['bank_account_holder'].required = False
+        self.fields['adress_holder'].required = False
+        self.fields['adress_2_holder'].required = False
+        self.fields['postal_code_holder'].required = False
+        self.fields['city_holder'].required = False
+        self.fields['bank'].required = False
+        self.fields['swift_code'].required = False
+        self.fields['iban'].required = False
 
     class Meta:
         model = ChildCenterPurchase
@@ -51,13 +59,19 @@ class FillesForm(forms.ModelForm):
             "comment",
             "legal_notice",
             "footer",
-            "iban",
-            "code_swift",
             "sending_email",
             "societe_cpy_x3",
             "site_fcy_x3",
             "member_num",
             "code_plan_sage",
+            "bank_account_holder",
+            "adress_holder",
+            "adress_2_holder",
+            "postal_code_holder",
+            "city_holder",
+            "bank",
+            "swift_code",
+            "iban",
         ]
 
 
