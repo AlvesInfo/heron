@@ -322,7 +322,7 @@ def copy_from(cnx, file, table, sep=";", columns=None, size=8192, null=None, hea
         :param columns: colonnes
         :param size: taille du buffer
         :param null: valeur du null dans le fichier
-        :param header: si il y a des entêtes dans le fichier
+        :param header: s'il y a des entêtes dans le fichier
         :return: True ou None si exception
     """
     try:

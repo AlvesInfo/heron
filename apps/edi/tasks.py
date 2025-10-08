@@ -151,7 +151,7 @@ def launch_suppliers_import(process_objects, user_pk):
 @shared_task(name="bbgr_bi")
 def launch_bbgr_bi_import(function_name, user_pk):
     """
-    Intégration des factures fournisseurs présentes
+    Intégration des factures bbgr issues de la BI
     dans le répertoire de processing/suppliers_invoices_files
     """
 

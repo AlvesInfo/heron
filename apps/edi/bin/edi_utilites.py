@@ -54,7 +54,7 @@ def set_trace_hand_invoice(
     :param user: User faisant la création
     :param edi_objects: Lignes de factures Créées
     :param numbers: Nombre de factures saisies
-    :param errors: si il a eu des erreurs
+    :param errors: s'il a eu des erreurs
     :return:
     """
     function_call = str(inspect.currentframe().f_back)[:255]
@@ -103,7 +103,7 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
     """
 
     # On supprime toutes les lignes qui n'ont pas d'article et ont les classes pour mettre le cct
-    # si il n'a pas été mis sur toutes les lignes
+    # s'il n'a pas été mis sur toutes les lignes
     lignes_list = data_dict.get("lignes")
     lignes_list = [row_dict for row_dict in lignes_list if row_dict.get("reference_article")]
     data_dict["lignes"] = sorted(lignes_list, key=lambda line_sort_dict: line_sort_dict.get("num"))

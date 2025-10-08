@@ -56,7 +56,7 @@ def integration_purchases(request):
     # On vérifie et on supprime les imports edi s'ils n'ont pas de supplier_ident
     verify_supplier_ident()
 
-    # On flag les trace invoices = True, si il y a eu des erreurs
+    # On flag les trace invoices = True, s'il y a eu des erreurs
     flag_invoices()
 
     # Création d'un edi_validation s'il n'était pas créé

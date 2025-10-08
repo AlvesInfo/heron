@@ -291,7 +291,7 @@ class RecuperationDesPiecesJointesMails:
                     # analyse du contenu du mail pour obtenir un objet de messagerie
                     mail = email.message_from_bytes(email_body)
 
-                    # Vérifie si il y as des fichiers attachés
+                    # Vérifie s'il y as des fichiers attachés
                     if mail.get_content_maintype() != "multipart":
                         continue
 

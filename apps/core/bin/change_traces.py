@@ -129,7 +129,7 @@ class ChangeTraceMixin:
         if len(before_to_test) != len(after_to_test):
             return True
 
-        # On boucle sur le dictionnaire avant changement pour repérer si il y a eu changement
+        # On boucle sur le dictionnaire avant changement pour repérer s'il y a eu changement
         for key, value in before_to_test.items():
             test_after_value = after_to_test.get(key, "$,:!cnjEfegvfkgqe")
 

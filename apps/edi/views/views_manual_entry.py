@@ -138,7 +138,7 @@ def create_hand_invoices(request, category):
         data_dict = json.loads(request.POST.get("data"))
         data_dict_invoices_clean(category, data_dict)
 
-        # On vérifie si il y a des lignes dans le POST, si il n'y en a pas on renvoie un message
+        # On vérifie s'il y a des lignes dans le POST, s'il n'y en a pas on renvoie un message
         # d'erreur pour ne pas insérer des factures vides, et on shortcut
         if not data_dict.get("lignes"):
             request.session["level"] = level

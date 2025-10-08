@@ -70,6 +70,44 @@ class ClientExclusion(FlagsTable):
         ordering = ["cct"]
 
 
+class ClientSupplierExclusion(FlagsTable):
+    """
+    Table des maisons à exclure des rfa
+    FR : Table des maisons par founisseurs à exclure des rfa
+    EN : Table of clients by suppliers to exclude from RFA
+    """
+    cct = models.OneToOneField(
+        Maison,
+        on_delete=models.PROTECT,
+        to_field="cct",
+        verbose_name="cct/maison",
+        related_name="cct_supplier_rfa",
+        db_column="cct",
+        limit_choices_to={'type_x3': (1, 2), "cct__active": True}
+    )
+    supplier = models.ForeignKey(
+        Society,
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        verbose_name="fournisseur",
+        related_name="supplier_cct_rfa",
+        db_column="supplier",
+        limit_choices_to={'in_use': True}
+    )
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["cct", "supplier"]
+
+        unique_together = (("cct", "supplier"),)
+        indexes = [
+            models.Index(fields=["cct"]),
+            models.Index(fields=["supplier"]),
+            models.Index(fields=["cct", "supplier"]),
+        ]
+
+
 class SupplierRate(FlagsTable):
     """
     Table des taux de rfa par fournisseurs

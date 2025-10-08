@@ -44,7 +44,7 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
                             "pre_processing": function or None,
                             "post_processing": function or None
                         }
-    :param save_dir: Répertoire de sauvegarde du fichier, si il n'est pas donné,
+    :param save_dir: Répertoire de sauvegarde du fichier, s'il n'est pas donné,
                            le fichier est effaçé
     :return: Liste des fichiers
     """

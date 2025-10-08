@@ -56,7 +56,7 @@ SQL_FIX_ARTICLES = sql.SQL(
 
 
 SQL_FIX_IMPORT_UUID = sql.SQL(
-    # insertion d'un uuid si il est manquant
+    # insertion d'un uuid s'il est manquant
     """
     update "edi_ediimport" edi
     set "import_uuid_identification" = gen_random_uuid() 

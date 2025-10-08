@@ -166,7 +166,7 @@ def get_files_celery():
 
 
 def get_have_statment():
-    """Vérifie si il y a des statment à intégrer"""
+    """Vérifie s'il y a des statment à intégrer"""
     with connection.cursor() as cursor:
         sql_id_statment = sql.SQL(
             """
@@ -209,7 +209,7 @@ def get_have_statment():
 
 
 def get_have_monthly():
-    """Verification si il y a des Monthly"""
+    """Verification s'il y a des Monthly"""
 
     with connection.cursor() as cursor:
         sql_id_monthly = sql.SQL(
@@ -254,7 +254,7 @@ def get_have_monthly():
 
 
 def get_have_retours():
-    """Verification si il y a des Retours"""
+    """Verification s'il y a des Retours"""
 
     with connection.cursor() as cursor:
         sql_id_retours = sql.SQL(
@@ -313,7 +313,7 @@ def get_retours_valid():
 
 
 def get_have_receptions():
-    """Verification si il y a des Réceptions"""
+    """Verification s'il y a des Réceptions"""
 
     with connection.cursor() as cursor:
         sql_id_receptions = sql.SQL(

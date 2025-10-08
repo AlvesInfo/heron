@@ -19,7 +19,7 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
     """Ajoute dans la table d'identification des fournisseurs book_suppliercct
     les nouveaux cct sage avec le paramétrage par défaut
     :param third_party_num: N° de tiers X3
-    :param force_add: Ajout forcé du tiers même si il ne fait pas partie des fournisseurs courants
+    :param force_add: Ajout forcé du tiers même s'il ne fait pas partie des fournisseurs courants
     :return: None
     """
     with connection.cursor() as cursor:

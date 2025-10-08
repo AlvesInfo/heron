@@ -146,7 +146,7 @@ def generate_exports_X3(request):
             (Path(settings.EXPORT_DIR) / file_name_do),
         ]
 
-        # On check si il y a eu des erreurs
+        # On check s'il y a eu des erreurs
         if all(result_list):
             # Si on n'a pas d'erreur, on enregistre les fichiers dans la table
             edi_validations = EdiValidation.objects.filter(

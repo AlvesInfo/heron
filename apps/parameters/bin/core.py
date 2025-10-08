@@ -247,7 +247,7 @@ def get_object(task_to_launch: AnyStr):
 
 
 def initial_counter_nums(counter_instance: Counter):
-    """Initialise un compteur si il n'existe pas
+    """Initialise un compteur s'il n'existe pas
     :param counter_instance: instance du model Counter
     :return: None
     """

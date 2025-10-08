@@ -689,7 +689,7 @@ def get_client_ip(request):
 
 
 def get_file_date(file: Path) -> str:
-    """Fonction qui vérifie si il y a la date dans le nom du fichier,
+    """Fonction qui vérifie s'il y a la date dans le nom du fichier,
     sur les huits derniers caractères
         :param file: fichier de type pathlib.Path
         :return: date or None

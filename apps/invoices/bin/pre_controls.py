@@ -378,7 +378,7 @@ def control_insertion():
 def control_emails():
     """
     Contrôle qu'il y ait des factures à envoyer par mail
-    :return: True si il en reste, false sinon
+    :return: True s'il en reste, false sinon
     """
     emails_to_send = SaleInvoice.objects.filter(
         final=False,

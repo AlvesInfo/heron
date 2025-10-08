@@ -80,7 +80,7 @@ def get_buttons(
 
 
 def have_left(acutal_page, nbre):
-    """Détermine si il faut les flèches de gauche
+    """Détermine s'il faut les flèches de gauche
     :param acutal_page: index de la page actuelle
     :param nbre: nbre de boutons à droite et à gauche de la page actuelle
     :return: True ou False
@@ -89,7 +89,7 @@ def have_left(acutal_page, nbre):
 
 
 def have_right(acutal_page, nbre_pages, nbre):
-    """Détermine si il faut les flèches de droite
+    """Détermine s'il faut les flèches de droite
     :param acutal_page: index de la page actuelle
     :param nbre_pages: nombre de pages
     :param nbre: nbre de boutons à droite et à gauche de la page actuelle

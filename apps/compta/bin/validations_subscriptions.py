@@ -35,7 +35,7 @@ from django.db import connection
 
 
 def get_have_subscriptions(flow_name: AnyStr, dte_d: AnyStr, dte_f: AnyStr) -> bool:
-    """Vérifie si il y a des abonnements existants pour la période
+    """Vérifie s'il y a des abonnements existants pour la période
     :param flow_name: flow_name à vérifier
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat

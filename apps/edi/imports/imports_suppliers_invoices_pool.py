@@ -167,7 +167,7 @@ def bbgr_monthly():
     trace = get_trace(
         trace_name,
         """
-        insert into mothn (a) select a from heron_bi_factures_monthlydelivery
+        insert into month (a) select a from heron_bi_factures_monthlydelivery
         where type_article not in ('FRAIS_RETOUR', 'DECOTE')
         """,
         application_name,

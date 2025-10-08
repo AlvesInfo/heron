@@ -248,7 +248,7 @@ class Society(FlagsTable):
     )
 
     # Champ pour afficher les tiers courants,
-    # si il vient par les imports le tiers est automatiquement mis en courant
+    # s'il vient par les imports le tiers est automatiquement mis en courant
     in_use = models.BooleanField(null=True, default=False, verbose_name="utilisé")
 
     # Si le tiers peut facturer d'autres articles que le sien

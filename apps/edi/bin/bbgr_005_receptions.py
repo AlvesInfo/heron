@@ -51,7 +51,7 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
 
         min_id = cursor.fetchone()[0]
 
-        # On vérifie si il existe des lignes à importer
+        # On vérifie s'il existe des lignes à importer
         sql_id = sql.SQL(
             """
             select
