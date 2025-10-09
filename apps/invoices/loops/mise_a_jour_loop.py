@@ -66,7 +66,14 @@ def centers_invoices_update():
             "member_num",
             "cpy",
             "fcy",
-            "code_plan_sage"
+            "code_plan_sage",
+            "bank_account_holder",
+            "adress_holder",
+            "adress_2_holder",
+            "postal_code_holder",
+            "city_holder",
+            "bank",
+            "iban"
         )
         select
             now() as created_at,
@@ -78,12 +85,19 @@ def centers_invoices_update():
             coalesce("cpc"."footer", '') as "footer",
             coalesce("cpc"."bank", '') as "bank_center",
             coalesce("cpc"."iban", '') as "iban_center",
-            coalesce("cpc"."code_swift", '') as "code_swift_center",
+            coalesce("cpc"."swift_code", '') as "code_swift_center",
             coalesce("av"."vat_regime", 'FRA') as "vat_regime_center",
             coalesce("cpc"."member_num", '') as "member_num",
             coalesce("cpc"."societe_cpy_x3", '') as "cpy",
             coalesce("cpc"."site_fcy_x3", '') as "fcy",
-            coalesce("cpc"."code_plan_sage", 'FRA') as "code_plan_sage"
+            coalesce("cpc"."code_plan_sage", 'FRA') as "code_plan_sage",
+            coalesce("cpc"."bank_account_holder", '') as "bank_account_holder",
+            coalesce("cpc"."adress_holder", '') as "adress_holder",
+            coalesce("cpc"."adress_2_holder", '') as "adress_2_holder",
+            coalesce("cpc"."postal_code_holder", '') as "postal_code_holder",
+            coalesce("cpc"."city_holder", '') as "city_holder",
+            coalesce("cpc"."bank", '') as "bank",
+            coalesce("cpc"."iban", '') as "iban"
         from "centers_purchasing_childcenterpurchase" "cpc"  
         left join "accountancy_vatregimesage" "av"
         on "cpc"."vat_regime_center" = "av"."uuid_identification"
@@ -94,11 +108,18 @@ def centers_invoices_update():
         and coalesce("ic"."footer", '') = coalesce("cpc"."footer", '')
         and coalesce("ic"."bank_center", '') = coalesce("cpc"."bank", '')
         and coalesce("ic"."iban_center", '') = coalesce("cpc"."iban", '')
-        and coalesce("ic"."code_swift_center", '') = coalesce("cpc"."code_swift", '')
+        and coalesce("ic"."code_swift_center", '') = coalesce("cpc"."swift_code", '')
         and coalesce("ic"."vat_regime_center", 'FRA') = coalesce("av"."vat_regime", 'FRA')
         and coalesce("ic"."member_num", '') = coalesce("cpc"."member_num", '')
         and coalesce("ic"."cpy", '') = coalesce("cpc"."societe_cpy_x3", '')
         and coalesce("ic"."fcy", '') = coalesce("cpc"."site_fcy_x3", '')
+        and coalesce("ic"."bank_account_holder", '') = coalesce("cpc"."bank_account_holder", '')
+        and coalesce("ic"."adress_holder", '') = coalesce("cpc"."adress_holder", '')
+        and coalesce("ic"."adress_2_holder", '') = coalesce("cpc"."adress_2_holder", '')
+        and coalesce("ic"."postal_code_holder", '') = coalesce("cpc"."postal_code_holder", '')
+        and coalesce("ic"."city_holder", '') = coalesce("cpc"."city_holder", '')
+        and coalesce("ic"."bank", '') = coalesce("cpc"."bank", '')
+        and coalesce("ic"."iban", '') = coalesce("cpc"."iban", '')
         on conflict ("uuid_identification") DO UPDATE SET "created_at" = EXCLUDED."created_at"
         """
         cursor.execute(sql_create)

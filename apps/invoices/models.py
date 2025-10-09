@@ -39,6 +39,13 @@ class CentersInvoices(models.Model):
     cpy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Société X3")
     fcy = models.CharField(null=True, blank=True, max_length=5, verbose_name="Site X3")
     code_plan_sage = models.CharField(null=True, blank=True, max_length=10)
+    bank_account_holder = models.CharField(null=True, blank=True, max_length=80)
+    adress_holder = models.CharField(null=True, blank=True, max_length=80)
+    adress_2_holder = models.CharField(null=True, blank=True, max_length=80)
+    postal_code_holder = models.CharField(null=True, blank=True, max_length=80)
+    city_holder = models.CharField(null=True, blank=True, max_length=80)
+    bank = models.CharField(null=True, blank=True, max_length=80)
+    iban = models.CharField(null=True, blank=True, max_length=80)
 
     # N° d'adhérent pour la formation
     member_num = models.CharField(max_length=35)
@@ -64,6 +71,14 @@ class CentersInvoices(models.Model):
                     "member_num",
                     "cpy",
                     "fcy",
+                    "code_plan_sage",
+                    "bank_account_holder",
+                    "adress_holder",
+                    "adress_2_holder",
+                    "postal_code_holder",
+                    "city_holder",
+                    "bank",
+                    "iban",
                 ],
                 name="centers_invoices_billing",
             ),
