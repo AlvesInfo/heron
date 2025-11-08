@@ -56,7 +56,7 @@ def query_select(cnx, sql_requete=None, params=None):
     return None
 
 
-def set_generique_chrono_direct(cnx_string, file_path, interne_file_path, dte_fac):
+def set_generique_chrono_direct(cnx_dns, base_file_path, internal_file_path, dte_fac):
     """Table pour génération des factures chronodirect"""
 
     base_dict = {
@@ -94,9 +94,9 @@ def set_generique_chrono_direct(cnx_string, file_path, interne_file_path, dte_fa
     }
 
     with (
-        cnx_postgresql(cnx_string) as cnx,
-        file_path.open("r", encoding="cp1252") as file,
-        interne_file_path.open("w", encoding="utf8") as interne_file,
+        cnx_postgresql(cnx_dns) as cnx,
+        base_file_path.open("r", encoding="cp1252") as file,
+        internal_file_path.open("w", encoding="utf8") as interne_file,
     ):
         query = query_select(
             cnx,
@@ -150,6 +150,7 @@ def set_generique_chrono_direct(cnx_string, file_path, interne_file_path, dte_fa
 
 
 if __name__ == "__main__":
+    """Lancement script"""
     # ATTENTION! à Renommer aux besoins
     # =================================================================================
     nom_fichier_info = "Chronodirect_Septembre_2025.csv"
