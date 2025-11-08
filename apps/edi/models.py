@@ -581,3 +581,12 @@ class ColumnDefinition(models.Model):
 
         ordering = ["ranking"]
         unique_together = (("flow_name", "ranking"),)
+
+
+class ChronoDirect(models.Model):
+    """Parsing du fichier chronodirect"""
+    reference_cosium = models.CharField(max_length=35, verbose_name="référence cosium")
+    libelle = models.CharField(max_length=80)
+    qty = models.IntegerField()
+    montant_achat = models.DecimalField(max_digits=20, decimal_places=2)
+    montant_cession = models.DecimalField(max_digits=20, decimal_places=2)
