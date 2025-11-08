@@ -99,6 +99,14 @@ def set_generique_chrono_direct(file_path, interne_file_path, dte_fac):
 
 
 if __name__ == "__main__":
-    file_path = Path(r"/Users/paulo/Downloads/Chronodirect_Septembre_2025.csv")
-    interne_file_path = Path(r"/Users/paulo/Downloads/generique_interne_chronodirect.csv")
-    set_generique_chrono_direct(file_path, interne_file_path, dte_fac="20250930")
+    # ATTENTION! à Renommer aux besoins
+    # =================================================================================
+    nom_fichier_info = "Chronodirect_Septembre_2025.csv"
+    date_facture = "20250930"
+    # =================================================================================
+
+    file_path = Path(rf"/Users/paulo/Downloads/{nom_fichier_info}")
+    interne_file_path = Path(
+        rf"/Users/paulo/Downloads/generique_interne_chronodirect_{date_facture}.csv"
+    )
+    set_generique_chrono_direct(file_path, interne_file_path, dte_fac=date_facture)
