@@ -232,7 +232,7 @@ def launch_sql_clean_general(start_all):
 
 @shared_task(name="subscription_launch_task")
 def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID):
-    """Génération des Royalties, Pubicités et Prestations sous task Celery
+    """Génération des Royalties, Publicités et Prestations sous task Celery
     :param task_to_launch: Tâche à lancer
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat

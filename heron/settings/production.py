@@ -1,14 +1,23 @@
 # coding: utf-8
 import gc
+import logging
 
 from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG_DIR
 
 allocs, g1, g2 = gc.get_threshold()
-gc.set_threshold(100_000, g1*5, g2*10)
+gc.set_threshold(100_000, g1 * 5, g2 * 10)
 
 DEBUG = False
 
-DOMAINS_WHITELIST = ["10.9.2.109", "localhost", "127.0.0.1", WHITELIST, "10.9.2.109:8080", "localhost:8080", "127.0.0.1:8080"]
+DOMAINS_WHITELIST = [
+    "10.9.2.109",
+    "localhost",
+    "127.0.0.1",
+    WHITELIST,
+    "10.9.2.109:8080",
+    "localhost:8080",
+    "127.0.0.1:8080",
+]
 
 THIRD_PARTY_APPS = [
     "django_clamd",
@@ -42,7 +51,7 @@ AUTHENTICATION_BACKENDS = [
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 5
 AXES_ONLY_USER_FAILURES = True
-AXES_LOCKOUT_TEMPLATE = 'axes_blocked.html'
+AXES_LOCKOUT_TEMPLATE = "axes_blocked.html"
 AXES_USERNAME_FORM_FIELD = "email"
 
 LOGGING = {
@@ -149,7 +158,7 @@ LOGGING = {
             "filename": f"{str(LOG_DIR)}/edi_logfile.log",
             "formatter": "verbose",
         },
-        # Send in connexion-file
+        # Send it in a connexion-file
         "connexion-file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
@@ -219,7 +228,11 @@ LOGGING = {
         "": {"handlers": ["console"], "propagate": True},
         "django": {"handlers": ["production_logfile"], "propagate": True},
         "production": {"handlers": ["production_logfile"], "propagate": True},
-        "connexion": {"handlers": ["connexion-file"], "level": "INFO", "propagate": False},
+        "connexion": {
+            "handlers": ["connexion-file"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "timer_heron": {"handlers": ["timer_heron"]},
         "imports": {"handlers": ["import_logfile"], "propagate": True},
         "edi": {"handlers": ["edi_logfile"], "propagate": True},
@@ -227,7 +240,10 @@ LOGGING = {
         "export_excel": {"handlers": ["export_excel"], "propagate": True},
         "loader": {"handlers": ["loader_logfile_flux"], "propagate": True},
         "validation": {"handlers": ["validation_logfile_flux"], "propagate": True},
-        "postgres_save": {"handlers": ["postgres_save_logfile_flux"], "propagate": True},
+        "postgres_save": {
+            "handlers": ["postgres_save_logfile_flux"],
+            "propagate": True,
+        },
         "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
         "send_email": {"handlers": ["send_email"], "propagate": True},
         "export_x3": {"handlers": ["export_x3"], "propagate": True},
@@ -256,3 +272,10 @@ ACUISENS_EM_DIR = Path("/media/acuisens_edi")
 ACUITEST_EM_DIR = Path("/media/acuitest_edi")
 ACUIREP_EM_DIR = Path("/media/acuirep_edi")
 ACSENSREP_EM_DIR = Path("/media/acsensrep_edi")
+
+
+# Réduire le niveau de log pour WeasyPrint
+logging.getLogger("weasyprint").setLevel(logging.ERROR)
+
+# Ou pour désactiver complètement les warnings CSS
+logging.getLogger("weasyprint.css").setLevel(logging.ERROR)

@@ -31,6 +31,12 @@ from apps.invoices.views import (
     send_email_essais
 )
 
+# Import des vues SSE (commenté temporairement jusqu'à configuration de Gmail)
+# from apps.invoices.bin.api_gmail.views_sse import (
+#     send_invoices_emails_sse,
+#     send_invoices_progress_sse,
+# )
+
 app_name = "apps.invoices"
 
 urlpatterns = (
@@ -102,4 +108,17 @@ urlpatterns = (
             name="send_email_essais",
         ),
     ]
+    # Envoi d'emails avec SSE (Server-Sent Events) - Commenté jusqu'à config Gmail
+    # + [
+    #     path(
+    #         "send_invoices_sse/",
+    #         send_invoices_emails_sse,
+    #         name="send_invoices_sse",
+    #     ),
+    #     path(
+    #         "send_invoices_progress_sse/<str:job_id>/",
+    #         send_invoices_progress_sse,
+    #         name="send_invoices_progress_sse",
+    #     ),
+    # ]
 )

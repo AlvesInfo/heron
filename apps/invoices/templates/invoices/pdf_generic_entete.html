@@ -26,35 +26,38 @@
         </td>
     </tr>
     <tr>
-        <td>
-            <table>
-            {% with 95 as larg %}
-                {% if formation %}
+        {% with 95 as larg %}
+            <td>
+                <table>
+                    {% if formation %}
+                        <tr>
+                            <td style="width: {{ larg }}px;padding-top: 5px;">N° Adhérent Forco</td>
+                            <td style="padding-top: 5px;"> : {{ invoices.0.centers.member_num}}</td>
+                        </tr>
+                    {% endif %}
                     <tr>
-                        <td style="width: {{ larg }}px;padding-top: 5px;">N° Adhérent Forco</td>
-                        <td style="padding-top: 5px;"> : {{ invoices.0.centers.member_num}}</td>
+                        <td style="width: {{ larg }}px;padding-top: 5px;">Code Centrale</td>
+                        <td style="padding-top: 5px;"> : {{ invoices.0.code_center}}</td>
                     </tr>
-                {% endif %}
-                <tr>
-                    <td style="width: {{ larg }}px;padding-top: 5px;">Code Centrale</td>
-                    <td style="padding-top: 5px;"> : {{ invoices.0.code_center}}</td>
-                </tr>
-                <tr>
-                    <td style="width: {{ larg }}px;padding-top: 5px;">N° Compte client</td>
-                    <td style="padding-top: 5px;"> : {{ invoices.0.third_party_num.third_party_num }}</td>
-                </tr>
-                <tr>
-                    <td style="width: {{ larg }}px;padding-top: 5px;">N° CCT X3</td>
-                    <td style="padding-top: 5px;"> : {{ invoices.0.cct }}</td>
-                </tr>
-                <tr>
-                    <td style="width: {{ larg }}px;padding-top: 5px;">Date facture</td>
-                    <td style="padding-top: 5px;"> : {{ invoices.0.invoice_date|date:"d/m/Y"  }}</td>
-                </tr>
-
-            {% endwith %}
-            </table>
-        </td>
+                    <tr>
+                        <td style="width: {{ larg }}px;padding-top: 5px;">N° Compte client</td>
+                        <td style="padding-top: 5px;"> : {{ invoices.0.third_party_num.third_party_num }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: {{ larg }}px;padding-top: 5px;">N° CCT X3</td>
+                        <td style="padding-top: 5px;"> : {{ invoices.0.cct }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: {{ larg }}px;padding-top: 5px;">Date facture</td>
+                        <td style="padding-top: 5px;"> : {{ invoices.0.invoice_date|date:"d/m/Y"  }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: {{ larg }}px;padding-top: 5px;color: red;font-weight: bold;">Devise</td>
+                        <td style="padding-top: 5px;color: red;font-weight: bold;"> : Euro</td>
+                    </tr>
+                </table>
+            </td>
+        {% endwith %}
     </tr>
 
 </table>

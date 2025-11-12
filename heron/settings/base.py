@@ -114,6 +114,7 @@ THIRD_PARTY_APPS = [
     "dynamic_preferences.users.apps.UserPreferencesConfig",
     "django_celery_results",
     "django_celery_beat",
+    'django_eventstream',
 ]
 
 LOCAL_APPS = [
