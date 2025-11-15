@@ -20,6 +20,7 @@ from uuid import UUID
 from celery import shared_task
 
 from heron.loggers import LOGGER_EDI
+from apps.core.bin.clean_celery import clean_memory
 from apps.edi.imports.imports_suppliers_invoices_pool import (
     bbgr_bulk,
     bbgr_statment,
@@ -93,6 +94,7 @@ bbgr_dict = {
 
 
 @shared_task(name="suppliers_import")
+@clean_memory
 def launch_suppliers_import(process_objects, user_pk):
     """
     Intégration des factures fournisseurs présentes
@@ -149,6 +151,7 @@ def launch_suppliers_import(process_objects, user_pk):
 
 
 @shared_task(name="bbgr_bi")
+@clean_memory
 def launch_bbgr_bi_import(function_name, user_pk):
     """
     Intégration des factures bbgr issues de la BI
@@ -200,6 +203,7 @@ def launch_bbgr_bi_import(function_name, user_pk):
 
 
 @shared_task(name="sql_clean_general")
+@clean_memory
 def launch_sql_clean_general(start_all):
     """Realise les requêtes sql générale, pour le néttoyages des imports"""
     start_initial = time.time()
@@ -231,6 +235,7 @@ def launch_sql_clean_general(start_all):
 
 
 @shared_task(name="subscription_launch_task")
+@clean_memory
 def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID):
     """Génération des Royalties, Publicités et Prestations sous task Celery
     :param task_to_launch: Tâche à lancer

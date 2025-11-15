@@ -19,12 +19,14 @@ from celery import shared_task
 from django.utils import timezone
 
 from heron.loggers import LOGGER_EDI
+from apps.core.bin.clean_celery import clean_memory
 from apps.data_flux.trace import get_trace
 from apps.users.models import User
 from apps.rfa.imports.import_rfa_pool import generate_rfa
 
 
 @shared_task(name="rfa_generation_launch_task")
+@clean_memory
 def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: AnyStr):
     """
     Génération des RFA mensuelles

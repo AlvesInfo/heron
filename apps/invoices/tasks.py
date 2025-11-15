@@ -24,6 +24,7 @@ from bs4 import BeautifulSoup
 
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
+from apps.core.bin.clean_celery import clean_memory
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
@@ -44,6 +45,7 @@ EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
 
 @shared_task(name="invoices_insertions_launch")
+@clean_memory
 def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
     """
     Insertion des factures définitives achats et ventes
@@ -99,6 +101,7 @@ def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
 
 
 @shared_task(name="celery_pdf_launch")
+@clean_memory
 def launch_celery_pdf_launch(user_pk: AnyStr):
     """
     Main pour lancement de la génération des pdf avec Celery
@@ -143,6 +146,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
 
 
 @shared_task(name="launch_generate_pdf_invoices")
+@clean_memory
 def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int):
     """
     Génération des pdf des factures de ventes pour un cct
@@ -193,6 +197,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
 
 @shared_task(name="celery_send_invoices_emails")
+@clean_memory
 def launch_celery_send_invoice_mails(
     user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None
 ):
@@ -264,6 +269,7 @@ def launch_celery_send_invoice_mails(
 
 
 @shared_task(name="send_invoice_email")
+@clean_memory
 def send_invoice_email(context_dict: Dict, user_pk: int):
     """
     Envoi d'une facture par mail
@@ -322,6 +328,7 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
 
 @shared_task(name="launch_export_x3")
+@clean_memory
 def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000):
     """
     Envoi d'une facture par mail
@@ -429,6 +436,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
 
 
 @shared_task(name="send_invoice_email_essais")
+@clean_memory
 def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     """
     Essais d'envoi d'une facture par mail
