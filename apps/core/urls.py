@@ -10,10 +10,10 @@ from apps.core.views import (
     # API POUR LES DROPDOWN SEMANTIC
     api_models_query_third_party_num,
     # API POUR LES JAUGES SSE
-    # get_user_jobs,
-    # get_active_jobs,
-    # get_job_progress,
-    # delete_job,
+    get_user_jobs,
+    get_active_jobs,
+    get_job_progress,
+    delete_job,
 )
 
 urlpatterns = [
@@ -42,8 +42,8 @@ urlpatterns = [
         'format-channels': ['progress-{channel}']
     }),
     # API POUR LES JAUGES SSE
-    # path("sse-progress/", get_user_jobs, name="list_jobs"),
-    # path("sse-progress/active/", get_active_jobs, name="active_jobs"),
-    # path("sse-progress/<str:job_id>/", get_job_progress, name="job_detail"),
-    # path("sse-progress/<str:job_id>/delete/", delete_job, name="delete_job"),
+    path("sse-progress/", get_user_jobs, name="list_jobs"),
+    path("sse-progress/active/", get_active_jobs, name="active_jobs"),
+    path("sse-progress/<str:job_id>/", get_job_progress, name="job_detail"),
+    path("sse-progress/<str:job_id>/delete/", delete_job, name="delete_job"),
 ]

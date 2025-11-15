@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Envoi des factures par email - Avec progression{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gmail-progress-container {
+        display: none; /* Caché par défaut, affiché lors du lancement */
+    }
+
+    .gmail-progress-container.active {
+        display: block;
+    }
+
+    .send-email-button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .send-email-button:hover {
+        background: #45a049;
+    }
+
+    .send-email-button:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+
+    <h1 style="margin-bottom: 30px;">{{ titre_table }}</h1>
+
+    {% if not_finalize %}
+        <div class="alert alert-danger" role="alert">
+            <strong>Attention!</strong> Vous ne pouvez pas envoyer les factures.
+            {{ messages }}
+        </div>
+    {% elif not news %}
+        <div class="alert alert-warning" role="alert">
+            <strong>Information:</strong> Il n'y a aucune facture à envoyer pour le moment.
+        </div>
+    {% elif en_cours %}
+        <div class="alert alert-info" role="alert">
+            <strong>En cours:</strong> Un envoi est déjà en cours. Veuillez patienter.
+        </div>
+        <!-- Affiche la progression si un job est déjà en cours -->
+        {% if active_job_id %}
+        <div id="progress-container-active"></div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Affiche la progression du job actif
+                const ui = new GmailProgressUI('progress-container-active', '{{ active_job_id }}', {
+                    showDetails: true,
+                    showStats: true,
+                    autoHideOnComplete: false,
+                });
+            });
+        </script>
+        {% endif %}
+    {% else %}
+        <!-- Formulaire d'envoi -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-body">
+                <h5 class="card-title">Envoi global des factures par email</h5>
+                <p class="card-text">
+                    Cliquez sur le bouton ci-dessous pour lancer l'envoi de toutes les factures
+                    non envoyées par email via l'API Gmail.
+                </p>
+
+                <form method="post" id="send-email-form">
+                    {% csrf_token %}
+                    <button type="submit" class="send-email-button" id="send-button">
+                        📧 Envoyer toutes les factures
+                    </button>
+                    <span id="email-count" style="margin-left: 20px; font-weight: bold; color: #666;">
+                        <!-- Le nombre d'emails sera affiché ici -->
+                    </span>
+                </form>
+            </div>
+        </div>
+
+        <!-- Conteneur pour la jauge de progression -->
+        <div id="progress-container"></div>
+
+        <!-- Liste des dernières progressions -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Historique des envois récents</h5>
+                <div id="history-container">
+                    <p class="text-muted">Chargement...</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'gmail_progress.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('send-email-form');
+    const button = document.getElementById('send-button');
+    const emailCount = document.getElementById('email-count');
+    const progressContainer = document.getElementById('progress-container');
+
+    // Récupère le nombre d'emails à envoyer au chargement de la page
+    fetchEmailCount();
+
+    // Charge l'historique des envois
+    loadHistory();
+
+    // Gère la soumission du formulaire
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Désactive le bouton
+            button.disabled = true;
+            button.textContent = '⏳ Envoi en cours...';
+
+            try {
+                // Envoie la requête POST
+                const formData = new FormData(form);
+                const response = await fetch(form.action || window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success && result.job_id) {
+                    // Affiche la jauge de progression
+                    progressContainer.innerHTML = '<div id="progress-ui"></div>';
+                    const ui = new GmailProgressUI('progress-ui', result.job_id, {
+                        showDetails: true,
+                        showStats: true,
+                        autoHideOnComplete: false,
+                        onComplete: (data) => {
+                            // Réactive le bouton après 3 secondes
+                            setTimeout(() => {
+                                button.disabled = false;
+                                button.textContent = '📧 Envoyer toutes les factures';
+                                loadHistory(); // Recharge l'historique
+                            }, 3000);
+                        },
+                        onFailed: (data) => {
+                            // Réactive le bouton en cas d'erreur
+                            button.disabled = false;
+                            button.textContent = '📧 Envoyer toutes les factures';
+                            alert('Erreur lors de l\'envoi: ' + (data.error_message || 'Erreur inconnue'));
+                        },
+                    });
+                } else {
+                    throw new Error(result.error || 'Erreur inconnue');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors du lancement de l\'envoi: ' + error.message);
+                button.disabled = false;
+                button.textContent = '📧 Envoyer toutes les factures';
+            }
+        });
+    }
+
+    /**
+     * Récupère le nombre d'emails à envoyer
+     */
+    async function fetchEmailCount() {
+        try {
+            const response = await fetch('/api/gmail/count-emails/', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.count !== undefined) {
+                    emailCount.textContent = `(${result.count} email${result.count > 1 ? 's' : ''} à envoyer)`;
+                    emailCount.style.color = result.count > 0 ? '#4caf50' : '#999';
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération du nombre d\'emails:', error);
+        }
+    }
+
+    /**
+     * Charge l'historique des envois
+     */
+    async function loadHistory() {
+        const historyContainer = document.getElementById('history-container');
+        if (!historyContainer) return;
+
+        try {
+            const response = await fetch('/api/gmail/progress/', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.data && result.data.length > 0) {
+                let html = '<table class="table table-striped">';
+                html += '<thead><tr>';
+                html += '<th>Date</th>';
+                html += '<th>Statut</th>';
+                html += '<th>Total</th>';
+                html += '<th>Envoyés</th>';
+                html += '<th>Erreurs</th>';
+                html += '<th>Durée</th>';
+                html += '</tr></thead><tbody>';
+
+                result.data.forEach(item => {
+                    const date = new Date(item.created_at);
+                    const statusColors = {
+                        pending: '#ffc107',
+                        in_progress: '#2196f3',
+                        completed: '#4caf50',
+                        failed: '#f44336',
+                    };
+
+                    html += '<tr>';
+                    html += `<td>${date.toLocaleString('fr-FR')}</td>`;
+                    html += `<td><span style="background: ${statusColors[item.status] || '#999'}; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px;">${item.status_display}</span></td>`;
+                    html += `<td>${item.total_emails}</td>`;
+                    html += `<td>${item.successful_emails}</td>`;
+                    html += `<td>${item.failed_emails}</td>`;
+                    html += `<td>${Math.floor(item.duration)}s</td>`;
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+                historyContainer.innerHTML = html;
+            } else {
+                historyContainer.innerHTML = '<p class="text-muted">Aucun envoi récent.</p>';
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement de l\'historique:', error);
+            historyContainer.innerHTML = '<p class="text-danger">Erreur lors du chargement de l\'historique.</p>';
+        }
+    }
+});
+</script>
+{% endblock %}

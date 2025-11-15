@@ -8,13 +8,12 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
-
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
 
-# Get the Django ASGI application
-django_application = get_asgi_application()
+# Initialize Django ASGI application early to ensure apps are loaded
+django_asgi_app = get_asgi_application()
 
 
 async def application(scope, receive, send):
@@ -34,4 +33,4 @@ async def application(scope, receive, send):
                 return
     else:
         # Pass other requests to Django
-        await django_application(scope, receive, send)
+        await django_asgi_app(scope, receive, send)

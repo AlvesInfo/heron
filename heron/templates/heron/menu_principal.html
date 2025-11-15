@@ -395,3 +395,88 @@
     </div>
   </div>
 </div>
+
+{# Dimmer avec loader pour la navigation #}
+<div class="ui page dimmer" id="navigation-loader">
+  <div class="ui text loader">Chargement en cours...</div>
+</div>
+
+<script>
+(function() {
+    // Fonction pour activer le loader et désactiver les liens
+    function activateNavigationLoader(event) {
+        const target = event.currentTarget;
+        const href = target.getAttribute('href');
+
+        // Ne rien faire pour les liens sans href, # ou javascript:
+        if (!href || href === '#' || href.startsWith('javascript:')) {
+            return;
+        }
+
+        // Ne rien faire si c'est un téléchargement ou un lien externe
+        if (target.hasAttribute('download') || target.getAttribute('target') === '_blank') {
+            return;
+        }
+
+        // Empêcher la navigation immédiate
+        event.preventDefault();
+
+        // Retirer les classes actives des items du menu
+        $('.ui.menu .item').removeClass('active');
+
+        // Fermer tous les popups instantanément (sans animation)
+        $('.ui.popup').hide().removeClass('visible active');
+        $('.ui.popup').popup('hide');
+
+        // Forcer le navigateur à effectuer le rendu de la fermeture du menu
+        // avant d'afficher le loader (synchronisation avec le cycle de rendu)
+        requestAnimationFrame(function() {
+            // Le menu est maintenant fermé visuellement
+            // On peut afficher le loader
+
+            // Activer le dimmer avec loader
+            $('#navigation-loader').dimmer('show');
+
+            // Désactiver tous les liens et boutons du menu
+            $('.ui.menu a, .ui.popup a').addClass('disabled').css({
+                'pointer-events': 'none',
+                'opacity': '0.6',
+                'cursor': 'not-allowed'
+            });
+
+            // Ajouter une classe "loading" au lien cliqué
+            $(target).addClass('loading');
+
+            // Naviguer vers la destination
+            globalThis.location.href = href;
+        });
+    }
+
+    // Attacher l'événement à tous les liens du menu et des popups
+    $(document).ready(function() {
+        // Initialiser le dimmer
+        $('#navigation-loader').dimmer({
+            closable: false
+        });
+
+        // Attacher l'événement aux liens du menu principal
+        $('.ui.menu a[href]:not([href="#"]):not([href^="javascript:"])').on('click', activateNavigationLoader);
+
+        // Attacher l'événement aux liens des popups
+        $('.ui.popup a[href]:not([href="#"]):not([href^="javascript:"])').on('click', activateNavigationLoader);
+
+        // Au cas où la page se charge depuis le cache du navigateur
+        $(globalThis).on('pageshow', function(event) {
+            if (event.originalEvent.persisted) {
+                // La page a été chargée depuis le cache, réinitialisé l'interface
+                $('#navigation-loader').dimmer('hide');
+                $('.ui.menu a, .ui.popup a').removeClass('disabled loading').css({
+                    'pointer-events': '',
+                    'opacity': '',
+                    'cursor': ''
+                });
+            }
+        });
+    });
+})();
+</script>

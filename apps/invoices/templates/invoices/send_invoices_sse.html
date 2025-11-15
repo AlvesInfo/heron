@@ -1,0 +1,121 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block menu_principal %}
+    {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="ui container" style="margin-top: 40px;">
+    <h1 class="ui header">
+        <i class="mail icon"></i>
+        <div class="content">
+            Envoi des factures par email
+            <div class="sub header">Suivi en temps réel via SSE</div>
+        </div>
+    </h1>
+
+    <div class="ui segment">
+        <form id="sendForm" class="ui form" method="post">
+            {% csrf_token %}
+
+            <div class="two fields">
+                <div class="field">
+                    <label>CCT (optionnel)</label>
+                    <input type="text" name="cct" placeholder="Laisser vide pour tous les CCT">
+                </div>
+                <div class="field">
+                    <label>Période (optionnel)</label>
+                    <input type="month" name="period" placeholder="Format: YYYY-MM">
+                </div>
+            </div>
+
+            <button class="ui primary button" type="submit">
+                <i class="paper plane icon"></i>
+                Envoyer les factures
+            </button>
+        </form>
+    </div>
+
+    <!-- Conteneur pour la jauge de progression SSE -->
+    <div id="progress-container"></div>
+
+</div>
+
+{% else %}
+    <br><br>
+    <hr>
+    <br><br>
+    <p style="text-align: center;">Vous devez être connecté pour pouvoir utiliser cette page</p>
+{% endif %}
+
+{% endblock content %}
+
+{% block script %}
+<!-- Charger le script SSE -->
+<script src="{% static 'js/sse_progress.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('sendForm');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        try {
+            // Envoie la requête pour lancer l'envoi
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Cache le formulaire
+                form.style.display = 'none';
+
+                // Affiche la jauge de progression SSE
+                new SSEProgressUI('progress-container', data.job_id, {
+                    title: 'Envoi des factures par email',
+                    icon: '📧',
+                    showDetails: true,
+                    showStats: true,
+                    debug: true,  // Afficher les logs en console
+                    onComplete: (result) => {
+                        console.log('✅ Envoi terminé!', result);
+
+                        // Affiche un message de succès
+                        setTimeout(() => {
+                            alert('Envoi terminé ! Consultez les logs pour plus de détails.');
+                            // Recharge la page
+                            window.location.reload();
+                        }, 3000);
+                    },
+                    onError: (error) => {
+                        console.error('❌ Erreur:', error);
+                        alert('Erreur: ' + error.error);
+                    }
+                });
+            } else {
+                alert('Erreur lors du lancement de l\'envoi: ' + (data.message || 'Erreur inconnue'));
+            }
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la communication avec le serveur');
+        }
+    });
+});
+</script>
+
+{% endblock script %}

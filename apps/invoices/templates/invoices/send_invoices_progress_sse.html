@@ -1,0 +1,39 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+
+{% block menu_principal %}
+    {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="ui container" style="margin-top: 40px;">
+    <h1 class="ui header">
+        <i class="mail icon"></i>
+        <div class="content">
+            Envoi des factures par email
+            <div class="sub header">Progression en temps réel - Job ID: {{ job_id }}</div>
+        </div>
+    </h1>
+
+    <!-- Utilise le template réutilisable SSE -->
+    {% include 'core/sse_progress_bar.html' with job_id=job_id title='Envoi des factures par email' show_details=True show_stats=True debug=True %}
+
+</div>
+
+{% else %}
+    <br><br>
+    <hr>
+    <br><br>
+    <p style="text-align: center;">Vous devez être connecté pour pouvoir utiliser cette page</p>
+{% endif %}
+
+{% endblock content %}
+
+{% block script %}
+<!-- Charger le script SSE -->
+<script src="{% static 'js/sse_progress.js' %}"></script>
+{% endblock script %}

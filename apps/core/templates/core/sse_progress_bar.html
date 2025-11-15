@@ -1,0 +1,106 @@
+{% comment %}
+Template réutilisable pour afficher une jauge de progression SSE
+Usage dans vos templates:
+    {% include 'core/sse_progress_bar.html' with job_id='job-123' title='Mon processus' %}
+{% endcomment %}
+
+<div id="sse-progress-{{ job_id }}" class="sse-progress-wrapper">
+    <div class="sse-progress-container" style="
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    ">
+        <div class="progress-header" style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        ">
+            <h3 style="margin: 0; font-size: 18px; color: #333;">
+                <span class="progress-icon">⏳</span>
+                <span class="progress-title">{{ title|default:'Progression' }}</span>
+            </h3>
+            <span class="progress-status" style="
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: bold;
+                background: #ffc107;
+                color: #fff;
+            ">Connexion...</span>
+        </div>
+
+        <div class="progress-bar-container" style="
+            background: #f5f5f5;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+        ">
+            <div class="progress-bar" style="
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg, #4caf50, #66bb6a);
+                transition: width 0.3s ease;
+            "></div>
+            <span class="progress-percentage" style="
+                position: absolute;
+                width: 100%;
+                text-align: center;
+                line-height: 30px;
+                font-weight: bold;
+                color: #333;
+            ">0%</span>
+        </div>
+
+        {% if show_details|default:True %}
+        <div class="progress-details" style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        ">
+            <div><strong>Total:</strong> <span class="detail-total">-</span></div>
+            <div><strong>Traités:</strong> <span class="detail-current">-</span></div>
+            <div><strong>Restants:</strong> <span class="detail-remaining">-</span></div>
+            <div><strong>Vitesse:</strong> <span class="detail-speed">-</span>/s</div>
+        </div>
+        {% endif %}
+
+        {% if show_stats|default:True %}
+        <div class="progress-stats" style="
+            font-size: 12px;
+            color: #666;
+            min-height: 20px;
+        ">
+            <div class="stat-message">Connexion au serveur...</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+(function() {
+    const jobId = '{{ job_id }}';
+    const containerId = 'sse-progress-{{ job_id }}';
+
+    if (typeof SSEProgressUI === 'undefined') {
+        console.error('SSEProgressUI n\'est pas chargé. Ajoutez: <script src="/static/js/sse_progress.js"><\/script>');
+        return;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        new SSEProgressUI(containerId, jobId, {
+            title: '{{ title|default:"Progression" }}',
+            showDetails: {{ show_details|default:True|lower }},
+            showStats: {{ show_stats|default:True|lower }},
+            debug: {{ debug|default:False|lower }},
+        });
+    });
+})();
+</script>
