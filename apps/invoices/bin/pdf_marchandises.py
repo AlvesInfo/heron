@@ -199,7 +199,7 @@ def invoice_marchandise_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("dfbed1a5-ef25-4e0f-935a-61e058ca6660")
+    uuid_invoice_to_pdf = UUID("8b4ac234-e03e-4ac6-bf9e-491a40cab635")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     header_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_header_marchandise.pdf"
