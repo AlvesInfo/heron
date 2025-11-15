@@ -599,7 +599,65 @@ SQL_CLEAR_INVOICES_SIGNBOARDS = sql.SQL(
 SQL_SALES_INVOICES = sql.SQL(
     # Insertion des entêtes de factures de ventes
     """
-    with "amounts" as (
+    with "ranked_partiesinvoices" AS (
+        SELECT 
+            "uuid_identification",
+            "cct",
+            "third_party_num",
+            "created_at"
+        FROM (
+            SELECT 
+                "uuid_identification",
+                "cct",
+                "third_party_num",
+                "created_at",
+                ROW_NUMBER() OVER (
+                    PARTITION BY "cct", "third_party_num" 
+                    ORDER BY "created_at" desc, "id" desc
+                ) as "rn"
+            FROM "invoices_partiesinvoices"
+        ) "rank"
+        WHERE "rank"."rn" = 1
+    ),
+    "ranked_centersinvoices" as (
+        SELECT 
+            "uuid_identification", 
+            "code_center", 
+            "vat_regime_center",
+            "cpy",
+            "fcy"
+        FROM (
+            SELECT 
+                "uuid_identification", 
+                "code_center", 
+                "vat_regime_center",
+                "cpy",
+                "fcy",
+                ROW_NUMBER() OVER (
+                    PARTITION BY "code_center"
+                    ORDER BY "created_at" desc, "id" desc
+                ) as "rn"
+            FROM "invoices_centersinvoices"
+        ) "rank"
+        WHERE "rank"."rn" = 1
+    ),
+    "ranked_signboardsinvoices" as (
+        SELECT 
+            "uuid_identification", 
+            "code_signboard" 
+        FROM (
+            SELECT 
+                "uuid_identification", 
+                "code_signboard",
+                ROW_NUMBER() OVER (
+                    PARTITION BY "code_signboard"
+                    ORDER BY "created_at" desc, "id" desc
+                ) as "rn"
+            FROM "invoices_signboardsinvoices"
+        ) "rank"
+        WHERE "rank"."rn" = 1
+    ),
+    "amounts" as (
         select 
             "vt"."id",
             "vt"."ccm_vat" as "vat",
@@ -720,55 +778,19 @@ SQL_SALES_INVOICES = sql.SQL(
         on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
         left join "book_society" "bs"
         on "bs"."third_party_num" = "ccm"."third_party_num"  
-        left join (
-            select 
-                "uuid_identification", 
-                "code_center", 
-                "vat_regime_center",
-                "cpy",
-                "fcy"
-            from "invoices_centersinvoices" "ici"
-            where exists (
-                select 1 
-                from "invoices_centersinvoices" "cii" 
-                group by "code_center" 
-                having max("cii"."created_at") = "ici"."created_at"
-                and "cii"."code_center" = "ici"."code_center"
-            )
-        ) "icc" 
+        
+        -- modification pour doublons ---------------------------------------
+        left join ranked_centersinvoices "icc" 
         on "icc"."code_center" = "ccm"."center_purchase"
-        left join (
-            select 
-                "uuid_identification", 
-                "code_signboard" 
-            from "invoices_signboardsinvoices" "sci"
-            where exists (
-                select 1 
-                from "invoices_signboardsinvoices" "sii" 
-                group by "code_signboard" 
-                having max("sii"."created_at") = "sci"."created_at"
-                and "sii"."code_signboard" = "sci"."code_signboard"
-            )
-        ) "isb" 
-        on "isb"."code_signboard" = "ccm"."sign_board" 
-        left join (
-            select 
-                "uuid_identification", 
-                "cct", 
-                "third_party_num" 
-            from "invoices_partiesinvoices" "ip"
-            where exists (
-                select 1 
-                  from "invoices_partiesinvoices" "ipi" 
-                 where "ipi"."cct" = "ip"."cct"
-                   and "ipi"."third_party_num" = "ip"."third_party_num" 
-                 group by "cct", 
-                          "third_party_num"  
-                having max("ipi"."created_at") = "ip"."created_at"
-            )
-        ) "parts"
+        
+        left join ranked_signboardsinvoices "isb" 
+        on "isb"."code_signboard" = "ccm"."sign_board"
+        
+        left join "ranked_partiesinvoices" "parts"
         on "parts"."cct" = "ccm"."cct"
         and "parts"."third_party_num" = "ccm"."third_party_num"
+        -- ------------------------------------------------------------------
+    
         left join "parameters_category" "pcc" 
         on "pcc"."uuid_identification" = "eee"."uuid_big_category" 
         left join (

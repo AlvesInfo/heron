@@ -83,6 +83,30 @@ class CentersInvoices(models.Model):
                 name="centers_invoices_billing",
             ),
         ]
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["code_center"]),
+            models.Index(fields=["vat_regime_center"]),
+            models.Index(fields=["cpy"]),
+            models.Index(fields=["fcy"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(
+                fields=[
+                    "created_at",
+                    "code_center",
+                    "vat_regime_center",
+                    "cpy",
+                    "fcy",
+                    "uuid_identification",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "code_center",
+                    "created_at",
+                ]
+            ),
+        ]
 
 
 class SignboardsInvoices(models.Model):
@@ -112,6 +136,24 @@ class SignboardsInvoices(models.Model):
                     "uuid_identification",
                 ],
                 name="signboard_invoices_billing",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["code_signboard"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(
+                fields=[
+                    "created_at",
+                    "code_signboard",
+                    "uuid_identification",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "code_signboard",
+                    "created_at",
+                ]
             ),
         ]
 
@@ -187,6 +229,26 @@ class PartiesInvoices(models.Model):
                     "uuid_identification",
                 ],
                 name="parties_adresses_billing",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["cct"]),
+            models.Index(fields=["third_party_num"]),
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["uuid_identification"]),
+            models.Index(
+                fields=[
+                    "cct",
+                    "third_party_num",
+                    "created_at",
+                    "uuid_identification",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "cct",
+                    "third_party_num",
+                ]
             ),
         ]
 
