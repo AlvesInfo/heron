@@ -13,4 +13,25 @@ from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
 
-application = get_asgi_application()
+# Get the Django ASGI application
+django_application = get_asgi_application()
+
+
+async def application(scope, receive, send):
+    """
+    ASGI application with lifespan protocol support
+    """
+    if scope['type'] == 'lifespan':
+        # Handle lifespan events
+        while True:
+            message = await receive()
+            if message['type'] == 'lifespan.startup':
+                # Startup event
+                await send({'type': 'lifespan.startup.complete'})
+            elif message['type'] == 'lifespan.shutdown':
+                # Shutdown event
+                await send({'type': 'lifespan.shutdown.complete'})
+                return
+    else:
+        # Pass other requests to Django
+        await django_application(scope, receive, send)
