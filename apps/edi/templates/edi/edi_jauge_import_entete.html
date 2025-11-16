@@ -1,0 +1,30 @@
+{% extends "heron/list_table_courant.html" %}
+
+{% block right_side %}
+
+<div class="ui segment">
+    <h3 class="ui header">
+        <i class="chart line icon"></i>
+        <div class="content">
+            Test de la jauge SSE
+            <div class="sub header">Démonstration du système de progression en temps réel</div>
+        </div>
+    </h3>
+
+    <button id="btnLancerTest" class="ui primary button">
+        <i class="play icon"></i>
+        Lancer le test (100 items - 10 secondes)
+    </button>
+
+    <div class="ui info message" style="margin-top: 20px;">
+        <p><strong>Comment ça marche :</strong></p>
+        <ul>
+            <li>Cliquez sur le bouton ci-dessus</li>
+            <li>La tâche Celery démarre en arrière-plan</li>
+            <li>La jauge de progression apparaît en temps réel</li>
+            <li>Vous pouvez fermer la page, le traitement continue</li>
+        </ul>
+    </div>
+</div>
+
+{% endblock right_side %}

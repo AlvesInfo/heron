@@ -114,7 +114,6 @@ THIRD_PARTY_APPS = [
     "dynamic_preferences.users.apps.UserPreferencesConfig",
     "django_celery_results",
     "django_celery_beat",
-    'django_eventstream',
 ]
 
 LOCAL_APPS = [
@@ -149,7 +148,6 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'django_grip.GripMiddleware',
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -345,3 +343,11 @@ CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 60 * 60
 CELERYD_MAX_MEMORY_PER_CHILD = 512000  # Limite mémoire en KB (500MB)
 CELERYD_MAX_TASKS_PER_CHILD = 100  # Redémarre le worker après 100 tâches
+
+# ============================================================================
+# SYSTÈME DE PROGRESSION EN TEMPS RÉEL (AJAX Polling)
+# ============================================================================
+# Le système utilise du polling AJAX pour afficher la progression des tâches Celery
+# Les progressions sont stockées dans le modèle SSEProgress (apps/core/models)
+# Le frontend interroge l'API REST toutes les 500ms pour récupérer l'état
+# Documentation: apps/core/README_PROGRESS.md

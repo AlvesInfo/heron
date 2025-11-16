@@ -2,17 +2,17 @@
 
 {% block table %}
 
-<div class="five wide column"></div>
+<div class="three wide column"></div>
 
-<div class="six wide column">
+<div class="ten wide column">
 
 {% if not en_cours %}
 
         <form id="import_edi_invoices_form" action="" method="post">
             {% csrf_token %}
             <div id="import_launch">
-              <div class="ui segment" style="padding-bottom: 10px;">
-                <h4 class="ui floated header" style="margin-bottom: 10px;text-align: center;">FICHIERS EDI</h4>
+              <div class="ui segment" style="padding-bottom: 10px;text-align: center;">
+                <h4 class="ui centered header" style="margin-bottom: 10px;text-align: center;color: darkblue;">FICHIERS EDI</h4>
 
                 <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
                     {% if files_celery %}
@@ -24,11 +24,11 @@
                             IMPORT FICHIERS EDI
                         </button>
                     {% else %}
-                        <h5>Il n'y a pas de fichiers EDI, à traiter</h5>
+                        <h5 style="color: cornflowerblue;">Il n'y a pas de fichiers EDI, à traiter</h5>
                     {% endif %}
               </div>
               <div class="ui segment" style="padding-bottom: 10px;">
-                <h4 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR STATMENT</h4>
+                <h4 class="ui centered header" style="margin-bottom: 10px;text-align: center;color: darkblue;">BBGR STATMENT</h4>
 
                 <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
                     {% if have_statment %}
@@ -40,11 +40,11 @@
                             IMPORT BBGR STATMENT
                         </button>
                     {% else %}
-                        <h5>Il n'y a pas de données BBGR Statment, à traiter</h5>
+                        <h5 style="color: cornflowerblue;">Il n'y a pas de données BBGR Statment, à traiter</h5>
                     {% endif %}
               </div>
               <div class="ui segment" style="padding-bottom: 10px;">
-                <h4 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR MONTHLY</h4>
+                <h4 class="ui centered header" style="margin-bottom: 10px;text-align: center;color: darkblue;">BBGR MONTHLY</h4>
 
                 <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
                     {% if not retours_valid %}
@@ -58,11 +58,11 @@
                             IMPORT BBGR MONTHLY
                         </button>
                     {% else %}
-                        <h5>Il n'y a pas de données BBGR Monthly, à traiter</h5>
+                        <h5 style="color: cornflowerblue;">Il n'y a pas de données BBGR Monthly, à traiter</h5>
                     {% endif %}
               </div>
               <div class="ui segment" style="padding-bottom: 10px;">
-                <h4 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR RETOURS</h4>
+                <h4 class="ui centered header" style="margin-bottom: 10px;text-align: center;color: darkblue;">BBGR RETOURS</h4>
 
                 <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
                     {% if not retours_valid %}
@@ -76,11 +76,11 @@
                             IMPORT BBGR RETOURS
                         </button>
                     {% else %}
-                        <h5>Il n'y a pas de données BBGR Retours, à traiter</h5>
+                        <h5 style="color: cornflowerblue;">Il n'y a pas de données BBGR Retours, à traiter</h5>
                     {% endif %}
               </div>
               <div class="ui segment" style="padding-bottom: 10px;">
-                <h4 class="ui floated header" style="margin-bottom: 10px;text-align: center;">BBGR RECEPTIONS</h4>
+                <h4 class="ui centered header" style="color: darkblue;margin-bottom: 10px;text-align: center;color: darkblue;">BBGR RECEPTIONS</h4>
 
                 <div class="ui clearing divider" style="margin-bottom: 10px;"></div>
                     {% if have_receptions %}
@@ -92,11 +92,14 @@
                             IMPORT BBGR RECEPTIONS
                         </button>
                     {% else %}
-                        <h5>Il n'y a pas de données BBGR Receptions, à traiter</h5>
+                        <h5 style="color: cornflowerblue;">Il n'y a pas de données BBGR Receptions, à traiter</h5>
                     {% endif %}
               </div>
             </div>
         </form>
+
+        <!-- Conteneur pour la jauge de progression -->
+        <div id="progress-container" style="display: none; margin-top: 20px;"></div>
 
 {% endif %}
 

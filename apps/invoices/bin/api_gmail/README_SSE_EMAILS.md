@@ -1,155 +1,260 @@
-# Envoi d'emails avec suivi SSE en temps réel
+# ⚠️ Ce fichier est obsolète
 
-## Vue d'ensemble
+## Le système SSE a été remplacé par un système de polling AJAX
 
-Ce système permet d'envoyer des factures par email via l'API Gmail avec un suivi de progression en temps réel grâce à SSE (Server-Sent Events).
+**Documentation principale:** Voir `apps/core/README_PROGRESS.md`
 
-## Architecture
+---
+
+## Envoi d'emails avec suivi de progression
+
+Le système d'envoi d'emails par batch utilise désormais le **système de polling AJAX** au lieu de SSE.
+
+### Pourquoi ce changement?
+
+Le système SSE nécessitait:
+- ❌ django-eventstream (dépendance externe)
+- ❌ Configuration complexe (middleware, ASGI, etc.)
+- ❌ Compatibilité limitée avec Django 3.2
+
+Le nouveau système de polling AJAX offre:
+- ✅ Aucune dépendance externe
+- ✅ Configuration minimale
+- ✅ Interface Semantic UI cohérente
+- ✅ Simplicité et fiabilité maximales
+
+---
+
+## Architecture actuelle
 
 ### Backend
 
-- **Tâche Celery**: `apps/invoices/bin/api_gmail/tasks_gmail_sse.py`
-  - `launch_celery_send_invoice_mails_gmail_sse()` - Tâche principale d'envoi
-  - `prepare_invoice_email_data()` - Préparation des données email
+- **Tâche Celery**: Utilise le modèle `SSEProgress` (nom conservé pour compatibilité)
+  - Met à jour la progression via `progress.update_progress(processed=1)`
+  - Plus besoin de `SSEProgressTracker` ou `sse.send_*()`
 
-- **Vues Django**: `apps/invoices/bin/api_gmail/views_sse.py`
-  - `send_invoices_emails_sse()` - Page principale avec formulaire
-  - `send_invoices_progress_sse()` - Page de progression uniquement
+- **Vues Django**: Retournent un `job_id` au frontend
+  - Le frontend lance le polling AJAX automatiquement
 
-- **URLs**: `apps/invoices/urls.py`
-  - `/invoices/send_invoices_sse/` - Page d'envoi
-  - `/invoices/send_invoices_progress_sse/<job_id>/` - Page de progression
+- **API REST**: Endpoints existants dans `apps/core/urls.py`
+  - `/core/sse-progress/<job_id>/` - Utilisé par le polling
 
 ### Frontend
 
-- **Templates**:
-  - `apps/invoices/templates/invoices/send_invoices_sse.html` - Interface principale
-  - `apps/invoices/templates/invoices/send_invoices_progress_sse.html` - Progression
+- **JavaScript**: `files/static/js/progress_polling.js`
+  - Classe `ProgressPolling` (remplace `SSEProgressUI`)
+  - Polling toutes les 500ms
+  - Interface Semantic UI
 
-### Système SSE générique
+- **Composants UI**:
+  - Barre de progression Semantic UI
+  - Labels colorés (bleu=en cours, vert=succès, rouge=erreur)
+  - Statistiques en temps réel
+  - Messages de progression
 
-- **Modèle DB**: `apps/core/models/models_sse_progress.py` - Modèle `SSEProgress`
-- **Tracker**: `apps/core/bin/sse_progress.py` - Classe `SSEProgressTracker`
-- **JavaScript**: `files/static/js/sse_progress.js` - Classe `SSEProgressUI`
+---
 
-## Utilisation
+## Utilisation recommandée
 
-### 1. Accéder à la page
+### 1. Dans votre tâche Celery
 
+```python
+import uuid
+from celery import shared_task
+from apps.core.models import SSEProgress
+
+@shared_task(name="envoi_emails")
+def envoi_emails_task(job_id, user_id, invoices):
+    # Créer l'entrée de progression
+    progress = SSEProgress.objects.create(
+        job_id=job_id,
+        user_id=user_id,
+        task_type='email_sending',
+        total_items=len(invoices)
+    )
+
+    # Marquer comme démarré
+    progress.mark_as_started()
+
+    # Traiter chaque email
+    for idx, invoice in enumerate(invoices, 1):
+        try:
+            send_email(invoice)
+            # Mettre à jour avec message personnalisé
+            progress.update_progress(
+                processed=1,
+                message=f"Email {idx}/{len(invoices)} envoyé : {invoice.reference}"
+            )
+        except Exception as e:
+            # En cas d'erreur
+            progress.update_progress(
+                processed=1,
+                failed=1,
+                message=f"Erreur email {invoice.reference}: {str(e)}"
+            )
+
+    # Marquer comme terminé
+    progress.mark_as_completed()
+
+    return {"status": "success", "job_id": job_id}
 ```
-http://votre-domaine.com/invoices/send_invoices_sse/
+
+### 2. Dans votre vue Django
+
+```python
+import uuid
+from django.http import JsonResponse
+
+def send_invoices_view(request):
+    if request.method == 'POST':
+        # Générer un job_id unique
+        job_id = str(uuid.uuid4())
+
+        # Récupérer les factures à envoyer
+        invoices = get_invoices_to_send(request)
+
+        # Lancer la tâche Celery
+        envoi_emails_task.delay(job_id, request.user.id, invoices)
+
+        # Retourner le job_id
+        return JsonResponse({'success': True, 'job_id': job_id})
+
+    return render(request, 'invoices/send_invoices.html')
 ```
 
-### 2. Paramètres optionnels
+### 3. Dans votre template
 
-- **CCT** : Filtrer par CCT spécifique (laisser vide pour tous)
-- **Période** : Filtrer par période au format `YYYY-MM` (laisser vide pour toutes)
+```html
+{% load static %}
 
-### 3. Suivi en temps réel
+<div id="jauge"></div>
 
-Une fois l'envoi lancé, la jauge de progression affiche en temps réel :
+<script src="{% static 'js/progress_polling.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('#btnEnvoyer').on('click', async function() {
+        const btn = $(this);
+        btn.addClass('loading disabled');
 
-- **Barre de progression** : Pourcentage d'avancement
-- **Détails** : Total, traités, restants
-- **Messages** : Pour chaque email envoyé
-  ```
-  ✅ Email 1/50 envoyé : CCT123 - FACTURE_2025_01.pdf → email1@example.com, email2@example.com
-  ```
-- **Statistiques** : Vitesse d'envoi, temps écoulé
+        try {
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            });
 
-### 4. Messages d'événements
+            const data = await response.json();
 
-Le système affiche des messages détaillés pour chaque email :
+            if (data.success) {
+                btn.parent().hide();
 
-#### Succès
+                // Lancer le polling avec détails personnalisés
+                new ProgressPolling('jauge', data.job_id, {
+                    title: 'Envoi des factures par email',
+                    icon: '📧',
+                    showDetails: true,
+                    showStats: true,
+                    pollInterval: 500,
+                    debug: true,
+                    onComplete: (result) => {
+                        console.log('✅ Envoi terminé!', result);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    },
+                    onError: (error) => {
+                        console.error('❌ Erreur:', error);
+                        btn.removeClass('loading disabled');
+                        btn.parent().show();
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            btn.removeClass('loading disabled');
+        }
+    });
+});
+</script>
 ```
-✅ Email {i}/{total} envoyé : {cct} - {fichier} → {destinataires}
-```
 
-#### Erreur
-```
-⚠️ Email {i}/{total} ERREUR : {cct} - {fichier} : {message_erreur}
-```
-
-#### Fin
-```
-✅ Envoi terminé : {succès} succès, {erreurs} erreur(s) sur {total} facture(s)
-```
+---
 
 ## Fonctionnalités
 
-### ✅ Temps réel instantané
-- Pas de polling HTTP
-- Connexion SSE persistante
-- Latence < 100ms
+### ✅ Suivi en temps réel (500ms de latence)
+- Polling AJAX toutes les 500ms
+- Affichage fluide de la progression
+- Latence acceptable pour l'envoi d'emails
 
-### ✅ Affichage détaillé
-- Nom du CCT
-- Nom du fichier PDF
-- Liste des destinataires (2 premiers affichés)
-- Statut de chaque envoi
+### ✅ Affichage détaillé avec Semantic UI
+- Barre de progression animée
+- Pourcentage en temps réel
+- Statistiques: total, traités, restants
+- Messages personnalisés pour chaque email
+- Labels colorés selon le statut
 
 ### ✅ Gestion des erreurs
-- Continue l'envoi même en cas d'erreur
-- Affiche les erreurs sans bloquer
+- Continue l'envoi en cas d'erreur sur un email
+- Compteur d'erreurs séparé
+- Messages d'erreur affichés
 - Trace en base de données
 
 ### ✅ Persistance
-- État sauvegardé en base de données
+- État sauvegardé en base de données (modèle SSEProgress)
 - Récupération possible après rafraîchissement
 - Historique des envois
+
+---
 
 ## Exemple de flux
 
 1. **L'utilisateur clique sur "Envoyer les factures"**
-   - Le formulaire est caché
-   - La jauge SSE apparaît
+   - Requête POST vers la vue Django
+   - Génération d'un `job_id` unique
+   - Lancement de la tâche Celery
+   - Retour du `job_id` au frontend
 
-2. **La tâche Celery démarre**
-   - Création du job SSE en DB
-   - Événement SSE `start` envoyé
+2. **Le frontend lance le polling**
+   - La jauge de progression apparaît
+   - Polling toutes les 500ms vers `/core/sse-progress/<job_id>/`
 
-3. **Pour chaque facture**
-   - Email envoyé via Gmail API
-   - Progression mise à jour en DB
-   - Événement SSE `progress` envoyé avec le message détaillé
-   - Message affiché dans le navigateur en temps réel
+3. **La tâche Celery traite les emails**
+   - Pour chaque email envoyé
+   - Mise à jour de `progress.update_progress()`
+   - L'API REST retourne l'état actuel
 
-4. **Fin de l'envoi**
-   - Événement SSE `complete` envoyé
-   - Statistiques finales affichées
-   - Option de rechargement ou redirection
+4. **Le frontend affiche la progression**
+   - Barre de progression mise à jour
+   - Messages affichés en temps réel (latence 500ms max)
+   - Statistiques actualisées
+
+5. **Fin de l'envoi**
+   - `progress.mark_as_completed()` appelé
+   - Le polling détecte le statut "completed"
+   - Arrêt du polling
+   - Callback `onComplete` exécuté
+
+---
 
 ## Configuration requise
 
-### Django settings
+### Django (aucune installation supplémentaire!)
 
-```python
-INSTALLED_APPS = [
-    # ...
-    'django_eventstream',  # Pour SSE
-]
-
-MIDDLEWARE = [
-    # ...
-    'django_grip.GripMiddleware',  # Après SessionMiddleware
-]
-```
+Le système fonctionne avec Django standard, **pas besoin de**:
+- ~~django-eventstream~~
+- ~~django_grip.GripMiddleware~~
+- ~~Configuration ASGI~~
 
 ### Celery
 
-La tâche doit être enregistrée dans Celery :
-
-```python
-# apps/invoices/bin/api_gmail/tasks_gmail_sse.py
-@shared_task(name="celery_send_invoices_emails_gmail_sse")
-def launch_celery_send_invoice_mails_gmail_sse(user_pk, cct=None, period=None):
-    ...
-```
+La tâche doit juste être enregistrée dans Celery normalement.
 
 ### URLs
 
-Les URLs SSE core doivent être incluses dans `heron/urls.py` :
+Les URLs API doivent être incluses dans `heron/urls.py` (déjà fait):
 
 ```python
 urlpatterns = [
@@ -158,13 +263,15 @@ urlpatterns = [
 ]
 ```
 
+---
+
 ## Logs
 
-Les logs sont écrits dans :
+Les logs restent identiques:
 - `LOGGER_INVOICES` : Logs principaux d'envoi
 - `LOGGER_EMAIL` : Logs spécifiques aux emails
 
-Format des logs :
+Format des logs:
 ```
 🚀 Début de l'envoi...
 ✅ [1/50] Email envoyé : CCT123 - FACTURE.pdf
@@ -172,13 +279,21 @@ Format des logs :
 🎉 Envoi terminé : 48 succès, 2 erreur(s)
 ```
 
+---
+
 ## Documentation complémentaire
 
-- **Système SSE générique** : `apps/core/README_SSE.md`
-- **Guide d'intégration SSE** : `apps/core/GUIDE_INTEGRATION_SSE.md`
-- **Démarrage rapide SSE** : `apps/core/DEMARRAGE_RAPIDE_SSE.md`
+**Documentation à jour:**
+- `apps/core/README_PROGRESS.md` - Documentation complète du système de polling AJAX
+
+**Exemple concret:**
+- `apps/edi/templates/edi/edi_jauge_import.html`
+- `apps/edi/views/views_jauges.py`
+- `apps/edi/tasks.py`
+
+---
 
 ## Auteur
 
-Créé par Paulo ALVES (via Claude Code)
-Date : 2025-01-10
+Mis à jour par Paulo ALVES (via Claude Code)
+Date : 2025-01-16

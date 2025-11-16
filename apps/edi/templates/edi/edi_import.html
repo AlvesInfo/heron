@@ -35,44 +35,110 @@
 
 {% block script %}
 
+    <script src="{% static 'progress_polling.js' %}"></script>
+
     <script>
 
         $(document).ready(function () {
 
             {% include "heron/base_data_table.html" %}
 
-            $(`#import_edi_invoices_button`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
+            // Variable pour stocker le bouton cliqué
+            let clickedButton = null;
 
-            $(`#bbgr_statment`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
+            // Capturer quel bouton a été cliqué
+            $('button[type="submit"]').on('click', function() {
+                clickedButton = $(this);
+            });
 
-            $(`#bbgr_monthly`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
+            // Gestionnaire unifié pour la soumission du formulaire
+            $(`#import_edi_invoices_form`).on('submit', function (e) {
+                e.preventDefault();
 
-            $(`#bbgr_retours`).click(function () {
+                // Masquer le formulaire et changer le titre
                 $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
+                $(`#id_titre_table`).text("LANCEMENT PATIENTEZ ...").css("color", "teal");
 
-            $(`#bbgr_receptions`).click(function () {
-                $(`#import_launch`).hide();
-                $(`#id_titre_table`).text("INTEGRATION EN COURS, PATIENTEZ...").css("color", "teal")
-            })
+                // Récupérer les données du formulaire
+                const formData = new FormData(this);
 
-            {% if en_cours %}
-                setTimeout(function() {
-                        location.href = "{% url 'edi:import_edi_invoices' %}"
+                // Déterminer le titre et l'icône en fonction du bouton cliqué
+                let title = 'Import des factures EDI';
+                let icon = '🧾';
+
+                if (clickedButton) {
+                    const buttonName = clickedButton.attr('name') || clickedButton.attr('id');
+
+                    switch(buttonName) {
+                        case 'bbgr_statment':
+                            title = 'Import BBGR Statment';
+                            icon = '🧾';
+                            break;
+                        case 'bbgr_monthly':
+                            title = 'Import BBGR Monthly';
+                            icon = '🧾';
+                            break;
+                        case 'bbgr_retours':
+                            title = 'Import BBGR Retours';
+                            icon = '↩️';
+                            break;
+                        case 'bbgr_receptions':
+                            title = 'Import BBGR Receptions';
+                            icon = '📦';
+                            break;
+                        default:
+                            title = 'Import des factures EDI';
+                            icon = '🧾';
+                    }
+                }
+
+                // Envoyer la requête AJAX
+                $.ajax({
+                    url: "{% url 'edi:import_edi_invoices' %}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $(`#id_titre_table`).text("INTEGRATION EN COURS ...").css("color", "teal");
+
+                            // Afficher le conteneur de progression
+                            $(`#progress-container`).show();
+
+                            // Initialiser la jauge de progression avec le titre dynamique
+                            new ProgressPolling('progress-container', response.job_id, {
+                                title: title,
+                                icon: icon,
+                                showDetails: true,
+                                showStats: true,
+                                pollInterval: 1000,  // 1 seconde pour les tâches parallèles
+                                debug: false,
+                                onComplete: function (data) {
+                                    $(`#id_titre_table`).text("INTEGRATION TERMINEE").css("color", "teal");
+                                    $(`#integrations`).show();
+
+                                    // Recharger la page après 50 secondes
+                                    /*
+                                    setTimeout(function () {
+                                        location.href = "{% url 'edi:import_edi_invoices' %}";
+                                    }, 50000);
+                                    */
+                                },
+                                onError: function (data) {
+                                    alert('Une erreur est survenue : ' + (data.error_message || 'Erreur inconnue'));
+                                }
+                            });
+                        } else {
+                            alert(response.error || "Une erreur est survenue");
+                        }
                     },
-                    10000
-                )
-            {% endif %}
+                    error: function (xhr, status, error) {
+                        alert("Erreur lors de la soumission : " + error);
+                    }
+                });
+            });
+
             // slight update to account for browsers not supporting e.which
             function disableF5(e) { if ((e.which || e.keyCode) === 116) e.preventDefault(); }
             // To disable f5 jQuery >= 1.7

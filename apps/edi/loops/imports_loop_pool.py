@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2022-04-09
 modified by: Paulo ALVES
 """
+
 from typing import AnyStr
 import os
 import platform
@@ -376,11 +377,14 @@ def have_files():
     return False
 
 
-def celery_import_launch(user_pk: int):
+def celery_import_launch(user_pk: int, job_id: str):
     """Main pour lancement de l'import avec Celery"""
+
+    from apps.core.models import SSEProgress
 
     active_action = None
     action = True
+    progress = None
 
     try:
         tasks_list = []
@@ -390,7 +394,6 @@ def celery_import_launch(user_pk: int):
             if not active_action.in_progress:
                 action = False
 
-        print("ACTION")
         # On initialise l'action comme en cours
         active_action.in_progress = True
         active_action.save()
@@ -399,29 +402,54 @@ def celery_import_launch(user_pk: int):
         # On boucle sur les fichiers à insérer
         proc_files_l = get_files_celery()
 
+        # Récupérer le SSEProgress créé dans la vue
+        progress = SSEProgress.objects.get(job_id=job_id)
+
         for row_args in proc_files_l:
             tasks_list.append(
                 celery_app.signature(
-                    "suppliers_import", kwargs={"process_objects": row_args, "user_pk": user_pk}
+                    "suppliers_import",
+                    kwargs={
+                        "process_objects": row_args,
+                        "user_pk": user_pk,
+                        "job_id": job_id,
+                    },
                 )
             )
-        # print(tasks_list)
+
         result = group(*tasks_list)().get(3600)
-        print("result : ", result)
         LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
         result_clean = group(
-            *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
+            *[
+                celery_app.signature(
+                    "sql_clean_general",
+                    kwargs={"start_all": start_all, "job_id": job_id},
+                )
+            ]
         )().get(3600)
+        LOGGER_EDI.warning(
+            f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
+        )
 
-        print("result_clean : ", result_clean)
-        LOGGER_EDI.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
+        # Marquer comme terminé
+        if progress:
+            # Rafraîchir depuis la DB pour avoir les dernières valeurs
+            progress.refresh_from_db()
+            progress.mark_as_completed()
 
     except Exception as error:
-        print("Error : ", error)
         LOGGER_EDI.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.celery_import_launch()"
         )
+        # Marquer comme échoué en cas d'erreur
+        try:
+            if not progress:
+                # Essayer de récupérer le SSEProgress si pas encore fait
+                progress = SSEProgress.objects.get(job_id=job_id)
+            progress.mark_as_failed(str(error))
+        except Exception as e:
+            LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
 
     finally:
         # On remet l'action en cours à False, après l'execution
@@ -429,17 +457,23 @@ def celery_import_launch(user_pk: int):
         active_action.save()
 
 
-def import_launch_bbgr(function_name: str, user_pk: int):
+def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
     """Main pour lancement de l'import"""
+
+    from apps.core.models import SSEProgress
 
     active_action = None
     action = True
+    progress = None
 
     try:
         while action:
             active_action = get_action(action="import_edi_invoices")
             if not active_action.in_progress:
                 action = False
+
+        # Récupérer le SSEProgress créé dans la vue
+        progress = SSEProgress.objects.get(job_id=job_id)
 
         start_all = time.time()
 
@@ -449,25 +483,47 @@ def import_launch_bbgr(function_name: str, user_pk: int):
         result = group(
             *[
                 celery_app.signature(
-                    "bbgr_bi", kwargs={"function_name": function_name, "user_pk": user_pk}
+                    "bbgr_bi",
+                    kwargs={
+                        "function_name": function_name,
+                        "user_pk": user_pk,
+                        "job_id": job_id,
+                    },
                 )
             ]
         )().get(3600)
-        print("result : ", result)
         LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
         result_clean = group(
-            *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
+            *[
+                celery_app.signature(
+                    "sql_clean_general",
+                    kwargs={"start_all": start_all, "job_id": job_id},
+                )
+            ]
         )().get(3600)
+        LOGGER_EDI.warning(
+            f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
+        )
 
-        print("result_clean : ", result_clean)
-        LOGGER_EDI.warning(f"result_clean : {result_clean!r},\nin {time.time() - start_all} s")
+        # Marquer comme terminé
+        if progress:
+            # Rafraîchir depuis la DB pour avoir les dernières valeurs
+            progress.refresh_from_db()
+            progress.mark_as_completed()
 
     except Exception as error:
-        print("Error : ", error)
         LOGGER_EDI.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_bbgr()"
         )
+        # Marquer comme échoué
+        try:
+            if not progress:
+                # Essayer de récupérer le SSEProgress si pas encore fait
+                progress = SSEProgress.objects.get(job_id=job_id)
+            progress.mark_as_failed(str(error))
+        except Exception as e:
+            LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
 
     finally:
         # On remet l'action en cours à False, après l'execution
@@ -475,7 +531,9 @@ def import_launch_bbgr(function_name: str, user_pk: int):
         active_action.save()
 
 
-def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: User):
+def import_launch_subscriptions(
+    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: User
+):
     """Main pour lancement de l'import des abonnements"""
 
     active_action = None
@@ -508,12 +566,9 @@ def import_launch_subscriptions(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: An
                 )
             ]
         )().get(3600)
-
-        print("result : ", result)
         LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
     except Exception as error:
-        print("Error : ", error)
         LOGGER_EDI.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_bbgr()"
         )

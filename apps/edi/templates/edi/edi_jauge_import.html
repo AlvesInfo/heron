@@ -1,0 +1,99 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+
+            {% include "edi/edi_jauge_import_entete.html" %}
+            {% if not not_finalize %}
+                {% include "edi/edi_jauge_import_table.html" %}
+            {% endif %}
+
+        <div class="ui equal width grid center"></div>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script src="{% static 'progress_polling.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            {% include "heron/base_data_table.html" %}
+            $(`.datatable-chargement`).hide();
+
+            // Gestion du bouton de test
+            $('#btnLancerTest').on('click', async function() {
+                const btn = $(this);
+                btn.addClass('loading disabled');
+
+                try {
+                    // Envoyer une requête POST pour lancer la tâche Celery
+                    const response = await fetch(window.location.href, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Cacher le bouton
+                        btn.parent().hide();
+
+                        // Afficher la jauge de progression avec polling AJAX
+                        new ProgressPolling('jauge', data.job_id, {
+                            title: 'Test de progression AJAX',
+                            icon: '📊',
+                            showDetails: true,
+                            showStats: true,
+                            pollInterval: 500, // Polling toutes les 500ms
+                            debug: true,
+                            onComplete: (result) => {
+                                console.log('✅ Test terminé!', result);
+                                setTimeout(() => {
+                                    btn.parent().show();
+                                    btn.removeClass('loading disabled');
+                                }, 2000);
+                            },
+                            onError: (error) => {
+                                console.error('❌ Erreur:', error);
+                                btn.removeClass('loading disabled');
+                                btn.parent().show();
+                            }
+                        });
+                    } else {
+                        alert('Erreur lors du lancement du test');
+                        btn.removeClass('loading disabled');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur de communication avec le serveur');
+                    btn.removeClass('loading disabled');
+                }
+            });
+        });
+    </script>
+
+{% endblock script %}

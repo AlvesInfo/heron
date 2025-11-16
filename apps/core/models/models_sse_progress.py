@@ -79,6 +79,22 @@ class SSEProgress(models.Model):
         verbose_name="Message d'erreur",
     )
 
+    custom_title = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Titre personnalisé",
+        help_text="Titre personnalisé affiché dans la jauge de progression",
+    )
+
+    completion_message = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Message de fin personnalisé",
+        help_text="Message personnalisé affiché à la fin du traitement",
+    )
+
     metadata = models.JSONField(
         blank=True,
         null=True,
@@ -184,13 +200,40 @@ class SSEProgress(models.Model):
             self.error_message = error_message
         self.save()
 
-    def update_progress(self, processed=0, failed=0, message=None):
-        """Met à jour la progression"""
+    def update_progress(self, processed=0, failed=0, message=None, item_name=None):
+        """Met à jour la progression
+
+        :param processed: Nombre d'items traités à ajouter
+        :param failed: Nombre d'items en erreur à ajouter
+        :param message: Message de progression
+        :param item_name: Nom de l'item (fichier) pour l'ajouter aux listes
+        """
         self.processed_items += processed
         self.failed_items += failed
 
         if message:
             self.current_message = message
+
+        # Ajouter l'item aux listes de succès ou d'erreur
+        if item_name:
+            # Copier metadata pour forcer Django à détecter le changement
+            metadata = self.metadata or {"success": [], "failed": []}
+
+            if failed > 0:
+                # Ajouter aux fichiers en erreur avec le message
+                if "failed" not in metadata:
+                    metadata["failed"] = []
+                metadata["failed"].append(
+                    {"name": item_name, "error": message or "Erreur inconnue"}
+                )
+            else:
+                # Ajouter aux fichiers réussis
+                if "success" not in metadata:
+                    metadata["success"] = []
+                metadata["success"].append(item_name)
+
+            # Réassigner pour que Django détecte le changement
+            self.metadata = metadata
 
         self.save()
 
@@ -209,10 +252,14 @@ class SSEProgress(models.Model):
             "success_rate": self.success_rate,
             "current_message": self.current_message,
             "error_message": self.error_message,
+            "custom_title": self.custom_title,
+            "completion_message": self.completion_message,
             "metadata": self.metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
             "duration": self.duration,
             "estimated_remaining_time": self.estimated_remaining_time,
             "items_per_second": self.items_per_second,

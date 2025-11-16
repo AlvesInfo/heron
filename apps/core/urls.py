@@ -1,5 +1,4 @@
-from django.urls import path, include
-import django_eventstream
+from django.urls import path
 
 
 from apps.core.views import (
@@ -9,7 +8,7 @@ from apps.core.views import (
     api_models_query,
     # API POUR LES DROPDOWN SEMANTIC
     api_models_query_third_party_num,
-    # API POUR LES JAUGES SSE
+    # API POUR LES JAUGES AJAX POLLING
     get_user_jobs,
     get_active_jobs,
     get_job_progress,
@@ -37,11 +36,7 @@ urlpatterns = [
             name="api_models_query_third_party_num",
         ),
     ],
-    # ENDPOINT SSE (Server-Sent Events)
-    path("events/", include(django_eventstream.urls), {
-        'format-channels': ['progress-{channel}']
-    }),
-    # API POUR LES JAUGES SSE
+    # API POUR LES JAUGES AJAX POLLING
     path("sse-progress/", get_user_jobs, name="list_jobs"),
     path("sse-progress/active/", get_active_jobs, name="active_jobs"),
     path("sse-progress/<str:job_id>/", get_job_progress, name="job_detail"),

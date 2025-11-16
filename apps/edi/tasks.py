@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-02-23
 modified by: Paulo ALVES
 """
+
 import shutil
 from pathlib import Path
 from typing import AnyStr
@@ -18,9 +19,11 @@ import time
 from uuid import UUID
 
 from celery import shared_task
+from django.db import transaction
 
 from heron.loggers import LOGGER_EDI
 from apps.core.bin.clean_celery import clean_memory
+from apps.core.models import SSEProgress
 from apps.edi.imports.imports_suppliers_invoices_pool import (
     bbgr_bulk,
     bbgr_statment,
@@ -95,11 +98,12 @@ bbgr_dict = {
 
 @shared_task(name="suppliers_import")
 @clean_memory
-def launch_suppliers_import(process_objects, user_pk):
+def launch_suppliers_import(process_objects, user_pk, job_id=None):
     """
     Intégration des factures fournisseurs présentes
     dans les répertoires de processing/suppliers_invoices_files
     """
+    LOGGER_EDI.warning(f"TASK STARTED: job_id={job_id}, user_pk={user_pk}")
 
     start_initial = time.time()
 
@@ -125,10 +129,14 @@ def launch_suppliers_import(process_objects, user_pk):
         LOGGER_EDI.exception(f"Exception Générale: {file.name}\n{except_error!r}")
 
     finally:
+        # Vérifier trace.errors car la fonction ne propage pas les exceptions
+        has_error = error or (trace and trace.errors)
+
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -139,6 +147,35 @@ def launch_suppliers_import(process_objects, user_pk):
             shutil.move(file.resolve(), backup_file.resolve())
         elif file.is_file():
             file.unlink()
+
+        # Update progress if job_id is provided
+        if job_id:
+            try:
+                with transaction.atomic():
+                    progress = SSEProgress.objects.select_for_update().get(
+                        job_id=job_id
+                    )
+
+                    if has_error:
+                        progress.update_progress(
+                            processed=1,
+                            failed=1,
+                            message=f"Erreur sur {file.name}",
+                            item_name=file.name,
+                        )
+                    else:
+                        progress.update_progress(
+                            processed=1,
+                            message=f"{file.name} traité avec succès",
+                            item_name=file.name,
+                        )
+
+            except SSEProgress.DoesNotExist:
+                LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
+            except Exception as progress_error:
+                LOGGER_EDI.exception(
+                    f"Erreur mise à jour progression: {progress_error}"
+                )
 
     LOGGER_EDI.warning(
         to_print
@@ -152,7 +189,7 @@ def launch_suppliers_import(process_objects, user_pk):
 
 @shared_task(name="bbgr_bi")
 @clean_memory
-def launch_bbgr_bi_import(function_name, user_pk):
+def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
     """
     Intégration des factures bbgr issues de la BI
     dans le répertoire de processing/suppliers_invoices_files
@@ -183,12 +220,42 @@ def launch_bbgr_bi_import(function_name, user_pk):
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
             trace.invoices = True
             trace.save()
+
+        # Update progress if job_id is provided
+        if job_id:
+            try:
+                with transaction.atomic():
+                    progress = SSEProgress.objects.select_for_update().get(
+                        job_id=job_id
+                    )
+
+                    if error:
+                        progress.update_progress(
+                            processed=1,
+                            failed=1,
+                            message=f"Erreur sur {function_name}",
+                            item_name=function_name,
+                        )
+                    else:
+                        progress.update_progress(
+                            processed=1,
+                            message=f"{function_name} traité avec succès",
+                            item_name=function_name,
+                        )
+
+            except SSEProgress.DoesNotExist:
+                LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
+            except Exception as progress_error:
+                LOGGER_EDI.exception(
+                    f"Erreur mise à jour progression: {progress_error}"
+                )
 
         # TODO : faire une fonction d'envoie de mails
 
@@ -204,11 +271,28 @@ def launch_bbgr_bi_import(function_name, user_pk):
 
 @shared_task(name="sql_clean_general")
 @clean_memory
-def launch_sql_clean_general(start_all):
+def launch_sql_clean_general(start_all, job_id=None):
     """Realise les requêtes sql générale, pour le néttoyages des imports"""
     start_initial = time.time()
 
     try:
+        # Update progress if job_id is provided
+        if job_id:
+            try:
+                with transaction.atomic():
+                    progress = SSEProgress.objects.select_for_update().get(
+                        job_id=job_id
+                    )
+                    progress.update_progress(
+                        processed=0, message="Validation et mises à jour"
+                    )
+            except SSEProgress.DoesNotExist:
+                LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
+            except Exception as progress_error:
+                LOGGER_EDI.exception(
+                    f"Erreur mise à jour progression: {progress_error}"
+                )
+
         post_processing_all()
         LOGGER_EDI.warning("post_processing_all terminé")
 
@@ -236,7 +320,9 @@ def launch_sql_clean_general(start_all):
 
 @shared_task(name="subscription_launch_task")
 @clean_memory
-def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID):
+def subscription_launch_task(
+    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID
+):
     """Génération des Royalties, Publicités et Prestations sous task Celery
     :param task_to_launch: Tâche à lancer
     :param dte_d: Date de début de période au format texte isoformat
@@ -294,3 +380,47 @@ def subscription_launch_task(task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnySt
             )
         )
     }
+
+
+@shared_task(name="test_import_jauge")
+def task_test_import_jauge(job_id, user_id):
+    """
+    Tâche de test pour la jauge avec polling AJAX
+    Simule un long traitement avec mise à jour en base de données
+    """
+    LOGGER_EDI.info(f"Démarrage de la tâche test_import_jauge - job_id: {job_id}")
+
+    try:
+        # Créer l'enregistrement SSEProgress
+        progress = SSEProgress.objects.create(
+            job_id=job_id, user_id=user_id, task_type="test_import", total_items=100
+        )
+
+        # Marquer comme démarré
+        progress.mark_as_started()
+        LOGGER_EDI.info(f"Progression démarrée - job_id: {job_id}")
+
+        # Traiter 100 items avec un délai pour simuler le travail
+        for idx in range(1, 101):
+            # Simuler un traitement
+            time.sleep(0.1)  # 100ms par item = 10 secondes au total
+
+            # Mettre à jour la progression en base
+            progress.update_progress(processed=1)
+
+            if idx % 10 == 0:
+                LOGGER_EDI.debug(f"Progression: {idx}/100 - job_id: {job_id}")
+
+        # Marquer comme terminé
+        progress.mark_as_completed()
+        LOGGER_EDI.info(f"Tâche test_import_jauge terminée - job_id: {job_id}")
+
+        return {"status": "success", "job_id": job_id}
+
+    except Exception as error:
+        LOGGER_EDI.exception(f"Erreur dans test_import_jauge: {error}")
+        try:
+            progress.mark_as_failed(str(error))
+        except:
+            pass
+        raise
