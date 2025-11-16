@@ -7,8 +7,8 @@ from pathlib import Path
 
 from decouple import Csv, AutoConfig
 from django.utils.translation import gettext_lazy as _
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.pool import NullPool
+
+from heron.utils.directories import ensure_directory, lazy_mkdir
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -85,7 +85,7 @@ LOG_DIR = (
     if config("LOG_BASE_PATH", default=None) is not None
     else Path(f"/var/log/{BASE_DIR.name}").resolve()
 )
-Path.mkdir(LOG_DIR, exist_ok=True)
+# Le répertoire sera créé à la première utilisation via ensure_directory(LOG_DIR)
 
 # Application definition
 DJANGO_APPS = [
@@ -305,21 +305,14 @@ REST_FRAMEWORK = {
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
-
-Path.mkdir(BASE_DIR / "files/static/css", exist_ok=True)
-Path.mkdir(BASE_DIR / "files/static/js", exist_ok=True)
-Path.mkdir(BASE_DIR / "files/static/img", exist_ok=True)
-Path.mkdir(BASE_DIR / "files/static/images", exist_ok=True)
-Path.mkdir(BASE_DIR / "files/static/fonts", exist_ok=True)
-Path.mkdir(BASE_DIR / "files/static/vendor", exist_ok=True)
-
+# Les répertoires seront créés à la demande
 STATICFILES_DIRS = [
-    (Path(BASE_DIR) / "files/static/css").resolve(),
-    (Path(BASE_DIR) / "files/static/js").resolve(),
-    (Path(BASE_DIR) / "files/static/img").resolve(),
-    (Path(BASE_DIR) / "files/static/images").resolve(),
-    (Path(BASE_DIR) / "files/static/fonts").resolve(),
-    (Path(BASE_DIR) / "files/static/vendor").resolve(),
+    lazy_mkdir("files/static/css"),
+    lazy_mkdir("files/static/js"),
+    lazy_mkdir("files/static/img"),
+    lazy_mkdir("files/static/images"),
+    lazy_mkdir("files/static/fonts"),
+    lazy_mkdir("files/static/vendor"),
 ]
 
 MEDIA_URL = "/media/"
@@ -345,30 +338,6 @@ DYNAMIC_PREFERENCES = {
     "CACHE_NAME": "default",
     "VALIDATE_NAMES": True,
 }
-
-engine = create_engine(
-    f"postgresql+psycopg2://"
-    f"{USER_DATABASE}:{USER_DATABASE}"
-    f"@"
-    f"{HOST_DATABASE}:{PORT_DATABASE}"
-    f"/"
-    f"{NAME_DATABASE}",
-    future=True,
-    poolclass=NullPool,
-)
-
-meta_data_heron = MetaData()
-
-with engine.connect() as connection:
-    meta_data_heron.reflect(connection)
-
-TraceError = meta_data_heron.tables["data_flux_error"]
-TraceLine = meta_data_heron.tables["data_flux_line"]
-Trace = meta_data_heron.tables["data_flux_trace"]
-EdiImport = meta_data_heron.tables["edi_ediimport"]
-EdiSupplier = meta_data_heron.tables["edi_supplierdefinition"]
-EdiColumns = meta_data_heron.tables["edi_columndefinition"]
-
 
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TIMEZONE = TIME_ZONE

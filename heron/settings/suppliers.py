@@ -12,259 +12,192 @@ modified at: 2022-04-09
 modified by: Paulo ALVES
 """
 from pathlib import Path
+from heron.utils.directories import lazy_mkdir
 
 # ==================================================================================================
 # REPERTOIRES DES FICHIERS A IMPORTER
 # ==================================================================================================
 
 # REPERTOIRE PROCESSING POUR IMPORT FICHIERS FROUNISSEURS
-PROCESS_DIR = (
-        Path(__file__).parent.parent.parent / "files/processing/suppliers_invoices_files"
-).resolve()
-Path.mkdir(PROCESS_DIR, exist_ok=True)
+PROCESS_DIR = lazy_mkdir("files/processing/suppliers_invoices_files")
 
 # REPERTOIRE IMPORT FICHIERS BBGR_BULK
-BBGR_BULK = (Path(PROCESS_DIR) / "BBGR_BULK").resolve()
-Path.mkdir(BBGR_BULK, exist_ok=True)
+BBGR_BULK = lazy_mkdir("files/processing/suppliers_invoices_files/BBGR_BULK")
 
 # REPERTOIRE IMPORT FICHIERS COSIUM
-COSIUM = (Path(PROCESS_DIR) / "COSIUM").resolve()
-Path.mkdir(COSIUM, exist_ok=True)
+COSIUM = lazy_mkdir("files/processing/suppliers_invoices_files/COSIUM")
 
 # REPERTOIRE IMPORT FICHIERS COSIUM ACHATS SEULS
-COSIUM_ACHATS = (Path(PROCESS_DIR) / "COSIUM_ACHATS").resolve()
-Path.mkdir(COSIUM_ACHATS, exist_ok=True)
+COSIUM_ACHATS = lazy_mkdir("files/processing/suppliers_invoices_files/COSIUM_ACHATS")
 
 # REPERTOIRE IMPORT FICHIERS BBGR_MONTHLY
-BBGR_MONTHLY = (Path(PROCESS_DIR) / "BBGR_MONTHLY").resolve()
-Path.mkdir(BBGR_MONTHLY, exist_ok=True)
+BBGR_MONTHLY = lazy_mkdir("files/processing/suppliers_invoices_files/BBGR_MONTHLY")
 
 # REPERTOIRE IMPORT FICHIERS BBGR_RETOURS
-BBGR_RETOURS = (Path(PROCESS_DIR) / "BBGR_RETOURS").resolve()
-Path.mkdir(BBGR_RETOURS, exist_ok=True)
+BBGR_RETOURS = lazy_mkdir("files/processing/suppliers_invoices_files/BBGR_RETOURS")
 
 # REPERTOIRE IMPORT FICHIERS BBGR_STATMENT
-BBGR_STATMENT = (Path(PROCESS_DIR) / "BBGR_STATMENT").resolve()
-Path.mkdir(BBGR_STATMENT, exist_ok=True)
+BBGR_STATMENT = lazy_mkdir("files/processing/suppliers_invoices_files/BBGR_STATMENT")
 
 # REPERTOIRE IMPORT FICHIERS EDI
-EDI = (Path(PROCESS_DIR) / "EDI").resolve()
-Path.mkdir(EDI, exist_ok=True)
+EDI = lazy_mkdir("files/processing/suppliers_invoices_files/EDI")
 
 # REPERTOIRE IMPORT FICHIERS EYE_CONFORT
-EYE_CONFORT = (Path(PROCESS_DIR) / "EYE_CONFORT").resolve()
-Path.mkdir(EYE_CONFORT, exist_ok=True)
+EYE_CONFORT = lazy_mkdir("files/processing/suppliers_invoices_files/EYE_CONFORT")
 
 # REPERTOIRE IMPORT FICHIERS GENERIQUE
-GENERIQUE = (Path(PROCESS_DIR) / "GENERIQUE").resolve()
-Path.mkdir(GENERIQUE, exist_ok=True)
+GENERIQUE = lazy_mkdir("files/processing/suppliers_invoices_files/GENERIQUE")
 
 # REPERTOIRE IMPORT FICHIERS GENERIQUE INTERNAL (Factures internes)
-GENERIQUE_INTERNAL = (Path(PROCESS_DIR) / "GENERIQUE_INTERNAL").resolve()
-Path.mkdir(GENERIQUE_INTERNAL, exist_ok=True)
+GENERIQUE_INTERNAL = lazy_mkdir("files/processing/suppliers_invoices_files/GENERIQUE_INTERNAL")
 
 # REPERTOIRE IMPORT FICHIERS HANSATON
-HANSATON = (Path(PROCESS_DIR) / "HANSATON").resolve()
-Path.mkdir(HANSATON, exist_ok=True)
+HANSATON = lazy_mkdir("files/processing/suppliers_invoices_files/HANSATON")
 
 # REPERTOIRE IMPORT FICHIERS HEARING
-HEARING = (Path(PROCESS_DIR) / "HEARING").resolve()
-Path.mkdir(HEARING, exist_ok=True)
+HEARING = lazy_mkdir("files/processing/suppliers_invoices_files/HEARING")
 
 # REPERTOIRE IMPORT FICHIERS INTERSON
-INTERSON = (Path(PROCESS_DIR) / "INTERSON").resolve()
-Path.mkdir(INTERSON, exist_ok=True)
+INTERSON = lazy_mkdir("files/processing/suppliers_invoices_files/INTERSON")
 
 # REPERTOIRE IMPORT FICHIERS JOHNSON
-JOHNSON = (Path(PROCESS_DIR) / "JOHNSON").resolve()
-Path.mkdir(JOHNSON, exist_ok=True)
+JOHNSON = lazy_mkdir("files/processing/suppliers_invoices_files/JOHNSON")
 
 # REPERTOIRE IMPORT FICHIERS LMC
-LMC = (Path(PROCESS_DIR) / "LMC").resolve()
-Path.mkdir(LMC, exist_ok=True)
+LMC = lazy_mkdir("files/processing/suppliers_invoices_files/LMC")
 
 # REPERTOIRE IMPORT FICHIERS NEWSON
-NEWSON = (Path(PROCESS_DIR) / "NEWSON").resolve()
-Path.mkdir(NEWSON, exist_ok=True)
+NEWSON = lazy_mkdir("files/processing/suppliers_invoices_files/NEWSON")
 
 # REPERTOIRE IMPORT FICHIERS PHONAK
-PHONAK = (Path(PROCESS_DIR) / "PHONAK").resolve()
-Path.mkdir(PHONAK, exist_ok=True)
+PHONAK = lazy_mkdir("files/processing/suppliers_invoices_files/PHONAK")
 
 # REPERTOIRE POST PROCESSING FICHIERS EDI
-POST_PROCESSING = (Path(PROCESS_DIR) / "POST_PROCESSING").resolve()
-Path.mkdir(POST_PROCESSING, exist_ok=True)
+POST_PROCESSING = lazy_mkdir("files/processing/suppliers_invoices_files/POST_PROCESSING")
 
 # REPERTOIRE PRE PROCESSING FICHIERS EDI
-PRE_PROCESSING = (Path(PROCESS_DIR) / "PRE_PROCESSING").resolve()
-Path.mkdir(PRE_PROCESSING, exist_ok=True)
+PRE_PROCESSING = lazy_mkdir("files/processing/suppliers_invoices_files/PRE_PROCESSING")
 
 # REPERTOIRE IMPORT FICHIERS PRODITION
-PRODITION = (Path(PROCESS_DIR) / "PRODITION").resolve()
-Path.mkdir(PRODITION, exist_ok=True)
+PRODITION = lazy_mkdir("files/processing/suppliers_invoices_files/PRODITION")
 
 # REPERTOIRE IMPORT FICHIERS SIGNIA
-SIGNIA = (Path(PROCESS_DIR) / "SIGNIA").resolve()
-Path.mkdir(SIGNIA, exist_ok=True)
+SIGNIA = lazy_mkdir("files/processing/suppliers_invoices_files/SIGNIA")
 
 # REPERTOIRE IMPORT FICHIERS STARKEY
-STARKEY = (Path(PROCESS_DIR) / "STARKEY").resolve()
-Path.mkdir(STARKEY, exist_ok=True)
+STARKEY = lazy_mkdir("files/processing/suppliers_invoices_files/STARKEY")
 
 # REPERTOIRE IMPORT FICHIERS TECHNIDIS
-TECHNIDIS = (Path(PROCESS_DIR) / "TECHNIDIS").resolve()
-Path.mkdir(TECHNIDIS, exist_ok=True)
+TECHNIDIS = lazy_mkdir("files/processing/suppliers_invoices_files/TECHNIDIS")
 
 # REPERTOIRE IMPORT FICHIERS TRANSFERTS
-TRANSFERTS = (Path(PROCESS_DIR) / "TRANSFERTS").resolve()
-Path.mkdir(TRANSFERTS, exist_ok=True)
+TRANSFERTS = lazy_mkdir("files/processing/suppliers_invoices_files/TRANSFERTS")
 
 # REPERTOIRE IMPORT FICHIERS UNITRON
-UNITRON = (Path(PROCESS_DIR) / "UNITRON").resolve()
-Path.mkdir(UNITRON, exist_ok=True)
+UNITRON = lazy_mkdir("files/processing/suppliers_invoices_files/UNITRON")
 
 # REPERTOIRE IMPORT FICHIERS WIDEX
-WIDEX = (Path(PROCESS_DIR) / "WIDEX").resolve()
-Path.mkdir(WIDEX, exist_ok=True)
+WIDEX = lazy_mkdir("files/processing/suppliers_invoices_files/WIDEX")
 
 # REPERTOIRE IMPORT FICHIERS WIDEX_GA
-WIDEX_GA = (Path(PROCESS_DIR) / "WIDEX_GA").resolve()
-Path.mkdir(WIDEX_GA, exist_ok=True)
+WIDEX_GA = lazy_mkdir("files/processing/suppliers_invoices_files/WIDEX_GA")
 
 # REPERTOIRE IMPORT FICHIERS REQUETE SQL SAGE SUR AXE BU REFAC_0
-SAGE_YOOZ_REFAC0 = (Path(PROCESS_DIR) / "SAGE_YOOZ_REFAC0").resolve()
-Path.mkdir(SAGE_YOOZ_REFAC0, exist_ok=True)
+SAGE_YOOZ_REFAC0 = lazy_mkdir("files/processing/suppliers_invoices_files/SAGE_YOOZ_REFAC0")
 
 # REPERTOIRE IMPORT FICHIERS AXE PRO / ARTICLES / COMPTES
-IMPORT_ACCOUNTS = (Path(PROCESS_DIR) / "IMPORT_ACCOUNTS").resolve()
-Path.mkdir(IMPORT_ACCOUNTS, exist_ok=True)
+IMPORT_ACCOUNTS = lazy_mkdir("files/processing/suppliers_invoices_files/IMPORT_ACCOUNTS")
 
 # ==================================================================================================
 # BACKUP DE DEPLACEMENT DES FICHIERS IMPORTES
 # ==================================================================================================
 
 # REPERTOIRE DES BACKUP FACTURES FOURNISSEURS
-BACKUP_SUPPLIERS_DIR = (
-        Path(__file__).parent.parent.parent / "files/backup/suppliers_invoices_files"
-).resolve()
-Path.mkdir(BACKUP_SUPPLIERS_DIR, exist_ok=True)
+BACKUP_SUPPLIERS_DIR = lazy_mkdir("files/backup/suppliers_invoices_files")
 
 # REPERTOIRE BACKUP DES IMPORTS DES ARTICLES SANS COMPTES
-BACKUP_WITHOUT_ACCOUNT_DIR = (
-    Path(BACKUP_SUPPLIERS_DIR) / "ARTICLES_SANS_COMPTES"
-).resolve()
-Path.mkdir(BACKUP_WITHOUT_ACCOUNT_DIR, exist_ok=True)
+BACKUP_WITHOUT_ACCOUNT_DIR = lazy_mkdir("files/backup/suppliers_invoices_files/ARTICLES_SANS_COMPTES")
 
 # REPERTOIRE BACKUP DES IMPORTS DES ABONNEMENTS PAR MAISON
-BACKUP_CLIENS_SUBSCRIPTION_DIR = (
-    Path(BACKUP_SUPPLIERS_DIR) / "ABONNEMENTS_PAR_MAISONS"
-).resolve()
-Path.mkdir(BACKUP_CLIENS_SUBSCRIPTION_DIR, exist_ok=True)
+BACKUP_CLIENS_SUBSCRIPTION_DIR = lazy_mkdir("files/backup/suppliers_invoices_files/ABONNEMENTS_PAR_MAISONS")
 
 # REPERTOIRE BACKUP FICHIERS BBGR_BULK
-BACKUP_BBGR_BULK = (Path(BACKUP_SUPPLIERS_DIR) / "BBGR_BULK").resolve()
-Path.mkdir(BACKUP_BBGR_BULK, exist_ok=True)
+BACKUP_BBGR_BULK = lazy_mkdir("files/backup/suppliers_invoices_files/BBGR_BULK")
 
 # REPERTOIRE IMPORT FICHIERS COSIUM
-BACKUP_COSIUM = (Path(BACKUP_SUPPLIERS_DIR) / "COSIUM").resolve()
-Path.mkdir(BACKUP_COSIUM, exist_ok=True)
+BACKUP_COSIUM = lazy_mkdir("files/backup/suppliers_invoices_files/COSIUM")
 
 # REPERTOIRE IMPORT FICHIERS COSIUM ACHATS
-BACKUP_COSIUM_ACHATS = (Path(BACKUP_SUPPLIERS_DIR) / "COSIUM_ACHATS").resolve()
-Path.mkdir(BACKUP_COSIUM_ACHATS, exist_ok=True)
+BACKUP_COSIUM_ACHATS = lazy_mkdir("files/backup/suppliers_invoices_files/COSIUM_ACHATS")
 
 # REPERTOIRE BACKUP FICHIERS BBGR_MONTHLY
-BACKUP_BBGR_MONTHLY = (Path(BACKUP_SUPPLIERS_DIR) / "BBGR_MONTHLY").resolve()
-Path.mkdir(BACKUP_BBGR_MONTHLY, exist_ok=True)
+BACKUP_BBGR_MONTHLY = lazy_mkdir("files/backup/suppliers_invoices_files/BBGR_MONTHLY")
 
 # REPERTOIRE BACKUP FICHIERS BBGR_RETOURS
-BACKUP_BBGR_RETOURS = (Path(BACKUP_SUPPLIERS_DIR) / "BBGR_RETOURS").resolve()
-Path.mkdir(BACKUP_BBGR_RETOURS, exist_ok=True)
+BACKUP_BBGR_RETOURS = lazy_mkdir("files/backup/suppliers_invoices_files/BBGR_RETOURS")
 
 # REPERTOIRE BACKUP FICHIERS BBGR_STATMENT
-BACKUP_BBGR_STATMENT = (Path(BACKUP_SUPPLIERS_DIR) / "BBGR_STATMENT").resolve()
-Path.mkdir(BACKUP_BBGR_STATMENT, exist_ok=True)
+BACKUP_BBGR_STATMENT = lazy_mkdir("files/backup/suppliers_invoices_files/BBGR_STATMENT")
 
 # REPERTOIRE BACKUP FICHIERS EDI
-BACKUP_EDI = (Path(BACKUP_SUPPLIERS_DIR) / "EDI").resolve()
-Path.mkdir(BACKUP_EDI, exist_ok=True)
+BACKUP_EDI = lazy_mkdir("files/backup/suppliers_invoices_files/EDI")
 
 # REPERTOIRE BACKUP FICHIERS EYE_CONFORT
-BACKUP_EYE_CONFORT = (Path(BACKUP_SUPPLIERS_DIR) / "EYE_CONFORT").resolve()
-Path.mkdir(BACKUP_EYE_CONFORT, exist_ok=True)
+BACKUP_EYE_CONFORT = lazy_mkdir("files/backup/suppliers_invoices_files/EYE_CONFORT")
 
 # REPERTOIRE BACKUP FICHIERS GENERIQUE
-BACKUP_GENERIQUE = (Path(BACKUP_SUPPLIERS_DIR) / "GENERIQUE").resolve()
-Path.mkdir(BACKUP_GENERIQUE, exist_ok=True)
+BACKUP_GENERIQUE = lazy_mkdir("files/backup/suppliers_invoices_files/GENERIQUE")
 
 # REPERTOIRE BACKUP FICHIERS  GENERIQUE INTERNAL (Factures internes)
-BACKUP_GENERIQUE_INTERNAL = (Path(BACKUP_SUPPLIERS_DIR) / "GENERIQUE_INTERNAL").resolve()
-Path.mkdir(BACKUP_GENERIQUE_INTERNAL, exist_ok=True)
+BACKUP_GENERIQUE_INTERNAL = lazy_mkdir("files/backup/suppliers_invoices_files/GENERIQUE_INTERNAL")
 
 # REPERTOIRE BACKUP FICHIERS HANSATON
-BACKUP_HANSATON = (Path(BACKUP_SUPPLIERS_DIR) / "HANSATON").resolve()
-Path.mkdir(BACKUP_HANSATON, exist_ok=True)
+BACKUP_HANSATON = lazy_mkdir("files/backup/suppliers_invoices_files/HANSATON")
 
 # REPERTOIRE BACKUP FICHIERS HEARING
-BACKUP_HEARING = (Path(BACKUP_SUPPLIERS_DIR) / "HEARING").resolve()
-Path.mkdir(BACKUP_HEARING, exist_ok=True)
+BACKUP_HEARING = lazy_mkdir("files/backup/suppliers_invoices_files/HEARING")
 
 # REPERTOIRE BACKUP FICHIERS INTERSON
-BACKUP_INTERSON = (Path(BACKUP_SUPPLIERS_DIR) / "INTERSON").resolve()
-Path.mkdir(BACKUP_INTERSON, exist_ok=True)
+BACKUP_INTERSON = lazy_mkdir("files/backup/suppliers_invoices_files/INTERSON")
 
 # REPERTOIRE BACKUP FICHIERS JOHNSON
-BACKUP_JOHNSON = (Path(BACKUP_SUPPLIERS_DIR) / "JOHNSON").resolve()
-Path.mkdir(BACKUP_JOHNSON, exist_ok=True)
+BACKUP_JOHNSON = lazy_mkdir("files/backup/suppliers_invoices_files/JOHNSON")
 
 # REPERTOIRE BACKUP FICHIERS LMC
-BACKUP_LMC = (Path(BACKUP_SUPPLIERS_DIR) / "LMC").resolve()
-Path.mkdir(BACKUP_LMC, exist_ok=True)
+BACKUP_LMC = lazy_mkdir("files/backup/suppliers_invoices_files/LMC")
 
 # REPERTOIRE BACKUP FICHIERS NEWSON
-BACKUP_NEWSON = (Path(BACKUP_SUPPLIERS_DIR) / "NEWSON").resolve()
-Path.mkdir(BACKUP_NEWSON, exist_ok=True)
+BACKUP_NEWSON = lazy_mkdir("files/backup/suppliers_invoices_files/NEWSON")
 
 # REPERTOIRE BACKUP FICHIERS PHONAK
-BACKUP_PHONAK = (Path(BACKUP_SUPPLIERS_DIR) / "PHONAK").resolve()
-Path.mkdir(BACKUP_PHONAK, exist_ok=True)
+BACKUP_PHONAK = lazy_mkdir("files/backup/suppliers_invoices_files/PHONAK")
 
 # REPERTOIRE BACKUP FICHIERS PRODITION
-BACKUP_PRODITION = (Path(BACKUP_SUPPLIERS_DIR) / "PRODITION").resolve()
-Path.mkdir(BACKUP_PRODITION, exist_ok=True)
+BACKUP_PRODITION = lazy_mkdir("files/backup/suppliers_invoices_files/PRODITION")
 
 # REPERTOIRE BACKUP FICHIERS SIGNIA
-BACKUP_SIGNIA = (Path(BACKUP_SUPPLIERS_DIR) / "SIGNIA").resolve()
-Path.mkdir(BACKUP_SIGNIA, exist_ok=True)
+BACKUP_SIGNIA = lazy_mkdir("files/backup/suppliers_invoices_files/SIGNIA")
 
 # REPERTOIRE BACKUP FICHIERS STARKEY
-BACKUP_STARKEY = (Path(BACKUP_SUPPLIERS_DIR) / "STARKEY").resolve()
-Path.mkdir(BACKUP_STARKEY, exist_ok=True)
+BACKUP_STARKEY = lazy_mkdir("files/backup/suppliers_invoices_files/STARKEY")
 
 # REPERTOIRE BACKUP FICHIERS TECHNIDIS
-BACKUP_TECHNIDIS = (Path(BACKUP_SUPPLIERS_DIR) / "TECHNIDIS").resolve()
-Path.mkdir(BACKUP_TECHNIDIS, exist_ok=True)
+BACKUP_TECHNIDIS = lazy_mkdir("files/backup/suppliers_invoices_files/TECHNIDIS")
 
 # REPERTOIRE BACKUP FICHIERS TRANSFERTS
-TRANSFERTS = (Path(BACKUP_SUPPLIERS_DIR) / "TRANSFERTS").resolve()
-Path.mkdir(TRANSFERTS, exist_ok=True)
+BACKUP_TRANSFERTS = lazy_mkdir("files/backup/suppliers_invoices_files/TRANSFERTS")
 
 # REPERTOIRE BACKUP FICHIERS UNITRON
-BACKUP_UNITRON = (Path(BACKUP_SUPPLIERS_DIR) / "UNITRON").resolve()
-Path.mkdir(BACKUP_UNITRON, exist_ok=True)
+BACKUP_UNITRON = lazy_mkdir("files/backup/suppliers_invoices_files/UNITRON")
 
 # REPERTOIRE BACKUP FICHIERS WIDEX
-BACKUP_WIDEX = (Path(BACKUP_SUPPLIERS_DIR) / "WIDEX").resolve()
-Path.mkdir(BACKUP_WIDEX, exist_ok=True)
+BACKUP_WIDEX = lazy_mkdir("files/backup/suppliers_invoices_files/WIDEX")
 
 # REPERTOIRE BACKUP FICHIERS WIDEX_GA
-BACKUP_WIDEX_GA = (Path(BACKUP_SUPPLIERS_DIR) / "WIDEX_GA").resolve()
-Path.mkdir(BACKUP_WIDEX_GA, exist_ok=True)
+BACKUP_WIDEX_GA = lazy_mkdir("files/backup/suppliers_invoices_files/WIDEX_GA")
 
 # REPERTOIRE BACKUP FICHIERS REQUETE SQL SAGE SUR AXE BU REFAC_0
-BACKUP_SAGE_YOOZ_REFAC0 = (Path(BACKUP_SUPPLIERS_DIR) / "SAGE_YOOZ_REFAC0").resolve()
-Path.mkdir(BACKUP_SAGE_YOOZ_REFAC0, exist_ok=True)
+BACKUP_SAGE_YOOZ_REFAC0 = lazy_mkdir("files/backup/suppliers_invoices_files/SAGE_YOOZ_REFAC0")
 
 # REPERTOIRE BACKUP FICHIERS AXE PRO / ARTICLES / COMPTES
-BACKUP_IMPORT_ACCOUNTS = (Path(BACKUP_SUPPLIERS_DIR) / "IMPORT_ACCOUNTS").resolve()
-Path.mkdir(BACKUP_IMPORT_ACCOUNTS, exist_ok=True)
+BACKUP_IMPORT_ACCOUNTS = lazy_mkdir("files/backup/suppliers_invoices_files/IMPORT_ACCOUNTS")
