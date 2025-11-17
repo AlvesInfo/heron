@@ -329,13 +329,14 @@ def launch_sql_clean_general(start_all, job_id=None):
 @shared_task(name="subscription_launch_task")
 @clean_memory
 def subscription_launch_task(
-    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID
+    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID, job_id: str = None
 ):
     """Génération des Royalties, Publicités et Prestations sous task Celery
     :param task_to_launch: Tâche à lancer
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user: Utilisateur lançant la génération
+    :param job_id: ID du job pour le suivi SSEProgress
     :return:
     """
     start_initial = time.time()
@@ -370,6 +371,31 @@ def subscription_launch_task(
         if trace is not None:
             trace.invoices = True
             trace.save()
+
+        # Update progress if job_id is provided
+        if job_id:
+            try:
+                with transaction.atomic():
+                    from apps.core.models import SSEProgress
+                    progress = SSEProgress.objects.select_for_update().get(
+                        job_id=job_id
+                    )
+
+                    if error:
+                        progress.update_progress(
+                            processed=1,
+                            failed=1,
+                            message=f"Erreur sur {task_to_launch}",
+                            item_name=task_to_launch,
+                        )
+                    else:
+                        progress.update_progress(
+                            processed=1,
+                            message=f"{task_to_launch} traité avec succès",
+                            item_name=task_to_launch,
+                        )
+            except Exception as e:
+                LOGGER_EDI.error(f"Erreur lors de la mise à jour du SSEProgress: {e}")
 
     LOGGER_EDI.warning(
         to_print

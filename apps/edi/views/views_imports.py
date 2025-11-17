@@ -85,7 +85,7 @@ def import_edi_invoices(request):
         if bool_files:
             user_pk = request.user.id
             job_id = str(uuid.uuid4())  # Générer un job_id unique
-
+            print(request.POST)
             # Créer le SSEProgress AVANT de lancer les tâches
             if "bbgr_statment" in request.POST:
                 # Pour les statment bbgr 1 pour import et 2 pour validation

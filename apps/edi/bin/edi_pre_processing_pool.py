@@ -237,7 +237,7 @@ def johnson_file(file: Path):
     :param file: fichier
     :return: Path(file)
     """
-    new_csv_file = file.parents[0] / f"{file.name}.csv"
+    new_csv_file = file.parents[0] / f"{file.stem}.csv"
     csv_io = io.StringIO()
     excel_file_to_csv_string_io(file, csv_io)
 
@@ -358,3 +358,4 @@ if __name__ == "__main__":
     #         r"\SAGE_YOOZ_REFAC0\F1677059198463_ZBUREFAC - Copie.csv"
     #     )
     # )
+    johnson_file(Path("/Users/paulo/Downloads/6196377-ACUITIS (1).XLS"))

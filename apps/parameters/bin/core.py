@@ -181,19 +181,18 @@ def get_action(action: AnyStr = "import_edi_invoices"):
     # Si l'action n'existe pas on la créée
     try:
         action = ActionInProgress.objects.get(action=action)
-        print("GET ACTION")
+
     except ActionInProgress.DoesNotExist:
         action = ActionInProgress(
             action=action,
             comment=action_dict.get(action, action),
         )
         action.save()
-        print("EXCEPT")
 
     return action
 
 
-def get_in_progress():
+def get_in_progress(task_name="suppliers_import"):
     """Renvoi si un process d'intégration edi est en cours"""
     try:
         in_action_object = ActionInProgress.objects.get(action="import_edi_invoices")
@@ -203,7 +202,7 @@ def get_in_progress():
         if in_action:
             one_hour_ago = timezone.localtime(timezone.now()) - timedelta(hours=1)
             celery_tasks = TaskResult.objects.filter(
-                task_name="suppliers_import",
+                task_name=task_name,
                 status="STARTED",
                 date_created__gte=one_hour_ago,
             )

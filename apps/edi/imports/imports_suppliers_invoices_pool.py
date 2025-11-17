@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-01-01
 modified by: Paulo ALVES
 """
+
 from pathlib import Path
 
 from django.utils import timezone
@@ -558,12 +559,29 @@ def johnson(file_path: Path):
         },
         "exclude_rows_dict": {1: "Total"},
     }
-    new_file = johnson_file(file_path)
-    to_print = make_insert_edi_files(
-        model, flow_name, new_file, trace, validator, params_dict_loader
-    )
-    johnson_post_insert(trace.uuid_identification)
-    new_file.unlink()
+    new_file = file_path
+    to_print = "erreur"
+    try:
+        new_file = johnson_file(file_path)
+        to_print = make_insert_edi_files(
+            model, flow_name, new_file, trace, validator, params_dict_loader
+        )
+        johnson_post_insert(trace.uuid_identification)
+    except OSError as error:
+        trace.errors = True
+        trace.comment = (
+            "Une erreur de traduction du fichier excel c'est produite, "
+            "veuillez consulter les logs"
+        )
+        trace.save()
+        LOGGER_EDI.exception(f"johnson_file : {error!r}")
+    except Exception as error:
+        trace.errors = True
+        trace.comment = "Une erreur c'est produite veuillez consulter les logs"
+        trace.save()
+        LOGGER_EDI.exception(f"johnson_file : {error!r}")
+    finally:
+        new_file.unlink()
 
     return trace, to_print
 

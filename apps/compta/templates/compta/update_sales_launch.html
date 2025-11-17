@@ -39,6 +39,8 @@
 
 {% block script %}
 
+    <script src="{% static 'progress_polling.js' %}"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
 
@@ -53,11 +55,74 @@
             });
             $(`.datatable-chargement`).hide();
 
-            let form = document.getElementById('id_form_post');
+            // Gestionnaire pour la soumission du formulaire
+            $(`#id_form_post`).on('submit', function (e) {
+                e.preventDefault();
 
-            form.addEventListener("submit", (event) => {
-                $(`#chargement`).text("Génération en cours ...")
-                $(`.datatable-chargement`).show()
+                // Masquer le formulaire et changer le titre
+                $(`#royalties_launch_container`).hide();
+                $(`#id_royalties_launch`).hide();
+                $(`#id_titre_table`).text("LANCEMENT PATIENTEZ ...").css("color", "teal");
+
+                // Récupérer les données du formulaire
+                const formData = new FormData(this);
+
+                // Envoyer la requête AJAX
+                $.ajax({
+                    url: "{% url submit_url %}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $(`#id_titre_table`).text("GENERATION EN COURS ...").css("color", "teal");
+
+                            // Afficher le conteneur de progression
+                            $(`#progress-container`).show();
+
+                            // Initialiser la jauge de progression
+                            new ProgressPolling('progress-container', response.job_id, {
+                                title: '{{ progress_title|escapejs }}',
+                                icon: '{{ progress_icon|escapejs }}',
+                                showDetails: true,
+                                showStats: true,
+                                pollInterval: 1000,
+                                debug: false,
+                                onComplete: function (data) {
+                                    $(`#id_titre_table`).text("GENERATION TERMINEE").css("color", "teal");
+                                    $(`#integrations`).show();
+                                    // Recharger la page après 3 secondes
+                                    /*
+                                    setTimeout(function () {
+                                        location.href = "{% url submit_url %}";
+                                    }, 3000);
+                                    */
+                                },
+                                onError: function (data) {
+                                    alert('Une erreur est survenue : ' + (data.error_message || 'Erreur inconnue'));
+                                    // Recharger la page en cas d'erreur
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 2000);
+                                }
+                            });
+                        } else {
+                            alert(response.error || "Une erreur est survenue");
+                            // Recharger la page en cas d'erreur
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Erreur lors de la soumission : " + error);
+                        // Recharger la page en cas d'erreur
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+                    }
+                });
             });
 
         });

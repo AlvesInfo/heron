@@ -160,6 +160,7 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
         params_dict_load = {
             **params_dict_loader,
             **flow_dict,
+            **{"trace": trace},
         }
         params_dict_validation = {
             "trace": trace,
@@ -285,7 +286,7 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
         LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
     finally:
-        if error:
+        if error or trace.errors:
             trace.errors = True
             trace.comment = (
                 trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"

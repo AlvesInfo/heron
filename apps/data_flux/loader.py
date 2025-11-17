@@ -239,11 +239,12 @@ class FileLoader(TemplateDataLoader):
             else:
                 file_to_csv_string_io(self.source, self.csv_io, self.params_dict.get("encoding"))
 
-        except ExcelToCsvFileError as except_error:
+        except (ExcelToCsvFileError, OSError) as except_error:
             comment = (
                 f"une erreur dans la transformation du fichier {self.source.name!r} "
                 "excel en csv StringIO"
             )
+
             if self.trace:
                 self.trace.errors = True
                 self.trace.comment = comment

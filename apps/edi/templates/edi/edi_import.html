@@ -59,8 +59,19 @@
                 $(`#import_launch`).hide();
                 $(`#id_titre_table`).text("LANCEMENT PATIENTEZ ...").css("color", "teal");
 
+
                 // Récupérer les données du formulaire
                 const formData = new FormData(this);
+
+                // Ajouter le nom du bouton cliqué au POST
+                if (clickedButton) {
+                    const buttonName = clickedButton.attr('name');
+                    const buttonValue = clickedButton.val() || buttonName;
+
+                    if (buttonName) {
+                        formData.append(buttonName, buttonValue);
+                    }
+                }
 
                 // Déterminer le titre et l'icône en fonction du bouton cliqué
                 let title = 'Import des factures EDI';

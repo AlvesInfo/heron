@@ -56,8 +56,8 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
     try:
         # noinspection PyArgumentList
         try:
-            data = pd.read_excel(excel_file.resolve(), engine="openpyxl")
-        except (openpyxl.utils.exceptions.InvalidFileException, zipfile.BadZipFile):
+            data = pd.read_excel(excel_file.resolve())
+        except (openpyxl.utils.exceptions.InvalidFileException, zipfile.BadZipFile, OSError):
             data = pd.read_excel(excel_file.resolve(), engine="xlrd")
 
         data.to_csv(
@@ -67,6 +67,7 @@ def excel_file_to_csv_string_io(excel_file: Path, string_io_file, header=True):
             index=False,
             encoding="utf8",
             quoting=csv.QUOTE_ALL,
+            float_format=lambda x: f'{int(x)}' if x == int(x) else f'{x}'  # Supprime .0 inutiles
             # lineterminator="\n",
         )
         string_io_file.seek(0)
