@@ -13,6 +13,8 @@ modified at: 2023-06-07
 modified by: Paulo ALVES
 """
 
+import uuid
+import threading
 import zipfile
 from zipfile import ZipFile
 from pathlib import Path
@@ -20,6 +22,7 @@ from pathlib import Path
 import pendulum
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.contrib import messages
+from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.db import transaction
@@ -29,8 +32,10 @@ from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.content_types import CONTENT_TYPE_FILE
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
+from apps.core.models import SSEProgress
 from apps.periods.forms import MonthForm
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
+from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion, control_emails
@@ -94,20 +99,40 @@ def generate_invoices_insertions(request):
         ]
     ):
         user_uuid = request.user.uuid_identification
+        user_pk = request.user.id
 
         # On récupère la date de facturation
         periode_dict = form.cleaned_data
         date_facturation = str(periode_dict.get("periode")).split("_")[1]
 
-        # On lance la génération des factures de vente et d'achat
-        celery_app.signature(
-            "invoices_insertions_launch",
-            kwargs={
-                "user_uuid": user_uuid,
-                "invoice_date": date_facturation,
-            },
-        ).delay()
-        insertion = True
+        # Générer un job_id unique
+        job_id = str(uuid.uuid4())
+
+        # Créer le SSEProgress AVANT de lancer la tâche
+        total_files = 15
+        task_type = "invoices_insertion"
+        custom_title = "Génération de la facturation"
+
+        progress = SSEProgress.objects.create(
+            job_id=job_id,
+            user_id=user_pk,
+            total_items=total_files,
+            task_type=task_type,
+            custom_title=custom_title,
+            metadata={"success": [], "failed": []},
+        )
+        progress.mark_as_started()
+
+        # On lance la génération des factures de vente et d'achat en threading
+        thread = threading.Thread(
+            target=invoices_insertion,
+            args=(user_uuid, date_facturation, job_id),
+            daemon=True,
+        )
+        thread.start()
+
+        # Retourner JSON immédiatement
+        return JsonResponse({"success": True, "job_id": job_id})
 
     if insertion:
         titre_table = (
@@ -123,6 +148,9 @@ def generate_invoices_insertions(request):
 
     context["en_cours"] = any([insertion, pdf_invoices, email_invoices])
     context["titre_table"] = titre_table
+    context["submit_url"] = "invoices:generate_invoices_insertions"
+    context["progress_title"] = "Génération de la facturation"
+    context["progress_icon"] = "📄"
 
     return render(request, "invoices/insertion_invoices.html", context=context)
 

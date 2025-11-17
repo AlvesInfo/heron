@@ -2,10 +2,8 @@
 
 {% block right_side %}
     {% if not en_cours and news %}
-        <a class="item" href="{% url 'invoices:generate_invoices_insertions' %}">
-            <button class="ui blue basic button" name="insertion_invoices" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-                GENERER
-            </button>
-        </a>
+        <button class="ui blue basic button" id="insertion_invoices" name="insertion_invoices" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            GENERER
+        </button>
     {% endif %}
 {% endblock right_side %}

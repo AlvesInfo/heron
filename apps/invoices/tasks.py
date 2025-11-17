@@ -20,6 +20,7 @@ import pendulum
 from celery import shared_task
 from celery import group
 from django.db.models import Count
+from django.db import transaction
 from bs4 import BeautifulSoup
 
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
@@ -28,6 +29,7 @@ from apps.core.bin.clean_celery import clean_memory
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
+from apps.core.models import SSEProgress
 from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
@@ -46,24 +48,39 @@ EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
 @shared_task(name="invoices_insertions_launch")
 @clean_memory
-def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
+def launch_invoices_insertions(
+    user_uuid: User, invoice_date: pendulum.date, job_id: str = None
+):
     """
     Insertion des factures définitives achats et ventes
     :param user_uuid: uuid de l'utilisateur qui a lancé le process
     :param invoice_date: date de la facture
+    :param job_id: ID du job pour le suivi SSEProgress
     """
     start_initial = time.time()
     error = False
     trace = ""
     to_print = ""
+    progress = None
     action = ActionInProgress.objects.get(action="insertion_invoices")
     action.in_progress = True
     action.save()
 
     try:
-        user = User.objects.get(uuid_identification=user_uuid)
-        trace, to_print = invoices_insertion(user_uuid, invoice_date)
-        trace.created_by = user
+        # Récupérer le SSEProgress créé dans la vue (si job_id fourni)
+        if job_id:
+            with transaction.atomic():
+                progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
+
+                user = User.objects.get(uuid_identification=user_uuid)
+                trace, to_print = invoices_insertion(user_uuid, invoice_date, job_id)
+                trace.created_by = user
+
+                # Marquer comme terminé
+                if progress:
+                    progress.refresh_from_db()
+                    progress.mark_as_completed()
+
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
@@ -74,6 +91,16 @@ def launch_invoices_insertions(user_uuid: User, invoice_date: pendulum.date):
         LOGGER_INVOICES.exception(
             f"Exception Générale: launch_invoices_insertions\n{except_error!r}"
         )
+        # Marquer comme échoué
+        try:
+            if job_id and not progress:
+                progress = SSEProgress.objects.get(job_id=job_id)
+            if progress:
+                progress.mark_as_failed(str(except_error))
+        except Exception as e:
+            LOGGER_INVOICES.error(
+                f"Impossible de marquer le SSEProgress comme failed: {e}"
+            )
 
     finally:
         if error and trace:
@@ -259,7 +286,9 @@ def launch_celery_send_invoice_mails(
         group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException("Erreur envoi email launch_celery_send_invoice_mails") from error
+        raise EmailException(
+            "Erreur envoi email launch_celery_send_invoice_mails"
+        ) from error
 
     except Exception as error:
         print("Error : ", error)
@@ -321,8 +350,7 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 
     return {
         "Envoie de la facture par mail : ": (
-            f"cct : {str(context_dict.get('cct'))} "
-            f"- {time.time() - start_initial} s"
+            f"cct : {str(context_dict.get('cct'))} - {time.time() - start_initial} s"
         )
     }
 
@@ -426,7 +454,9 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
         group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException("Erreur envoi email launch_celery_send_emails_essais") from error
+        raise EmailException(
+            "Erreur envoi email launch_celery_send_emails_essais"
+        ) from error
 
     except Exception as error:
         print("Error : ", error)

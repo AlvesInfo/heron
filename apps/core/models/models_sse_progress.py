@@ -6,7 +6,9 @@ created at: 2025-01-10
 created by: Paulo ALVES
 """
 
-from django.db import models
+import json
+
+from django.db import models, transaction, connection
 from django.utils import timezone
 from django.conf import settings
 
@@ -207,7 +209,12 @@ class SSEProgress(models.Model):
         :param failed: Nombre d'items en erreur à ajouter
         :param message: Message de progression
         :param item_name: Nom de l'item (fichier) pour l'ajouter aux listes
+
+        Note: Dans Django 3.2, il n'est pas possible de faire des commits intermédiaires
+        dans une transaction atomique. Les mises à jour ne seront visibles qu'après
+        le commit de la transaction parente.
         """
+        # Mettre à jour les valeurs locales
         self.processed_items += processed
         self.failed_items += failed
 
@@ -216,25 +223,24 @@ class SSEProgress(models.Model):
 
         # Ajouter l'item aux listes de succès ou d'erreur
         if item_name:
-            # Copier metadata pour forcer Django à détecter le changement
             metadata = self.metadata or {"success": [], "failed": []}
 
             if failed > 0:
-                # Ajouter aux fichiers en erreur avec le message
                 if "failed" not in metadata:
                     metadata["failed"] = []
                 metadata["failed"].append(
                     {"name": item_name, "error": message or "Erreur inconnue"}
                 )
             else:
-                # Ajouter aux fichiers réussis
                 if "success" not in metadata:
                     metadata["success"] = []
                 metadata["success"].append(item_name)
 
-            # Réassigner pour que Django détecte le changement
             self.metadata = metadata
 
+        # Sauvegarder normalement
+        # Note: Si on est dans une transaction atomique, les changements ne seront
+        # visibles qu'après le commit de la transaction
         self.save()
 
     def to_dict(self):

@@ -1,9 +1,23 @@
 {% extends "heron/update_create_courant.html" %}
 
 {% block table %}
-    <div style="margin: auto;padding: 20px;">
-        {% include "heron/models_html/month_period.html" %}
+    <div class="four wide column"></div>
+
+    <div class="eight wide column">
+        <div id="insertion_invoices_container">
+            <div class="ui centered grid" style="margin: auto;padding: 20px;">
+                <div class="row">
+                    {% include "heron/models_html/month_period.html" %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteneur pour la jauge de progression -->
+        <div id="progress-container" style="display: none; margin-top: 20px;"></div>
+
     </div>
+    <div class="four wide column"></div>
+
 {% endblock table %}
 
 

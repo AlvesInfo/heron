@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2023-03-11
 modified by: Paulo ALVES
 """
+
 from typing import AnyStr
 import io
 import os
@@ -18,6 +19,7 @@ import platform
 import sys
 import csv
 import time
+import threading
 from pathlib import Path
 from uuid import UUID
 
@@ -40,9 +42,14 @@ from django.utils import timezone
 from django.db.models import Count, Q
 
 from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
+from apps.core.models import SSEProgress
 from apps.core.bin.echeances import get_payment_method_elements, get_due_date
 from apps.core.functions.functions_setups import connection, transaction
-from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
+from apps.data_flux.postgres_save import (
+    PostgresKeyError,
+    PostgresTypeError,
+    PostgresDjangoUpsert,
+)
 from apps.data_flux.trace import get_trace
 from apps.users.models import User
 from apps.edi.models import EdiImport
@@ -72,6 +79,13 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.centers_purchasing.bin.update_account_article import update_axes_edi
 from apps.parameters.models import CounterNums
 from apps.edi.models import EdiValidation
+
+
+def update_progress_threaded(job_id: str, **kwargs):
+    """Met à jour le SSEProgress dans un thread séparé pour forcer un commit immédiat"""
+    with transaction.atomic():
+        progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
+        progress.update_progress(**kwargs)
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -111,7 +125,9 @@ def set_purchases_invoices(
     :param invoice_date_iso: mois d'intégration de la facture au format isoformat
     :return:
     """
-    integration_month = pendulum.parse(invoice_date_iso).date().start_of("month").isoformat()
+    integration_month = (
+        pendulum.parse(invoice_date_iso).date().start_of("month").isoformat()
+    )
     model = Invoice
     file_name = "select ..."
     trace_name = "Insertion des factures d'achat"
@@ -127,7 +143,9 @@ def set_purchases_invoices(
     get_payment_method_elements.cache_clear()
 
     try:
-        csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        csv_writer = csv.writer(
+            file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
+        )
         cursor.execute(SQL_PURCHASES_INVOICES)
 
         for line in cursor.fetchall():
@@ -187,7 +205,8 @@ def set_purchases_invoices(
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
@@ -231,7 +250,9 @@ def set_sales_invoices(
     to_print = ""
 
     try:
-        csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        csv_writer = csv.writer(
+            file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
+        )
         cursor.execute(SQL_CLEAR_INVOICES_SIGNBOARDS)
         cursor.execute(SQL_SALES_INVOICES)
 
@@ -282,7 +303,8 @@ def set_sales_invoices(
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment
+                + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
@@ -452,18 +474,25 @@ def sanitaze_before(cursor):
 
     # On supprime les éxistant non définitifs
     cursor.execute(
-        "delete from invoices_invoicecommondetails " 'where ("final" isnull or "final" = false)'
+        "delete from invoices_invoicecommondetails "
+        'where ("final" isnull or "final" = false)'
     )
 
-    cursor.execute('delete from invoices_invoicedetail where ("final" isnull or "final" = false)')
+    cursor.execute(
+        'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
+    )
 
-    cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
+    cursor.execute(
+        'delete from invoices_invoice where ("final" isnull or "final" = false)'
+    )
 
     cursor.execute(
         'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
     )
 
-    cursor.execute('delete from invoices_saleinvoice where ("final" isnull or "final" = false)')
+    cursor.execute(
+        'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
+    )
 
     # On réinitialise les compteurs de numérotation, pour qu'il n'y ait pas de décalages
     reinitialize_purchase_invoices_nums(cursor)
@@ -483,11 +512,14 @@ def copy_edi_import(cursor):
         cursor.execute(sql_copy)
 
 
-def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.objects, AnyStr):
+def invoices_insertion(
+    user_uuid: User, invoice_date: pendulum.date, job_id: str
+) -> (Trace.objects, AnyStr):
     """
     Inserion des factures en mode provisoire avant la validation définitive
     :param user_uuid: utilisateur qui a lancé la commande
     :param invoice_date: date de la facture
+    :param job_id: pour affichage de la progession des tâches
     :return: to_print
     """
     start = time.time()
@@ -500,19 +532,43 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     )
     # On met à jour la billing date dans la table edi_edivalidation
     edi_validations = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .order_by("-id")
+        .first()
     )
     edi_validations.billing_date = invoice_date
     edi_validations.save()
 
     # On update dabord les cct puis les centrales et enseignes
     update_cct_edi_import()
-    print(f"update_cct_edi_import :{time.time()-start} s")
+    thread = threading.Thread(
+        target=update_progress_threaded,
+        args=(job_id,),
+        kwargs={
+            'processed': 1,
+            'message': "Mise à jour Centrales et Enseignes",
+            'item_name': "update_cct_edi_import",
+        }
+    )
+    thread.start()
+    thread.join()
+    print(f"update_cct_edi_import :{time.time() - start} s")
     start = time.time()
 
     # Pré-contrôle des données avant insertion
     controls = control_alls_missings()
-    print(f"control_alls_missings :{time.time()-start} s")
+    thread = threading.Thread(
+        target=update_progress_threaded,
+        args=(job_id,),
+        kwargs={
+            'processed': 1,
+            'message': "Pré-contrôle",
+            'item_name': "control_alls_missings",
+        }
+    )
+    thread.start()
+    thread.join()
+    print(f"control_alls_missings :{time.time() - start} s")
     start = time.time()
 
     if controls:
@@ -523,112 +579,316 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
     alls_print = ""
 
     try:
-        with connection.cursor() as cursor, transaction.atomic():
+        with connection.cursor() as cursor:
             user = User.objects.get(uuid_identification=user_uuid)
+
+            # Étape 1 : Nettoyages et suppressions
             LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
-            # On nettoie les factures non finalisées
-            sanitaze_before(cursor)
-            print(f"suppression :{time.time()-start} s")
+            with transaction.atomic():
+                sanitaze_before(cursor)
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Suppression des factures non finalisées",
+                    'item_name': "sanitaze_before",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"suppression :{time.time() - start} s")
             start = time.time()
 
+            # Étape 2 : Copie de sécurité
             LOGGER_INVOICES.warning(r"Copie de la table edi_ediimport")
-            # On copie la table edi_ediimport par sécurité s'il y a des éléments dans celle-ci
-            copy_edi_import(cursor)
-            print(f"Copie :{time.time()-start} s")
+            with transaction.atomic():
+                copy_edi_import(cursor)
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Copie de sécurité de la table edi_ediimport",
+                    'item_name': "copy_edi_import",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"Copie :{time.time() - start} s")
             start = time.time()
 
+            # Étape 3 : Préparatifs
             LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
-            # On met les import_uuid_identification au cas où il en manque
-            set_fix_uuid(cursor)
-            print(f"set_fix_uuid :{time.time()-start} s")
+            with transaction.atomic():
+                set_fix_uuid(cursor)
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Insertion des import_uuid_identification",
+                    'item_name': "set_fix_uuid",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"set_fix_uuid :{time.time() - start} s")
             start = time.time()
 
-            # Mise à jour des articles
-            cursor.execute(SQL_FIX_ARTICLES)
+            # Étape 4 : Mise à jour des articles
+            with transaction.atomic():
+                cursor.execute(SQL_FIX_ARTICLES)
 
-            # Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion
-            process_update()
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Mise à jour des articles",
+                    'item_name': "sql_fix_articles",
+                }
+            )
+            thread.start()
+            thread.join()
 
-            print(f"process_update :{time.time()-start} s")
+            # Étape 5 : Mise à jour des centres, enseignes et parties
+            with transaction.atomic():
+                process_update()
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': (
+                        "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices "
+                        "avant insertion"
+                    ),
+                    'item_name': "process_update",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"process_update :{time.time() - start} s")
             start = time.time()
 
-            # Mise à jour des articles de la table edi_ediimport avec les axes de la table articles
-            update_axes_edi()
-            print(f"update_axes_edi :{time.time()-start} s")
+            # Étape 6 : Mise à jour des axes articles
+            with transaction.atomic():
+                update_axes_edi()
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Mise à jour des axes articles",
+                    'item_name': "update_axes_edi",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"update_axes_edi :{time.time() - start} s")
             start = time.time()
 
-            # On insère l'ensemble des données commmunes aux achats et ventes d'edi_ediimport
-            set_common_details(cursor)
-            print(f"set_common_details :{time.time()-start} s")
+            # Étape 7 : Insertion des données communes - TRANSACTION CRITIQUE
+            with transaction.atomic():
+                set_common_details(cursor)
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Insertion des données commmunes, achats et ventes",
+                    'item_name': "set_common_details",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"set_common_details :{time.time() - start} s")
             start = time.time()
 
-            # On insère les factures d'achats
+            # Étape 8 : Insertion des factures d'achats - TRANSACTION CRITIQUE
             LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
-            error, to_print = set_purchases_invoices(cursor, user, invoice_date)
-            print(f"set_purchases_invoices :{time.time()-start} s")
+            with transaction.atomic():
+                error, to_print = set_purchases_invoices(cursor, user, invoice_date)
+
+                if error:
+                    raise Exception
+
+                alls_print += to_print
+                cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
+                cursor.execute(SQL_PURCHASES_DETAILS)
+                cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
+
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Insertion des factures d'achat",
+                    'item_name': "set_purchases_invoices",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"set_purchases_invoices :{time.time() - start} s")
             start = time.time()
 
-            if error:
-                raise Exception
-
-            alls_print += to_print
-            cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
-            cursor.execute(SQL_PURCHASES_DETAILS)
-            cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
-
-            # On contrôle l'insertion des achats
+            # Étape 9 : Contrôle des achats
             LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
             if control_sales_insertion(cursor):
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures d'achat, "
                     "les totaux ne correspondent pas"
                 )
-                raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+                thread = threading.Thread(
+                    target=update_progress_threaded,
+                    args=(job_id,),
+                    kwargs={
+                        'processed': 1,
+                        'failed': 1,
+                        'message': "Erreur sur les factures d'achat",
+                        'item_name': "control_sales_insertion",
+                    }
+                )
+                thread.start()
+                thread.join()
+                raise Exception(
+                    "Il y a eu une erreur à l'insertion des factures de vente"
+                )
 
-            # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
-            #  EX.: TVA, REGIME DE TVA, COLLECTIF....
-
-            print(f"control_sales_insertion :{time.time()-start} s")
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Contrôle des factures d'achat",
+                    'item_name': "control_sales_insertion",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"control_sales_insertion :{time.time() - start} s")
             start = time.time()
 
-            # On insère les entêtes de factures de vente
-            error, to_print = set_sales_invoices(cursor, user, invoice_date)
+            # Étape 10 : Insertion des factures de vente - TRANSACTION CRITIQUE
+            LOGGER_INVOICES.warning(r"Insertion des factures de vente")
+            with transaction.atomic():
+                error, to_print = set_sales_invoices(cursor, user, invoice_date)
+                alls_print += to_print
+                cursor.execute(SQL_SALES_FOR_EXPORT_X3)
 
             if error:
+                thread = threading.Thread(
+                    target=update_progress_threaded,
+                    args=(job_id,),
+                    kwargs={
+                        'processed': 1,
+                        'failed': 1,
+                        'message': "Erreur sur les factures de vente",
+                        'item_name': "set_sales_invoices",
+                    }
+                )
+                thread.start()
+                thread.join()
                 raise Exception
 
-            print(f"set_sales_invoices :{time.time()-start} s")
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Insertion entêtes de factures de vente",
+                    'item_name': "set_sales_invoices",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"set_sales_invoices :{time.time() - start} s")
             start = time.time()
-            alls_print += to_print
-            cursor.execute(SQL_SALES_FOR_EXPORT_X3)
 
-            # On insère les détails des factures de vente
+            # Étape 11 : Insertion des détails des factures de vente
             LOGGER_INVOICES.warning(r"Insertion des détails des factures de vente")
-            set_sales_details(cursor)
+            with transaction.atomic():
+                set_sales_details(cursor)
 
-            print(f"set_sales_details :{time.time()-start} s")
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Insertion des détails des factures de vente",
+                    'item_name': "set_sales_details",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"set_sales_details :{time.time() - start} s")
             start = time.time()
 
-            # On contrôle l'insertion
+            # Étape 12 : Contrôle final des factures de vente
             LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
-
             if control_sales_insertion(cursor):
+                thread = threading.Thread(
+                    target=update_progress_threaded,
+                    args=(job_id,),
+                    kwargs={
+                        'processed': 1,
+                        'failed': 1,
+                        'message': "Erreur sur le contrôle des factures de vente",
+                        'item_name': "control_sales_insertion",
+                    }
+                )
+                thread.start()
+                thread.join()
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures de vente, "
                     "les totaux ne correspondent pas"
                 )
-                raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
+                raise Exception(
+                    "Il y a eu une erreur à l'insertion des factures de vente"
+                )
 
-            print(f"control_sales_insertion :{time.time()-start} s")
+            thread = threading.Thread(
+                target=update_progress_threaded,
+                args=(job_id,),
+                kwargs={
+                    'processed': 1,
+                    'message': "Contrôle des factures de vente réussi",
+                    'item_name': "control_sales_insertion",
+                }
+            )
+            thread.start()
+            thread.join()
+            print(f"control_sales_insertion :{time.time() - start} s")
             start = time.time()
 
             # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
             #  EX.: TVA, REGIME DE TVA, COLLECTIF....
 
-        # On insère les numérotations des factures globales
+        # Étape 13 : Numérotation des factures globales
         LOGGER_INVOICES.warning(r"insertion numérotation globale")
-        num_full_sales_invoices()
-        print(f"num_full_sales_invoices :{time.time()-start} s")
+        thread = threading.Thread(
+            target=update_progress_threaded,
+            args=(job_id,),
+            kwargs={
+                'processed': 1,
+                'message': "Numérotation des factures globales",
+                'item_name': "num_full_sales_invoices",
+            }
+        )
+        thread.start()
+        thread.join()
+
+        with transaction.atomic():
+            num_full_sales_invoices()
+
+        print(f"num_full_sales_invoices :{time.time() - start} s")
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
@@ -644,8 +904,23 @@ def invoices_insertion(user_uuid: User, invoice_date: pendulum.date) -> (Trace.o
         print("ERREUR - Exception : ", except_error)
         LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
 
+        # Marquer le job comme échoué
+        if job_id:
+            try:
+                progress = SSEProgress.objects.get(job_id=job_id)
+                progress.mark_as_failed(str(except_error))
+            except Exception as e:
+                LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+
     finally:
-        pass
+        # Marquer le job comme terminé si pas d'erreur
+        if job_id:
+            try:
+                progress = SSEProgress.objects.get(job_id=job_id)
+                if progress.status == "in_progress":
+                    progress.mark_as_completed()
+            except Exception as e:
+                LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme completed: {e}")
 
     return trace, alls_print
 
