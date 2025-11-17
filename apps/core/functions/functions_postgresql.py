@@ -10,6 +10,8 @@ import string
 from typing import AnyStr, Dict
 from pathlib import Path
 
+import sqlfluff
+import sqlparse
 import psycopg2
 from psycopg2 import pool
 from psycopg2.extensions import parse_dsn
@@ -18,6 +20,135 @@ from django.db import models, connection
 from apps.core.functions.functions_sql import clean_sql_in
 from apps.core.functions.loggers import POSTGRES_LOGGER
 from heron.settings.base import BASE_DIR
+
+
+def pretty_sql(queryset):
+    """
+    Affiche une requête SQL formatée avec ses paramètres
+    """
+    # Obtenir SQL et paramètres
+    compiler = queryset.query.get_compiler(using=queryset.db)
+    sql, params = compiler.as_sql()
+
+    # Remplacer les placeholders par les vraies valeurs
+    sql_with_params = sql
+
+    for param in params:
+        if isinstance(param, str):
+            param = f"'{param}'"
+        sql_with_params = sql_with_params.replace("%s", str(param), 1)
+
+    # Formater le SQL pour une meilleure lisibilité
+    formatted_sql = sqlparse.format(sql_with_params, reindent=True, keyword_case="upper")
+
+    print("🔍 SQL Query:")
+    print("-" * 120)
+    print(formatted_sql)
+    print("-" * 120)
+
+    return queryset
+
+
+def get_indent_sql(sql_query):
+    sql_words = [
+        "FROM",
+        "WHERE",
+        "GROUP BY",
+        "ORDER BY",
+        "UNION ALL",
+        "UNION",
+        "JOIN",
+        "LEFT JOIN",
+        "RIGHT JOIN",
+        " AND",
+    ]
+    print_sql = sql_query
+    print_sql = print_sql.replace("SELECT ", "SELECT\n\t")
+    print_sql = print_sql.replace(", ", ",\n\t")
+
+    for word in sql_words:
+        print_sql = print_sql.replace(f"{word}", f"\n{word}")
+
+    print_sql = print_sql.replace("(SELECT", "(\n\tSELECT")
+
+    print("-" * 100)
+    print(print_sql)
+    print("-" * 100)
+
+
+def get_indent_query_params(query_django):
+    with connection.cursor() as cursor:
+        query, params = query_django.query.sql_with_params()
+        cursor.execute(query, params)
+        get_indent_sql(cursor.query.decode("utf8"))
+
+
+def get_django_sql(query_django):
+    """Retourne le sql formaté de la dernière requête django"""
+    with connection.cursor() as cursor:
+        query, params = query_django.query.sql_with_params()
+        cursor.execute(query, params)
+        fixed_sql = sqlfluff.fix(cursor.query.decode("utf8"), dialect="postgres")
+        print("-----------------------------------------------------------------------------------")
+        print(fixed_sql)
+        print("-----------------------------------------------------------------------------------")
+
+
+def get_query_sql(query):
+    """Retourne le sql formaté de la dernière requête django"""
+    sql_words = [
+        "FROM",
+        "WHERE",
+        "GROUP BY",
+        "ORDER BY",
+        "UNION ALL",
+        "UNION",
+        "JOIN",
+        "LEFT JOIN",
+        "RIGHT JOIN",
+    ]
+    print_sql = connection.queries[-1]["sql"]
+    print_sql = print_sql.replace("SELECT ", "SELECT\n\t")
+    print_sql = print_sql.replace(", ", ",\n\t")
+
+    for word in sql_words:
+        print_sql = print_sql.replace(f"{word}", f"\n{word}")
+
+    print_sql = print_sql.replace("(SELECT", "(\n\tSELECT")
+
+    print("-" * 50)
+    print(print_sql)
+    print("Durée:", connection.queries[-1]["time"])
+    print("-" * 50)
+
+
+def get_queries_sql(query):
+    """Retourne le sql formaté de la dernière requête django"""
+    sql_words = [
+        "FROM",
+        "WHERE",
+        "GROUP BY",
+        "ORDER BY",
+        "UNION ALL",
+        "UNION",
+        "JOIN",
+        "LEFT JOIN",
+        "RIGHT JOIN",
+    ]
+    for query_sql in connection.queries:
+        print_sql = query_sql["sql"]
+        print_sql = print_sql.replace("SELECT ", "SELECT\n\t")
+        print_sql = print_sql.replace(", ", ",\n\t")
+
+        for word in sql_words:
+            print_sql = print_sql.replace(f"{word}", f"\n{word}")
+
+        print_sql = print_sql.replace("(SELECT", "(\n\tSELECT")
+
+        print("-" * 50)
+        print(print_sql)
+        print("Durée:", query_sql["time"])
+        print("-" * 50)
 
 
 class PostgresUpsertError(Exception):

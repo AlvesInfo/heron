@@ -210,4 +210,4 @@ def write_bispard(fcy, file_name=None, nb_fac=5000):
 
 
 if __name__ == "__main__":
-    write_bispar("AC00")
+    write_bispard("AC00")

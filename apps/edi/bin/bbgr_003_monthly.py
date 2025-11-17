@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2022-12-10
 modified by: Paulo ALVES
 """
+
 from uuid import UUID
 
 from psycopg2 import sql
@@ -163,7 +164,8 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                 """
             )
             cursor.execute(
-                sql_insert_monthly, {"min_id": min_id, "uuid_identification": uuid_identification}
+                sql_insert_monthly,
+                {"min_id": min_id, "uuid_identification": uuid_identification},
             )
 
 

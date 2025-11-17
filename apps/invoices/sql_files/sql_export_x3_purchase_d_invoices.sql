@@ -222,6 +222,12 @@ order by
 		"isi"."invoice_number",
 		"isd"."account",
         "icd"."cct",
+        case
+			when "isi"."invoice_type_name" = 'Facture'
+			then round("iid"."d_amount"::numeric, 2)::numeric
+			else -round("iid"."d_amount"::numeric, 2)
+		end,
+		"isd"."vat",
 		"isd"."axe_bu",
         "isd"."axe_prj",
         "isd"."axe_pro",

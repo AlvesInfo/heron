@@ -13,9 +13,11 @@ modified by: Paulo ALVES
 """
 
 from typing import Any, AnyStr, Dict
+from datetime import timedelta
 
 import pendulum
 from django_celery_results.models import TaskResult
+from django.utils import timezone
 
 from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.core.functions.functions_utilitaires import get_module_object
@@ -199,9 +201,12 @@ def get_in_progress():
 
         # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
         if in_action:
+            one_hour_ago = timezone.localtime(timezone.now()) - timedelta(hours=1)
             celery_tasks = TaskResult.objects.filter(
-                task_name="apps.edi.tasks.start_edi_import"
-            ).exclude(status__in=["SUCCESS", "FAILURE"])
+                task_name="suppliers_import",
+                status="STARTED",
+                date_created__gte=one_hour_ago,
+            )
             in_action = celery_tasks.exists()
 
     except ActionInProgress.DoesNotExist:

@@ -14,20 +14,18 @@ modified by: Paulo ALVES
 
 import uuid
 import threading
-from django.shortcuts import render
+from asgiref.sync import async_to_sync
+
+from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.http import JsonResponse
 
 from apps.parameters.bin.core import get_in_progress
 from apps.core.models import SSEProgress
-from apps.edi.loops.imports_loop_pool import celery_import_launch, import_launch_bbgr
 from apps.edi.loops.imports_loop_pool import (
-    get_have_statment,
-    get_have_monthly,
-    get_have_retours,
-    get_have_receptions,
-    get_files_celery,
-    get_retours_valid,
+    celery_import_launch,
+    import_launch_bbgr,
+    get_all_import_checks_async,
 )
 from apps.invoices.bin.pre_controls import control_insertion
 
@@ -35,6 +33,17 @@ from apps.invoices.bin.pre_controls import control_insertion
 def import_edi_invoices(request):
     """Bouton d'import des factures edi"""
     request.session["level"] = 20
+
+    in_action = get_in_progress()
+
+    if in_action:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            "Vous ne pouvez pas importer, imports en cours ...",
+        )
+        return redirect(reverse("home"))
 
     # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
@@ -56,13 +65,15 @@ def import_edi_invoices(request):
         }
         return render(request, "edi/edi_import.html", context=context)
 
-    in_action = get_in_progress()
-    have_statment = get_have_statment()
-    have_monthly = get_have_monthly()
-    have_retours = get_have_retours()
-    have_receptions = get_have_receptions()
-    files_celery = get_files_celery()
-    retours_valid = get_retours_valid()
+    # Récupération parallèle et asynchrone de toutes les vérifications
+    (
+        have_statment,
+        have_monthly,
+        have_retours,
+        have_receptions,
+        files_celery,
+        retours_valid,
+    ) = async_to_sync(get_all_import_checks_async)()
 
     # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
     if request.method == "POST" and not in_action:
@@ -77,87 +88,62 @@ def import_edi_invoices(request):
 
             # Créer le SSEProgress AVANT de lancer les tâches
             if "bbgr_statment" in request.POST:
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    task_type="bbgr_import",
-                    total_items=1,
-                    custom_title="Import BBGR Statment",
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
-                # Lancer dans un thread séparé
-                thread = threading.Thread(
-                    target=import_launch_bbgr,
-                    args=("bbgr_statment", user_pk, job_id),
-                    daemon=True,
-                )
-                thread.start()
+                # Pour les statment bbgr 1 pour import et 2 pour validation
+                total_files = 2
+                task_type = "bbgr_import"
+                custom_title = "Import BBGR Statment"
+                target = import_launch_bbgr
+                args = ("bbgr_statment", user_pk, job_id)
+
             elif "bbgr_monthly" in request.POST:
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    task_type="bbgr_import",
-                    total_items=1,
-                    custom_title="Import BBGR Monthly",
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
-                thread = threading.Thread(
-                    target=import_launch_bbgr,
-                    args=("bbgr_monthly", user_pk, job_id),
-                    daemon=True,
-                )
-                thread.start()
+                # Pour les monthly bbgr 1 pour import et 2 pour validation
+                total_files = 2
+                task_type = "bbgr_import"
+                custom_title = "Import BBGR Monthly"
+                target = import_launch_bbgr
+                args = ("bbgr_monthly", user_pk, job_id)
+
             elif "bbgr_retours" in request.POST:
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    task_type="bbgr_import",
-                    total_items=1,
-                    custom_title="Import BBGR Retours",
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
-                thread = threading.Thread(
-                    target=import_launch_bbgr,
-                    args=("bbgr_retours", user_pk, job_id),
-                    daemon=True,
-                )
-                thread.start()
+                # Pour les retours bbgr 1 pour import et 2 pour validation
+                total_files = 2
+                task_type = "bbgr_import"
+                custom_title = "Import BBGR Retours"
+                target = import_launch_bbgr
+                args = ("bbgr_retours", user_pk, job_id)
+
             elif "bbgr_receptions" in request.POST:
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    task_type="bbgr_import",
-                    total_items=1,
-                    custom_title="Import BBGR Receptions",
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
-                thread = threading.Thread(
-                    target=import_launch_bbgr,
-                    args=("bbgr_receptions", user_pk, job_id),
-                    daemon=True,
-                )
-                thread.start()
+                # Pour les receptions bbgr 1 pour import et 2 pour validation
+                total_files = 2
+                task_type = "bbgr_import"
+                custom_title = "Import BBGR Receptions"
+                target = import_launch_bbgr
+                args = ("bbgr_receptions", user_pk, job_id)
+
             else:
                 # Pour les imports EDI normaux, compter le nombre de fichiers
-                total_files = len(files_celery)
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    task_type="edi_import",
-                    total_items=total_files,
-                    custom_title="Import des factures EDI",
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
-                # Lancer dans un thread séparé
-                thread = threading.Thread(
-                    target=celery_import_launch, args=(user_pk, job_id), daemon=True
-                )
-                thread.start()
+                total_files = len(files_celery) + 1
+                task_type = "edi_import"
+                custom_title = "Import des factures EDI"
+                target = celery_import_launch
+                args = (user_pk, job_id)
+
+            progress = SSEProgress.objects.create(
+                job_id=job_id,
+                user_id=user_pk,
+                total_items=total_files,
+                task_type=task_type,
+                custom_title=custom_title,
+                metadata={"success": [], "failed": []},
+            )
+            progress.mark_as_started()
+
+            # Lancement d'un thread séparé
+            thread = threading.Thread(
+                target=target,
+                args=args,
+                daemon=True,
+            )
+            thread.start()
 
             # Retourner JSON immédiatement
             return JsonResponse({"success": True, "job_id": job_id})

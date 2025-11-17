@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 """
 
 from typing import AnyStr
+import asyncio
 import os
 import platform
 import re
@@ -34,15 +35,16 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from psycopg2 import sql
-from django.db import connection, connections
+from django.db import connection, connections, transaction
+from asgiref.sync import sync_to_async
 from celery import group
 
 from heron import celery_app
 from heron.loggers import LOGGER_EDI
-from apps.core.functions.functions_setups import settings
-from apps.data_flux.utilities import encoding_detect
-from apps.data_flux.postgres_save import get_random_name
-from apps.users.models import User
+from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
+from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
+from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
+from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
 from apps.edi.imports.imports_suppliers_invoices_pool import (
     bbgr_bulk,
     cosium,
@@ -68,11 +70,13 @@ from apps.edi.imports.imports_suppliers_invoices_pool import (
     widex_ga,
     z_bu_refac,
 )
-from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
-from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
-from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
-from apps.edi.bin.bbgr_005_receptions import HISTORIC_RECEPTIONS_ID
+from apps.core.functions.functions_setups import settings
+from apps.core.models import SSEProgress
+from apps.data_flux.utilities import encoding_detect
+from apps.data_flux.postgres_save import get_random_name
+from apps.users.models import User
 from apps.parameters.bin.core import get_action
+from apps.parameters.models import ActionInProgress
 
 processing_dict = {
     # IMPORTS FACTURES =====================
@@ -168,6 +172,7 @@ def get_files_celery():
 
 def get_have_statment():
     """Vérifie s'il y a des statment à intégrer"""
+
     with connection.cursor() as cursor:
         sql_id_statment = sql.SQL(
             """
@@ -203,10 +208,7 @@ def get_have_statment():
         cursor.execute(sql_id_statment, {"historic_id": HISTORIC_STATMENT_ID})
         test_have_lines_statment = cursor.fetchone()
 
-        if test_have_lines_statment:
-            return True
-
-    return False
+        return bool(test_have_lines_statment)
 
 
 def get_have_monthly():
@@ -248,10 +250,7 @@ def get_have_monthly():
         cursor.execute(sql_id_monthly, {"historic_id": HISTORIC_MONTHLY_ID})
         test_have_lines_montly = cursor.fetchone()
 
-        if test_have_lines_montly:
-            return True
-
-    return False
+        return bool(test_have_lines_montly)
 
 
 def get_have_retours():
@@ -293,19 +292,17 @@ def get_have_retours():
         cursor.execute(sql_id_retours, {"historic_id": HISTORIC_RETOURS_ID})
         test_have_lines_retours = cursor.fetchone()
 
-        if test_have_lines_retours:
-            return True
-
-    return False
+        return bool(test_have_lines_retours)
 
 
 def get_retours_valid():
     """Vérifie que tous les retours sont validés avant import"""
+
     with connections["bi_bdd"].cursor() as cursor:
         sql_valid = """
             SELECT count(*) 
             FROM "factures_monthlyretours" 
-            WHERE "factures_monthlyretours"."validation" = False
+            WHERE "factures_monthlyretours"."validation" = false
         """
         cursor.execute(sql_valid)
         result = cursor.fetchone()[0]
@@ -351,10 +348,39 @@ def get_have_receptions():
         cursor.execute(sql_id_receptions, {"historic_id": HISTORIC_RECEPTIONS_ID})
         test_have_lines_receptions = cursor.fetchone()
 
-        if test_have_lines_receptions:
-            return True
+        return bool(test_have_lines_receptions)
 
-    return False
+
+# ==================== VERSIONS ASYNC DES FONCTIONS ====================
+
+# Convertir les fonctions synchrones en async
+# thread_sensitive=False permet l'exécution parallèle dans des threads séparés
+get_have_statment_async = sync_to_async(get_have_statment, thread_sensitive=True)
+get_have_monthly_async = sync_to_async(get_have_monthly, thread_sensitive=True)
+get_have_retours_async = sync_to_async(get_have_retours, thread_sensitive=True)
+get_retours_valid_async = sync_to_async(get_retours_valid, thread_sensitive=True)
+get_have_receptions_async = sync_to_async(get_have_receptions, thread_sensitive=True)
+get_files_celery_async = sync_to_async(get_files_celery, thread_sensitive=True)
+
+
+async def get_all_import_checks_async():
+    """
+    Récupère toutes les vérifications d'imports en parallèle de manière asynchrone.
+
+    Returns:
+        tuple: (have_statment, have_monthly, have_retours, have_receptions,
+                files_celery, retours_valid)
+    """
+    results = await asyncio.gather(
+        get_have_statment_async(),
+        get_have_monthly_async(),
+        get_have_retours_async(),
+        get_have_receptions_async(),
+        get_files_celery_async(),
+        get_retours_valid_async(),
+    )
+
+    return results
 
 
 def have_files():
@@ -380,8 +406,6 @@ def have_files():
 def celery_import_launch(user_pk: int, job_id: str):
     """Main pour lancement de l'import avec Celery"""
 
-    from apps.core.models import SSEProgress
-
     active_action = None
     action = True
     progress = None
@@ -389,14 +413,25 @@ def celery_import_launch(user_pk: int, job_id: str):
     try:
         tasks_list = []
 
-        while action:
-            active_action = get_action(action="import_edi_invoices")
-            if not active_action.in_progress:
-                action = False
+        # S'assurer que l'objet ActionInProgress existe
+        get_action(action="import_edi_invoices")
 
-        # On initialise l'action comme en cours
-        active_action.in_progress = True
-        active_action.save()
+        # Acquisition atomique du verrou avec select_for_update()
+        while action:
+            with transaction.atomic():
+                active_action = ActionInProgress.objects.select_for_update().get(
+                    action="import_edi_invoices"
+                )
+                if not active_action.in_progress:
+                    # On initialise l'action comme en cours de manière atomique
+                    active_action.in_progress = True
+                    active_action.save()
+                    action = False
+
+            # Si on n'a pas acquis le verrou, attendre un peu avant de retenter
+            if action:
+                time.sleep(2)
+
         start_all = time.time()
 
         # On boucle sur les fichiers à insérer
@@ -460,26 +495,35 @@ def celery_import_launch(user_pk: int, job_id: str):
 def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
     """Main pour lancement de l'import"""
 
-    from apps.core.models import SSEProgress
-
     active_action = None
     action = True
     progress = None
 
     try:
+        # S'assurer que l'objet ActionInProgress existe
+        get_action(action="import_edi_invoices")
+
+        # Acquisition atomique du verrou avec select_for_update()
         while action:
-            active_action = get_action(action="import_edi_invoices")
-            if not active_action.in_progress:
-                action = False
+            with transaction.atomic():
+                active_action = ActionInProgress.objects.select_for_update().get(
+                    action="import_edi_invoices"
+                )
+                if not active_action.in_progress:
+                    # On initialise l'action comme en cours de manière atomique
+                    active_action.in_progress = True
+                    active_action.save()
+                    action = False
+
+            # Si on n'a pas acquis le verrou, attendre un peu avant de retenter
+            if action:
+                time.sleep(2)
 
         # Récupérer le SSEProgress créé dans la vue
         progress = SSEProgress.objects.get(job_id=job_id)
 
         start_all = time.time()
 
-        # On initialise l'action comme en cours
-        active_action.in_progress = True
-        active_action.save()
         result = group(
             *[
                 celery_app.signature(
@@ -568,7 +612,7 @@ def import_launch_subscriptions(
         )().get(3600)
         LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-    except Exception as error:
+    except Exception:
         LOGGER_EDI.exception(
             "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_bbgr()"
         )
@@ -589,4 +633,8 @@ def import_launch_subscriptions(
 if __name__ == "__main__":
     # post_processing_all()
     # get_files()
-    separate_edi()
+    # separate_edi()
+
+    from asgiref.sync import async_to_sync
+    _ = async_to_sync(get_all_import_checks_async)()
+    print(_)

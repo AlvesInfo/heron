@@ -257,8 +257,6 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
                     f"Erreur mise à jour progression: {progress_error}"
                 )
 
-        # TODO : faire une fonction d'envoie de mails
-
     LOGGER_EDI.warning(
         to_print
         + f"Validation {function_name} in : {time.time() - start_initial} s"
@@ -286,6 +284,7 @@ def launch_sql_clean_general(start_all, job_id=None):
                     progress.update_progress(
                         processed=0, message="Validation et mises à jour"
                     )
+
             except SSEProgress.DoesNotExist:
                 LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
             except Exception as progress_error:
@@ -304,6 +303,15 @@ def launch_sql_clean_general(start_all, job_id=None):
 
         set_exclusions()
         LOGGER_EDI.warning("exclusions terminées")
+
+        if job_id:
+            with transaction.atomic():
+                progress = SSEProgress.objects.select_for_update().get(
+                    job_id=job_id
+                )
+                progress.update_progress(
+                    processed=1, message="Validation et mises à jour"
+                )
 
         LOGGER_EDI.warning(f"All validations : {time.time() - start_all} s")
 
