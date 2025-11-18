@@ -43,6 +43,7 @@ def royalties_launch(request):
         context = {
             "titre_table": "Génération des factures de Royalties",
             "not_finalize": True,
+            "submit_url": "compta:royalties_launch",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
@@ -144,6 +145,7 @@ def meuleuse_launch(request):
         context = {
             "titre_table": "Génération des factures de Meuleuses",
             "not_finalize": True,
+            "submit_url": "compta:meuleuse_launch",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
@@ -245,6 +247,7 @@ def publicity_launch(request):
         context = {
             "titre_table": "Génération des factures de Publicité",
             "not_finalize": True,
+            "submit_url": "compta:publicity_launch",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
@@ -346,6 +349,7 @@ def services_launch(request):
         context = {
             "titre_table": "Génération des factures de Prestations",
             "not_finalize": True,
+            "submit_url": "compta:services_launch",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
