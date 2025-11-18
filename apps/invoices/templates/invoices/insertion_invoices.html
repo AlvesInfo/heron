@@ -57,7 +57,7 @@
             $(document).on("keydown", disableF5);
 
             $(`.datatable-chargement`).hide();
-
+            {{ submit_url }}
             // Gestionnaire pour la soumission du formulaire (uniquement si pas en cours)
             {% if not en_cours and submit_url %}
             $(`#id_form_post`).on('submit', function (e) {

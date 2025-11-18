@@ -54,6 +54,17 @@ def generate_invoices_insertions(request):
     # On contrôle qu'il n'y est pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
+    edi_invoices_exists = EdiImport.objects.filter(valid=True).exists()
+    form = MonthForm(request.POST or None)
+    context = {
+        "margin_table": 50,
+        "titre_table": titre_table,
+        "news": edi_invoices_exists,
+        "form": form,
+        "titre_periode": "MOIS DE FACTURATION",
+        "submit_url": "invoices: generate_invoices_insertions",
+    }
+
     if not_finalize:
         request.session["level"] = 50
         messages.add_message(
@@ -67,16 +78,6 @@ def generate_invoices_insertions(request):
         )
         context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
         return render(request, "invoices/insertion_invoices.html", context=context)
-
-    edi_invoices_exists = EdiImport.objects.filter(valid=True).exists()
-    form = MonthForm(request.POST or None)
-    context = {
-        "margin_table": 50,
-        "titre_table": titre_table,
-        "news": edi_invoices_exists,
-        "form": form,
-        "titre_periode": "MOIS DE FACTURATION",
-    }
 
     # On contrôle qu'il y ait des factures à générer
     if not edi_invoices_exists:
