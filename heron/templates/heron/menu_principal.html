@@ -407,7 +407,7 @@
     function activateNavigationLoader(event) {
         const target = event.currentTarget;
         const href = target.getAttribute('href');
-
+        console.log(href);
         // Ne rien faire pour les liens sans href, # ou javascript:
         if (!href || href === '#' || href.startsWith('javascript:')) {
             return;
@@ -444,8 +444,6 @@
                 'cursor': 'not-allowed'
             });
 
-            // Ajouter une classe "loading" au lien cliqué
-            $(target).addClass('loading');
 
             // Naviguer vers la destination
             globalThis.location.href = href;

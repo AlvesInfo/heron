@@ -62,7 +62,9 @@ def generate_invoices_insertions(request):
         "news": edi_invoices_exists,
         "form": form,
         "titre_periode": "MOIS DE FACTURATION",
-        "submit_url": "invoices: generate_invoices_insertions",
+        "submit_url": "invoices:generate_invoices_insertions",
+        "progress_title": "Génération de la facturation",
+        "progress_icon": "📄",
     }
 
     if not_finalize:
@@ -76,7 +78,14 @@ def generate_invoices_insertions(request):
                 "mais non finalisée"
             ),
         )
-        context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
+        context = {
+            "margin_table": 50,
+            "titre_table": titre_table,
+            "not_finalize": True,
+            "submit_url": "invoices:generate_invoices_insertions",
+            "progress_title": "Génération de la facturation",
+            "progress_icon": "📄",
+        }
         return render(request, "invoices/insertion_invoices.html", context=context)
 
     # On contrôle qu'il y ait des factures à générer

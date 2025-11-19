@@ -44,6 +44,8 @@ def royalties_launch(request):
             "titre_table": "Génération des factures de Royalties",
             "not_finalize": True,
             "submit_url": "compta:royalties_launch",
+            "progress_title": "Génération des factures de Royalties",
+            "progress_icon": "💰",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
@@ -146,6 +148,8 @@ def meuleuse_launch(request):
             "titre_table": "Génération des factures de Meuleuses",
             "not_finalize": True,
             "submit_url": "compta:meuleuse_launch",
+            "progress_title": "Génération des factures de Meuleuses",
+            "progress_icon": "⚙️",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
@@ -248,6 +252,8 @@ def publicity_launch(request):
             "titre_table": "Génération des factures de Publicité",
             "not_finalize": True,
             "submit_url": "compta:publicity_launch",
+            "progress_title": "Génération des factures de Publicité",
+            "progress_icon": "📣",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 
@@ -350,6 +356,8 @@ def services_launch(request):
             "titre_table": "Génération des factures de Prestations",
             "not_finalize": True,
             "submit_url": "compta:services_launch",
+            "progress_title": "Génération des factures de Prestations",
+            "progress_icon": "🛠️",
         }
         return render(request, "compta/update_sales_launch.html", context=context)
 

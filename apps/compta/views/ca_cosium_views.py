@@ -193,6 +193,9 @@ def reset_sales(request):
     context = {
         "titre_table": "Reset des ventes Cosium",
         "form": form,
+        "submit_url": "compta:reset_sales",
+        "progress_title": "Reset des ventes Cosium",
+        "progress_icon": "🔄",
         "avertissement": (
             "Attention, Tous les abonnements, Royalties, Meuleuse, Publicité et Prestations, "
             "seront également supprimé, vous devrez les regénérer manuellement !"
@@ -237,6 +240,9 @@ def reset_ca(request):
     context = {
         "titre_table": "Reset du Chiffre d'affaires Cosium",
         "form": form,
+        "submit_url": "compta:reset_ca",
+        "progress_title": "Reset du Chiffre d'affaires Cosium",
+        "progress_icon": "🔄",
         "avertissement": (
             "Attention, Tous les abonnements, Royalties, Meuleuse, Publicité et Prestations, "
             "seront également supprimé, vous devrez les regénérer manuellement !"
