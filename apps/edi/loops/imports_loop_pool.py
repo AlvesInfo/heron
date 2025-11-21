@@ -300,12 +300,13 @@ def get_retours_valid():
 
     with connections["bi_bdd"].cursor() as cursor:
         sql_valid = """
-            SELECT count(*) 
-            FROM "factures_monthlyretours" 
-            WHERE "factures_monthlyretours"."validation" = false
+        SELECT 1 
+        FROM factures_monthlyretours 
+        WHERE validation = false 
+        LIMIT 1
         """
         cursor.execute(sql_valid)
-        result = cursor.fetchone()[0]
+        result = cursor.fetchone()
 
         return not bool(result)
 
@@ -668,7 +669,10 @@ if __name__ == "__main__":
     # post_processing_all()
     # get_files()
     # separate_edi()
-
+    """
+    avant :
+        sans des false : True - True
+        avec des false : False - False
+    """
     from asgiref.sync import async_to_sync
-    _ = async_to_sync(get_all_import_checks_async)()
-    print(_)
+    print(async_to_sync(get_all_import_checks_async)())

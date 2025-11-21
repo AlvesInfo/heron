@@ -19,7 +19,6 @@ import platform
 import sys
 import csv
 import time
-import threading
 from pathlib import Path
 from uuid import UUID
 
@@ -45,6 +44,7 @@ from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
 from apps.core.models import SSEProgress
 from apps.core.bin.echeances import get_payment_method_elements, get_due_date
 from apps.core.functions.functions_setups import connection, transaction
+from apps.core.utils.progress_bar import update_progress_threaded
 from apps.data_flux.postgres_save import (
     PostgresKeyError,
     PostgresTypeError,
@@ -79,13 +79,6 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.centers_purchasing.bin.update_account_article import update_axes_edi
 from apps.parameters.models import CounterNums
 from apps.edi.models import EdiValidation
-
-
-def update_progress_threaded(job_id: str, **kwargs):
-    """Met à jour le SSEProgress dans un thread séparé pour forcer un commit immédiat"""
-    with transaction.atomic():
-        progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
-        progress.update_progress(**kwargs)
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -541,33 +534,23 @@ def invoices_insertion(
 
     # On update dabord les cct puis les centrales et enseignes
     update_cct_edi_import()
-    thread = threading.Thread(
-        target=update_progress_threaded,
-        args=(job_id,),
-        kwargs={
-            'processed': 1,
-            'message': "Mise à jour Centrales et Enseignes",
-            'item_name': "update_cct_edi_import",
-        }
+    update_progress_threaded(
+        job_id,
+        processed=1,
+        message="Mise à jour Centrales et Enseignes",
+        item_name="update_cct_edi_import",
     )
-    thread.start()
-    thread.join()
     print(f"update_cct_edi_import :{time.time() - start} s")
     start = time.time()
 
     # Pré-contrôle des données avant insertion
     controls = control_alls_missings()
-    thread = threading.Thread(
-        target=update_progress_threaded,
-        args=(job_id,),
-        kwargs={
-            'processed': 1,
-            'message': "Pré-contrôle",
-            'item_name': "control_alls_missings",
-        }
+    update_progress_threaded(
+        job_id,
+        processed=1,
+        message="Pré-contrôle",
+        item_name="control_alls_missings",
     )
-    thread.start()
-    thread.join()
     print(f"control_alls_missings :{time.time() - start} s")
     start = time.time()
 
@@ -577,6 +560,7 @@ def invoices_insertion(
         ...
 
     alls_print = ""
+    error = False
 
     try:
         with connection.cursor() as cursor:
@@ -587,17 +571,12 @@ def invoices_insertion(
             with transaction.atomic():
                 sanitaze_before(cursor)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Suppression des factures non finalisées",
-                    'item_name': "sanitaze_before",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Suppression des factures non finalisées",
+                item_name="sanitaze_before",
             )
-            thread.start()
-            thread.join()
             print(f"suppression :{time.time() - start} s")
             start = time.time()
 
@@ -606,17 +585,12 @@ def invoices_insertion(
             with transaction.atomic():
                 copy_edi_import(cursor)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Copie de sécurité de la table edi_ediimport",
-                    'item_name': "copy_edi_import",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Copie de sécurité de la table edi_ediimport",
+                item_name="copy_edi_import",
             )
-            thread.start()
-            thread.join()
             print(f"Copie :{time.time() - start} s")
             start = time.time()
 
@@ -625,17 +599,12 @@ def invoices_insertion(
             with transaction.atomic():
                 set_fix_uuid(cursor)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Insertion des import_uuid_identification",
-                    'item_name': "set_fix_uuid",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Insertion des import_uuid_identification",
+                item_name="set_fix_uuid",
             )
-            thread.start()
-            thread.join()
             print(f"set_fix_uuid :{time.time() - start} s")
             start = time.time()
 
@@ -643,36 +612,26 @@ def invoices_insertion(
             with transaction.atomic():
                 cursor.execute(SQL_FIX_ARTICLES)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Mise à jour des articles",
-                    'item_name': "sql_fix_articles",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Mise à jour des articles",
+                item_name="sql_fix_articles",
             )
-            thread.start()
-            thread.join()
 
             # Étape 5 : Mise à jour des centres, enseignes et parties
             with transaction.atomic():
                 process_update()
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': (
-                        "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices "
-                        "avant insertion"
-                    ),
-                    'item_name': "process_update",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message=(
+                    "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices "
+                    "avant insertion"
+                ),
+                item_name="process_update",
             )
-            thread.start()
-            thread.join()
             print(f"process_update :{time.time() - start} s")
             start = time.time()
 
@@ -680,17 +639,12 @@ def invoices_insertion(
             with transaction.atomic():
                 update_axes_edi()
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Mise à jour des axes articles",
-                    'item_name': "update_axes_edi",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Mise à jour des axes articles",
+                item_name="update_axes_edi",
             )
-            thread.start()
-            thread.join()
             print(f"update_axes_edi :{time.time() - start} s")
             start = time.time()
 
@@ -698,17 +652,12 @@ def invoices_insertion(
             with transaction.atomic():
                 set_common_details(cursor)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Insertion des données commmunes, achats et ventes",
-                    'item_name': "set_common_details",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Insertion des données commmunes, achats et ventes",
+                item_name="set_common_details",
             )
-            thread.start()
-            thread.join()
             print(f"set_common_details :{time.time() - start} s")
             start = time.time()
 
@@ -725,17 +674,12 @@ def invoices_insertion(
                 cursor.execute(SQL_PURCHASES_DETAILS)
                 cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Insertion des factures d'achat",
-                    'item_name': "set_purchases_invoices",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Insertion des factures d'achat",
+                item_name="set_purchases_invoices",
             )
-            thread.start()
-            thread.join()
             print(f"set_purchases_invoices :{time.time() - start} s")
             start = time.time()
 
@@ -746,33 +690,23 @@ def invoices_insertion(
                     "Il y a eu une erreur à l'insertion des factures d'achat, "
                     "les totaux ne correspondent pas"
                 )
-                thread = threading.Thread(
-                    target=update_progress_threaded,
-                    args=(job_id,),
-                    kwargs={
-                        'processed': 1,
-                        'failed': 1,
-                        'message': "Erreur sur les factures d'achat",
-                        'item_name': "control_sales_insertion",
-                    }
+                update_progress_threaded(
+                    job_id,
+                    processed=1,
+                    failed=1,
+                    message="Erreur sur les factures d'achat",
+                    item_name="control_sales_insertion",
                 )
-                thread.start()
-                thread.join()
                 raise Exception(
                     "Il y a eu une erreur à l'insertion des factures de vente"
                 )
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Contrôle des factures d'achat",
-                    'item_name': "control_sales_insertion",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Contrôle des factures d'achat",
+                item_name="control_sales_insertion",
             )
-            thread.start()
-            thread.join()
             print(f"control_sales_insertion :{time.time() - start} s")
             start = time.time()
 
@@ -784,31 +718,21 @@ def invoices_insertion(
                 cursor.execute(SQL_SALES_FOR_EXPORT_X3)
 
             if error:
-                thread = threading.Thread(
-                    target=update_progress_threaded,
-                    args=(job_id,),
-                    kwargs={
-                        'processed': 1,
-                        'failed': 1,
-                        'message': "Erreur sur les factures de vente",
-                        'item_name': "set_sales_invoices",
-                    }
+                update_progress_threaded(
+                    job_id,
+                    processed=1,
+                    failed=1,
+                    message="Erreur sur les factures de vente",
+                    item_name="set_sales_invoices",
                 )
-                thread.start()
-                thread.join()
                 raise Exception
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Insertion entêtes de factures de vente",
-                    'item_name': "set_sales_invoices",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Insertion entêtes de factures de vente",
+                item_name="set_sales_invoices",
             )
-            thread.start()
-            thread.join()
             print(f"set_sales_invoices :{time.time() - start} s")
             start = time.time()
 
@@ -817,35 +741,25 @@ def invoices_insertion(
             with transaction.atomic():
                 set_sales_details(cursor)
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Insertion des détails des factures de vente",
-                    'item_name': "set_sales_details",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Insertion des détails des factures de vente",
+                item_name="set_sales_details",
             )
-            thread.start()
-            thread.join()
             print(f"set_sales_details :{time.time() - start} s")
             start = time.time()
 
             # Étape 12 : Contrôle final des factures de vente
             LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
             if control_sales_insertion(cursor):
-                thread = threading.Thread(
-                    target=update_progress_threaded,
-                    args=(job_id,),
-                    kwargs={
-                        'processed': 1,
-                        'failed': 1,
-                        'message': "Erreur sur le contrôle des factures de vente",
-                        'item_name': "control_sales_insertion",
-                    }
+                update_progress_threaded(
+                    job_id,
+                    processed=1,
+                    failed=1,
+                    message="Erreur sur le contrôle des factures de vente",
+                    item_name="control_sales_insertion",
                 )
-                thread.start()
-                thread.join()
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures de vente, "
                     "les totaux ne correspondent pas"
@@ -854,17 +768,12 @@ def invoices_insertion(
                     "Il y a eu une erreur à l'insertion des factures de vente"
                 )
 
-            thread = threading.Thread(
-                target=update_progress_threaded,
-                args=(job_id,),
-                kwargs={
-                    'processed': 1,
-                    'message': "Contrôle des factures de vente réussi",
-                    'item_name': "control_sales_insertion",
-                }
+            update_progress_threaded(
+                job_id,
+                processed=1,
+                message="Contrôle des factures de vente réussi",
+                item_name="control_sales_insertion",
             )
-            thread.start()
-            thread.join()
             print(f"control_sales_insertion :{time.time() - start} s")
             start = time.time()
 
@@ -873,17 +782,12 @@ def invoices_insertion(
 
         # Étape 13 : Numérotation des factures globales
         LOGGER_INVOICES.warning(r"insertion numérotation globale")
-        thread = threading.Thread(
-            target=update_progress_threaded,
-            args=(job_id,),
-            kwargs={
-                'processed': 1,
-                'message': "Numérotation des factures globales",
-                'item_name': "num_full_sales_invoices",
-            }
+        update_progress_threaded(
+            job_id,
+            processed=1,
+            message="Numérotation des factures globales",
+            item_name="num_full_sales_invoices",
         )
-        thread.start()
-        thread.join()
 
         with transaction.atomic():
             num_full_sales_invoices()
@@ -894,33 +798,28 @@ def invoices_insertion(
     except PostgresKeyError as except_error:
         print("ERREUR - PostgresKeyError : ", except_error)
         LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
+        error = True
 
     except PostgresTypeError as except_error:
         print("ERREUR - PostgresTypeError : ", except_error)
         LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
+        error = True
 
     # Exception Générale =======================================================================
     except Exception as except_error:
         print("ERREUR - Exception : ", except_error)
         LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
-
-        # Marquer le job comme échoué
-        if job_id:
-            try:
-                progress = SSEProgress.objects.get(job_id=job_id)
-                progress.mark_as_failed(str(except_error))
-            except Exception as e:
-                LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+        error = True
 
     finally:
-        # Marquer le job comme terminé si pas d'erreur
-        if job_id:
-            try:
-                progress = SSEProgress.objects.get(job_id=job_id)
-                if progress.status == "in_progress":
-                    progress.mark_as_completed()
-            except Exception as e:
-                LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme completed: {e}")
+        if error:
+            update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+        else:
+            update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+
+        # Fermeture explicite de la connexion Django pour éviter les fuites de connexions
+        # dans les threads (CRITICAL: sans cela, chaque thread garde sa connexion ouverte)
+        connection.close()
 
     return trace, alls_print
 

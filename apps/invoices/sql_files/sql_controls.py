@@ -12,6 +12,13 @@ modified at: 2023-03-12
 modified by: Paulo ALVES
 """
 
+SQL_ARTICLES_NEWS = """
+SELECT 1 
+FROM articles_article 
+WHERE new_article
+LIMIT 1
+"""
+
 SQL_ARTCILES_EDI_CONTROL = """
 select 
      1
@@ -89,16 +96,22 @@ order by "as3"."section", "pc"."name", coalesce("ps"."name"::varchar, ''), "ee".
 """
 
 SQL_ACCOUNTS_ARTICLES = """
-select 
-    1
-from edi_ediimport ee 
-left join articles_article aa 
-on aa.reference = ee.reference_article 
-left join articles_articleaccount aa2 
-on aa2.article = aa.uuid_identification 
-and aa2.vat = ee.vat 
-where aa2.article isnull
-limit 1
+SELECT 1
+FROM edi_ediimport ee
+WHERE EXISTS (
+    SELECT 1 
+    FROM articles_article aa
+    WHERE aa.reference = ee.reference_article
+)
+AND NOT EXISTS (
+    SELECT 1 
+    FROM articles_article aa
+    JOIN articles_articleaccount aa2 
+      ON aa2.article = aa.uuid_identification
+    WHERE aa.reference = ee.reference_article
+      AND aa2.vat = ee.vat
+)
+LIMIT 1
 """
 
 SQL_VAT_CONTROL = """
@@ -171,3 +184,75 @@ from (
 ) rr
 where "axe_bu" isnull
 """
+
+SQL_VALIDATIONS = """
+SELECT 1
+FROM edi_edivalidation
+WHERE not final
+  AND NOT (
+    integration
+    AND families
+    AND franchiseurs
+    AND clients_news
+    AND subscriptions
+    AND refac_cct
+    AND suppliers
+    AND validation_ca
+    AND rfa
+  )
+ORDER BY created_at DESC
+LIMIT 1
+"""
+
+SQL_FAMILLES = """
+SELECT 1
+FROM edi_edivalidation
+WHERE not final
+  AND NOT families
+ORDER BY created_at DESC
+LIMIT 1
+"""
+
+SQL_INTEGRATIONS_CONTROLS = """
+SELECT 1
+FROM edi_ediimport ee
+LEFT JOIN edi_ediimportcontrol ec
+  ON ec.uuid_identification = ee.uuid_control
+WHERE ec.uuid_identification IS NULL
+   OR (
+       ec.statement_with_tax = 0 
+       AND ec.statement_without_tax = 0
+       AND COALESCE(ec.comment, '') = ''
+   )
+LIMIT 1;
+"""
+
+SQL_INTEGRATIONS = """
+SELECT 1
+FROM edi_ediimportcontrol ee
+WHERE ee.valid IS NOT TRUE
+LIMIT 1
+"""
+
+VALIDATION_SQL = """
+SELECT 1
+FROM edi_edivalidation
+WHERE not final
+  AND NOT {to_validate}
+ORDER BY created_at DESC
+LIMIT 1
+"""
+
+SQL_FRANCHISEUR = VALIDATION_SQL.format(to_validate="franchiseurs")
+
+SQL_CLIENT_NEWS = VALIDATION_SQL.format(to_validate="clients_news")
+
+SQL_ABONNEMENTS = VALIDATION_SQL.format(to_validate="subscriptions")
+
+SQL_RFA = VALIDATION_SQL.format(to_validate="rfa")
+
+SQL_CCT_M = VALIDATION_SQL.format(to_validate="refac_cct")
+
+SQL_SUPPLIERS_M = VALIDATION_SQL.format(to_validate="suppliers")
+
+SQL_CA_COSIUM = VALIDATION_SQL.format(to_validate="validation_ca")

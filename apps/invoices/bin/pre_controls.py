@@ -1,7 +1,7 @@
 # pylint: disable=E0401
 """
-FR : Module de contrôles avant le lancement des refacturations
-EN : Checks module before launching re-invoicing
+FR: Module de contrôles avant le lancement des refacturations
+EN: Checks module before launching re-invoicing
 
 Commentaire:
 
@@ -11,10 +11,15 @@ created by: Paulo ALVES
 modified at: 2023-03-12
 modified by: Paulo ALVES
 """
-from django.db import connection
-from django.db.models import Q
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from django.db.models import Q
+from django.shortcuts import reverse
+
+from apps.core.functions.functions_setups import connection
 from apps.invoices.sql_files.sql_controls import (
+    SQL_ARTICLES_NEWS,
     SQL_ARTCILES_EDI_CONTROL,
     SQL_TIERS_CONTROL,
     SQL_GROUPING_CONTROL,
@@ -22,18 +27,30 @@ from apps.invoices.sql_files.sql_controls import (
     SQL_ACCOUNTS_ARTICLES,
     SQL_VAT_CONTROL,
     SQL_VAT_REGIME_CONTROL,
+    SQL_INTEGRATIONS_CONTROLS,
     SQL_CCT_CONTROL,
     SQL_CATEGORY_CONTROL,
     SQL_SUB_CATEGORY_CONTROL,
     SQL_CENTER_CONTROL,
     SQL_SIGNBOARD_CONTROL,
     SQL_SALES_AXE_BU,
+    SQL_INTEGRATIONS,
+    SQL_FAMILLES,
+    SQL_FRANCHISEUR,
+    SQL_CLIENT_NEWS,
+    SQL_ABONNEMENTS,
+    SQL_RFA,
+    SQL_CCT_M,
+    SQL_SUPPLIERS_M,
+    SQL_CA_COSIUM,
 )
+from apps.centers_purchasing.sql_files.sql_elements import (
+    articles_acuitis_without_accounts,
+)
+from apps.edi.bin.reset_import import reset_all_imports
 from apps.articles.models import Article
 from apps.invoices.models import SaleInvoice
 from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
-from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
-from apps.edi.bin.reset_import import reset_all_imports
 
 
 def control_articles_axes():
@@ -46,7 +63,9 @@ def control_articles_axes():
         missing_list = [missings[0] for missings in cursor.fetchall()]
 
         if missing_list:
-            return "Vous avez des manquants sur les axes, dans les imports ou les saisies"
+            return (
+                "Vous avez des manquants sur les axes, dans les imports ou les saisies"
+            )
 
     return ""
 
@@ -70,7 +89,7 @@ def control_groupings():
     """
     Controle que tous les ensembles ("AXE PRO", "REGROUPEMENT DE FACTURATION")
     soient décrits dans le Dictionnaire Axe Pro/Regroupement de facturation.
-    Url : /centers_purchasing/axe_grouping_list/
+    Url: /centers_purchasing/axe_grouping_list/
     """
 
     with connection.cursor() as cursor:
@@ -87,7 +106,7 @@ def control_accounts():
     """
     Controle que tous les ensembles ("Centrale fille", "Grande Catégorie", "AXE PRO", "TVA")
     soient décrits dans le Dictionnaire des Comptes debit crédit.
-    Url : /centers_purchasing/account_axe_list/
+    Url: /centers_purchasing/account_axe_list/
     """
 
     with connection.cursor() as cursor:
@@ -195,7 +214,8 @@ def control_sub_categories():
 
         if missing_list:
             return (
-                "Vous avez des manquants sur les Rubriques Presta, dans les imports ou les saisies"
+                "Vous avez des manquants sur les Rubriques Presta, "
+                "dans les imports ou les saisies"
             )
 
     return ""
@@ -217,111 +237,236 @@ def control_axe_bu_od_ana():
 
 def control_alls_missings():
     """
-    Contrôle de tous les manquants dans edi_ediimport
+    Contrôle de tous les manquants dans edi_ediimport - Version parallèle
+    Exécute toutes les requêtes en parallèle en utilisant le pool Django existant
+    Maintient l'ordre dans control_dict
     """
-    controls_dict = {}
-
-    with connection.cursor() as cursor:
-        # ARTICLES
-        cursor.execute(SQL_ARTCILES_EDI_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["articles"] = (
-            "Vous avez des manquants sur les axes, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
+    # Définir toutes les requêtes dans l'ordre avec leur clé et message
+    queries = [
         # TIERS X3 ("third_party_num")
-        cursor.execute(SQL_TIERS_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["tiers"] = (
-            "Vous avez des manquants sur les tiers X3, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (0, "tiers", SQL_TIERS_CONTROL, ("Il manque des tiers X3", "")),
         # TVA X3
-        cursor.execute(SQL_VAT_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["tva"] = (
-            "Vous avez des manquants sur les TVA X3, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (
+            1,
+            "tva",
+            SQL_VAT_CONTROL,
+            ("Il manque des TVA X3", ""),
+        ),
         # REGIME DE TAXE X3
-        cursor.execute(SQL_VAT_REGIME_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["regimes"] = (
-            "Vous avez des manquants sur les régimes de TVA, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
-        # CCT X3
-        cursor.execute(SQL_CCT_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["cct"] = (
-            "Vous avez des manquants sur les CCT X3, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (
+            2,
+            "regimes",
+            SQL_VAT_REGIME_CONTROL,
+            ("Il manque des régimes de TVA", ""),
+        ),
         # GRANDE CATEGORIES
-        cursor.execute(SQL_CATEGORY_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["categories"] = (
-            "Vous avez des manquants sur les Grandes Catégories, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (
+            3,
+            "categories",
+            SQL_CATEGORY_CONTROL,
+            ("Il manque des Grandes Catégories", ""),
+        ),
         # RUBRIQUES PRESTA
-        cursor.execute(SQL_SUB_CATEGORY_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["rubriques_presta"] = (
-            "Vous avez des manquants sur les Rubriques Presta, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (
+            4,
+            "rubriques_presta",
+            SQL_SUB_CATEGORY_CONTROL,
+            ("Il manque des Rubriques Presta", ""),
+        ),
         # REGROUPEMENT FACTURATION
-        cursor.execute(SQL_GROUPING_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["regroupements"] = (
+        (
+            5,
+            "regroupements",
+            SQL_GROUPING_CONTROL,
             (
-                "Vous avez des axes, qui ne sont pas dans les regroupement de facturations "
-                "(Menu : paramétrage -> FACTURATION -> Axe PRO/Regroupements)"
-            )
-            if missing_list
-            else ""
-        )
-
+                (
+                    "Vous avez des axes, qui ne sont pas dans les regroupement de facturations"
+                    " (Menu : paramétrage -> FACTURATION -> Axe PRO/Regroupements)"
+                ),
+                "",
+            ),
+        ),
         # CENTRALE FILLE
-        cursor.execute(SQL_CENTER_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["center_purchase"] = (
-            "Vous avez des manquants sur les Centrales Filles, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (
+            6,
+            "center_purchase",
+            SQL_CENTER_CONTROL,
+            ("Il manque des Centrales Filles", ""),
+        ),
         # ENSEIGNE
-        cursor.execute(SQL_SIGNBOARD_CONTROL)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["signboard"] = (
-            "Vous avez des manquants sur les Enseignes, dans les imports ou les saisies"
-            if missing_list
-            else ""
-        )
-
+        (
+            7,
+            "signboard",
+            SQL_SIGNBOARD_CONTROL,
+            ("Il manque des Enseignes", ""),
+        ),
         # AXE BU
-        cursor.execute(SQL_SALES_AXE_BU)
-        missing_list = [missings[0] for missings in cursor.fetchall()]
-        controls_dict["axe_bu"] = (
-            "Vous avez des axe bu manquants sur les Clients en OD ANA" if missing_list else ""
-        )
+        (
+            8,
+            "axe_bu",
+            SQL_SALES_AXE_BU,
+            (
+                "Vous avez des axe bu manquants sur les Clients en OD ANA",
+                "",
+            ),
+        ),
+        # ARTICLES
+        (
+            9,
+            "articles",
+            SQL_ARTCILES_EDI_CONTROL,
+            ("Il manque des axes, sur les articles", ""),
+        ),
+        # NOUVEAUX ARTICLES
+        (
+            10,
+            "articles_news",
+            SQL_ARTICLES_NEWS,
+            (
+                "Il y a des nouveaux articles : 1.1 Nouveaux Articles",
+                reverse("articles:new_articles_list"),
+            ),
+        ),
+        # ARTICLES SANS COMPTES
+        (
+            11,
+            "articles_without_account",
+            SQL_ACCOUNTS_ARTICLES,
+            (
+                "Il y a des articles sans comptes : 1.2 Articles sans Comptes",
+                reverse("articles:articles_without_account_list"),
+            ),
+        ),
+        # VALIDATIONS
+        (
+            12,
+            "integrations",
+            SQL_INTEGRATIONS_CONTROLS,
+            (
+                "Il manque des contrôles : 2.1 Intégrations",
+                reverse("validation_purchases:integration_purchases"),
+            ),
+        ),
+        (
+            13,
+            "integrations",
+            SQL_INTEGRATIONS,
+            (
+                "Il manque des validations : 2.1 Intégrations",
+                reverse("validation_purchases:integration_purchases"),
+            ),
+        ),
+        # CCT X3
+        (
+            14,
+            "cct",
+            SQL_CCT_CONTROL,
+            (
+                "Il manque des CCT : 2.2 Contrôle CCT",
+                reverse("validation_purchases:without_cct_purchases"),
+            ),
+        ),
+        (
+            15,
+            "familles",
+            SQL_FAMILLES,
+            (
+                "Il manque la validation : 3.1 Contrôles Familles",
+                reverse("validation_purchases:families_invoices_purchases"),
+            ),
+        ),
+        (
+            16,
+            "franchiseur",
+            SQL_FRANCHISEUR,
+            (
+                "Il manque la validation : 3.1 Contrôles CCT/Franchiseurs",
+                reverse("validation_purchases:cct_franchiseurs_purchases"),
+            ),
+        ),
+        (
+            17,
+            "clients_new",
+            SQL_CLIENT_NEWS,
+            (
+                "Il manque la validation : 3.3 Contrôle Nouveaux Clients",
+                reverse("validation_purchases:clients_news_purchases"),
+            ),
+        ),
+        (
+            18,
+            "abonnements",
+            SQL_ABONNEMENTS,
+            (
+                "Il manque la validation : 3.5 Contrôle Abonnements",
+                reverse("validation_purchases:subscriptions_purchases"),
+            ),
+        ),
+        (
+            19,
+            "rfa",
+            SQL_RFA,
+            (
+                "Il manque la validation : 3.6 Contrôle période RFA",
+                reverse("validation_purchases:control_rfa_period"),
+            ),
+        ),
+        (
+            20,
+            "cct_m",
+            SQL_CCT_M,
+            (
+                "Il manque la validation : 5.0 Contrôle Refac M/M-1 CCT",
+                reverse("validation_purchases:refac_cct_purchases"),
+            ),
+        ),
+        (
+            21,
+            "suppliers_m",
+            SQL_SUPPLIERS_M,
+            (
+                "Il manque la validation : 5.1 Contrôle Fournisseurs M/M-1",
+                reverse("validation_purchases:balance_suppliers_purchases"),
+            ),
+        ),
+        (
+            22,
+            "ca_cosium",
+            SQL_CA_COSIUM,
+            (
+                "Il manque la validation : 5.3 Contrôle CA Cosium/Ventes Héron",
+                reverse("validation_purchases:ca_cct"),
+            ),
+        ),
+    ]
 
-    return {key: value for key, value in controls_dict.items() if value}
+    def execute_query(index, key, sql, message):
+        """Execute une requête et retourne l'index,
+        la clé et le message si des résultats existent
+        """
+        from django.db import connection
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            missing_list = [missings[0] for missings in cursor.fetchall()]
+            return index, key, message if missing_list else ""
+
+    # Exécuter toutes les requêtes en parallèle avec ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        # Soumettre toutes les requêtes
+        futures = {
+            executor.submit(execute_query, index, key, sql, message): index
+            for index, key, sql, message in queries
+        }
+
+        # Collecter les résultats en préservant l'ordre
+        results = [None] * len(queries)
+        for future in as_completed(futures):
+            index, key, message = future.result()
+            results[index] = (key, message)
+
+    # Construire le dictionnaire avec seulement les éléments non vides
+    return {key: message for key, message in results if message}
 
 
 def control_insertion():
@@ -403,7 +548,9 @@ def control_validations():
         controls_list.append("Vous avez des imports non validés")
 
     edi_validations = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .order_by("-id")
+        .first()
     )
 
     # Mise à jour du contrôle des nouveaux articles
@@ -432,8 +579,8 @@ def control_validations():
     validations = {
         "articles_news": "La Validation sur Ecran 1.1 Nouveaux Articles",
         "articles_without_account": "La Validation sur Ecran 1.2 Articles sans Comptes",
-        "integration": "La Validation sur Ecran 2.1 Intégrations",
         "cct": "La Validation sur Ecran 2.2 Contrôle CCT",
+        "integration": "La Validation sur Ecran 2.1 Intégrations",
         "families": "La Validation sur Ecran 3.1 Contrôles Familles",
         "franchiseurs": "La Validation sur Ecran 3.2 Contrôle Franchiseurs",
         "clients_news": "La Validation sur Ecran 3.3 Nouveaux CLients",
@@ -450,3 +597,16 @@ def control_validations():
 
     print(controls_list)
     return controls_list
+
+
+def articles_are_valid():
+    """Retourne si tous les articles sont valides"""
+    return not Article.objects.filter(new_article=True).exists()
+
+
+def control_all():
+    """Contrôle des validations"""
+
+
+if __name__ == "__main__":
+    print(control_alls_missings())

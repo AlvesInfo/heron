@@ -1,9 +1,25 @@
 {% extends "heron/update_create_courant.html" %}
+{% load filters_tags %}
 
 {% block table %}
-    <div class="four wide column"></div>
+    <div class="five wide column"></div>
 
-    <div class="eight wide column">
+    <div class="six wide column">
+
+    {% if all_missings %}
+        <h4 style="color: red;text-align: left;">Vous ne pouvez pas générer les factures pour les raisons suivantes :</h4>
+        <ul class="ui red list" style="color: red">
+        {% for value in all_missings|get_dict_values %}
+            {% if value.1 %}
+                <a href="{{ value.1 }}"><div class="item" style="text-align: left;margin-left: 30px;">{{ value.0 }}</div></a>
+            {% else %}
+                <div class="item" style="text-align: left;margin-left: 30px;">{{ value.0 }}</div>
+            {% endif %}
+        {% endfor %}
+        </ul>
+
+    {% else %}
+
         <div id="insertion_invoices_container">
             <div class="ui centered grid" style="margin: auto;padding: 20px;">
                 <div class="row">
@@ -15,8 +31,10 @@
         <!-- Conteneur pour la jauge de progression -->
         <div id="progress-container" style="display: none; margin-top: 20px;"></div>
 
+    {% endif %}
+
+
     </div>
-    <div class="four wide column"></div>
 
 {% endblock table %}
 

@@ -211,6 +211,9 @@ DATABASES = {
         "HOST": HOST_DATABASE,
         "PORT": PORT_DATABASE,
         "client_encoding": "UTF8",
+        # Gestion du pool de connexions pour éviter "trop de clients connectés"
+        "CONN_MAX_AGE": 60,  # Réutilise les connexions pendant 60 secondes
+        "CONN_HEALTH_CHECKS": True,  # Vérifie la santé des connexions avant réutilisation
         'OPTIONS': {
              'sslmode': 'disable',
          },
@@ -223,6 +226,8 @@ DATABASES = {
         "HOST": HOST_DATABASE_HERON,
         "PORT": PORT_DATABASE_HERON,
         "client_encoding": "UTF8",
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
     },
     "formation": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -232,6 +237,8 @@ DATABASES = {
         "HOST": HOST_DATABASE_FORMATION,
         "PORT": PORT_DATABASE_FORMATION,
         "client_encoding": "UTF8",
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
     },
     "bi_bdd": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -241,6 +248,8 @@ DATABASES = {
         "HOST": HOST_DATABASE_BI,
         "PORT": PORT_DATABASE_BI,
         "client_encoding": "UTF8",
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
     },
 }
 

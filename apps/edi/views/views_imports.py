@@ -34,17 +34,6 @@ def import_edi_invoices(request):
     """Bouton d'import des factures edi"""
     request.session["level"] = 20
 
-    in_action = get_in_progress()
-
-    if in_action:
-        request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            "Vous ne pouvez pas importer, imports en cours ...",
-        )
-        return redirect(reverse("home"))
-
     # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
@@ -64,6 +53,18 @@ def import_edi_invoices(request):
             "not_finalize": True,
         }
         return render(request, "edi/edi_import.html", context=context)
+
+    # On contrôle que des imports ne soient pas en cours
+    in_action = get_in_progress()
+
+    if in_action:
+        request.session["level"] = 50
+        messages.add_message(
+            request,
+            50,
+            "Vous ne pouvez pas importer, imports en cours ...",
+        )
+        return redirect(reverse("home"))
 
     # Récupération parallèle et asynchrone de toutes les vérifications
     (

@@ -38,7 +38,7 @@ from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
-from apps.invoices.bin.pre_controls import control_insertion, control_emails
+from apps.invoices.bin.pre_controls import control_insertion, control_emails, control_alls_missings
 from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
 from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
@@ -67,6 +67,14 @@ def generate_invoices_insertions(request):
         "progress_icon": "📄",
     }
 
+    # On contrôle qu'il y ait des factures à générer
+    if not edi_invoices_exists:
+        request.session["level"] = 50
+        messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
+        context["not_finalize"] = True
+
+        return render(request, "invoices/insertion_invoices.html", context=context)
+
     if not_finalize:
         request.session["level"] = 50
         messages.add_message(
@@ -88,12 +96,10 @@ def generate_invoices_insertions(request):
         }
         return render(request, "invoices/insertion_invoices.html", context=context)
 
-    # On contrôle qu'il y ait des factures à générer
-    if not edi_invoices_exists:
-        request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucune facture à générer !")
-        context["not_finalize"] = True
+    all_missings = control_alls_missings()
 
+    if all_missings:
+        context["all_missings"] = all_missings
         return render(request, "invoices/insertion_invoices.html", context=context)
 
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
@@ -158,9 +164,6 @@ def generate_invoices_insertions(request):
 
     context["en_cours"] = any([insertion, pdf_invoices, email_invoices])
     context["titre_table"] = titre_table
-    context["submit_url"] = "invoices:generate_invoices_insertions"
-    context["progress_title"] = "Génération de la facturation"
-    context["progress_icon"] = "📄"
 
     return render(request, "invoices/insertion_invoices.html", context=context)
 

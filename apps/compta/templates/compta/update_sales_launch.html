@@ -100,11 +100,13 @@
                                     */
                                 },
                                 onError: function (data) {
-                                    alert('Une erreur est survenue : ' + (data.error_message || 'Erreur inconnue'));
+                                    $(`#id_titre_table`).text("ERREUR ...").css("color", "red");
                                     // Recharger la page en cas d'erreur
+                                    /*
                                     setTimeout(function () {
                                         location.reload();
                                     }, 2000);
+                                    */
                                 }
                             });
                         } else {
