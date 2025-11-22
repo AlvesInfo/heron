@@ -56,17 +56,16 @@ def rfa_generation(request):
         | Q(axe_pys__isnull=True)
         | Q(axe_rfa__isnull=True)
         | Q(big_category__isnull=True)
-    )
+    ).exists()
 
-    if new_articles:
-        if have_rfa:
-            level = 50
-            request.session["level"] = level
-            messages.add_message(
-                request,
-                level,
-                "Vous ne pouvez pas générer de RFA, car il y existe de nouveaux articles",
-            )
+    if new_articles and have_rfa:
+        level = 50
+        request.session["level"] = level
+        messages.add_message(
+            request,
+            level,
+            "Vous ne pouvez pas générer de RFA, car il y existe de nouveaux articles",
+        )
 
         return redirect(reverse("articles:new_articles_list"))
 
