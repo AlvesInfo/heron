@@ -34,7 +34,23 @@ def import_edi_invoices(request):
     """Bouton d'import des factures edi"""
     request.session["level"] = 20
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    # On contrôle que des imports ne soient pas en cours
+    in_action = get_in_progress()
+
+    context = {
+            "en_cours": False,
+            "margin_table": 50,
+            "titre_table": (
+                "INTEGRATION EN COURS, PATIENTEZ..."
+                if in_action
+                else "Import des factures founisseurs EDI"
+            ),
+        }
+
+    if in_action:
+        return render(request, "edi/edi_import.html", context=context)
+
+    # On contrôle qu'il n'y a pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
     if not_finalize:
@@ -47,24 +63,8 @@ def import_edi_invoices(request):
                 "mais non finalisée"
             ),
         )
-        context = {
-            "margin_table": 50,
-            "titre_table": "Import des factures founisseurs EDI",
-            "not_finalize": True,
-        }
+
         return render(request, "edi/edi_import.html", context=context)
-
-    # On contrôle que des imports ne soient pas en cours
-    in_action = get_in_progress()
-
-    if in_action:
-        request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            "Vous ne pouvez pas importer, imports en cours ...",
-        )
-        return redirect(reverse("home"))
 
     # Récupération parallèle et asynchrone de toutes les vérifications
     (
@@ -154,20 +154,13 @@ def import_edi_invoices(request):
                 {"success": False, "error": "Il n'y a aucuns fichiers EDI à traiter !"}
             )
 
-    context = {
-        "en_cours": in_action,
-        "margin_table": 50,
-        "titre_table": (
-            "INTEGRATION EN COURS, PATIENTEZ..."
-            if in_action
-            else "Import des factures founisseurs EDI"
-        ),
+    context.update({
         "have_statment": have_statment,
         "have_monthly": have_monthly,
         "have_retours": have_retours,
         "have_receptions": have_receptions,
         "files_celery": files_celery,
         "retours_valid": retours_valid,
-    }
+    })
 
     return render(request, "edi/edi_import.html", context=context)

@@ -16,7 +16,7 @@ from apps.edi.models import EdiImport
 
 def reset_all_imports():
     """
-    Reset de tous les edi imports, saisie, etc..., pour une nouvelle période de programmation
+    Reset de tous les edi imports, saisie, etc., pour une nouvelle période de programmation
     :return: None
     """
     EdiImport.objects.all().delete()
