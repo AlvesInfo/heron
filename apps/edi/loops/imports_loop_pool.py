@@ -110,42 +110,58 @@ def separate_edi():
     """Séparation des fichiers EDI (ex.: JULBO qui met plusieurs edi dans un seul fichier"""
     edi_files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / "EDI"
 
-    for file in edi_files_directory.glob("*"):
-        if file.name.startswith("._"):
-            if file.is_file():
-                file.unlink()
+    try:
+        # Vérifier que le répertoire existe et est accessible
+        if not edi_files_directory.exists():
+            LOGGER_EDI.warning(f"Le répertoire EDI n'existe pas: {edi_files_directory}")
+            return
 
-        else:
-            encoding = encoding_detect(file) or "ascii"
-            una_test = False
+        if not edi_files_directory.is_dir():
+            LOGGER_EDI.error(f"Le chemin EDI n'est pas un répertoire: {edi_files_directory}")
+            return
 
-            with open(file, "r", encoding=encoding) as edi_file:
-                text = edi_file.read().strip()
-                split_text = re.split(r"(?=UNA:\+).*[\n|']", text)
+        for file in edi_files_directory.glob("*"):
+            try:
+                if file.name.startswith("._"):
+                    if file.is_file():
+                        file.unlink()
 
-                if len(split_text) > 2:
-                    for text_edi_file in split_text:
-                        if text_edi_file:
-                            una_test = True
-                            file_name = (
-                                Path(settings.PROCESSING_SUPPLIERS_DIR)
-                                / f"EDI/{file.stem}.{get_random_name()}.edi"
-                            )
+                else:
+                    encoding = encoding_detect(file) or "ascii"
+                    una_test = False
 
-                            # On s'assure que le nom du fichier n'existe pas
-                            while True:
-                                if not file_name.is_file():
-                                    break
+                    with open(file, "r", encoding=encoding) as edi_file:
+                        text = edi_file.read().strip()
+                        split_text = re.split(r"(?=UNA:\+).*[\n|']", text)
 
-                            with open(
-                                file_name,
-                                "w",
-                                encoding=encoding,
-                            ) as file_to_write:
-                                file_to_write.write(text_edi_file)
+                        if len(split_text) > 2:
+                            for text_edi_file in split_text:
+                                if text_edi_file:
+                                    una_test = True
+                                    file_name = (
+                                        Path(settings.PROCESSING_SUPPLIERS_DIR)
+                                        / f"EDI/{file.stem}.{get_random_name()}.edi"
+                                    )
 
-            if una_test:
-                file.unlink()
+                                    # On s'assure que le nom du fichier n'existe pas
+                                    while True:
+                                        if not file_name.is_file():
+                                            break
+
+                                    with open(
+                                        file_name,
+                                        "w",
+                                        encoding=encoding,
+                                    ) as file_to_write:
+                                        file_to_write.write(text_edi_file)
+
+                    if una_test:
+                        file.unlink()
+            except Exception as e:
+                LOGGER_EDI.error(f"Erreur lors du traitement du fichier {file}: {e}")
+                continue
+    except Exception as e:
+        LOGGER_EDI.exception(f"Erreur lors de la séparation des fichiers EDI: {e}")
 
 
 def get_files_celery():
@@ -356,12 +372,13 @@ def get_have_receptions():
 
 # Convertir les fonctions synchrones en async
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
-get_have_statment_async = sync_to_async(get_have_statment, thread_sensitive=True)
-get_have_monthly_async = sync_to_async(get_have_monthly, thread_sensitive=True)
-get_have_retours_async = sync_to_async(get_have_retours, thread_sensitive=True)
-get_retours_valid_async = sync_to_async(get_retours_valid, thread_sensitive=True)
-get_have_receptions_async = sync_to_async(get_have_receptions, thread_sensitive=True)
-get_files_celery_async = sync_to_async(get_files_celery, thread_sensitive=True)
+# et évite les deadlocks en production sur Linux
+get_have_statment_async = sync_to_async(get_have_statment, thread_sensitive=False)
+get_have_monthly_async = sync_to_async(get_have_monthly, thread_sensitive=False)
+get_have_retours_async = sync_to_async(get_have_retours, thread_sensitive=False)
+get_retours_valid_async = sync_to_async(get_retours_valid, thread_sensitive=False)
+get_have_receptions_async = sync_to_async(get_have_receptions, thread_sensitive=False)
+get_files_celery_async = sync_to_async(get_files_celery, thread_sensitive=False)
 
 
 async def get_all_import_checks_async():
