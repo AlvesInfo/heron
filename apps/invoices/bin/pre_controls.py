@@ -473,6 +473,7 @@ def control_insertion():
     """
     Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
     :return: True si non finalisé, false si finalisé
+
     """
     sql_control = """
     select 
