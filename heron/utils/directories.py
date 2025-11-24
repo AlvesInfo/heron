@@ -6,8 +6,7 @@ ce qui améliore significativement les performances au démarrage de Django.
 
 Les répertoires sont créés uniquement quand ils sont réellement utilisés.
 
-created at: 2025-11-16
-created by: Claude Code
+Created at: 2025-11-16
 """
 from pathlib import Path
 from functools import lru_cache
@@ -70,7 +69,7 @@ def lazy_mkdir(relative_path: str) -> Path:
         >>> MEDIA_DIR = lazy_mkdir("files/media")
         >>> # Le répertoire n'existe pas encore
         >>> ensure_directory(MEDIA_DIR)
-        >>> # Maintenant il existe
+        >>> # Maintenant, il existe
     """
     return (get_files_base_dir() / relative_path).resolve()
 
@@ -123,7 +122,7 @@ def safe_write_bytes(file_path: Path, content: bytes):
 
     Example:
         >>> from django.conf import settings
-        >>> safe_write_bytes(settings.MEDIA_DIR / "image.png", image_data)
+        >>> safe_write_bytes(settings.MEDIA_DIR / "image.png", b"image_data")
     """
     ensure_directory(file_path.parent)
     return file_path.write_bytes(content)
