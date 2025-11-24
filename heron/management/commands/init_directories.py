@@ -66,9 +66,6 @@ class Command(BaseCommand):
                     )
                     created_count += 1
                 else:
-                    self.stdout.write(
-                        self.style.WARNING(f'- Existe: {dir_name} -> {dir_path}')
-                    )
                     skipped_count += 1
             except Exception as e:
                 self.stdout.write(
