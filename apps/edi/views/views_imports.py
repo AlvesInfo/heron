@@ -1,5 +1,4 @@
-# pylint: disable=
-"""
+""""
 FR : Module des vues pour les imports
 EN : Views module for imports
 
@@ -14,8 +13,7 @@ modified by: Paulo ALVES
 
 import uuid
 import threading
-import logging
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync
 
 from django.shortcuts import render
 from django.contrib import messages
@@ -30,23 +28,15 @@ from apps.edi.loops.imports_loop_pool import (
 )
 from apps.invoices.bin.pre_controls import control_insertion
 
-logger = logging.getLogger('apps.edi')
-
-# Convertir les fonctions sync en async pour une utilisation dans la vue async
-get_in_progress_async = sync_to_async(get_in_progress, thread_sensitive=False)
-control_insertion_async = sync_to_async(control_insertion, thread_sensitive=False)
+IMPORT_TEMPLATE = "edi/edi_import.html"
 
 
-async def import_edi_invoices(request):
-    """Bouton d'import des factures edi - Vue async native Django"""
-    logger.info("=== DEBUT import_edi_invoices (async) ===")
-
-    # Session access needs to be sync
-    await sync_to_async(lambda: setattr(request.session, "level", 20))()
+def import_edi_invoices(request):
+    """Bouton d'import des factures edi"""
+    request.session["level"] = 20
 
     # On contrôle que des imports ne soient pas en cours
-    in_action = await get_in_progress_async()
-    logger.info(f"Import en cours: {in_action}")
+    in_action = get_in_progress()
 
     context = {
             "en_cours": False,
@@ -59,17 +49,15 @@ async def import_edi_invoices(request):
         }
 
     if in_action:
-        logger.info("Import déjà en cours, retour template")
-        return await sync_to_async(render)(request, "edi/edi_import.html", context=context)
+        context.update({"en_cours": True})
+        return render(request, IMPORT_TEMPLATE, context=context)
 
     # On contrôle qu'il n'y a pas des factures non finalisées, mais envoyées par mail
-    logger.info("Contrôle des factures non finalisées...")
-    not_finalize = await control_insertion_async()
-    logger.info(f"Factures non finalisées: {not_finalize}")
+    not_finalize = control_insertion()
 
     if not_finalize:
-        await sync_to_async(lambda: setattr(request.session, "level", 50))()
-        await sync_to_async(messages.add_message)(
+        request.session["level"] = 50
+        messages.add_message(
             request,
             50,
             (
@@ -78,30 +66,19 @@ async def import_edi_invoices(request):
             ),
         )
 
-        return await sync_to_async(render)(request, "edi/edi_import.html", context=context)
+        return render(request, IMPORT_TEMPLATE, context=context)
 
     # Récupération parallèle et asynchrone de toutes les vérifications
-    # Plus besoin de async_to_sync, on est déjà dans une fonction async !
-    logger.info("Début récupération des vérifications async...")
-    try:
-        (
-            have_statment,
-            have_monthly,
-            have_retours,
-            have_receptions,
-            files_celery,
-            retours_valid,
-        ) = await get_all_import_checks_async()
-        logger.info(f"Vérifications OK - statment:{have_statment}, monthly:{have_monthly}, "
-                   f"retours:{have_retours}, receptions:{have_receptions}, "
-                   f"files:{len(files_celery) if files_celery else 0}, retours_valid:{retours_valid}")
-    except Exception as e:
-        logger.exception("ERREUR lors de la récupération des vérifications async")
-        context["titre_table"] = "ERREUR lors de la vérification des fichiers"
-        await sync_to_async(messages.add_message)(request, 50, f"Erreur technique: {str(e)}")
-        return await sync_to_async(render)(request, "edi/edi_import.html", context=context)
+    (
+        have_statment,
+        have_monthly,
+        have_retours,
+        have_receptions,
+        files_celery,
+        retours_valid,
+    ) = async_to_sync(get_all_import_checks_async)()
 
-    # Si l'on envoie un POST alors on lance l'import en tâche de fond celery
+    # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
     if request.method == "POST" and not in_action:
         bool_files = any(
             [have_statment, have_monthly, have_retours, have_receptions, files_celery]
@@ -153,8 +130,7 @@ async def import_edi_invoices(request):
                 target = celery_import_launch
                 args = (user_pk, job_id)
 
-            # Créer le SSEProgress de manière async
-            progress = await sync_to_async(SSEProgress.objects.create)(
+            progress = SSEProgress.objects.create(
                 job_id=job_id,
                 user_id=user_pk,
                 total_items=total_files,
@@ -162,14 +138,15 @@ async def import_edi_invoices(request):
                 custom_title=custom_title,
                 metadata={"success": [], "failed": []},
             )
-            await sync_to_async(progress.mark_as_started)()
+            progress.mark_as_started()
 
-            # Lancement d'un thread séparé (on garde le thread car celery_import_launch est sync)
-            await sync_to_async(threading.Thread(
+            # Lancement d'un thread séparé
+            thread = threading.Thread(
                 target=target,
                 args=args,
                 daemon=True,
-            ).start)()
+            )
+            thread.start()
 
             # Retourner JSON immédiatement
             return JsonResponse({"success": True, "job_id": job_id})
@@ -188,4 +165,4 @@ async def import_edi_invoices(request):
         "retours_valid": retours_valid,
     })
 
-    return await sync_to_async(render)(request, "edi/edi_import.html", context=context)
+    return render(request, IMPORT_TEMPLATE, context=context)
