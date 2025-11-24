@@ -16,6 +16,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from django.db.models import Q
 from django.shortcuts import reverse
+from asgiref.sync import sync_to_async
 
 from apps.core.functions.functions_setups import connection
 from apps.invoices.sql_files.sql_controls import (
@@ -585,6 +586,14 @@ def articles_are_valid():
 
 def control_all():
     """Contrôle des validations"""
+
+
+# ==================== VERSION ASYNC ====================
+
+# Version async de control_insertion
+# thread_sensitive=False permet l'exécution parallèle dans des threads séparés
+# et évite les deadlocks en production sur Linux
+control_insertion_async = sync_to_async(control_insertion, thread_sensitive=False)
 
 
 if __name__ == "__main__":

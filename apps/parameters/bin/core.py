@@ -18,6 +18,7 @@ from datetime import timedelta
 import pendulum
 from django_celery_results.models import TaskResult
 from django.utils import timezone
+from asgiref.sync import sync_to_async
 
 from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.core.functions.functions_utilitaires import get_module_object
@@ -303,3 +304,11 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
     counter_num_obj.save()
 
     return str_num
+
+
+# ==================== VERSION ASYNC ====================
+
+# Version async de get_in_progress
+# thread_sensitive=False permet l'exécution parallèle dans des threads séparés
+# et évite les deadlocks en production sur Linux
+get_in_progress_async = sync_to_async(get_in_progress, thread_sensitive=False)

@@ -23,14 +23,13 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.http import JsonResponse
 
-from apps.parameters.bin.core import get_in_progress
 from apps.core.models import SSEProgress
 from apps.edi.loops.imports_loop_pool import (
     celery_import_launch,
     import_launch_bbgr,
     get_all_import_checks_async,
+    get_import_controls_async,
 )
-from apps.invoices.bin.pre_controls import control_insertion
 
 IMPORT_TEMPLATE = "edi/edi_import.html"
 
@@ -56,11 +55,11 @@ def import_edi_invoices(request):
 
     request.session["level"] = 20
 
-    # On contrôle que des imports ne soient pas en cours
+    # Exécution parallèle de get_in_progress et control_insertion
     start = time.perf_counter()
-    in_action = get_in_progress()
-    time_in_progress = time.perf_counter() - start
-    logger.info(f"[IMPORT_EDI_INVOICES] get_in_progress: {time_in_progress:.4f}s")
+    in_action, not_finalize = async_to_sync(get_import_controls_async)()
+    time_controls = time.perf_counter() - start
+    logger.info(f"[IMPORT_EDI_INVOICES] get_import_controls_async: {time_controls:.4f}s")
 
     context = {
             "en_cours": False,
@@ -74,12 +73,6 @@ def import_edi_invoices(request):
         time_total = time.perf_counter() - start_total
         logger.info(f"[IMPORT_EDI_INVOICES] TOTAL (in_action): {time_total:.4f}s")
         return render(request, IMPORT_TEMPLATE, context=context)
-
-    # On contrôle qu'il n'y a pas des factures non finalisées, mais envoyées par mail
-    start = time.perf_counter()
-    not_finalize = control_insertion()
-    time_control_insertion = time.perf_counter() - start
-    logger.info(f"[IMPORT_EDI_INVOICES] control_insertion: {time_control_insertion:.4f}s")
 
     if not_finalize:
         request.session["level"] = 50

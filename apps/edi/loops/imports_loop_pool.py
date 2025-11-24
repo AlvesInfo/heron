@@ -380,6 +380,10 @@ get_retours_valid_async = sync_to_async(get_retours_valid, thread_sensitive=Fals
 get_have_receptions_async = sync_to_async(get_have_receptions, thread_sensitive=False)
 get_files_celery_async = sync_to_async(get_files_celery, thread_sensitive=False)
 
+# Import des versions async des contrôles d'import
+from apps.parameters.bin.core import get_in_progress_async
+from apps.invoices.bin.pre_controls import control_insertion_async
+
 
 async def get_all_import_checks_async():
     """
@@ -396,6 +400,21 @@ async def get_all_import_checks_async():
         get_have_receptions_async(),
         get_files_celery_async(),
         get_retours_valid_async(),
+    )
+
+    return results
+
+
+async def get_import_controls_async():
+    """
+    Exécute get_in_progress et control_insertion en parallèle.
+
+    Returns:
+        tuple: (in_action, not_finalize)
+    """
+    results = await asyncio.gather(
+        get_in_progress_async(),
+        control_insertion_async(),
     )
 
     return results
