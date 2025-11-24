@@ -478,32 +478,10 @@ def control_insertion():
     sql_control = """
     select 
         1
-    from "invoices_invoicecommondetails" "ii"
-    join (
-        select 
-            "uuid_identification"
-        from "edi_edivalidation"
-        where "final" = false 
-        and articles_news = true
-        and articles_without_account = true
-        and integration = true
-        and cct = true
-        and families = true
-        and franchiseurs = true
-        and clients_news = true
-        and subscriptions = true
-        and refac_cct = true
-        and suppliers = true
-        and validation_ca = true
-        and rfa = true
-        limit 1 
-    ) "ev" 
-    on "ii"."uuid_validation" ="ev"."uuid_identification"
-    join "invoices_saleinvoicedetail" "sd" 
-    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
-    join "invoices_saleinvoice" "sa"
-    on "sd"."uuid_invoice" = "sa"."uuid_identification"
-    where "sa"."send_email" = true
+    from "invoices_saleinvoice" "sa"
+    where  
+        "sa"."send_email" = true
+        and "sa"."final" = false
     limit 1
     """
 

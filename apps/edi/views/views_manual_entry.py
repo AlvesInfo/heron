@@ -110,7 +110,7 @@ def create_hand_invoices(request, category):
     ).values()
     data = {"success": "ko"}
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
     if not_finalize:

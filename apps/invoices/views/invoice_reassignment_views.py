@@ -40,7 +40,7 @@ def invoice_search_list(request):
     """Affichage de la page de recherche des Factures pour la réaffectation"""
     limit = 50
 
-    # On contrôle qu'il n'y ait pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
     if not_finalize:
