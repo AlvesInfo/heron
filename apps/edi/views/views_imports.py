@@ -65,6 +65,7 @@ def import_edi_invoices(request):
                 "mais non finalisée"
             ),
         )
+        context.update({"not_finalize": True})
 
         return render(request, IMPORT_TEMPLATE, context=context)
 
