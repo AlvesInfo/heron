@@ -575,7 +575,7 @@ class WsauSchema(
         """Config"""
 
         model = EdiImport
-        include = list(get_columns(ColumnDefinition, "Widex")) + [
+        include = list(get_columns(ColumnDefinition, "Wsau")) + [
             "uuid_identification",
             "flow_name",
             "supplier",

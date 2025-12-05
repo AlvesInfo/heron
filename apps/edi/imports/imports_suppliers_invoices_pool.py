@@ -901,10 +901,10 @@ def wsau(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    new_file = file_path
+
     to_print = "erreur"
     try:
-        new_file = wsau_file(file_path)
+        wsau_file(file_path)
         to_print = make_insert_edi_files(
             model, flow_name, file_path, trace, validator, params_dict_loader
         )
@@ -985,3 +985,7 @@ def z_bu_refac(file_path: Path):
     new_file.unlink()
 
     return trace, to_print
+
+
+if __name__ == '__main__':
+    wsau(Path("/Users/paulo/Downloads/ACUITIS_DETAIL_202511.csv"))
