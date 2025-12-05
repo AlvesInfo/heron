@@ -288,7 +288,7 @@ def wsau_file(file: Path):
 
         for i, line in enumerate(csv_reader, 1):
             if not line[1]:
-                error_lines.append(i)
+                error_lines.append(str(i))
 
     if error_lines:
         error = (
