@@ -923,8 +923,6 @@ def wsau(file_path: Path):
         trace.comment = "Une erreur c'est produite veuillez consulter les logs"
         trace.save()
         LOGGER_EDI.exception(f"wsau_file : {error!r}")
-    finally:
-        new_file.unlink()
 
     return trace, to_print
 
