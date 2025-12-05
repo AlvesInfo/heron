@@ -1,7 +1,7 @@
 # pylint: disable=E1101,W1203
 """
-FR : Module qui change les integration venues sans tiers identifés
-EN : Module that changes integrations without identified third parties
+FR: Module qui change les integration venues sans tiers identifés
+EN: Module that changes integrations without identified third parties
 
 Commentaire:
 
@@ -36,7 +36,13 @@ def purchase_without_suppliers(request):
         "elements_list": EdiImport.objects.filter(
             Q(third_party_num="") | Q(third_party_num__isnull=True)
         )
-        .values("uuid_identification", "third_party_num", "flow_name", "supplier", "supplier_ident")
+        .values(
+            "uuid_identification",
+            "third_party_num",
+            "flow_name",
+            "supplier",
+            "supplier_ident",
+        )
         .annotate(dcount=Count("uuid_identification")),
         "form": UpdateThirdpartynumForm(),
         "margin_table": 50,
@@ -47,7 +53,9 @@ def purchase_without_suppliers(request):
         context["titre_table"] = "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
 
     return render(
-        request, "validation_purchases/integration_without_third_party_num.html", context=context
+        request,
+        "validation_purchases/integration_without_third_party_num.html",
+        context=context,
     )
 
 
@@ -137,27 +145,35 @@ def purchase_without_suppliers_update(request):
                 )
 
                 if not edi_without_third_part_num:
-                    data = {"success": reverse("validation_purchases:integration_purchases")}
+                    data = {
+                        "success": reverse("validation_purchases:integration_purchases")
+                    }
                 else:
                     data = {"success": "success"}
 
             else:
                 messages.add_message(request, 50, "Vous n'avez rien modifié")
 
-        except:
+        except Exception as error:
             messages.add_message(
                 request, 50, "Une erreur c'est produite veuillez consulter les logs"
             )
-            LOGGER_VIEWS.exception("view : purchase_without_suppliers_update")
+            LOGGER_VIEWS.exception(
+                f"view : purchase_without_suppliers_update \n {error!r}"
+            )
     else:
         errors_list = []
 
         for key, errors in form.errors.items():
             error = errors.as_text().replace("* ", "").replace("\n", ", ")
-            text_error = f"Erreur{'s' if len(errors) > 1 else ''} sur le champ {key} : {error}"
+            text_error = (
+                f"Erreur{'s' if len(errors) > 1 else ''} sur le champ {key} : {error}"
+            )
             errors_list.append(text_error)
 
-        messages.add_message(request, 50, f"Une erreur c'est produite : {', '.join(errors_list)}")
+        messages.add_message(
+            request, 50, f"Une erreur c'est produite : {', '.join(errors_list)}"
+        )
         LOGGER_VIEWS.exception(f"cct_change, form invalid : {form.errors!r}")
 
     return JsonResponse(data)

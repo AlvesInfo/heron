@@ -115,6 +115,8 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
     file = Path(str_file)
     backup_file = Path(str_backup_file)
     function = processing_dict.get(processing_key)
+    separator = "\n" + "=" * 142
+    LOGGER_EDI.warning(separator)
     LOGGER_EDI.warning(f"TASK STARTED: flow={str(processing_key).upper()!r} job_id={job_id!r}")
 
     try:

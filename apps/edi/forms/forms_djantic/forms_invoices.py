@@ -561,6 +561,29 @@ class WidexSchema(
         ]
 
 
+class WsauSchema(
+    ModelSchema,
+    ValidateFieldsBase,
+    TvaWidex,
+):
+    """Schema Djantic pour validation du modèle Wsau"""
+
+    uuid_identification: uuid.UUID
+    supplier: str
+
+    class Config:
+        """Config"""
+
+        model = EdiImport
+        include = list(get_columns(ColumnDefinition, "Widex")) + [
+            "uuid_identification",
+            "flow_name",
+            "supplier",
+            "created_at",
+            "modified_at",
+        ]
+
+
 class WidexGaSchema(
     ModelSchema,
     ValidateFieldsBase,

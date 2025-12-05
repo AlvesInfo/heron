@@ -75,6 +75,7 @@ from apps.edi.forms.forms_djantic.forms_invoices import (
     TechnidisSchema,
     UnitronSchema,
     WidexSchema,
+    WsauSchema,
     WidexGaSchema,
     ZBuRefacSageSchema,
 )
@@ -881,7 +882,7 @@ def widex(file_path: Path):
 def wsau(file_path: Path):
     """Import du fichier des factures Widex/Signia/Biotone"""
     model = EdiImport
-    validator = WidexSchema
+    validator = WsauSchema
     file_name = file_path.name
     trace_name = "Import WSAU"
     application_name = "edi_imports_suppliers_invoices_pool"
