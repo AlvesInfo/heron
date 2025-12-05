@@ -19,6 +19,7 @@ from decimal import Decimal
 
 import pendulum
 
+from heron.loggers import LOGGER_EDI
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_dates import validate_date
 from apps.core.bin.get_sage_elements import (
@@ -39,7 +40,7 @@ def bulk_translate_file(file: Path):
     """
     Transformation du fichier en entrée des factures BBGR Bulk, arrivant au format entêtes/lignes
     pour le transformer en fichier à plat
-    :param file:
+    :param file: Fichier
     :return: Path(file)
     """
     while True:
@@ -79,7 +80,7 @@ def bulk_translate_file(file: Path):
 def interson_translate_file(file: Path):
     """
     Transformation du fichier en entrée des factures Interson, pour remplacer le separateur \t par;
-    :param file:
+    :param file: Fichier
     :return: Path(file)
     """
     while True:
@@ -122,7 +123,7 @@ def transferts_cosium_file(file: Path):
     """
     Transformation du fichier en entrée des transferts, switcher en deux lignes.
     Une pour l'envoyeur, l'autre pour le receptionnaire.
-    :param file: fichier
+    :param file: Fichier
     :return: Path(file)
     """
     while True:
@@ -234,7 +235,7 @@ def johnson_file(file: Path):
     """
     Transformation du fichier jonhson pour supprimer les sous totaux (en deuxième position *)
     Une pour l'envoyeur, l'autre pour le receptionnaire.
-    :param file: fichier
+    :param file: Fichier
     :return: Path(file)
     """
     new_csv_file = file.parents[0] / f"{file.stem}.csv"
@@ -267,11 +268,49 @@ def johnson_file(file: Path):
     return new_csv_file
 
 
+def wsau_file(file: Path):
+    """
+    Contrôle du fichier wsau, qu'il ne manque pas le supplier_ident
+    :param file: Fichier
+    :return: Path(file)
+    """
+    new_csv_file = file.parents[0] / f"{file.stem}.csv"
+    csv_io = io.StringIO()
+    excel_file_to_csv_string_io(file, csv_io)
+    error_lines = []
+
+    with new_csv_file.open("r", encoding="utf8", newline="") as file_to_read:
+        csv_reader = csv.reader(
+            csv_io,
+            delimiter=";",
+            quotechar='"',
+            lineterminator="\n",
+            quoting=csv.QUOTE_MINIMAL,
+        )
+
+        for i, line in enumerate(csv_reader, 1):
+            if not line[1]:
+                error_lines.append(i)
+
+    csv_io.close()
+    file.unlink()
+
+    if error_lines:
+        error = (
+            "Erreur dans le fichier WSAU, il manque l'identifiant (WIDE/REXT/SIGN/AUDI) "
+            f"aux lignes : {', '.join(error_lines)}"
+        )
+        LOGGER_EDI.exception(f"Exception Générale : {error!r}")
+        raise AttributeError(error)
+
+    return new_csv_file
+
+
 def z_bu_refac_file(file: Path) -> Path:
     """
     Transformation du fichier jonhson pour supprimer les sous totaux (en deuxième position *)
     Une pour l'envoyeur, l'autre pour le receptionnaire.
-    :param file: fichier
+    :param file: Fichier
     :return: Path(file)
     """
     while True:

@@ -1,7 +1,7 @@
 # pylint: disable=W0703,W1203
 """
-FR : Module d'import des factures founisseurs EDI
-EN : Import module for EDI incoives suppliers
+FR: Module d'import des factures founisseurs EDI
+EN: Import module for EDI incoives suppliers
 
 Commentaire:
 
@@ -28,6 +28,7 @@ from apps.edi.bin.edi_pre_processing_pool import (
     interson_translate_file,
     transferts_cosium_file,
     johnson_file,
+    wsau_file,
     z_bu_refac_file,
 )
 from apps.edi.bin.edi_post_processing_pool import (
@@ -900,10 +901,22 @@ def wsau(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert_edi_files(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
-    widex_post_insert(trace.uuid_identification)
+    new_file = file_path
+    to_print = "erreur"
+    try:
+        new_file = wsau_file(file_path)
+        to_print = make_insert_edi_files(
+            model, flow_name, file_path, trace, validator, params_dict_loader
+        )
+        widex_post_insert(trace.uuid_identification)
+
+    except (Exception, AttributeError) as error:
+        trace.errors = True
+        trace.comment = "Une erreur c'est produite veuillez consulter les logs"
+        trace.save()
+        LOGGER_EDI.exception(f"wsau_file : {error!r}")
+    finally:
+        new_file.unlink()
 
     return trace, to_print
 
