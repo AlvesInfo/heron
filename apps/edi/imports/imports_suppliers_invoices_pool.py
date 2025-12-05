@@ -893,7 +893,7 @@ def wsau(file_path: Path):
         "add_fields_dict": {
             "flow_name": flow_name,
             "supplier": get_supplier(flow_name),
-            "supplier_ident": get_ident(flow_name),
+            # "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
             "created_at": timezone.now(),
             "modified_at": timezone.now(),
