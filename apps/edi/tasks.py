@@ -105,7 +105,6 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
     Intégration des factures fournisseurs présentes
     dans les répertoires de processing/suppliers_invoices_files
     """
-    LOGGER_EDI.warning(f"TASK STARTED: job_id={job_id}, user_pk={user_pk}")
 
     start_initial = time.time()
 
@@ -116,6 +115,7 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
     file = Path(str_file)
     backup_file = Path(str_backup_file)
     function = processing_dict.get(processing_key)
+    LOGGER_EDI.warning(f"TASK STARTED: flow={str(processing_key).upper()!r} job_id={job_id!r}")
 
     try:
         user = User.objects.get(pk=user_pk)
