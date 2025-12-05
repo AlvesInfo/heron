@@ -70,6 +70,9 @@ class GmailAuthenticator:
 
             # Si toujours pas de credentials, lance le flow OAuth2
             if not self.creds:
+                # Crée le fichier credentials.json depuis la configuration YAML si nécessaire
+                self._create_credentials_file_if_needed(credentials_file)
+
                 if not credentials_file.exists():
                     raise FileNotFoundError(
                         f"Le fichier de credentials {credentials_file} n'existe pas. "
@@ -81,9 +84,6 @@ class GmailAuthenticator:
                 LOGGER_EMAIL.info(
                     "Lancement du flow d'authentification OAuth2..."
                 )
-
-                # Crée le fichier credentials.json temporaire si nécessaire
-                self._create_credentials_file_if_needed(credentials_file)
 
                 try:
                     flow = InstalledAppFlow.from_client_secrets_file(

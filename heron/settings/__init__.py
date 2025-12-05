@@ -8,13 +8,14 @@ if platform.uname().node in {
     "MSI",
     "FR07123475L",
     "MSI_PAULO",
-    "MacBook-Pro-de-Paulo.local"
+    "MacBook-Pro-de-Paulo.local",
+    "Mac"
 }:
-    # print("LOCAL_SETTINGS")
+    print("LOCAL_SETTINGS")
     from heron.settings.local import *
 
 else:
-    # print("PRODUCTION_SETTINGS")
+    print("PRODUCTION_SETTINGS")
     from heron.settings.production import *
 
 from heron.settings.clients import *

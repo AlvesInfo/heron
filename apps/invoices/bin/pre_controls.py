@@ -15,6 +15,7 @@ modified by: Paulo ALVES
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from django.db.models import Q
+from django.db import close_old_connections
 from django.shortcuts import reverse
 from asgiref.sync import sync_to_async
 
@@ -447,10 +448,14 @@ def control_alls_missings():
         """
         from django.db import connection
 
-        with connection.cursor() as cursor:
-            cursor.execute(sql)
-            missing_list = [missings[0] for missings in cursor.fetchall()]
-            return index, key, message if missing_list else ""
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+                missing_list = [missings[0] for missings in cursor.fetchall()]
+                return index, key, message if missing_list else ""
+        finally:
+            # Fermer la connexion pour éviter l'épuisement du pool
+            close_old_connections()
 
     # Exécuter toutes les requêtes en parallèle avec ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=8) as executor:
@@ -590,10 +595,20 @@ def control_all():
 
 # ==================== VERSION ASYNC ====================
 
+
+def _control_insertion_with_cleanup(*args, **kwargs):
+    """Wrapper qui ferme les connexions DB après l'appel pour éviter l'épuisement du pool."""
+    try:
+        return control_insertion(*args, **kwargs)
+    finally:
+        close_old_connections()
+
+
 # Version async de control_insertion
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
 # et évite les deadlocks en production sur Linux
-control_insertion_async = sync_to_async(control_insertion, thread_sensitive=False)
+# Le wrapper _control_insertion_with_cleanup ferme les connexions après chaque appel
+control_insertion_async = sync_to_async(_control_insertion_with_cleanup, thread_sensitive=False)
 
 
 if __name__ == "__main__":

@@ -14,10 +14,12 @@ modified by: Paulo ALVES
 
 from typing import Any, AnyStr, Dict
 from datetime import timedelta
+from functools import wraps
 
 import pendulum
 from django_celery_results.models import TaskResult
 from django.utils import timezone
+from django.db import close_old_connections
 from asgiref.sync import sync_to_async
 
 from apps.core.exceptions import LaunchDoesNotExistsError
@@ -193,10 +195,10 @@ def get_action(action: AnyStr = "import_edi_invoices"):
     return action
 
 
-def get_in_progress(task_name="suppliers_import"):
+def get_in_progress(action="import_edi_invoices", task_name="suppliers_import"):
     """Renvoi si un process d'intégration edi est en cours"""
     try:
-        in_action_object = ActionInProgress.objects.get(action="import_edi_invoices")
+        in_action_object = ActionInProgress.objects.get(action=action)
         in_action = in_action_object.in_progress
 
         # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
@@ -308,7 +310,17 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
 
 # ==================== VERSION ASYNC ====================
 
+
+def _get_in_progress_with_cleanup(*args, **kwargs):
+    """Wrapper qui ferme les connexions DB après l'appel pour éviter l'épuisement du pool."""
+    try:
+        return get_in_progress(*args, **kwargs)
+    finally:
+        close_old_connections()
+
+
 # Version async de get_in_progress
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
 # et évite les deadlocks en production sur Linux
-get_in_progress_async = sync_to_async(get_in_progress, thread_sensitive=False)
+# Le wrapper _get_in_progress_with_cleanup ferme les connexions après chaque appel
+get_in_progress_async = sync_to_async(_get_in_progress_with_cleanup, thread_sensitive=False)

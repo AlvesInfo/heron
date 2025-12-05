@@ -37,7 +37,8 @@ from pathlib import Path
 from .sender import sender
 
 
-# @shared_task(name="celery_send_invoices_emails_gmail")
+@shared_task(name="celery_send_invoices_emails_gmail")
+@clean_memory
 def launch_celery_send_invoice_mails_gmail(
     user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None
 ):

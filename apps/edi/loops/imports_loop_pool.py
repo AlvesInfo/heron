@@ -14,33 +14,18 @@ modified by: Paulo ALVES
 
 from typing import AnyStr
 import asyncio
-import os
-import platform
 import re
-import sys
 from pathlib import Path
 import time
 
-import django
-
-BASE_DIR = r"C:\SitesWeb\heron"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
-
 from psycopg2 import sql
-from django.db import connection, connections, transaction
+from django.db import transaction, close_old_connections
 from asgiref.sync import sync_to_async
 from celery import group
 
 from heron import celery_app
 from heron.loggers import LOGGER_EDI
+from apps.core.functions.functions_setups import connection, connections
 from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
@@ -117,7 +102,9 @@ def separate_edi():
             return
 
         if not edi_files_directory.is_dir():
-            LOGGER_EDI.error(f"Le chemin EDI n'est pas un répertoire: {edi_files_directory}")
+            LOGGER_EDI.error(
+                f"Le chemin EDI n'est pas un répertoire: {edi_files_directory}"
+            )
             return
 
         for file in edi_files_directory.glob("*"):
@@ -370,15 +357,41 @@ def get_have_receptions():
 
 # ==================== VERSIONS ASYNC DES FONCTIONS ====================
 
+
+def _with_db_cleanup(func):
+    """Wrapper qui ferme les connexions DB après l'appel pour éviter l'épuisement du pool."""
+
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        finally:
+            close_old_connections()
+
+    return wrapper
+
+
 # Convertir les fonctions synchrones en async
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
 # et évite les deadlocks en production sur Linux
-get_have_statment_async = sync_to_async(get_have_statment, thread_sensitive=False)
-get_have_monthly_async = sync_to_async(get_have_monthly, thread_sensitive=False)
-get_have_retours_async = sync_to_async(get_have_retours, thread_sensitive=False)
-get_retours_valid_async = sync_to_async(get_retours_valid, thread_sensitive=False)
-get_have_receptions_async = sync_to_async(get_have_receptions, thread_sensitive=False)
-get_files_celery_async = sync_to_async(get_files_celery, thread_sensitive=False)
+# Le wrapper _with_db_cleanup ferme les connexions après chaque appel
+get_have_statment_async = sync_to_async(
+    _with_db_cleanup(get_have_statment), thread_sensitive=False
+)
+get_have_monthly_async = sync_to_async(
+    _with_db_cleanup(get_have_monthly), thread_sensitive=False
+)
+get_have_retours_async = sync_to_async(
+    _with_db_cleanup(get_have_retours), thread_sensitive=False
+)
+get_retours_valid_async = sync_to_async(
+    _with_db_cleanup(get_retours_valid), thread_sensitive=False
+)
+get_have_receptions_async = sync_to_async(
+    _with_db_cleanup(get_have_receptions), thread_sensitive=False
+)
+get_files_celery_async = sync_to_async(
+    _with_db_cleanup(get_files_celery), thread_sensitive=False
+)
 
 # Import des versions async des contrôles d'import
 from apps.parameters.bin.core import get_in_progress_async
@@ -696,7 +709,11 @@ def import_launch_subscriptions(
         if not job_id:
             if isinstance(result, (list,)) and result:
                 result = result[0]
-            info = result if isinstance(result, (str,)) else ". ".join(list(result.values()))
+            info = (
+                result
+                if isinstance(result, (str,))
+                else ". ".join(list(result.values()))
+            )
 
     return "Erreur" in info, info
 
@@ -711,4 +728,5 @@ if __name__ == "__main__":
         avec des false : False - False
     """
     from asgiref.sync import async_to_sync
+
     print(async_to_sync(get_all_import_checks_async)())

@@ -9,6 +9,7 @@ import time
 import logging
 import sys
 import os
+from asgiref.sync import async_to_sync
 
 from django.shortcuts import render
 from django.contrib import messages
@@ -21,16 +22,21 @@ from apps.compta.bin.validations_subscriptions import (
 )
 from apps.parameters.bin.core import get_in_progress
 from apps.core.models import SSEProgress
-from apps.edi.loops.imports_loop_pool import import_launch_subscriptions
+from apps.edi.loops.imports_loop_pool import (
+    import_launch_subscriptions,
+    get_import_controls_async,
+)
 from apps.invoices.bin.pre_controls import control_insertion
 
 # Configuration du logger pour afficher dans la console sans duplication
 logger = logging.getLogger(__name__)
-if os.environ.get('RUN_MAIN') == 'true':
+if os.environ.get("RUN_MAIN") == "true":
     # Processus principal : configurer le logger pour afficher
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(message)s'))
+        handler.setFormatter(
+            logging.Formatter("%(filename)s:%(lineno)d [%(funcName)s] - %(message)s")
+        )
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
         logger.propagate = False
@@ -39,6 +45,8 @@ else:
     logger.setLevel(logging.CRITICAL + 1)
     logger.propagate = False
 
+ROYALTIES_TEMPLATE = "compta/update_sales_launch.html"
+
 
 def royalties_launch(request):
     """Lancement de la génération des Royalties
@@ -46,12 +54,34 @@ def royalties_launch(request):
     :return:
     """
     start_total = time.perf_counter()
+    request.session["level"] = 20
+    TITRE_PRINICIPAL = "Génération des factures de Royalties"
 
-    # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
+    # Exécution parallèle de get_in_progress et control_insertion
     start = time.perf_counter()
-    not_finalize = control_insertion()
-    time_control_insertion = time.perf_counter() - start
-    logger.info(f"[ROYALTIES_LAUNCH] control_insertion: {time_control_insertion:.4f}s")
+    in_action, not_finalize = async_to_sync(get_import_controls_async)()
+    time_controls = time.perf_counter() - start
+    logger.info(f"[v] get_import_controls_async: {time_controls:.4f}s")
+
+    context = {
+        "en_cours": False,
+        "margin_table": 50,
+        "titre_table": TITRE_PRINICIPAL,
+        "submit_url": "compta:royalties_launch",
+        "progress_title": TITRE_PRINICIPAL,
+        "progress_icon": "💰",
+    }
+
+    if in_action:
+        context.update(
+            {
+                "en_cours": True,
+                "titre_table": "INTEGRATION EN COURS, PATIENTEZ...",
+            }
+        )
+        time_total = time.perf_counter() - start_total
+        logger.info(f"[v] TOTAL (in_action): {time_total:.4f}s")
+        return render(request, ROYALTIES_TEMPLATE, context=context)
 
     if not_finalize:
         request.session["level"] = 50
@@ -63,25 +93,19 @@ def royalties_launch(request):
                 "car la facturation est déjà envoyée par mail, mais non finalisée"
             ),
         )
-        context = {
-            "titre_table": "Génération des factures de Royalties",
-            "not_finalize": True,
-            "submit_url": "compta:royalties_launch",
-            "progress_title": "Génération des factures de Royalties",
-            "progress_icon": "💰",
-        }
-        time_total = time.perf_counter() - start_total
-        logger.info(f"[ROYALTIES_LAUNCH] TOTAL (not_finalize): {time_total:.4f}s")
-        return render(request, "compta/update_sales_launch.html", context=context)
+        context.update(
+            {
+                "not_finalize": True,
+            }
+        )
 
-    start = time.perf_counter()
+        time_total = time.perf_counter() - start_total
+        logger.info(f"[v] TOTAL (not_finalize): {time_total:.4f}s")
+        return render(request, ROYALTIES_TEMPLATE, context=context)
+
     form = MonthForm(request.POST or None)
-    in_action = get_in_progress()
-    time_form_init = time.perf_counter() - start
-    logger.info(f"[ROYALTIES_LAUNCH] form_init + get_in_progress: {time_form_init:.4f}s")
 
     if request.method == "POST" and not in_action:
-
         if form.is_valid():
             start = time.perf_counter()
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
@@ -91,19 +115,23 @@ def royalties_launch(request):
             start = time.perf_counter()
             text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
             time_check_family = time.perf_counter() - start
-            logger.info(f"[ROYALTIES_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s")
+            logger.info(
+                f"[ROYALTIES_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s"
+            )
 
             if text_error_familly:
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[ROYALTIES_LAUNCH] TOTAL (error_family): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": text_error_familly}
+                logger.info(
+                    f"[ROYALTIES_LAUNCH] TOTAL (error_family): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": text_error_familly})
 
             start = time.perf_counter()
             have_subs = get_have_subscriptions("ROYALTIES", dte_d, dte_f)
             time_check_subs = time.perf_counter() - start
-            logger.info(f"[ROYALTIES_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s")
+            logger.info(
+                f"[ROYALTIES_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s"
+            )
 
             if have_subs:
                 message = (
@@ -112,10 +140,10 @@ def royalties_launch(request):
                     "supprimez les Royalties et refaite la génération."
                 )
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[ROYALTIES_LAUNCH] TOTAL (already_exists): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": message}
+                logger.info(
+                    f"[ROYALTIES_LAUNCH] TOTAL (already_exists): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": message})
 
             else:
                 user_pk = request.user.id
@@ -137,18 +165,28 @@ def royalties_launch(request):
                 )
                 progress.mark_as_started()
                 time_create_progress = time.perf_counter() - start
-                logger.info(f"[ROYALTIES_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s")
+                logger.info(
+                    f"[ROYALTIES_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s"
+                )
 
                 # Lancement d'un thread séparé
                 start = time.perf_counter()
                 thread = threading.Thread(
                     target=import_launch_subscriptions,
-                    args=("ROYALTIES", dte_d, dte_f, request.user.uuid_identification, job_id),
+                    args=(
+                        "ROYALTIES",
+                        dte_d,
+                        dte_f,
+                        request.user.uuid_identification,
+                        job_id,
+                    ),
                     daemon=True,
                 )
                 thread.start()
                 time_thread_start = time.perf_counter() - start
-                logger.info(f"[ROYALTIES_LAUNCH] thread_start: {time_thread_start:.4f}s")
+                logger.info(
+                    f"[ROYALTIES_LAUNCH] thread_start: {time_thread_start:.4f}s"
+                )
 
                 time_total = time.perf_counter() - start_total
                 logger.info(f"[ROYALTIES_LAUNCH] TOTAL (success): {time_total:.4f}s")
@@ -165,24 +203,18 @@ def royalties_launch(request):
             )
 
     start = time.perf_counter()
-    context = {
-        "en_cours": in_action,
-        "titre_table": (
-            "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
-            if in_action
-            else "Génération des factures de Royalties"
-        ),
-        "form": form,
-        "submit_url": "compta:royalties_launch",
-        "progress_title": "Génération des factures de Royalties",
-        "progress_icon": "💰",
-        "task_type": "ROYALTIES",
-    }
+
+    context.update(
+        {
+            "form": form,
+            "task_type": "ROYALTIES",
+        }
+    )
     time_context = time.perf_counter() - start
     logger.info(f"[ROYALTIES_LAUNCH] context_creation: {time_context:.4f}s")
 
     start = time.perf_counter()
-    response = render(request, "compta/update_sales_launch.html", context=context)
+    response = render(request, ROYALTIES_TEMPLATE, context=context)
     time_render = time.perf_counter() - start
     logger.info(f"[ROYALTIES_LAUNCH] render: {time_render:.4f}s")
 
@@ -197,12 +229,34 @@ def meuleuse_launch(request):
     :return:
     """
     start_total = time.perf_counter()
+    request.session["level"] = 20
+    TITRE_PRINICIPAL = "Génération des factures de Meuleuses"
 
-    # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
+    # Exécution parallèle de get_in_progress et control_insertion
     start = time.perf_counter()
-    not_finalize = control_insertion()
-    time_control_insertion = time.perf_counter() - start
-    logger.info(f"[MEULEUSE_LAUNCH] control_insertion: {time_control_insertion:.4f}s")
+    in_action, not_finalize = async_to_sync(get_import_controls_async)()
+    time_controls = time.perf_counter() - start
+    logger.info(f"[v] get_import_controls_async: {time_controls:.4f}s")
+
+    context = {
+        "en_cours": False,
+        "margin_table": 50,
+        "titre_table": TITRE_PRINICIPAL,
+        "submit_url": "compta:meuleuse_launch",
+        "progress_icon": "💰",
+        "progress_title": TITRE_PRINICIPAL,
+    }
+
+    if in_action:
+        context.update(
+            {
+                "en_cours": True,
+                "titre_table": "INTEGRATION EN COURS, PATIENTEZ...",
+            }
+        )
+        time_total = time.perf_counter() - start_total
+        logger.info(f"[v] TOTAL (in_action): {time_total:.4f}s")
+        return render(request, ROYALTIES_TEMPLATE, context=context)
 
     if not_finalize:
         request.session["level"] = 50
@@ -214,25 +268,19 @@ def meuleuse_launch(request):
                 "car la facturation est déjà envoyée par mail, mais non finalisée"
             ),
         )
-        context = {
-            "titre_table": "Génération des factures de Meuleuses",
-            "not_finalize": True,
-            "submit_url": "compta:meuleuse_launch",
-            "progress_title": "Génération des factures de Meuleuses",
-            "progress_icon": "⚙️",
-        }
-        time_total = time.perf_counter() - start_total
-        logger.info(f"[MEULEUSE_LAUNCH] TOTAL (not_finalize): {time_total:.4f}s")
-        return render(request, "compta/update_sales_launch.html", context=context)
+        context.update(
+            {
+                "not_finalize": True,
+            }
+        )
 
-    start = time.perf_counter()
+        time_total = time.perf_counter() - start_total
+        logger.info(f"[v] TOTAL (not_finalize): {time_total:.4f}s")
+        return render(request, ROYALTIES_TEMPLATE, context=context)
+
     form = MonthForm(request.POST or None)
-    in_action = get_in_progress()
-    time_form_init = time.perf_counter() - start
-    logger.info(f"[MEULEUSE_LAUNCH] form_init + get_in_progress: {time_form_init:.4f}s")
 
     if request.method == "POST" and not in_action:
-
         if form.is_valid():
             start = time.perf_counter()
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
@@ -242,19 +290,23 @@ def meuleuse_launch(request):
             start = time.perf_counter()
             text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
             time_check_family = time.perf_counter() - start
-            logger.info(f"[MEULEUSE_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s")
+            logger.info(
+                f"[MEULEUSE_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s"
+            )
 
             if text_error_familly:
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[MEULEUSE_LAUNCH] TOTAL (error_family): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": text_error_familly}
+                logger.info(
+                    f"[MEULEUSE_LAUNCH] TOTAL (error_family): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": text_error_familly})
 
             start = time.perf_counter()
             have_subs = get_have_subscriptions("MEULEUSE", dte_d, dte_f)
             time_check_subs = time.perf_counter() - start
-            logger.info(f"[MEULEUSE_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s")
+            logger.info(
+                f"[MEULEUSE_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s"
+            )
 
             if have_subs:
                 message = (
@@ -263,10 +315,10 @@ def meuleuse_launch(request):
                     "supprimez les redevances Meuleuses et refaite la génération."
                 )
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[MEULEUSE_LAUNCH] TOTAL (already_exists): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": message}
+                logger.info(
+                    f"[MEULEUSE_LAUNCH] TOTAL (already_exists): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": message})
 
             else:
                 user_pk = request.user.id
@@ -288,13 +340,21 @@ def meuleuse_launch(request):
                 )
                 progress.mark_as_started()
                 time_create_progress = time.perf_counter() - start
-                logger.info(f"[MEULEUSE_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s")
+                logger.info(
+                    f"[MEULEUSE_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s"
+                )
 
                 # Lancement d'un thread séparé
                 start = time.perf_counter()
                 thread = threading.Thread(
                     target=import_launch_subscriptions,
-                    args=("MEULEUSE", dte_d, dte_f, request.user.uuid_identification, job_id),
+                    args=(
+                        "MEULEUSE",
+                        dte_d,
+                        dte_f,
+                        request.user.uuid_identification,
+                        job_id,
+                    ),
                     daemon=True,
                 )
                 thread.start()
@@ -316,24 +376,17 @@ def meuleuse_launch(request):
             )
 
     start = time.perf_counter()
-    context = {
-        "en_cours": in_action,
-        "titre_table": (
-            "DES INTEGRATIONS SONT EN COURS, PATIENTEZ..."
-            if in_action
-            else "Génération des factures de Meuleuses"
-        ),
-        "form": form,
-        "submit_url": "compta:meuleuse_launch",
-        "progress_title": "Génération des factures de Meuleuses",
-        "progress_icon": "⚙️",
-        "task_type": "MEULEUSE",
-    }
+    context.update(
+        {
+            "form": form,
+            "task_type": "MEULEUSE",
+        }
+    )
     time_context = time.perf_counter() - start
     logger.info(f"[MEULEUSE_LAUNCH] context_creation: {time_context:.4f}s")
 
     start = time.perf_counter()
-    response = render(request, "compta/update_sales_launch.html", context=context)
+    response = render(request, ROYALTIES_TEMPLATE, context=context)
     time_render = time.perf_counter() - start
     logger.info(f"[MEULEUSE_LAUNCH] render: {time_render:.4f}s")
 
@@ -349,7 +402,7 @@ def publicity_launch(request):
     """
     start_total = time.perf_counter()
 
-    # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y a pas des factures non finalisées, mais envoyées par mail
     start = time.perf_counter()
     not_finalize = control_insertion()
     time_control_insertion = time.perf_counter() - start
@@ -374,16 +427,17 @@ def publicity_launch(request):
         }
         time_total = time.perf_counter() - start_total
         logger.info(f"[PUBLICITY_LAUNCH] TOTAL (not_finalize): {time_total:.4f}s")
-        return render(request, "compta/update_sales_launch.html", context=context)
+        return render(request, ROYALTIES_TEMPLATE, context=context)
 
     start = time.perf_counter()
     form = MonthForm(request.POST or None)
     in_action = get_in_progress()
     time_form_init = time.perf_counter() - start
-    logger.info(f"[PUBLICITY_LAUNCH] form_init + get_in_progress: {time_form_init:.4f}s")
+    logger.info(
+        f"[PUBLICITY_LAUNCH] form_init + get_in_progress: {time_form_init:.4f}s"
+    )
 
     if request.method == "POST" and not in_action:
-
         if form.is_valid():
             start = time.perf_counter()
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
@@ -393,19 +447,23 @@ def publicity_launch(request):
             start = time.perf_counter()
             text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
             time_check_family = time.perf_counter() - start
-            logger.info(f"[PUBLICITY_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s")
+            logger.info(
+                f"[PUBLICITY_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s"
+            )
 
             if text_error_familly:
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[PUBLICITY_LAUNCH] TOTAL (error_family): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": text_error_familly}
+                logger.info(
+                    f"[PUBLICITY_LAUNCH] TOTAL (error_family): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": text_error_familly})
 
             start = time.perf_counter()
             have_subs = get_have_subscriptions("PUBLICITE", dte_d, dte_f)
             time_check_subs = time.perf_counter() - start
-            logger.info(f"[PUBLICITY_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s")
+            logger.info(
+                f"[PUBLICITY_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s"
+            )
 
             if have_subs:
                 message = (
@@ -414,10 +472,10 @@ def publicity_launch(request):
                     "supprimez les redevances de Publicité et refaite la génération."
                 )
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[PUBLICITY_LAUNCH] TOTAL (already_exists): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": message}
+                logger.info(
+                    f"[PUBLICITY_LAUNCH] TOTAL (already_exists): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": message})
 
             else:
                 user_pk = request.user.id
@@ -439,18 +497,28 @@ def publicity_launch(request):
                 )
                 progress.mark_as_started()
                 time_create_progress = time.perf_counter() - start
-                logger.info(f"[PUBLICITY_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s")
+                logger.info(
+                    f"[PUBLICITY_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s"
+                )
 
                 # Lancement d'un thread séparé
                 start = time.perf_counter()
                 thread = threading.Thread(
                     target=import_launch_subscriptions,
-                    args=("PUBLICITE", dte_d, dte_f, request.user.uuid_identification, job_id),
+                    args=(
+                        "PUBLICITE",
+                        dte_d,
+                        dte_f,
+                        request.user.uuid_identification,
+                        job_id,
+                    ),
                     daemon=True,
                 )
                 thread.start()
                 time_thread_start = time.perf_counter() - start
-                logger.info(f"[PUBLICITY_LAUNCH] thread_start: {time_thread_start:.4f}s")
+                logger.info(
+                    f"[PUBLICITY_LAUNCH] thread_start: {time_thread_start:.4f}s"
+                )
 
                 time_total = time.perf_counter() - start_total
                 logger.info(f"[PUBLICITY_LAUNCH] TOTAL (success): {time_total:.4f}s")
@@ -484,7 +552,7 @@ def publicity_launch(request):
     logger.info(f"[PUBLICITY_LAUNCH] context_creation: {time_context:.4f}s")
 
     start = time.perf_counter()
-    response = render(request, "compta/update_sales_launch.html", context=context)
+    response = render(request, ROYALTIES_TEMPLATE, context=context)
     time_render = time.perf_counter() - start
     logger.info(f"[PUBLICITY_LAUNCH] render: {time_render:.4f}s")
 
@@ -500,7 +568,7 @@ def services_launch(request):
     """
     start_total = time.perf_counter()
 
-    # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
+    # On contrôle qu'il n'y a pas des factures non finalisées, mais envoyées par mail
     start = time.perf_counter()
     not_finalize = control_insertion()
     time_control_insertion = time.perf_counter() - start
@@ -525,7 +593,7 @@ def services_launch(request):
         }
         time_total = time.perf_counter() - start_total
         logger.info(f"[SERVICES_LAUNCH] TOTAL (not_finalize): {time_total:.4f}s")
-        return render(request, "compta/update_sales_launch.html", context=context)
+        return render(request, ROYALTIES_TEMPLATE, context=context)
 
     start = time.perf_counter()
     form = MonthForm(request.POST or None)
@@ -534,7 +602,6 @@ def services_launch(request):
     logger.info(f"[SERVICES_LAUNCH] form_init + get_in_progress: {time_form_init:.4f}s")
 
     if request.method == "POST" and not in_action:
-
         if form.is_valid():
             start = time.perf_counter()
             dte_d, dte_f = form.cleaned_data.get("periode").split("_")
@@ -544,19 +611,23 @@ def services_launch(request):
             start = time.perf_counter()
             text_error_familly = get_missing_cosium_familly(dte_d, dte_f)
             time_check_family = time.perf_counter() - start
-            logger.info(f"[SERVICES_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s")
+            logger.info(
+                f"[SERVICES_LAUNCH] get_missing_cosium_familly: {time_check_family:.4f}s"
+            )
 
             if text_error_familly:
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[SERVICES_LAUNCH] TOTAL (error_family): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": text_error_familly}
+                logger.info(
+                    f"[SERVICES_LAUNCH] TOTAL (error_family): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": text_error_familly})
 
             start = time.perf_counter()
             have_subs = get_have_subscriptions("PRESTATIONS", dte_d, dte_f)
             time_check_subs = time.perf_counter() - start
-            logger.info(f"[SERVICES_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s")
+            logger.info(
+                f"[SERVICES_LAUNCH] get_have_subscriptions: {time_check_subs:.4f}s"
+            )
 
             if have_subs:
                 message = (
@@ -565,10 +636,10 @@ def services_launch(request):
                     "supprimez les Abonnements de Prestations et refaite la génération."
                 )
                 time_total = time.perf_counter() - start_total
-                logger.info(f"[SERVICES_LAUNCH] TOTAL (already_exists): {time_total:.4f}s")
-                return JsonResponse(
-                    {"success": False, "error": message}
+                logger.info(
+                    f"[SERVICES_LAUNCH] TOTAL (already_exists): {time_total:.4f}s"
                 )
+                return JsonResponse({"success": False, "error": message})
 
             else:
                 user_pk = request.user.id
@@ -590,13 +661,21 @@ def services_launch(request):
                 )
                 progress.mark_as_started()
                 time_create_progress = time.perf_counter() - start
-                logger.info(f"[SERVICES_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s")
+                logger.info(
+                    f"[SERVICES_LAUNCH] create_SSEProgress: {time_create_progress:.4f}s"
+                )
 
                 # Lancement d'un thread séparé
                 start = time.perf_counter()
                 thread = threading.Thread(
                     target=import_launch_subscriptions,
-                    args=("PRESTATIONS", dte_d, dte_f, request.user.uuid_identification, job_id),
+                    args=(
+                        "PRESTATIONS",
+                        dte_d,
+                        dte_f,
+                        request.user.uuid_identification,
+                        job_id,
+                    ),
                     daemon=True,
                 )
                 thread.start()
@@ -635,7 +714,7 @@ def services_launch(request):
     logger.info(f"[SERVICES_LAUNCH] context_creation: {time_context:.4f}s")
 
     start = time.perf_counter()
-    response = render(request, "compta/update_sales_launch.html", context=context)
+    response = render(request, ROYALTIES_TEMPLATE, context=context)
     time_render = time.perf_counter() - start
     logger.info(f"[SERVICES_LAUNCH] render: {time_render:.4f}s")
 

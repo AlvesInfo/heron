@@ -99,6 +99,9 @@ UNITRON = lazy_mkdir("files/processing/suppliers_invoices_files/UNITRON")
 # REPERTOIRE IMPORT FICHIERS WIDEX
 WIDEX = lazy_mkdir("files/processing/suppliers_invoices_files/WIDEX")
 
+# REPERTOIRE IMPORT FICHIERS WSAU
+WSAU = lazy_mkdir("files/processing/suppliers_invoices_files/WSAU")
+
 # REPERTOIRE IMPORT FICHIERS WIDEX_GA
 WIDEX_GA = lazy_mkdir("files/processing/suppliers_invoices_files/WIDEX_GA")
 
@@ -189,6 +192,9 @@ BACKUP_TRANSFERTS = lazy_mkdir("files/backup/suppliers_invoices_files/TRANSFERTS
 
 # REPERTOIRE BACKUP FICHIERS UNITRON
 BACKUP_UNITRON = lazy_mkdir("files/backup/suppliers_invoices_files/UNITRON")
+
+# REPERTOIRE BACKUP FICHIERS WIDEX
+BACKUP_WSAU = lazy_mkdir("files/backup/suppliers_invoices_files/WSAU")
 
 # REPERTOIRE BACKUP FICHIERS WIDEX
 BACKUP_WIDEX = lazy_mkdir("files/backup/suppliers_invoices_files/WIDEX")

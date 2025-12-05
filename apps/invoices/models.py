@@ -616,6 +616,11 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
                     "invoice_month",
                 ]
             ),
+            models.Index(
+                fields=['cct', 'global_invoice_file', 'invoice_month'],
+                name='idx_saleinvoice_pending',
+                condition=models.Q(final=False, printed=True, send_email=False, type_x3__in=[1, 2])
+            ),
         ]
 
 

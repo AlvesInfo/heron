@@ -44,7 +44,7 @@ except ImportError:
     EmailSendProgress = None
 
 
-# @shared_task(name="celery_send_invoices_emails_gmail_with_progress")
+@shared_task(name="celery_send_invoices_emails_gmail_with_progress")
 def launch_celery_send_invoice_mails_gmail_with_progress(
     user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None, job_id: AnyStr = None
 ):

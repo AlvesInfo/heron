@@ -351,23 +351,16 @@ def send_email_pdf_invoice(request):
 
     titre_table = "Envoi Global, par mail des factures de vente"
 
-    # On contrôle qu'il n'y est pas des factures non finalisées, mais envoyées par mail
-    emails_to_send = control_emails()
-
-    if not emails_to_send:
-        request.session["level"] = 50
-        messages.add_message(request, 50, "Il n'y a aucune facture pdf à envoyer !")
-        context = {"margin_table": 50, "titre_table": titre_table, "not_finalize": True}
-        return render(request, "invoices/send_email_invoices.html", context=context)
-
     # On contrôle qu'il y ait des pdf à envoyer par mail
     sales_invoices_exists = SaleInvoice.objects.filter(
         final=False, send_email=False, type_x3__in=(1, 2), printed=True
     ).exists()
+
     context = {
         "margin_table": 50,
         "titre_table": titre_table,
         "news": sales_invoices_exists,
+        "not_finalize": True,
     }
 
     if not sales_invoices_exists:
@@ -384,17 +377,60 @@ def send_email_pdf_invoice(request):
         [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
     ):
         user_pk = request.user.pk
+        # celery_app.signature(
+        #     "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
+        # ).apply_async()
         celery_app.signature(
-            "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
+            "celery_send_invoices_emails_gmail", kwargs={"user_pk": str(user_pk)}
         ).apply_async()
         email_invoices = True
 
+        # Préparation des envois pas emails
+        job_id = str(uuid.uuid4())
+        total_emails = (
+            SaleInvoice.objects
+            .filter(
+                final=False,
+                printed=True,
+                send_email=False,
+                type_x3__in=[1, 2],
+            )
+            .values('cct', 'global_invoice_file', 'invoice_month')
+            .distinct()
+            .count()
+        )
+        task_type = "edi_import"
+        custom_title = "Envoi Global, par mail des factures de vente"
+        target = celery_import_launch
+        args = (user_pk, job_id)
+
+        progress = SSEProgress.objects.create(
+            job_id=job_id,
+            user_id=user_pk,
+            total_items=total_emails,
+            task_type=task_type,
+            custom_title=custom_title,
+            metadata={"success": [], "failed": []},
+        )
+        progress.mark_as_started()
+
+        # Lancement d'un thread séparé
+        thread = threading.Thread(
+            target=target,
+            args=args,
+            daemon=True,
+        )
+        thread.start()
+
+        # Retourner JSON immédiatement
+        return JsonResponse({"success": True, "job_id": job_id})
+
     if insertion:
-        titre_table = "INSERTION DES FACTURES EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"
+        titre_table = "INSERTION DE FACTURES EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"
 
     if pdf_invoices:
         titre_table = (
-            "GENERATION DES PDF EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD ! "
+            "GENERATION DE PDF EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD ! "
             "(N'OUBLIEZ PAS DE REGARDER LES TRACES APRES LA GENERATION)"
         )
 

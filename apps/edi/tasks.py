@@ -50,6 +50,7 @@ from apps.edi.imports.imports_suppliers_invoices_pool import (
     technidis,
     unitron,
     widex,
+    wsau,
     widex_ga,
     z_bu_refac,
 )
@@ -84,6 +85,7 @@ processing_dict = {
     "TRANSFERTS": transfert_cosium,
     "UNITRON": unitron,
     "WIDEX": widex,
+    "WSAU": wsau,
     "WIDEX_GA": widex_ga,
     "SAGE_YOOZ_REFAC0": z_bu_refac,
 }

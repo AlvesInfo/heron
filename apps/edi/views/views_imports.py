@@ -39,7 +39,7 @@ if os.environ.get('RUN_MAIN') == 'true':
     # Processus principal : configurer le logger pour afficher
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(message)s'))
+        handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d [%(funcName)s] - %(message)s'))
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
         logger.propagate = False
