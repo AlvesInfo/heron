@@ -910,7 +910,15 @@ def wsau(file_path: Path):
         )
         widex_post_insert(trace.uuid_identification)
 
-    except (Exception, AttributeError) as error:
+    except AttributeError as error:
+        trace.errors = True
+        trace.comment = "error"
+        trace.save()
+        LOGGER_EDI.exception(
+            f"{file_path.name!r} : la colonne deux du fichier, a un manque, error : \n{error!r}"
+        )
+
+    except Exception as error:
         trace.errors = True
         trace.comment = "Une erreur c'est produite veuillez consulter les logs"
         trace.save()
