@@ -57,6 +57,11 @@
             $(`#send_email_invoices`).on('submit', function (e) {
                 e.preventDefault();
 
+                // Masquer le bouton cliqué immédiatement
+                if (clickedButton) {
+                    clickedButton.hide();
+                }
+
                 // Masquer le formulaire et changer le titre
                 $(`#import_launch`).hide();
                 $(`#id_titre_table`).text("LANCEMENT PATIENTEZ ...").css("color", "teal");
