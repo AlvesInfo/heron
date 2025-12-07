@@ -148,11 +148,11 @@
                                 }
                             });
                         } else {
-                            alert(response.error || "Une erreur est survenue");
+                            location.reload();
                         }
                     },
                     error: function (xhr, status, error) {
-                        alert("Erreur lors de la soumission : " + error);
+                        location.reload();
                     }
                 });
             });

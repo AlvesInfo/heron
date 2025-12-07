@@ -14,12 +14,12 @@ modified by: Paulo ALVES
 
 from typing import Any, AnyStr, Dict
 from datetime import timedelta
-from functools import wraps
 
 import pendulum
 from django_celery_results.models import TaskResult
 from django.utils import timezone
-from django.db import close_old_connections
+from django.db import close_old_connections, connection
+from django.contrib import messages
 from asgiref.sync import sync_to_async
 
 from apps.core.exceptions import LaunchDoesNotExistsError
@@ -308,6 +308,81 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
     return str_num
 
 
+def have_action_in_progress():
+    """Retourne si une action est en cours, dans la table des paramètres ou dans les process celery"""
+    in_progress = False
+
+    with connection.cursor() as cursor:
+        sql_action = """
+            SELECT EXISTS (
+                SELECT 1 
+                FROM parameters_actioninprogress
+                WHERE in_progress
+            ) 
+            OR EXISTS (
+                SELECT 1 
+                FROM django_celery_results_taskresult
+                WHERE status = 'STARTED'
+                AND date_created > NOW() - INTERVAL '2 hours'
+            ) AS data_exists
+        """
+        cursor.execute(sql_action)
+        in_progress = cursor.fetchone()[0]
+
+    return in_progress
+
+
+def have_send_email_without_finalize():
+    """
+    Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
+    :return: True si finalisé sinon False
+
+    """
+    have_send = False
+
+    with connection.cursor() as cursor:
+        sql_control = """
+        SELECT EXISTS (
+            SELECT 1
+            FROM invoices_saleinvoice
+            WHERE send_email = true
+            AND final = false
+        ) AS have_send
+        """
+        cursor.execute(sql_control)
+        have_send = cursor.fetchone()[0]
+
+    return have_send
+
+
+def have_subscription(subscription_name: str) -> bool:
+    """
+    Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
+    :return: True si finalisé sinon False
+
+    """
+    have_subscription_name = False
+
+    with connection.cursor() as cursor:
+        sql_control = """
+        SELECT EXISTS (
+            SELECT 1 
+            FROM centers_clients_maisonsubcription
+            WHERE "function" = %(subscription_name)s
+            LIMIT 1
+        ) AS have_subscription
+        """
+        cursor.execute(sql_control, {"subscription_name": subscription_name})
+        have_subscription_name = cursor.fetchone()[0]
+
+    return have_subscription_name
+
+
+def set_message(request, level, message):
+    request.session["level"] = level
+    messages.add_message(request, level, message)
+
+
 # ==================== VERSION ASYNC ====================
 
 
@@ -321,6 +396,8 @@ def _get_in_progress_with_cleanup(*args, **kwargs):
 
 # Version async de get_in_progress
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
-# et évite les deadlocks en production sur Linux
+# et évite-les deadlocks en production sur Linux
 # Le wrapper _get_in_progress_with_cleanup ferme les connexions après chaque appel
-get_in_progress_async = sync_to_async(_get_in_progress_with_cleanup, thread_sensitive=False)
+get_in_progress_async = sync_to_async(
+    _get_in_progress_with_cleanup, thread_sensitive=False
+)

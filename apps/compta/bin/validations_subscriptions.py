@@ -44,34 +44,23 @@ def get_have_subscriptions(flow_name: AnyStr, dte_d: AnyStr, dte_f: AnyStr) -> b
     with connection.cursor() as cursor:
         sql_subscriptions = sql.SQL(
             """
-            ( 
-                select  
-                    "sbe"."id"
-                from "edi_ediimport" "sbe" 
-                where "flow_name" = %(flow_name)s
-                and "invoice_date" between %(dte_d)s and %(dte_f)s
-                limit 1
-            )
-            union all 
-            (
-                select 
-                    "sbi"."id"
-                from "invoices_invoice" "si"
-                join "invoices_invoicedetail" "sbi"
-                on "si"."uuid_identification"  = "sbi"."uuid_invoice" 
-                where "sbi"."flow_name" = %(flow_name)s
-                and "si"."invoice_date" between %(dte_d)s and %(dte_f)s
-                limit 1
-            )
+            SELECT EXISTS (
+                SELECT 1 FROM edi_ediimport
+                WHERE flow_name = %(flow_name)s
+                AND invoice_date BETWEEN %(dte_d)s AND %(dte_f)s
+            ) 
+            OR EXISTS (
+                SELECT 1 
+                FROM invoices_invoicedetail sbi
+                JOIN invoices_invoice si ON si.uuid_identification = sbi.uuid_invoice
+                WHERE sbi.flow_name = %(flow_name)s
+                AND si.invoice_date BETWEEN %(dte_d)s AND %(dte_f)s
+            ) AS data_exists;
             """
         )
         cursor.execute(sql_subscriptions, {"flow_name": flow_name, "dte_d": dte_d, "dte_f": dte_f})
-        test_have_lines_subscriptions = cursor.fetchone()
 
-        if test_have_lines_subscriptions:
-            return True
-
-    return False
+        return cursor.fetchone()[0]
 
 
 def get_missing_cosium_familly(dte_d: AnyStr, dte_f: AnyStr) -> AnyStr:

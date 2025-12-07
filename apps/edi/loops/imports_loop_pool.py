@@ -420,15 +420,21 @@ async def get_all_import_checks_async():
     return results
 
 
-async def get_import_controls_async():
+async def get_import_controls_async(
+    action="import_edi_invoices", task_name="suppliers_import"
+):
     """
     Exécute get_in_progress et control_insertion en parallèle.
+
+    Args:
+        action: Nom de l'action à vérifier (défaut: "import_edi_invoices")
+        task_name: Nom de la tâche Celery (défaut: "suppliers_import")
 
     Returns:
         tuple: (in_action, not_finalize)
     """
     results = await asyncio.gather(
-        get_in_progress_async(),
+        get_in_progress_async(action=action, task_name=task_name),
         control_insertion_async(),
     )
 
@@ -628,94 +634,71 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
 
 
 def import_launch_subscriptions(
-    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: User, job_id: str = None
+    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: User, job_id: str
 ):
     """Main pour lancement de l'import des abonnements"""
 
-    active_action = None
     result = ""
     info = ""
-    action = True
     progress = None
 
-    try:
-        # S'assurer que l'objet ActionInProgress existe
-        get_action(action="import_edi_invoices")
+    # S'assurer que l'objet ActionInProgress existe
+    get_action(action="import_edi_invoices")
 
-        # Acquisition atomique du verrou avec select_for_update()
-        while action:
-            with transaction.atomic():
-                active_action = ActionInProgress.objects.select_for_update().get(
-                    action="import_edi_invoices"
-                )
-                if not active_action.in_progress:
-                    # On initialise l'action comme en cours de manière atomique
-                    active_action.in_progress = True
-                    active_action.save()
-                    action = False
+    with transaction.atomic():
+        active_action = ActionInProgress.objects.select_for_update().get(
+            action="import_edi_invoices"
+        )
+        # On initialise l'action comme en cours de manière atomique
+        active_action.in_progress = True
+        active_action.save()
 
-            # Si on n'a pas acquis le verrou, attendre un peu avant de retenter
-            if action:
-                time.sleep(2)
-
-        # Récupérer le SSEProgress créé dans la vue (si job_id fourni)
-        if job_id:
+        try:
+            # Récupérer le SSEProgress créé dans la vue (si job_id fourni)
             progress = SSEProgress.objects.get(job_id=job_id)
 
-        start_all = time.time()
+            start_all = time.time()
 
-        # On regroupe les tâches celery à lancer
-        result = group(
-            *[
-                celery_app.signature(
-                    "subscription_launch_task",
-                    kwargs={
-                        "task_to_launch": task_to_launch,
-                        "dte_d": dte_d,
-                        "dte_f": dte_f,
-                        "user": user,
-                        "job_id": job_id,
-                    },
-                )
-            ]
-        )().get(3600)
-        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+            # On regroupe les tâches celery à lancer
+            result = group(
+                *[
+                    celery_app.signature(
+                        "subscription_launch_task",
+                        kwargs={
+                            "task_to_launch": task_to_launch,
+                            "dte_d": dte_d,
+                            "dte_f": dte_f,
+                            "user": user,
+                            "job_id": job_id,
+                        },
+                    )
+                ]
+            )().get(3600)
+            LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-        # Marquer comme terminé
-        if progress:
-            # Rafraîchir depuis la DB pour avoir les dernières valeurs
+            # Marquer comme terminé mais avant rafraîchir pour avoir les dernières valeurs
             progress.refresh_from_db()
             progress.mark_as_completed()
 
-    except Exception as error:
-        LOGGER_EDI.exception(
-            "Erreur détectée dans apps.edi.loops.imports_loop_pool.import_launch_subscriptions()"
-        )
-        # Marquer comme échoué
-        try:
-            if job_id and not progress:
-                # Essayer de récupérer le SSEProgress si pas encore fait
-                progress = SSEProgress.objects.get(job_id=job_id)
-            if progress:
-                progress.mark_as_failed(str(error))
-        except Exception as e:
-            LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+        except Exception as error:
+            LOGGER_EDI.exception(
+                "Erreur détectée dans "
+                "apps.edi.loops.imports_loop_pool.import_launch_subscriptions()"
+            )
+            # Marquer comme échoué
+            try:
+                if job_id and not progress:
+                    # Essayer de récupérer le SSEProgress si pas encore fait
+                    progress = SSEProgress.objects.get(job_id=job_id)
+                if progress:
+                    progress.mark_as_failed(str(error))
+            except Exception as e:
+                LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
 
-    finally:
-        # On remet l'action en cours à False, après l'execution
-        if active_action:
+        finally:
+            # On remet l'action en cours à False, après l'execution
             active_action.in_progress = False
             active_action.save()
-
-        # Retour pour compatibilité avec les anciens appels (sans job_id)
-        if not job_id:
-            if isinstance(result, (list,)) and result:
-                result = result[0]
-            info = (
-                result
-                if isinstance(result, (str,))
-                else ". ".join(list(result.values()))
-            )
 
     return "Erreur" in info, info
 

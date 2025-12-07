@@ -1,7 +1,8 @@
 {% extends "heron/list_table_courant.html" %}
 
 {% block right_side %}
-    {% if not not_finalize %}
+
+    {% if not not_finalize and subscription_exists %}
         <a class="item" href="">
             <button class="ui teal basic button" id="id_royalties_launch" name="royalties_launch" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
                 VALIDER
