@@ -25,7 +25,7 @@ from celery import shared_task
 from django.db.models import Count
 from bs4 import BeautifulSoup
 
-from heron.loggers import LOGGER_INVOICES, LOGGER_EMAIL
+from heron.loggers import LOGGER_EMAIL
 from apps.core.bin.clean_celery import clean_memory
 from apps.users.models import User
 from apps.data_flux.trace import get_trace
@@ -40,15 +40,16 @@ from .sender import sender
 @shared_task(name="celery_send_invoices_emails_gmail")
 @clean_memory
 def launch_celery_send_invoice_mails_gmail(
-    user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None
+    user_pk: AnyStr, job_id: str, cct: AnyStr = None, period: AnyStr = None
 ):
     """
     Main pour lancement de l'envoi des factures par mails via l'API Gmail
     :param user_pk: pk de l'utilisateur qui a lancé le process
+    :param job_id: identifiant du job
     :param cct: cct de la facture à envoyer
     :param period: période de la facturation
     """
-    LOGGER_INVOICES.info(
+    LOGGER_EMAIL.info(
         "Début de l'envoi des factures par email via l'API Gmail "
         "(utilisateur: %s, cct: %s, période: %s)",
         user_pk,
@@ -114,15 +115,15 @@ def launch_celery_send_invoice_mails_gmail(
             )
 
     if not email_list:
-        LOGGER_INVOICES.warning("Aucun email à envoyer")
+        LOGGER_EMAIL.warning("Aucun email à envoyer")
         return {"success": True, "sent": 0, "errors": 0}
 
     try:
         # Envoi en masse via l'API Gmail
-        LOGGER_INVOICES.info(
+        LOGGER_EMAIL.info(
             "Envoi de %d factures via l'API Gmail...", len(email_list)
         )
-        nb_success, nb_errors, results = sender.send_mass_mail(email_list)
+        nb_success, nb_errors, results = sender.send_mass_mail(email_list=email_list, job_id=job_id)
 
         # Mise à jour des factures envoyées avec succès
         for i, result in enumerate(results):
@@ -149,7 +150,7 @@ def launch_celery_send_invoice_mails_gmail(
                 trace.created_by = User.objects.get(pk=user_pk)
                 trace.save()
 
-                LOGGER_INVOICES.info(
+                LOGGER_EMAIL.info(
                     "Facture %s envoyée avec succès à %s",
                     mapping["global_invoice_file"],
                     result.recipient,
@@ -170,13 +171,13 @@ def launch_celery_send_invoice_mails_gmail(
                 trace.created_by = User.objects.get(pk=user_pk)
                 trace.save()
 
-                LOGGER_INVOICES.error(
+                LOGGER_EMAIL.error(
                     "Erreur lors de l'envoi de la facture %s: %s",
                     mapping["global_invoice_file"],
                     result.error,
                 )
 
-        LOGGER_INVOICES.info(
+        LOGGER_EMAIL.info(
             "Envoi terminé: %d succès, %d erreurs sur %d emails",
             nb_success,
             nb_errors,
@@ -191,7 +192,7 @@ def launch_celery_send_invoice_mails_gmail(
         }
 
     except Exception as error:
-        LOGGER_INVOICES.exception(
+        LOGGER_EMAIL.exception(
             "Erreur lors de l'envoi des factures via l'API Gmail: %s", error
         )
         return {"success": False, "error": str(error)}
@@ -215,12 +216,12 @@ def prepare_invoice_email_data(context_dict: Dict):
         LOGGER_EMAIL.error("Fichier non trouvé: %s", file_path)
         return None
 
+    invoice_month = context_dict.get("invoice_month")
+    # Convertir en pendulum pour le formatage
+    periode_date = pendulum.parse(str(invoice_month))
+
     context_email = {
-        "periode": (
-            pendulum.parse(context_dict.get("invoice_month"))
-            .format("MMMM YYYY", locale="fr")
-            .upper()
-        ),
+        "periode": periode_date.format("MMMM YYYY", locale="fr").upper(),
         "factures": "",
     }
     mail_to_list = []
@@ -376,12 +377,16 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
 
             if result.success:
                 # Marque la facture comme envoyée
+                inv_month = context_dict.get("invoice_month")
+                if hasattr(inv_month, "year"):
+                    invoice_month_date = inv_month
+                else:
+                    invoice_month_date = pendulum.parse(str(inv_month)).date()
+
                 SaleInvoice.objects.filter(
                     cct=context_dict.get("cct"),
                     global_invoice_file=context_dict.get("global_invoice_file"),
-                    invoice_month=pendulum.parse(
-                        context_dict.get("invoice_month")
-                    ).date(),
+                    invoice_month=invoice_month_date,
                     printed=True,
                     type_x3__in=(1, 2),
                 ).update(send_email=True)
@@ -412,7 +417,7 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
 
     except Exception as except_error:
         error = True
-        LOGGER_INVOICES.exception(
+        LOGGER_EMAIL.exception(
             f"Exception Générale: send_invoice_email_gmail : "
             f"{context_dict.get('cct')}\n{except_error!r}"
         )
@@ -422,7 +427,7 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
             trace.time_to_process = time.time() - start_initial
             trace.save()
 
-    LOGGER_INVOICES.warning(
+    LOGGER_EMAIL.warning(
         to_print
         + (
             f"Envoi de la facture par mail {context_dict.get('cct')} "

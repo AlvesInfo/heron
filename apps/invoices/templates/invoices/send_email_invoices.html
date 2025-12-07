@@ -10,7 +10,7 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-        <form action="" method="post">
+        <form action="" method="post" id="send_email_invoices">
             {% csrf_token %}
             {% include "invoices/send_email_invoices_entete.html" %}
             {% if not not_finalize %}
@@ -36,19 +36,103 @@
 
 {% block script %}
 
+    <script src="{% static 'progress_polling.js' %}"></script>
+
     <script>
 
         $(document).ready(function () {
 
             {% include "heron/base_data_table.html" %}
 
-            {% if en_cours %}
-                setTimeout(function() {
-                        location.href = "{% url 'invoices:send_email_pdf_invoice' %}"
+            // Variable pour stocker le bouton cliqué
+            let clickedButton = null;
+
+            // Capturer quel bouton a été cliqué
+            $('button[type="submit"]').on('click', function() {
+                clickedButton = $(this);
+            });
+
+
+            // Gestionnaire unifié pour la soumission du formulaire
+            $(`#send_email_invoices`).on('submit', function (e) {
+                e.preventDefault();
+
+                // Masquer le formulaire et changer le titre
+                $(`#import_launch`).hide();
+                $(`#id_titre_table`).text("LANCEMENT PATIENTEZ ...").css("color", "teal");
+
+
+                // Récupérer les données du formulaire
+                const formData = new FormData(this);
+
+                // Ajouter le nom du bouton cliqué au POST
+                if (clickedButton) {
+                    const buttonName = clickedButton.attr('name');
+                    const buttonValue = clickedButton.val() || buttonName;
+
+                    if (buttonName) {
+                        formData.append(buttonName, buttonValue);
+                    }
+                }
+
+                // Déterminer le titre et l'icône en fonction du bouton cliqué
+                let title = 'Envoi Global, par mail des factures de vente';
+                let icon = '🧾';
+
+
+                // Envoyer la requête AJAX
+                $.ajax({
+                    url: "{% url 'invoices:send_email_pdf_invoice' %}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $(`#id_titre_table`).text("ENVOI DES FACTURES PAR MAIL EN COURS ...").css("color", "teal");
+
+                            // Afficher le conteneur de progression
+                            $(`#progress-container`).show();
+
+                            // Initialiser la jauge de progression avec le titre dynamique
+                            new ProgressPolling('progress-container', response.job_id, {
+                                title: title,
+                                icon: icon,
+                                showDetails: true,
+                                showStats: true,
+                                pollInterval: 1000,  // 1 seconde pour les tâches parallèles
+                                debug: false,
+                                onComplete: function (data) {
+                                    $(`#id_titre_table`).text("ENVOI TERMINEE").css("color", "teal");
+                                    $(`#integrations`).show();
+
+                                    // Recharger la page après 50 secondes
+                                    /*
+                                    setTimeout(function () {
+                                        location.href = "{% url 'invoices:send_email_pdf_invoice' %}";
+                                    }, 50000);
+                                    */
+                                },
+                                onError: function (data) {
+                                    $(`#id_titre_table`).text("ERREUR ...").css("color", "red");
+                                    // Recharger la page en cas d'erreur
+                                    /*
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 2000);
+                                    */
+                                }
+                            });
+                        } else {
+                            location.reload();
+                        }
                     },
-                    10000
-                )
-            {% endif %}
+                    error: function (xhr, status, error) {
+                        location.reload();
+                    }
+                });
+            });
+
             // slight update to account for browsers not supporting e.which
             function disableF5(e) { if ((e.which || e.keyCode) === 116) e.preventDefault(); }
             // To disable f5 jQuery >= 1.7

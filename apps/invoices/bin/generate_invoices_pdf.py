@@ -181,4 +181,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
 
 if __name__ == "__main__":
     # invoices_pdf_generation("AF0564")
-    invoices_pdf_generation("AF0597", "AF0021_0000001199")
+    invoices_pdf_generation("WSAUDIOLOG", "WSAUDIOLOG_000000033704_full.pdf")
+    invoices_pdf_generation("UNIS208", "UNIS208_000000033904_full.pdf")
+    invoices_pdf_generation("UNIS207", "UNIS207_000000033660_full.pdf")
+    invoices_pdf_generation("UNIS206", "UNIS206_000000033901_full.pdf")

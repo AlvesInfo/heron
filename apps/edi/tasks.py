@@ -380,7 +380,6 @@ def subscription_launch_task(
         if job_id:
             try:
                 with transaction.atomic():
-                    from apps.core.models import SSEProgress
                     progress = SSEProgress.objects.select_for_update().get(
                         job_id=job_id
                     )

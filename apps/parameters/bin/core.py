@@ -179,6 +179,7 @@ def get_action(action: AnyStr = "import_edi_invoices"):
         "insertion_invoices": "Insertion des factures achat et vente",
         "generate_pdf_invoices": "Génération de la facturation pdf",
         "rfa_generation": "Génération des RFA mensuelles",
+        "send_mass_mail": "Envoi des emails de facturation",
     }
 
     # Si l'action n'existe pas on la créée

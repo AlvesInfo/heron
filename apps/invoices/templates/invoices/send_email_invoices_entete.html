@@ -3,11 +3,9 @@
 {% block right_side %}
     {% if not not_finalize %}
         {% if not en_cours  and news %}
-            <a class="item" href="{% url 'invoices:send_email_pdf_invoice' %}">
-                <button class="ui blue basic button" name="send_email_invoices" style="padding: 7px 10px;margin: 10px;font-size: 11px">
-                    ENVOYER
-                </button>
-            </a>
+            <button class="ui blue basic button" name="send_email_invoices" type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+                ENVOYER
+            </button>
         {% endif %}
     {% endif %}
     {% if user.email == "paulo@alves.ovh" %}

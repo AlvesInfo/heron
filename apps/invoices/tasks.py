@@ -40,6 +40,9 @@ from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
 from apps.invoices.bin.export_x3 import export_files_x3
 
+# Import des tâches Gmail pour qu'elles soient découvertes par Celery
+from apps.invoices.bin.api_gmail.tasks_gmail import *  # noqa: F401, F403
+
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER

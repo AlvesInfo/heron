@@ -1,6 +1,27 @@
+{% extends "heron/table_courant.html" %}
+
 {% block table %}
 
+<div class="three wide column"></div>
+
+<div class="ten wide column">
+
+{% if not en_cours %}
+
+        <!-- Conteneur pour la jauge de progression -->
+        <div id="progress-container" style="display: none; margin-top: 20px;"></div>
+
+{% endif %}
+
+</div>
+
+
 {% endblock table %}
+
+
+
+
+
 
 
 

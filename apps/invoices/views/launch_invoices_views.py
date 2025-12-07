@@ -40,6 +40,7 @@ from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion, control_emails, control_alls_missings
 from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
+from apps.invoices.loops.send_emails_with_gmail import send_invoices_emails_gmail
 from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
@@ -360,7 +361,7 @@ def send_email_pdf_invoice(request):
         "margin_table": 50,
         "titre_table": titre_table,
         "news": sales_invoices_exists,
-        "not_finalize": True,
+        "not_finalize": not sales_invoices_exists,
     }
 
     if not sales_invoices_exists:
@@ -380,10 +381,10 @@ def send_email_pdf_invoice(request):
         # celery_app.signature(
         #     "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
         # ).apply_async()
-        celery_app.signature(
-            "celery_send_invoices_emails_gmail", kwargs={"user_pk": str(user_pk)}
-        ).apply_async()
-        email_invoices = True
+        # celery_app.signature(
+        #     "celery_send_invoices_emails_gmail", kwargs={"user_pk": str(user_pk)}
+        # ).apply_async()
+        # email_invoices = True
 
         # Préparation des envois pas emails
         job_id = str(uuid.uuid4())
@@ -399,9 +400,9 @@ def send_email_pdf_invoice(request):
             .distinct()
             .count()
         )
-        task_type = "edi_import"
+        task_type = "send_invoices_emails"
         custom_title = "Envoi Global, par mail des factures de vente"
-        target = celery_import_launch
+        target = send_invoices_emails_gmail
         args = (user_pk, job_id)
 
         progress = SSEProgress.objects.create(
@@ -439,7 +440,7 @@ def send_email_pdf_invoice(request):
 
     context["en_cours"] = any([insertion, pdf_invoices, email_invoices])
     context["titre_table"] = titre_table
-
+    print(context["not_finalize"], context["en_cours"], context["news"])
     return render(request, "invoices/send_email_invoices.html", context=context)
 
 
