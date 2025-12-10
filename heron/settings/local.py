@@ -186,3 +186,13 @@ ACUISENS_EM_DIR = Path("V:\\")
 ACUITEST_EM_DIR = Path("W:\\")
 ACUIREP_EM_DIR = Path("X:\\")
 ACSENSREP_EM_DIR = Path("Z:\\")
+
+# Réduire le niveau de log pour WeasyPrint
+logging.getLogger("weasyprint").setLevel(logging.ERROR)
+
+# Ou pour désactiver complètement les warnings CSS
+logging.getLogger("weasyprint.css").setLevel(logging.ERROR)
+
+# Réduire le niveau de log pour fonttools (utilisé par WeasyPrint pour le subsetting des polices)
+logging.getLogger("fontTools").setLevel(logging.ERROR)
+logging.getLogger("fontTools.subset").setLevel(logging.ERROR)
