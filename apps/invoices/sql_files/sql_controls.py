@@ -220,8 +220,8 @@ LEFT JOIN edi_ediimportcontrol ec
   ON ec.uuid_identification = ee.uuid_control
 WHERE ec.uuid_identification IS NULL
    OR (
-       ec.statement_with_tax = 0 
-       AND ec.statement_without_tax = 0
+       COALESCE(ec.statement_with_tax, 0) <> 0 
+       AND COALESCE(ec.statement_without_tax) <> 0
        AND COALESCE(ec.comment, '') = ''
    )
 LIMIT 1;
