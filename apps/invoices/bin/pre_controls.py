@@ -345,7 +345,7 @@ def control_alls_missings():
             "integrations",
             SQL_INTEGRATIONS_CONTROLS,
             (
-                "Il manque des contrôles : 2.1 Intégrations",
+                "Il manque des contrôles ou des commentaires : 2.1 Intégrations",
                 reverse("validation_purchases:integration_purchases"),
             ),
         ),

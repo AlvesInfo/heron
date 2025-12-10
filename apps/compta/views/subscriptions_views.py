@@ -33,7 +33,7 @@ ROYALTIES_TEMPLATE = "compta/update_sales_launch.html"
 EN_COURS = "Il y a des générations en cours, réessayez plus tard !"
 ERROR_FORM = "Erreur de validation du formulaire"
 GEN_PUBLICITE = "Génération des factures de Publicité"
-ABONNEMENT = "Il n'y pas de Maison avec un cet abonnement!"
+ABONNEMENT = "Il n'y pas de Maison avec cet abonnement!"
 
 
 def royalties_launch(request):
