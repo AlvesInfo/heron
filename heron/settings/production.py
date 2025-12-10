@@ -247,6 +247,12 @@ LOGGING = {
         "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
         "send_email": {"handlers": ["send_email"], "propagate": True},
         "export_x3": {"handlers": ["export_x3"], "propagate": True},
+        # Réduire les logs de fontTools (WeasyPrint font subsetting)
+        "fontTools": {"level": "ERROR", "propagate": False},
+        "fontTools.subset": {"level": "ERROR", "propagate": False},
+        # Réduire les logs de WeasyPrint
+        "weasyprint": {"level": "ERROR", "propagate": False},
+        "weasyprint.css": {"level": "ERROR", "propagate": False},
     },
 }
 

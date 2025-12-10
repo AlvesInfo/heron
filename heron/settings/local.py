@@ -3,6 +3,7 @@ from pathlib import Path
 import gc
 
 from heron.settings.base import INSTALLED_APPS, MIDDLEWARE, LOG_DIR
+import logging
 
 allocs, g1, g2 = gc.get_threshold()
 gc.set_threshold(100_000, g1*5, g2*10)
@@ -174,6 +175,12 @@ LOGGING = {
         "invoices_flux": {"handlers": ["invoices_flux"], "propagate": True},
         "send_email": {"handlers": ["invoices_flux"], "propagate": True},
         "export_x3": {"handlers": ["invoices_flux"], "propagate": True},
+        # Réduire les logs de fontTools (WeasyPrint font subsetting)
+        "fontTools": {"level": "ERROR", "propagate": False},
+        "fontTools.subset": {"level": "ERROR", "propagate": False},
+        # Réduire les logs de WeasyPrint
+        "weasyprint": {"level": "ERROR", "propagate": False},
+        "weasyprint.css": {"level": "ERROR", "propagate": False},
     },
 }
 
