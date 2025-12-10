@@ -179,6 +179,10 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
     return trace, to_print
 
 
+def main():
+    invoices_pdf_generation("AF0001", "AF0001_000009999999_full.pdf")
+
+
 if __name__ == "__main__":
     # invoices_pdf_generation("AF0564")
     invoices_pdf_generation("WSAUDIOLOG", "WSAUDIOLOG_000000033704_full.pdf")
