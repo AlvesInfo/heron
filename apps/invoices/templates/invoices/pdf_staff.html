@@ -34,7 +34,7 @@
     {% for personnel in personnels %}
         <tr  class="lignes-light" style="padding: 10px 5px !important;">
             <td style="text-align: left;padding-left: 10px;">{{ personnel.personnel|safe }}</td>
-            <td style="text-align: center;">{{ personnel.personnel_type }}</td>
+            <td style="text-align: center;">{{ personnel.personnel_type||default_if_none:"" }}</td>
             <td style="text-align: center;">{{ personnel.qty|numbers_format:0 }}</td>
             <td style="text-align: right;">{% if personnel.net_amount %}{{ personnel.net_amount|numbers_format:2 }}{% endif %}</td>
             <td style="text-align: right;">{% if personnel.taux_tva %}{{ personnel.taux_tva|numbers_format:2 }}{% endif %} %</td>
