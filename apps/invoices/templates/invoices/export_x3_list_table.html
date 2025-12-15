@@ -27,12 +27,12 @@
                 <td style="text-align: center;">{{ export.uuid_edi_validation.billing_period|date:"F Y" }}</td>
                 <td style="text-align: center;">
                     {% if  export.sale_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.sale_file %}" style="font-size: 9px;">{{ export.sale_file }}</a>
+                        <a href="{% if export.sale_file %}{% url 'invoices:get_export_x3_file' file_name=export.sale_file %}{% endif %}" style="font-size: 9px;">{{ export.sale_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">
                     {% if  export.purchase_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.purchase_file %}" style="font-size: 9px;">{{ export.purchase_file }}</a>
+                        <a href="{% if export.purchase_file %}{% url 'invoices:get_export_x3_file' file_name=export.purchase_file %}{% endif %}" style="font-size: 9px;">{{ export.purchase_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">
