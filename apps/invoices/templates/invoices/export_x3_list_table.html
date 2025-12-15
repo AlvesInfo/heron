@@ -37,27 +37,27 @@
                 </td>
                 <td style="text-align: center;">
                     {% if  export.odana_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.odana_file %}" style="font-size: 9px;">{{ export.odana_file }}</a>
+                        <a href="{% if export.odana_file %}{% url 'invoices:get_export_x3_file' file_name=export.odana_file %}{% endif %}" style="font-size: 9px;">{{ export.odana_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">
                     {% if  export.ga_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.ga_file %}" style="font-size: 9px;">{{ export.ga_file }}</a>
+                        <a href="{% if export.ga_file %}{% url 'invoices:get_export_x3_file' file_name=export.ga_file %}{% endif %}" style="font-size: 9px;">{{ export.ga_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">
                     {% if  export.sd_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.sd_file %}" style="font-size: 9px;">{{ export.sd_file }}</a>
+                        <a href="{% if export.sd_file %}{% url 'invoices:get_export_x3_file' file_name=export.sd_file %}{% endif %}" style="font-size: 9px;">{{ export.sd_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">
                     {% if  export.sd_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.do_file %}" style="font-size: 9px;">{{ export.do_file }}</a>
+                        <a href="{% if export.do_file %}{% url 'invoices:get_export_x3_file' file_name=export.do_file %}{% endif %}" style="font-size: 9px;">{{ export.do_file }}</a>
                     {% endif %}
                 </td>
                 <td style="text-align: center;">
                     {% if  export.alls_zip_file %}
-                        <a href="{% url 'invoices:get_export_x3_file' file_name=export.alls_zip_file %}" style="font-size: 9px;">{{ export.alls_zip_file }}</a>
+                        <a href="{% if export.alls_zip_file %}{% url 'invoices:get_export_x3_file' file_name=export.alls_zip_file %}{% endif %}" style="font-size: 9px;">{{ export.alls_zip_file }}</a>
                     {% endif %}
                 </td>
             </tr>
