@@ -420,6 +420,7 @@ def subscription_launch_task(
 
 
 @shared_task(name="test_import_jauge")
+@clean_memory
 def task_test_import_jauge(job_id, user_id):
     """
     Tâche de test pour la jauge avec polling AJAX

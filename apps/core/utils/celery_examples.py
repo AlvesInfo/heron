@@ -151,9 +151,11 @@ class ExempleCommand(BaseCommand):
 # ============================================================================
 from celery import shared_task
 import time
+from apps.core.bin.clean_celery import clean_memory
 
 
 @shared_task
+@clean_memory
 def exemple_task_qui_verifie():
     """
     Une tâche Celery qui vérifie si d'autres tâches sont en cours

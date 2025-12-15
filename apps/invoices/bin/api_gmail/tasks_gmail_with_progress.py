@@ -21,6 +21,7 @@ from django.db.models import Count
 from bs4 import BeautifulSoup
 
 from heron.loggers import LOGGER_INVOICES, LOGGER_EMAIL
+from apps.core.bin.clean_celery import clean_memory
 from apps.users.models import User
 from apps.data_flux.trace import get_trace
 from apps.invoices.models import SaleInvoice
@@ -45,6 +46,7 @@ except ImportError:
 
 
 @shared_task(name="celery_send_invoices_emails_gmail_with_progress")
+@clean_memory
 def launch_celery_send_invoice_mails_gmail_with_progress(
     user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None, job_id: AnyStr = None
 ):
