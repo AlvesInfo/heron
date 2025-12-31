@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2022-04-06
 modified by: Paulo ALVES
 """
+
 from decimal import Decimal
 import uuid
 import datetime
@@ -25,6 +26,7 @@ from apps.core.validations.pydantic_validators_base import (
     TvaInterson,
     TvaWidex,
     TvaNewson,
+    IsoDateFieldsBase,
 )
 from apps.edi.models import EdiImport, ColumnDefinition
 from apps.edi.parameters.invoices_imports import get_columns
@@ -82,12 +84,12 @@ class CosiumTransfertSchema(
     ValidateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle BbrgVerre"""
+
     acuitis_order_date: datetime.datetime
     uuid_identification: uuid.UUID
 
-    @validator('acuitis_order_date', pre=True)
+    @validator("acuitis_order_date", pre=True)
     def check_acuitis_order_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
@@ -117,17 +119,15 @@ class EdiSchema(
     acuitis_order_date: datetime.datetime
     delivery_date: datetime.datetime
 
-    @validator('acuitis_order_date', pre=True)
+    @validator("acuitis_order_date", pre=True)
     def check_acuitis_order_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
         return value
 
-    @validator('delivery_date', pre=True)
+    @validator("delivery_date", pre=True)
     def check_delivery_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
@@ -181,17 +181,15 @@ class GeneriqueSchema(
     acuitis_order_date: datetime.datetime
     delivery_date: datetime.datetime
 
-    @validator('acuitis_order_date', pre=True)
+    @validator("acuitis_order_date", pre=True)
     def check_acuitis_order_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
         return value
 
-    @validator('delivery_date', pre=True)
+    @validator("delivery_date", pre=True)
     def check_delivery_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
@@ -270,9 +268,8 @@ class JohnsonSchema(
     supplier_ident: str
     delivery_date: datetime.datetime
 
-    @validator('delivery_date', pre=True)
+    @validator("delivery_date", pre=True)
     def check_delivery_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
@@ -430,9 +427,8 @@ class SigniaSchema(
     supplier_ident: str
     delivery_date: datetime.datetime
 
-    @validator('delivery_date', pre=True)
+    @validator("delivery_date", pre=True)
     def check_delivery_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
@@ -464,9 +460,8 @@ class StarkeySchema(
     supplier_ident: str
     delivery_date: datetime.datetime
 
-    @validator('delivery_date', pre=True)
+    @validator("delivery_date", pre=True)
     def check_delivery_date(cls, value):
-
         if not value or value == "None":
             return datetime.datetime(1900, 1, 1)
 
@@ -565,6 +560,7 @@ class WsauSchema(
     ModelSchema,
     ValidateFieldsBase,
     TvaWidex,
+    IsoDateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle Wsau"""
 
