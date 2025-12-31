@@ -91,4 +91,20 @@ post_widex_dict = {
         and edi."invoice_number" = r_som."invoice_number"
         """
     ),
+    "sql_articles_wsau": sql.SQL(
+        """
+        update "articles_article" "aa"
+        set "libelle_heron" = ''
+        where "third_party_num" = 'WSAU003'
+        and "libelle_heron" <> '' or "libelle_heron" isnull
+        """
+    ),
+    "sql_marque": sql.SQL(
+        """
+        update "edi_ediimport" "ee"
+        set "libelle" = left("ee"."supplier_ident" || ' - ' || "ee"."libelle", 150)
+        where "uuid_identification" = %(uuid_identification)s
+        and ("valid" = false or "valid" isnull)
+        """
+    )
 }

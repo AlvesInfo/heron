@@ -676,12 +676,16 @@ def widex_post_insert(uuid_identification: AnyStr):
     sql_update = post_widex_dict.get("sql_update")
     sql_update_units = post_widex_dict.get("sql_update_units")
     sql_invoices_amounts = post_widex_dict.get("sql_invoices_amounts")
+    sql_articles_wsau = post_widex_dict.get("sql_articles_wsau")
+    sql_marque = post_widex_dict.get("sql_marque")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_update_units, {"uuid_identification": uuid_identification})
         cursor.execute(sql_invoices_amounts, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_articles_wsau, {"uuid_identification": uuid_identification})
+        cursor.execute(sql_marque, {"uuid_identification": uuid_identification})
         post_general(uuid_identification, cursor)
 
 
