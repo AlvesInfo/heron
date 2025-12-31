@@ -41,6 +41,7 @@ from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion, control_emails, control_alls_missings
 from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
 from apps.invoices.loops.send_emails_with_gmail import send_invoices_emails_gmail
+from apps.invoices.tasks import launch_celery_pdf_launch
 from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
@@ -191,9 +192,8 @@ def generate_pdf_invoice(request):
         return render(request, "invoices/generate_pdf_invoices.html", context=context)
 
     # On contrôle qu'il y ait des pdf à générer
-    sales_invoices_exists = SaleInvoice.objects.filter(
-        final=False, printed=False, type_x3__in=(1, 2)
-    ).exists()
+    sale_invoices = SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
+    sales_invoices_exists = sale_invoices.exists()
     context = {
         "margin_table": 50,
         "titre_table": titre_table,
@@ -214,10 +214,34 @@ def generate_pdf_invoice(request):
         [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
     ):
         user_pk = request.user.pk
-        celery_app.signature(
-            "celery_pdf_launch", kwargs={"user_pk": str(user_pk)}
-        ).apply_async()
-        pdf_invoices = True
+        job_id = str(uuid.uuid4())  # Générer un job_id unique
+        count_cct_sales_list = (
+            sale_invoices
+            .values("cct", "global_invoice_file")
+            .annotate(dcount=Count("cct"))
+            .values_list("cct", "global_invoice_file")
+            .count()
+        )
+        progress = SSEProgress.objects.create(
+            job_id=job_id,
+            user_id=user_pk,
+            total_items=count_cct_sales_list,
+            task_type="generation_pdf_invoices",
+            custom_title=titre_table,
+            metadata={"success": [], "failed": []},
+        )
+        progress.mark_as_started()
+
+        # Lancement d'un thread séparé
+        thread = threading.Thread(
+            target=launch_celery_pdf_launch,
+            args=(user_pk, job_id),
+            daemon=True,
+        )
+        thread.start()
+
+        # Retourner JSON immédiatement
+        return JsonResponse({"success": True, "job_id": job_id})
 
     if insertion:
         titre_table = "INSERTION DES FACTURES EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"

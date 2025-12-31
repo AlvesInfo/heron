@@ -130,12 +130,11 @@ def launch_invoices_insertions(
     return {"launch_invoices_insertions : ": f"{time.time() - start_initial} s"}
 
 
-@shared_task(name="celery_pdf_launch")
-@clean_memory
-def launch_celery_pdf_launch(user_pk: AnyStr):
+def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
     """
     Main pour lancement de la génération des pdf avec Celery
     :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param job_id: id du job à executer pour suivi SSEProgress
     """
 
     # On récupère les factures à générer par cct
@@ -162,11 +161,12 @@ def launch_celery_pdf_launch(user_pk: AnyStr):
                         "cct": str(cct),
                         "num_file": str(num_file),
                         "user_pk": str(user_pk),
+                        "job_id": job_id,
                     },
                 )
             )
 
-        group(*tasks_list).apply_async()
+        result = group(*tasks_list)().get(3600)
 
     except Exception as error:
         print("Error : ", error)
