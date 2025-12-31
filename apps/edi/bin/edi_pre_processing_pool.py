@@ -274,12 +274,11 @@ def wsau_file(file: Path):
     :param file: Fichier
     :return: Path(file)
     """
-    csv_file = file.parents[0] / f"{file.stem}.csv"
     error_lines = []
 
-    with csv_file.open("r", encoding="utf8", newline="") as file_to_read:
+    with file.open("r", encoding="utf8", newline="") as file_to_read:
         csv_reader = csv.reader(
-            file_to_read,
+            file_to_read.readlines(),
             delimiter=";",
             quotechar='"',
             lineterminator="\n",
@@ -297,6 +296,32 @@ def wsau_file(file: Path):
         )
         LOGGER_EDI.exception(f"Exception Générale : {error!r}")
         raise AttributeError(error)
+
+    name = str(file.stem)
+
+    new_csv_file = file.parents[0] / f"{name}_change.csv"
+
+    with file.open("r", encoding="utf8", newline="") as csv_io:
+        with new_csv_file.open("w", encoding="utf8", newline="") as file_to_write:
+            csv_reader = csv.reader(
+                csv_io.readlines(),
+                delimiter=";",
+                quotechar='"',
+                lineterminator="\n",
+                quoting=csv.QUOTE_MINIMAL,
+            )
+            csv_writer = csv.writer(
+                file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
+
+            for i, line in enumerate(csv_reader, 1):
+                if not line[17]:
+                    line[17] = '1900-01-01'
+
+                csv_writer.writerow(line)
+
+    file.unlink()
+    new_csv_file.rename(new_csv_file.with_stem(name))
 
 
 def z_bu_refac_file(file: Path) -> Path:

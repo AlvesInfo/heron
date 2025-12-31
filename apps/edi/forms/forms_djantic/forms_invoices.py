@@ -26,7 +26,6 @@ from apps.core.validations.pydantic_validators_base import (
     TvaInterson,
     TvaWidex,
     TvaNewson,
-    IsoDateFieldsBase,
 )
 from apps.edi.models import EdiImport, ColumnDefinition
 from apps.edi.parameters.invoices_imports import get_columns
@@ -560,7 +559,6 @@ class WsauSchema(
     ModelSchema,
     ValidateFieldsBase,
     TvaWidex,
-    IsoDateFieldsBase,
 ):
     """Schema Djantic pour validation du modèle Wsau"""
 

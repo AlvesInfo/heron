@@ -451,6 +451,18 @@ class IsoDateFieldsBase(BaseModel):
         return value
 
 
+class IsoDateDeliveryFieldsBase(BaseModel):
+    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
+
+    @validator('delivery_date', check_fields=False)
+    def check_delivery_date(cls, value):
+
+        if not value or value == "None":
+            return datetime.datetime(1900, 1, 1)
+
+        return value
+
+
 class IsoDefaultDateFieldsBase(BaseModel):
     """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
 
