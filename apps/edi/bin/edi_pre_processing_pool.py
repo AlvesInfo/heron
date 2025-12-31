@@ -293,7 +293,7 @@ def wsau_file(file: Path):
     if error_lines:
         error = (
             "Erreur dans le fichier WSAU, il manque l'identifiant (WIDE/REXT/SIGN/AUDI) "
-            f"aux lignes : {', '.join(error_lines)}"
+            f"aux lignes : {', '.join(sorted(error_lines))}"
         )
         LOGGER_EDI.exception(f"Exception Générale : {error!r}")
         raise AttributeError(error)
