@@ -1,0 +1,21 @@
+#===============================================================================
+# Cron job pour backup PostgreSQL heron -> heron_formation
+#
+# Installation:
+#   sudo cp heron_backup.cron /etc/cron.d/heron_backup
+#   sudo chmod 644 /etc/cron.d/heron_backup
+#
+# Format cron:
+#   minute heure jour mois jour_semaine utilisateur commande
+#===============================================================================
+
+# Variables d'environnement nécessaires
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOME=/home/heron
+
+# Backup quotidien à 3h00 du matin
+0 3 * * * heron /usr/local/bin/cron_backup_heron.sh
+
+# Alternative: rotation des logs le dimanche à 4h00 (optionnel)
+# 0 4 * * 0 heron /opt/scripts/backup_restore_heron.sh --rotate-only -y >> /var/log/postgresql_backup/cron.log 2>&1

@@ -380,10 +380,11 @@ def delete_pdf_files(cursor: connection.cursor) -> bool:
     cursor.execute(sql_pdf_delete)
 
     for file in cursor.fetchall():
-        file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file[0]
+        if file[0]:
+            file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file[0]
 
-        if file_path.is_file():
-            file_path.unlink()
+            if file_path.is_file():
+                file_path.unlink()
 
 
 def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
