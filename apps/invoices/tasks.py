@@ -39,6 +39,7 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import ActionInProgress, Email
 from apps.invoices.bin.export_x3 import export_files_x3
+from apps.core.utils.progress_bar import update_progress_threaded
 
 # Import des tâches Gmail pour qu'elles soient découvertes par Celery
 from apps.invoices.bin.api_gmail.tasks_gmail import *  # noqa: F401, F403
@@ -136,7 +137,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     :param job_id: id du job à executer pour suivi SSEProgress
     """
-
+    error = False
     # On récupère les factures à générer par cct
     cct_sales_list = (
         SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
@@ -168,16 +169,23 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
 
         result = group(*tasks_list)().get(3600)
 
-    except Exception as error:
-        print("Error : ", error)
+    except Exception as ex_error:
+        error = True
+        print("Error : ", ex_error)
         LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
 
+    finally:
+        if error:
+            update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+        else:
+            update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+
 
 @shared_task(name="launch_generate_pdf_invoices")
 @clean_memory
-def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int):
+def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int, job_id:str):
     """
     Génération des pdf des factures de ventes pour un cct
     :param cct: cct de la facture pdf à générer
@@ -195,6 +203,12 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
         user = User.objects.get(pk=user_pk)
         trace, to_print = invoices_pdf_generation(cct, num_file)
         trace.created_by = user
+        update_progress_threaded(
+            job_id,
+            processed=1,
+            message=f"Génération pdf pour le cct : {cct}",
+            item_name="generate_pdf_invoices",
+        )
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
