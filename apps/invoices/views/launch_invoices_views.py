@@ -198,6 +198,7 @@ def generate_pdf_invoice(request):
         "margin_table": 50,
         "titre_table": titre_table,
         "news": sales_invoices_exists,
+        "submit_url": "invoices:generate_pdf_invoice",
     }
 
     if not sales_invoices_exists:

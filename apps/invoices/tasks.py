@@ -16,33 +16,26 @@ import time
 from typing import AnyStr, Dict
 import smtplib
 
-import pendulum
-from celery import shared_task
 from celery import group
-from django.db.models import Count
 from django.db import transaction
-from bs4 import BeautifulSoup
 
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
-from apps.core.bin.clean_celery import clean_memory
-from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from apps.core.models import SSEProgress
-from apps.users.models import User
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
 from apps.invoices.bin.send_emails_essais import essais_send_by_email
 from apps.invoices.loops.mise_a_jour_loop import process_update
-from apps.invoices.models import SaleInvoice
-from apps.parameters.models import ActionInProgress, Email
+from apps.parameters.models import ActionInProgress
 from apps.invoices.bin.export_x3 import export_files_x3
 from apps.core.utils.progress_bar import update_progress_threaded
 
 # Import des tâches Gmail pour qu'elles soient découvertes par Celery
 from apps.invoices.bin.api_gmail.tasks_gmail import *  # noqa: F401, F403
+
 
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
@@ -149,6 +142,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
 
     try:
         tasks_list = []
+        start_all = time.time()
 
         # on met à jour les parts invoices
         process_update()
@@ -168,6 +162,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
             )
 
         result = group(*tasks_list)().get(3600)
+        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
     except Exception as ex_error:
         error = True
@@ -185,12 +180,13 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
 
 @shared_task(name="launch_generate_pdf_invoices")
 @clean_memory
-def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int, job_id:str):
+def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int, job_id: str):
     """
     Génération des pdf des factures de ventes pour un cct
-    :param cct: cct de la facture pdf à générer
+    :param cct: maison de la facture pdf à générer
     :param num_file: numero du fichier full
     :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param job_id: uuid du process
     """
 
     start_initial = time.time()
@@ -203,12 +199,7 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
         user = User.objects.get(pk=user_pk)
         trace, to_print = invoices_pdf_generation(cct, num_file)
         trace.created_by = user
-        update_progress_threaded(
-            job_id,
-            processed=1,
-            message=f"Génération pdf pour le cct : {cct}",
-            item_name="generate_pdf_invoices",
-        )
+
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
@@ -230,6 +221,34 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
         if trace is not None:
             trace.save()
+
+        if job_id:
+            try:
+                with transaction.atomic():
+                    progress = SSEProgress.objects.select_for_update().get(
+                        job_id=job_id
+                    )
+
+                    if error:
+                        progress.update_progress(
+                            processed=1,
+                            failed=1,
+                            message=f"Erreur sur {num_file}",
+                            item_name=num_file,
+                        )
+                    else:
+                        progress.update_progress(
+                            processed=1,
+                            message=f"{num_file} générée avec succès",
+                            item_name=num_file,
+                        )
+
+            except SSEProgress.DoesNotExist:
+                LOGGER_INVOICES.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
+            except Exception as progress_error:
+                LOGGER_INVOICES.exception(
+                    f"Erreur mise à jour progression: {progress_error}"
+                )
 
     LOGGER_INVOICES.warning(
         to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "

@@ -450,8 +450,33 @@ def control_alls_missings():
 
         try:
             with connection.cursor() as cursor:
+
+                if index == 12:
+                    sql_delete_control_orphan = """
+                        delete from edi_ediimportcontrol edc
+                        where exists (
+                            select 1
+                            from (
+                                select 
+                                    ec.uuid_identification
+                                from edi_ediimportcontrol ec
+                                left join edi_ediimport ee 
+                                on ec.uuid_identification = ee.uuid_control
+                                where ee.uuid_control isnull
+                                and not exists (
+                                    select 1
+                                    from invoices_invoicecommondetails ic 
+                                    where ic.uuid_control = ec.uuid_identification
+                                )
+                            ) req
+                            where req.uuid_identification = edc.uuid_identification
+                        )
+                    """
+                    cursor.execute(sql_delete_control_orphan)
+
                 cursor.execute(sql)
                 missing_list = [missings[0] for missings in cursor.fetchall()]
+                # print(sql, " : ", missing_list)
                 return index, key, message if missing_list else ""
         finally:
             # Fermer la connexion pour éviter l'épuisement du pool

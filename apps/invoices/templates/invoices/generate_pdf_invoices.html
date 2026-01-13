@@ -10,7 +10,7 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-        <form action="" method="post">
+        <form action="" method="post" id="id_form_post">
             {% csrf_token %}
             {% include "invoices/generate_pdf_invoices_entete.html" %}
             {% if not not_finalize %}
@@ -35,6 +35,8 @@
 {% endblock content %}
 
 {% block script %}
+
+    <script src="{% static 'progress_polling.js' %}"></script>
 
     <script>
 
