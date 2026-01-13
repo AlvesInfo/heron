@@ -3,7 +3,7 @@
 {% block right_side %}
     {% if not not_finalize %}
         {% if not en_cours and news %}
-            <button class="ui blue basic button" name="generate_pdf_invoices"  type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
+            <button class="ui blue basic button" id="generate_pdf_invoices" name="generate_pdf_invoices"  type="submit" style="padding: 7px 10px;margin: 10px;font-size: 11px">
                 GENERER
             </button>
         {% endif %}

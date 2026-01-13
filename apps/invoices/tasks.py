@@ -131,6 +131,8 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
     :param job_id: id du job à executer pour suivi SSEProgress
     """
     error = False
+    progress = None
+
     # On récupère les factures à générer par cct
     cct_sales_list = (
         SaleInvoice.objects.filter(final=False, printed=False, type_x3__in=(1, 2))
@@ -143,6 +145,15 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
     try:
         tasks_list = []
         start_all = time.time()
+        # Récupérer le SSEProgress créé dans la vue
+        progress = SSEProgress.objects.get(job_id=job_id)
+
+        update_progress_threaded(
+            job_id,
+            processed=1,
+            message="Mise à jours des parties prenantes",
+            item_name="Mise à jours des parties prenantes",
+        )
 
         # on met à jour les parts invoices
         process_update()
@@ -164,12 +175,26 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
         result = group(*tasks_list)().get(3600)
         LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
+        # Marquer comme terminé
+        if progress:
+            # Rafraîchir depuis la DB pour avoir les dernières valeurs
+            progress.refresh_from_db()
+            progress.mark_as_completed()
+
     except Exception as ex_error:
         error = True
-        print("Error : ", ex_error)
+        print("ex_error : ", ex_error)
         LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
+        # Marquer comme échoué en cas d'erreur
+        try:
+            if not progress:
+                # Essayer de récupérer le SSEProgress si pas encore fait
+                progress = SSEProgress.objects.get(job_id=job_id)
+            progress.mark_as_failed(str(error))
+        except Exception as e:
+            LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
 
     finally:
         if error:
@@ -197,6 +222,12 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
     try:
         user = User.objects.get(pk=user_pk)
+        update_progress_threaded(
+            job_id,
+            processed=1,
+            message=f"Génération facture PDF : {num_file}",
+            item_name=num_file,
+        )
         trace, to_print = invoices_pdf_generation(cct, num_file)
         trace.created_by = user
 
@@ -218,37 +249,16 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
                 trace.comment
                 + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
+            update_progress_threaded(
+                job_id,
+                processed=0,
+                failed=1,
+                message=f"Erreur sur {num_file}",
+                item_name=num_file,
+            )
 
         if trace is not None:
             trace.save()
-
-        if job_id:
-            try:
-                with transaction.atomic():
-                    progress = SSEProgress.objects.select_for_update().get(
-                        job_id=job_id
-                    )
-
-                    if error:
-                        progress.update_progress(
-                            processed=1,
-                            failed=1,
-                            message=f"Erreur sur {num_file}",
-                            item_name=num_file,
-                        )
-                    else:
-                        progress.update_progress(
-                            processed=1,
-                            message=f"{num_file} générée avec succès",
-                            item_name=num_file,
-                        )
-
-            except SSEProgress.DoesNotExist:
-                LOGGER_INVOICES.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
-            except Exception as progress_error:
-                LOGGER_INVOICES.exception(
-                    f"Erreur mise à jour progression: {progress_error}"
-                )
 
     LOGGER_INVOICES.warning(
         to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "

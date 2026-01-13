@@ -27,7 +27,6 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django.db import transaction
 
-from heron import celery_app
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.content_types import CONTENT_TYPE_FILE
 from apps.core.functions.functions_setups import settings
@@ -38,7 +37,7 @@ from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
-from apps.invoices.bin.pre_controls import control_insertion, control_emails, control_alls_missings
+from apps.invoices.bin.pre_controls import control_insertion, control_alls_missings
 from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
 from apps.invoices.loops.send_emails_with_gmail import send_invoices_emails_gmail
 from apps.invoices.tasks import launch_celery_pdf_launch
@@ -226,7 +225,7 @@ def generate_pdf_invoice(request):
         progress = SSEProgress.objects.create(
             job_id=job_id,
             user_id=user_pk,
-            total_items=count_cct_sales_list,
+            total_items=count_cct_sales_list + 1,
             task_type="generation_pdf_invoices",
             custom_title=titre_table,
             metadata={"success": [], "failed": []},
