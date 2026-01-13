@@ -203,7 +203,6 @@ def set_purchases_invoices(
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-        print(trace.time_to_process)
         trace.save()
 
         try:
@@ -301,7 +300,6 @@ def set_sales_invoices(
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-        print(trace.time_to_process)
         trace.save()
 
         try:

@@ -929,7 +929,8 @@ SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
     """
 )
 
-SQL_SALES_DETAILS = sql.SQL(
+# SAUVEGARDE DE LA REQUETE PRECEDENTE SQL_SALES_DETAILS
+SQL_SALES_DETAILS_BACKUP = sql.SQL(
     # insertion des détails spécifiques aux ventes
     """
     with "amounts" as (
@@ -1266,6 +1267,249 @@ SQL_SALES_DETAILS = sql.SQL(
         and "isi"."formation" = "det"."formation"
         and "isi"."type_x3" = "det"."type_x3"
      )
+    on conflict do nothing
+    """
+)
+
+SQL_SALES_DETAILS = sql.SQL(
+    # insertion des détails spécifiques aux ventes
+    """
+    WITH 
+    -- Taux de TVA actuels avec vat_regime
+    current_vat_rates AS (
+        SELECT DISTINCT
+            vtr.vat_regime,
+            vd.vat,
+            round((vtr.rate / 100)::numeric, 5) as vat_rate
+        FROM accountancy_vatratsage vtr
+        JOIN (
+            SELECT max(vat_start_date) as vat_start_date, vat, vat_regime
+            FROM accountancy_vatratsage
+            WHERE vat_start_date <= CURRENT_DATE
+            GROUP BY vat, vat_regime
+        ) vd ON vtr.vat = vd.vat 
+            AND vtr.vat_start_date = vd.vat_start_date 
+            AND vtr.vat_regime = vd.vat_regime
+    ),
+    
+    -- Derniers centres
+    latest_centers AS (
+        SELECT ici.uuid_identification, ici.code_center, ici.vat_regime_center
+        FROM invoices_centersinvoices ici
+        JOIN (
+            SELECT code_center, MAX(created_at) as max_created_at
+            FROM invoices_centersinvoices
+            GROUP BY code_center
+        ) mx ON ici.code_center = mx.code_center AND ici.created_at = mx.max_created_at
+    ),
+    
+    -- Dernières enseignes
+    latest_signboards AS (
+        SELECT sci.uuid_identification, sci.code_signboard 
+        FROM invoices_signboardsinvoices sci
+        JOIN (
+            SELECT code_signboard, MAX(created_at) as max_created_at
+            FROM invoices_signboardsinvoices
+            GROUP BY code_signboard
+        ) mx ON sci.code_signboard = mx.code_signboard AND sci.created_at = mx.max_created_at
+    ),
+    
+    -- Dernières parties
+    latest_parties AS (
+        SELECT ip.uuid_identification, ip.cct, ip.third_party_num 
+        FROM invoices_partiesinvoices ip
+        JOIN (
+            SELECT cct, third_party_num, MAX(created_at) as max_created_at
+            FROM invoices_partiesinvoices
+            GROUP BY cct, third_party_num
+        ) mx ON ip.cct = mx.cct AND ip.third_party_num = mx.third_party_num AND ip.created_at = mx.max_created_at
+    ),
+    
+    -- Détails avec tous les calculs
+    det AS (
+        SELECT 
+            eee.id,
+            eee.gross_unit_price,
+            eee.net_unit_price,
+            eee.gross_amount,
+            COALESCE(eee.base_discount_01, 0) as base_discount_01,
+            COALESCE(eee.discount_price_01, 0) as discount_price_01,
+            COALESCE(eee.base_discount_02, 0) as base_discount_02,
+            COALESCE(eee.discount_price_02, 0) as discount_price_02,
+            COALESCE(eee.base_discount_03, 0) as base_discount_03,
+            COALESCE(eee.discount_price_03, 0) as discount_price_03,
+            eee.net_amount,
+            CASE 
+                WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN COALESCE(vr1.vat_rate, 0)
+                WHEN ccm.sage_vat_by_default = '001' THEN eee.vat_rate
+                ELSE COALESCE(avr.vat_rate, 0)
+            END as vat_rate,
+            CASE 
+                WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
+                WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
+                ELSE ccm.sage_vat_by_default
+            END as ccm_vat,
+            eee.import_uuid_identification,
+            abu.section as axe_bu,
+            prj.section as axe_prj,
+            COALESCE(pro.section, 'DIV') as axe_pro,
+            rfa.section as axe_rfa,
+            ccm.pays as axe_pys,
+            eee.vat_regime,
+            pc.slug_name as big_category,
+            COALESCE(ps.name, '') as sub_category,
+            COALESCE(gr.base, '606 - CONSOMMABLES') as base,
+            COALESCE(gr.grouping_goods, 'CONSOMMABLES') as grouping_goods,
+            eee.created_by,
+            eee.modified_by,
+            eee.unit_weight,
+            ac.sale_account as account,
+            ac.purchase_account as account_od_600,
+            gr.ranking,
+            prj.name as axe_prj_name,
+            ccm.cct,
+            icc.code_center,
+            isb.code_signboard,
+            eee.devise,
+            ccm.type_x3,
+            CASE 
+                WHEN eee.third_party_num = 'ZFORM' THEN eee.import_uuid_identification::varchar
+                ELSE ''
+            END as formation
+        FROM edi_ediimport eee
+        JOIN centers_clients_maison ccm 
+            ON eee.cct_uuid_identification = ccm.uuid_identification
+        JOIN current_vat_rates avr 
+            ON avr.vat = ccm.sage_vat_by_default
+        JOIN articles_article aa 
+            ON eee.third_party_num = aa.third_party_num 
+            AND eee.reference_article = aa.reference
+        LEFT JOIN current_vat_rates vr1 
+            ON vr1.vat = '001' 
+            AND vr1.vat_regime = avr.vat_regime
+        LEFT JOIN articles_articleaccount ac
+            ON aa.uuid_identification = ac.article
+            AND eee.code_center = ac.child_center
+            AND CASE 
+                WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
+                WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
+                ELSE ccm.sage_vat_by_default
+            END = ac.vat
+        LEFT JOIN latest_centers icc ON icc.code_center = ccm.center_purchase
+        LEFT JOIN latest_signboards isb ON isb.code_signboard = ccm.sign_board
+        LEFT JOIN latest_parties parts 
+            ON parts.cct = ccm.cct 
+            AND parts.third_party_num = ccm.third_party_num
+        LEFT JOIN accountancy_sectionsage abu ON abu.uuid_identification = eee.axe_bu
+        LEFT JOIN accountancy_sectionsage prj ON prj.uuid_identification = eee.axe_prj
+        LEFT JOIN accountancy_sectionsage pro ON pro.uuid_identification = eee.axe_pro
+        LEFT JOIN accountancy_sectionsage rfa ON rfa.uuid_identification = eee.axe_rfa
+        LEFT JOIN parameters_category pc ON pc.uuid_identification = eee.uuid_big_category
+        LEFT JOIN parameters_subcategory ps ON ps.uuid_identification = eee.uuid_sub_big_category
+        LEFT JOIN (
+            SELECT axe_pro, base, gg.grouping_goods, gg.ranking
+            FROM centers_purchasing_axeprogroupinggoods ca
+            LEFT JOIN centers_purchasing_groupinggoods gg 
+                ON ca.grouping_goods = gg.uuid_identification
+        ) gr ON gr.axe_pro = eee.axe_pro
+        WHERE eee.sale_invoice = true
+          AND eee.valid = true
+          AND ccm.cct != abu.section
+    )
+    insert into "invoices_saleinvoicedetail"
+    (
+        "created_at",
+        "modified_at",
+        "export",
+        "final",
+        "final_at",
+        "gross_unit_price",
+        "net_unit_price",
+        "gross_amount",
+        "base_discount_01",
+        "discount_price_01",
+        "base_discount_02",
+        "discount_price_02",
+        "base_discount_03",
+        "discount_price_03",
+        "net_amount",
+        "vat_amount",
+        "amount_with_vat",
+        "import_uuid_identification",
+        "axe_bu",
+        "axe_prj",
+        "axe_pro",
+        "axe_rfa",
+        "axe_pys",
+        "vat",
+        "vat_rate",
+        "vat_regime",
+        "big_category",
+        "sub_category",
+        "base",
+        "grouping_goods",
+        "created_by",
+        "modified_by",
+        "uuid_invoice",
+        "unit_weight",
+        "account",
+        "ranking",
+        "account_od_600",
+        "axe_prj_name"
+    )
+    (
+    
+        select
+            now() as created_at,
+            now() as modified_at,
+            false as export,
+            false as final,
+            isi.final_at,
+            det.gross_unit_price,
+            det.net_unit_price,
+            det.gross_amount,
+            det.base_discount_01,
+            det.discount_price_01,
+            det.base_discount_02,
+            det.discount_price_02,
+            det.base_discount_03,
+            det.discount_price_03,
+            det.net_amount,
+            round(det.net_amount * det.vat_rate, 2) as vat_amount,
+            round(det.net_amount * det.vat_rate, 2) + det.net_amount as amount_with_vat,
+            det.import_uuid_identification,
+            det.axe_bu,
+            det.axe_prj,
+            det.axe_pro,
+            det.axe_rfa,
+            det.axe_pys,
+            det.ccm_vat::varchar as vat,
+            det.vat_rate,
+            det.vat_regime,
+            det.big_category,
+            det.sub_category,
+            det.base,
+            det.grouping_goods,
+            det.created_by,
+            det.modified_by,
+            isi.uuid_identification as uuid_invoice,
+            det.unit_weight,
+            det.account,
+            det.ranking,
+            det.account_od_600,
+            det.axe_prj_name
+        FROM det
+        JOIN invoices_saleinvoice isi 
+            ON isi.big_category_slug_name = det.big_category
+            AND isi.cct = det.cct
+            AND isi.code_center = det.code_center
+            AND isi.code_signboard = det.code_signboard
+            AND isi.devise = det.devise
+            AND isi.formation = det.formation
+            AND isi.type_x3 = det.type_x3
+            AND NOT isi.final 
+            AND NOT isi.export
+    )
     on conflict do nothing
     """
 )

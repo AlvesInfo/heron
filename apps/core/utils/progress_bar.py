@@ -31,4 +31,3 @@ def update_progress_threaded(job_id: str, **kwargs):
             print("kwargs : ", kwargs)
             print("kwargs : ", "mmark_as_failed" in kwargs)
             print("mark_as_completed" in kwargs)
-            breakpoint()

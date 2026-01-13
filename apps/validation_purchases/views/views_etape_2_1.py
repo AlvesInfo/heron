@@ -117,7 +117,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
     template_name = "validation_purchases/statment_controls.html"
     success_message = (
         "La saisie du relevé pour le tiers %(third_party_num)s "
-        f"pour le mois %(invoice_month)s, a été modifiée avec success"
+        "pour le mois %(invoice_month)s, a été modifiée avec success"
     )
     error_message = (
         "La saisie du relevé pour le tiers N° %(third_party_num)s "
