@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.validation_sales.excel_outputs.output_excel_sales_not_final import (
+from apps.validation_sales.excel_outputs.output_excel_sales_not_final_optimized import (
     excel_heron_sales_not_final,
 )
 
