@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.validation_purchases.excel_outputs.output_excel_purchases_not_final import (
+from apps.validation_purchases.excel_outputs.output_excel_purchases_not_final_optimized import (
     excel_heron_purchases_not_final,
 )
 
