@@ -18,6 +18,7 @@ import openpyxl
 from apps.core.functions.functions_dates import date_string_series, time_string_series
 from apps.core.functions.functions_logs import LOG_FILE, write_log
 from apps.core.functions.functions_utilitaires import N_DIC, delete_file, encoding_detect
+import gc
 
 
 XLSX_PAPER_SIZE = {
@@ -621,6 +622,7 @@ class GenericExcel:
             :return: None
         """
         self.workbook.close()
+        gc.collect()
 
 
 def nom_feuilles_excel(nom, majuscule=True):
