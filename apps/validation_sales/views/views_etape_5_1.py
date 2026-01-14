@@ -31,13 +31,19 @@ def invoices_sales_export_globals(request):
         if request.method == "POST":
             today = pendulum.now()
             file_name = f"VENTES_A_FINALISER_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            download_token = request.POST.get("download_token", "")
 
-            return response_file(excel_heron_sales_not_final, file_name, CONTENT_TYPE_EXCEL)
+            return response_file(
+                excel_heron_sales_not_final,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                download_token=download_token
+            )
 
     except:
         LOGGER_EXPORT_EXCEL.exception("view : invoices_sales_export_globals")
 
-    context = {"titre_table": f"VENTES HERON NON FINALISEES"}
+    context = {"titre_table": "VENTES HERON NON FINALISEES"}
 
     return render(request, "validation_sales/sage_heron_sales.html", context=context)
 

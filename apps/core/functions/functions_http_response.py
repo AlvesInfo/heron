@@ -22,12 +22,13 @@ CONTENT_TYPE_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetm
 CONTENT_TYPE_CSV = "text/csv"
 
 
-def response_file(function_file, file_name, content_type, *args, **kwargs):
+def response_file(function_file, file_name, content_type, *args, download_token=None, **kwargs):
     """Fonction qui renvoi un fichier par HttpResponse
     :param function_file: Fonction qui génère le fichier
     :param file_name: non à donner au fichier
     :param content_type: content_type http du fichier
     :param args: arguments à passer à la fonction
+    :param download_token: token pour signaler la fin du téléchargement au JavaScript (optionnel)
     :param kwargs: arguments nommés à passer à la fonction
     :return: HttpResponse
     """
@@ -46,6 +47,15 @@ def response_file(function_file, file_name, content_type, *args, **kwargs):
     response = HttpResponse(file_io.read(), content_type=content_type)
     response["Content-Disposition"] = f"attachment; filename={file_name}"
     file_io.close()
+
+    # Définir le cookie pour signaler la fin du téléchargement au JavaScript
+    if download_token:
+        response.set_cookie(
+            f"download_complete_{download_token}",
+            "true",
+            max_age=60,
+            samesite="Lax"
+        )
 
     return response
 

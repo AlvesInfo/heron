@@ -42,6 +42,55 @@
 
             $(`.datatable-chargement`).hide();
 
+            // Gestion du bouton export avec loader
+            const $btnExport = $('#btn_export_achats');
+            const $downloadToken = $('#download_token');
+
+            // Fonction pour obtenir la valeur d'un cookie
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            // Fonction pour supprimer un cookie
+            function deleteCookie(name) {
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
+            }
+
+            // Fonction pour générer un token unique
+            function generateToken() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+
+            $btnExport.on('click', function(e) {
+                // Générer un token unique pour ce téléchargement
+                const token = generateToken();
+                $downloadToken.val(token);
+
+                // Désactiver le bouton et afficher le loader Semantic UI
+                $btnExport.addClass('loading disabled');
+
+                // Vérifier périodiquement si le téléchargement est terminé
+                const checkInterval = setInterval(function() {
+                    const cookieValue = getCookie('download_complete_' + token);
+                    if (cookieValue === 'true') {
+                        // Téléchargement terminé, réactiver le bouton
+                        clearInterval(checkInterval);
+                        deleteCookie('download_complete_' + token);
+
+                        $btnExport.removeClass('loading disabled');
+                    }
+                }, 500);
+
+                // Timeout de sécurité (5 minutes max)
+                setTimeout(function() {
+                    clearInterval(checkInterval);
+                    $btnExport.removeClass('loading disabled');
+                }, 300000);
+            });
+
         });
 
     </script>

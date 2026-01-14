@@ -61,12 +61,18 @@ def invoices_purchases_export_globals(request):
         if request.method == "POST":
             today = pendulum.now()
             file_name = f"ACHATS_A_FINALISER_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            download_token = request.POST.get("download_token", "")
 
-            return response_file(excel_heron_purchases_not_final, file_name, CONTENT_TYPE_EXCEL)
+            return response_file(
+                excel_heron_purchases_not_final,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                download_token=download_token
+            )
 
     except:
         LOGGER_VIEWS.exception("view : invoices_purchases_export_globals")
 
-    context = {"titre_table": f"ACHATS HERON NON FINALISEES"}
+    context = {"titre_table": "ACHATS HERON NON FINALISEES"}
 
     return render(request, "validation_purchases/sage_heron_purchases.html", context=context)
