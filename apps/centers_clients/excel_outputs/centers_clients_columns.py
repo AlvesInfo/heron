@@ -759,4 +759,18 @@ columns_list_maisons = [
         },
         "width": 12,
     },
+    {
+        "entete": "N° SIRET",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"num_format": "@", "align": "right"},
+        },
+        "width": 15,
+    },
 ]

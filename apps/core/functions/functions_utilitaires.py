@@ -784,6 +784,26 @@ def get_zero_decimal(value):
     return test_value.replace(",", ".") or "0"
 
 
+def format_siret(siret):
+    """
+    Formate un n° de SIREN (9 chiffres) ou SIRET (14 chiffres)
+        :param siret: N° de SIREN ou SIRET
+        :return: N° formaté : "000 000 000" ou "000 000 000 00000" ou tel quel sans espaces
+    """
+    if siret is None or not siret:
+        return ""
+
+    value = str(siret).replace(" ", "")
+
+    if len(value) == 9 and value.isdigit():
+        return f"{value[:3]} {value[3:6]} {value[6:]}"
+
+    if len(value) == 14 and value.isdigit():
+        return f"{value[:3]} {value[3:6]} {value[6:9]} {value[9:]}"
+
+    return value
+
+
 def get_module_object(function_path_point: AnyStr):
     """Retourne l'objet au sens python
     :param function_path_point: path de la fonction pointée (ex. home.file_func.function)

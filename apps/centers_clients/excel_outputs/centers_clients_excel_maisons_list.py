@@ -12,7 +12,11 @@ modified by: Paulo ALVES
 
 import io
 
+from django.db.models.functions import Coalesce, NullIf
+from django.db.models import Value, CharField
+
 from heron.loggers import LOGGER_EXPORT_EXCEL
+from apps.core.functions.functions_utilitaires import format_siret
 from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
     titre_page_writer,
@@ -22,7 +26,9 @@ from apps.core.excel_outputs.excel_writer import (
     rows_writer,
 )
 from apps.centers_clients.models import Maison
-from apps.centers_clients.excel_outputs.centers_clients_columns import columns_list_maisons
+from apps.centers_clients.excel_outputs.centers_clients_columns import (
+    columns_list_maisons,
+)
 
 
 def get_clean_rows():
@@ -31,15 +37,11 @@ def get_clean_rows():
     return [
         (
             row.get("cct__cct", ""),
-
             row.get("center_purchase__code", ""),
             row.get("sign_board", ""),
-
             row.get("intitule", ""),
             row.get("intitule_court", ""),
-
             row.get("client_familly", ""),
-
             row.get("code_maison", ""),
             row.get("code_cosium", ""),
             row.get("refrence_cosium", ""),
@@ -51,25 +53,19 @@ def get_clean_rows():
             row.get("agreement_renew_date", ""),
             row.get("entry_fee_amount", ""),
             row.get("renew_fee_amoount", ""),
-
             row.get("sale_price_category__name", ""),
-
             row.get("generic_coefficient", ""),
-
             row.get("credit_account__account", ""),
             row.get("debit_account__account", ""),
             row.get("prov_account__account", ""),
             row.get("extourne_account__account", ""),
             row.get("sage_vat_by_default__vat", ""),
             row.get("sage_plan_code", ""),
-
             row.get("rfa_frequence", ""),
             row.get("rfa_remise", ""),
             row.get("invoice_client_name", ""),
-
             row.get("currency", ""),
             row.get("language", ""),
-
             row.get("third_party_num__third_party_num", ""),
             row.get("third_party_num__immeuble", ""),
             row.get("third_party_num__adresse", ""),
@@ -83,16 +79,23 @@ def get_clean_rows():
             row.get("adresse", ""),
             row.get("code_postal", ""),
             row.get("ville", ""),
-
             row.get("pays__country_name", ""),
-
             row.get("telephone", ""),
             row.get("mobile", ""),
             row.get("email", ""),
             row.get("type_x3__name", ""),
             row.get("axe_bu__section", ""),
+            format_siret(row.get("num_siret", "")),
         )
-        for row in Maison.objects.all().values(
+        for row in Maison.objects.all()
+        .annotate(
+            num_siret=Coalesce(
+                NullIf("siret_number", Value("")),
+                "siren_number",
+                output_field=CharField(),
+            )
+        )
+        .values(
             "cct__cct",
             "center_purchase__code",
             "sign_board",
@@ -144,6 +147,7 @@ def get_clean_rows():
             "chargeable",
             "type_x3__name",
             "axe_bu__section",
+            "num_siret",
         )
     ]
 
@@ -160,11 +164,15 @@ def excel_liste_maisons(file_io: io.BytesIO, file_name: str) -> dict:
         columns_headers_writer(excel, 1, 3, 0, columns)
         f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
         f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
+            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
+            for dict_row in columns
         ]
         rows_writer(excel, 1, 4, 0, get_clean_rows(), f_lignes, f_lignes_odd)
         sheet_formatting(
-            excel, 1, columns, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
+            excel,
+            1,
+            columns,
+            {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)},
         )
 
     except:
