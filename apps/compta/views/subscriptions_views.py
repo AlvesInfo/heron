@@ -91,8 +91,8 @@ def royalties_launch(request):
 
             if text_error_familly:
                 set_message(request, 50, text_error_familly)
-
-                return JsonResponse({"success": False, "error": text_error_familly})
+                return render(request, ROYALTIES_TEMPLATE, context=context)
+                # return JsonResponse({"success": False, "error": text_error_familly})
 
             have_subs = get_have_subscriptions("ROYALTIES", dte_d, dte_f)
 
@@ -103,8 +103,8 @@ def royalties_launch(request):
                     "supprimez les Royalties et refaite la génération."
                 )
                 set_message(request, 50, message)
-
-                return JsonResponse({"success": False, "error": message})
+                return render(request, ROYALTIES_TEMPLATE, context=context)
+                # return JsonResponse({"success": False, "error": message})
 
             else:
                 user_pk = request.user.id
