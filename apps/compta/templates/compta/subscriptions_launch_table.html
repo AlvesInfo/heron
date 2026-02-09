@@ -1,16 +1,24 @@
-{% extends "heron/update_create_courant.html" %}
+{% extends "heron/table_courant.html" %}
 
 {% block table %}
-    <div class="ui centered grid" style="margin: auto;padding: 20px;">
-        <div class="row">
-            {% include "heron/models_html/month_period.html" %}
-        </div>
-        <div class="row">
-            {% if avertissement %}
-                <div class="ui segment">
-                    <h5 style="text-align: center;color: red;font-weight: bold;">{{ avertissement }}</h5>
-                </div>
-            {% endif %}
+    <div class="three wide column"></div>
+
+<div class="ten wide column">
+    <div id="import_launch">
+        <div class="ui centered grid" style="margin: auto;padding: 20px;">
+            <div class="row">
+                {% include "heron/models_html/month_period.html" %}
+            </div>
+            <div class="row">
+                {% if avertissement %}
+                    <div class="ui segment">
+                        <h5 style="text-align: center;color: red;font-weight: bold;">{{ avertissement }}</h5>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
+        <div id="progress-container" style="display: none; margin-top: 20px;">
+            <!-- Conteneur pour la jauge de progression --></div>
+</div>
 {% endblock table %}

@@ -6,7 +6,7 @@ Views des Abonnements
 import uuid
 import threading
 
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 from django.http import JsonResponse
 
 from apps.periods.forms import MonthForm
@@ -54,10 +54,14 @@ def royalties_launch(request):
         "progress_icon": "💰",
         "form": form,
         "subscription_exists": subscription_exists,
+        "button_name": "royalties_launch",
+        "url": reverse("compta:royalties_launch"),
+        "display_button": True,
     }
 
     if not subscription_exists:
         set_message(request, 50, ABONNEMENT)
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -65,6 +69,7 @@ def royalties_launch(request):
 
     if in_action:
         set_message(request, 50, EN_COURS)
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -81,6 +86,7 @@ def royalties_launch(request):
                 "not_finalize": True,
             }
         )
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -91,8 +97,7 @@ def royalties_launch(request):
 
             if text_error_familly:
                 set_message(request, 50, text_error_familly)
-                return render(request, ROYALTIES_TEMPLATE, context=context)
-                # return JsonResponse({"success": False, "error": text_error_familly})
+                return JsonResponse({"success": False, "error": text_error_familly})
 
             have_subs = get_have_subscriptions("ROYALTIES", dte_d, dte_f)
 
@@ -103,42 +108,40 @@ def royalties_launch(request):
                     "supprimez les Royalties et refaite la génération."
                 )
                 set_message(request, 50, message)
-                return render(request, ROYALTIES_TEMPLATE, context=context)
-                # return JsonResponse({"success": False, "error": message})
+                return JsonResponse({"success": False, "error": message})
 
-            else:
-                user_pk = request.user.id
-                job_id = str(uuid.uuid4())  # Générer un job_id unique
+            user_pk = request.user.id
+            job_id = str(uuid.uuid4())  # Générer un job_id unique
 
-                # Créer le SSEProgress AVANT de lancer la tâche
-                total_files = 1
+            # Créer le SSEProgress AVANT de lancer la tâche
+            total_files = 1
 
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    total_items=total_files,
-                    task_type=task_type,
-                    custom_title=TITRE_PRINICIPAL,
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
+            progress = SSEProgress.objects.create(
+                job_id=job_id,
+                user_id=user_pk,
+                total_items=total_files,
+                task_type=task_type,
+                custom_title=TITRE_PRINICIPAL,
+                metadata={"success": [], "failed": []},
+            )
+            progress.mark_as_started()
 
-                # Lancement d'un thread séparé
-                thread = threading.Thread(
-                    target=import_launch_subscriptions,
-                    args=(
-                        task_type,
-                        dte_d,
-                        dte_f,
-                        request.user.uuid_identification,
-                        job_id,
-                    ),
-                    daemon=True,
-                )
-                thread.start()
+            # Lancement d'un thread séparé
+            thread = threading.Thread(
+                target=import_launch_subscriptions,
+                args=(
+                    task_type,
+                    dte_d,
+                    dte_f,
+                    request.user.uuid_identification,
+                    job_id,
+                ),
+                daemon=True,
+            )
+            thread.start()
 
-                # Retourner JSON immédiatement
-                return JsonResponse({"success": True, "job_id": job_id})
+            # Retourner JSON immédiatement
+            return JsonResponse({"success": True, "job_id": job_id})
 
         else:
             logger.exception(f"erreur form royalties_launch : {str(form.data)!r}")
@@ -167,10 +170,14 @@ def meuleuse_launch(request):
         "progress_title": TITRE_PRINICIPAL,
         "form": form,
         "subscription_exists": subscription_exists,
+        "button_name": "meuleuse_launch",
+        "url": reverse("compta:meuleuse_launch"),
+        "display_button": True,
     }
 
     if not subscription_exists:
         set_message(request, 50, ABONNEMENT)
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -179,6 +186,7 @@ def meuleuse_launch(request):
     if in_action:
         set_message(request, 50, EN_COURS)
 
+        context["display_button"] = False
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
     not_finalize = have_send_email_without_finalize()
@@ -194,6 +202,7 @@ def meuleuse_launch(request):
                 "not_finalize": True,
             }
         )
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -218,39 +227,38 @@ def meuleuse_launch(request):
 
                 return JsonResponse({"success": False, "error": message})
 
-            else:
-                user_pk = request.user.id
-                job_id = str(uuid.uuid4())  # Générer un job_id unique
+            user_pk = request.user.id
+            job_id = str(uuid.uuid4())  # Générer un job_id unique
 
-                # Créer le SSEProgress AVANT de lancer la tâche
-                total_files = 1
+            # Créer le SSEProgress AVANT de lancer la tâche
+            total_files = 1
 
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    total_items=total_files,
-                    task_type=task_type,
-                    custom_title=TITRE_PRINICIPAL,
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
+            progress = SSEProgress.objects.create(
+                job_id=job_id,
+                user_id=user_pk,
+                total_items=total_files,
+                task_type=task_type,
+                custom_title=TITRE_PRINICIPAL,
+                metadata={"success": [], "failed": []},
+            )
+            progress.mark_as_started()
 
-                # Lancement d'un thread séparé
-                thread = threading.Thread(
-                    target=import_launch_subscriptions,
-                    args=(
-                        task_type,
-                        dte_d,
-                        dte_f,
-                        request.user.uuid_identification,
-                        job_id,
-                    ),
-                    daemon=True,
-                )
-                thread.start()
+            # Lancement d'un thread séparé
+            thread = threading.Thread(
+                target=import_launch_subscriptions,
+                args=(
+                    task_type,
+                    dte_d,
+                    dte_f,
+                    request.user.uuid_identification,
+                    job_id,
+                ),
+                daemon=True,
+            )
+            thread.start()
 
-                # Retourner JSON immédiatement
-                return JsonResponse({"success": True, "job_id": job_id})
+            # Retourner JSON immédiatement
+            return JsonResponse({"success": True, "job_id": job_id})
 
         else:
             logger.exception(f"erreur form meuleuse_launch : {str(form.data)!r}")
@@ -277,10 +285,14 @@ def publicity_launch(request):
         "progress_icon": "💰",
         "form": form,
         "subscription_exists": subscription_exists,
+        "button_name": "publicity_launch",
+        "url": reverse("compta:publicity_launch"),
+        "display_button": True,
     }
 
     if not subscription_exists:
         set_message(request, 50, ABONNEMENT)
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -288,6 +300,8 @@ def publicity_launch(request):
 
     if in_action:
         set_message(request, 50, EN_COURS)
+        context["display_button"] = False
+
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
     not_finalize = have_send_email_without_finalize()
@@ -303,6 +317,7 @@ def publicity_launch(request):
                 "not_finalize": True,
             }
         )
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -328,40 +343,39 @@ def publicity_launch(request):
 
                 return JsonResponse({"success": False, "error": message})
 
-            else:
-                user_pk = request.user.id
-                job_id = str(uuid.uuid4())  # Générer un job_id unique
+            user_pk = request.user.id
+            job_id = str(uuid.uuid4())  # Générer un job_id unique
 
-                # Créer le SSEProgress AVANT de lancer la tâche
+            # Créer le SSEProgress AVANT de lancer la tâche
 
-                total_files = 1
+            total_files = 1
 
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    total_items=total_files,
-                    task_type=task_type,
-                    custom_title=TITRE_PRINICIPAL,
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
+            progress = SSEProgress.objects.create(
+                job_id=job_id,
+                user_id=user_pk,
+                total_items=total_files,
+                task_type=task_type,
+                custom_title=TITRE_PRINICIPAL,
+                metadata={"success": [], "failed": []},
+            )
+            progress.mark_as_started()
 
-                # Lancement d'un thread séparé
-                thread = threading.Thread(
-                    target=import_launch_subscriptions,
-                    args=(
-                        task_type,
-                        dte_d,
-                        dte_f,
-                        request.user.uuid_identification,
-                        job_id,
-                    ),
-                    daemon=True,
-                )
-                thread.start()
+            # Lancement d'un thread séparé
+            thread = threading.Thread(
+                target=import_launch_subscriptions,
+                args=(
+                    task_type,
+                    dte_d,
+                    dte_f,
+                    request.user.uuid_identification,
+                    job_id,
+                ),
+                daemon=True,
+            )
+            thread.start()
 
-                # Retourner JSON immédiatement
-                return JsonResponse({"success": True, "job_id": job_id})
+            # Retourner JSON immédiatement
+            return JsonResponse({"success": True, "job_id": job_id})
 
         else:
             logger.exception(f"erreur form publicity_launch : {str(form.data)!r}")
@@ -388,10 +402,14 @@ def services_launch(request):
         "progress_icon": "💰",
         "form": form,
         "subscription_exists": subscription_exists,
+        "button_name": "services_launch",
+        "url": reverse("compta:services_launch"),
+        "display_button": True,
     }
 
     if not subscription_exists:
         set_message(request, 50, ABONNEMENT)
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -399,6 +417,8 @@ def services_launch(request):
 
     if in_action:
         set_message(request, 50, EN_COURS)
+        context["display_button"] = False
+
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
     not_finalize = have_send_email_without_finalize()
@@ -414,6 +434,7 @@ def services_launch(request):
                 "not_finalize": True,
             }
         )
+        context["display_button"] = False
 
         return render(request, ROYALTIES_TEMPLATE, context=context)
 
@@ -439,41 +460,40 @@ def services_launch(request):
 
                 return JsonResponse({"success": False, "error": message})
 
-            else:
-                user_pk = request.user.id
-                job_id = str(uuid.uuid4())  # Générer un job_id unique
+            user_pk = request.user.id
+            job_id = str(uuid.uuid4())  # Générer un job_id unique
 
-                # Créer le SSEProgress AVANT de lancer la tâche
+            # Créer le SSEProgress AVANT de lancer la tâche
 
-                total_files = 1
+            total_files = 1
 
-                progress = SSEProgress.objects.create(
-                    job_id=job_id,
-                    user_id=user_pk,
-                    total_items=total_files,
-                    task_type=task_type,
-                    custom_title=TITRE_PRINICIPAL,
-                    metadata={"success": [], "failed": []},
-                )
-                progress.mark_as_started()
+            progress = SSEProgress.objects.create(
+                job_id=job_id,
+                user_id=user_pk,
+                total_items=total_files,
+                task_type=task_type,
+                custom_title=TITRE_PRINICIPAL,
+                metadata={"success": [], "failed": []},
+            )
+            progress.mark_as_started()
 
-                # Lancement d'un thread séparé
+            # Lancement d'un thread séparé
 
-                thread = threading.Thread(
-                    target=import_launch_subscriptions,
-                    args=(
-                        task_type,
-                        dte_d,
-                        dte_f,
-                        request.user.uuid_identification,
-                        job_id,
-                    ),
-                    daemon=True,
-                )
-                thread.start()
+            thread = threading.Thread(
+                target=import_launch_subscriptions,
+                args=(
+                    task_type,
+                    dte_d,
+                    dte_f,
+                    request.user.uuid_identification,
+                    job_id,
+                ),
+                daemon=True,
+            )
+            thread.start()
 
-                # Retourner JSON immédiatement
-                return JsonResponse({"success": True, "job_id": job_id})
+            # Retourner JSON immédiatement
+            return JsonResponse({"success": True, "job_id": job_id})
 
         else:
             logger.exception(f"erreur form services_launch : {str(form.data)!r}")
