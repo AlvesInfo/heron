@@ -82,6 +82,13 @@ class GmailSender:
         if self.service is None:
             self.service = authenticator.get_gmail_service()
 
+    def _reset_service(self):
+        """Réinitialise le service Gmail (connexion SSL cassée, etc.)"""
+        LOGGER_EMAIL.warning("Réinitialisation du service Gmail API...")
+        authenticator.service = None
+        self.service = None
+        self._ensure_service()
+
     def create_message(
         self,
         to: List[str],
@@ -258,6 +265,10 @@ class GmailSender:
                     self.config.max_retries,
                     error,
                 )
+
+                # Réinitialise le service en cas d'erreur de connexion SSL
+                if "EOF occurred" in str(error) or "ssl" in str(error).lower():
+                    self._reset_service()
 
                 if attempt < self.config.max_retries - 1:
                     retry_delay = self.config.retry_delay * (
