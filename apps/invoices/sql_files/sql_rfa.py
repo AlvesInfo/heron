@@ -19,7 +19,7 @@ SQL_HEADER = sql.SQL(
     select 
         "axe_prj", 
         "axe_rfa",
-        "grouping_goods",
+        "libelle",
         sum("net_amount_00") as "net_amount_00",
         sum("net_amount_01") as "net_amount_01",
         sum("net_amount_02") as "net_amount_02",
@@ -34,6 +34,7 @@ SQL_HEADER = sql.SQL(
             end as "axe_prj",
             "is2"."axe_rfa", 
             "grouping_goods", 
+            "libelle",
             case when "vat" not in ('001', '002') then "net_amount" else 0 end as "net_amount_00",
             case when "vat" = '002' then "net_amount" else 0 end as "net_amount_01",
             case when "vat" = '001' then "net_amount" else 0 end as "net_amount_02",
@@ -46,9 +47,9 @@ SQL_HEADER = sql.SQL(
     group by 
         "axe_prj",
         "axe_rfa", 
-        "grouping_goods" 
+        "libelle" 
     order by "axe_prj",
-             "grouping_goods"
+             "axe_rfa"
     """
 )
 

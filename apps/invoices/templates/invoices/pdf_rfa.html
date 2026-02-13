@@ -18,9 +18,8 @@
 <table class="tableauFacturation" style="margin-top: -7px;">
 
     <tr class="entete">
-        <td style="text-align: left;padding-left: 10px;width: 17%">Fournisseur</td>
+        <td style="text-align: left;padding-left: 10px;width: 34%">Article</td>
         <td style="width: 14%">Période</td>
-        <td style="width: 17%">Collection</td>
         <td style="text-align: right;padding-right: 5px;width: 13%">BASE TVA 0%</td>
         <td style="text-align: right;padding-right: 5px;width: 13%">BASE TVA 5,5%</td>
         <td style="text-align: right;padding-right: 5px;width: 13%">BASE TVA 20%</td>
@@ -29,9 +28,8 @@
 
     {% for header in headers %}
         <tr class="lignes">
-            <td style="text-align: left;padding-left: 10px;">{% ifchanged header.axe_prj %}<strong>{{ header.axe_prj }}</strong>{% endifchanged %}</td>
+            <td style="text-align: left;padding-left: 10px;">{{ header.libelle }}</td>
             <td style="text-align: left;">{{ header.axe_rfa }}</td>
-            <td style="text-align: left;">{{ header.grouping_goods }}</td>
             <td style="text-align: right;">{% if header.net_amount_00 %}{{ header.net_amount_00|numbers_format:2 }}{% endif %}</td>
             <td style="text-align: right;">{% if header.net_amount_01 %}{{ header.net_amount_01|numbers_format:2 }}{% endif %}</td>
             <td style="text-align: right;">{% if header.net_amount_02 %}{{ header.net_amount_02|numbers_format:2 }}{% endif %}</td>
@@ -40,7 +38,6 @@
     {% endfor %}
 
     <tr class="entete">
-        <td></td>
         <td></td>
         <td style="text-align: right;padding-right: 10px;">Total HT</td>
         <td style="text-align: right;">{% if resume.net_amount_00 %}{{ resume.net_amount_00|numbers_format:2 }}{% endif %}</td>
@@ -51,7 +48,6 @@
 
     <tr class="entete" style="background-color: #404040;">
         <td></td>
-        <td></td>
         <td style="text-align: right;padding-right: 10px;">Total TVA</td>
         <td style="text-align: right;">{% if resume.vat_amount_00 %}{{ resume.vat_amount_00|numbers_format:2 }}{% endif %}</td>
         <td style="text-align: right;">{% if resume.vat_amount_01 %}{{ resume.vat_amount_01|numbers_format:2 }}{% endif %}</td>
@@ -60,7 +56,6 @@
     </tr>
 
     <tr class="entete" style="margin-top: 20px;">
-        <td></td>
         <td></td>
         <td style="text-align: right;padding-right: 10px;">Total TTC</td>
         <td style="text-align: right;">{% if resume.ttc_amount_00 %}{{ resume.ttc_amount_00|numbers_format:2 }}{% endif %}</td>

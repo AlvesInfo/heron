@@ -60,3 +60,9 @@ def rfa_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr:
         font_config = FontConfiguration()
         html = HTML(string=content)
         html.write_pdf(pdf_path, font_config=font_config)
+
+
+if __name__ == "__main__":
+    uuid_invoice_to_pdf = UUID("34c9b308-9677-4d4a-b061-d7bd1749a4b5")
+    sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
+    rfa_invoice_pdf(uuid_invoice_to_pdf, Path(f"/tmp/{sale.invoice_number}.pdf"))
