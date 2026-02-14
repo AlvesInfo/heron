@@ -1,11 +1,20 @@
 {# NOTIFICATIONS ================================================================================ #}
-{#<div class="ui dropdown item"><i class="bell icon" style="margin-right: 10px;"><span style="padding: 0 5px;">29</span></i><i class="dropdown icon"></i>#}
-{#    <div class="menu">#}
-{#        <a href="" class="ui item a-menu">Notifications ...</a>#}
-{#        <a href="" class="ui item a-menu">Effacer</a>#}
-{##}
-{#    </div>#}
-{#</div>#}
+<div id="notifications-bell" class="item" style="padding:8px 12px;position:relative;cursor:pointer;">
+    <i class="bell outline icon" style="margin:0;color:#333;font-size:1.2em;"></i>
+    <span id="notifications-badge"
+          style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:#db2828;border-radius:50%;{% if not unread_notifications_count %}display:none;{% endif %}">
+    </span>
+</div>
+<div id="notifications-panel" style="display:none;position:absolute;right:80px;top:100%;min-width:350px;max-height:400px;overflow-y:auto;background:#fff;border:1px solid rgba(34,36,38,.15);border-radius:.28rem;box-shadow:0 2px 4px 0 rgba(34,36,38,.12);z-index:1000;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(34,36,38,.1);font-weight:bold;">
+        <span>Notifications</span>
+        <a id="notifications-mark-all-read" href="javascript:void(0)" style="font-size:12px;font-weight:normal;color:#4183c4;">
+            Tout marquer lu
+        </a>
+    </div>
+    <div id="notifications-list"></div>
+</div>
+{# ============================================================================================== #}
 <div class="ui dropdown item color-button"><i class="icon user"></i>{{ request.user.username }}<i class="dropdown icon"></i>
     <div class="menu">
         <a href="{% url 'accounts:user_profil' %}" class="ui item a-menu">Profil</a>

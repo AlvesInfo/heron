@@ -1,13 +1,12 @@
 {% extends "heron/table_courant.html" %}
 
+{% load filters_tags %}
 {% block table %}
 
-<div class="three wide column"></div>
+    <div class="four wide column"></div>
+    <div class="eight wide column">
 
-<div class="ten wide column">
-{% if emails_errors %}
-        <h4 style="color: red;">Vous ne pouvez pas envoyer les emails, car certains d'entre eux ne sont pas valides</h4>
-        <table id="table_document"
+    <table id="table_document"
        class="ui celled table"
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
@@ -18,8 +17,8 @@
             </tr>
         </thead>
         <tbody>
-        {% for email in emails_errors_list %}
-            <tr style="font-size: 1.2em;">
+        {% for email in emails_errors %}
+            <tr>
                 <td>
                       {{ email.third_party_num|default_if_none:'' }}
                 </td>
@@ -30,27 +29,7 @@
         {% endfor %}
         </tbody>
     </table>
-{% endif %}
-{% if not en_cours %}
-
-        <!-- Conteneur pour la jauge de progression -->
-        <div id="progress-container" style="display: none; margin-top: 20px;"></div>
-
-{% endif %}
 
 </div>
 
-
 {% endblock table %}
-
-
-
-
-
-
-
-
-
-
-
-

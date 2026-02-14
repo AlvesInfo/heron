@@ -15,6 +15,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import Group
 from apps.users.models import AuthGroupName
+from apps.core.bin.notifications import get_unread_count
 from heron.settings.base import TYPE_OF_BASE
 
 
@@ -250,3 +251,11 @@ def user_paulo(request):
 def type_of_base(_):
     """Retourne le texte si l'on est dans la base de test formation"""
     return {"type_of_base": TYPE_OF_BASE}
+
+
+def unread_notifications_count(request):
+    """Retourne le nombre de notifications non lues pour le badge cloche"""
+    if not request.user.is_authenticated:
+        return {"unread_notifications_count": 0}
+
+    return {"unread_notifications_count": get_unread_count(request.user)}

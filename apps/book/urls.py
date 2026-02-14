@@ -9,6 +9,8 @@ from apps.book.views import (
     change_supplier_cct_unit,
     export_list_societies,
     export_list_supplier_cct,
+    emails_errors_list,
+    excel_errors_emails_outputs,
     # Statistiques
     StatistiquesList,
     StatistiqueCreate,
@@ -26,9 +28,15 @@ urlpatterns = [
     # Tiers
     *[
         path("societies_list/", SocietiesList.as_view(), name="societies_list"),
-        path("societies_list_in_use/", SocietiesInUseList.as_view(), name="societies_list_in_use"),
         path(
-            "society_update/<int:pk>/<str:in_use>/", SocietyUpdate.as_view(), name="society_update"
+            "societies_list_in_use/",
+            SocietiesInUseList.as_view(),
+            name="societies_list_in_use",
+        ),
+        path(
+            "society_update/<int:pk>/<str:in_use>/",
+            SocietyUpdate.as_view(),
+            name="society_update",
         ),
         path(
             "update_supplier_cct_identifier/<str:third_party_num>/<str:url_retour_supplier_cct>/",
@@ -36,26 +44,46 @@ urlpatterns = [
             name="supplier_cct_identifier",
         ),
         path(
-            "change_supplier_cct_unit/", change_supplier_cct_unit, name="change_supplier_cct_unit"
+            "change_supplier_cct_unit/",
+            change_supplier_cct_unit,
+            name="change_supplier_cct_unit",
         ),
-        path("excel_outputs/<str:file_name>/", export_list_societies, name="excel_outputs"),
+        path(
+            "excel_outputs/<str:file_name>/",
+            export_list_societies,
+            name="excel_outputs",
+        ),
         path(
             "export_list_supplier_cct/<str:third_party_num>/",
             export_list_supplier_cct,
             name="export_list_supplier_cct",
         ),
+        path("emails_errors_list/", emails_errors_list, name="emails_errors_list"),
+        path(
+            "excel_errors_emails_outputs/",
+            excel_errors_emails_outputs,
+            name="excel_errors_emails_outputs",
+        ),
     ],
     # Statistiques
     *[
-        path("statistiques_list/", StatistiquesList.as_view(), name="statistiques_list"),
-        path("statistique_create/", StatistiqueCreate.as_view(), name="statistique_create"),
+        path(
+            "statistiques_list/", StatistiquesList.as_view(), name="statistiques_list"
+        ),
+        path(
+            "statistique_create/",
+            StatistiqueCreate.as_view(),
+            name="statistique_create",
+        ),
         path(
             "statistique_update/<slug:name>/",
             StatistiqueUpdate.as_view(),
             name="statistique_update",
         ),
         path(
-            "statistiques_export_list/", statistiques_export_list, name="statistiques_export_list"
+            "statistiques_export_list/",
+            statistiques_export_list,
+            name="statistiques_export_list",
         ),
     ],
     # Familles/Axes

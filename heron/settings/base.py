@@ -194,7 +194,8 @@ TEMPLATES = [
                 "heron.processors.in_ga",
                 "heron.processors.in_maa",
                 "heron.processors.in_unisson",
-                "heron.processors.type_of_base"
+                "heron.processors.type_of_base",
+                "heron.processors.unread_notifications_count"
             ]
         },
     }

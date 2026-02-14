@@ -45,6 +45,7 @@ from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
 )
+from apps.book.bin.checks import check_emails_to_send
 
 
 def generate_invoices_insertions(request):
@@ -374,7 +375,7 @@ def send_email_pdf_invoice(request):
     if request.method == "POST" and "email_essais" in request.POST:
         return redirect(reverse("invoices:send_email_essais"))
 
-    titre_table = "Envoi Global, par mail des factures de vente"
+    titre_table = "Envoi global, des factures de vente par mail"
 
     # On contrôle qu'il y ait des pdf à envoyer par mail
     sales_invoices_exists = SaleInvoice.objects.filter(
@@ -392,6 +393,17 @@ def send_email_pdf_invoice(request):
         request.session["level"] = 50
         messages.add_message(request, 50, "Il n'y a aucune facture pdf à envoyer !")
         context["en_cours"] = False
+
+        return render(request, "invoices/send_email_invoices.html", context=context)
+
+    # On contrôle qu'il n'y ait pas des emails faux
+    emails_errors_list = check_emails_to_send()
+
+    if emails_errors_list:
+        request.session["level"] = 50
+        messages.add_message(request, 50, "Il y a des Emails dans les Tiers X3 qui ne sont pas valides")
+        context["emails_errors"] = True
+        context["emails_errors_list"] = emails_errors_list
 
         return render(request, "invoices/send_email_invoices.html", context=context)
 

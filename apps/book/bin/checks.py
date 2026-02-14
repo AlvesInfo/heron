@@ -27,9 +27,12 @@ django.setup()
 
 from psycopg2 import sql
 from django.db import connection
+
+from apps.core.functions.functions_postgresql import query_dict
 from apps.accountancy.models import CctSage
 from apps.book.models import SupplierCct
 from apps.book.forms import SageEmailForm
+from apps.core.bin.notifications import broadcast_notification
 
 
 def check_cct_identifier(cleaned_data: dict):
@@ -126,8 +129,8 @@ def check_cct_identifier(cleaned_data: dict):
     return True, ""
 
 
-def check_emails():
-    """Vérifie les email_01 à email_05 présents dans book society"""
+def check_emails_to_send():
+    """Retourne les faux emails, avant envoi par mail des factures"""
 
     sql_check_emails = """
     select 
@@ -159,20 +162,76 @@ def check_emails():
         from "invoices_saleinvoice" "si" 
         where not si."final" and r.third_party_num = si.third_party_num  
     )
+    order by r.third_party_num, r.email
     """
 
-    with connection.cursor() as cursor:
-        cursor.execute(sql_check_emails)
-        emails_list = [
-            {"email": email, "third_party_num": third_party_num}
-            for email, third_party_num in cursor.fetchall()
-        ]
-        for email_dict in emails_list:
-            e = SageEmailForm(data=email_dict)
-            e.is_valid()
-            if e.errors:
-                print(email_dict.get("third_party_num"), ": ", email_dict.get("email"))
+    emails_errors_list = query_dict(connection, sql_check_emails)
+
+    for email_dict in emails_errors_list:
+        if not SageEmailForm(data=email_dict).is_valid():
+            yield email_dict
+
+        else:
+            continue
+
+
+def check_emails(is_loop=False):
+    """Vérifie les email_01 à email_05 présents dans book society"""
+
+    sql_check_emails = """
+    select 
+        email, third_party_num 
+    from (
+        select 
+            email_01 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_02 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_03 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_04 as email, third_party_num
+        from book_society bs 
+        union all
+        select 
+            email_05 as email, third_party_num
+        from book_society bs 
+    ) r
+    where r.email is not null and r.email != ''
+    order by r.third_party_num, r.email
+    """
+
+    emails_errors_list = query_dict(connection, sql_check_emails)
+    errors = False
+
+    for email_dict in emails_errors_list:
+        if not SageEmailForm(data=email_dict).is_valid():
+
+            if not errors and is_loop:
+                # If error Notify in front mails errors
+                broadcast_notification(
+                    title="Erreurs Emails",
+                    message="Les emails des Tiers Sage X3 contiennent des erreurs !",
+                    level="error",
+                    link="/book/emails_errors_list/"
+                )
+
+            errors = True
+
+            yield email_dict
+
+        else:
+            continue
 
 
 if __name__ == "__main__":
-    check_emails()
+    for emails in check_emails_to_send():
+        print(emails)
+
+    for emails in check_emails():
+        print(emails)

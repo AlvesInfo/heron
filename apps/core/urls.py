@@ -13,6 +13,11 @@ from apps.core.views import (
     get_active_jobs,
     get_job_progress,
     delete_job,
+    # API POUR LES NOTIFICATIONS
+    notifications_list,
+    notification_mark_read,
+    notification_mark_all_read,
+    notification_delete,
 )
 
 urlpatterns = [
@@ -41,4 +46,21 @@ urlpatterns = [
     path("sse-progress/active/", get_active_jobs, name="active_jobs"),
     path("sse-progress/<str:job_id>/", get_job_progress, name="job_detail"),
     path("sse-progress/<str:job_id>/delete/", delete_job, name="delete_job"),
+    # API POUR LES NOTIFICATIONS
+    path("notifications/", notifications_list, name="notifications_list"),
+    path(
+        "notifications/mark-read/<uuid:notification_uuid>/",
+        notification_mark_read,
+        name="notification_mark_read",
+    ),
+    path(
+        "notifications/mark-all-read/",
+        notification_mark_all_read,
+        name="notification_mark_all_read",
+    ),
+    path(
+        "notifications/delete/<uuid:notification_uuid>/",
+        notification_delete,
+        name="notification_delete",
+    ),
 ]

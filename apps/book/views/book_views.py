@@ -4,17 +4,22 @@ Views des Tiers X3
 """
 from pathlib import Path
 
+import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import reverse
+from django.shortcuts import render, reverse, redirect
 from django.views.generic import ListView, UpdateView
 from django.db.models import Q
 
 from heron.settings import MEDIA_EXCEL_FILES_DIR
+from heron.loggers import LOGGER_EXPORT_EXCEL
+from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.encoders import set_base_64_str
 from apps.core.functions.functions_http_response import x_accel_exists_file_response
 from apps.book.models import Society
 from apps.book.forms import SocietyForm
+from apps.book.bin.checks import check_emails
+from apps.book.excel_outputs.book_excel_errors_emails import excel_errors_emails
 
 
 # ECRANS DES TIERS X3 FOURNISSEURS =================================================================
@@ -145,3 +150,36 @@ def export_list_societies(_, file_name: str):
     response = x_accel_exists_file_response(file)
 
     return response
+
+
+def emails_errors_list(request):
+    """Retourne la liste de tous les faux emails dans Sage X3"""
+
+    context = {
+        "titre_table": "Erreurs emails Tiers X3",
+        "emails_errors": check_emails(),
+    }
+
+    return render(request, "book/emails_errors_list.html", context=context)
+
+
+def excel_errors_emails_outputs(_):
+    """
+    Export Excel de la liste des emails en erreur dans Sage X3
+    :param _: Request Django
+    :return: response_file
+    """
+    try:
+
+        today = pendulum.now()
+        file_name = (
+            "LISTING_DES_AXES_RFA_A_PRENDRE_"
+            f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+        )
+
+        return response_file(excel_errors_emails, file_name, CONTENT_TYPE_EXCEL)
+
+    except Exception as error:
+        LOGGER_EXPORT_EXCEL.exception(f"view section_rfa_export_list: {error!r}")
+
+    return redirect(reverse("book:emails_errors_list"))
