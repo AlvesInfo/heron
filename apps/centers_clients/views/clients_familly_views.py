@@ -36,7 +36,7 @@ class ClientFamillyList(ListView):
     model = ClientFamilly
     context_object_name = "famillies"
     template_name = "centers_clients/client_familly_list.html"
-    extra_context = {"titre_table": "Familles Client"}
+    extra_context = {"titre_table": "Catégories Clients"}
 
 
 class ClientFamillyCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -46,14 +46,14 @@ class ClientFamillyCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     form_class = ClientFamillyForm
     form_class.use_required_attribute = False
     template_name = "centers_clients/client_familly_update.html"
-    success_message = "La famille %(name)s, a été créé avec success"
-    error_message = "La famille %(name)s, n'a pu être créé,  une erreur c'est produite"
+    success_message = "La catégorie %(name)s, a été créé avec success"
+    error_message = "La catégorie %(name)s, n'a pu être créé,  une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse(CLIENT_FAMILLY_LIST)
-        context["titre_table"] = "Création d'une nouvelle Famille Client"
+        context["titre_table"] = "Création d'une nouvelle Catégorie Client"
         return context
 
     def get_success_url(self):
@@ -75,14 +75,14 @@ class ClientFamillyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     form_class = ClientFamillyForm
     form_class.use_required_attribute = False
     template_name = "centers_clients/client_familly_update.html"
-    success_message = "La famille %(name)s, a été modifiée avec success"
-    error_message = "La famille %(name)s, n'a pu être modifiée,  une erreur c'est produite"
+    success_message = "La catégorie %(name)s, a été modifiée avec success"
+    error_message = "La catégorie %(name)s, n'a pu être modifiée,  une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse(CLIENT_FAMILLY_LIST)
-        context["titre_table"] = "Mise à jour d'une nouvelle Famille Client"
+        context["titre_table"] = "Mise à jour d'une nouvelle Catégorie Client"
         return context
 
     def get_success_url(self):
@@ -130,7 +130,7 @@ def export_client_familly_list(_):
 
         today = pendulum.now()
         file_name = (
-            f"LISTING_DES_FAMILLES_CLIENTS_"
+            f"LISTING_DES_CATEGORIES_CLIENTS_"
             f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 
