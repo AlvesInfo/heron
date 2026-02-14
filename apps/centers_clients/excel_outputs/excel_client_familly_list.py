@@ -26,7 +26,7 @@ from apps.centers_clients.models import ClientFamilly
 
 columns = [
     {
-        "entete": "Famille",
+        "entete": "Catégore",
         "f_entete": {
             **f_entetes,
             **{
