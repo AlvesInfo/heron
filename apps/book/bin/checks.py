@@ -154,6 +154,11 @@ def check_emails():
         from book_society bs 
     ) r
     where r.email is not null and r.email != ''
+    and exists (
+        select 1 
+        from "invoices_saleinvoice" "si" 
+        where not si."final" and r.third_party_num = si.third_party_num  
+    )
     """
 
     with connection.cursor() as cursor:
@@ -166,7 +171,7 @@ def check_emails():
             e = SageEmailForm(data=email_dict)
             e.is_valid()
             if e.errors:
-                print(email_dict.get("third_party_num"), email_dict.get("email"))
+                print(email_dict.get("third_party_num"), ": ", email_dict.get("email"))
 
 
 if __name__ == "__main__":

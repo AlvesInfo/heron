@@ -434,7 +434,7 @@ def import_od_files():
 
     for file_path in proccessing_dir.glob("*.csv"):
         _, to_print = import_od_a_passer(file_path)
-
+        breakpoint()
         if "Pas d'erreurs" not in to_print:
             ModelOd.objects.all().delete()
             error = True
@@ -477,5 +477,6 @@ def import_od_files():
 
 
 if __name__ == "__main__":
-    # print(import_od_files())
+    print(import_od_files())
     set_base_sage_invoice_number()
+    print(validation_accounts(False, "message"))

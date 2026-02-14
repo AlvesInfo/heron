@@ -68,7 +68,7 @@ class ModelOd(DatesTable):
             "type_ecriture": "type_ecriture",
             "facture_heron": "facture_heron",
             "libelle": "libelle",
-            "third_party_num": "tiers",
+            "third_party_num": "third_party_num",
             "code_plan": "code_plan",
             "axe_bu": "axe_bu",
             "cct": "cct",

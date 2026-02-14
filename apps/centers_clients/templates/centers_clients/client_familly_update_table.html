@@ -1,0 +1,22 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+    <div class="three wide column"></div>
+    <div class="ten wide column" style="padding: 0;margin: 10px;">
+      <div class="ui segment" style="padding-bottom: 0;">
+        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+
+          <div class="fields">
+              <div class="three wide computer wide field">
+                <label for="id_name" style="text-align: left;">Famille&nbsp;:</label>
+                {{ form.name }}
+              </div>
+              <div class="thirteen wide field">
+                <label for="id_comment" style="text-align: left;">Commentaire&nbsp;:</label>
+                {{ form.comment }}
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock table %}

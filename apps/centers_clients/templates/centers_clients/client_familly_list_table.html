@@ -1,0 +1,41 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="three wide column"></div>
+
+<div class="ten wide column">
+
+    <table id="table_document"
+           class="ui celled table"
+           style="font-size: 12px !important;text-align: center;font-weight: 900;">
+            <thead>
+                <tr>
+                    <th style="width: 8%">Edit</th>
+                    <th style="width: 22%">Famille</th>
+                    <th style="width: 62%">Commentaire</th>
+                    <th style="width: 8%">delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for familly in famillies %}
+                <tr id="id_{{ forloop.counter }}" class="hide_plans">
+                    <td>
+                        <a href="{% url 'centers_clients:client_familly_update' pk=familly.pk%}">
+                            <i class="edit icon modification"></i>
+                        </a>
+                    </td>
+                    <td>{{familly.name}}</td>
+                    <td>{{familly.comment|default_if_none:''}}</td>
+                    <td class="tdDelete" style="text-align: center;">
+                        <div style="cursor: pointer;">
+                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ familly.pk }}, `{{ familly.name }}`, `{% url 'centers_clients:client_familly_delete' %}`, `la famille clients`)"></i>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</div>
+
+{% endblock table %}
