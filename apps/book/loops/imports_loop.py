@@ -25,6 +25,7 @@ from apps.book.imports.imports_sage import (
     bank_sage,
 )
 from apps.book.imports.excel_generations import writre_book_files
+from apps.book.bin.checks import check_emails
 
 processing_dict = {
     "ZBIBPR_journalier.heron": bpr_sage,
@@ -87,6 +88,9 @@ def process():
                 )
             if trace is not None:
                 trace.save()
+
+    if processing_files:
+        check_emails(is_loop=True)
 
     try:
         # On crée les fichiers des tiers fournisseurs, clients et tiers, car ils sont volumineux
