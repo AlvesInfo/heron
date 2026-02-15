@@ -225,13 +225,18 @@ def check_emails(is_loop=False):
 
             yield email_dict
 
-        else:
-            continue
+
+def check_emails_notifications():
+    """Set les faux emails en appelant la fonction check_emails()"""
+    for _ in check_emails(is_loop=True):
+        ...
 
 
 if __name__ == "__main__":
-    for emails in check_emails_to_send():
-        print(emails)
+    # for emails in check_emails_to_send():
+    #     print(emails)
+    #
+    # for emails in check_emails():
+    #     print(emails)
 
-    for emails in check_emails():
-        print(emails)
+    check_emails_notifications()
