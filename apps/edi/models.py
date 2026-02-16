@@ -27,6 +27,7 @@ from apps.parameters.models import (
     SubCategory,
     Nature,
     BaseCommonDetailsTable,
+    ControlRebilling,
 )
 
 
@@ -59,6 +60,9 @@ class EdiValidation(FlagsTable):
 
     # Validation sur Ecran 2.2 Contrôle CCT
     cct = models.BooleanField(null=True, default=False)
+
+    # Validation sur Ecran 2.3 Controle Refacturation
+    control_rebilling = models.BooleanField(null=True, default=False)
 
     # Validation sur Ecran 3.1 Contrôles Familles
     families = models.BooleanField(null=True, default=False)
@@ -94,6 +98,25 @@ class EdiValidation(FlagsTable):
 
     # Identification
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
+
+
+class EdiControlRebilling(FlagsTable):
+    control_rebilling= models.ForeignKey(
+        ControlRebilling,
+        on_delete=models.PROTECT,
+        null=True,
+        to_field="uuid_identification",
+        related_name="edi_control_rebilling",
+        db_column="uuid_control_rebilling",
+    )
+    uuid_edi_validation = models.ForeignKey(
+        EdiValidation,
+        on_delete=models.PROTECT,
+        to_field="uuid_identification",
+        related_name="validation_control_rebilling",
+        db_column="uuid_edi_validation",
+    )
+    comment = models.TextField(blank=True, null=True)
 
 
 class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):

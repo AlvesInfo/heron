@@ -40,6 +40,12 @@ from apps.parameters.views import (
     ExchangesList,
     ExchangeCreate,
     ExchangeUpdate,
+    # CONTROLE DE REFACTURATION
+    ControlRebillingList,
+    ControlRebillingCreate,
+    ControlRebillingUpdate,
+    delete_control_rebilling,
+    control_rebilling_export_list,
 )
 
 app_name = "apps.parameters"
@@ -49,8 +55,16 @@ urlpatterns = [
     *[
         path("categories_list/", CategoriesList.as_view(), name="categories_list"),
         path("category_create/", CategoryCreate.as_view(), name="category_create"),
-        path("category_update/<int:pk>/", CategoryUpdate.as_view(), name="category_update"),
-        path("categories_export_list/", categories_export_list, name="categories_export_list"),
+        path(
+            "category_update/<int:pk>/",
+            CategoryUpdate.as_view(),
+            name="category_update",
+        ),
+        path(
+            "categories_export_list/",
+            categories_export_list,
+            name="categories_export_list",
+        ),
     ],
     # Rubriques Presta
     *[
@@ -96,15 +110,27 @@ urlpatterns = [
             FunctionUpdate.as_view(),
             name="function_update",
         ),
-        path("functions_export_list/", functions_export_list, name="functions_export_list"),
+        path(
+            "functions_export_list/",
+            functions_export_list,
+            name="functions_export_list",
+        ),
         path("function_delete/", function_delete, name="function_delete"),
     ],
     # Numérotation
     *[
         path("numberings_list/", NumberingsList.as_view(), name="numberings_list"),
         path("numbering_create/", NumberingCreate.as_view(), name="numbering_create"),
-        path("numbering_update/<int:pk>/", NumberingUpdate.as_view(), name="numbering_update"),
-        path("numberings_export_list/", numberings_export_list, name="numberings_export_list"),
+        path(
+            "numbering_update/<int:pk>/",
+            NumberingUpdate.as_view(),
+            name="numbering_update",
+        ),
+        path(
+            "numberings_export_list/",
+            numberings_export_list,
+            name="numberings_export_list",
+        ),
         path("numbering_delete/", numbering_delete, name="numbering_delete"),
     ],
     # NATURE/GENRE
@@ -123,7 +149,11 @@ urlpatterns = [
     ],
     # EXCHANGE RATE
     *[
-        path("period_select_exchange/", period_select_exchange, name="period_select_exchange"),
+        path(
+            "period_select_exchange/",
+            period_select_exchange,
+            name="period_select_exchange",
+        ),
         path(
             "exchanges_list/<str:month>/",
             ExchangesList.as_view(),
@@ -138,6 +168,34 @@ urlpatterns = [
             "exchange_update/<int:pk>/",
             ExchangeUpdate.as_view(),
             name="exchange_update",
+        ),
+    ],
+    # CONTROLE DE REFACTURATION
+    *[
+        path(
+            "control_rebilling_list/",
+            ControlRebillingList.as_view(),
+            name="control_rebilling_list",
+        ),
+        path(
+            "control_rebilling_create/",
+            ControlRebillingCreate.as_view(),
+            name="control_rebilling_create",
+        ),
+        path(
+            "control_rebilling_update/<int:pk>/",
+            ControlRebillingUpdate.as_view(),
+            name="control_rebilling_update",
+        ),
+        path(
+            "delete_control_rebilling/",
+            delete_control_rebilling,
+            name="delete_control_rebilling",
+        ),
+        path(
+            "control_rebilling_export_list/",
+            control_rebilling_export_list,
+            name="control_rebilling_export_list",
         ),
     ],
 ]

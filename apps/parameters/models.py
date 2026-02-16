@@ -11,6 +11,7 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.conf import settings
@@ -63,7 +64,9 @@ class Parameters(FlagsTable):
     num_05 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -87,7 +90,9 @@ class UnitChoices(FlagsTable):
     to_display = models.CharField(null=True, max_length=5)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -112,7 +117,9 @@ class SendFiles(FlagsTable):
     periodicity = models.CharField(null=True, blank=True, max_length=20)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -150,7 +157,9 @@ class SendFilesMail(FlagsTable):
     email = models.EmailField(null=True, blank=True)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -177,7 +186,9 @@ class SubFamilly(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -194,8 +205,12 @@ class InvoiceFunctions(FlagsTable):
 
     function_name = models.CharField(unique=True, max_length=255, verbose_name="nom")
     function = models.TextField(verbose_name="fonction")
-    absolute_path_windows = models.TextField(null=True, blank=True, verbose_name="dir windows")
-    absolute_path_linux = models.TextField(null=True, blank=True, verbose_name="dir linux")
+    absolute_path_windows = models.TextField(
+        null=True, blank=True, verbose_name="dir windows"
+    )
+    absolute_path_linux = models.TextField(
+        null=True, blank=True, verbose_name="dir linux"
+    )
     description = models.CharField(null=True, blank=True, max_length=255)
     reverse = models.CharField(null=True, blank=True, max_length=255, default="")
     redirect = models.CharField(null=True, blank=True, max_length=255, default="")
@@ -240,7 +255,9 @@ class Counter(FlagsTable):
     EN : Counter
     """
 
-    name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
+    name = models.CharField(
+        unique=True, max_length=80, verbose_name="Type de numérotation"
+    )
     prefix = models.CharField(null=True, max_length=35, verbose_name="préfix")
     suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
     function = models.ForeignKey(
@@ -252,11 +269,15 @@ class Counter(FlagsTable):
         null=True,
     )
     lpad_num = models.IntegerField(null=True, default=0)
-    description = models.CharField(null=True, max_length=255, verbose_name="description")
+    description = models.CharField(
+        null=True, max_length=255, verbose_name="description"
+    )
     separateur = models.CharField(null=True, max_length=1, verbose_name="séparateur")
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -273,7 +294,9 @@ class Counter(FlagsTable):
         ordering = ["name"]
         constraints = [
             # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
-            models.CheckConstraint(check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
+            models.CheckConstraint(
+                check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"
+            ),
         ]
 
     @staticmethod
@@ -283,9 +306,9 @@ class Counter(FlagsTable):
             return False
 
         counters = set(
-            Counter.objects.exclude(Q(function="") | Q(function__isnull=True)).values_list(
-                "function", flat=True
-            )
+            Counter.objects.exclude(
+                Q(function="") | Q(function__isnull=True)
+            ).values_list("function", flat=True)
         )
         return function.function_name in counters
 
@@ -340,7 +363,9 @@ class Category(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -387,12 +412,16 @@ class SubCategory(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         try:
-            return f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
+            return (
+                f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
+            )
         except AttributeError:
             return ""
 
@@ -418,7 +447,9 @@ class Periodicity(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -443,7 +474,9 @@ class SalePriceCategory(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -465,7 +498,9 @@ class ActionPermission(FlagsTable):
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     class Meta:
         """class Meta du modèle django"""
@@ -487,7 +522,9 @@ class Nature(FlagsTable):
     for_formation = models.BooleanField(default=False)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     def save(self, *args, **kwargs):
         """
@@ -549,15 +586,21 @@ class BaseInvoiceTable(models.Model):
     invoice_amount_without_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0
     )
-    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    invoice_amount_tax = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
     sale_invoice = models.BooleanField(null=True, default=False)
     manual_entry = models.BooleanField(null=True, default=False)
-    code_center = models.CharField(null=True, max_length=15, verbose_name="code centrale fille")
-    code_signboard = models.CharField(null=True, max_length=15, verbose_name="code enseigne")
+    code_center = models.CharField(
+        null=True, max_length=15, verbose_name="code centrale fille"
+    )
+    code_signboard = models.CharField(
+        null=True, max_length=15, verbose_name="code enseigne"
+    )
 
     class Meta:
         """class Meta du modèle django"""
@@ -593,7 +636,9 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="montant brut MOA avec 8 quand ALC avec H",
     )
-    base_discount_01 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    base_discount_01 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     discount_price_01 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -601,7 +646,9 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="remise 1 MOA avec 8 quand ALC avec H",
     )
-    base_discount_02 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    base_discount_02 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     discount_price_02 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -609,9 +656,15 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="remise 2 MOA avec 8 quand ALC avec H",
     )
-    base_discount_03 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    base_discount_03 = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     discount_price_03 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="remise 3 MOA avec 98"
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="remise 3 MOA avec 98",
     )
     net_amount = models.DecimalField(
         null=True,
@@ -628,7 +681,11 @@ class BaseInvoiceDetailsTable(models.Model):
         verbose_name="montant de tva montant tva calculé",
     )
     amount_with_vat = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0, verbose_name="montant ttc calculé"
+        null=True,
+        max_digits=20,
+        decimal_places=5,
+        default=0,
+        verbose_name="montant ttc calculé",
     )
     unit_weight = models.ForeignKey(
         UnitChoices,
@@ -651,35 +708,52 @@ class BaseCommonDetailsTable(models.Model):
     FR : Table Abstraite de base pour des artilces facturés
     EN : Basic Abstract Table for Invoiced Items
     """
+
     # Article
     reference_article = models.CharField(
-        null=True, blank=True, max_length=150, verbose_name="LIN avec 21 et autre chose que EN"
+        null=True,
+        blank=True,
+        max_length=150,
+        verbose_name="LIN avec 21 et autre chose que EN",
     )
     ean_code = models.CharField(
         null=True, blank=True, max_length=35, verbose_name="LIN avec 21 et EN"
     )
     libelle = models.CharField(
-        null=True, blank=True, max_length=150, verbose_name="IMD avec F dernière position"
+        null=True,
+        blank=True,
+        max_length=150,
+        verbose_name="IMD avec F dernière position",
     )
 
     # Livraison
     acuitis_order_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
     )
-    acuitis_order_date = models.DateField(null=True, verbose_name="DTM avec 4 quand RFF avec ON")
+    acuitis_order_date = models.DateField(
+        null=True, verbose_name="DTM avec 4 quand RFF avec ON"
+    )
     delivery_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
     )
-    delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
+    delivery_date = models.DateField(
+        null=True, verbose_name="DTM avec 35 quand RFF avec AAK"
+    )
     client_name = models.CharField(null=True, blank=True, max_length=80)
     comment = models.CharField(null=True, blank=True, max_length=255)
     command_reference = models.CharField(null=True, blank=True, max_length=120)
 
     # Qty / Montants
     qty = models.DecimalField(
-        null=True, decimal_places=5, default=1, max_digits=20, verbose_name="QTY avec 47"
+        null=True,
+        decimal_places=5,
+        default=1,
+        max_digits=20,
+        verbose_name="QTY avec 47",
     )
-    item_weight = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
+    item_weight = models.DecimalField(
+        null=True, max_digits=20, decimal_places=5, default=0
+    )
     origin = models.ForeignKey(
         IconOriginChoice,
         null=True,
@@ -714,8 +788,12 @@ class BaseCommonDetailsTable(models.Model):
     initial_home = models.CharField(null=True, blank=True, max_length=15)
     initial_date = models.DateField(null=True, verbose_name="date initiale")
     final_date = models.DateField(null=True, verbose_name="date finale")
-    first_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="prenom")
-    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="nom")
+    first_name = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="prenom"
+    )
+    last_name = models.CharField(
+        null=True, blank=True, max_length=80, verbose_name="nom"
+    )
     heures_formation = models.DecimalField(
         null=True,
         max_digits=20,
@@ -747,7 +825,9 @@ class BaseAdressesTable(models.Model):
     """
 
     name = models.CharField(null=True, blank=True, max_length=80)
-    immeuble = models.CharField(null=True, blank=True, max_length=200, verbose_name="immeuble")
+    immeuble = models.CharField(
+        null=True, blank=True, max_length=200, verbose_name="immeuble"
+    )
     adresse = models.CharField(max_length=200, verbose_name="adresse")
     code_postal = models.CharField(max_length=15, verbose_name="code postal")
     ville = models.CharField(max_length=50, verbose_name="ville")
@@ -780,7 +860,9 @@ class ActionInProgress(FlagsTable):
     comment = models.CharField(blank=True, null=True, max_length=255)
 
     # Identification
-    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
 
     class Meta:
         """class Meta du modèle django"""
@@ -852,7 +934,9 @@ class DefaultAxeArticle(FlagsTable):
     @staticmethod
     def get_absolute_url():
         """Url de retour après create ou Update"""
-        return reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
+        return reverse(
+            "parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"}
+        )
 
     class Meta:
         """class Meta du modèle django"""
@@ -869,7 +953,9 @@ class Email(models.Model):
         INV = 0, "Factures"
         DOC = 1, "Documents"
 
-    name = models.IntegerField(unique=True, choices=EmailType.choices, default=EmailType.INV)
+    name = models.IntegerField(
+        unique=True, choices=EmailType.choices, default=EmailType.INV
+    )
     description = models.CharField(max_length=255)
     subject = models.CharField(max_length=255)
     email_body = models.TextField(blank=True, null=True)
@@ -881,6 +967,7 @@ class Email(models.Model):
 
     class Meta:
         """class Meta du modèle django"""
+
         ordering = ["name"]
 
 
@@ -922,3 +1009,30 @@ class ExchangeRate(FlagsTable):
                 ]
             ),
         ]
+
+
+class ControlRebilling(FlagsTable):
+    """
+    Table servant de liste des fournisseurs à checker si on a reçu les factures
+    """
+
+    name = models.CharField(unique=True, max_length=80)
+    comment = models.TextField(null=True, blank=True)
+
+    # Identification
+    uuid_identification = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False
+    )
+
+    def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        return f"{self.name}"
+
+    def get_absolute_url(self):
+        """Retourne l'url en cas de success create, update ou delete"""
+        return reverse("parameters:control_rebilling_list")
+
+    class Meta:
+        """class Meta du modèle django"""
+
+        ordering = ["name"]

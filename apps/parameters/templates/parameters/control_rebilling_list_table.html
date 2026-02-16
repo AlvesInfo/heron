@@ -1,0 +1,53 @@
+{% extends "heron/table_courant.html" %}
+
+{% block table %}
+
+<div class="two wide column"></div>
+
+<div class="twelve wide column">
+
+    <table id="table_document"
+       class="ui celled table"
+       style="font-size: 12px !important;text-align: center;font-weight: 900;">
+        <thead>
+            <tr>
+                <th class="no-sort" style="text-align: center;width: 6%">Edit</th>
+                <th style="width: 25%">Contrôle de Refacturation</th>
+                <th style="width: 63%">Commentaire</th>
+                <th style="width: 6%;">delete</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for control in controls %}
+            <tr id="id_{{ control.pk }}" class="hide_plans">
+                <td data-value="{{ control.name }}"
+                    style="text-align: center;">
+                    <a href="{% url 'parameters:control_rebilling_update' pk=control.pk %}">
+                        <i class="edit icon modification"></i>
+                    </a>
+                </td>
+                <td>
+                  {% if control.name %}
+                    {{ control.name }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if control.comment %}
+                    {{ control.comment }}
+                  {% endif %}
+                </td>
+                <td class="tdDelete" style="text-align: center;">
+                    <div style="cursor: pointer;">
+                        <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ control.pk }}, `{{ control.name }}`, `{% url 'parameters:delete_control_rebilling' %}`, `le Contrôle de Refactuartion `)"></i>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="two wide column"></div>
+
+{% endblock table %}

@@ -1,0 +1,27 @@
+{% extends "heron/update_create_courant.html" %}
+
+{% block table %}
+
+    <div class="sixteen wide column" style="padding: 0;margin: 10px;">
+        <div class="ui segments">
+            <div class="ui segment" style="padding-bottom: 0;">
+                <form action="" method="post">
+                    {% csrf_token %}
+                        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+                            <div class="fields">
+                                <div class="four wide field">
+                                    <label for="id_name" style="text-align: left;">Contrôle de Refacturation&nbsp;:</label>
+                                    {{ form.name }}
+                                </div>
+                                <div class="twelve wide field">
+                                    <label for="id_name" style="text-align: left;">Commentaire&nbsp;:</label>
+                                    {{ form.comment }}
+                                </div>
+                            </div>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock table %}
