@@ -12,6 +12,8 @@ from .views import (
     controls_cct_sales_suppliers_export,
     controls_cct_sales_suppliers_details,
     controls_cct_sales_suppliers_details_export,
+    # MENU CONTROLES VENTES GENERIQUES INTERNES
+    balance_internal_sales,
     # MENU CONTROLES SAGE
     sage_controls_globals_sales,
     invoices_sales_export_globals,
@@ -78,6 +80,14 @@ urlpatterns = [
             "controls_cct_sales_suppliers_details_export/",
             controls_cct_sales_suppliers_details_export,
             name="controls_cct_sales_suppliers_details_export",
+        ),
+    ],
+    # MENU CONTROLES VENTES GENERIQUES INTERNES
+    *[
+        path(
+            "balance_internal_sales/",
+            balance_internal_sales,
+            name="balance_internal_sales",
         ),
     ],
     # MENU CONTROLES SAGE
