@@ -5,8 +5,11 @@ created at: 2025-02-14
 created by: Paulo ALVES
 """
 
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.utils import timezone
 
 from apps.core.models.models_notifications import Notification
@@ -52,9 +55,16 @@ def get_unread_count(user):
     return Notification.objects.filter(user=user, is_read=False).count()
 
 
-def get_all_notifications(user, limit=50):
-    """Retourne toutes les notifications de l'utilisateur"""
-    return Notification.objects.filter(user=user)[:limit]
+def get_all_notifications(user, limit=30):
+    """Retourne les notifications de l'utilisateur, en excluant les notifications lues
+    depuis plus d'une semaine"""
+    one_week_ago = timezone.now() - timedelta(days=7)
+    notifications = Notification.objects.filter(
+        models.Q(user=user)
+        & ~models.Q(is_read=True, read_at__lt=one_week_ago)
+    )[:limit]
+
+    return notifications
 
 
 def mark_notification_as_read(notification_uuid, user):
