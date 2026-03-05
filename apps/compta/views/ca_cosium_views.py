@@ -200,6 +200,7 @@ def reset_sales(request):
             "Attention, Tous les abonnements, Royalties, Meuleuse, Publicité et Prestations, "
             "seront également supprimé, vous devrez les regénérer manuellement !"
         ),
+        "display_button": True,
     }
 
     return render(request, "compta/update_sales_launch.html", context=context)
@@ -247,6 +248,7 @@ def reset_ca(request):
             "Attention, Tous les abonnements, Royalties, Meuleuse, Publicité et Prestations, "
             "seront également supprimé, vous devrez les regénérer manuellement !"
         ),
+        "display_button": True,
     }
 
     return render(request, "compta/update_sales_launch.html", context=context)
