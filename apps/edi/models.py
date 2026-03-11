@@ -104,7 +104,6 @@ class EdiControlRebilling(FlagsTable):
     control_rebilling= models.ForeignKey(
         ControlRebilling,
         on_delete=models.PROTECT,
-        null=True,
         to_field="uuid_identification",
         related_name="edi_control_rebilling",
         db_column="uuid_control_rebilling",
@@ -117,6 +116,12 @@ class EdiControlRebilling(FlagsTable):
         db_column="uuid_edi_validation",
     )
     comment = models.TextField(blank=True, null=True)
+
+    class Meta:
+        """class Meta"""
+
+        ordering = ["control_rebilling__name"]
+        unique_together = (("control_rebilling", "uuid_edi_validation"),)
 
 
 class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
