@@ -245,14 +245,6 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
-        # instance = form.save()
-        # EdiImport.objects.filter(
-        #     third_party_num=self.third_party_num,
-        #     supplier=self.supplier,
-        #     invoice_month=self.invoice_month,
-        #     valid=True,
-        #     flow_name=self.flow_name
-        # ).update(uuid_control=instance.uuid_identification)
 
         return super().form_valid(form)
 
