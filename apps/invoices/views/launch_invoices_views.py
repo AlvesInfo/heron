@@ -397,7 +397,7 @@ def send_email_pdf_invoice(request):
         return render(request, "invoices/send_email_invoices.html", context=context)
 
     # On contrôle qu'il n'y ait pas des emails faux
-    emails_errors_list = check_emails_to_send()
+    emails_errors_list = [email for email in check_emails_to_send()]
 
     if emails_errors_list:
         request.session["level"] = 50
