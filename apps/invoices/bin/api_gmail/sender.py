@@ -337,17 +337,23 @@ class GmailSender:
 
                 if result.success:
                     nb_success += 1
+                    msg = f"[{i}/{len(email_list)}] {attachments_name} envoyée avec succès"
+                    LOGGER_EMAIL.info(msg)
+                    print(msg, flush=True)
                     progress.update_progress(
                         processed=1,
-                        message=f"{attachments_name} envoyée avec succès",
+                        message=msg,
                         item_name=attachments_name,
                     )
                 else:
                     nb_errors += 1
+                    msg = f"[{i}/{len(email_list)}] Erreur sur envoi {attachments_name}"
+                    LOGGER_EMAIL.error(msg)
+                    print(msg, flush=True)
                     progress.update_progress(
                         processed=1,
                         failed=1,
-                        message=f"Erreur sur envoi {attachments_name}",
+                        message=msg,
                         item_name=attachments_name,
                     )
 
@@ -356,14 +362,12 @@ class GmailSender:
                     elapsed = time.time() - start_time
                     rate = i / elapsed
                     estimated_remaining = (len(email_list) - i) / rate
-                    LOGGER_EMAIL.info(
-                        "Progression: %d/%d emails envoyés "
-                        "(%.1f emails/s, temps restant estimé: %.0fs)",
-                        i,
-                        len(email_list),
-                        rate,
-                        estimated_remaining,
+                    msg = (
+                        f"Progression: {i}/{len(email_list)} emails envoyés "
+                        f"({rate:.1f} emails/s, temps restant estimé: {estimated_remaining:.0f}s)"
                     )
+                    LOGGER_EMAIL.info(msg)
+                    print(msg, flush=True)
 
             except Exception as error:
                 LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d: %s", i, error)
