@@ -25,7 +25,6 @@ from dataclasses import dataclass
 
 from googleapiclient.errors import HttpError
 from bs4 import BeautifulSoup
-from django.db import transaction
 
 from heron.loggers import LOGGER_EMAIL
 from .auth import authenticator
@@ -308,79 +307,76 @@ class GmailSender:
         nb_success = 0
         nb_errors = 0
 
-        with transaction.atomic():
-            progress = SSEProgress.objects.select_for_update().get(
-                job_id=job_id
-            )
+        progress = SSEProgress.objects.get(job_id=job_id)
 
-            for i, email_data in enumerate(email_list, 1):
-                try:
-                    to, subject, body_text, body_html, context, attachments = email_data
+        for i, email_data in enumerate(email_list, 1):
+            try:
+                to, subject, body_text, body_html, context, attachments = email_data
 
-                    # Filtre les emails vides
-                    to = [email for email in to if email]
+                # Filtre les emails vides
+                to = [email for email in to if email]
 
-                    if not to:
-                        LOGGER_EMAIL.warning("Aucun destinataire valide pour l'email %d", i)
-                        results.append(
-                            EmailResult(
-                                success=False,
-                                error="Aucun destinataire valide",
-                            )
-                        )
-                        nb_errors += 1
-                        continue
-
-                    # Envoie l'email
-                    result = self.send_message(
-                        to, subject, body_text, body_html, context, attachments
-                    )
-                    results.append(result)
-
-                    attachments_name = ', '.join(file.name for file in attachments)
-
-                    if result.success:
-                        nb_success += 1
-                        progress.update_progress(
-                            processed=1,
-                            message=f"{attachments_name} envoyée avec succès",
-                            item_name=attachments_name,
-                        )
-                    else:
-                        nb_errors += 1
-                        progress.update_progress(
-                            processed=1,
-                            failed=1,
-                            message=f"Erreur sur envoi {attachments_name}",
-                            item_name=attachments_name,
-                        )
-
-                    # Log de progression tous les 50 emails
-                    if i % 50 == 0:
-                        elapsed = time.time() - start_time
-                        rate = i / elapsed
-                        estimated_remaining = (len(email_list) - i) / rate
-                        LOGGER_EMAIL.info(
-                            "Progression: %d/%d emails envoyés "
-                            "(%.1f emails/s, temps restant estimé: %.0fs)",
-                            i,
-                            len(email_list),
-                            rate,
-                            estimated_remaining,
-                        )
-
-                except Exception as error:
-                    LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d: %s", i, error)
+                if not to:
+                    LOGGER_EMAIL.warning("Aucun destinataire valide pour l'email %d", i)
                     results.append(
                         EmailResult(
                             success=False,
-                            error=str(error),
+                            error="Aucun destinataire valide",
                         )
                     )
                     nb_errors += 1
+                    continue
+
+                # Envoie l'email
+                result = self.send_message(
+                    to, subject, body_text, body_html, context, attachments
+                )
+                results.append(result)
+
+                attachments_name = ', '.join(file.name for file in attachments)
+
+                if result.success:
+                    nb_success += 1
+                    progress.update_progress(
+                        processed=1,
+                        message=f"{attachments_name} envoyée avec succès",
+                        item_name=attachments_name,
+                    )
+                else:
+                    nb_errors += 1
+                    progress.update_progress(
+                        processed=1,
+                        failed=1,
+                        message=f"Erreur sur envoi {attachments_name}",
+                        item_name=attachments_name,
+                    )
+
+                # Log de progression tous les 50 emails
+                if i % 50 == 0:
+                    elapsed = time.time() - start_time
+                    rate = i / elapsed
+                    estimated_remaining = (len(email_list) - i) / rate
+                    LOGGER_EMAIL.info(
+                        "Progression: %d/%d emails envoyés "
+                        "(%.1f emails/s, temps restant estimé: %.0fs)",
+                        i,
+                        len(email_list),
+                        rate,
+                        estimated_remaining,
+                    )
+
+            except Exception as error:
+                LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d: %s", i, error)
+                results.append(
+                    EmailResult(
+                        success=False,
+                        error=str(error),
+                    )
+                )
+                nb_errors += 1
 
         elapsed_time = time.time() - start_time
-        average_rate = len(email_list) / elapsed_time
+        average_rate = len(email_list) / elapsed_time if elapsed_time > 0 else 0
 
         LOGGER_EMAIL.info(
             "Envoi terminé: %d succès, %d erreurs sur %d emails "
