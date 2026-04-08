@@ -1340,11 +1340,13 @@ SQL_SALES_DETAILS = sql.SQL(
             COALESCE(eee.discount_price_03, 0) as discount_price_03,
             eee.net_amount,
             CASE 
+                when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat_rate
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN COALESCE(vr1.vat_rate, 0)
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat_rate
                 ELSE COALESCE(avr.vat_rate, 0)
             END as vat_rate,
             CASE 
+                when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
                 ELSE ccm.sage_vat_by_default
