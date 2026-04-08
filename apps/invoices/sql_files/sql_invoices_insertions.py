@@ -657,6 +657,22 @@ SQL_SALES_INVOICES = sql.SQL(
         ) "rank"
         WHERE "rank"."rn" = 1
     ),
+    -- Taux de TVA actuels avec vat_regime
+    "current_vat_rates" AS (
+        SELECT DISTINCT
+            vtr.vat_regime,
+            vd.vat,
+            round((vtr.rate / 100)::numeric, 5) as vat_rate
+        FROM accountancy_vatratsage vtr
+        JOIN (
+            SELECT max(vat_start_date) as vat_start_date, vat, vat_regime
+            FROM accountancy_vatratsage
+            WHERE vat_start_date <= CURRENT_DATE
+            GROUP BY vat, vat_regime
+        ) vd ON vtr.vat = vd.vat 
+            AND vtr.vat_start_date = vd.vat_start_date 
+            AND vtr.vat_regime = vd.vat_regime
+    ),
     "amounts" as (
         select 
             "vt"."id",
@@ -675,71 +691,26 @@ SQL_SALES_INVOICES = sql.SQL(
             select distinct
                 "eee"."id", 
                 "eee"."net_amount",
-                case 
-                    when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0 
-                        then (
-                                select distinct
-                                    round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
-                                from "accountancy_vatratsage" "vtr"
-                                join (
-                                    select
-                                        max("vat_start_date") as "vat_start_date",
-                                        "vat",
-                                        "vat_regime"
-                                    from "accountancy_vatratsage"
-                                    where "vat_start_date" <= now()::date 
-                                    group by "vat", "vat_regime"
-                                ) "vd"
-                                on "vtr"."vat" = "vd"."vat"
-                                and "vtr"."vat_start_date" = "vd"."vat_start_date"
-                                and "vtr"."vat" = '001'
-                        ) 
-                    when "ccm"."sage_vat_by_default" = '001' then "eee"."vat_rate"
-                    when "ccm"."sage_vat_by_default" != '001' then (
-                                select distinct
-                                    round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
-                                from "accountancy_vatratsage" "vtr"
-                                join (
-                                    select
-                                        max("vat_start_date") as "vat_start_date",
-                                        "vat",
-                                        "vat_regime"
-                                    from "accountancy_vatratsage"
-                                    where "vat_start_date" <= now()::date 
-                                    group by "vat", "vat_regime"
-                                ) "vd"
-                                on "vtr"."vat" = "vd"."vat"
-                                and "vtr"."vat_start_date" = "vd"."vat_start_date"
-                                and "vtr"."vat" = "ccm"."sage_vat_by_default"
-                        ) 
-                end as "vat_rate",
-                case 
-                    when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0 then '001'
-                    when "ccm"."sage_vat_by_default" = '001' then "eee"."vat"
-                    else "ccm"."sage_vat_by_default"
-                end as "ccm_vat"        
+            CASE 
+                when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat_rate
+                WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN COALESCE(vr1.vat_rate, 0)
+                WHEN ccm.sage_vat_by_default = '001' THEN eee.vat_rate
+                ELSE COALESCE(avr.vat_rate, 0)
+            END as vat_rate,
+            CASE 
+                when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat
+                WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
+                WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
+                ELSE ccm.sage_vat_by_default
+            END as ccm_vat      
             from "edi_ediimport" "eee" 
             join "centers_clients_maison" "ccm" 
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
-            join (
-                    select distinct
-                        "vtr"."vat_regime", 
-                        "vd"."vat",
-                        round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
-                    from "accountancy_vatratsage" "vtr"
-                    join (
-                        select
-                            max("vat_start_date") as "vat_start_date",
-                            "vat",
-                            "vat_regime"
-                        from "accountancy_vatratsage"
-                        where "vat_start_date" <= now()::date 
-                        group by "vat", "vat_regime"
-                    ) "vd"
-                    on "vtr"."vat" = "vd"."vat"
-                    and "vtr"."vat_start_date" = "vd"."vat_start_date"
-            ) avr
-            on "avr"."vat" = "ccm"."sage_vat_by_default" 
+            JOIN current_vat_rates avr 
+            ON avr.vat = ccm.sage_vat_by_default
+            LEFT JOIN current_vat_rates vr1 
+            ON vr1.vat = '001' 
+            AND vr1.vat_regime = avr.vat_regime
         ) "vt" 
     ),
     "sales" as (
