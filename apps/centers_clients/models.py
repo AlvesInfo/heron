@@ -854,6 +854,16 @@ class MaisonSubcription(FlagsTable):
         db_column="for_signboard",
         default="ACF",
     )
+    vat = models.ForeignKey(
+        VatSage,
+        on_delete=models.PROTECT,
+        to_field="vat",
+        related_name="subscription_vat",
+        verbose_name="tva X3",
+        db_column="vat",
+        null=True,
+        blank=True,
+    )
 
     @staticmethod
     def get_columns_import():
@@ -869,6 +879,7 @@ class MaisonSubcription(FlagsTable):
             "net_unit_price": 4,
             "function": 5,
             "for_signboard": 6,
+            "vat": 7,
         }
 
     @staticmethod

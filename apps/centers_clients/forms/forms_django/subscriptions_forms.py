@@ -15,12 +15,16 @@ class MaisonSubcriptionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["article"].queryset = Article.objects.filter(
+        self.fields["maison"].queryset = self.fields["maison"].queryset.select_related("cct")
+        self.fields["article"].queryset = Article.objects.select_related(
+            "third_party_num"
+        ).filter(
             big_category__slug_name__in={
                 "redevances",
                 "redevances-de-publicite",
                 "prestation",
                 "abonnements",
+                "divers",
             }
         )
 
@@ -36,6 +40,7 @@ class MaisonSubcriptionForm(forms.ModelForm):
             "net_unit_price",
             "function",
             "for_signboard",
+            "vat",
         )
         widgets = {
             "maison": forms.Select(attrs=SELECT_FLUIDE_DICT),
@@ -47,6 +52,7 @@ class MaisonSubcriptionForm(forms.ModelForm):
             ),
             "function": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "for_signboard": forms.Select(attrs=SELECT_FLUIDE_DICT),
+            "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
 
 

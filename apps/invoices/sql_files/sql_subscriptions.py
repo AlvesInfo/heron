@@ -275,7 +275,11 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             "cs"."article",
             "cs"."function",
             "cs"."for_signboard",
-            "cm"."sage_vat_by_default" as "vat",
+            case
+                when "cs"."vat" isnull or "cs"."vat" = ''
+                then "cm"."sage_vat_by_default"
+                else "cs"."vat"
+            end as "vat",
             "cm"."sage_plan_code" as "vat_regime",
             "cm"."intitule",
             "cm"."cct",

@@ -87,6 +87,7 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
             "created_by": user_uuid,
         },
     )
+    from apps.core.functions.functions_postgresql import pretty_sql
 
     return rows
 

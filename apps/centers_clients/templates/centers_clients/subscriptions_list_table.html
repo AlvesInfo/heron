@@ -11,13 +11,14 @@
         <thead>
             <tr>
                 <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
-                <th style="width: 24%">Client</th>
-                <th style="width: 13%">Article</th>
+                <th style="width: 23%">Client</th>
+                <th style="width: 26%">Article</th>
                 <th style="width: 5%">Qty</th>
                 <th style="width: 5%">Unité</th>
                 <th style="width: 7%">Prix Net</th>
-                <th style="width: 18%">Fonction</th>
-                <th style="width: 18%">Enseigne</th>
+                <th style="width: 6%">TVA</th>
+                <th style="width: 10%">Fonction</th>
+                <th style="width: 8%">Enseigne</th>
                 <th style="width: 5%;">delete</th>
             </tr>
         </thead>
@@ -36,7 +37,7 @@
                     {{ subscription.maison }} - {{ subscription.maison__intitule }}
                   {% endif %}
                 </td>
-                <td>
+                <td style="text-align: left;">
                   {% if subscription.article__reference %}
                     {{ subscription.article__reference }}
                   {% endif %}
@@ -54,6 +55,11 @@
                 <td style="text-align: right;">
                   {% if subscription.net_unit_price %}
                     {{ subscription.net_unit_price|numbers_format:2 }}
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if subscription.vat %}
+                    {{ subscription.vat }}
                   {% endif %}
                 </td>
                 <td style="text-align: center;">

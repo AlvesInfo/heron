@@ -39,6 +39,7 @@ class MaisonSubcriptionList(ListView):
         "net_unit_price",
         "function",
         "for_signboard",
+        "vat",
     )
     context_object_name = "subscriptions"
     template_name = "centers_clients/subscriptions_list.html"
@@ -91,7 +92,7 @@ class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView)
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour d'un Abonnement"
         context["chevron_retour"] = reverse("centers_clients:subscriptions_list")
-        return super().get_context_data(**context)
+        return context
 
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
