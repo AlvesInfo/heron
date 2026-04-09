@@ -172,7 +172,12 @@ def import_articles_without_account():
     messages_ok = ""
 
     for excel_file in Path(settings.PROCESSING_WITHOUT_ACCOUNT_DIR).glob("*.*"):
+
         if not excel_file.is_file():
+            continue
+
+        if excel_file.suffix not in {".csv", ".xlsx", ".xls"}:
+            excel_file.unlink(missing_ok=True)
             continue
 
         error, errors_text = file_for_insert_excel_to_csv(excel_file)
