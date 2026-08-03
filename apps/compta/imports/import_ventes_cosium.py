@@ -405,10 +405,8 @@ def mise_a_jour_ventes_cosium():
                 date_trunc('month', hbv."date_vente")::date as "sale_month"
             from "heron_bi_ventes_cosium" hbv
             where hbv."id" > %(min_id)s
-            and not hbv."id" = any(
-                (
-                    select array_agg("id_bi") FROM (select "id_bi" from compta_ventescosium) cv
-                )::INT[]
+            and not exists (
+                select 1 from "compta_ventescosium" cv where cv."id_bi" = hbv."id"
             )
             order by hbv."id"
             """
