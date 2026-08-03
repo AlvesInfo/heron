@@ -85,6 +85,9 @@ def insert_ventes_cosium():
     """
 
     with connection.cursor() as cursor:
+        # work_mem augmenté pour cet import (remis à la valeur globale en fin de transaction)
+        cursor.execute("SET LOCAL work_mem = '512MB'")
+
         # ID Minimum pour le premier import
         sql_id = sql.SQL(
             """
@@ -283,6 +286,9 @@ def mise_a_jour_ventes_cosium():
     """
 
     with connection.cursor() as cursor:
+        # work_mem augmenté pour cet import (remis à la valeur globale en fin de transaction)
+        cursor.execute("SET LOCAL work_mem = '512MB'")
+
         min_id = HISTORIC_VENTES_ID
         print("Mise à jour des lignes de ventes Cosium")
         sql_insert_ventes = sql.SQL(

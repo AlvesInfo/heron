@@ -20,5 +20,8 @@ from apps.edi.sql_files.sql_common import BASE_SQL_CCT, SQL_SIGNBOARD
 def update_cct_edi_import():
     """Fonction d'update des cct depuis book_supplier_cct"""
     with connection.cursor() as cursor:
+        # work_mem augmenté pour ces gros dedup (remis à la valeur globale en fin de transaction)
+        cursor.execute("SET LOCAL work_mem = '512MB'")
+
         cursor.execute(BASE_SQL_CCT)
         cursor.execute(SQL_SIGNBOARD)

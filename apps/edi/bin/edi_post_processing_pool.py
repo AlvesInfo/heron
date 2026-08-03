@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 """
 from typing import AnyStr
 
-from django.db import connection
+from django.db import connection, transaction
 from django.db.models import Q, Count
 
 from apps.edi.models import EdiImport
@@ -108,7 +108,9 @@ def post_processing_all():
     sql_update_item_weight = post_all_dict.get("sql_update_item_weight")
     sql_orpheans = post_all_dict.get("sql_orpheans")
 
-    with connection.cursor() as cursor:
+    with transaction.atomic(), connection.cursor() as cursor:
+        # work_mem augmenté pour ces gros UPDATE (remis à la normale en fin de transaction)
+        cursor.execute("SET LOCAL work_mem = '512MB'")
         cursor.execute(sql_in_use_third_party_num)
         cursor.execute(sql_update_item_weight)
         cursor.execute(sql_orpheans)
@@ -122,7 +124,9 @@ def post_processing_all():
     sql_update_bu = post_all_dict.get("sql_update_bu")
     sql_update_bu_articles = post_all_dict.get("sql_update_bu_articles")
 
-    with connection.cursor() as cursor:
+    with transaction.atomic(), connection.cursor() as cursor:
+        # work_mem augmenté pour ces gros UPDATE (remis à la normale en fin de transaction)
+        cursor.execute("SET LOCAL work_mem = '512MB'")
         cursor.execute(sql_update_bu)
         cursor.execute(sql_update_bu_articles)
 
