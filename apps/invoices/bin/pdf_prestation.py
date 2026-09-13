@@ -64,7 +64,7 @@ def invoice_prestation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    uuid_invoice_to_pdf = UUID("b8ed6a2b-9a8b-4d0b-a550-5949e2edfe28")
+    uuid_invoice_to_pdf = UUID("4da138f8-2ec0-4f94-82aa-df5e9f50645d")
     sale = SaleInvoice.objects.get(uuid_identification=uuid_invoice_to_pdf)
 
     prestation_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"{sale.cct}_prestation.pdf"

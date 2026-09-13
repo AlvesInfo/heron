@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 import io
 
 from django.db.models.functions import Coalesce, NullIf
-from django.db.models import Value, CharField
+from django.db.models import Value, CharField, OuterRef, Subquery
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_utilitaires import format_siret
@@ -25,6 +25,7 @@ from apps.core.excel_outputs.excel_writer import (
     sheet_formatting,
     rows_writer,
 )
+from apps.book.models import Address
 from apps.centers_clients.models import Maison
 from apps.centers_clients.excel_outputs.centers_clients_columns import (
     columns_list_maisons,
@@ -34,9 +35,19 @@ from apps.centers_clients.excel_outputs.centers_clients_columns import (
 def get_clean_rows():
     """Retourne les lignes à écrire"""
 
+    # Adresse principale Sage (address_code="1") du Tiers X3, comme dans la vue
+    # MaisonUpdate : unique_together (society, address_code) => une ligne au maximum
+    adresse_sage = Address.objects.filter(
+        society=OuterRef("third_party_num"), address_code="1"
+    )
+
+    frequences_rfa = dict(Maison.Frequence.choices)
+    remises_rfa = dict(Maison.Remise.choices)
+
     return [
         (
             row.get("cct__cct", ""),
+            "OUI" if row.get("cct__active") else "NON",
             row.get("center_purchase__code", ""),
             row.get("sign_board", ""),
             row.get("intitule", ""),
@@ -44,7 +55,7 @@ def get_clean_rows():
             row.get("client_familly", ""),
             row.get("code_maison", ""),
             row.get("code_cosium", ""),
-            row.get("refrence_cosium", ""),
+            row.get("reference_cosium", ""),
             row.get("code_bbgr", ""),
             row.get("opening_date", ""),
             row.get("closing_date", ""),
@@ -59,14 +70,16 @@ def get_clean_rows():
             row.get("debit_account__account", ""),
             row.get("prov_account__account", ""),
             row.get("extourne_account__account", ""),
+            row.get("budget_code__code", ""),
             row.get("sage_vat_by_default__vat", ""),
             row.get("sage_plan_code", ""),
-            row.get("rfa_frequence", ""),
-            row.get("rfa_remise", ""),
+            str(frequences_rfa.get(row.get("rfa_frequence"), "")),
+            str(remises_rfa.get(row.get("rfa_remise"), "")),
             row.get("invoice_client_name", ""),
             row.get("currency", ""),
-            row.get("language", ""),
+            row.get("language__name", ""),
             row.get("third_party_num__third_party_num", ""),
+            row.get("third_party_num__name", ""),
             row.get("third_party_num__immeuble", ""),
             row.get("third_party_num__adresse", ""),
             row.get("third_party_num__code_postal", ""),
@@ -75,6 +88,11 @@ def get_clean_rows():
             row.get("third_party_num__telephone", ""),
             row.get("third_party_num__mobile", ""),
             row.get("third_party_num__email", ""),
+            row.get("sage_email_01", ""),
+            row.get("sage_email_02", ""),
+            row.get("sage_email_03", ""),
+            row.get("sage_email_04", ""),
+            row.get("sage_email_05", ""),
             row.get("immeuble", ""),
             row.get("adresse", ""),
             row.get("code_postal", ""),
@@ -86,6 +104,9 @@ def get_clean_rows():
             row.get("type_x3__name", ""),
             row.get("axe_bu__section", ""),
             format_siret(row.get("num_siret", "")),
+            row.get("siren_number", ""),
+            row.get("siret_number", ""),
+            row.get("vat_cee_number", ""),
         )
         for row in Maison.objects.all()
         .annotate(
@@ -93,10 +114,16 @@ def get_clean_rows():
                 NullIf("siret_number", Value("")),
                 "siren_number",
                 output_field=CharField(),
-            )
+            ),
+            sage_email_01=Subquery(adresse_sage.values("email_01")[:1]),
+            sage_email_02=Subquery(adresse_sage.values("email_02")[:1]),
+            sage_email_03=Subquery(adresse_sage.values("email_03")[:1]),
+            sage_email_04=Subquery(adresse_sage.values("email_04")[:1]),
+            sage_email_05=Subquery(adresse_sage.values("email_05")[:1]),
         )
         .values(
             "cct__cct",
+            "cct__active",
             "center_purchase__code",
             "sign_board",
             "intitule",
@@ -119,14 +146,16 @@ def get_clean_rows():
             "debit_account__account",
             "prov_account__account",
             "extourne_account__account",
+            "budget_code__code",
             "sage_vat_by_default__vat",
             "sage_plan_code",
             "rfa_frequence",
             "rfa_remise",
             "invoice_client_name",
             "currency",
-            "language",
+            "language__name",
             "third_party_num__third_party_num",
+            "third_party_num__name",
             "third_party_num__immeuble",
             "third_party_num__adresse",
             "third_party_num__code_postal",
@@ -135,6 +164,11 @@ def get_clean_rows():
             "third_party_num__telephone",
             "third_party_num__mobile",
             "third_party_num__email",
+            "sage_email_01",
+            "sage_email_02",
+            "sage_email_03",
+            "sage_email_04",
+            "sage_email_05",
             "immeuble",
             "adresse",
             "code_postal",
@@ -143,11 +177,12 @@ def get_clean_rows():
             "telephone",
             "mobile",
             "email",
-            "integrable",
-            "chargeable",
             "type_x3__name",
             "axe_bu__section",
             "num_siret",
+            "siren_number",
+            "siret_number",
+            "vat_cee_number",
         )
     ]
 

@@ -33,6 +33,20 @@ columns_list_maisons = [
         "width": 12,
     },
     {
+        "entete": "Actif X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 10,
+    },
+    {
         "entete": "Centrale Fille",
         "f_entete": {
             **f_entetes,
@@ -375,6 +389,20 @@ columns_list_maisons = [
         "width": 12,
     },
     {
+        "entete": "Code budgétaire",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C9C9C9",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 15,
+    },
+    {
         "entete": "TVA X3 par défaut",
         "f_entete": {
             **f_entetes,
@@ -486,6 +514,20 @@ columns_list_maisons = [
             },
         },
         "width": 12,
+    },
+    {
+        "entete": "Intitulé Tiers",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 25,
     },
     {
         "entete": "Immeuble Tiers",
@@ -608,6 +650,76 @@ columns_list_maisons = [
             **{},
         },
         "width": 20,
+    },
+    {
+        "entete": "e-mail 01 Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 25,
+    },
+    {
+        "entete": "e-mail 02 Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 25,
+    },
+    {
+        "entete": "e-mail 03 Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 25,
+    },
+    {
+        "entete": "e-mail 04 Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 25,
+    },
+    {
+        "entete": "e-mail 05 Tiers X3",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#C6E0B4",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{},
+        },
+        "width": 25,
     },
     {
         "entete": "Immeuble Client",
@@ -772,5 +884,47 @@ columns_list_maisons = [
             **{"num_format": "@", "align": "right"},
         },
         "width": 15,
+    },
+    {
+        "entete": "N° Siren",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"num_format": "@", "align": "right"},
+        },
+        "width": 14,
+    },
+    {
+        "entete": "N° Siret",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"num_format": "@", "align": "right"},
+        },
+        "width": 16,
+    },
+    {
+        "entete": "N° TVA Intra.",
+        "f_entete": {
+            **f_entetes,
+            **{
+                "bg_color": "#dce7f5",
+            },
+        },
+        "f_ligne": {
+            **f_ligne,
+            **{"align": "center"},
+        },
+        "width": 18,
     },
 ]
