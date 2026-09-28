@@ -82,7 +82,9 @@ def accounts_validation(accounts_set: Set) -> bool:
         return cursor.fetchone()
 
 
-def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
+def file_for_insert_excel_to_csv(
+    file_excel_path: Path, update_mode: bool = False
+) -> [bool, AnyStr]:
     """Transforme le fichier excel en fichier csv
     ci-après la position des champs dans le fichier issu de l'écran articles sans comptes
          article = line[0]
@@ -90,6 +92,10 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
          vat = line[9]
          purchase_account = line[11]
          sale_account = line[12]
+    :param file_excel_path: Path du fichier à traiter
+    :param update_mode: si True (update des articles / comptes), les lignes GAF du fichier sont
+                        ignorées, car GAF est aligné sur la centrale de la ligne, et les lignes
+                        sont dédoublonnées par article / centrale / tva pour l'upsert
     """
     errors = []
     csv_file = Path("csv_file")
@@ -127,6 +133,7 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
                 file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
             )
             accounts_validation_set = set()
+            lines_dict = {}
 
             for i, line in enumerate(csv_reader, 1):
                 if line and i > 3:
@@ -136,14 +143,25 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
                         informations = False
                         break
 
+                    if update_mode and line_to_add[1] == "GAF":
+                        continue
+
                     accounts_validation_set.add(line[11])
                     accounts_validation_set.add(line[12])
 
-                    csv_writer.writerow(line_to_add)
-
                     # on ajoute la même ligne pour GA en changeant le child_center
-                    line_to_add[1] = 'GAF'
+                    line_gaf = [line_to_add[0], "GAF", *line_to_add[2:]]
+
+                    if update_mode:
+                        # une même clé ne peut être mise à jour deux fois dans un upsert
+                        lines_dict[tuple(line_to_add[:3])] = line_to_add
+                        lines_dict[tuple(line_gaf[:3])] = line_gaf
+                        continue
+
                     csv_writer.writerow(line_to_add)
+                    csv_writer.writerow(line_gaf)
+
+            csv_writer.writerows(lines_dict.values())
 
         if not informations:
             errors.append("Il manque des informations obligatoires dans le fichier")

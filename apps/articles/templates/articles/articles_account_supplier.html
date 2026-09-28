@@ -1,0 +1,59 @@
+{% extends "heron/base_semantic.html" %}
+
+{% load static %}
+{% load filters_tags %}
+
+{% block menu_principal %}
+        {% include "heron/menu_principal.html" %}
+{% endblock menu_principal %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <form method="post" id="id_form_post">
+            {% csrf_token %}
+            {% include "articles/articles_account_supplier_entete.html" %}
+            {% include "articles/articles_account_supplier_table.html" %}
+        </form>
+
+    {% else %}
+
+        <br>
+        <br>
+        <hr>
+        <br>
+        <br>
+        <p style="text-align: center;">Vous devez être connecté, pour pouvoir utiliser ce
+            site</p>
+
+{% endif %}
+
+
+{% endblock content %}
+
+{% block script %}
+
+    <script>
+
+        $(document).ready(function () {
+            $(`.datatable-chargement`).hide();
+
+            // Le bouton d'export n'est actif que si un fournisseur est sélectionné
+            const toggle_export = function (value) {
+                $('#id_articles_account_supplier_export').prop('disabled', !value);
+            };
+
+            // FONCTION SEMANTIC UI POUR INITIALISATION DES DROPDOWNS
+            $('.dropdown').dropdown({
+                fullTextSearch: true,
+                onChange: function (value) {
+                    toggle_export(value);
+                }
+            });
+
+            toggle_export($('#id_third_party_num').val());
+        });
+
+    </script>
+
+{% endblock script %}

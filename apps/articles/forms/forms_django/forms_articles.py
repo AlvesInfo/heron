@@ -4,9 +4,11 @@ Forms des Parameters
 """
 
 from django import forms
+from django.db.models import Exists, OuterRef
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.accountancy.models import AccountSage
+from apps.book.models import Society
 from apps.articles.models import (
     Article,
     ArticleAccount,
@@ -184,3 +186,23 @@ class DeleteArticleAccountForm(forms.ModelForm):
 
         model = ArticleAccount
         fields = ("id",)
+
+
+class ArticleAccountSupplierForm(forms.Form):
+    """Form de sélection du fournisseur pour l'export des articles avec comptes"""
+
+    third_party_num = forms.ModelChoiceField(
+        required=True,
+        queryset=Society.objects.filter(
+            Exists(
+                Article.objects.filter(
+                    Exists(ArticleAccount.objects.filter(article=OuterRef("uuid_identification"))),
+                    third_party_num=OuterRef("third_party_num"),
+                )
+            )
+        ).order_by("third_party_num"),
+        to_field_name="third_party_num",
+        widget=forms.Select(attrs=SELECT_FLUIDE_DICT),
+        label="Fournisseur",
+        help_text="Vous devez sélectionner un Fournisseur",
+    )

@@ -19,9 +19,12 @@ from apps.core.models import ChangesTrace
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.functions.functions_http import get_pagination_buttons
 from apps.articles.models import ArticleAccount
-from apps.articles.forms import ArticleAccountUpdateForm
+from apps.articles.forms import ArticleAccountUpdateForm, ArticleAccountSupplierForm
 from apps.articles.filters import ArticleAccountFilter
 from apps.articles.parameters.querysets import articles_with_account_queryset
+from apps.articles.excel_outputs.output_excel_articles_account_supplier_list import (
+    excel_liste_articles_account_supplier,
+)
 
 # Centrale fille dont les comptes sont alignés sur ceux modifiés pour les autres centrales
 CHILD_CENTER_MIRROR = "GAF"
@@ -199,3 +202,68 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def get_success_url(self):
         """Retour à la liste des articles / comptes, sur la recherche en cours"""
         return self.get_list_url()
+
+
+# EXPORT DES ARTICLES AVEC COMPTES PAR FOURNISSEUR =================================================
+def articles_account_supplier_export(request):
+    """
+    Export Excel des articles ayant des comptes comptables X3, pour le fournisseur sélectionné.
+    Le format est identique à l'export des articles sans comptes
+    """
+    form = ArticleAccountSupplierForm(request.POST or None)
+
+    try:
+        if request.method == "POST" and form.is_valid():
+            third_party_num = form.cleaned_data.get("third_party_num").third_party_num
+            today = pendulum.now()
+            file_name = (
+                f"LISTING_DES_ARTICLES_COMPTES_{third_party_num}_"
+                f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            )
+
+            return response_file(
+                excel_liste_articles_account_supplier,
+                file_name,
+                CONTENT_TYPE_EXCEL,
+                third_party_num,
+            )
+
+        if form.errors:
+            LOGGER_EXPORT_EXCEL.error(f"erreur form : {str(form.data)!r}")
+
+    except Exception as error:
+        LOGGER_EXPORT_EXCEL.exception(f"view : articles_account_supplier_export : {error!r}")
+
+    context = {
+        "titre_table": "12. Articles / Comptes par fournisseur",
+        "form": form,
+    }
+
+    return render(request, "articles/articles_account_supplier.html", context=context)
+
+
+# UPDATE DES COMPTES DES ARTICLES PAR FICHIER ======================================================
+def update_articles_accounts_file(request):
+    """
+    Update des comptes comptables X3 des articles, par le fichier excel sorti dans l'écran
+    12. Articles/Comptes, déposé dans le répertoire UPDATE_ARTICLES_COMPTES
+    """
+    from apps.articles.imports.articles_update_account import update_articles_accounts
+
+    messages_errors = ""
+    messages_ok = ""
+
+    if request.method == "POST":
+        try:
+            messages_errors, messages_ok = update_articles_accounts()
+
+        except Exception as error:
+            LOGGER_EXPORT_EXCEL.exception(f"view : update_articles_accounts_file\n\n{error!r}")
+
+    context = {
+        "titre_table": "13. Update des articles / comptes",
+        "messages_errors": messages_errors,
+        "messages_ok": messages_ok,
+    }
+
+    return render(request, "articles/update_articles_accounts.html", context=context)

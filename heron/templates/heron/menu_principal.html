@@ -229,9 +229,9 @@
                             <a href="{% url 'articles:suppliers_articles_list' category='prestation' %}" class="item">08. Prestations/Abonnements</a>
                             <a href="{% url 'articles:suppliers_articles_list' category='divers' %}" class="item">09. Divers</a>
                             <a href="{% url 'articles:articles_search_list' %}" class="item">10. Recherches</a>
-                            {% if user.email == 'paulo@alves.ovh' %}
-                                <a href="{% url 'articles:articles_account_list' %}" class="item">11. Article / Comptes</a>
-                            {% endif %}
+                            <a href="{% url 'articles:articles_account_list' %}" class="item">11. Article / Comptes</a>
+                            <a href="{% url 'articles:articles_account_supplier_export' %}" class="item">12. Listing Comptes</a>
+                            <a href="{% url 'articles:update_articles_accounts_file' %}" class="item">13. Update Articles/Comptes</a>
                         </div>
                     </div>
 

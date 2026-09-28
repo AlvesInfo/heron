@@ -21,6 +21,8 @@ from apps.articles.views import (
     # ARTICLES AVEC COMPTES
     articles_account_list,
     ArticleAccountUpdate,
+    articles_account_supplier_export,
+    update_articles_accounts_file,
 )
 
 app_name = "apps.articles"
@@ -117,6 +119,16 @@ urlpatterns = [
             "articles_account_update/<int:pk>/",
             ArticleAccountUpdate.as_view(),
             name="articles_account_update",
+        ),
+        path(
+            "articles_account_supplier_export/",
+            articles_account_supplier_export,
+            name="articles_account_supplier_export",
+        ),
+        path(
+            "update_articles_accounts_file/",
+            update_articles_accounts_file,
+            name="update_articles_accounts_file",
         ),
         # path(
         #     "articles_without_account_export_list/",
