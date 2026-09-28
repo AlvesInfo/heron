@@ -190,7 +190,7 @@
 
                 {% endif %}
 
-                {% if not create and object.account_article.all %}
+                {% if not create and accounts %}
                     <div class="ui grid" style="margin: 10px">
                         <div class="one wide column"></div>
                         <div class="fourteen wide column">
@@ -209,12 +209,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    {% for account in object.account_article.all %}
+                                    {% for account in accounts %}
                                         <tr id="id_{{ forloop.counter }}" class="hide_plans">
                                             <td>
-{#                                                    <a href="{% url 'parameters:account_article_update' article_pk=object.pk pk=account.pk%}">#}
+                                                <a href="{% url 'articles:articles_account_update' pk=account.pk %}?next={{ request.path|urlencode }}">
                                                     <i class="edit icon modification"></i>
-{#                                                    </a>#}
+                                                </a>
                                             </td>
                                             <td>{{account.child_center}}</td>
                                             <td>{{account.article}}</td>

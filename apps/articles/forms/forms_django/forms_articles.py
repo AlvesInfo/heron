@@ -6,6 +6,7 @@ Forms des Parameters
 from django import forms
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
+from apps.accountancy.models import AccountSage
 from apps.articles.models import (
     Article,
     ArticleAccount,
@@ -133,6 +134,46 @@ class ArticleAccountForm(forms.ModelForm):
             "article": forms.Select(attrs=SELECT_FLUIDE_DICT),
             "vat": forms.Select(attrs=SELECT_FLUIDE_DICT),
         }
+
+
+class ArticleAccountUpdateForm(forms.ModelForm):
+    """
+    Form de modification des comptes d'achat et de vente d'un article / centrale / tva.
+    Les comptes proposés sont ceux du plan Sage X3 FRA, le compte actuel reste
+    sélectionnable même s'il n'est pas dans ce plan.
+    """
+
+    purchase_account = forms.ChoiceField(
+        label="Compte d'achat", widget=forms.Select(attrs=SELECT_FLUIDE_DICT)
+    )
+    sale_account = forms.ChoiceField(
+        label="Compte de vente", widget=forms.Select(attrs=SELECT_FLUIDE_DICT)
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        accounts_choices = [
+            (account, f"{account} - {name or ''}")
+            for account, name in AccountSage.objects.filter(code_plan_sage="FRA")
+            .order_by("account")
+            .values_list("account", "name")
+        ]
+        accounts_set = {account for account, _ in accounts_choices}
+
+        for field_name in ("purchase_account", "sale_account"):
+            choices = [("", "---------")] + accounts_choices
+            actual_account = getattr(self.instance, field_name, None)
+
+            if actual_account and actual_account not in accounts_set:
+                choices.insert(1, (actual_account, f"{actual_account} - (hors plan FRA)"))
+
+            self.fields[field_name].choices = choices
+
+    class Meta:
+        """class Meta"""
+
+        model = ArticleAccount
+        fields = ("purchase_account", "sale_account")
 
 
 class DeleteArticleAccountForm(forms.ModelForm):

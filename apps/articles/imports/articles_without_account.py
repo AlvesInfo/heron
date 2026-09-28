@@ -49,7 +49,16 @@ def insert_articles_without_account(file_path: Path) -> (AnyStr, AnyStr):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
+    # Les comptes existants ne sont modifiables que par l'écran de modification des comptes
+    to_print = make_insert(
+        model,
+        flow_name,
+        file_path,
+        trace,
+        validator,
+        params_dict_loader,
+        insert_mode="do_nothing",
+    )
 
     return trace, to_print
 

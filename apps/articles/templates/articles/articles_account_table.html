@@ -38,9 +38,9 @@
             {% for article in articles %}
                 <tr>
 
-                    <td data-value="{{ pk }}"
+                    <td data-value="{{ article.pk }}"
                         style="text-align: center;">
-                        <a href="/">
+                        <a href="{% url 'articles:articles_account_update' pk=article.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">
                             <i class="edit icon modification"></i>
                         </a>
                     </td>

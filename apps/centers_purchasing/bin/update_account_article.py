@@ -113,7 +113,9 @@ def update_axes_edi():
 
 def set_update_articles_account(article_uuid: uuid.UUID = None):
     """
-    Update global des comptes achat vente pour tous les articles
+    Création globale des comptes achat vente manquants pour tous les articles.
+    Les comptes déjà existants ne sont jamais modifiés, seul l'écran de modification
+    des articles / comptes (ArticleAccountUpdate) peut les changer.
     :param article_uuid: si c'est pour un seul article, on lui met le tiers et la référence
     :return: None
     """
@@ -175,9 +177,7 @@ def set_update_articles_account(article_uuid: uuid.UUID = None):
         "vat", 
         "child_center"
     ) 
-    do update set "modified_at" = EXCLUDED."modified_at",
-    "purchase_account" = EXCLUDED."purchase_account",
-    "sale_account" = EXCLUDED."sale_account"
+    do nothing
     """
 
     with connection.cursor() as cursor:

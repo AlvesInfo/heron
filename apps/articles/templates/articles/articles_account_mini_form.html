@@ -1,0 +1,50 @@
+<div class="ui segment" style="padding: 10px 10px 0;margin: 20px {% if margin_table %}{{ margin_table }}{% else %}50{% endif %}px 10px;">
+    <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
+        <div class="fields" style="">
+            <div class="three wide field">
+                <label for="id_child_center" style="text-align: left;">Centrale&nbsp;:</label>
+                {{ form.child_center }}
+            </div>
+            <div class="five wide field">
+                <label for="id_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
+                {{ form.third_party_num }}
+            </div>
+            <div class="three wide field">
+                <label for="id_reference" style="text-align: left;">Référence&nbsp;:</label>
+                  {{ form.reference }}
+            </div>
+            <div class="five wide field">
+                <label for="id_libelle" style="text-align: left;">Libellé&nbsp;:</label>
+                  {{ form.libelle }}
+            </div>
+        </div>
+
+        <div class="fields" style="">
+            <div class="three wide field">
+                <label for="id_axe_pro" style="text-align: left;">Axe PRO&nbsp;:</label>
+                  {{ form.axe_pro }}
+            </div>
+            <div class="three wide field">
+                <label for="id_big_category" style="text-align: left;">Catégorie&nbsp;:</label>
+                  {{ form.big_category }}
+            </div>
+            <div class="four wide field">
+                <label for="id_sub_category" style="text-align: left;">Rubrique Presta&nbsp;:</label>
+                  {{ form.sub_category }}
+            </div>
+            <div class="two wide field">
+                <label for="id_vat" style="text-align: left;">TVA&nbsp;:</label>
+                  {{ form.vat }}
+            </div>
+            <div class="two wide field">
+                <label for="id_purchase_account" style="text-align: left;">Débit&nbsp;:</label>
+                  {{ form.purchase_account }}
+            </div>
+            <div class="two wide field">
+                <label for="id_sale_account" style="text-align: left;">Crédit&nbsp;:</label>
+                  {{ form.sale_account }}
+            </div>
+        </div>
+
+    </div>
+  </div>

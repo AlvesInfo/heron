@@ -9,7 +9,6 @@ from apps.articles.views import (
     articles_search_list,
     articles_export_list,
     ArticleAccountCreate,
-    ArticleAccountUpdate,
     delete_articles_account_vat,
     # NOUVEAUX ARTICLES
     new_articles_list,
@@ -20,7 +19,8 @@ from apps.articles.views import (
     articles_without_account_export_list,
     update_articles_without_account,
     # ARTICLES AVEC COMPTES
-    articles_account_list
+    articles_account_list,
+    ArticleAccountUpdate,
 )
 
 app_name = "apps.articles"
@@ -63,11 +63,6 @@ urlpatterns = [
             "articles_account_vat_create/<int:article_pk>/",
             ArticleAccountCreate.as_view(),
             name="articles_account_vat_create",
-        ),
-        path(
-            "articles_account_vat_update/<int:article_pk>/<int:pk>/",
-            ArticleAccountUpdate.as_view(),
-            name="articles_account_vat_update",
         ),
         path(
             "delete_articles_account_vat/",
@@ -117,6 +112,11 @@ urlpatterns = [
             "articles_account_list/",
             articles_account_list,
             name="articles_account_list",
+        ),
+        path(
+            "articles_account_update/<int:pk>/",
+            ArticleAccountUpdate.as_view(),
+            name="articles_account_update",
         ),
         # path(
         #     "articles_without_account_export_list/",

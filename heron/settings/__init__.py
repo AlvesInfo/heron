@@ -9,6 +9,7 @@ if platform.uname().node in {
     "FR07123475L",
     "MSI_PAULO",
     "MacBook-Pro-de-Paulo.local",
+    "MacBook-Pro-de-Paulo",
     "Mac"
 }:
     print("LOCAL_SETTINGS")

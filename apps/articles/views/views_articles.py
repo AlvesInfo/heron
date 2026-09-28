@@ -244,6 +244,10 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         set_update_articles_account(article_uuid=self.object.uuid_identification)
 
 
+# Centrale fille dont les comptes sont affichés dans la fiche article
+ARTICLE_UPDATE_CHILD_CENTER = "ACF"
+
+
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView pour modification des Articles"""
 
@@ -276,6 +280,11 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["titre_table"] = f"Mise à jour Article {str(self.object)}"
         context["article"] = f"Article Référence : {self.object.reference}"
         context["third_party_num"] = self.object.third_party_num.third_party_num
+        context["accounts"] = (
+            self.object.account_article.filter(child_center=ARTICLE_UPDATE_CHILD_CENTER)
+            .select_related("child_center", "vat")
+            .order_by("vat")
+        )
         return context
 
     def get_success_url(self):
@@ -479,49 +488,6 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.created_by = self.request.user
-        self.request.session["level"] = 20
-
-        return super().form_valid(form)
-
-
-class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
-
-    model = ArticleAccount
-    form_class = ArticleAccountForm
-    form_class.use_required_attribute = False
-    template_name = "articles/articles_account_vat_update.html"
-    success_message = (
-        "Le compte par taux de tva %(article)s a été modifiée avec success"
-    )
-    error_message = (
-        "Le compte par taux de tva %(article)s "
-        "n'a pu être modifiée, une erreur c'est produite"
-    )
-
-    def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
-        context = super().get_context_data(**kwargs)
-        context["create"] = True
-        context["chevron_retour"] = reverse(
-            "articles:article_update", kwargs={"pk": self.object.big_article.pk}
-        )
-        context["titre_table"] = "Modification de la Rubrique de Prestation"
-        context["article_new"] = self.object.ranking
-        context["article"] = self.object.big_article
-
-        return context
-
-    def get_success_url(self):
-        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
-
-        return reverse(
-            "articles:article_update", kwargs={"pk": self.object.big_article.pk}
-        )
-
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
-        form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
         return super().form_valid(form)
