@@ -27,7 +27,10 @@ from apps.data_flux.make_inserts import make_insert
 from apps.data_flux.trace import get_trace
 from apps.articles.models import ArticleAccount
 from apps.articles.forms.forms_djantic.forms_articles_account import ArticleAccountSageSchema
-from apps.articles.imports.articles_without_account import file_for_insert_excel_to_csv
+from apps.articles.imports.articles_without_account import (
+    delete_mac_files,
+    file_for_insert_excel_to_csv,
+)
 
 
 def upsert_articles_accounts(file_path: Path) -> (AnyStr, AnyStr):
@@ -73,6 +76,7 @@ def update_articles_accounts():
     messages_ok = ""
     processing_dir = ensure_directory(Path(settings.PROCESSING_UPDATE_ARTICLES_ACCOUNTS_DIR))
     backup_dir = ensure_directory(Path(settings.BACKUP_UPDATE_ARTICLES_ACCOUNTS_DIR))
+    delete_mac_files(processing_dir)
 
     for excel_file in processing_dir.glob("*.*"):
 

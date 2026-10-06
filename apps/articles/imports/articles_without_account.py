@@ -189,6 +189,15 @@ def file_for_insert_excel_to_csv(
     return True, ", ".join(errors)
 
 
+def delete_mac_files(directory: Path) -> None:
+    """Supprime les fichiers "._*" que macOS pose à côté des fichiers déposés sur le serveur
+    :param directory: répertoire à nettoyer
+    """
+    for mac_file in Path(directory).glob("._*"):
+        if mac_file.is_file():
+            mac_file.unlink(missing_ok=True)
+
+
 def import_articles_without_account():
     """
     Fonction d'import des articles sans comptes, par le fichier excel
@@ -197,8 +206,10 @@ def import_articles_without_account():
 
     messages_errors = ""
     messages_ok = ""
+    processing_dir = Path(settings.PROCESSING_WITHOUT_ACCOUNT_DIR)
+    delete_mac_files(processing_dir)
 
-    for excel_file in Path(settings.PROCESSING_WITHOUT_ACCOUNT_DIR).glob("*.*"):
+    for excel_file in processing_dir.glob("*.*"):
 
         if not excel_file.is_file():
             continue
