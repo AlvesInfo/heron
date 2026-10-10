@@ -163,9 +163,6 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            # Path(PROJECT_DIR) / "templates",
-            # Path(CORE_DIR) / "templates",
-            # Path(APPS_DIR) / "templates",
             Path(BASE_DIR) / "heron/templates/heron",
             Path(BASE_DIR)
             / "apps/data_flux/templates",
@@ -347,7 +344,14 @@ DYNAMIC_PREFERENCES = {
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 60 * 60
+
+# SERVEUR FACTUR-X (projet facturx_server, API de la bibliothèque facturx-fr)
+FACTURX_SERVER_URL = config("FACTURX_SERVER_URL", default="http://127.0.0.1:8010")
+FACTURX_API_KEY = config("FACTURX_API_KEY", default="")
+FACTURX_PROFILE = config("FACTURX_PROFILE", default="EN16931")
+FACTURX_TIMEOUT = config("FACTURX_TIMEOUT", default=180, cast=int)
+FACTURX_VALIDATE = config("FACTURX_VALIDATE", default=True, cast=bool)
+
 CELERYD_MAX_MEMORY_PER_CHILD = 512000  # Limite mémoire en KB (500MB)
 CELERYD_MAX_TASKS_PER_CHILD = 100  # Redémarre le worker après 100 tâches
 

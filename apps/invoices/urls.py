@@ -16,6 +16,7 @@ from apps.invoices.views import (
     # Insertion et Génération des factures en PDF
     generate_invoices_insertions,
     generate_pdf_invoice,
+    generate_facturx_invoice,
     invoices_pdf_files,
     get_pdf_file,
     send_email_pdf_invoice,
@@ -82,6 +83,11 @@ urlpatterns = (
             name="generate_invoices_insertions",
         ),
         path("generate_pdf_invoice/", generate_pdf_invoice, name="generate_pdf_invoice"),
+        path(
+            "generate_facturx_invoice/",
+            generate_facturx_invoice,
+            name="generate_facturx_invoice",
+        ),
         path("invoices_pdf_files/", invoices_pdf_files, name="invoices_pdf_files"),
         path("get_pdf_file/<str:file_name>", get_pdf_file, name="get_pdf_file"),
         path("send_email_pdf_invoice/", send_email_pdf_invoice, name="send_email_pdf_invoice"),

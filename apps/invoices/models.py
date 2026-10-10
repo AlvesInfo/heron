@@ -460,6 +460,8 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     # Les fichiers pdf seront déversés dans le répertoire files/media/sales_invoices
     invoice_file = models.FileField(null=True, upload_to="sales_invoices")
     global_invoice_file = models.FileField(null=True, upload_to="sales_invoices")
+    # Factur-X (PDF/A-3 + XML CII) de la facture, dans files/media/sales_invoices/facturx
+    facturx_file = models.FileField(null=True, blank=True, upload_to="sales_invoices/facturx")
 
     # Colonne formation pour la facturetion à l'unité des formations
     # 1 facture par personne et par formations

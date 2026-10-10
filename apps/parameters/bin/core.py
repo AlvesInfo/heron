@@ -34,139 +34,76 @@ from apps.parameters.models import (
 )
 
 
+DATE_FORMATS = {
+    "AAAAMM": "YYYYMM",
+    "AAAA-MM": "YYYY-MM",
+    "AAAA_MM": "YYYY_MM",
+    "AAAAMMDD": "YYYYMMDD",
+    "AAAA-MM-DD": "YYYY-MM-DD",
+    "AAAA_MM_DD": "YYYY_MM_DD",
+}
+AFFIX_KINDS = ("TIERS", "CCT")
+
+
+def _get_code(kind: str, attr_instance: Any) -> str | None:
+    """Retourne le code du tiers ou du cct, sans espaces
+    :param kind: "TIERS" ou "CCT"
+    :param attr_instance: n° de tiers à retrouver
+    :return: le code, ou None s'il n'existe pas
+    """
+    try:
+        if kind == "TIERS":
+            code = Society.objects.get(third_party_num=attr_instance).third_party_num
+        else:
+            code = Maison.objects.get(third_party_num=attr_instance).cct.cct
+    except (Society.DoesNotExist, Maison.DoesNotExist):
+        return None
+
+    return str(code).replace(" ", "")
+
+
+def _affixed_code(name: str, kind: str, attr_instance: Any) -> str:
+    """Retourne le texte pour les noms de type KIND, KIND_xxx ou xxx_KIND
+    :param name: nom du préfix ou du suffix
+    :param kind: "TIERS" ou "CCT"
+    :param attr_instance: n° de tiers à retrouver
+    :return: le texte du préfix ou du suffix
+    """
+    parts = name.split("_")
+
+    if name == kind:
+        empty, default, before, after = "", "", "", ""
+    elif name.startswith(f"{kind}_"):
+        suffix = "_".join(parts[1:])
+        empty, default, before, after = suffix, parts[0], "", f"_{suffix}"
+    else:
+        prefix = "_".join(parts[:-1])
+        empty, default, before, after = prefix, parts[0], f"{prefix}_", ""
+
+    if not attr_instance:
+        return empty
+
+    code = _get_code(kind, attr_instance)
+
+    if code is None:
+        return default
+
+    return f"{before}{code}{after}"
+
+
 def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
     """Retourne le texte de la attr_instance souhaitée dans le préfix ou le suffix
     :param name: nom du préfix ou du suffix
     :param attr_instance: attr_instance à retrouver, soit une date, soit un tiers, soit un cct
     :return: le texte du préfix ou du suffix
     """
-    if name == "AAAAMM":
-        return (
-            attr_instance.format("YYYYMM", locale="fr")
-            if attr_instance
-            else pendulum.now().format("YYYYMM", locale="fr")
-        )
+    if name in DATE_FORMATS:
+        date = attr_instance or pendulum.now()
+        return date.format(DATE_FORMATS[name], locale="fr")
 
-    if name == "AAAA-MM":
-        return (
-            attr_instance.format("YYYY-MM", locale="fr")
-            if attr_instance
-            else pendulum.now().format("YYYY-MM", locale="fr")
-        )
-
-    if name == "AAAA_MM":
-        return (
-            attr_instance.format("YYYY_MM", locale="fr")
-            if attr_instance
-            else pendulum.now().format("YYYY_MM", locale="fr")
-        )
-
-    if name == "AAAAMMDD":
-        return (
-            attr_instance.format("YYYYMMDD", locale="fr")
-            if attr_instance
-            else pendulum.now().format("YYYYMMDD", locale="fr")
-        )
-
-    if name == "AAAA-MM-DD":
-        return (
-            attr_instance.format("YYYY-MM-DD", locale="fr")
-            if attr_instance
-            else pendulum.now().format("YYYY-MM-DD", locale="fr")
-        )
-
-    if name == "AAAA_MM_DD":
-        return (
-            attr_instance.format("YYYY_MM_DD", locale="fr")
-            if attr_instance
-            else pendulum.now().format("YYYY_MM_DD", locale="fr")
-        )
-
-    if name == "TIERS":
-        try:
-            if not attr_instance:
-                return ""
-            else:
-                return str(
-                    Society.objects.get(third_party_num=attr_instance).third_party_num
-                ).replace(" ", "")
-        except Society.DoesNotExist:
-            return ""
-
-    if name.startswith("TIERS_"):
-        try:
-            if not attr_instance:
-                return "_".join(name.split("_")[1:])
-            else:
-                return (
-                    str(
-                        Society.objects.get(
-                            third_party_num=attr_instance
-                        ).third_party_num
-                    ).replace(" ", "")
-                    + "_"
-                    + "_".join(name.split("_")[1:])
-                )
-        except Society.DoesNotExist:
-            return name.split("_")[0]
-
-    if "_TIERS" in name:
-        try:
-            if not attr_instance:
-                return "_".join(name.split("_")[:-1])
-            else:
-                return (
-                    "_".join(name.split("_")[:-1])
-                    + "_"
-                    + str(
-                        Society.objects.get(
-                            third_party_num=attr_instance
-                        ).third_party_num
-                    ).replace(" ", "")
-                )
-        except Society.DoesNotExist:
-            return name.split("_")[0]
-
-    if name == "CCT":
-        try:
-            if not attr_instance:
-                return ""
-            else:
-                return str(
-                    Maison.objects.get(third_party_num=attr_instance).cct.cct
-                ).replace(" ", "")
-        except Maison.DoesNotExist:
-            return ""
-
-    if name.startswith("CCT_"):
-        try:
-            if not attr_instance:
-                return "_".join(name.split("_")[1:])
-            else:
-                return (
-                    str(
-                        Maison.objects.get(third_party_num=attr_instance).cct.cct
-                    ).replace(" ", "")
-                    + "_"
-                    + "_".join(name.split("_")[1:])
-                )
-        except Maison.DoesNotExist:
-            return name.split("_")[0]
-
-    if "_CCT" in name:
-        try:
-            if not attr_instance:
-                return "_".join(name.split("_")[:-1])
-            else:
-                return (
-                    "_".join(name.split("_")[:-1])
-                    + "_"
-                    + str(
-                        Maison.objects.get(third_party_num=attr_instance).cct.cct
-                    ).replace(" ", "")
-                )
-        except Maison.DoesNotExist:
-            return name.split("_")[0]
+    for kind in AFFIX_KINDS:
+        if name == kind or name.startswith(f"{kind}_") or f"_{kind}" in name:
+            return _affixed_code(name, kind, attr_instance)
 
     return name or ""
 
@@ -259,15 +196,13 @@ def initial_counter_nums(counter_instance: Counter):
     :param counter_instance: instance du model Counter
     :return: None
     """
-    obj = None
     try:
         obj = CounterNums.objects.get(counter=counter_instance)
     except CounterNums.DoesNotExist:
         obj = CounterNums(counter=counter_instance)
         obj.save()
 
-    finally:
-        return obj
+    return obj
 
 
 def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) -> str:

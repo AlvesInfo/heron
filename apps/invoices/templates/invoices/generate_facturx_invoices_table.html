@@ -1,0 +1,29 @@
+{% extends "heron/update_create_courant.html" %}
+{% load filters_tags %}
+
+{% block table %}
+    <div class="five wide column"></div>
+
+    <div class="six wide column">
+
+        {% if not en_cours %}
+            <div class="ui small {% if server_ok %}teal{% else %}red{% endif %} message" style="font-size: 12px;">
+                <div class="header">Serveur Factur-X : {{ facturx_server_url }}</div>
+                {% if server_ok %}
+                    <p>Serveur joignable (version facturx-fr {{ server_version }}, profil {{ facturx_profile }}).</p>
+                {% else %}
+                    <p>Serveur injoignable ou clé d'API refusée : la génération est impossible.</p>
+                {% endif %}
+                <p>
+                    {{ nb_invoices }} facture{{ nb_invoices|pluralize }} imprimée{{ nb_invoices|pluralize }}
+                    sans Factur-X ({{ nb_groups }} CCT), période de facturation en cours.
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Conteneur pour la jauge de progression -->
+        <div id="progress-container" style="display: none; margin-top: 20px;"></div>
+
+    </div>
+
+{% endblock table %}

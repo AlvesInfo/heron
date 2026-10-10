@@ -107,6 +107,18 @@ class ChildCenterPurchase(FlagsTable):
         db_column="vat_regime_center",
         null=True,
     )
+    # Tiers X3 vendeur (raison sociale, SIREN/SIRET, TVA, adresse) pour les factures
+    # électroniques Factur-X
+    society = models.ForeignKey(
+        "book.Society",
+        on_delete=models.PROTECT,
+        to_field="third_party_num",
+        related_name="child_center_society",
+        verbose_name="société vendeur (tiers X3)",
+        db_column="society",
+        null=True,
+        blank=True,
+    )
     # Numéro d'adhérent pour la formation
     member_num = models.CharField(null=True, blank=True, max_length=35)
     code_plan_sage = models.CharField(max_length=10)

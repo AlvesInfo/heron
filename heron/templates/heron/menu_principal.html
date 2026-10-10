@@ -340,6 +340,7 @@
                             <div class="ui divider" style="margin: 5px 0;"></div>
                             <a href="{% url 'invoices:generate_pdf_invoice' %}" class="item">3.1 Génération pdf factures de vente</a>
                             <a href="{% url 'invoices:invoices_pdf_files' %}" class="item">3.2 Factures pdf de vente</a>
+                            {#<a href="{% url 'invoices:generate_facturx_invoice' %}" class="item">3.3 Génération Factur-X factures de vente</a>#}
                             <a href="{% url 'invoices:send_email_pdf_invoice' %}" class="item">3.4 Envoi global des factures de vente</a>
                             <div class="ui divider" style="margin: 5px 0;"></div>
                             <a href="{% url 'invoices:generate_exports_X3' %}" class="item">4.1 Génération écritures X3 facturation</a>
@@ -389,7 +390,6 @@
                 <div class="ui one column relaxed divided grid" style="width: 18em;">
 
                     <div class="column">
-                        <h4 class="ui header" style="font-size: 1em;"></h4>
                         <div class="ui link list">
                             <a href="{% url 'traces:edi_traces' %}" class="item">Traces EDI</a>
                         </div>

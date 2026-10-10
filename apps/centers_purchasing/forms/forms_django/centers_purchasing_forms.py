@@ -48,6 +48,13 @@ class FillesForm(forms.ModelForm):
         self.fields['bank'].required = False
         self.fields['swift_code'].required = False
         self.fields['iban'].required = False
+        self.fields['society'].required = False
+        self.fields['society'].queryset = (
+            self.fields['society'].queryset.order_by("third_party_num")
+        )
+        self.fields['society'].label_from_instance = (
+            lambda society: f"{society.third_party_num} - {society.name or ''}"
+        )
 
     class Meta:
         model = ChildCenterPurchase
@@ -55,6 +62,7 @@ class FillesForm(forms.ModelForm):
             "code",
             "base_center",
             "name",
+            "society",
             "generic_coefficient",
             "comment",
             "legal_notice",
@@ -97,10 +105,6 @@ class SignboardForm(forms.ModelForm):
             "generic_coefficient",
             "comment",
             "message",
-            # "email_contact",
-            # "email_object",
-            # "email_template",
-            # "email_corp",
         ]
         widgets = {
             "child_center": forms.Select(attrs=SELECT_FLUIDE_DICT),

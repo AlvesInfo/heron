@@ -16,15 +16,27 @@ import time
 from typing import AnyStr, Dict
 import smtplib
 
-from celery import group
+import pendulum
+from bs4 import BeautifulSoup
+from celery import group, shared_task
 from django.db import transaction
+from django.db.models import Count
 
 from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 from heron import celery_app
+from apps.core.bin.clean_celery import clean_memory
+from apps.core.functions.functions_setups import settings
+from apps.users.models import User
+from apps.invoices.models import SaleInvoice
+from apps.parameters.models import Email
 from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
 from apps.core.models import SSEProgress
 from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
+from apps.invoices.bin.generate_invoices_facturx import (
+    invoices_facturx_generation,
+    get_facturx_groups,
+)
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
 from apps.invoices.bin.send_emails_essais import essais_send_by_email
@@ -34,7 +46,7 @@ from apps.invoices.bin.export_x3 import export_files_x3
 from apps.core.utils.progress_bar import update_progress_threaded
 
 # Import des tâches Gmail pour qu'elles soient découvertes par Celery
-from apps.invoices.bin.api_gmail.tasks_gmail import *  # noqa: F401, F403
+from apps.invoices.bin.api_gmail import tasks_gmail  # noqa: F401
 
 
 EMAIL_HOST = settings.EMAIL_HOST
@@ -266,6 +278,136 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
 
     return {
         "Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"
+    }
+
+
+def launch_celery_facturx_launch(user_pk: AnyStr, job_id: str):
+    """
+    Main pour lancement de la génération des Factur-X avec Celery
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param job_id: id du job à executer pour suivi SSEProgress
+    """
+    error = False
+    progress = None
+
+    try:
+        tasks_list = []
+        start_all = time.time()
+        progress = SSEProgress.objects.get(job_id=job_id)
+
+        update_progress_threaded(
+            job_id,
+            processed=1,
+            message="Préparation de la génération Factur-X",
+            item_name="Préparation",
+        )
+
+        # On boucle sur les factures imprimées sans Factur-X, par cct / pdf global
+        for cct, num_file in get_facturx_groups():
+            tasks_list.append(
+                celery_app.signature(
+                    "launch_generate_facturx_invoices",
+                    kwargs={
+                        "cct": str(cct),
+                        "num_file": str(num_file),
+                        "user_pk": str(user_pk),
+                        "job_id": job_id,
+                    },
+                )
+            )
+
+        result = group(*tasks_list)().get(3600)
+        LOGGER_INVOICES.warning(
+            f"result Factur-X : {result!r},\nin {time.time() - start_all} s"
+        )
+
+        if progress:
+            progress.refresh_from_db()
+            progress.mark_as_completed()
+
+    except Exception as ex_error:
+        error = True
+        LOGGER_INVOICES.exception(
+            f"Erreur détectée dans apps.invoices.tasks.launch_celery_facturx_launch() : "
+            f"{ex_error!r}"
+        )
+        try:
+            if not progress:
+                progress = SSEProgress.objects.get(job_id=job_id)
+            progress.mark_as_failed(str(ex_error))
+        except Exception as e:
+            LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+
+    finally:
+        if error:
+            update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+        else:
+            update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+
+
+@shared_task(name="launch_generate_facturx_invoices")
+@clean_memory
+def launch_generate_facturx_invoices(
+    cct: Maison.cct, num_file: AnyStr, user_pk: int, job_id: str
+):
+    """
+    Génération des Factur-X des factures de ventes pour un cct / pdf global
+    :param cct: maison des factures
+    :param num_file: numero du fichier pdf global
+    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param job_id: uuid du process
+    """
+
+    start_initial = time.time()
+
+    error = False
+    trace = None
+    to_print = ""
+
+    try:
+        user = User.objects.get(pk=user_pk)
+        update_progress_threaded(
+            job_id,
+            processed=1,
+            message=f"Génération Factur-X : {num_file}",
+            item_name=num_file,
+        )
+        trace, to_print = invoices_facturx_generation(cct, num_file)
+        trace.created_by = user
+        error = bool(trace.errors)
+
+    except TypeError as except_error:
+        error = True
+        to_print += f"TypeError : {except_error}\n"
+        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+
+    except Exception as except_error:
+        error = True
+        LOGGER_INVOICES.exception(
+            f"Exception Générale: launch_generate_facturx_invoices : {cct}\n{except_error!r}"
+        )
+
+    finally:
+        if error:
+            if trace:
+                trace.errors = True
+            update_progress_threaded(
+                job_id,
+                processed=0,
+                failed=1,
+                message=f"Erreur sur {num_file}",
+                item_name=num_file,
+            )
+
+        if trace is not None:
+            trace.save()
+
+    LOGGER_INVOICES.warning(
+        to_print + f"Génération Factur-X {cct} : {time.time() - start_initial} s "
+    )
+
+    return {
+        "Generation Factur-X : ": f"cct : {str(cct)} - {time.time() - start_initial} s"
     }
 
 

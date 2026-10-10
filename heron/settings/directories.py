@@ -21,6 +21,12 @@ MEDIA_EXCEL_FILES_DIR = lazy_mkdir("files/media/excel_files")
 # REPERTOIRES DES FICHIERS EXCEL
 SALES_INVOICES_FILES_DIR = lazy_mkdir("files/media/sales_invoices")
 
+# REPERTOIRE DES FACTURES DE VENTES AU FORMAT FACTUR-X
+SALES_INVOICES_FACTURX_DIR = lazy_mkdir("files/media/sales_invoices/facturx")
+
+# REPERTOIRE DE TRAITEMENT (PDF TEMPORAIRES) POUR LA GENERATION FACTUR-X
+PROCESSING_FACTURX_DIR = lazy_mkdir("files/processing/facturx")
+
 # REPERTOIRES DES PICKLERS
 PICKLERS_DIR = lazy_mkdir("files/media/pickler")
 

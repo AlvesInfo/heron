@@ -34,13 +34,19 @@ from apps.core.functions.functions_dates import get_date_apostrophe, long_date_s
 from apps.core.models import SSEProgress
 from apps.periods.forms import MonthForm
 from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
+from apps.invoices.bin.generate_invoices_facturx import (
+    get_facturx_in_progress,
+    get_facturx_candidates,
+    get_facturx_groups,
+)
+from apps.invoices.bin.facturx_client import FacturXClient, FacturXClientError
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.models import Invoice, SaleInvoice
 from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
 from apps.invoices.bin.pre_controls import control_insertion, control_alls_missings
 from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
 from apps.invoices.loops.send_emails_with_gmail import send_invoices_emails_gmail
-from apps.invoices.tasks import launch_celery_pdf_launch
+from apps.invoices.tasks import launch_celery_pdf_launch, launch_celery_facturx_launch
 from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
@@ -262,6 +268,109 @@ def generate_pdf_invoice(request):
     return render(request, "invoices/generate_pdf_invoices.html", context=context)
 
 
+def generate_facturx_invoice(request):
+    """Vue de génération des factures de ventes au format Factur-X (PDF/A-3 + XML CII).
+    Seules les factures dont le pdf a été produit (printed) et sans Factur-X sont traitées.
+    """
+    titre_table = "Génération des factures de ventes au format Factur-X"
+
+    nb_invoices = get_facturx_candidates().count()
+    nb_groups = get_facturx_groups().count()
+    insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
+    facturx_invoices = get_facturx_in_progress()
+    en_cours = any([insertion, pdf_invoices, email_invoices, facturx_invoices])
+
+    # Vérification du serveur Factur-X
+    client = FacturXClient()
+    server_ok = False
+    server_version = ""
+
+    if not en_cours:
+        try:
+            health = client.health()
+            server_ok = health.get("status") == "ok"
+            server_version = health.get("version", "")
+        except FacturXClientError as error:
+            LOGGER_VIEWS.warning(f"Serveur Factur-X indisponible : {error}")
+
+    context = {
+        "margin_table": 50,
+        "titre_table": titre_table,
+        "news": nb_invoices > 0 and server_ok,
+        "nb_invoices": nb_invoices,
+        "nb_groups": nb_groups,
+        "server_ok": server_ok,
+        "server_version": server_version,
+        "facturx_server_url": client.base_url,
+        "facturx_profile": client.profile,
+        "submit_url": "invoices:generate_facturx_invoice",
+    }
+
+    if not nb_invoices and not en_cours:
+        request.session["level"] = 50
+        messages.add_message(
+            request, 50, "Il n'y a aucune facture imprimée sans Factur-X à générer !"
+        )
+        context["en_cours"] = False
+
+        return render(request, "invoices/generate_facturx_invoices.html", context=context)
+
+    # Si l'on envoie un POST alors, on lance la génération en tâche de fond celery
+    if request.method == "POST" and not en_cours and server_ok:
+        user_pk = request.user.pk
+        job_id = str(uuid.uuid4())
+        progress = SSEProgress.objects.create(
+            job_id=job_id,
+            user_id=user_pk,
+            total_items=nb_groups + 1,
+            task_type="generation_facturx_invoices",
+            custom_title=titre_table,
+            metadata={"success": [], "failed": []},
+        )
+        progress.mark_as_started()
+
+        thread = threading.Thread(
+            target=launch_celery_facturx_launch,
+            args=(user_pk, job_id),
+            daemon=True,
+        )
+        thread.start()
+
+        return JsonResponse({"success": True, "job_id": job_id})
+
+    if request.method == "POST":
+        return JsonResponse(
+            {
+                "success": False,
+                "error": (
+                    "Un traitement est en cours"
+                    if en_cours
+                    else "Le serveur Factur-X est injoignable"
+                ),
+            }
+        )
+
+    if insertion:
+        titre_table = "INSERTION DES FACTURES EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"
+
+    if pdf_invoices:
+        titre_table = "GENERATION DES PDF EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD !"
+
+    if email_invoices:
+        titre_table = "LES FACTURES SONT EN COURS D'ENVOI PAR MAIL !"
+
+    if facturx_invoices:
+        titre_table = (
+            "GENERATION DES FACTUR-X EN COURS, VEUILLEZ REESSSAYEZ PLUS TARD ! "
+            "(N'OUBLIEZ PAS DE REGARDER LES TRACES APRES LA GENERATION)"
+        )
+
+    context["en_cours"] = en_cours
+    context["titre_table"] = titre_table
+
+    return render(request, "invoices/generate_facturx_invoices.html", context=context)
+
+
 def invoices_pdf_files(request):
     """View pour download les factures pdf"""
     # On va récupérer les dates initiiales à l'arrivée sur la vue à la date de la période en cours
@@ -363,7 +472,7 @@ def get_pdf_file(request, file_name):
 
             return response
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : get_pdf_file")
 
     return redirect(reverse("home"))
@@ -397,7 +506,7 @@ def send_email_pdf_invoice(request):
         return render(request, "invoices/send_email_invoices.html", context=context)
 
     # On contrôle qu'il n'y ait pas des emails faux
-    emails_errors_list = [email for email in check_emails_to_send()]
+    emails_errors_list = list(check_emails_to_send())
 
     if emails_errors_list:
         request.session["level"] = 50
@@ -414,13 +523,6 @@ def send_email_pdf_invoice(request):
         [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
     ):
         user_pk = request.user.pk
-        # celery_app.signature(
-        #     "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
-        # ).apply_async()
-        # celery_app.signature(
-        #     "celery_send_invoices_emails_gmail", kwargs={"user_pk": str(user_pk)}
-        # ).apply_async()
-        # email_invoices = True
 
         # Préparation des envois pas emails
         job_id = str(uuid.uuid4())
@@ -608,7 +710,7 @@ def finalize_period(request):
         return redirect(reverse("invoices:finalize_period"))
 
     if not not_finalize:
-        exist_message = [message for message in messages.get_messages(request)]
+        exist_message = list(messages.get_messages(request))
 
         if not exist_message:
             request.session["level"] = 50
