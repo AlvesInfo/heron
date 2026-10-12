@@ -1,14 +1,15 @@
-# pylint: disable=R0903,E0401,C0103,W0702,W0613,E1101,W1309,W1203
 """
 Views des identifiants des Tiers X3
 """
 import pendulum
 from django.contrib import messages
-from django.shortcuts import render, reverse, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.db import transaction
 from django.http import JsonResponse
 from django.forms import modelformset_factory
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.bin.change_traces import trace_form_change, trace_change
@@ -28,7 +29,14 @@ from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier
 @transaction.atomic
 def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
     """UpdateView pour modification des couples Tiers/Code Maisons"""
-    context = {}
+    # Contexte minimal pour que l'écran s'affiche (avec son message) si le chargement échoue
+    context = {
+        "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
+        "queryset": [],
+        "count": 0,
+        "chevron_retour": reverse("book:societies_list"),
+        "third_party_num": third_party_num,
+    }
 
     try:
         # Ajout des cct par défaut pour les maisons existantes, pour éviter de les saisir
@@ -57,13 +65,13 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                 "cct_uuid_identification__maison_cct__ville",
             )
         )
-        context = {
-            "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
-            "queryset": queryset,
-            "count": queryset.count(),
-            "chevron_retour": get_base_64(url_retour_supplier_cct)[0],
-            "third_party_num": third_party_num,
-        }
+        context.update(
+            {
+                "queryset": queryset,
+                "count": queryset.count(),
+                "chevron_retour": get_base_64(url_retour_supplier_cct)[0],
+            }
+        )
         request.session["level"] = 20
 
         if request.method == "POST":
@@ -77,12 +85,11 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
                     if form.changed_data:
                         changed, message = check_cct_identifier(form.cleaned_data)
 
-                        if changed is None:
+                        # None : identifiant déjà pris par un autre cct, False : rien à changer
+                        if not changed:
                             messages.add_message(request, 50, message)
-                        elif not changed:
-                            messages.add_message(request, 50, message)
-                        elif changed:
-                            print("form.clean_data : ", form.cleaned_data, form)
+                        else:
+                            LOGGER_VIEWS.info("form.cleaned_data : %s %s", form.cleaned_data, form)
                             trace_form_change(request, form)
                             message = (
                                 "Les identifiants du cct "
@@ -101,14 +108,14 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
 
             else:
                 messages.add_message(
-                    request, 50, f"Une erreur c'est produite, veuillez consulter les logs"
+                    request, 50, "Une erreur c'est produite, veuillez consulter les logs"
                 )
 
                 LOGGER_VIEWS.exception(f"erreur form : {formset.errors!r}")
 
     except Exception as error:
         request.session["level"] = 50
-        messages.add_message(request, 50, f"Une erreur c'est produite, veuillez consulter les logs")
+        messages.add_message(request, 50, "Une erreur c'est produite, veuillez consulter les logs")
         LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
 
     return render(request, "book/supplier_cct.html", context=context)
@@ -118,7 +125,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
 def change_supplier_cct_unit(request):
     """Changement 1 à 1 des identifiants par fournisseurs"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "success"}
@@ -131,7 +138,7 @@ def change_supplier_cct_unit(request):
         if cct_identifier is not None and cct_identifier[-1] != "|":
             cct_identifier = f"{cct_identifier}|"
 
-        get_supplier_cct = SupplierCct.objects.get(id=request.POST.get("pk"))
+        get_supplier_cct = get_object_or_404(SupplierCct, id=request.POST.get("pk"))
 
         changed, message = check_cct_identifier(
             {
@@ -140,13 +147,11 @@ def change_supplier_cct_unit(request):
             }
         )
 
-        if changed is None:
+        # None : identifiant déjà pris par un autre cct, False : rien à changer
+        if not changed:
             messages.add_message(request, 50, message)
 
-        elif not changed:
-            messages.add_message(request, 50, message)
-
-        elif changed:
+        else:
             changed, message = trace_change(
                 request,
                 model=SupplierCct,
@@ -202,16 +207,16 @@ def export_list_supplier_cct(request, third_party_num):
                 attr_dict,
             )
 
-    except:
+    except Exception:
         request.session["level"] = 50
         messages.add_message(
             request,
             50,
-            f"Une erreur c'est produite, lors de l'export du listing Excel des indentifiants CCT, "
-            f"veuillez consulter les logs",
+            "Une erreur c'est produite, lors de l'export du listing Excel des indentifiants CCT, "
+            "veuillez consulter les logs",
         )
         LOGGER_VIEWS.exception("view : export_list_supplier_cct")
 
-    id_third_party_num = Society.objects.get(third_party_num=third_party_num)
+    society = get_object_or_404(Society, third_party_num=third_party_num)
 
-    return redirect(reverse("book:society_update", kwargs={"pk": id_third_party_num.pk}))
+    return redirect(reverse("book:society_update", kwargs={"pk": society.pk, "in_use": "alls"}))

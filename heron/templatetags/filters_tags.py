@@ -1,20 +1,52 @@
 import re
-from decimal import Decimal
-from uuid import UUID
 
 import pendulum
-import lxml.html as html
-from lxml.etree import ParserError
 
 from django import template
 from django.template.defaultfilters import stringfilter
+from django.utils.html import format_html, format_html_join
 
-from apps.core.bin.encoders import set_base_64_list, set_base_64_str
-from apps.accountancy.bin.utils import get_str_echeances
-from apps.accountancy.models import AccountSage
-from apps.book.models import Society
+from apps.core.bin.encoders import set_base_64_str
 
 register = template.Library()
+
+# Balises conservées par les filtres keep_br et trace_comment : texte source -> html sûr
+BR_TAGS = {"<br>": format_html("<{}>", "br")}
+TRACE_TAGS = {
+    **BR_TAGS,
+    "<div style='padding-left: 20px;'>": format_html('<div style="{}">', "padding-left: 20px;"),
+    "</div>": format_html("</{}>", "div"),
+}
+
+
+def escape_except(value, tags):
+    """Échappe le texte en ne laissant passer que les balises attendues
+    :param value: texte à afficher, None est affiché vide
+    :param tags: dictionnaire des balises conservées (texte exact dans la valeur -> html sûr)
+    :return: html sûr, à afficher sans le filtre safe
+    """
+    if value is None:
+        return ""
+
+    pattern = "(" + "|".join(re.escape(tag) for tag in tags) + ")"
+
+    return format_html_join(
+        "", "{}", ((tags.get(part, part),) for part in re.split(pattern, str(value)))
+    )
+
+
+@register.filter(name="keep_br")
+def keep_br(value):
+    """Échappe la valeur en conservant ses sauts de ligne <br>"""
+    return escape_except(value, BR_TAGS)
+
+
+@register.filter(name="trace_comment")
+def trace_comment(value):
+    """Échappe le commentaire d'une trace en conservant la mise en forme écrite par les imports
+    (sauts de ligne <br> et bloc indenté), les données venues des fichiers sont échappées
+    """
+    return escape_except(value, TRACE_TAGS)
 
 
 @register.filter(name="point")
@@ -23,97 +55,9 @@ def point(value):
     return value.replace(",", ".")
 
 
-@register.filter(name="left_trunc")
-@stringfilter
-def left_trunc(value, num):
-    return value[int(num) :]
-
-
-@register.filter(name="right_align")
-def right_align(value, num):
-    to_split = value.split("-")
-
-    if len(to_split) == 1:
-        return value.rjust(num)
-
-    return to_split[0].rjust(num) + " - " + " - ".join(row for row in to_split[1:])
-
-
-def right_align_(value, num):
-    to_split = value.split("-")
-
-    if len(to_split) == 1:
-        return value.rjust(num)
-
-    return (
-        to_split[0].rjust(num).replace(" ", "&nbsp;")
-        + " - "
-        + " - ".join(row for row in to_split[1:])
-    )
-
-
-@register.filter(name="right_trunc")
-@stringfilter
-def right_trunc(value, num):
-    return value[: int(num)]
-
-
-@register.filter(name="bool_and")
-def bool_and(fisrt_bool, second_bool):
-    return all([fisrt_bool, second_bool])
-
-
-@register.filter(name="bool_in")
-def bool_in(part, value):
-    return part in value
-
-
-@register.filter(name="get_bool_value")
-def bool_in(part, value):
-    test_part = None if part == "None" else part
-    return test_part or value
-
-
-@register.filter(name="get_background_date_lt")
-def bool_date_lt(date_value):
-    return (
-        ""
-        if date_value is None or date_value > pendulum.today().date()
-        else "background-color: lightgray;"
-    )
-
-
-@register.filter(name="replace_space_splash")
-def space_splash(value):
-    return str(value).replace(" ", "_")
-
-
 @register.filter(name="is_str")
 def get_is_str(value):
     return isinstance(value, (str,))
-
-
-@register.filter(name="html_to_text")
-def html_to_text(value):
-    try:
-        if value is None or value == "None":
-            return ""
-
-        return html.fromstring(value).text_content().strip()
-
-    except (ParserError, TypeError):
-        return value or ""
-
-
-@register.filter(name="strip_value")
-def strip_value(value):
-    return str(value).strip()
-
-
-@register.filter(name="get_dict_keys")
-def get_dict_keys(value):
-    if isinstance(value, (dict,)):
-        return list(value.keys())
 
 
 @register.filter(name="get_dict_values")
@@ -142,67 +86,43 @@ def date_from_str_4(value):
     return ""
 
 
+def _split_number(value):
+    """Sépare la partie entière et les centimes d'un nombre (texte, int ou Decimal) ;
+    les centimes sont complétés de zéros pour être tronqués à la précision demandée"""
+    nombre, _, centimes = str(value).partition(".")
+    return nombre, centimes + "0" * 99
+
+
+def _group_thousands(nombre):
+    """Insère une espace tous les trois chiffres en partant de la droite"""
+    grouped = ""
+
+    for i, digit in enumerate(nombre[::-1], 1):
+        grouped += digit
+
+        if i % 3 == 0:
+            grouped += " "
+
+    return grouped[::-1].strip()
+
+
 @register.filter(name="numbers")
 def numbers(value, num):
+    """Nombre avec num décimales (séparateur point), sans séparateur de milliers"""
     if not value:
         return "0"
-    list_values = str(value).split(".")
 
-    if len(list_values) == 0:
-        nombre = "0"
-        centimes = ""
-
-    elif len(list_values) == 1:
-        nombre = str(value)
-        centimes = ""
-
-    else:
-        nombre, centimes, *_ = list_values
-
-    centimes += "0" * 99
-    return_value = ""
-
-    for i, value in enumerate(nombre[::-1], 1):
-        return_value += value
-
-    if num:
-        centimes_part = "." + centimes[:num]
-    else:
-        centimes_part = ""
-
-    return (return_value[::-1] + centimes_part).strip()
+    nombre, centimes = _split_number(value)
+    return nombre + (f".{centimes[:num]}" if num else "")
 
 
 @register.filter(name="numbersp")
 def numbersp(valueh, num):
+    """Pourcentage : valeur multipliée par 100, avec num décimales"""
     if not valueh:
         return "0"
-    value = str(valueh*100)
-    list_values = str(value).split(".")
 
-    if len(list_values) == 0:
-        nombre = "0"
-        centimes = ""
-
-    elif len(list_values) == 1:
-        nombre = str(value)
-        centimes = ""
-
-    else:
-        nombre, centimes, *_ = list_values
-
-    centimes += "0" * 99
-    return_value = ""
-
-    for i, value in enumerate(nombre[::-1], 1):
-        return_value += value
-
-    if num:
-        centimes_part = "." + centimes[:num]
-    else:
-        centimes_part = ""
-
-    return (return_value[::-1] + centimes_part).strip()
+    return numbers(valueh * 100, num)
 
 
 @register.filter(name="default_if_zero")
@@ -215,80 +135,28 @@ def default_if_zero(value):
 
 @register.filter(name="numbers_format")
 def numbers_format(value, num):
+    """Nombre avec séparateur de milliers (espace) et num décimales (séparateur virgule) ;
+    accepte aussi un entier ou un texte sans partie décimale"""
     if not value:
         return "0"
 
-    nombre, centimes, *_ = str(value).split(".")
-    centimes += "0" * 99
-    return_value = ""
-
-    for i, value in enumerate(nombre[::-1], 1):
-        return_value += value
-        if i % 3 == 0:
-            return_value += " "
-
-    return (return_value[::-1] + ("," if num else "") + centimes[:num]).strip()
-
-
-@register.filter(name="numbers_point")
-def numbers_point(value, num):
-    if not value or value == "0":
-        return "0"
-
-    if "." in str(value):
-        nombre, centimes, *_ = str(value).split(".")
-    else:
-        nombre = str(value)
-        centimes = ""
-
-    centimes += "0" * 99
-    return_value = ""
-
-    for i, value in enumerate(nombre[::-1], 1):
-        return_value += value
-        if i % 3 == 0:
-            return_value += " "
-
-    return (return_value[::-1] + "." + centimes[:num]).strip()
-
-
-@register.filter(name="rangex")
-def rangex(value, num):
-    return range(value, num)
+    nombre, centimes = _split_number(value)
+    return _group_thousands(nombre) + (f",{centimes[:num]}" if num else "")
 
 
 @register.filter(name="int_formats")
 def int_formats(value):
-    # print("int_formats : ", value)
+    """Partie entière avec séparateur de milliers"""
     if not value:
         return "0"
 
-    str_value = str(value).split(".")[0]
-    return_value = ""
-
-    for i, value in enumerate(str_value[::-1], 1):
-        return_value += value
-        if i % 3 == 0:
-            return_value += " "
-
-    return str(return_value[::-1]).strip()
-
-
-@register.filter(name="format")
-def int_formats(value, fmt):
-    return fmt.format(value)
+    return _group_thousands(str(value).split(".")[0])
 
 
 @register.filter(name="encode_b64_str")
 def encode_b64_str(value):
     """Renvoi un string en base 64 decodée"""
     return set_base_64_str(value)
-
-
-@register.filter(name="encode_b64_list")
-def encode_b64_list(values_list):
-    """Renvoi une liste en base 64 decodée"""
-    return set_base_64_list(values_list)
 
 
 @register.simple_tag
@@ -313,59 +181,6 @@ def get_address(adresse):
 @register.filter
 def percentage(value):
     return "" if value is None else f"{value:.1%}"
-
-
-@register.filter(name="due_dates")
-def due_dates(date_value, paiement_condition):
-    """Renvoie les dates d'échéance en fonction de la date de facture
-    et le nom de la condition de paiement
-    """
-    if not paiement_condition:
-        return ""
-
-    return get_str_echeances(date_value, paiement_condition)
-
-
-@register.filter(name="string_agg")
-def string_agg(value_list, deliminter=","):
-    """Renvoie du texte séparé par une virgule, à partir d'une liste, tuple, ... génératoeur,
-    comme un string_agg postgresql"""
-    return f"{deliminter} ".join([str(value) for value in value_list])
-
-
-@register.filter(name="string_agg_uniques")
-def string_agg_uniques(value_list, delimiter=","):
-    """Renvoie du texte séparé par une virgule, à partir d'une liste, tuple, ... génératoeur,
-    comme un string_agg postgresql"""
-    # Pour en limiter le nombre en fin de texte du delimiter on peut mettre un chiffre
-    digits_list = list(re.finditer(r"\d*$", delimiter))
-    digits = digits_list[0].group() if digits_list else ""
-    values = sorted(set(value_list))
-
-    if digits:
-        delimiter = delimiter.replace(digits, "")
-        string_return = f"{delimiter} ".join([str(value) for value in values[: int(digits)]])
-        values_nb = len(values)
-
-        if string_return and values_nb > 1 and values_nb > int(digits):
-            return string_return + f"{delimiter} ..."
-        else:
-            return string_return
-
-    return f"{delimiter} ".join([str(value) for value in values])
-
-
-@register.filter(name="addition")
-def addition(value, other):
-    """
-    Adittione deux nombres
-    :param value:
-    :param other:
-    :return:
-    """
-    print(value, other)
-    print(Decimal(value), " - ", Decimal(other))
-    return Decimal(value) + Decimal(other)
 
 
 @register.filter(name="regroup_sum")
@@ -397,53 +212,3 @@ def siret_number(value):
             siret += " "
 
     return siret
-
-
-@register.filter(name="get_third_party")
-def get_third_party(value):
-    """
-    Retourne le nom du tiers à afficher
-    :param value: thid_party_num
-    :return: nom
-    """
-
-    try:
-        return str(Society.objects.get(third_party_num=value))
-
-    except Society.DoesNotExist:
-        pass
-
-    return ""
-
-
-@register.filter(name="get_account")
-def get_account(value):
-    """
-    Retourne le nom du compte à afficher
-    :param value: thid_party_num
-    :return: nom
-    """
-    try:
-        return str(AccountSage.objects.get(uuid_identification=value))
-
-    except (ValueError, TypeError, AccountSage.DoesNotExist):
-        pass
-
-    return ""
-
-
-@register.filter(name="get_in_child_center")
-def get_in_child_center(value, user_child_center):
-    """
-    Retourne True si l'utilisateur fait partie d'une centrale fille
-    :param value: user
-    :param user_child_center:
-    :return: nom
-    """
-    try:
-        return value in user_child_center.split("|")
-
-    except:
-        pass
-
-    return False

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0412,W1203
 """
 FR : Module d'update des comptes des articles, par le fichier excel sorti dans l'écran
      12. Articles/Comptes

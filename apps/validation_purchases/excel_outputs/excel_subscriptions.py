@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203
 """Module d'export du fichier excel du Contrôle des Abonnements
 
 Commentaire:
@@ -10,22 +9,17 @@ modified at: 2023-07-03
 modified by: Paulo ALVES
 """
 import io
-from typing import Dict, List, Generator
 from pathlib import Path
 
 import pendulum
 from django.db import connection
-from heron.settings.base import APPS_DIR
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
+from django.conf import settings
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
     columns_headers_writer,
-    sheet_formatting,
 )
+from apps.core.excel_outputs.generic_list_export import PAGE_NUMBERS_FOOTER, excel_list_export, month_headers
 
 COLUMNS = [
     {
@@ -318,7 +312,7 @@ COLUMNS = [
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: Dict = None):
+def get_rows(file_path: Path, parmas_dict: dict = None):
     """Renvoie les résultats de la requête nécessaire à l'export excel
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
@@ -335,64 +329,78 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def write_rows(excel: GenericExcel, f_lignes: List, f_lignes_odd: List, get_clean_rows: Generator):
-    """Ecritures de lignes d'entete des Fournisseurs"""
-    row = 2
-    row_format = 1
-    col = 0
-    current_subcription = ""
-    page_breaks = []
+FORMAT_CLIENT = {
+    "font_name": "calibri",
+    "bg_color": "#dce7f5",
+    "top": 2,
+    "bottom": 1,
+    "left": 2,
+    "right": 2,
+    "bold": True,
+    "text_wrap": True,
+    "align": "left",
+    "valign": "vcenter",
+}
 
-    format_client = {
-        "font_name": "calibri",
-        "bg_color": "#dce7f5",
-        "top": 2,
-        "bottom": 1,
-        "left": 2,
-        "right": 2,
-        "bold": True,
-        "text_wrap": True,
-        "align": "left",
-        "valign": "vcenter",
-    }
 
-    for rows in get_clean_rows:
-        subcription, *line = rows
-        line = [value or "" for value in line]
-        nb_closing_date = 3
-        closing_date = line[nb_closing_date]
-        nb_mois = 15
-        mois = line[nb_mois]
+def columns_mois() -> list[dict]:
+    """Colonnes dont les entêtes portent les mois, calculées à chaque export"""
+    months = [
+        pendulum.now().subtract(months=mois).start_of("month").format("MMMM YYYY", locale="fr").capitalize().replace(" ", "\n")
+        for mois in range(12, 0, -1)
+    ]
+    return month_headers(COLUMNS, range(4, 16), months)
 
-        if closing_date:
-            line[nb_closing_date] = pendulum.parse(closing_date).date()
 
-        if closing_date and mois:
-            f_lignes[nb_closing_date]["bg_color"] = "red"
-            f_lignes_odd[nb_closing_date]["bg_color"] = "red"
-            f_lignes[nb_mois]["bg_color"] = "red"
-            f_lignes_odd[nb_mois]["bg_color"] = "red"
-        else:
-            f_lignes[nb_closing_date]["bg_color"] = "white"
-            f_lignes_odd[nb_closing_date]["bg_color"] = "#D9D9D9"
-            f_lignes[nb_mois]["bg_color"] = "white"
-            f_lignes_odd[nb_mois]["bg_color"] = "#D9D9D9"
+NB_CLOSING_DATE, NB_MOIS = 3, 15
 
-        if current_subcription != subcription:
-            if row > 4:
-                row += 1
-                page_breaks.append(row)
-            else:
-                row += 1
 
-            excel.write_row(1, row, col, subcription, format_client)
-            row += 1
-            columns_headers_writer(excel, 1, row, 0, COLUMNS)
-            current_subcription = subcription
-            row += 1
-            row_format = 1
+def subscription_line(values: list, f_lignes: list, f_lignes_odd: list) -> list:
+    """
+    Ligne prête à écrire : valeurs vides normalisées, date de fermeture convertie, et formats de
+    la date de fermeture et du mois M passés en rouge pour une maison fermée encore facturée
+    """
+    line = [value or "" for value in values]
+    closing_date, mois = line[NB_CLOSING_DATE], line[NB_MOIS]
 
-        excel.write_rows(1, row, col, line, f_lignes if row_format % 2 == 0 else f_lignes_odd)
+    if closing_date:
+        line[NB_CLOSING_DATE] = pendulum.parse(closing_date).date()
+
+    alert = bool(closing_date and mois)
+
+    for formats, default in ((f_lignes, "white"), (f_lignes_odd, "#D9D9D9")):
+        formats[NB_CLOSING_DATE]["bg_color"] = "red" if alert else default
+        formats[NB_MOIS]["bg_color"] = "red" if alert else default
+
+    return line
+
+
+def write_block_header(excel, sheet: int, row: int, columns: list, label: str, page_breaks: list) -> int:
+    """Écrit le nom du bloc puis ses entêtes (saut de page avant, sauf pour le premier bloc) ;
+    renvoie la première ligne de données du bloc"""
+    row += 1
+
+    if row > 5:
+        page_breaks.append(row)
+
+    excel.write_row(sheet, row, 0, label, FORMAT_CLIENT)
+    columns_headers_writer(excel, sheet, row + 1, 0, columns)
+
+    return row + 2
+
+
+def write_rows(excel, sheet: int, columns: list, rows, f_lignes: list, f_lignes_odd: list) -> list[int]:
+    """Un bloc par abonnement : nom, entêtes, lignes ; renvoie les sauts de page entre les blocs"""
+    row, row_format, current_subscription, page_breaks = 2, 1, "", []
+
+    for subscription, *values in rows:
+        line = subscription_line(values, f_lignes, f_lignes_odd)
+
+        if current_subscription != subscription:
+            row = write_block_header(excel, sheet, row, columns, subscription, page_breaks)
+            current_subscription, row_format = subscription, 1
+
+        excel.write_rows(sheet, row, 0, line, f_lignes if row_format % 2 == 0 else f_lignes_odd)
         row += 1
         row_format += 1
 
@@ -401,46 +409,18 @@ def write_rows(excel: GenericExcel, f_lignes: List, f_lignes_odd: List, get_clea
 
 def excel_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier du Contrôle des Abonnements"""
-    titre = "3.5 - Contrôle des Abonnements"
-    list_excel = [file_io, ["ABONNEMENTS"]]
-    excel = GenericExcel(list_excel)
-    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_subscriptions.sql")
+    file_path = Path(f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_subscriptions.sql")
 
-    try:
-        mois = 12
-
-        for i, column_dict in enumerate(COLUMNS, 1):
-            if 4 < i < 17:
-                column_dict["entete"] = (
-                    (
-                        pendulum.now()
-                        .subtract(months=mois)
-                        .start_of("month")
-                        .format("MMMM YYYY", locale="fr")
-                    )
-                    .capitalize()
-                    .replace(" ", "\n")
-                )
-                mois -= 1
-
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
-        ]
-        page_breaks = write_rows(excel, f_lignes, f_lignes_odd, get_rows(file_path))
-        excel.excel_sheet(1).set_h_pagebreaks(page_breaks)
-        excel.excel_sheet(1).set_footer("&R&P/&N", {"margin": 0.1})
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 2), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name="ABONNEMENTS",
+        title="3.5 - Contrôle des Abonnements",
+        columns=columns_mois,
+        rows=lambda: get_rows(file_path),
+        orientation="landscape",
+        repeat_row=(0, 2),
+        write_headers=False,
+        writer=write_rows,
+        footer=PAGE_NUMBERS_FOOTER,
+    )

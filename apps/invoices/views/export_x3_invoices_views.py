@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : View des lancements des exports X3
 EN : View of exports X3 launches
@@ -16,8 +15,11 @@ from pathlib import Path
 
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import render, HttpResponse, redirect, reverse
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.urls import reverse
 from django.contrib import messages
+from django.utils.html import format_html
 from celery import group
 from django.views.generic import ListView
 
@@ -36,6 +38,67 @@ from apps.invoices.bin.invoives_nums import (
 from apps.edi.models import EdiValidation
 
 
+def _x3_exports() -> list[tuple]:
+    """
+    Exports X3 à lancer : (type d'export, centrale, champ du fichier dans ExportX3, nom du fichier).
+    Les compteurs sont consommés dans l'ordre de la liste.
+    """
+    return [
+        ("odana", "AC00", "odana_file", f"AC00_{get_gaspar_num()!s}.txt"),
+        ("sale", "AC00", "sale_file", f"AC00_{get_bicpar_num()!s}.txt"),
+        ("purchase", "AC00", "purchase_file", f"AC00_{get_bispard_num()!s}.txt"),
+        ("gdaud", "GA00", "ga_file", f"GA00_{get_bispar_num()!s}.txt"),
+        ("sdoa", "SD00", "sd_file", f"SD00_{get_bispar_num()!s}.txt"),
+        ("do", "DO00", "do_file", f"DO00_{get_bispar_num()!s}.txt"),
+    ]
+
+
+def _launch_x3_exports(exports: list[tuple], user_pk) -> list:
+    """Lance les tâches celery d'export et renvoie leurs résultats (True si l'export a réussi)"""
+    tasks_list = [
+        celery_app.signature(
+            "launch_export_x3",
+            kwargs={
+                "export_type": export_type,
+                "centrale": centrale,
+                "file_name": file_name,
+                "user_pk": str(user_pk),
+                "nb_fac": 50_000,
+            },
+        )
+        for export_type, centrale, _, file_name in exports
+    ]
+
+    return group(*tasks_list)().get(3600)
+
+
+def _save_x3_exports(exports: list[tuple], file_name_zip: str) -> None:
+    """Enregistre les fichiers générés (et leur zip) sur la période de validation en cours"""
+    edi_validations = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    export_x3, _ = ExportX3.objects.get_or_create(uuid_edi_validation=edi_validations)
+    generated = {
+        field: file_name
+        for _, _, field, file_name in exports
+        if (Path(settings.EXPORT_DIR) / file_name).is_file()
+    }
+
+    with ZipFile((Path(settings.EXPORT_DIR) / file_name_zip), "w") as zip_file:
+        for file_name in generated.values():
+            zip_file.write(Path(settings.EXPORT_DIR) / file_name, file_name)
+
+    for _, _, field, _ in exports:
+        setattr(export_x3, field, generated.get(field))
+
+    export_x3.alls_zip_file = file_name_zip
+    export_x3.save()
+
+
+def _delete_x3_files(exports: list[tuple]) -> None:
+    """Supprime les fichiers d'export générés (cas d'erreur)"""
+    for *_, file_name in exports:
+        (Path(settings.EXPORT_DIR) / file_name).unlink(missing_ok=True)
+
+
 @transaction.atomic
 def generate_exports_X3(request):
     """
@@ -43,9 +106,10 @@ def generate_exports_X3(request):
     :param request:
     :return:
     """
-    titre_table = (
-        "Génération des fichiers pour imports X3 <br>"
-        "(GASPAR - OD, BICPAR - Clients, BISPARD - Fournisseurs)"
+    titre_table = format_html(
+        "{} <br>{}",
+        "Génération des fichiers pour imports X3",
+        "(GASPAR - OD, BICPAR - Clients, BISPARD - Fournisseurs)",
     )
 
     context = {
@@ -65,138 +129,24 @@ def generate_exports_X3(request):
 
     if request.method == "POST":
         # On lance la génération des factures de vente et d'achat
-        user_pk = request.user.pk
-        file_name_odana = f"AC00_{str(get_gaspar_num())}.txt"
-        file_name_sale = f"AC00_{str(get_bicpar_num())}.txt"
-        file_name_purchase = f"AC00_{str(get_bispard_num())}.txt"
-        file_name_gdaud = f"GA00_{str(get_bispar_num())}.txt"
-        file_name_sdoa = f"SD00_{str(get_bispar_num())}.txt"
-        file_name_do = f"DO00_{str(get_bispar_num())}.txt"
-        file_name_zip = f"AC00_{str(get_zip_num())}.zip"
-        tasks_list = [
-            celery_app.signature(
-                "launch_export_x3",
-                kwargs={
-                    "export_type": "odana",
-                    "centrale": "AC00",
-                    "file_name": file_name_odana,
-                    "user_pk": str(user_pk),
-                    "nb_fac": 50_000,
-                },
-            ),
-            celery_app.signature(
-                "launch_export_x3",
-                kwargs={
-                    "export_type": "sale",
-                    "centrale": "AC00",
-                    "file_name": file_name_sale,
-                    "user_pk": str(user_pk),
-                    "nb_fac": 50_000,
-                },
-            ),
-            celery_app.signature(
-                "launch_export_x3",
-                kwargs={
-                    "export_type": "purchase",
-                    "centrale": "AC00",
-                    "file_name": file_name_purchase,
-                    "user_pk": str(user_pk),
-                    "nb_fac": 50_000,
-                },
-            ),
-            celery_app.signature(
-                "launch_export_x3",
-                kwargs={
-                    "export_type": "gdaud",
-                    "centrale": "GA00",
-                    "file_name": file_name_gdaud,
-                    "user_pk": str(user_pk),
-                    "nb_fac": 50_000,
-                },
-            ),
-            celery_app.signature(
-                "launch_export_x3",
-                kwargs={
-                    "export_type": "sdoa",
-                    "centrale": "SD00",
-                    "file_name": file_name_sdoa,
-                    "user_pk": str(user_pk),
-                    "nb_fac": 50_000,
-                },
-            ),
-            celery_app.signature(
-                "launch_export_x3",
-                kwargs={
-                    "export_type": "do",
-                    "centrale": "DO00",
-                    "file_name": file_name_do,
-                    "user_pk": str(user_pk),
-                    "nb_fac": 50_000,
-                },
-            ),
-        ]
-        result_list = group(*tasks_list)().get(3600)
-
-        files_list = [
-            (Path(settings.EXPORT_DIR) / file_name_odana),
-            (Path(settings.EXPORT_DIR) / file_name_sale),
-            (Path(settings.EXPORT_DIR) / file_name_purchase),
-            (Path(settings.EXPORT_DIR) / file_name_gdaud),
-            (Path(settings.EXPORT_DIR) / file_name_sdoa),
-            (Path(settings.EXPORT_DIR) / file_name_do),
-        ]
+        exports = _x3_exports()
+        file_name_zip = f"AC00_{get_zip_num()!s}.zip"
+        result_list = _launch_x3_exports(exports, request.user.pk)
 
         # On check s'il y a eu des erreurs
         if all(result_list):
             # Si on n'a pas d'erreur, on enregistre les fichiers dans la table
-            edi_validations = EdiValidation.objects.filter(
-                Q(final=False) | Q(final__isnull=True)
-            ).first()
-            export_x3, _ = ExportX3.objects.get_or_create(uuid_edi_validation=edi_validations)
-
-            with ZipFile((Path(settings.EXPORT_DIR) / file_name_zip), "w") as zip_file:
-                for file in files_list:
-                    if file.is_file():
-                        zip_file.write(file, file.name)
-
-            export_x3.odana_file = (
-                file_name_odana if (Path(settings.EXPORT_DIR) / file_name_odana).is_file() else None
-            )
-            export_x3.sale_file = (
-                file_name_sale if (Path(settings.EXPORT_DIR) / file_name_sale).is_file() else None
-            )
-            export_x3.purchase_file = (
-                file_name_purchase
-                if (Path(settings.EXPORT_DIR) / file_name_purchase).is_file()
-                else None
-            )
-            export_x3.ga_file = (
-                file_name_gdaud if (Path(settings.EXPORT_DIR) / file_name_gdaud).is_file() else None
-            )
-            export_x3.sd_file = (
-                file_name_sdoa if (Path(settings.EXPORT_DIR) / file_name_sdoa).is_file() else None
-            )
-            export_x3.do_file = (
-                file_name_do if (Path(settings.EXPORT_DIR) / file_name_do).is_file() else None
-            )
-            export_x3.alls_zip_file = file_name_zip
-            export_x3.save()
+            _save_x3_exports(exports, file_name_zip)
             sales.update(export=True)
             purchases.update(export=True)
-            request.session["level"] = 20
-            messages.add_message(request, 20, "Les fichiers d'export X3 ont bien été générés !")
-
+            level, message = 20, "Les fichiers d'export X3 ont bien été générés !"
         else:
             # En cas d'erreur, on supprime les fichiers générés
-            for file in files_list:
-                if file.is_file():
-                    file.unlink()
+            _delete_x3_files(exports)
+            level, message = 50, "Une erreur c'est produite veuillez consulter les traces !"
 
-            request.session["level"] = 50
-            messages.add_message(
-                request, 50, "Une erreur c'est produite veuillez consulter les traces !"
-            )
-
+        request.session["level"] = level
+        messages.add_message(request, level, message)
         LOGGER_X3.warning(f"{str(result_list)}, {str(all(result_list))}, {str(type(result_list))}")
 
     return render(request, "invoices/export_x3_invoices.html", context=context)
@@ -213,7 +163,7 @@ class ExportX3Files(ListView):
     def get_context_data(self, **kwargs):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
-        context["datatable_ordering"] = '''"order": [[ 1, 'desc' ]],'''
+        context["datatable_ordering"] = {"order": [(1, "desc")]}
         return context
 
 
@@ -225,13 +175,19 @@ def get_export_x3_file(request, file_name):
     """
     try:
         if request.method == "GET":
-            file_path = Path(settings.EXPORT_DIR) / file_name
+            export_dir = Path(settings.EXPORT_DIR).resolve()
+            file_path = (export_dir / file_name).resolve()
+
+            # Le nom vient de l'URL : on refuse toute sortie du répertoire d'export
+            if export_dir not in file_path.parents:
+                raise PermissionError(f"chemin hors du répertoire d'export : {file_name!r}")
+
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
             response = HttpResponse(file_path.open("rb").read(), content_type=content_type)
             response["Content-Disposition"] = f"attachment; filename={file_name}"
             return response
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : get_export_x3_file")
 
     return redirect(reverse("home"))

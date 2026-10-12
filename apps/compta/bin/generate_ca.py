@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
 FR : Module de génération du chiffre d'affaire par clients, issus des ventes Cosium

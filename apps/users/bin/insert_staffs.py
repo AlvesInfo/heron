@@ -1,4 +1,3 @@
-# pylint: disable=C0330, C0411, C0303, E1101, C0413, I1101
 """Module l'intégration en masse d'utilisateurs Staff (Admin délégués)
 
 Commentaire:
@@ -6,93 +5,108 @@ Commentaire:
 created at: 2021-10-30
 created by: Paulo ALVES
 
-modified at: 2021-10-30
+modified at: 2026-10-12
 modified by: Paulo ALVES
 """
 from pathlib import Path
 
 from django.contrib.auth.models import Group
+from django.db import IntegrityError
 
-from apps.users.models import AuthGroupAccessStaff
 from apps.core.functions.functions_setups import settings
-from apps.core.functions.function_imports import IterFileToInsert
+from apps.core.functions.function_imports import (
+    ExcelToCsvError,
+    IterFileToInsert,
+    IterFileToInsertError,
+)
 from apps.users.forms.forms_serializers.serializer_for_insert_users import UsersSerializer
-from apps.users.models import User, UploadUserFile
+from apps.users.models import AuthGroupAccessStaff, UploadUserFile, User
+
+# Colonnes attendues dans le fichier csv (clé = champ du modèle, valeur = entête du fichier)
+STAFFS_COLUMNS = {
+    "email": "email",
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "username": "username",
+    "function": "fonction",
+    "password": "password",
+}
+COLUMNS_ERROR = (
+    '<span style="margin-left: 2em;">Le fichier ne contient pas les colonnes nécessaires</span></br>'
+    '<span style="margin-left: 2em;">'
+    + ", ".join(f'"{column}"' for column in STAFFS_COLUMNS.values())
+    + "</span></br>"
+)
 
 
 class UserInsertError(Exception):
     """Gestion d'exceptions"""
 
 
-def insert_staffs(csv_file):
-    """Insertion
-        :param csv_file: fichier à intégrer
-        :return:
+def _serializer_errors(dict_user, serializer):
+    """Message html des erreurs de validation d'une ligne du fichier"""
+    erreur = f"erreur de création de l'utilisateur : {dict_user.get('email', 'inconnu')}</br>"
+
+    for key, error in serializer.errors.items():
+        erreur += f'<span style="margin-left: 2em;">{key} : {error[0]}</span></br>'
+
+    return erreur
+
+
+def _add_staff_groups(user):
+    """Rattachement du staff aux groupes autorisés pour les Admin délégués"""
+    group_staff = AuthGroupAccessStaff.objects.values_list("group_id", flat=True)
+
+    for group in Group.objects.filter(id__in=list(group_staff)):
+        group.user_set.add(user)
+
+
+def insert_staffs(csv_file: Path, code_child_center: str):
+    """Insertion des utilisateurs Staff depuis un fichier csv
+    :param csv_file: fichier à intégrer
+    :param code_child_center: centrale par défaut des utilisateurs créés (celle de l'importateur)
+    :return: (True, []) si tout est passé, sinon (None, liste des erreurs html)
     """
     errors = []
 
-    if csv_file.is_file():
-        columns_dict = {
-            "email": "email",
-            "first_name": "first_name",
-            "last_name": "last_name",
-            "username": "username",
-            "fonction": "fonction",
-            "password": "password",
-        }
+    if not csv_file.is_file():
+        return None, [f"le fichier {csv_file.name} est introuvable"]
 
-        with IterFileToInsert(csv_file, columns_dict, first_line=1) as file_iter:
-            for dict_user in file_iter.chunk_file():
-                user = UsersSerializer(
-                    data={**dict_user, **{"is_superuser": False, "is_staff": True}}
-                )
+    try:
+        with IterFileToInsert(csv_file, STAFFS_COLUMNS, first_line=1) as file_iter:
+            for dict_user in file_iter.chunk_dict():
+                data = {
+                    "code_child_center": code_child_center,
+                    **dict_user,
+                    "is_superuser": False,
+                    "is_staff": True,
+                }
+                serializer = UsersSerializer(data=data)
 
-                if user.is_valid():
-                    try:
-                        email = user.validated_data.get("email")
-                        first_name = user.validated_data.get("first_name")
-                        last_name = user.validated_data.get("last_name")
-                        username = user.validated_data.get("username")
-                        fonction = user.validated_data.get("fonction")
-                        password = user.validated_data.get("password")
+                if not serializer.is_valid():
+                    errors.append(_serializer_errors(dict_user, serializer))
+                    continue
 
-                        user = User.objects.create_user(
-                            username,
-                            email,
-                            password,
-                            first_name=first_name,
-                            last_name=last_name,
-                            fonction=fonction,
-                        )
-                        user.is_staff = True
-                        user.is_superuser = False
-                        user.save()
+                validated = serializer.validated_data
+                email = validated.get("email")
 
-                        group_staff = [
-                            row[0]
-                            for row in AuthGroupAccessStaff.objects.all().values_list(
-                                "group_id"
-                            )
-                        ]
-
-                        if group_staff:
-                            groupes = Group.objects.filter(id__in=group_staff)
-                            # Pour chancun des groupes on va créer l'entrée
-                            for group_name in groupes:
-                                group_name.user_set.add(user)
-
-                    except UserInsertError:
-                        errors.append(f"erreur de création de l'utilisateur : {email}")
-                else:
-                    erreur = (
-                        f"erreur de création de l'utilisateur : "
-                        f"{dict_user.get('email', 'inconnu')}</br>"
+                try:
+                    user = User.objects.create_user(
+                        validated.get("username"),
+                        email,
+                        validated.get("password"),
+                        is_staff=True,
+                        first_name=validated.get("first_name"),
+                        last_name=validated.get("last_name"),
+                        function=validated.get("function"),
+                        code_child_center=validated.get("code_child_center"),
                     )
+                    _add_staff_groups(user)
+                except (UserInsertError, IntegrityError, ValueError):
+                    errors.append(f"erreur de création de l'utilisateur : {email}")
 
-                    for key, error in user.errors.items():
-                        erreur += f'<span style="margin-left: 2em;">{key} : {error[0]}</span></br>'
-
-                    errors.append(erreur)
+    except (IterFileToInsertError, ExcelToCsvError):
+        errors.append(COLUMNS_ERROR)
 
     if not errors:
         return True, errors
@@ -100,38 +114,21 @@ def insert_staffs(csv_file):
     return None, errors
 
 
-def set_insert_staffs(user_id):
-    """Snippets pour insertion en base des utilisateurs Staff (Admin délégué)
-        :param user_id: pk de l'utilisateur en cours
-        :return: None
-    """
-    html_messages = ""
-    files = UploadUserFile.objects.filter(user_id=user_id)
-
-    for file in files:
-        csv_file = Path(settings.MEDIA_DIR) / str(file.file)
-
-        bol, retour = insert_staffs(csv_file)
-
-        if bol:
-            message = f"""
+def _file_message(file, bol, retour):
+    """Message html du résultat d'intégration d'un fichier"""
+    if bol:
+        return f"""
                 <li value="o" style="color: #00B050;font-weight: bold;">
                     L'intégration du fichier : {file.base_name_file}, a réussi !
                 </li>
                 </br>
                 """
-            html_messages += message
 
-        else:
-            errors = ""
-            for error in retour:
-                errors += f'<li value="-"style="color: red;font-weight: normal;">{error}</li>\n'
-            if len(retour) == 1:
-                text_erreur = "une erreur"
-            else:
-                text_erreur = "des erreurs"
-
-            message = f"""
+    errors = "".join(
+        f'<li value="-"style="color: red;font-weight: normal;">{error}</li>\n' for error in retour
+    )
+    text_erreur = "une erreur" if len(retour) == 1 else "des erreurs"
+    return f"""
                 <li value="o" style="color: red;font-weight: bold;">
                     L'intégration du fichier : {file.base_name_file} à généré {text_erreur} :
                     <ol>
@@ -140,16 +137,28 @@ def set_insert_staffs(user_id):
                 </li>
                 </br>
                 """
-            html_messages += message
 
-        try:
-            file.delete()
-            delete = Path(settings.MEDIA_DIR) / str(file.file)
 
-            if delete.is_file():
-                delete.unlink()
+def delete_upload_file(file):
+    """Suppression de l'enregistrement du fichier téléversé et du fichier physique"""
+    path = Path(settings.MEDIA_DIR) / str(file.file)
+    file.delete()
 
-        except UploadUserFile.DoesNotExist:
-            pass
+    if path.is_file():
+        path.unlink()
+
+
+def set_insert_staffs(user):
+    """Insertion en base des utilisateurs Staff (Admin délégué) depuis les fichiers téléversés
+    :param user: utilisateur en cours (importateur)
+    :return: (None, messages html)
+    """
+    html_messages = ""
+
+    for file in UploadUserFile.objects.filter(user=user, type_insert=1):
+        csv_file = Path(settings.MEDIA_DIR) / str(file.file)
+        bol, retour = insert_staffs(csv_file, user.code_child_center)
+        html_messages += _file_message(file, bol, retour)
+        delete_upload_file(file)
 
     return None, html_messages

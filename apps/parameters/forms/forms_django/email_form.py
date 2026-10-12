@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Parameters
 """
@@ -11,6 +10,8 @@ from apps.parameters.models import Email
 
 class EmailForm(forms.ModelForm):
     """Form pour les Emails"""
+
+    use_required_attribute = False
 
     email_body = forms.CharField(widget=CKEditorWidget())
 

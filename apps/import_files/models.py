@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des models pour l'import des fichiers
 EN : Models module for importing files
@@ -35,7 +34,7 @@ class ShaImportInvoicesFiles(DatesTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.file_name
+        return self.file_name or ""
 
     class Meta:
         """class Meta du modèle django"""
@@ -69,7 +68,7 @@ class ErrorsShaImportFIles(DatesTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.sha_file
+        return f"{self.sha_file or ''} - {self.file_line or ''} - {self.column or ''}"
 
     class Meta:
         """class Meta du modèle django"""

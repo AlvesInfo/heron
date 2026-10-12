@@ -1,7 +1,6 @@
 """
 Module qui gère les fichiers Excel
 """
-import re
 import os
 import sys
 import glob
@@ -13,11 +12,9 @@ import shutil
 from bs4 import BeautifulSoup
 import xlsxwriter
 import pandas as pd
-import openpyxl
 
-from apps.core.functions.functions_dates import date_string_series, time_string_series
 from apps.core.functions.functions_logs import LOG_FILE, write_log
-from apps.core.functions.functions_utilitaires import N_DIC, delete_file, encoding_detect
+from apps.core.functions.functions_utilitaires import delete_file, encoding_detect
 import gc
 
 
@@ -129,37 +126,6 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
     return success
 
 
-def excel_excel_to_csv_string_io(excel_string_io, csv_string_io, header=True, sheets=None):
-    """
-    Fonction qui transforme un fichier excel en csv
-        :param excel_string_io: string_io excel à passer en csv
-        :param csv_string_io: string_io en csv
-        :param header: entête
-        :param sheets: feuilles
-        :return: fichier excel en csv
-    """
-    success = True
-
-    try:
-        xls = pd.ExcelFile(excel_string_io)
-        data = pd.read_excel(xls)
-        data.to_csv(
-            csv_string_io,
-            sep=";",
-            header=header,
-            index=False,
-            lineterminator="\n",
-            quoting=csv.QUOTE_ALL,
-        )
-        csv_string_io.seek(0)
-    except ExcelToCsvError:
-        success = False
-        ligne = f"{datetime.now().isoformat()} | Erreur excel_excel_to_csv : {sys.exc_info()[1]}\n"
-        write_log(LOG_FILE, ligne)
-
-    return success
-
-
 def excel_xhtml_to_csv(fichier_excel, fichier_csv, header=True):
     """
     Fonction qui transforme un fichier Xhtml excel en csv
@@ -201,11 +167,12 @@ def excel_xhtml_to_csv(fichier_excel, fichier_csv, header=True):
 
                     ligne = ligne[:-1]
 
+                    # writerow attend une liste : une chaîne serait écrite caractère par caractère
                     if i == 0 and header is not None:
-                        csv_write.writerow(ligne)
+                        csv_write.writerow(ligne.split(";"))
 
                     if i > 0:
-                        csv_write.writerow(ligne)
+                        csv_write.writerow(ligne.split(";"))
 
         success.append(str(fichier_csv))
 
@@ -518,9 +485,12 @@ class GenericExcel:
         f_o = styles
         nb_col = len(valeurs)
 
-        if isinstance(styles, (dict,)) or nb_col != len(styles):
-            f_o = []
-            f_o.extend([styles] * nb_col)
+        # sans style (None) ou avec un style unique, le même style est répété pour chaque cellule
+        if styles is None or isinstance(styles, (dict,)):
+            f_o = [styles] * nb_col
+        # liste de styles de mauvaise longueur : le premier style est répété
+        elif nb_col != len(styles):
+            f_o = [styles[0] if styles else None] * nb_col
 
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -623,56 +593,3 @@ class GenericExcel:
         """
         self.workbook.close()
         gc.collect()
-
-
-def nom_feuilles_excel(nom, majuscule=True):
-    """
-    Fonction qui renvoie le nom des feuilles ecel cleaner
-        :param nom: nom initial
-        :param majuscule: Si l'on souhaite mettre le nom en majuscule
-        :return: nom de la feuille cleaner
-    """
-    new_name = nom
-
-    # compilation regex
-    re_alpha = re.compile(r"[0-9a-zA-Z\- ]")
-
-    # Remplacement des caractères accentués contenus dans n_dic
-    for key, val in N_DIC.items():
-        for s_lettre in new_name:
-            if s_lettre in val:
-                new_name = new_name.replace(s_lettre, key)
-
-    # Mise en majuscule si demandé
-    new_name = new_name.upper() if majuscule else new_name.lower()
-    # Remplacement des caractères spéciaux
-    new_name = "".join(re.findall(re_alpha, new_name))[:31]
-
-    return new_name
-
-
-if __name__ == "__main__":
-    # EXCEL_DIR = "D://SitesWeb//sav//files"
-    # EXCEL_FILE = (
-    #     f"{EXCEL_DIR}//{'Test_Class_excel'}_{date_string_series()}" f"_{time_string_series()}.xlsx"
-    # )
-    # EXCEL_SHEETS = ["f_01", "f_02", "f_03", "f_04"]
-    # E_X = [EXCEL_FILE, EXCEL_SHEETS]
-    #
-    # EXCEL = GenericExcel(E_X)
-    # EXCEL.write_row(1, 0, 0, "f_01", None)
-    # EXCEL.write_rows(1, 8, 0, [1, 2, 3])
-    # EXCEL.write_row(2, 0, 0, "f_02", None)
-    # EXCEL.write_row(3, 0, 0, "f_03", None)
-    # EXCEL.write_row(4, 0, 0, "f_04", None)
-    # EXCEL.write_headers_h(1, 2, 0, ["e1", "e01", "e02", "e03"])
-    # EXCEL.write_headers_v(1, 4, 0, ["e1", "e01", "e02", "e03"])
-    # EXCEL.excel_close()
-    file = "/Users/paulo/Downloads/LISTING_DES_ARTICLES_SANS_COMPTES_2025_2_12.xlsx"
-    # try:
-    #     xls = pd.ExcelFile(file)
-    # except ValueError:
-    #     xls = pd.ExcelFile(file, engine="calamine")
-    #
-    # e = pd.read_excel(xls)
-    # import pdb;pdb.set_trace()

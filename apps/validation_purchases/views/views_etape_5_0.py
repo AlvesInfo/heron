@@ -2,9 +2,11 @@ import pendulum
 from django.db import connection
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.bin.change_traces import trace_change
@@ -75,7 +77,7 @@ def refac_cct_purchases_export(request):
                 {"initial_date": billing_period}
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : refac_cct_purchases_export")
 
     return redirect(reverse("validation_purchases:refac_cct_purchases"))
@@ -84,7 +86,7 @@ def refac_cct_purchases_export(request):
 def refac_cct_validation(request):
     """Validation de l'écran de Contrôle Refac M M-1 par CCT"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -110,17 +112,17 @@ def refac_cct_validation(request):
 
             if refac_cct_after:
                 request.session["level"] = 20
-                message = "Le contrôle des abonnements est maintenant validé"
+                message = "Le contrôle Refac M M-1 par CCT est maintenant validé"
                 data["success"] = "ok"
             else:
                 request.session["level"] = 50
-                message = "Le contrôle des abonnements est maintenant invalidé"
+                message = "Le contrôle Refac M M-1 par CCT est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(f"Views : refac_cct_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : refac_cct_validation error, form invalid : {form.errors!r}"
         )
 

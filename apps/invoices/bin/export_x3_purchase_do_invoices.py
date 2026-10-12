@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0914
 """
 FR : Module d'export X3 des factures d'achat
 EN : X3 export module for purchase invoices
@@ -85,8 +84,7 @@ def write_bispar_do(fcy, file_name=None, nb_fac=5000):
                 # On écrit le E de la dernière ligne
                 get_e(file, invoice_e)
 
-                if not file.closed:
-                    file.close()
+                file.close()
 
                 file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
                 i = 1
@@ -114,8 +112,7 @@ def write_bispar_do(fcy, file_name=None, nb_fac=5000):
     # On écrit le E de la dernière ligne
     get_e(file, invoice_e)
 
-    if not file.closed:
-        file.close()
+    file.close()
 
 
 if __name__ == "__main__":

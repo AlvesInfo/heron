@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Settings pour la création à la vollée des répertoires des factures founisseurs
 EN : Settings for on-the-fly creation of supplier invoice directories
@@ -11,7 +10,6 @@ created by: Paulo ALVES
 modified at: 2022-04-09
 modified by: Paulo ALVES
 """
-from pathlib import Path
 from heron.utils.directories import lazy_mkdir
 
 # ==================================================================================================

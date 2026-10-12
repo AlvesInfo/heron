@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : View Entêtes détails de facturation
 EN : View Billing Details Headers
@@ -13,10 +12,12 @@ modified by: Paulo ALVES
 """
 import pendulum
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -51,7 +52,6 @@ class EntetesDetailsCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = EnteteDetails
     form_class = EnteteDetailsForm
-    form_class.use_required_attribute = False
     template_name = "invoices/entetes_details_update.html"
     success_message = "Le Dictionnaire Entêtes Détails de facturation a été créé avec success"
     error_message = (
@@ -83,7 +83,6 @@ class EntetesDetailsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = EnteteDetails
     form_class = EnteteDetailsForm
-    form_class.use_required_attribute = False
     template_name = "invoices/entetes_details_update.html"
     success_message = (
         "Le dictionnaire Entêtes Détails de facturation a été modifié avec success"
@@ -115,7 +114,7 @@ class EntetesDetailsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def entetes_details_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -132,7 +131,7 @@ def entetes_details_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"entetes_details_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"entetes_details_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -152,7 +151,7 @@ def entetes_details_export_list(_):
 
         return response_file(excel_liste_entetes_details, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : entetes_details_export_list")
 
     return redirect(reverse("invoices:entete_details_list"))
@@ -175,7 +174,6 @@ class AxesDetailsCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = AxesDetails
     form_class = AxesDetailsForm
-    form_class.use_required_attribute = False
     template_name = "invoices/axes_details_update.html"
     success_message = "Le Dictionnaire Axe Pro/Détails de facturation a été créé avec success"
     error_message = (
@@ -207,7 +205,6 @@ class AxesDetailsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = AxesDetails
     form_class = AxesDetailsForm
-    form_class.use_required_attribute = False
     template_name = "invoices/axes_details_update.html"
     success_message = (
         "Le dictionnaire Axe Pro/Détails de facturation a été modifié avec success"
@@ -239,7 +236,7 @@ class AxesDetailsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def axes_details_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -256,7 +253,7 @@ def axes_details_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"axes_details_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"axes_details_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -276,7 +273,7 @@ def axes_details_export_list(_):
 
         return response_file(excel_liste_axes_details, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : axes_details_export_list")
 
     return redirect(reverse("invoices:axes_details_list"))

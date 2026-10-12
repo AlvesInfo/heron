@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W1203,W0718,R0914
 """
 FR : Module des vues pour les saisies et visualisation des marchandises
 EN : Views module for entering and viewing goods
@@ -14,15 +13,18 @@ modified by: Paulo ALVES
 import json
 
 from django.contrib import messages
-from django.shortcuts import render, reverse, redirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.db import transaction
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.accountancy.bin.utilities import get_youngests_vat_rate
 from apps.edi.bin.duplicates_check import check_invoice_exists
 from apps.edi.bin.edi_utilites import (
+    form_errors_message,
     set_trace_hand_invoice,
     data_dict_invoices_clean,
     get_query_articles,
@@ -75,6 +77,103 @@ CATEGORIES_DICT = {
 }
 
 
+def _add_message(request, level: int, message: str) -> None:
+    """Pose le niveau du message en session et ajoute le message à afficher"""
+    request.session["level"] = level
+    messages.add_message(request, level, message)
+
+
+def _save_hand_invoice(category, details_form, entete, lignes, user):
+    """Crée la facture saisie si elle n'existe pas déjà
+    :param category: Catégorie de facturation
+    :param details_form: formulaire des lignes de la catégorie
+    :param entete: données validées de l'entête
+    :param lignes: lignes saisies
+    :param user: utilisateur qui saisit
+    :return: (erreur, message)
+    """
+    third_party_num = entete.get("third_party_num")
+    invoice_number = entete.get("invoice_number", "")
+    invoice_date = entete.get("invoice_date")
+
+    # On vérifie que cette facture n'existe pas
+    if not check_invoice_exists(third_party_num, invoice_number, invoice_date.year):
+        # Si l'entête est bon, on va essayer de créer la facture complète
+        return set_hand_invoice(category, details_form, entete, lignes, user)
+
+    # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+    set_trace_hand_invoice(
+        invoice_category=category,
+        invoice_number=invoice_number,
+        user=user,
+        errors=True,
+    )
+
+    return True, f"La facture N°{invoice_number}, de {third_party_num} existe déjà!"
+
+
+def _post_hand_invoices(request, category, invoice_form, details_form):
+    """Traite la saisie postée en ajax : validation de l'entête puis création de la facture
+    :param request: Request au sens Django
+    :param category: Catégorie de facturation
+    :param invoice_form: formulaire d'entête de la catégorie
+    :param details_form: formulaire des lignes de la catégorie
+    :return: JsonResponse, le résultat est porté par les messages
+    """
+    level = 50
+    data = {"success": "ko"}
+    user = request.user
+    data_dict = json.loads(request.POST.get("data"))
+    data_dict_invoices_clean(category, data_dict)
+
+    # On vérifie s'il y a des lignes dans le POST, s'il n'y en a pas on renvoie un message
+    # d'erreur pour ne pas insérer des factures vides, et on shortcut
+    if not data_dict.get("lignes"):
+        _add_message(request, level, "Aucunes des lignes saisies n'avaient d'articles")
+
+        return JsonResponse(data)
+
+    try:
+        form = invoice_form(data_dict.get("entete"))
+
+        # On valide l'entête
+        if form.is_valid():
+            error, message = _save_hand_invoice(
+                category, details_form, form.cleaned_data, data_dict.get("lignes"), user
+            )
+
+            if not error:
+                level = 20
+
+        else:
+            # Si le formulaire d'entête est invalide, on génère le message à afficher
+            message = form_errors_message(form)
+
+            # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+            set_trace_hand_invoice(
+                invoice_category=category,
+                invoice_number=data_dict.get("entete").get("invoice_number", ""),
+                user=user,
+                errors=True,
+            )
+
+        _add_message(request, level, message)
+
+    except Exception as error:
+        _add_message(request, level, "Une erreur c'est produite, veuillez consulter les logs")
+        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
+
+        # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
+        set_trace_hand_invoice(
+            invoice_category=category,
+            invoice_number=data_dict.get("entete").get("invoice_number", ""),
+            user=user,
+            errors=True,
+        )
+
+    return JsonResponse(data)
+
+
 @csrf_protect
 @transaction.atomic
 def create_hand_invoices(request, category):
@@ -104,18 +203,15 @@ def create_hand_invoices(request, category):
     if category not in CATEGORIES_DICT:
         return redirect("home")
 
-    level = 50
     titre_table, invoice_form, details_form, query_articles, nb_display = CATEGORIES_DICT.get(
         category
     ).values()
-    data = {"success": "ko"}
 
     # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()
 
     if not_finalize:
-        request.session["level"] = 50
-        messages.add_message(
+        _add_message(
             request,
             50,
             (
@@ -133,98 +229,8 @@ def create_hand_invoices(request, category):
         }
         return render(request, "edi/invoice_hand_update.html", context=context)
 
-    if request.is_ajax() and request.method == "POST":
-        user = request.user
-        data_dict = json.loads(request.POST.get("data"))
-        data_dict_invoices_clean(category, data_dict)
-
-        # On vérifie s'il y a des lignes dans le POST, s'il n'y en a pas on renvoie un message
-        # d'erreur pour ne pas insérer des factures vides, et on shortcut
-        if not data_dict.get("lignes"):
-            request.session["level"] = level
-            messages.add_message(request, level, "Aucunes des lignes saisies n'avaient d'articles")
-
-            return JsonResponse(data)
-
-        try:
-            form = invoice_form(data_dict.get("entete"))
-            message = ""
-
-            # On valide l'entête
-            if form.is_valid():
-                entete = form.cleaned_data
-                third_party_num = entete.get("third_party_num")
-                invoice_number = entete.get("invoice_number", "")
-                invoice_date = entete.get("invoice_date")
-
-                # On vérifie que cette facture n'existe pas
-                if check_invoice_exists(
-                    third_party_num,
-                    invoice_number,
-                    invoice_date.year,
-                ):
-                    error = True
-                    message = f"La facture N°{invoice_number}, de {third_party_num} existe déjà!"
-
-                    # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
-                    set_trace_hand_invoice(
-                        invoice_category=category,
-                        invoice_number=invoice_number,
-                        user=user,
-                        errors=True,
-                    )
-
-                else:
-                    # Si l'entête est bon, on va essayer de créer la facture complète
-                    error, message = set_hand_invoice(
-                        category, details_form, entete, data_dict.get("lignes"), user
-                    )
-
-                if not error:
-                    level = 20
-
-                request.session["level"] = level
-                messages.add_message(request, level, message)
-
-                return JsonResponse(data)
-
-            # Si le formulaire d'entête est invalide, on génère le message à afficher
-            for key, error_list in dict(form.errors).items():
-                message += (
-                    f" - {key} : {', '.join(list(error_list))}"
-                    if message
-                    else f"{key} : {', '.join(list(error_list))}"
-                )
-
-            # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
-            set_trace_hand_invoice(
-                invoice_category=category,
-                invoice_number=data_dict.get("entete").get("invoice_number", ""),
-                user=user,
-                errors=True,
-            )
-
-            request.session["level"] = level
-            messages.add_message(request, level, message)
-
-            return JsonResponse(data)
-
-        except Exception as error:
-            request.session["level"] = level
-            messages.add_message(
-                request, level, "Une erreur c'est produite, veuillez consulter les logs"
-            )
-            LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
-
-            # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
-            set_trace_hand_invoice(
-                invoice_category=category,
-                invoice_number=data_dict.get("entete").get("invoice_number", ""),
-                user=user,
-                errors=True,
-            )
-
-            return JsonResponse(data)
+    if is_ajax(request) and request.method == "POST":
+        return _post_hand_invoices(request, category, invoice_form, details_form)
 
     context = {
         "titre_table": titre_table,

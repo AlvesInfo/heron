@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Filtres pour des recherches dans les views
 """

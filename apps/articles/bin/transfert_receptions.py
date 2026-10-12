@@ -5,6 +5,7 @@ from apps.core.functions.functions_setups import *
 from apps.articles.models import Article, ArticleAccount
 from apps.centers_purchasing.models import ChildCenterPurchase
 from apps.accountancy.models import VatSage
+from heron.loggers import LOGGER_IMPORT
 
 
 def transfert_receptions_articles():
@@ -40,11 +41,11 @@ def transfert_receptions_articles():
         a_dict["third_party_num_id"] = "BBGR006"
         try:
             obj, created = Article.objects.get_or_create(**a_dict)
-            print(obj, created)
+            LOGGER_IMPORT.info("%s %s", obj, created)
         except Article.DoesNotExist as e:
-            print(str(e)[:100])
+            LOGGER_IMPORT.exception(str(e)[:100])
         except django.db.utils.IntegrityError as e:
-            print(str(e)[:100])
+            LOGGER_IMPORT.exception(str(e)[:100])
 
 
 def transfert_receptions_accounts():
@@ -89,11 +90,11 @@ def transfert_receptions_accounts():
                     vat=VatSage.objects.get(vat=vat),
                     **account,
                 )
-                print(obj, created)
+                LOGGER_IMPORT.info("%s %s", obj, created)
             except (Article.DoesNotExist, ArticleAccount.DoesNotExist) as e:
-                print(str(e)[:100])
+                LOGGER_IMPORT.exception(str(e)[:100])
             except django.db.utils.IntegrityError as e:
-                print(str(e)[:100])
+                LOGGER_IMPORT.exception(str(e)[:100])
 
 
 if __name__ == "__main__":

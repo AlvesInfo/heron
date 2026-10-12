@@ -103,11 +103,22 @@ class FrenchNullBooleanField(forms.BooleanField):
         return super().clean(value)
 
 
-class SageNullBooleanField(forms.BooleanField):
+class SageNullBooleanField(forms.NullBooleanField):
     """
-    FR: forms.field valide les booléens pour Sage
-    EN: forms.field wich velidate for Sage boolean
+    FR: forms.field valide les booléens pour Sage (2 = vrai, 1 = faux, sinon null)
+        Le widget TextInput transmet la valeur brute du fichier Sage à clean() ; avec le
+        CheckboxInput de BooleanField, "2" était converti en bool avant clean() et le champ
+        ne pouvait jamais être valide.
+    EN: forms.field wich velidate for Sage boolean (2 = true, 1 = false, else null)
     """
+
+    widget = forms.TextInput
+
+    def __init__(self, *args, **kwargs):
+        # Champ nullable : non requis par défaut, sinon le ModelForm valide le None contre
+        # blank=False du champ de modèle ("Ce champ ne peut pas être vide")
+        kwargs.setdefault("required", False)
+        super().__init__(*args, **kwargs)
 
     def clean(self, value):
         """
@@ -118,10 +129,12 @@ class SageNullBooleanField(forms.BooleanField):
             :param value: value to validate
             :return: Clean method
         """
-        if str(value).lower() in {2, "2"}:
-            value = "true"
-        elif str(value).lower() in {1, "1"}:
-            value = "false"
+        str_value = str(value).strip().lower()
+
+        if str_value in {"2", "2.0"}:
+            value = True
+        elif str_value in {"1", "1.0"}:
+            value = False
         else:
             value = None
 
@@ -143,16 +156,13 @@ class NullZeroDecimalField(forms.DecimalField):
             :param value: value to validate
             :return: Clean method
         """
-        new_value = 0 if not value else value
+        # Valeur absente, None ou vide -> "0" ; les nombres déjà typés sont normalisés en texte
+        new_value = "0" if value in (None, "") else str(value)
 
         if "." in new_value and "," in new_value:
-            for letter in new_value:
-                if letter == ",":
-                    new_value = new_value.replace(",", "")
-                    break
-                if letter == ".":
-                    new_value = new_value.replace(".", "")
-                    break
+            # le premier séparateur rencontré est celui des milliers : il est retiré
+            thousands = "," if new_value.index(",") < new_value.index(".") else "."
+            new_value = new_value.replace(thousands, "")
 
         new_value = new_value.replace(",", ".")
 

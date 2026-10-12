@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module du modèle de répertoire, des fournisseurs et clients. Les modèles peuvent être liés
      aux modèles Sage de l'application Accountancy, et mis à jours depuis Sage X3
@@ -16,7 +15,7 @@ modified by: Paulo ALVES
 import uuid
 
 from django.db import models
-from django.shortcuts import reverse
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
@@ -494,7 +493,7 @@ class Contact(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.first_name}{' - ' if self.first_name else ''}{self.last_name}"
+        return " - ".join(part for part in (self.first_name, self.last_name) if part)
 
     class Meta:
         """class Meta du modèle django"""
@@ -538,13 +537,6 @@ class SocietyBank(FlagsTable):
     )  # CRY
     currency = models.CharField(null=True, blank=True, max_length=3)  # CUR
     is_default = models.BooleanField(null=True, default=False)  # BIDNUMFLG
-
-    # bank_name = models.CharField(max_length=35)
-    # bank_code = models.CharField(unique=True, max_length=5)
-    # counter_code = models.CharField(null=True, blank=True, max_length=5)
-    # account_key = models.CharField(null=True, blank=True, max_length=2)
-    # iban = models.CharField(null=True, blank=True, max_length=50)
-    # code_swift = models.CharField(null=True, blank=True, max_length=27)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -883,21 +875,22 @@ class BookContactsSage:
         """
         return {
             "society": 0,
-            "civility": 1,
-            "first_name": 2,
-            "last_name": 3,
-            "language": 4,
-            "category": 5,
-            "line_01": 6,
-            "line_02": 7,
-            "line_03": 8,
-            "state": 9,
-            "postal_code": 10,
-            "city": 11,
-            "country": 12,
-            "phone_number": 13,
-            "mobile_number": 14,
-            "email": 15,
+            "code": 1,
+            "civility": 2,
+            "first_name": 3,
+            "last_name": 4,
+            "language": 5,
+            "category": 6,
+            "line_01": 7,
+            "line_02": 8,
+            "line_03": 9,
+            "state": 10,
+            "postal_code": 11,
+            "city": 12,
+            "country": 13,
+            "phone_number": 14,
+            "mobile_number": 15,
+            "email": 16,
         }
 
     @staticmethod
@@ -906,7 +899,7 @@ class BookContactsSage:
         FR : Retourne les champs uniques de la table
         EN: Returns the unique fields of the table
         """
-        return {}
+        return {"society", "code"}
 
     @property
     def get_import(self):

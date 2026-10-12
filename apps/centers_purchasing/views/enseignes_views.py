@@ -1,16 +1,16 @@
-# pylint: disable=E0401,R0903
 """
 Views des Enseignes
 """
 from pathlib import Path
 
 import pendulum
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
 from heron.loggers import LOGGER_VIEWS
-from heron.settings import MEDIA_DIR
+from django.conf import settings
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.bin.copy_logos import copy_static
@@ -37,7 +37,6 @@ class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Signboard
     form_class = SignboardForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/enseigne_update.html"
     success_message = "L'Enseigne %(code)s a été créé avec success"
     error_message = "L'Enseigne %(code)s n'a pu être créé, une erreur c'est produite"
@@ -69,7 +68,6 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = Signboard
     context_object_name = "enseigne"
     form_class = SignboardForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/enseigne_update.html"
     success_message = "L'Enseigne %(code)s a été modifiée avec success"
     error_message = "L'Enseigne %(code)s n'a pu être modifiée, une erreur c'est produite"
@@ -98,7 +96,7 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         # On supprime les fichiers qui sont devenus orphelins
         logo_files_path = {
             Signboard._meta.get_field("logo").upload_to + file.name
-            for file in (Path(MEDIA_DIR) / Signboard._meta.get_field("logo").upload_to).glob("*")
+            for file in (Path(settings.MEDIA_DIR) / Signboard._meta.get_field("logo").upload_to).glob("*")
         }
         logo_files_model = {
             row.get("logo") for row in Signboard.objects.all().values("logo") if row.get("logo")
@@ -107,7 +105,7 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         copy_static(logo_files_model)
 
         for file_path in logo_files_path.difference(logo_files_model):
-            file_to_delete = Path(MEDIA_DIR) / file_path
+            file_to_delete = Path(settings.MEDIA_DIR) / file_path
             file_to_delete.unlink()
 
         return super().form_valid(form)
@@ -129,7 +127,7 @@ def enseignes_export_list(request):
 
             return response_file(excel_enseignes_list, file_name, CONTENT_TYPE_EXCEL, Signboard)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : enseignes_export_list")
 
     return redirect(reverse("centers_purchasing:enseignes_list"))

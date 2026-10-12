@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0914,R0912,R0915
 """
 FR : Construction du JSON de facture (schéma facturx_fr.models.Invoice) à partir
      d'une facture de vente heron (SaleInvoice + SaleInvoiceDetail)
@@ -25,6 +24,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pendulum
 from bs4 import BeautifulSoup
+from django.db.models import Q
 
 from apps.accountancy.models import ModeReglement, VatSage
 from apps.book.models import Society
@@ -257,17 +257,23 @@ def _vat_category(
     return ZERO_RATE_VAT_CATEGORIES.get(regime, DEFAULT_ZERO_RATE_VAT_CATEGORY)
 
 
-def _payment_means_code(mode_reglement_uuid: Any) -> str:
-    """Code moyen de paiement UNTDID 4461 depuis le mode de règlement X3"""
-    if not mode_reglement_uuid:
+def _payment_means_code(mode_reglement: Any) -> str:
+    """
+    Code moyen de paiement UNTDID 4461 depuis le mode de règlement de la facture
+    (SaleInvoice.mode_reglement : code ou intitulé X3, ex. "VIR", "Prélèvement"), complété par
+    le mode de règlement X3 correspondant s'il existe
+    """
+    haystack = _clean(mode_reglement).upper()
+
+    if not haystack:
         return DEFAULT_PAYMENT_MEANS_CODE
 
-    mode = ModeReglement.objects.filter(uuid_identification=mode_reglement_uuid).first()
+    mode = ModeReglement.objects.filter(
+        Q(code__iexact=haystack) | Q(name__iexact=haystack) | Q(short_name__iexact=haystack)
+    ).first()
 
-    if mode is None:
-        return DEFAULT_PAYMENT_MEANS_CODE
-
-    haystack = f"{_clean(mode.code)} {_clean(mode.name)} {_clean(mode.short_name)}".upper()
+    if mode is not None:
+        haystack = f"{haystack} {_clean(mode.code)} {_clean(mode.name)} {_clean(mode.short_name)}".upper()
 
     for keyword, code in PAYMENT_MEANS_KEYWORDS:
         if keyword in haystack:

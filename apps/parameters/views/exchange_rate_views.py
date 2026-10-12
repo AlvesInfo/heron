@@ -1,13 +1,12 @@
-# pylint: disable=E0401,W0718,W1203,W0612,W0613
 """
 Views des Paramètres des Taux de change
 """
 
 import pendulum
-from django.shortcuts import redirect, reverse, render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
-from django.db.utils import IntegrityError as DjangoIntegrityError
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
@@ -45,7 +44,7 @@ def period_select_exchange(request):
             )
 
     except Exception as error:
-        print(error)
+        LOGGER_VIEWS.exception(error)
         LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
 
     return render(request, "parameters/exchange_month.html", context=context)
@@ -67,28 +66,18 @@ class ExchangesList(ListView):
         self.extra_context["titre_table"] = f"TAUX DE CHANGE MOYEN DU MOIS : {mois}"
 
         # Si dans le mois demandé le taux de change EUR/EUR n'existe pas, on le crée
-        try:
-            ExchangeRate.objects.create(rate_month=month, rate=1, created_by=request.user)
-        except DjangoIntegrityError:
-            pass
+        ExchangeRate.objects.get_or_create(
+            rate_month=month,
+            curency_base="EUR",
+            currency_change_id="EUR",
+            defaults={"rate": 1, "created_by": request.user},
+        )
 
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        """
-        Return the list of items for this view.
-        The return value must be an iterable and may be an instance of
-        `QuerySet` in which case `QuerySet` specific behavior will be enabled.
-        """
-        queryset = ExchangeRate.objects.filter(rate_month=self.kwargs.get("month"))
-        ordering = self.get_ordering()
-
-        if ordering:
-            if isinstance(ordering, str):
-                ordering = (ordering,)
-            queryset = queryset.order_by(*ordering)
-
-        return queryset
+        """Taux de change du mois demandé (tri éventuel délégué à ListView)"""
+        return super().get_queryset().filter(rate_month=self.kwargs.get("month"))
 
 
 class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
@@ -96,7 +85,6 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = ExchangeRate
     form_class = ExchangeRateForm
-    form_class.use_required_attribute = False
     template_name = "parameters/exchange_update.html"
     success_message = "Le Taux de change %(currency_change)s a été créé avec succès"
     error_message = (
@@ -127,23 +115,23 @@ class ExchangeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         """Ajout de l'user à la sauvegarde du formulaire"""
-        currency_change = self.request.POST.get("currency_change")
-        try:
-            session = ExchangeRate.objects.get(
-                rate_month=self.kwargs.get("month"),
-                curency_base="EUR",
-                currency_change=currency_change,
-            )
-            form = ExchangeRateForm(self.request.POST, instance=session)
-            self.success_message = "Le Taux de change %(currency_change)s a été modifié avec succès"
-        except ExchangeRate.DoesNotExist:
-            form = ExchangeRateForm(self.request.POST)
+        existing = ExchangeRate.objects.filter(
+            rate_month=self.kwargs.get("month"),
+            curency_base="EUR",
+            currency_change=form.cleaned_data.get("currency_change"),
+        ).first()
 
+        if existing:
+            # Même devise déjà saisie pour ce mois : on modifie le taux existant
+            form = ExchangeRateForm(self.request.POST, instance=existing)
+            form.is_valid()
+            self.success_message = "Le Taux de change %(currency_change)s a été modifié avec succès"
+
+        # Les attributs sont fixés après validation (construct_instance les écraserait sinon)
         form.instance.created_by = self.request.user
         form.instance.curency_base = "EUR"
-        form.save()
-        form.instance.rate = form.instance.rate or 1
         form.instance.rate_month = self.kwargs.get("month")
+        form.instance.rate = form.instance.rate or 1
         self.request.session["level"] = 20
         return super().form_valid(form)
 
@@ -159,7 +147,6 @@ class ExchangeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = ExchangeRate
     form_class = ExchangeRateForm
-    form_class.use_required_attribute = False
     template_name = "parameters/exchange_update.html"
     success_message = (
         "Le Taux de change %(currency_change)s a été modifiée avec success"

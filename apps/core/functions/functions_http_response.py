@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module générique de donwload de fichiers
 EN : Generic file download module
@@ -14,9 +13,9 @@ modified by: Paulo ALVES
 import io
 from pathlib import Path
 
-from django.shortcuts import HttpResponse
+from django.http import HttpResponse
 
-from heron.settings import DEBUG
+from django.conf import settings
 
 CONTENT_TYPE_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 CONTENT_TYPE_CSV = "text/csv"
@@ -73,7 +72,7 @@ def x_accel_exists_file_response(
     """
     response = HttpResponse()
 
-    if DEBUG:
+    if settings.DEBUG:
         with open(file_path, "rb") as file:
             application = mime_type
             response = HttpResponse(file, content_type=application)

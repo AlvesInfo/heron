@@ -1,4 +1,3 @@
-# pylint: disable=E0213,E0401,C0116,R0201,R0903
 """
 FR : Module de class de validation
 EN : Sage X3 import validation forms module
@@ -169,62 +168,6 @@ class SageTruncateStrFieldsBase(BaseModel):
 # GESTION DE BOOLEEN ===============================================================================
 
 
-class FrenchBooleanFieldsBase(BaseModel):
-    """Validation qui pré valide les booléens Français"""
-
-    @validator("*", pre=True, always=True)
-    def french_boolean(cls, value, field):
-
-        if str(field.type_) == "<class 'bool'>":
-            str_value = str(value).lower()
-
-            if str_value in {"1.0", "1", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
-                return True
-
-            if str_value in {"0.0", "0", "off", "f", "false", "n", "no", "", "non", "faux"}:
-                return False
-
-        return value
-
-
-class FrenchNullBooleanFieldsBase(BaseModel):
-    """Validation qui pré valide les booléens Français et qui peuvent être null=True Dajngo"""
-
-    @validator("*", pre=True, always=True)
-    def french_null_boolean(cls, value, field):
-
-        if str(field.type_) == "<class 'bool'>":
-            str_value = str(value).lower()
-
-            if str_value in {"1.0", "1", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
-                return True
-
-            if str_value in {"0.0", "0", "off", "f", "false", "n", "no", "non", "faux"}:
-                return False
-
-            return None
-
-        return value
-
-
-class SageBooleanFieldsBase(BaseModel):
-    """Validation qui pré valide les booléens Sage"""
-
-    @validator("*", pre=True, always=True)
-    def sage_boolean(cls, value, field):
-
-        if str(field.type_) == "<class 'bool'>":
-            str_value = str(value).lower()
-
-            if str_value in {"2.0", "2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
-                return True
-
-            if str_value in {"1.0", "1", "off", "f", "false", "n", "no", "", "non", "faux"}:
-                return False
-
-        return value
-
-
 class SageNullBooleanFieldsBase(BaseModel):
     """Validation qui pré valide les booléens Sage et qui peuvent être null=True Dajngo"""
 
@@ -291,48 +234,6 @@ class NullZeroDecimalFieldBase(BaseModel):
 # GESTION DE DATE ==================================================================================
 
 
-class ParserDateBase(BaseModel):
-    """Validation qui pré valide les DateField Django"""
-
-    @validator("*", pre=True, always=True)
-    def parser_date(cls, value, field):
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)) and value:
-            value = str(value).strip()
-
-            try:
-                value = datetime.datetime.strptime(value, "%Y-%m-%d")
-                return value
-            except ValueError:
-                pass
-
-            try:
-                value = datetime.datetime.strptime(value, "%d/%m/%Y")
-                return value
-            except ValueError:
-                pass
-
-            try:
-                value = datetime.datetime.strptime(value, "%d.%m.%Y")
-                return value
-            except ValueError:
-                pass
-
-            try:
-                value = datetime.datetime.strptime(value, "%d-%m-%Y")
-                return value
-            except ValueError:
-                pass
-
-            try:
-                value = datetime.datetime.strptime(value, "%Y%m%d")
-                return value
-            except ValueError:
-                pass
-
-        return value
-
-
 class SageDateFieldsBase(BaseModel):
     """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyy"""
 
@@ -384,137 +285,6 @@ class SageDefaultDateFieldsBase(BaseModel):
         return value
 
 
-class GenericDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def generic_date(cls, value, field):
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-            value = str(value).strip()
-
-            if not value:
-                return None
-
-            value = datetime.datetime.strptime(value, "%Y%m%d")
-
-        return value
-
-
-class DdMmYyyyyDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def yyyy_date(cls, value, field):
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-
-            if value:
-                value = datetime.datetime.strptime(value, "%d/%m/%Y")
-            else:
-                value = None
-
-        return value
-
-
-class DdMmYyyyyTiretDefaultDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def yyyy_tiret_date(cls, value, field):
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-
-            if not value or value == "None":
-                return datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
-
-            value = datetime.datetime.strptime(value.strip(), "%d-%m-%Y")
-
-        return value
-
-
-class IsoDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def iso_date(cls, value, field):
-
-        value = str(value).strip()
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-
-            if not value or value == "None":
-                return None
-
-            value = datetime.datetime.strptime(value, "%Y-%m-%d")
-
-        return value
-
-
-class IsoDateDeliveryFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator('delivery_date', check_fields=False)
-    def check_delivery_date(cls, value):
-
-        if not value or value == "None":
-            return datetime.datetime(1900, 1, 1)
-
-        return value
-
-
-class IsoDefaultDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def iso_date(cls, value, field):
-
-        value = str(value).strip()
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-
-            if not value or value == "None":
-                return datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
-
-            value = datetime.datetime.strptime(value, "%Y-%m-%d")
-
-        return value
-
-
-class IsoInverseDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def iso_inv_date(cls, value, field):
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-            value = str(value).strip()
-
-            if not value:
-                return None
-
-            value = datetime.datetime.strptime(value, "%d-%m-%Y")
-
-        return value
-
-
-class PointDateFieldsBase(BaseModel):
-    """Validation qui pré valide les DateField Django, et qui arrive au format import Générique"""
-
-    @validator("*", pre=True, always=True)
-    def point_date(cls, value, field):
-
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
-            value = str(value).strip()
-
-            if not value:
-                return None
-
-            value = datetime.datetime.strptime(value, "%d.%m.%Y")
-
-        return value
-
-
 # GESTION DE TVA ===================================================================================
 
 
@@ -562,15 +332,14 @@ class TvaInterson(BaseModel):
     @validator("vat_rate", pre=True, check_fields=False)
     def tva_interson(cls, value):
 
-        if value in {"1.0", "1", 1, "2.0", "2", 2, "", None, False}:
-            if not value:
-                value = Decimal("0")
+        if value in {"", None, False}:
+            value = Decimal("0")
 
-            elif value in {"1.0", "1", 1}:
-                value = Decimal("0.2")
+        elif value in {"1.0", "1", 1}:
+            value = Decimal("0.2")
 
-            elif value in {"2.0", "2", 2}:
-                value = Decimal(".055")
+        elif value in {"2.0", "2", 2}:
+            value = Decimal(".055")
 
         return value
 
@@ -580,34 +349,11 @@ class TvaWidex(BaseModel):
 
     @validator("vat_rate", pre=True, check_fields=False)
     def tva_widex(cls, value):
+        # les zéros en tête sont retirés : "06" -> "6", "020.0" -> "20.0", "0" -> ""
         value = str(value).replace(",", ".").lstrip("0")
 
-        if value in {
-            "0.0",
-            "00.0",
-            "00",
-            "0",
-            "6.0",
-            "06.0",
-            "06",
-            "6",
-            "5.5",
-            "05.5",
-            "20.0",
-            "020.0",
-            "20",
-            "20.00",
-            "05.50",
-            "5.50",
-        }:
-            if Decimal(value) == Decimal("0"):
-                value = Decimal("0")
-
-            elif Decimal(value) == Decimal("20"):
-                value = Decimal("0.2")
-
-            elif Decimal(value) == Decimal("6") or Decimal(value) == Decimal("5.5"):
-                value = Decimal(".055")
+        if value in {"6.0", "6", "5.5", "5.50", "20.0", "20", "20.00"}:
+            value = Decimal("0.2") if Decimal(value) == Decimal("20") else Decimal(".055")
 
         if not value:
             value = Decimal("0")

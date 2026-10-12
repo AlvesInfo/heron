@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101
 """
 FR : Module de post-traitement pour vérification des doublons
 EN : Post-processing module for checking duplicates
@@ -35,7 +34,7 @@ def edi_import_duplicate_check():
         for row in cursor.fetchall():
             uuid_identification, errors_array, _ = row
 
-            errors_array = sorted(list(set(errors_array)))
+            errors_array = sorted(set(errors_array))
 
             first_comment = (
                 "L'ensemble (<div style='padding-left: 20px;'>"
@@ -55,7 +54,7 @@ def edi_import_duplicate_check():
             # On ajoute l'erreur à la trace
             trace = Trace.objects.get(uuid_identification=uuid_identification)
             trace.errors = True
-            trace.comment = trace.comment + trace_comment
+            trace.comment = (trace.comment or "") + trace_comment
             trace.save()
 
         # on marque à delete dans la table EdiImport (edi_edi_import)
@@ -72,9 +71,9 @@ def suppliers_invoices_duplicate_check():
         cursor.execute(sql_invoices_duplicates)
 
         for row in cursor.fetchall():
-            uuid_identification, errors_array, couples = row
+            uuid_identification, errors_array, _ = row
 
-            errors_array = sorted(list(set(errors_array)))
+            errors_array = sorted(set(errors_array))
 
             first_comment = (
                 "L'ensemble (<div style='padding-left: 20px;'>"
@@ -95,7 +94,7 @@ def suppliers_invoices_duplicate_check():
             try:
                 trace = Trace.objects.get(uuid_identification=uuid_identification)
                 trace.errors = True
-                trace.comment = trace.comment + trace_comment
+                trace.comment = (trace.comment or "") + trace_comment
                 trace.save()
             except Trace.DoesNotExist:
                 pass

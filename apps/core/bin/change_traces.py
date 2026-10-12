@@ -1,4 +1,3 @@
-# pylint: disable=C0411,E0401,W0105,W0212,E1101,W1203
 """Module d'enregistrement de tous les changement en opération CRUD de l'application
 
 Commentaire:
@@ -11,7 +10,6 @@ modified by:
 """
 import inspect
 from copy import deepcopy
-from typing import AnyStr
 
 from django import forms
 from django.forms import model_to_dict
@@ -28,20 +26,6 @@ ACTION_DICT = {
     "UPDATE": 2,
     "UNDIFINED": 9,
 }
-
-
-def get_bool_or_str(value: AnyStr):
-    """Retourne le bolléen de postgresql ou la valeur
-    :param value: 'false' ou 'true'
-    :return: bool
-    """
-    if value == "false":
-        return False
-
-    if value == "true":
-        return True
-
-    return value
 
 
 def get_difference_dict(before, after):
@@ -166,8 +150,10 @@ class ChangeTraceMixin:
         user = self.request.user
 
         if self.mark_delete is not None:
+            # modified_by est un champ : delete_by_id n'en était pas un et mettait l'objet User
+            # dans le JSON de la trace (TypeError à la sérialisation)
             self.object.delete = True
-            self.object.delete_by_id = user
+            self.object.modified_by = user
             self.object.save()
 
         before = {key: value for key, value in self.object_before.items() if key != "_state"}
@@ -211,7 +197,7 @@ class ChangeTraceMixin:
     def form_invalid(self, form):
         """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
         self.request.session["level"] = 50
-        LOGGER_VIEWS.exception(f"ChangeTraceMixin error : {form.errors!r}")
+        LOGGER_VIEWS.error(f"ChangeTraceMixin error : {form.errors!r}")
 
         # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
         # On lance sa methode form_error
@@ -238,8 +224,7 @@ def trace_mark_delete(
     model_object = django_model.objects.filter(**data_dict)
 
     if not model_object:
-
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"{function_call} error : les données ne retournent aucuns résultats :\n"
             f"\tdata_dict: {str(data_dict)}\n"
             f"\tmodel    : {str(django_model)}\n"
@@ -249,12 +234,20 @@ def trace_mark_delete(
 
     user = request.user
     action_datetime = timezone.now()
+    # Les modèles DatesTable n'ont ni flag delete ni modified_by : un attribut hors champ
+    # mettrait l'objet User dans le JSON de la trace
+    field_names = {field.name for field in django_model._meta.fields}
 
     for row in model_object:
         request.session["level"] = 20
         before = {key: value for key, value in row.__dict__.items() if key != "_state"}
-        row.delete = True
-        row.modified_by = user
+
+        if "delete" in field_names:
+            row.delete = True
+
+        if "modified_by" in field_names:
+            row.modified_by = user
+
         row.save()
         after = {key: value for key, value in row.__dict__.items() if key != "_state"}
         ChangesTrace.objects.create(
@@ -292,7 +285,7 @@ def trace_mark_bulk_delete(
     model_object = django_model.objects.filter(**data_dict)
 
     if not model_object:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"{function_call} error : les données ne retournent aucuns résultats :\n"
             f"{str(data_dict)}"
         )
@@ -367,43 +360,19 @@ def trace_form_change(
     request.session["level"] = 20
 
 
-def trace_bulk_change(
-    request, django_model: models.Model, form: forms, changed_data_dict: dict, elements_change: ()
-):
-    """Fonction trace des changements de données, pour views functions flag delete à True
-    :param request: request au sens Django
-    :param django_model: Model au sens Django
-    :param form: Formulaire de validation
-    :param changed_data_dict: dictionnaire de données validées
-    :param elements_change: éléments qui changent
+def _before_and_after(model: models.Model, before_dict: dict, key: str, value) -> bool:
     """
-    function_call = str(inspect.currentframe().f_back)[:255]
-    user = request.user
-    action_datetime = timezone.now()
-    before_form = {
-        key: value for key, value in form.cleaned_data.items() if key not in elements_change
-    }
-    before = {key: value for key, value in changed_data_dict.items() if key not in elements_change}
-    after = changed_data_dict.items()
-    to_change = {
-        **{key: value for key, value in changed_data_dict.items() if key in elements_change},
-        **{"modified_by": user},
-    }
-    django_model.objects.filter(**before_form).update(**to_change)
+    Compare la valeur stockée (attname, ex. big_category_id) à la valeur demandée : une instance
+    de modèle passée pour une clé étrangère est ramenée à la valeur de sa clé cible.
+    :return: True si la valeur est inchangée
+    """
+    field = model._meta.get_field(key)
+    attname = getattr(field, "attname", key)
 
-    ChangesTrace.objects.create(
-        action_datetime=action_datetime,
-        action_type=0,
-        function_name=function_call,
-        action_by=user,
-        before=before,
-        after=after,
-        difference=get_difference_dict(before, after),
-        model_name=django_model._meta.model_name,
-        model=django_model,
-        db_table=django_model._meta.db_table,
-    )
-    request.session["level"] = 20
+    if isinstance(value, models.Model):
+        value = getattr(value, field.target_field.attname) if field.is_relation else value.pk
+
+    return before_dict.get(attname) == value
 
 
 def trace_change(request, model: models.Model, before_kwargs: dict, update_kwargs: dict):
@@ -417,18 +386,16 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
 
     user = request.user
     action_datetime = timezone.now()
-    before_dict = {
-        key: value
-        for key, value in model.objects.filter(**before_kwargs).first().__dict__.items()
-        if key != "_state"
-    }
+    instance = model.objects.filter(**before_kwargs).first()
 
-    equals = True
+    if instance is None:
+        raise model.DoesNotExist(f"{model._meta.model_name} introuvable pour {before_kwargs!r}")
 
-    for key, value in update_kwargs.items():
-        if before_dict[key] != value:
-            equals = False
-            break
+    before_dict = {key: value for key, value in instance.__dict__.items() if key != "_state"}
+
+    equals = all(
+        _before_and_after(model, before_dict, key, value) for key, value in update_kwargs.items()
+    )
 
     if equals:
         message = "Vous n'avez rien modifié !"

@@ -1,4 +1,3 @@
-# pylint: disable=C0303,E0401
 """
 FR : Module des strings sql pour les validations
 EN : Sql strings module for validations

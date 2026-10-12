@@ -52,6 +52,7 @@
                            {% if form.is_client.value %}checked{% endif %}
                            id="is_client"
                            onclick="return false;"
+                           onkeydown="return false;"
                            style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="one wide field">
@@ -61,6 +62,7 @@
                            {% if form.is_supplier.value %}checked{% endif %}
                            id="id_is_supplier"
                            onclick="return false;"
+                           onkeydown="return false;"
                            style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="one wide field">
@@ -70,6 +72,7 @@
                            {% if form.is_various.value %}checked{% endif %}
                            id="id_is_various"
                            onclick="return false;"
+                           onkeydown="return false;"
                            style="font-weight: bold;width: 15px;height: 15px;">
               </div>
               <div class="one wide field">
@@ -79,6 +82,7 @@
                            {% if form.is_physical_person.value %}checked{% endif %}
                            id="id_is_physical_person"
                            onclick="return false;"
+                           onkeydown="return false;"
                            style="font-weight: bold;width: 15px;height: 15px;">
               </div>
 
@@ -267,79 +271,6 @@
           </div>
 
         </div>
-
-{#      <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
-{#      <h4 class="ui floated header" style="margin-bottom: 5px;">Compte Bancaire <span style="font-size: 11px;">(Données issues de Sage)</span></h4>#}
-{#        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
-{#        <div class="ui mini form" style="font-size: 12px;font-weight:bold;">#}
-{##}
-{#          <div class="fields">#}
-{#              <div class="one wide field">#}
-{#                <label for="id_currency" style="text-align: left;">Devise&nbsp;:</label>#}
-{#                    <input type="text"#}
-{#                           name="currency"#}
-{#                           value="{{ compte_banque.currency }}"#}
-{#                           required=""#}
-{#                           id="id_currency"#}
-{#                           readonly#}
-{#                           style="background-color: #efefff;font-weight: bold;">#}
-{#              </div>#}
-{#              <div class="one wide field">#}
-{#                <label for="id_iban_prefix" style="text-align: left;">Iban&nbsp;:</label>#}
-{#                    <input type="text"#}
-{#                           name="iban_prefix"#}
-{#                           value="{{ compte_banque.iban_prefix }}"#}
-{#                           required=""#}
-{#                           id="id_iban_prefix"#}
-{#                           readonly#}
-{#                           style="background-color: #efefff;font-weight: bold;">#}
-{#              </div>#}
-{#              <div class="three wide field">#}
-{#                <label for="id_account_number" style="text-align: left;">N° Compte&nbsp;:</label>#}
-{#                    <input type="text"#}
-{#                           name="account_number"#}
-{#                           value="{{ compte_banque.account_number }}"#}
-{#                           required=""#}
-{#                           id="id_account_number"#}
-{#                           readonly#}
-{#                           style="background-color: #efefff;font-weight: bold;">#}
-{#              </div>#}
-{#              <div class="three wide field">#}
-{#                <label for="id_domiciliation_01" style="text-align: left;">Domiciliation&nbsp;:</label>#}
-{#                    <input type="text"#}
-{#                           name="domiciliation_01"#}
-{#                           value="{{ compte_banque.domiciliation_01 }}"#}
-{#                           required=""#}
-{#                           id="id_domiciliation_01"#}
-{#                           readonly#}
-{#                           style="background-color: #efefff;font-weight: bold;">#}
-{#              </div>#}
-{#              <div class="three wide field">#}
-{#                <label for="id_payee" style="text-align: left;">Bénéficiaire&nbsp;:</label>#}
-{#                    <input type="text"#}
-{#                           name="payee"#}
-{#                           value="{{ compte_banque.payee }}"#}
-{#                           required=""#}
-{#                           id="id_payee"#}
-{#                           readonly#}
-{#                           style="background-color: #efefff;font-weight: bold;">#}
-{#              </div>#}
-{#              <div class="two wide field">#}
-{#                <label for="id_bic_code" style="text-align: left;">BIC/SWIFT&nbsp;:</label>#}
-{#                    <input type="text"#}
-{#                           name="bic_code"#}
-{#                           value="{{ compte_banque.bic_code }}"#}
-{#                           required=""#}
-{#                           id="id_bic_code"#}
-{#                           readonly#}
-{#                           style="background-color: #efefff;font-weight: bold;">#}
-{#              </div>#}
-{##}
-{#          </div>#}
-{#        </div>#}
-
-
-{#        <div class="ui clearing divider" style="margin-bottom: 5px;"></div>#}
 
         <h4 class="ui floated header" style="margin-bottom: 5px;">Adresse Sage X3 <span style="font-size: 11px;">(Adresse par défaut, dans Sage)</span></h4>
         <div class="ui clearing divider" style="margin-bottom: 5px;"></div>

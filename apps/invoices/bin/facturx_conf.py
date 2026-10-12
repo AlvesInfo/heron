@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Tables de correspondance entre les données heron (codes X3) et le modèle
      de facture attendu par le serveur Factur-X (facturx-fr)

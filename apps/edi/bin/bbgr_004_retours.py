@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module de génération du fichier BBGR Retours
 EN : BBGR Returns file generation module
@@ -16,7 +15,7 @@ from uuid import UUID
 from psycopg2 import sql
 from django.db import connection, transaction
 
-# from apps.core.functions.functions_setups import settings
+from heron.loggers import LOGGER_EDI
 
 HISTORIC_RETOURS_ID = 2074484
 
@@ -64,10 +63,10 @@ def insert_bbgr_retours_file(uuid_identification: UUID):
         )
         cursor.execute(sql_id, {"historic_id": min_id})
         test_have_lines = cursor.fetchone()
-        print("vérification BBGR Retours")
+        LOGGER_EDI.info("vérification BBGR Retours")
 
         if test_have_lines:
-            print("intégration des lignes BBGR Retours")
+            LOGGER_EDI.info("intégration des lignes BBGR Retours")
             sql_insert_retours = sql.SQL(
                 """
                 insert into edi_ediimport 

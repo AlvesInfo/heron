@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Reset des imports
 EN : Reset imports

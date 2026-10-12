@@ -1,4 +1,3 @@
-# pylint: disable=W0703,W1203,E0401,R0912,R0915
 """
 FR : Module d'import de données issues d'un fichier
 EN : Module for importing data from a file
@@ -132,6 +131,6 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
         if new_file_path and new_file_path != file_path and new_file_path.is_file():
             new_file_path.unlink()
 
-        print("to_print : ", to_print)
+        LOGGER_IMPORT.info("%s %s", 'to_print : ', to_print)
 
     return error, to_print

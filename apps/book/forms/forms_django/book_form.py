@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des formulaires de validation des imports Sage X3
 EN : Sage X3 import validation forms module
@@ -21,6 +20,8 @@ from apps.book.models import Society, SupplierCct
 
 
 class SocietyForm(forms.ModelForm):
+
+    use_required_attribute = False
     def clean(self):
         cleaned_data = super().clean()
 
@@ -61,7 +62,7 @@ class SocietyForm(forms.ModelForm):
                         "third_party_num": cleaned_data.get("third_party_num"),
                     },
                 )
-                errors_dict = {key: value for key, value in cursor.fetchall()}
+                errors_dict = dict(cursor.fetchall())
 
                 if errors_dict:
                     text_error = "Doublons décelés dans Identifiant Centrale :"

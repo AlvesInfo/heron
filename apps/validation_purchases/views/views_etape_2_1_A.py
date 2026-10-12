@@ -1,8 +1,10 @@
 import pendulum
 from django.db import connection, transaction
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.bin.encoders import get_base_64
@@ -68,15 +70,14 @@ def delete_invoice_purchase(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
-    third_party_num, invoice_number, invoice_month, _ = request.POST.values()
     data_dict = {
-        "third_party_num": third_party_num,
-        "invoice_number": invoice_number,
-        "invoice_month": invoice_month,
+        "third_party_num": request.POST.get("third_party_num"),
+        "invoice_number": request.POST.get("invoice_number"),
+        "invoice_month": request.POST.get("invoice_month"),
     }
     form = DeleteInvoiceForm(data_dict)
 
@@ -90,7 +91,7 @@ def delete_invoice_purchase(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_invoice_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"delete_invoice_purchase, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -126,7 +127,7 @@ def integration_supplier_purchases_export(request, flow_name, enc_param):
                 attr_dict,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : integration_supplier_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))

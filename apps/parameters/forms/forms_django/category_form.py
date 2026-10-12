@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Parameters
 """
@@ -10,6 +9,8 @@ from apps.parameters.models import Category, SubCategory, DefaultAxeArticle
 
 class CategoryForm(forms.ModelForm):
     """Form pour les Grandes catégories"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -24,6 +25,8 @@ class CategoryForm(forms.ModelForm):
 
 class SubCategoryForm(forms.ModelForm):
     """Form pour les Rubriques presta'"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -44,6 +47,9 @@ class SubCategoryForm(forms.ModelForm):
 class DeleteSubCategoryForm(forms.ModelForm):
     """Form pour la suppression des Rubriques Presta"""
 
+    # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
+    id = forms.ModelChoiceField(queryset=SubCategory.objects.all())
+
     class Meta:
         """class Meta"""
 
@@ -53,6 +59,8 @@ class DeleteSubCategoryForm(forms.ModelForm):
 
 class DefaultAxeArticleForm(forms.ModelForm):
     """Form d'Update des axes par défaut des articles"""
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101,C0303,R0913,W0613,R0914
 """
 FR : Module d'envoi des emails
 EN : Send emails module
@@ -12,7 +11,6 @@ modified by: Paulo ALVES
 """
 
 import smtplib
-import ssl
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -32,7 +30,7 @@ EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 DEFAULT_FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
 
-ENV_ROOT = settings.path_env
+ENV_ROOT = settings.ENV_ROOT
 DOMAIN = settings.DOMAIN
 DKIM_PEM_FILE = settings.DKIM_PEM_FILE
 

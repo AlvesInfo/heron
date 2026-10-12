@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0914
 """
 FR : Module d'export X3 des OD ANALYTIQUES
 EN : X3 export module of ANALYTICAL ODs
@@ -77,8 +76,7 @@ def write_odana(fcy, file_name=None, nb_fac=5000):
             i += 1
 
             if i > nb_fac:
-                if not file.closed:
-                    file.close()
+                file.close()
 
                 file = get_file(settings.EXPORT_DIR, fcy, get_gaspar_num)
                 i = 1
@@ -97,8 +95,7 @@ def write_odana(fcy, file_name=None, nb_fac=5000):
 
         get_a(file=file, a_line=line_a, idtlin=a_line)
 
-    if not file.closed:
-        file.close()
+    file.close()
 
 
 if __name__ == "__main__":

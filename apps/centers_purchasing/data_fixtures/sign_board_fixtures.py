@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """Module d'imports de fixtures en base au premier démarrage de l'application
 
 Commentaire:
@@ -15,8 +14,8 @@ from django.db.utils import IntegrityError
 
 from apps.core.functions.functions_setups import settings
 from apps.centers_purchasing.models import PrincipalCenterPurchase, ChildCenterPurchase, Signboard
-from apps.countries.models import Country
 from apps.parameters.models import SalePriceCategory
+from heron.loggers import LOGGER_IMPORT
 
 
 def fixtures():
@@ -37,7 +36,7 @@ def fixtures():
             try:
                 PrincipalCenterPurchase.objects.update_or_create(**dict(zip(list_keys, row)))
             except IntegrityError as error:
-                print(error)
+                LOGGER_IMPORT.exception(error)
 
     with file_childs.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
@@ -53,15 +52,15 @@ def fixtures():
                     generic_coefficient=generic_coefficient,
                 )
             except IntegrityError as error:
-                print(error)
+                LOGGER_IMPORT.exception(error)
 
     with file_enseigne.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
 
         for row in csv_rows:
-            code, sale_price_category, name, generic_coefficient, language = row
+            # La cinquième colonne (langue) n'a pas de champ dans le modèle Signboard
+            code, sale_price_category, name, generic_coefficient, *_ = row
             sale_price_category = SalePriceCategory.objects.get(name=sale_price_category)
-            language = Country.objects.get(country=language)
 
             try:
                 Signboard.objects.update_or_create(
@@ -69,10 +68,9 @@ def fixtures():
                     sale_price_category=sale_price_category,
                     name=name,
                     generic_coefficient=generic_coefficient,
-                    language=language,
                 )
             except IntegrityError as error:
-                print(error)
+                LOGGER_IMPORT.exception(error)
 
 
 if __name__ == "__main__":

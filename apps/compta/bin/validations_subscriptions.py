@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 Vérification de la présence des Abonnements pour une période donnée
 FR : Module de la vérification de la présence des Abonnements pour une période donnée
@@ -119,7 +118,7 @@ def get_ca_exists(dte_d: AnyStr, dte_f: AnyStr) -> bool:
             select 
                 1 as exist
             from compta_ventescosium cv 
-            where cv.date_vente between '2023-01-01' and '2023-01-31'
+            where cv.date_vente between %(dte_d)s and %(dte_f)s
             limit 1
             """
         )

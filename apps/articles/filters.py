@@ -1,11 +1,9 @@
-# pylint: disable=E0401,R0903
 """
 Filtres pour des recherches dans les views
 """
 from django import forms
-from django.db.models import Exists, OuterRef, Count
+from django.db.models import Exists, OuterRef
 import django_filters
-from django.db import models
 
 from apps.accountancy.models import SectionSage, VatSage
 from apps.articles.models import Article, ArticleAccount

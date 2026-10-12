@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203
 """Module d'export du fichier excel pour les facturs founisseurs intégrées sans CCT
 
 Commentaire:
@@ -13,18 +12,12 @@ import io
 
 from django.db.models import Count
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
 )
 from apps.edi.models import EdiImport
+from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 COLUMNS = [
     {
@@ -211,29 +204,14 @@ def excel_integration_without_cct(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-3])
-    list_excel = [file_io, [titre]]
-    excel = GenericExcel(list_excel)
     get_clean_rows = get_rows()
 
-    try:
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, COLUMNS)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
-            for i, dict_row in enumerate(COLUMNS)
-        ]
-        rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name=titre,
+        title=titre,
+        columns=COLUMNS,
+        rows=get_clean_rows,
+        orientation="landscape",
+    )

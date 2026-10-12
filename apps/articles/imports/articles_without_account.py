@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0412,W1203
 """
 FR : Module d'import des fichiers articles sans comptes
 EN : Module for importing item files without accounts
@@ -82,16 +81,91 @@ def accounts_validation(accounts_set: Set) -> bool:
         return cursor.fetchone()
 
 
+# Position des champs dans le fichier issu de l'écran articles sans comptes :
+# article, child_center, vat, purchase_account, sale_account
+ACCOUNT_COLUMNS = (0, 1, 9, 11, 12)
+MIRROR_CENTER = "GAF"
+FIRST_DATA_LINE = 4
+
+
+def _source_to_csv(file_excel_path: Path) -> Path:
+    """Renvoie le csv de travail : copie du csv déposé, ou conversion du fichier excel
+    :param file_excel_path: Path du fichier à traiter
+    """
+    if file_excel_path.suffix == ".csv":
+        csv_file = Path(file_excel_path.parent) / f"copy_{file_excel_path.stem}.csv"
+        shutil.copy(str(file_excel_path), str(csv_file))
+        return csv_file
+
+    file = ExcelToCsv(
+        rep=str(file_excel_path.parents[0]),
+        header=False,
+        deletion=False,
+        file_name=str(file_excel_path.name),
+    ).make_csv()[0]
+
+    return Path(file)
+
+
+def _account_lines(csv_reader, update_mode: bool) -> tuple[bool, list, set]:
+    """Lignes de comptes à insérer, chacune doublée pour la centrale GAF
+    :param csv_reader: lecteur csv du fichier de travail
+    :param update_mode: ignore les lignes GAF du fichier et dédoublonne par article / centrale / tva
+    :return: (fichier complet, lignes à écrire, comptes comptables rencontrés)
+    """
+    lines, unique_lines, accounts = [], {}, set()
+
+    for i, line in enumerate(csv_reader, 1):
+        if not line or i < FIRST_DATA_LINE:
+            continue
+
+        line_to_add = [line[index] for index in ACCOUNT_COLUMNS]
+
+        if not all(line_to_add):
+            return False, lines, accounts
+
+        if update_mode and line_to_add[1] == MIRROR_CENTER:
+            continue
+
+        accounts.update(line_to_add[3:])
+
+        # on ajoute la même ligne pour GA en changeant le child_center
+        line_gaf = [line_to_add[0], MIRROR_CENTER, *line_to_add[2:]]
+
+        if update_mode:
+            # une même clé ne peut être mise à jour deux fois dans un upsert
+            unique_lines[tuple(line_to_add[:3])] = line_to_add
+            unique_lines[tuple(line_gaf[:3])] = line_gaf
+        else:
+            lines.extend([line_to_add, line_gaf])
+
+    return True, lines + list(unique_lines.values()), accounts
+
+
+def _content_errors(complete: bool, accounts: Set) -> list:
+    """Erreurs de contenu : informations manquantes, ou comptes absents de Sage
+    :param complete: False si une ligne n'avait pas toutes ses informations
+    :param accounts: comptes comptables du fichier
+    """
+    if not complete:
+        error = "Il manque des informations obligatoires dans le fichier"
+    elif not accounts_validation(accounts):
+        error = (
+            "Il y a des comptes présents dans le fichier, "
+            "qui n'existent pas dans SAGE, veuillez vérifier"
+        )
+    else:
+        return []
+
+    LOGGER_IMPORT.error(error)
+
+    return [error]
+
+
 def file_for_insert_excel_to_csv(
     file_excel_path: Path, update_mode: bool = False
 ) -> [bool, AnyStr]:
-    """Transforme le fichier excel en fichier csv
-    ci-après la position des champs dans le fichier issu de l'écran articles sans comptes
-         article = line[0]
-         child_center = line[1]
-         vat = line[9]
-         purchase_account = line[11]
-         sale_account = line[12]
+    """Transforme le fichier excel en fichier csv (colonnes ACCOUNT_COLUMNS)
     :param file_excel_path: Path du fichier à traiter
     :param update_mode: si True (update des articles / comptes), les lignes GAF du fichier sont
                         ignorées, car GAF est aligné sur la centrale de la ligne, et les lignes
@@ -102,22 +176,8 @@ def file_for_insert_excel_to_csv(
     new_file = Path("new_file")
 
     try:
-        if file_excel_path.suffix == ".csv":
-            csv_file = Path(file_excel_path.parent) / f"copy_{file_excel_path.stem}.csv"
-            shutil.copy(str(file_excel_path), str(csv_file))
-        else:
-            # On transforme le fichier excel en csv
-            file = ExcelToCsv(
-                rep=str(file_excel_path.parents[0]),
-                header=False,
-                deletion=False,
-                file_name=str(file_excel_path.name),
-            ).make_csv()[0]
-
-            csv_file = Path(file)
-
+        csv_file = _source_to_csv(file_excel_path)
         new_file = Path(file_excel_path.parent) / f"new_{file_excel_path.stem}.csv"
-        informations = True
 
         with csv_file.open("r", encoding="utf8", errors="replace") as file_to_parse, new_file.open(
             "w", encoding="utf8", newline=""
@@ -129,50 +189,12 @@ def file_for_insert_excel_to_csv(
                 lineterminator="\n",
                 quoting=csv.QUOTE_ALL,
             )
-            csv_writer = csv.writer(
+            complete, lines, accounts = _account_lines(csv_reader, update_mode)
+            csv.writer(
                 file_to_write, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL
-            )
-            accounts_validation_set = set()
-            lines_dict = {}
+            ).writerows(lines)
 
-            for i, line in enumerate(csv_reader, 1):
-                if line and i > 3:
-                    line_to_add = [line[0], line[1], line[9], line[11], line[12]]
-
-                    if not all(line_to_add):
-                        informations = False
-                        break
-
-                    if update_mode and line_to_add[1] == "GAF":
-                        continue
-
-                    accounts_validation_set.add(line[11])
-                    accounts_validation_set.add(line[12])
-
-                    # on ajoute la même ligne pour GA en changeant le child_center
-                    line_gaf = [line_to_add[0], "GAF", *line_to_add[2:]]
-
-                    if update_mode:
-                        # une même clé ne peut être mise à jour deux fois dans un upsert
-                        lines_dict[tuple(line_to_add[:3])] = line_to_add
-                        lines_dict[tuple(line_gaf[:3])] = line_gaf
-                        continue
-
-                    csv_writer.writerow(line_to_add)
-                    csv_writer.writerow(line_gaf)
-
-            csv_writer.writerows(lines_dict.values())
-
-        if not informations:
-            errors.append("Il manque des informations obligatoires dans le fichier")
-            LOGGER_IMPORT.exception(str(errors[-1]))
-
-        if informations and not accounts_validation(accounts_validation_set):
-            errors.append(
-                "Il y a des comptes présents dans le fichier, "
-                "qui n'existent pas dans SAGE, veuillez vérifier"
-            )
-            LOGGER_IMPORT.exception(str(errors[-1]))
+        errors.extend(_content_errors(complete, accounts))
 
     except XLRDError:
         LOGGER_IMPORT.exception("Erreur de conversion d'un fichier excel en csv")

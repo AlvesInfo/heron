@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des modèles de comptabilité sage pour validation et vérifications
      des élements à importer de Sage X3

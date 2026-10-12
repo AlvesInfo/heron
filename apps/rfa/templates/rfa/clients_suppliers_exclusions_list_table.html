@@ -11,10 +11,10 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th style="width: 5%">Edit</th>
-                <th style="width: 45%;text-align: left">Client / CCT</th>
-                <th style="width: 45%;text-align: left">Fournisseur</th>
-                <th style="width: 5%">delete</th>
+                <th scope="col" style="width: 5%">Edit</th>
+                <th scope="col" style="width: 45%;text-align: left">Client / CCT</th>
+                <th scope="col" style="width: 45%;text-align: left">Fournisseur</th>
+                <th scope="col" style="width: 5%">delete</th>
             </tr>
         </thead>
         <tbody>
@@ -29,7 +29,7 @@
                 <td style="text-align: left;">{{parameter.supplier}}</td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.maison }} - {{ parameter.supplier }}`, `{% url 'rfa:client_supplier_exclusion_delete' %}`, `l'exclusion pour le client`)"></i>
+                      <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.maison }} - {{ parameter.supplier }}`, `{% url 'rfa:client_supplier_exclusion_delete' %}`, `l'exclusion pour le client`)"><i class="red trash icon" aria-hidden="true"></i></button>
                     </div>
                 </td>
             </tr>

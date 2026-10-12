@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,C0115
 """
 FR : Module de validation par djantic des articles sans comptes
 EN : Djantic validation module for articles without accounts
@@ -26,7 +25,7 @@ class ArticleAccountSageSchema(ModelSchema):
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
-    article: uuid.UUID = uuid.uuid4()
+    article: uuid.UUID
     child_center: str
     vat: str
 

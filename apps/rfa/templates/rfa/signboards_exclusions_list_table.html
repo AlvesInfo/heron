@@ -11,9 +11,9 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th style="width: 5%">Edit</th>
-                <th style="width: 90%;text-align: left;">Enseigne</th>
-                <th style="width: 5%">delete</th>
+                <th scope="col" style="width: 5%">Edit</th>
+                <th scope="col" style="width: 90%;text-align: left;">Enseigne</th>
+                <th scope="col" style="width: 5%">delete</th>
             </tr>
         </thead>
         <tbody>
@@ -27,7 +27,7 @@
                 <td style="text-align: left;">{{parameter.signboard}}</td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.code }} - {{ parameter.signboard.name }}`, `{% url 'rfa:signboard_exclusion_delete' %}`, `l'exclusion pour l'enseigne`)"></i>
+                      <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.signboard.code }} - {{ parameter.signboard.name }}`, `{% url 'rfa:signboard_exclusion_delete' %}`, `l'exclusion pour l'enseigne`)"><i class="red trash icon" aria-hidden="true"></i></button>
                     </div>
                 </td>
             </tr>

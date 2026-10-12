@@ -1,4 +1,3 @@
-# pylint: disable=R0903,E0401,C0103,W0702,W0613,E1101,W1309,W1203
 """
 Views des Tiers X3
 """
@@ -6,11 +5,13 @@ from pathlib import Path
 
 import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import render, reverse, redirect
+from django.http import Http404
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.generic import ListView, UpdateView
 from django.db.models import Q
 
-from heron.settings import MEDIA_EXCEL_FILES_DIR
+from django.conf import settings
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
@@ -78,7 +79,6 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = Society
     form_class = SocietyForm
-    form_class.use_required_attribute = False
     template_name = "book/society_update.html"
     success_message = "Le Tiers %(third_party_num)s a été modifiée avec success"
     error_message = "Le Tiers %(third_party_num)s n'a pu être modifiée, une erreur c'est produite"
@@ -146,10 +146,12 @@ def export_list_societies(_, file_name: str):
         "export_list_clients": "LISTING_DES_CLIENTS.xlsx",
         "export_list_suppliers": "LISTING_DES_FOURNISSEURS.xlsx",
     }
-    file = Path(MEDIA_EXCEL_FILES_DIR) / file_dict.get(file_name)
-    response = x_accel_exists_file_response(file)
+    if file_name not in file_dict:
+        raise Http404(f"export inconnu : {file_name}")
 
-    return response
+    file = Path(settings.MEDIA_EXCEL_FILES_DIR) / file_dict.get(file_name)
+
+    return x_accel_exists_file_response(file)
 
 
 def emails_errors_list(request):
@@ -173,13 +175,13 @@ def excel_errors_emails_outputs(_):
 
         today = pendulum.now()
         file_name = (
-            "LISTING_DES_AXES_RFA_A_PRENDRE_"
+            "LISTING_DES_EMAILS_EN_ERREUR_"
             f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 
         return response_file(excel_errors_emails, file_name, CONTENT_TYPE_EXCEL)
 
     except Exception as error:
-        LOGGER_EXPORT_EXCEL.exception(f"view section_rfa_export_list: {error!r}")
+        LOGGER_EXPORT_EXCEL.exception("view excel_errors_emails_outputs : %r", error)
 
     return redirect(reverse("book:emails_errors_list"))

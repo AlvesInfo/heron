@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413
 """
 FR : Module de génération des factures de marchandises en pdf
 EN : Module for generating invoices marchandises in pdf
@@ -22,7 +21,6 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 from pdfrw import PdfReader, PdfWriter
 
-from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice, EnteteDetails
 from apps.invoices.sql_files.sql_marchandises import (
     SQL_HEADER,
@@ -61,7 +59,7 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr
             "invoices": invoices,
             "headers": headers,
             "resume": resume,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_marchandises_header.html", context)
@@ -91,7 +89,7 @@ def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> A
         context = {
             "invoices": invoices,
             "suppliers": suppliers,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_marchandises_suppliers.html", context)
@@ -122,7 +120,7 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> Any
             "invoices": invoices,
             "entetes": EnteteDetails.objects.all().values("column_name"),
             "suppliers": suppliers,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_marchandises_details.html", context)
@@ -152,7 +150,7 @@ def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) ->
         context = {
             "invoices": invoices,
             "sub_details": sub_details,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_marchandises_sub_details.html", context)

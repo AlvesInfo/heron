@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 
+from apps.core.functions.functions_http import get_limit
 from apps.core.bin.notifications import (
     get_all_notifications,
     get_unread_count,
@@ -28,7 +29,7 @@ def notifications_list(request):
     URL: /core/notifications/
     Méthode: GET
     """
-    limit = int(request.GET.get("limit", 50))
+    limit = get_limit(request)
     notifications = get_all_notifications(request.user, limit=limit)
     unread_count = get_unread_count(request.user)
 

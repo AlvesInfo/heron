@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0412,W1203,R0914
 """
 FR : Module d'import des fichiers des abonnements par maison
 EN : Module for importing subscription files per house
@@ -179,7 +178,7 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
                     if not all(line_to_add):
                         errors.append(
                             f"la ligne {i+1}, du fichier {csv_file.name}, contient des erreurs : "
-                            f"{' - '.join(line_to_add)}"
+                            f"{' - '.join(str(value) for value in line_to_add)}"
                         )
 
                     csv_writer.writerow(line_to_add)

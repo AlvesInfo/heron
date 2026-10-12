@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0913
 """
 FR : Client HTTP du serveur Factur-X (projet facturx_server, API de facturx-fr).
      heron ne peut pas importer facturx-fr (Python 3.12 / Pydantic v2) : la génération
@@ -92,6 +91,9 @@ class FacturXClient:
             payload = response.json()
         except ValueError:
             payload = {}
+
+        if not isinstance(payload, dict):
+            payload = {"details": payload}
 
         raise FacturXClientError(
             payload.get("error") or f"Erreur HTTP {response.status_code}",

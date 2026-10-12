@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,E1101,R0915,R0914
 """
 FR : Module de post-traitement avant import des fichiers de factures fournisseur
 EN : Post-processing module before importing supplier invoice files
@@ -59,11 +58,13 @@ def get_user_automate():
     email = "automate@acuitis.com"
     user, _ = User.objects.get_or_create(
         username="automate",
-        email=email,
-        password=email,
-        first_name="automate",
-        last_name="automate",
-        function="automate",
+        defaults={
+            "email": email,
+            "password": email,
+            "first_name": "automate",
+            "last_name": "automate",
+            "function": "automate",
+        },
     )
 
     return user.uuid_identification
@@ -395,7 +396,7 @@ def bbgr_monthly_post_insert(uuid_identification: AnyStr):
     :param uuid_identification: uuid_identification
     """
     sql_vat = bbgr_003_monthly_dict.get("sql_vat")
-    sql_familles = bbgr_002_statment_dict.get("sql_familles")
+    sql_familles = bbgr_003_monthly_dict.get("sql_familles")
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})

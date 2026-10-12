@@ -1,11 +1,11 @@
-# pylint: disable=E0401,W1203,W0703
 """
 Views des Abonnements
 """
 import pendulum
 from django.db import connection
 from django.db.models import Count
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib import messages
 
 from heron.loggers import LOGGER_VIEWS
@@ -40,7 +40,7 @@ def export_sales_cosium(request):
             return response_file(excel_sales_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
         if form.errors:
-            LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+            LOGGER_VIEWS.error(f"erreur form : {str(form.data)!r}")
 
     except Exception as error:
         LOGGER_VIEWS.exception(f"erreur export_sales_cosium : {error!r}")
@@ -84,7 +84,7 @@ def export_ca_cosium(request):
                 message_ca = "Le CA pour cette période, semble ne pas avoir été importé"
 
         if form.errors:
-            LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+            LOGGER_VIEWS.error(f"erreur form : {str(form.data)!r}")
 
     except Exception as error:
         LOGGER_VIEWS.exception(f"erreur export_ca_cosium : {error!r}")
@@ -149,7 +149,7 @@ def reset_exhange_rates_in_sales(request):
             messages.add_message(request, 20, message)
             return redirect(reverse("compta:export_sales_cosium"))
 
-        LOGGER_VIEWS.exception(f"erreur form reset_exhange_rates_in_sales : {str(form.data)!r}")
+        LOGGER_VIEWS.error(f"erreur form reset_exhange_rates_in_sales : {str(form.data)!r}")
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des Ventes !")
 
@@ -186,7 +186,7 @@ def reset_sales(request):
 
             return redirect("compta:export_sales_cosium")
 
-        LOGGER_VIEWS.exception(f"erreur form reset_sales : {str(form.data)!r}")
+        LOGGER_VIEWS.error(f"erreur form reset_sales : {str(form.data)!r}")
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des Ventes !")
 
@@ -234,7 +234,7 @@ def reset_ca(request):
 
             return redirect("compta:export_ca_cosium")
 
-        LOGGER_VIEWS.exception(f"erreur form reset_ca : {str(form.data)!r}")
+        LOGGER_VIEWS.error(f"erreur form reset_ca : {str(form.data)!r}")
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset du CA !")
 

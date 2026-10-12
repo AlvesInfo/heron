@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des modèles de factures founisseurs
 EN : supplier invoice templates module

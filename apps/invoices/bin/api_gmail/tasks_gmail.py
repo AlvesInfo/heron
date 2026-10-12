@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0718,E0633,W1203,W1201,C0411
 """
 FR : Tâches Celery pour l'envoi des factures via l'API Gmail
 EN : Celery tasks for sending invoices via Gmail API
@@ -349,7 +348,6 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
     """
     start_initial = time.time()
 
-    error = False
     trace = None
     to_print = ""
 
@@ -358,7 +356,6 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
         invoice_data = prepare_invoice_email_data(context_dict)
 
         if not invoice_data:
-            error = True
             to_print = (
                 f"Pas de données valides pour l'email : "
                 f"{context_dict.get('global_invoice_file')}"
@@ -400,7 +397,6 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
                 )
                 to_print = f"Have send invoice email: {file_path.name} - "
             else:
-                error = True
                 trace = get_trace(
                     trace_name="Send invoices mail ERROR (Gmail API)",
                     file_name=str(file_path),
@@ -416,7 +412,6 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
             trace.created_by = User.objects.get(pk=user_pk)
 
     except Exception as except_error:
-        error = True
         LOGGER_EMAIL.exception(
             f"Exception Générale: send_invoice_email_gmail : "
             f"{context_dict.get('cct')}\n{except_error!r}"

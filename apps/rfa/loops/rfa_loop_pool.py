@@ -1,5 +1,3 @@
-# pylint: disable=E0401,E0402,W0703,W1203,C0413,C0303,W1201,E1101,C0415,E0611,W0511
-# ruff: noqa: E402
 """
 FR : Module d'import en boucle des fichiers de factures fournisseurs
 EN : Loop import module for invoices suppliers files
@@ -14,28 +12,12 @@ modified by: Paulo ALVES
 """
 
 from typing import AnyStr, List
-import os
-import platform
-import sys
 import time
-
-import django
-
-BASE_DIR = r"C:\SitesWeb\heron"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
 
 from celery import group
 
 from heron import celery_app
-from heron.loggers import LOGGER_EDI
+from heron.loggers import LOGGER_EDI, LOGGER_IMPORT
 from apps.parameters.bin.core import get_action
 
 
@@ -73,7 +55,7 @@ def rfa_generation_launch(user_pk: int, suppliers_list: List, period_rfa: AnyStr
             ]
         )().get(3600)
 
-        print("result : ", result)
+        LOGGER_IMPORT.info("%s %s", 'result : ', result)
         LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
         result_clean = group(
@@ -84,21 +66,22 @@ def rfa_generation_launch(user_pk: int, suppliers_list: List, period_rfa: AnyStr
             ]
         )().get(3600)
 
-        print("result_clean : ", result_clean)
+        LOGGER_IMPORT.info("%s %s", 'result_clean : ', result_clean)
         LOGGER_EDI.warning(
             f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
         )
 
     except Exception as error:
-        print("Error : ", error)
+        LOGGER_IMPORT.exception("%s %s", 'Error : ', error)
         LOGGER_EDI.exception(
             "Erreur détectée dans apps.rfa.loops.rfa_loop_pool.celery_rfa_generation_launch()"
         )
 
     finally:
         # On remet l'action en cours à False, après l'execution
-        active_action.in_progress = False
-        active_action.save()
+        if active_action is not None:
+            active_action.in_progress = False
+            active_action.save()
 
     if isinstance(result, (list,)) and result:
         result = result[0]

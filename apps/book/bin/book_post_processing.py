@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,W0212
 """
 FR : Module de post-traitement après import des fichiers Sage X3
 EN : Post-processing module before importing Sage X3 files
@@ -11,22 +10,7 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
-import os
-import platform
-import sys
-
-import django
-
-BASE_DIR = r"C:\SitesWeb\heron"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
+from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 
 from django.db.models.fields import NOT_PROVIDED
 from django.db import connection

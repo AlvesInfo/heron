@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903, E1101
 """
 FR : Module de toutes les constantes des formulaires
 EN : Module of all form constants

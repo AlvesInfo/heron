@@ -1,4 +1,3 @@
-# pylint: disable=W0703,W1203,E0401
 """
 FR : Module d'import des données des parametres ou data de remplissage de tables
 EN : Parameter data import module or table filling data
@@ -28,8 +27,6 @@ from apps.centers_purchasing.bin.data_post_processing_pool import (
     post_axe_pro_account,
 )
 from apps.centers_purchasing.models import AccountsAxeProCategory
-
-proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
 def axe_pro_account(file_path: Path):

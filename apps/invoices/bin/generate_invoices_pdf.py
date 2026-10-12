@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,R0914,W0718,W1203
 """
 FR : Module de génération des factures en pdf
 EN : Module for generating invoice headers in pdf
@@ -177,10 +176,6 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         trace.save()
 
     return trace, to_print
-
-
-def main():
-    invoices_pdf_generation("AF0001", "AF0001_000009999999_full.pdf")
 
 
 if __name__ == "__main__":

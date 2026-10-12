@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Module des requêtes sql de post-traitement après génération des RFA
 EN : Post-processing sql module after generate RFA

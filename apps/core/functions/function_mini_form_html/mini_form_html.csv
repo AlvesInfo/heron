@@ -1,6 +1,0 @@
-"Compte Bancaire";"16";"";"1";"o";"n";"currency";"Devise";"compte_banque"
-"Compte Bancaire";"16";"";"1";"o";"n";"iban_prefix";"Iban";"compte_banque"
-"Compte Bancaire";"16";"";"3";"o";"n";"account_number";"N° Compte";"compte_banque"
-"Compte Bancaire";"16";"";"3";"o";"n";"domiciliation_01";"Domiciliation";"compte_banque"
-"Compte Bancaire";"16";"";"3";"o";"n";"payee";"Bénéficiaire";"compte_banque"
-"Compte Bancaire";"16";"";"2";"o";"n";"bic_code";"BIC/SWIFT";"compte_banque"

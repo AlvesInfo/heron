@@ -13,11 +13,11 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th style="width: 50%;">Client</th>
-                    <th style="width: 12.5%;">Enseigne</th>
-                    <th style="width: 12.5%;">Pays</th>
-                    <th style="width: 12.5%;">Date<br>Ouverture</th>
-                    <th style="width: 12.5%;">Date<br>Fermeture</th>
+                    <th scope="col" style="width: 50%;">Client</th>
+                    <th scope="col" style="width: 12.5%;">Enseigne</th>
+                    <th scope="col" style="width: 12.5%;">Pays</th>
+                    <th scope="col" style="width: 12.5%;">Date<br>Ouverture</th>
+                    <th scope="col" style="width: 12.5%;">Date<br>Fermeture</th>
                 </tr>
             </thead>
 
@@ -45,13 +45,13 @@
 
             <thead>
                 <tr>
-                    <th style="width: 5%;"></th>
-                    <th style="width: 45%;">Tiers</th>
-                    <th style="width: 10%;">{{ mois_dict.M3|safe }}</th>
-                    <th style="width: 10%;">{{ mois_dict.M2|safe }}</th>
-                    <th style="width: 10%;">{{ mois_dict.M1|safe }}</th>
-                    <th style="width: 10%;">{{ mois_dict.M0|safe }}</th>
-                    <th style="width: 10%;">Variation</th>
+                    <th scope="col" style="width: 5%;"></th>
+                    <th scope="col" style="width: 45%;">Tiers</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M3|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M2|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M1|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M0|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">Variation</th>
                 </tr>
             </thead>
 

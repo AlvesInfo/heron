@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101,C0303,R0913,C0413,R0914,W0718,W1203,R0915
 # ruff: noqa: E402
 """
 FR : Module d'envoi des factures par email
@@ -151,7 +150,7 @@ def essais_send_by_email(context_dict: Dict):
 
         else:
             error = True
-            trace.comment = f"Pas d'adresses mail pour le client : {context_email.get('ctt')}"
+            trace.comment = f"Pas d'adresses mail pour le client : {context_email.get('cct')}"
             trace.file_name = f"Send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
@@ -166,8 +165,8 @@ def essais_send_by_email(context_dict: Dict):
     finally:
         if error:
             trace.errors = True
-            trace.comment += (
-                trace.comment
+            trace.comment = (
+                (trace.comment or "")
                 + "\n. Une erreur c'est produite veuillez consulter les logs"
                 + str(context_dict)
             )
@@ -181,7 +180,7 @@ def essais_send_by_email(context_dict: Dict):
                 type_x3__in=(1, 2),
             ).update(send_email=True)
 
-        trace.time_to_process = start - time.time()
+        trace.time_to_process = time.time() - start
         trace.save()
 
     return trace, to_print

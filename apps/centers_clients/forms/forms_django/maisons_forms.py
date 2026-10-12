@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Maisons
 """
@@ -16,6 +15,8 @@ from apps.centers_clients.models import (
 
 
 class MaisonForm(forms.ModelForm):
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -192,6 +193,8 @@ class ImportMaisonBiForm(forms.Form):
 class MaisonSupllierExclusionForm(forms.ModelForm):
     """Formulaires des couples Tiers X3/Clients à écarter"""
 
+    use_required_attribute = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
@@ -212,6 +215,8 @@ class MaisonSupllierExclusionForm(forms.ModelForm):
 class MaisonSupllierExclusionDeleteForm(forms.ModelForm):
     """Formulaires des couples Tiers X3/Clients à supprimer"""
 
+    id = forms.ModelChoiceField(queryset=MaisonSupllierExclusion.objects.all())
+
     class Meta:
         model = MaisonSupllierExclusion
         fields = [
@@ -221,6 +226,8 @@ class MaisonSupllierExclusionDeleteForm(forms.ModelForm):
 
 class SupllierCountryExclusionForm(forms.ModelForm):
     """Formulaires des couples Tiers X3/Pays Clients à écarter"""
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -241,6 +248,8 @@ class SupllierCountryExclusionForm(forms.ModelForm):
 
 class SupllierCountryExclusionDeleteForm(forms.ModelForm):
     """Formulaires des couples Tiers X3/Pays Clients à supprimer"""
+
+    id = forms.ModelChoiceField(queryset=SupllierCountryExclusion.objects.all())
 
     class Meta:
         model = SupllierCountryExclusion

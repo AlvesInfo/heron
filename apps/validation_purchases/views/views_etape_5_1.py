@@ -1,10 +1,12 @@
 import pendulum
 from django.contrib import messages
 from django.db import connection
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -80,7 +82,7 @@ def balance_suppliers_purchases_export(request):
                 {"initial_date": billing_period},
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : balance_suppliers_purchases_export")
 
     return redirect(reverse("validation_purchases:balance_suppliers_purchases"))
@@ -89,7 +91,7 @@ def balance_suppliers_purchases_export(request):
 def balance_suppliers_purchases_validation(request):
     """Validation de l'écran 5.1 Fournisseurs M vs M-1"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -120,13 +122,13 @@ def balance_suppliers_purchases_validation(request):
                 request.session["level"] = 50
                 message = "Le contrôle des fournisseurs est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(
                 f"Views : balance_suppliers_purchases_validation error : {form.cleaned_data!r}"
             )
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : balance_suppliers_purchases_validation error, form invalid : {form.errors!r}"
         )
 

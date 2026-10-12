@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module des requêtes sql, pour l'insertion en base des invoices
 EN : Module of sql queries, for the insertion in the base of invoices

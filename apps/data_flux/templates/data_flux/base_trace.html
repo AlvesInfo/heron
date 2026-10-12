@@ -18,7 +18,7 @@
                 <div class="twelve wide column" style="text-align: right;">
                         {% if traces.has_other_pages %}
                           <div id="pagination" class="ui small #efefff buttons">
-                            {{ pagination|safe }}
+                            {{ pagination }}
                           </div>
                         {% endif %}
                 </div>
@@ -36,7 +36,7 @@
             {% if trace.errors %}
                     <div style="padding-left: 20px;color: red;font-size: .8em;">
                     <div class="description">Erreurs&nbsp;:</div>
-                            <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
+                            <div class="description" style="padding-left: 20px;">{{ trace.comment|trace_comment }}</div>
                         {% if trace.line_trace.all %}
                             <br>
                             <div class="description" style="padding-left: 20px;">Le Fichier a été rejeté, suite aux erreurs suivantes :</div>
@@ -69,7 +69,7 @@
                     {% if trace.comment %}
                         <div style="padding-left: 20px;color: green;font-size: .8em;">
                         <div class="description">Commentaire&nbsp;:</div>
-                            <div class="description" style="padding-left: 20px;">{{ trace.comment|safe }}</div>
+                            <div class="description" style="padding-left: 20px;">{{ trace.comment|trace_comment }}</div>
                         </div>
                     {% endif %}
             {% endif %}

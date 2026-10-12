@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des rfa ClientExclusion
 """
@@ -10,6 +9,8 @@ from apps.rfa.models import ClientSupplierExclusion
 
 class ClientSupplierExclusionForm(forms.ModelForm):
     """Form pour les exclusions des clients"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -27,6 +28,9 @@ class ClientSupplierExclusionForm(forms.ModelForm):
 
 class DeleteClientSupplierExclusionForm(forms.ModelForm):
     """Form pour la suppression des exclusions des clients"""
+
+    # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
+    id = forms.ModelChoiceField(queryset=ClientSupplierExclusion.objects.all())
 
     class Meta:
         """class Meta"""

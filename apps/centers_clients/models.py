@@ -1,5 +1,3 @@
-# pylint: disable=
-# E0401,R0903
 """
 FR : Module du modèle des maisons
 EN : Houses model module
@@ -15,7 +13,7 @@ modified by: Paulo ALVES
 import uuid
 
 from django.db import models
-from django.shortcuts import reverse
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
@@ -53,6 +51,15 @@ class ClientFamilly(FlagsTable):
 
     name = models.CharField(unique=True, max_length=80)
     comment = models.CharField(null=True, blank=True, max_length=255)
+
+    def clean(self):
+        """
+        FR : Capitalisation avant validate_unique, pour que le doublon "franchise"/"Franchise"
+             soit détecté par le formulaire et non par une IntegrityError à la sauvegarde
+        EN : Capitalize before validate_unique
+        """
+        if self.name:
+            self.name = self.name.capitalize()
 
     def save(self, *args, **kwargs):
         """
@@ -394,7 +401,8 @@ class Maison(FlagsTable):
 
     def clean(self):
         # Ensures constraint on model level, raises ValidationError
-        if self.type_x3 == 2 and not self.axe_bu:
+        # type_x3 est une FK vers TypeVente (to_field="num") : on compare la valeur stockée
+        if self.type_x3_id == 2 and not self.axe_bu:
             # raise error for field
             raise ValidationError(
                 {
@@ -406,7 +414,7 @@ class Maison(FlagsTable):
             )
 
         # Si le type n'est pas OD-ANA alors il ne faut pas d'axe BU
-        if self.type_x3 != 2:
+        if self.type_x3_id != 2:
             self.axe_bu = None
 
         # Vérifiaction de l'unicité sur la référence Cosium
@@ -414,7 +422,9 @@ class Maison(FlagsTable):
             exist_list = Maison.objects.filter(reference_cosium=self.reference_cosium).values_list(
                 "cct", flat=True
             )
-            if exist_list and self.cct.cct not in set(exist_list):
+            cct_code = self.cct.cct if self.cct_id else None
+
+            if exist_list and cct_code not in set(exist_list):
                 raise ValidationError(
                     {
                         "reference_cosium": _(
@@ -444,7 +454,7 @@ class Maison(FlagsTable):
             )
 
         # On s'assure que le Tiers X3 client est bien un client
-        if self.third_party_num and not self.third_party_num.is_client:
+        if self.third_party_num_id and not self.third_party_num.is_client:
             raise ValidationError(
                     {
                         "third_party_num": _(
@@ -574,7 +584,7 @@ class Contact(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.first_name}{' - ' if self.first_name else ''}{self.last_name}"
+        return " - ".join(part for part in (self.first_name, self.last_name) if part)
 
     class Meta:
         """class Meta du modèle django"""

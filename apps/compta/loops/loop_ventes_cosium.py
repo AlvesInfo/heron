@@ -1,4 +1,3 @@
-# pylint: disable=W0703,W1203,E0401
 """
 FR : Module d'import en boucle des ventes cosium
 EN : Cosium sales loop import module
@@ -72,16 +71,16 @@ def process():
         LOGGER_IMPORT.exception(f"Exception Générale: Import Ventes Cosium\n{except_error!r}")
 
     finally:
-        if error and trace:
+        # La trace est créée avant le try : elle existe toujours ici
+        if error:
             trace.errors = True
             trace.comment = (
                 trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
-        if trace is not None:
-            trace.time_to_process = time.time() - start
-            trace.final_at = pendulum.now()
-            trace.save()
+        trace.time_to_process = time.time() - start
+        trace.final_at = pendulum.now()
+        trace.save()
 
 
 if __name__ == "__main__":

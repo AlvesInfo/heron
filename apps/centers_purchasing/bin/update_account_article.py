@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413
 """
 FR : Module d'update des accounts articles après création ou update
 EN : Module for updating article accounts after creation or update
@@ -11,24 +10,9 @@ created by: Paulo ALVES
 modified at: 2023-05-10
 modified by: Paulo ALVES
 """
-import os
-import platform
-import sys
 import uuid
 
-import django
-
-BASE_DIR = r"C:\SitesWeb\heron"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
-
+from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 from django.db import connection
 
 
@@ -119,13 +103,8 @@ def set_update_articles_account(article_uuid: uuid.UUID = None):
     :param article_uuid: si c'est pour un seul article, on lui met le tiers et la référence
     :return: None
     """
-    if article_uuid is None:
-        clause_where = 'where "aa"."new_article" = false'
-    else:
-        clause_where = f"""where "aa"."uuid_identification" = '{article_uuid}'::uuid """
-
-    sql_create_account = f"""
-    insert into "articles_articleaccount" 
+    sql_create_account = """
+    insert into "articles_articleaccount"
     (
         "created_at",
         "modified_at",
@@ -164,7 +143,10 @@ def set_update_articles_account(article_uuid: uuid.UUID = None):
             on "aa2"."uuid_identification" = "cpa"."purchase_account_uuid" 
             left join "accountancy_accountsage" "aa3" 
             on "aa3"."uuid_identification" = "cpa"."sale_account_uuid" 
-            {clause_where}
+            where (
+                (%(article_uuid)s is null and "aa"."new_article" = false)
+                or (%(article_uuid)s is not null and "aa"."uuid_identification" = %(article_uuid)s)
+            )
             group by "aa2"."account" , 
                 "aa3"."account", 
                 "aa"."uuid_identification", 
@@ -181,7 +163,7 @@ def set_update_articles_account(article_uuid: uuid.UUID = None):
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(sql_create_account)
+        cursor.execute(sql_create_account, {"article_uuid": article_uuid})
 
 
 def set_update_articles_confict_account():
@@ -190,7 +172,7 @@ def set_update_articles_confict_account():
     :return: None
     """
 
-    sql_create_account = f"""
+    sql_create_account = """
     insert into "articles_articleaccount" 
     (
         "created_at",

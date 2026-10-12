@@ -10,8 +10,10 @@ modified at: 2025-11-119
 modified by: Paulo ALVES
 """
 
+from django.db import transaction
+
+from heron.loggers import LOGGER_DJANGO
 from apps.core.models import SSEProgress
-from apps.core.functions.functions_setups import transaction
 
 
 def update_progress_threaded(job_id: str, **kwargs):
@@ -28,6 +30,4 @@ def update_progress_threaded(job_id: str, **kwargs):
             else:
                 progress.update_progress(**kwargs)
         except TypeError:
-            print("kwargs : ", kwargs)
-            print("kwargs : ", "mmark_as_failed" in kwargs)
-            print("mark_as_completed" in kwargs)
+            LOGGER_DJANGO.exception(f"update_progress_threaded : arguments invalides {kwargs!r}")

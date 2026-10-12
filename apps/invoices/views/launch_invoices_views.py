@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 # ruff: noqa: E722
 """
 FR : View des lancements de la facturations
@@ -20,9 +19,10 @@ from zipfile import ZipFile
 from pathlib import Path
 
 import pendulum
-from django.shortcuts import render, redirect, reverse, HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.db import transaction
@@ -384,7 +384,12 @@ def invoices_pdf_files(request):
         edi_validation = EdiValidation.objects.filter(
             Q(final=False) | Q(final__isnull=True)
         ).first()
-        initial_period = pendulum.parse(edi_validation.billing_period.isoformat())
+        # Sans période de facturation ouverte, on propose le mois en cours
+        initial_period = (
+            pendulum.parse(edi_validation.billing_period.isoformat())
+            if edi_validation
+            else pendulum.now()
+        )
         dte_d = initial_period.start_of("month").date().isoformat()
         dte_f = initial_period.end_of("month").date().isoformat()
         initial_value = f"{dte_d}_{dte_f}"
@@ -463,7 +468,13 @@ def get_pdf_file(request, file_name):
                             file, file.name, compress_type=compression, compresslevel=9
                         )
 
-            file_path = Path(settings.SALES_INVOICES_FILES_DIR) / file_name
+            sales_dir = Path(settings.SALES_INVOICES_FILES_DIR).resolve()
+            file_path = (sales_dir / file_name).resolve()
+
+            # Le nom vient de l'URL : on refuse toute sortie du répertoire des factures
+            if sales_dir not in file_path.parents:
+                raise PermissionError(f"chemin hors du répertoire des factures : {file_name!r}")
+
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
             response = HttpResponse(
                 file_path.open("rb").read(), content_type=content_type
@@ -480,9 +491,6 @@ def get_pdf_file(request, file_name):
 
 def send_email_pdf_invoice(request):
     """Vue d'envoi de toutes les factures pdf, par mail"""
-
-    if request.method == "POST" and "email_essais" in request.POST:
-        return redirect(reverse("invoices:send_email_essais"))
 
     titre_table = "Envoi global, des factures de vente par mail"
 
@@ -578,7 +586,7 @@ def send_email_pdf_invoice(request):
 
     context["en_cours"] = any([insertion, pdf_invoices, email_invoices])
     context["titre_table"] = titre_table
-    print(context["not_finalize"], context["en_cours"], context["news"])
+
     return render(request, "invoices/send_email_invoices.html", context=context)
 
 

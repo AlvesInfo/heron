@@ -58,7 +58,7 @@
     {% endif %}
 
     {% if message_error %}
-        <div class="ui big red message" id="success_message" style="text-align: center;">
+        <div class="ui big red message" id="error_message" style="text-align: center;">
           {{ message_error }}
         </div>
     {% endif %}
@@ -75,7 +75,7 @@
         $(`.ui.dropdown`).dropdown();
 
         function arret_success_message () {
-            $(`#success_message`).addClass(`hidden`);
+            $(`#success_message, #error_message`).addClass(`hidden`);
         }
 
         setTimeout(arret_success_message, 3000);

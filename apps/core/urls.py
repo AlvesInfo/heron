@@ -2,8 +2,6 @@ from django.urls import path
 
 
 from apps.core.views import (
-    # TEST DES FACTURES EN PDF
-    pdf_view,
     # API POUR LES DROPDOWN SEMANTIC
     api_models_query,
     # API POUR LES DROPDOWN SEMANTIC
@@ -21,10 +19,6 @@ from apps.core.views import (
 )
 
 urlpatterns = [
-    # TEST DES FACTURES EN PDF
-    *[
-        path("pdf_test/", pdf_view, name="pdf_test"),
-    ],
     # API POUR LES DROPDOWN SEMANTIC
     *[
         path(

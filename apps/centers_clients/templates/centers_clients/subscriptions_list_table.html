@@ -10,16 +10,16 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 5%">Edit</th>
-                <th style="width: 23%">Client</th>
-                <th style="width: 26%">Article</th>
-                <th style="width: 5%">Qty</th>
-                <th style="width: 5%">Unité</th>
-                <th style="width: 7%">Prix Net</th>
-                <th style="width: 6%">TVA</th>
-                <th style="width: 10%">Fonction</th>
-                <th style="width: 8%">Enseigne</th>
-                <th style="width: 5%;">delete</th>
+                <th scope="col" class="no-sort" style="text-align: center;width: 5%">Edit</th>
+                <th scope="col" style="width: 23%">Client</th>
+                <th scope="col" style="width: 26%">Article</th>
+                <th scope="col" style="width: 5%">Qty</th>
+                <th scope="col" style="width: 5%">Unité</th>
+                <th scope="col" style="width: 7%">Prix Net</th>
+                <th scope="col" style="width: 6%">TVA</th>
+                <th scope="col" style="width: 10%">Fonction</th>
+                <th scope="col" style="width: 8%">Enseigne</th>
+                <th scope="col" style="width: 5%;">delete</th>
             </tr>
         </thead>
         <tbody>
@@ -74,7 +74,7 @@
                 </td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ subscription.pk }}, `{{ subscription.maison }} - {{ subscription.article__reference }}`, `{% url 'centers_clients:subscription_delete' %}`, `l'abonnement `)"></i>
+                      <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ subscription.pk }}, `{{ subscription.maison }} - {{ subscription.article__reference }}`, `{% url 'centers_clients:subscription_delete' %}`, `l'abonnement `)"><i class="red trash icon" aria-hidden="true"></i></button>
                     </div>
                 </td>
             </tr>

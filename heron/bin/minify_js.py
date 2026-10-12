@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import request
+import requests
 
 from heron import settings
 
@@ -14,7 +14,7 @@ def minify(file, file_minify):
         :return: text js minifié
     """
     data = {"input": open(file, "rb").read()}
-    response = request.post(url, data=data)
+    response = requests.post(url, data=data)
     with open(file_minify, "w") as file_to_write:
         file_to_write.write(response.text)
 

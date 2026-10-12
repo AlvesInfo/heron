@@ -5,10 +5,12 @@ Views des Paramètres des Controles de Refacturation
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -43,7 +45,6 @@ class ControlRebillingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = ControlRebilling
     form_class = ControlRebillingForm
-    form_class.use_required_attribute = False
     template_name = "parameters/control_rebilling_update.html"
     success_message = "Le Contrôle de Refacturation %(name)s a été créé avec success"
     error_message = (
@@ -71,7 +72,6 @@ class ControlRebillingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = ControlRebilling
     form_class = ControlRebillingForm
-    form_class.use_required_attribute = False
     template_name = "parameters/control_rebilling_update.html"
     success_message = (
         "Le Contrôle de Refacturation  %(name)s a été modifiée avec success"
@@ -103,7 +103,7 @@ def delete_control_rebilling(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}

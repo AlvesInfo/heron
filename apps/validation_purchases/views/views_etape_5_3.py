@@ -2,9 +2,11 @@ import pendulum
 from django.db import connection
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.bin.change_traces import trace_change
@@ -62,7 +64,7 @@ def ca_cct_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : ca_cct_export")
 
     return redirect(reverse("validation_purchases:ca_cct"))
@@ -71,7 +73,7 @@ def ca_cct_export(request):
 def ca_cct_validation(request):
     """Validation de l'écran de Contrôle 5.3 - Contrôle CA Cosium / Ventes Héron"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -103,11 +105,11 @@ def ca_cct_validation(request):
                 request.session["level"] = 50
                 message = "Le contrôle du CA Cosium / Ventes Héron est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(f"Views : ca_cct_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(f"Views : ca_cct_validation error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"Views : ca_cct_validation error, form invalid : {form.errors!r}")
 
     messages.add_message(request, level, message)
 

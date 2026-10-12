@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702
 """
 FR : Module des utilitaires pour la validation
 EN : Utilities Modul for validation
@@ -143,7 +142,7 @@ def create_edi_validation():
                 billing_period=pendulum.now().date()
             )
 
-    except:
+    except Exception:  # pylint: disable=W0718
         LOGGER_EDI.exception("view : create_edi_validation")
 
-    return edi_validation.uuid_identification
+    return edi_validation.uuid_identification if edi_validation else None

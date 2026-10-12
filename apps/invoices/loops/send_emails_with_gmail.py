@@ -1,12 +1,10 @@
-from typing import AnyStr
 import time
 
 from celery import group
-from django.db import transaction, close_old_connections
+from django.db import transaction
 
 from heron import celery_app
 from heron.loggers import LOGGER_EMAIL
-from apps.users.models import User
 from apps.core.models import SSEProgress
 from apps.parameters.bin.core import get_action
 from apps.parameters.models import ActionInProgress
@@ -47,6 +45,7 @@ def send_invoices_emails_gmail(user: int, job_id: str):
                 )
             ]
         )().get(3600)
+        info = str(result)
         LOGGER_EMAIL.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
         # Marquer comme terminé, mais avant rafraîchir pour avoir les dernières valeurs
@@ -54,6 +53,7 @@ def send_invoices_emails_gmail(user: int, job_id: str):
         progress.mark_as_completed()
 
     except Exception as error:
+        info = f"Erreur : {error!r}"
         LOGGER_EMAIL.exception(
             "Erreur détectée dans "
             "apps.invoices.loops.send_emails_with_gmail.send_invoices_emails_gmail()"

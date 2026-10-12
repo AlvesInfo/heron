@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de génération des RFA sous task Celery
 EN : RFA generation module under Celery task
@@ -22,6 +21,7 @@ from heron.loggers import LOGGER_EDI
 from apps.core.bin.clean_celery import clean_memory
 from apps.data_flux.trace import get_trace
 from apps.users.models import User
+from apps.rfa.bin.rfa_insertions import RfaPeriodError
 from apps.rfa.imports.import_rfa_pool import generate_rfa
 
 
@@ -54,6 +54,12 @@ def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: Any
     try:
         to_print = generate_rfa(supplier_origin, period_rfa, trace)
 
+    except RfaPeriodError as except_error:
+        error = True
+        to_print += f"Erreur : {except_error}\n"
+        trace.comment = str(except_error)
+        LOGGER_EDI.error(f"RFA {supplier_origin} : {except_error}")
+
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
@@ -66,18 +72,17 @@ def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: Any
         )
 
     finally:
-        if error and trace:
+        if error:
             trace.errors = True
             trace.comment = (
                 trace.comment
                 + "\n. Error: Une erreur c'est produite veuillez consulter les logs"
             )
 
-        if trace is not None:
-            trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
-            trace.final_at = timezone.now()
-            trace.invoices = True
-            trace.save()
+        trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
+        trace.final_at = timezone.now()
+        trace.invoices = True
+        trace.save()
 
     LOGGER_EDI.warning(
         to_print

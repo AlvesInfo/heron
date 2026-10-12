@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de génération de l'entête des factures en pdf
 EN : Module for generating invoices in pdf
@@ -20,7 +19,6 @@ from django.conf import settings
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
 from apps.centers_purchasing.models import ChildCenterPurchase
 
@@ -36,17 +34,19 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
         cct=cct, final=False, printed=False, type_x3__in=(1, 2)
     ).order_by("cct", "big_category_ranking")
 
-    if sale:
-        center_puchase = ChildCenterPurchase.objects.get(
-            code=sale[0].signboard.code_signboard
-        )
-    else:
-        center_puchase = None
+    first_sale = sale.first()
+    # Sans facture à imprimer (ou sans centrale connue) la page est produite sans ces éléments,
+    # au lieu de lever IndexError / DoesNotExist
+    center_puchase = (
+        ChildCenterPurchase.objects.filter(code=first_sale.signboard.code_signboard).first()
+        if first_sale
+        else None
+    )
 
     context = {
         "invoices": sale,
-        "logo": str(sale[0].signboard.logo_signboard).replace("logos/", ""),
-        "domain": DOMAIN,
+        "logo": str(first_sale.signboard.logo_signboard).replace("logos/", "") if first_sale else "",
+        "domain": settings.PDF_STATIC_DOMAIN,
         "center_puchase": center_puchase,
     }
     content = render_to_string("invoices/pdf_summary.html", context)
@@ -57,5 +57,5 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
 
 if __name__ == "__main__":
     cct_cct = "GAUDF"
-    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / f"LAB0001_000000045014_full.pdf"
+    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / "LAB0001_000000045014_full.pdf"
     summary_invoice_pdf(cct_cct, file_path)

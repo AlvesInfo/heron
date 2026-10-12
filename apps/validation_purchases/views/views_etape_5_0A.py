@@ -1,6 +1,7 @@
 import pendulum
 from django.db import connection
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -41,7 +42,7 @@ def suppliers_m_purchases(request, client):
             "titre_table": "5.A - Contrôle Fournisseurs M vs M-1",
             "clients": elements,
             "cct_client": client,
-            "maison": Maison.objects.get(cct=client),
+            "maison": get_object_or_404(Maison, cct=client),
             "mois_dict": mois_dict,
             "chevron_retour": reverse("validation_purchases:ca_cct"),
         }
@@ -58,7 +59,7 @@ def suppliers_m_purchases_export(request, client):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                f"CONTROLE_{client}_M_VS_M-1_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"CONTROLE_{client}_M_VS_M-1_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
 
             return response_file(
@@ -68,7 +69,7 @@ def suppliers_m_purchases_export(request, client):
                 client,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : suppliers_m_purchases_export")
 
     return redirect(

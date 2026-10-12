@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des modèles de comptabilité sage pour validation et vérifications
      des élements à importer de Sage X3
@@ -882,7 +881,7 @@ class CurrencySage(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return f"{self.currency_change} - {self.currency_change}"
+        return f"{self.currency_current} - {self.currency_change}"
 
     class Meta:
         """class Meta du modèle django"""

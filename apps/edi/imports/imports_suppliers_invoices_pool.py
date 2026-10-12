@@ -1,4 +1,3 @@
-# pylint: disable=W0703,W1203
 """
 FR: Module d'import des factures founisseurs EDI
 EN: Import module for EDI incoives suppliers
@@ -56,30 +55,7 @@ from apps.edi.bin.edi_post_processing_pool import (
     z_bu_refac_post_insert,
 )
 from apps.edi.models import EdiImport
-from apps.edi.forms.forms_djantic.forms_invoices import (
-    BbgrBulkSchema,
-    CosiumSchema,
-    CosiumTransfertSchema,
-    EdiSchema,
-    EyeConfortSchema,
-    GeneriqueSchema,
-    HansatonSchema,
-    HearingSchema,
-    IntersonSchema,
-    JohnsonSchema,
-    LmcSchema,
-    NewsonSchema,
-    PhonakSchema,
-    ProditionSchema,
-    SigniaSchema,
-    StarkeySchema,
-    TechnidisSchema,
-    UnitronSchema,
-    WidexSchema,
-    WsauSchema,
-    WidexGaSchema,
-    ZBuRefacSageSchema,
-)
+from apps.edi.forms.forms_djantic.forms_invoices import get_schema
 from apps.data_flux.trace import get_trace
 from apps.edi.bin.edi_post_processing_pool import (
     bbgr_statment_post_insert,
@@ -96,7 +72,7 @@ from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
 def bbgr_bulk(file_path: Path):
     """Import du fichier des factures BBGR bulk"""
     model = EdiImport
-    validator = BbgrBulkSchema
+    validator = get_schema("BbgrBulkSchema")
     file_name = file_path.name
     trace_name = "Import BBGR Bulk"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -273,7 +249,7 @@ def bbgr_receptions():
 def cosium(file_path: Path):
     """Import du fichier des factures Cosium"""
     model = EdiImport
-    validator = CosiumSchema
+    validator = get_schema("CosiumSchema")
     file_name = file_path.name
     trace_name = "Import Cosium"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -301,7 +277,7 @@ def cosium(file_path: Path):
 def cosium_achats(file_path: Path):
     """Import du fichier des factures Cosium"""
     model = EdiImport
-    validator = CosiumSchema
+    validator = get_schema("CosiumSchema")
     file_name = file_path.name
     trace_name = "Import Cosium Achats"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -329,7 +305,7 @@ def cosium_achats(file_path: Path):
 def transfert_cosium(file_path: Path):
     """Import du fichier des factures Cosium"""
     model = EdiImport
-    validator = CosiumTransfertSchema
+    validator = get_schema("CosiumTransfertSchema")
     file_name = file_path.name
     trace_name = "Import Transferts Cosium"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -369,7 +345,7 @@ def transfert_cosium(file_path: Path):
 def edi(file_path: Path):
     """Import du fichier des factures EDI au format opto33"""
     model = EdiImport
-    validator = EdiSchema
+    validator = get_schema("EdiSchema")
     file_name = file_path.name
     trace_name = "Import Edi - tiers : "
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -397,7 +373,7 @@ def edi(file_path: Path):
 def eye_confort(file_path: Path):
     """Import du fichier des factures EyeConfort"""
     model = EdiImport
-    validator = EyeConfortSchema
+    validator = get_schema("EyeConfortSchema")
     file_name = file_path.name
     trace_name = "Import EyeConfort"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -426,7 +402,7 @@ def eye_confort(file_path: Path):
 def generique(file_path: Path):
     """Import du fichier des factures au format du cahier des charges Génerique"""
     model = EdiImport
-    validator = GeneriqueSchema
+    validator = get_schema("GeneriqueSchema")
     file_name = file_path.name
     trace_name = "Import Génerique - tiers : "
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -454,7 +430,7 @@ def generique(file_path: Path):
 def generique_internal(file_path: Path):
     """Import du fichier des factures au format du cahier des charges Génerique"""
     model = EdiImport
-    validator = GeneriqueSchema
+    validator = get_schema("GeneriqueSchema")
     file_name = file_path.name
     trace_name = "Import Génerique internal- tiers : "
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -483,7 +459,7 @@ def generique_internal(file_path: Path):
 def hearing(file_path: Path):
     """Import du fichier des factures Hearing"""
     model = EdiImport
-    validator = HearingSchema
+    validator = get_schema("HearingSchema")
     file_name = file_path.name
     trace_name = "Import Hearing"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -512,7 +488,7 @@ def hearing(file_path: Path):
 def interson(file_path: Path):
     """Import du fichier des factures Interson"""
     model = EdiImport
-    validator = IntersonSchema
+    validator = get_schema("IntersonSchema")
     file_name = file_path.name
     trace_name = "Import Interson"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -542,7 +518,7 @@ def interson(file_path: Path):
 def johnson(file_path: Path):
     """Import du fichier des factures Johnson"""
     model = EdiImport
-    validator = JohnsonSchema
+    validator = get_schema("JohnsonSchema")
     file_name = file_path.name
     trace_name = "Import Johnson"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -583,7 +559,10 @@ def johnson(file_path: Path):
         trace.save()
         LOGGER_EDI.exception(f"johnson_file : {error!r}")
     finally:
-        new_file.unlink()
+        # Seul le csv produit par la traduction est supprimé : en cas d'échec de la traduction,
+        # le fichier d'origine reste en place pour être déplacé en backup par la tâche
+        if new_file != file_path:
+            new_file.unlink(missing_ok=True)
 
     return trace, to_print
 
@@ -591,7 +570,7 @@ def johnson(file_path: Path):
 def lmc(file_path: Path):
     """Import du fichier des factures Lmc"""
     model = EdiImport
-    validator = LmcSchema
+    validator = get_schema("LmcSchema")
     file_name = file_path.name
     trace_name = "Import Lmc"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -620,7 +599,7 @@ def lmc(file_path: Path):
 def newson(file_path: Path):
     """Import du fichier des factures Newson"""
     model = EdiImport
-    validator = NewsonSchema
+    validator = get_schema("NewsonSchema")
     file_name = file_path.name
     trace_name = "Import Newson"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -649,7 +628,7 @@ def newson(file_path: Path):
 def phonak(file_path: Path):
     """Import du fichier des factures Phonak"""
     model = EdiImport
-    validator = PhonakSchema
+    validator = get_schema("PhonakSchema")
     file_name = file_path.name
     trace_name = "Import Phonak"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -680,7 +659,7 @@ def hansaton(file_path: Path):
     Reprise de la fonction de Phonack, car faisant partie du même groupe
     """
     model = EdiImport
-    validator = HansatonSchema
+    validator = get_schema("HansatonSchema")
     file_name = file_path.name
     trace_name = "Import Hansaton"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -709,7 +688,7 @@ def hansaton(file_path: Path):
 def prodition(file_path: Path):
     """Import du fichier des factures Prodition"""
     model = EdiImport
-    validator = ProditionSchema
+    validator = get_schema("ProditionSchema")
     file_name = file_path.name
     trace_name = "Import Prodition"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -738,7 +717,7 @@ def prodition(file_path: Path):
 def signia(file_path: Path):
     """Import du fichier des factures Signia"""
     model = EdiImport
-    validator = SigniaSchema
+    validator = get_schema("SigniaSchema")
     file_name = file_path.name
     trace_name = "Import Signia"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -767,7 +746,7 @@ def signia(file_path: Path):
 def starkey(file_path: Path):
     """Import du fichier des factures Starkey"""
     model = EdiImport
-    validator = StarkeySchema
+    validator = get_schema("StarkeySchema")
     file_name = file_path.name
     trace_name = "Import Starkey"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -796,7 +775,7 @@ def starkey(file_path: Path):
 def technidis(file_path: Path):
     """Import du fichier des factures Technidis"""
     model = EdiImport
-    validator = TechnidisSchema
+    validator = get_schema("TechnidisSchema")
     file_name = file_path.name
     trace_name = "Import Technidis"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -825,7 +804,7 @@ def technidis(file_path: Path):
 def unitron(file_path: Path):
     """Import du fichier des factures Unitron"""
     model = EdiImport
-    validator = UnitronSchema
+    validator = get_schema("UnitronSchema")
     file_name = file_path.name
     trace_name = "Import Unitron"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -854,7 +833,7 @@ def unitron(file_path: Path):
 def widex(file_path: Path):
     """Import du fichier des factures Widex"""
     model = EdiImport
-    validator = WidexSchema
+    validator = get_schema("WidexSchema")
     file_name = file_path.name
     trace_name = "Import Widex"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -883,7 +862,7 @@ def widex(file_path: Path):
 def wsau(file_path: Path):
     """Import du fichier des factures Widex/Signia/Biotone"""
     model = EdiImport
-    validator = WsauSchema
+    validator = get_schema("WsauSchema")
     file_name = file_path.name
     trace_name = "Import WSAU"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -930,7 +909,7 @@ def wsau(file_path: Path):
 def widex_ga(file_path: Path):
     """Import du fichier des factures Widex Grand Audition"""
     model = EdiImport
-    validator = WidexGaSchema
+    validator = get_schema("WidexGaSchema")
     file_name = file_path.name
     trace_name = "Import WidexGa"
     application_name = "edi_imports_suppliers_invoices_pool"
@@ -959,7 +938,7 @@ def widex_ga(file_path: Path):
 def z_bu_refac(file_path: Path):
     """Import du fichier de la requête sql pour les BU Refac0 extrait de sage"""
     model = EdiImport
-    validator = ZBuRefacSageSchema
+    validator = get_schema("ZBuRefacSageSchema")
     file_name = file_path.name
     trace_name = "Import ZBuRefacSage"
     application_name = "edi_imports_suppliers_invoices_pool"

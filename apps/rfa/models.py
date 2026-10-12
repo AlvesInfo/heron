@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module de préparation à l'import des factures fournisseurs
 EN : Preparation module for importing supplier invoices
@@ -61,7 +60,7 @@ class ClientExclusion(FlagsTable):
         related_name="cct_rfa",
         db_column="cct",
         unique=True,
-        limit_choices_to={'type_x3': (1, 2), "cct__active": True}
+        limit_choices_to={"type_x3__in": (1, 2), "cct__active": True}
     )
 
     class Meta:

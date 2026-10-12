@@ -6,24 +6,7 @@ from apps.core.functions.functions_setups import settings
 path_dir = settings.APPS_DIR
 
 apps = [
-    # "accountancy",
-    # "articles",
-    # "book",
     "centers_clients",
-    # "centers_purchasing",
-    # "clients_invoices",
-    # "core",
-    # "countries",
-    # "edi",
-    # "groups",
-    # "import_files",
-    # "parameters",
-    # "periods",
-    # "permissions",
-    # "invoices",
-    # "suppliers_validations",
-    # "traces",
-    # "users",
 ]
 
 dirs = [

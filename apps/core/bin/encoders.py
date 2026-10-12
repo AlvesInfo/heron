@@ -42,30 +42,30 @@ class PersonalizedDjangoJSONEncoder(json.JSONEncoder):
             return super().default(o)
 
 
-def set_base_64_list(values_list: list) -> base64:
+def set_base_64_list(values_list: list) -> str:
     """
     Set en base64 une liste sous forme de chaine à spliter lors du décodage
     :param values_list: liste de valeur
-    :return: base64
+    :return: chaîne encodée en base64
     """
     value = "||".join(values_list)
     return base64.b64encode(value.encode(encoding="utf8")).decode(encoding="utf8")
 
 
-def set_base_64_str(value: str) -> base64:
+def set_base_64_str(value: str) -> str:
     """
     Set en base64 une liste sous forme de chaine à spliter lors du décodage
     :param value: string déjà formaté avec || en séparateur
-    :return: base64
+    :return: chaîne encodée en base64
     """
     b_value = b"" if value is None else value.encode(encoding="utf8")
     return base64.b64encode(b_value).decode(encoding="utf8")
 
 
-def get_base_64(value_base64: base64) -> list:
+def get_base_64(value_base64: str | None) -> list:
     """
     Décode de base64 une chaine à spliter lors du décodage en liste
-    :param value_base64: valeur en base64 à spliter
+    :param value_base64: chaîne en base64 à décoder puis spliter
     :return: list des éléments décodés
     """
     b_value = b"" if value_base64 is None else value_base64.encode(encoding="utf8")

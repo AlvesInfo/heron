@@ -1,4 +1,3 @@
-# pylint: disable=W0702,W1203,E0401
 """Module d'export de la liste des articles excel
 
 Commentaire:
@@ -14,20 +13,11 @@ import io
 
 from psycopg2 import sql
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
-from apps.core.functions.functions_setups import CNX_STRING
-from apps.core.functions.functions_postgresql import cnx_postgresql
-from apps.core.excel_outputs.excel_writer import (
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
-)
+from django.db import connection
 from apps.book.models import Society
 from apps.parameters.models import Category
 from apps.articles.excel_outputs.output_excel_articles_columns import columns_list_articles
+from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
 def get_clean_rows(third_party_num: str, category: str) -> iter:
@@ -78,7 +68,7 @@ def get_clean_rows(third_party_num: str, category: str) -> iter:
         """
     )
 
-    with cnx_postgresql(CNX_STRING).cursor() as cursor:
+    with connection.cursor() as cursor:
         cursor.execute(
             sql_query,
             {
@@ -96,34 +86,18 @@ def excel_liste_articles(
     categorie_name = Category.objects.get(slug_name=category)
     titre_list = file_name.split("_")
     titre = (
-        " ".join(titre_list[:-4])
-        + f" DU FOURNISSEUR : {str(Society.objects.get(third_party_num=third_party_num))}"
-        f" - Catégorie : {categorie_name.name}"
-    )
-    list_excel = [file_io, [titre[:30]]]
-    excel = GenericExcel(list_excel)
+            " ".join(titre_list[:-4])
+            + f" DU FOURNISSEUR : {Society.objects.get(third_party_num=third_party_num)!s}"
+            f" - Catégorie : {categorie_name.name}"
+        )
     columns = columns_list_articles
 
-    try:
-        titre_page_writer(excel, 1, 0, 0, columns, titre)
-        output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, columns)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
-        ]
-        rows_writer(
-            excel, 1, 4, 0, get_clean_rows(third_party_num, category), f_lignes, f_lignes_odd
-        )
-        sheet_formatting(
-            excel, 1, columns, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name=titre[:30],
+        title=titre,
+        columns=columns,
+        rows=get_clean_rows(third_party_num, category),
+        orientation="landscape",
+    )

@@ -11,10 +11,12 @@ modified by: Paulo ALVES
 """
 import pendulum
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -44,7 +46,6 @@ class ClientFamillyCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = ClientFamilly
     form_class = ClientFamillyForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/client_familly_update.html"
     success_message = "La catégorie %(name)s, a été créé avec success"
     error_message = "La catégorie %(name)s, n'a pu être créé,  une erreur c'est produite"
@@ -73,7 +74,6 @@ class ClientFamillyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = ClientFamilly
     form_class = ClientFamillyForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/client_familly_update.html"
     success_message = "La catégorie %(name)s, a été modifiée avec success"
     error_message = "La catégorie %(name)s, n'a pu être modifiée,  une erreur c'est produite"
@@ -82,7 +82,7 @@ class ClientFamillyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse(CLIENT_FAMILLY_LIST)
-        context["titre_table"] = "Mise à jour d'une nouvelle Catégorie Client"
+        context["titre_table"] = "Mise à jour d'une Catégorie Client"
         return context
 
     def get_success_url(self):
@@ -99,7 +99,7 @@ class ClientFamillyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 def client_familly_delete(request):
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}

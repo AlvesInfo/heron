@@ -11,10 +11,10 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th style="width: 6%">Edit</th>
-                    <th style="width: 40%">Axe PRO</th>
-                    <th style="width: 40%">Regroupement Facturation</th>
-                    <th style="width: 6%">delete</th>
+                    <th scope="col" style="width: 6%">Edit</th>
+                    <th scope="col" style="width: 40%">Axe PRO</th>
+                    <th scope="col" style="width: 40%">Regroupement Facturation</th>
+                    <th scope="col" style="width: 6%">delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +29,7 @@
                     <td>{{axe.column_name}}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ axe.pk }}, `{{ axe.axe_pro }} - {{ axe.column_name }}`, `{% url 'invoices:axes_details_delete' %}`, `le dictionnaire `)"></i>
+                          <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ axe.pk }}, `{{ axe.axe_pro }} - {{ axe.column_name }}`, `{% url 'invoices:axes_details_delete' %}`, `le dictionnaire `)"><i class="red trash icon" aria-hidden="true"></i></button>
                         </div>
                     </td>
                 </tr>

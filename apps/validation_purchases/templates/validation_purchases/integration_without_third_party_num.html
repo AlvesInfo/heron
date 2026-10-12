@@ -99,7 +99,7 @@
                   encode: true,
                 }).done(function (data) {
 
-                    if (data.success === "success") {
+                    if (data.success === "success" || data.success === "ko") {
                         window.location.reload()
                     } else {
                         window.location.href = data.success;

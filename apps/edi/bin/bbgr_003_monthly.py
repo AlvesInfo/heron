@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module de génération du fichier BBGR Monthly
 EN : BBGR Monthly file generation module
@@ -17,7 +16,7 @@ from uuid import UUID
 from psycopg2 import sql
 from django.db import connection, transaction
 
-# from apps.core.functions.functions_setups import settings
+from heron.loggers import LOGGER_EDI
 
 HISTORIC_MONTHLY_ID = 2074484
 
@@ -65,10 +64,10 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
         )
         cursor.execute(sql_id, {"historic_id": min_id})
         test_have_lines = cursor.fetchone()
-        print("vérification BBGR Monthly")
+        LOGGER_EDI.info("vérification BBGR Monthly")
 
         if test_have_lines:
-            print("intégration des lignes BBGR Monthly")
+            LOGGER_EDI.info("intégration des lignes BBGR Monthly")
             sql_insert_monthly = sql.SQL(
                 """
                 insert into edi_ediimport 

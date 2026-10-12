@@ -1,4 +1,3 @@
-# pylint: disable=C0303,E0401,E1101
 """Module de validation des flux à intégrer en BDD
 
 Instances de validation implémentées :
@@ -22,7 +21,7 @@ from typing import Any, Dict, Iterable
 
 import pendulum
 import pydantic
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from djantic import ModelSchema
 from rest_framework import serializers as seria
 
@@ -79,7 +78,7 @@ class TraceTemplate:
         """
         Initialisation de la Trace
         """
-        print("AVANT INITIALIZE")
+        LOGGER_VALIDATION.info('AVANT INITIALIZE')
         self.trace = Trace.objects.create(
             created_at=timezone.now(),
             uuid_identification=self.trace_number,
@@ -93,7 +92,7 @@ class TraceTemplate:
             errors_numbers_records=0,
             unknown_numbers_records=0,
         )
-        print("APRES INITIALIZE", self.trace)
+        LOGGER_VALIDATION.info("%s %s", 'APRES INITIALIZE', self.trace)
         return self.trace
 
     def get_formatted_error(self, error_validator):
@@ -166,7 +165,12 @@ class TraceTemplate:
                          }
         """
         self.errors = True
-        formatted_errors = self.get_formatted_error(error)
+        # un message brut (erreur de flux ou d'appel) n'a pas de validateur à formater
+        formatted_errors = (
+            {"validation": [{"message": error, "data_received": "aucune valeur reçue"}]}
+            if isinstance(error, str)
+            else self.get_formatted_error(error)
+        )
         line = self.add_line(insertion_type="Errors", num_line=num_line)
 
         for attr_name, errors_list in formatted_errors.items():
@@ -204,7 +208,6 @@ class TraceTemplate:
         self.trace.created_numbers_records = counts_dict.get("create")
         self.trace.updated_numbers_records = counts_dict.get("update")
         self.trace.errors_numbers_records = counts_dict.get("errors")
-        self.trace.passed_numbers_records = counts_dict.get("passed")
         self.trace.unknown_numbers_records = counts_dict.get("unknown")
         self.trace.save()
 
@@ -378,6 +381,15 @@ class PydanticTrace(TraceTemplate):
         return error_dict
 
 
+def get_columns(validator, default: Iterable) -> list:
+    """Colonnes à écrire dans le fichier des données validées : celles de validator.Config.include
+    (schémas djantic / pydantic), sinon les champs validés
+    """
+    config = getattr(validator, "Config", None)
+
+    return list(getattr(config, "include", None) or default)
+
+
 class ValidationTemplate:
     """Template de validation"""
 
@@ -499,6 +511,7 @@ class ValidationTemplate:
             self._add_error(
                 line=0, error=f"La validation n'a pu avoir lieu, vérifier les fichiers de log {now}"
             )
+            self.trace_instance.save()
             raise FluxtypeError(
                 "La validation ne peut avoir lieu car le flux des données, "
                 "doit être un flux de dictionnaires"
@@ -586,13 +599,16 @@ class DjangoValidation(ValidationTemplate):
         :param csv_writer: csv_writer pour écrire les données cleannées, dans un fichier io.StringIO
         :return: None ou errors
         """
-        form = validator(**data_dict)
+        form = validator(data=data_dict)
 
         if form.is_valid():
-            csv_writer.writerow([form.cleaned_data.get(key) for key in validator.Config.include])
+            csv_writer.writerow(
+                [form.cleaned_data.get(key) for key in get_columns(validator, form.cleaned_data)]
+            )
             return False
 
-        return form.errors
+        # la trace lit errors et data sur le formulaire lui-même
+        return form
 
 
 class DrfValidation(ValidationTemplate):
@@ -630,13 +646,16 @@ class DrfValidation(ValidationTemplate):
         :param csv_writer: csv_writer pour écrire les données cleannées, dans un fichier io.StringIO
         :return: None ou errors
         """
-        form = validator(**data_dict)
+        form = validator(data=data_dict)
 
         if form.is_valid():
-            csv_writer.writerow([form.data.get(key) for key in validator.Config.include])
+            csv_writer.writerow(
+                [form.data.get(key) for key in get_columns(validator, form.validated_data)]
+            )
             return False
 
-        return form.errors
+        # la trace lit errors et data sur le sérialiseur lui-même
+        return form
 
 
 class PydanticValidation(ValidationTemplate):
@@ -679,8 +698,14 @@ class PydanticValidation(ValidationTemplate):
             csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
 
         except (pydantic.error_wrappers.ValidationError, ValidationError) as except_error:
-            print(except_error)
-            return except_error.errors(), data_dict
+            LOGGER_VALIDATION.exception(except_error)
+            # une ValidationError du module n'a pas la méthode errors() de pydantic
+            errors = (
+                except_error.errors()
+                if hasattr(except_error, "errors")
+                else [{"loc": ("__all__",), "msg": str(except_error)}]
+            )
+            return errors, data_dict
 
         return False
 
@@ -771,21 +796,21 @@ class Validation:
         if self.validator is None:
             validation_test = self.params_dict.get("validation")
 
-            if not isinstance(validation_test, (tuple, list)) and len(validation_test) != 2:
+            if not isinstance(validation_test, (tuple, list)) or len(validation_test) != 2:
                 raise ValidationFormError(
                     "l'attribut 'validation' du paramètre params_dict "
                     "doit être un tuple ou une liste : (ValidationTemplate, TraceTemplate)"
                 )
 
-            validation, trace = self.params_dict.get("validation")
+            validation, trace = validation_test
 
-            if not isinstance(validation, (type(ValidationTemplate),)):
+            if not (isinstance(validation, type) and issubclass(validation, ValidationTemplate)):
                 raise ValidationFormError(
-                    "La class Validation doit être un instance de ValidationTemplate"
+                    "La class Validation doit être une sous-classe de ValidationTemplate"
                 )
 
-            if not isinstance(trace, (type(TraceTemplate),)):
-                raise ValidationFormError("La class Trace doit être un instance de TraceTemplate")
+            if not (isinstance(trace, type) and issubclass(trace, TraceTemplate)):
+                raise ValidationFormError("La class Trace doit être une sous-classe de TraceTemplate")
 
         elif isinstance(self.validator, (type(forms.Form), type(forms.ModelForm))):
             validation = DjangoValidation

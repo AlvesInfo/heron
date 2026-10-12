@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers Widex
 EN : Post-processing sql module after importing supplier invoice files
@@ -96,7 +95,7 @@ post_widex_dict = {
         update "articles_article" "aa"
         set "libelle_heron" = ''
         where "third_party_num" = 'WSAU003'
-        and "libelle_heron" <> '' or "libelle_heron" isnull
+        and ("libelle_heron" <> '' or "libelle_heron" isnull)
         """
     ),
     "sql_marque": sql.SQL(

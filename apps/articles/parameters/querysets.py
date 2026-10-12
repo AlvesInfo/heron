@@ -1,4 +1,3 @@
-# pylint: disable=W0702,W1203,E0401,E1101
 """Module de stockage des querysets
 
 Commentaire:
@@ -9,7 +8,7 @@ created by: Paulo ALVES
 modified at: 2022-05-29
 modified by: Paulo ALVES
 """
-from django.db.models import Max, Value, CharField, Exists, OuterRef, Count, Case, When, Q, F
+from django.db.models import Value, CharField, OuterRef, Case, When, Q, F
 from django.db.models.functions import Coalesce, Cast
 
 from apps.articles.models import Article, ArticleAccount

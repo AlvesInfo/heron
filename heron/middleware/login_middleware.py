@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Middlewares de la partie login
 EN : Middlewares of the login part

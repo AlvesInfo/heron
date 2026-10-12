@@ -1,6 +1,7 @@
 import pendulum
 from django.db import connection
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -58,7 +59,12 @@ def third_suppliers_m_purchases_export(request, client, third_party_num):
                 third_party_num,
             )
 
-    except:
-        LOGGER_VIEWS.exception("view : refac_cct_purchases_export")
+    except Exception:
+        LOGGER_VIEWS.exception("view : third_suppliers_m_purchases_export")
 
-    return redirect(reverse("validation_purchases:refac_cct_purchases"))
+    return redirect(
+        reverse(
+            "validation_purchases:third_suppliers_m_purchases",
+            kwargs={"client": client, "third_party_num": third_party_num},
+        )
+    )

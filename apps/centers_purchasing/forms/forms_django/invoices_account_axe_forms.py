@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des dictionnaires des Comptes debit crédit pour la facturation
 """
@@ -13,6 +12,8 @@ from apps.centers_purchasing.models import AccountsAxeProCategory
 
 class AccountsAxeProCategoryForm(forms.ModelForm):
     """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation"""
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""
@@ -39,6 +40,8 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
                 axe_pro=axe_pro,
                 vat=vat,
             )
+            # en modification, la ligne éditée n'est pas son propre doublon
+            .exclude(pk=self.instance.pk)
             .values("pk")
             .exists()
         )
@@ -72,6 +75,9 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
 
 class AccountsAxeProCategoryDeleteForm(forms.ModelForm):
     """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation"""
+
+    # Le champ id (AutoField) n\'est pas généré par le ModelForm : déclaré pour valider l\'existence
+    id = forms.ModelChoiceField(queryset=AccountsAxeProCategory.objects.all())
 
     class Meta:
         """class Meta du form django"""

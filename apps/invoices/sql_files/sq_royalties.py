@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module des requêtes sql, pour les factures de ventes Royalties
 EN : Module of sql queries, for sales Royalties invoices

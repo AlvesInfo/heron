@@ -11,10 +11,10 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center;width: 15%">Visualiser<br>(1000 premiers)</th>
-                <th class="no-sort" style="text-align: center;width: 10%">Rechercher</th>
-                <th style="width: 65%">Fournisseur</th>
-                <th style="width: 20%">Nombre d'articles</th>
+                <th scope="col" class="no-sort" style="text-align: center;width: 15%">Visualiser<br>(1000 premiers)</th>
+                <th scope="col" class="no-sort" style="text-align: center;width: 10%">Rechercher</th>
+                <th scope="col" style="width: 65%">Fournisseur</th>
+                <th scope="col" style="width: 20%">Nombre d'articles</th>
             </tr>
         </thead>
         <tbody>
@@ -23,13 +23,15 @@
 
                 <td data-value="{{ supplier.third_party_num }}"
                     style="text-align: center;">
-                    <a href="#" onclick="gotToUrl(`{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num category=category %}`)">
+                    <a href="{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num category=category %}"
+                       onclick="gotToUrl(this.href)">
                         <i class="eye icon modification"></i>
                     </a>
                 </td>
                 <td data-value="{{ supplier.third_party_num }}"
                     style="text-align: center;">
-                    <a href="#" onclick="gotToUrl(`{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num category=category %}`)">
+                    <a href="{% if environnement_debug %}{{ domain_debug }}{% else %}{{ domain_site }}{% endif %}{% url 'articles:articles_list' third_party_num=supplier.third_party_num category=category %}"
+                       onclick="gotToUrl(this.href)">
                         <i class="zoom-in icon"></i>
                     </a>
                 </td>

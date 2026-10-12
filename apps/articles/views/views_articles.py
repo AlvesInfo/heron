@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,W0702,W0613,W0201
 """
 Views des Articles
 """
@@ -6,12 +5,14 @@ Views des Articles
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from django.db.models import Count, F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
+from django.utils.html import format_html
 
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
@@ -19,7 +20,7 @@ from apps.core.functions.functions_http_response import (
     response_file,
     CONTENT_TYPE_EXCEL,
 )
-from apps.core.functions.functions_http import get_pagination_buttons
+from apps.core.functions.functions_http import get_pagination_buttons, is_ajax
 from apps.articles.excel_outputs.output_excel_articles_list import (
     excel_liste_articles,
 )
@@ -131,7 +132,6 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Article
     form_class = ArticleForm
-    form_class.use_required_attribute = False
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été créé avec success"
     error_message = (
@@ -253,7 +253,6 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = Article
     form_class = ArticleForm
-    form_class.use_required_attribute = False
     pk_url_kwarg = "pk"
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été modifié avec success"
@@ -396,7 +395,9 @@ def articles_search_list(request):
         "num_pages": paginator.num_pages,
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
-        "titre_table": f'11. Recherche Articles<span style="font-size: .8em;">{titre_count}</span>',
+        "titre_table": format_html(
+            '11. Recherche Articles<span style="font-size: .8em;">{}</span>', titre_count
+        ),
         "url_redirect": reverse("articles:articles_search_list"),
         "attrs_filter": attrs_filter,
         "form": form,
@@ -426,13 +427,13 @@ def articles_export_list(_, third_party_num, category):
             category,
         )
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : articles_export_list")
 
     return redirect(
         reverse(
             "articles:articles_list",
-            {"third_party_num": third_party_num, "category": category},
+            kwargs={"third_party_num": third_party_num, "category": category},
         )
     )
 
@@ -443,7 +444,6 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = ArticleAccount
     form_class = ArticleAccountForm
-    form_class.use_required_attribute = False
     template_name = "articles/articles_account_vat_update.html"
     success_message = "Le compte par taux de tva %(article)s a été créé avec success"
     error_message = (
@@ -452,20 +452,14 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     )
 
     def get(self, request, *args, **kwargs):
-        """Ajout de self.article a l'instance de la vue"""
-        try:
-            self.article = Article.objects.get(pk=kwargs.get("article_pk"))
-        except Article.DoesNotExist:
-            pass
+        """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)"""
+        self.article = get_object_or_404(Article, pk=kwargs.get("article_pk"))
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        """Ajout de self.article a l'instance de la vue"""
+        """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)"""
         self.object = None
-        try:
-            self.article = Article.objects.get(pk=kwargs.get("article_pk"))
-        except Article.DoesNotExist:
-            pass
+        self.article = get_object_or_404(Article, pk=kwargs.get("article_pk"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -486,8 +480,7 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return reverse("articles:article_update", kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk})
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
-        form.instance.created_by = self.request.user
+        """Niveau de message à la sauvegarde (ArticleAccount n'a pas de champ created_by)"""
         self.request.session["level"] = 20
 
         return super().form_valid(form)
@@ -500,7 +493,7 @@ def delete_articles_account_vat(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -522,25 +515,3 @@ def delete_articles_account_vat(request):
         )
 
     return JsonResponse(data)
-
-
-def articles_account_vat_export_list(_):
-    """
-    Export Excel de la liste des comptes par taux de tva des articles
-    :return: response_file articles_account_vat
-    """
-    try:
-        today = pendulum.now()
-        file_name = (
-            f"LISTING_DES_COMPTES_TVA_PAR_ARTICLES"
-            f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-        )
-
-        # return response_file(
-        #     excel_list_articles_account_vat, file_name, CONTENT_TYPE_EXCEL
-        # )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception("view : articles_account_vat_export_list")
-
-    return redirect(reverse("home"))

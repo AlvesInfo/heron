@@ -8,12 +8,16 @@
         </div>
         <div class="content">
           <div class="ui form">
-            <h4 id="headerTiers" class="ui dividing header"></h4>
+            <h4 id="headerTiers" class="ui dividing header">Tiers</h4>
               <div class="fields">
                     <div class="one wide field" style="display: none;">
+                        <label for="big_category" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Grande catégorie d'origine</label>
                         <input type="text" name="big_category" maxlength="15" required id="big_category">
+                        <label for="id_third_party_num" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Tiers X3</label>
                         <input type="text" name="third_party_num" maxlength="15" required id="id_third_party_num">
+                        <label for="id_invoice_month" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Mois de facturation</label>
                         <input type="text" name="invoice_month" id="id_invoice_month">
+                        <label for="id_uuid_origin" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Identifiant d'origine</label>
                         <input type="text" name="uuid_origin" id="id_uuid_origin">
                     </div>
                     <div class="fourteen wide field">
@@ -23,7 +27,7 @@
                                 name="big_category_default"
                                 class="ui fluid search dropdown">
                             {% for value, label in form.big_category_choices %}
-                                <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
+                                <option value="{{ value }}">{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>

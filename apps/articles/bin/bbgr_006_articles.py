@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module d'intégration depuis la B.I des articles pour BBGR006 - Réceptions
 EN : Integration module from the B.I of articles for BBGR006 - Réceptions

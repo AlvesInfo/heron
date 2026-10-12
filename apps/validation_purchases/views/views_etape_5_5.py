@@ -70,7 +70,7 @@ def invoices_purchases_export_globals(request):
                 download_token=download_token
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : invoices_purchases_export_globals")
 
     context = {"titre_table": "ACHATS HERON NON FINALISEES"}

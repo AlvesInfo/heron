@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module Dictionnaire Centrale Filles/Axe Pro/TVA
 EN : Central Daughters/Axe Pro/VAT Dictionary Module
@@ -13,10 +12,12 @@ modified by: Paulo ALVES
 """
 import pendulum
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -46,7 +47,6 @@ class AxeProVatCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = ApplicableProVat
     form_class = ApplicableProVatForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/axe_pro_vat_update.html"
     success_message = (
         "Le dictionnaire Centrale Filles/Axe Pro/TVA de facturation a été créé avec success"
@@ -82,7 +82,6 @@ class AxeProVatUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = ApplicableProVat
     form_class = ApplicableProVatForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/axe_pro_vat_update.html"
     success_message = (
         "Le dictionnaire Centrale Filles/Axe Pro/TVA de facturation a été modifié avec success"
@@ -116,7 +115,7 @@ class AxeProVatUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def axe_pro_vat_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -152,7 +151,7 @@ def axe_pro_vat_export_list(_):
 
         return response_file(excel_liste_axe_vat, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : axe_pro_vat_export_list")
 
-    return redirect(reverse("centers_purchasing:axe_pro_vat_export_list"))
+    return redirect(reverse("centers_purchasing:axe_pro_vat_list"))

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Parameters
 """
@@ -17,6 +16,8 @@ from apps.articles.models import (
 
 class ArticleForm(forms.ModelForm):
     """Form de gestion des articles"""
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -88,14 +89,14 @@ class ArticleSearchForm(forms.ModelForm):
         self.fields["reference__icontains"].required = False
 
         libelle_icontains = forms.CharField(
-            label="Référence",
+            label="Libellé",
             required=False,
         )
         self.fields["libelle__icontains"] = libelle_icontains
         self.fields["libelle__icontains"].required = False
 
         libelle_heron_icontains = forms.CharField(
-            label="Référence",
+            label="Libellé Héron",
             required=False,
         )
         self.fields["libelle_heron__icontains"] = libelle_heron_icontains
@@ -119,6 +120,8 @@ class ArticleSearchForm(forms.ModelForm):
 
 class ArticleAccountForm(forms.ModelForm):
     """Form pour les comptes par taux de tva des articles"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -144,6 +147,8 @@ class ArticleAccountUpdateForm(forms.ModelForm):
     Les comptes proposés sont ceux du plan Sage X3 FRA, le compte actuel reste
     sélectionnable même s'il n'est pas dans ce plan.
     """
+
+    use_required_attribute = False
 
     purchase_account = forms.ChoiceField(
         label="Compte d'achat", widget=forms.Select(attrs=SELECT_FLUIDE_DICT)
@@ -180,6 +185,8 @@ class ArticleAccountUpdateForm(forms.ModelForm):
 
 class DeleteArticleAccountForm(forms.ModelForm):
     """Form pour la suppression des comptes par taux de tva des articles"""
+
+    id = forms.ModelChoiceField(queryset=ArticleAccount.objects.all())
 
     class Meta:
         """class Meta"""

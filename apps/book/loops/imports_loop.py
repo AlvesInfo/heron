@@ -1,4 +1,3 @@
-# pylint: disable=W0703,W1203
 """
 FR : Module d'import en boucle des modèles de Sage X3
 EN : Loop import module for Sage X3 models
@@ -22,6 +21,7 @@ from apps.book.imports.imports_sage import (
     bpc_sage,
     adress_sage,
     code_contact_sage,
+    contact_sage,
     bank_sage,
 )
 from apps.book.imports.excel_generations import writre_book_files
@@ -33,6 +33,7 @@ processing_dict = {
     "ZBIBPC_journalier.heron": bpc_sage,
     "ZBIADDR_journalier.heron": adress_sage,
     "ZBICONTACT_journalier.heron": code_contact_sage,
+    "ZBICONTCRM_journalier.heron": contact_sage,
     "ZBIBANK_journalier.heron": bank_sage,
 }
 traceback = ""

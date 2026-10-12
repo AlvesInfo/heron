@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de génération des factures de RFA en pdf
 EN : Module for generating invoices RFA in pdf
@@ -15,12 +14,12 @@ from pathlib import Path
 from uuid import UUID
 from typing import AnyStr
 
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.db import connection
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
 from apps.invoices.sql_files.sql_rfa import SQL_HEADER, SQL_RESUME_HEADER
 
@@ -53,7 +52,7 @@ def rfa_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr:
             "invoices": invoices,
             "headers": headers,
             "resume": resume,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_rfa.html", context)

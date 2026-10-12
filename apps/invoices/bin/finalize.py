@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413
 """
 FR : Finalisation des factures
 EN : Send invoices by email module

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des rfa SupplierRate
 """
@@ -10,6 +9,8 @@ from apps.rfa.models import SupplierRate
 
 class SupplierRateForm(forms.ModelForm):
     """Form pour les taux de RFA"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -25,6 +26,9 @@ class SupplierRateForm(forms.ModelForm):
 
 class DeleteSupplierRateForm(forms.ModelForm):
     """Form pour la suppression des taux de RFA"""
+
+    # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
+    id = forms.ModelChoiceField(queryset=SupplierRate.objects.all())
 
     class Meta:
         """class Meta"""

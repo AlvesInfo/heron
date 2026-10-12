@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903, E1101
 """
 FR : Module des formulaires pour l'objet numérotation (interne, externe, etc...)
 EN : Forms module for the numbering object (internal, external, etc.)
@@ -19,6 +18,8 @@ from apps.parameters.models import Counter
 
 class CounterForm(forms.ModelForm):
     """Form pour les Compteurs"""
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         """Ajout ou transformation des champs de formulaires"""

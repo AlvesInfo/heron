@@ -1,4 +1,3 @@
-# pylint: disable=C0303,E0401,W0212
 """Module de vérifications pour l'app book
 
 Commentaire:
@@ -9,21 +8,7 @@ created by: Paulo ALVES
 modified at:
 modified by:
 """
-import os
-import platform
-import sys
-
-import django
-
-BASE_DIR = r"C:\SitesWeb\heron"
-
-if platform.uname().node not in ["PauloMSI", "MSI"]:
-    BASE_DIR = "/home/paulo/heron"
-
-sys.path.append(BASE_DIR)
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-
-django.setup()
+from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 
 from psycopg2 import sql
 from django.db import connection
@@ -35,32 +20,27 @@ from apps.book.forms import SageEmailForm
 from apps.core.bin.notifications import broadcast_notification
 
 
+def split_identifiers(cct_identifier) -> list:
+    """Liste des identifiants d'un cct (séparés par "|", le "|" final est ignoré, None vaut vide)
+    :param cct_identifier: identifiants tels que stockés ou saisis
+    :return: liste des identifiants
+    """
+    cct_identifier = cct_identifier or ""
+
+    if cct_identifier.endswith("|"):
+        cct_identifier = cct_identifier[:-1]
+
+    return cct_identifier.split("|")
+
+
 def check_cct_identifier(cleaned_data: dict):
     """Vérification que l'identifiant saisi n'existe pas déjà dans un autre cct ou dans le même
     :param cleaned_data: les données du formulaire après validation du formulaire par django
-    :return: message
+    :return: (True, "") si l'identifiant peut être enregistré, (False, message) s'il n'y a rien
+             à changer, (None, message) si un identifiant est déjà utilisé par un autre cct
     """
-    before_cct_identifier = cleaned_data.get("id").cct_identifier
-
-    if before_cct_identifier:
-        before_cct_identifier = (
-            before_cct_identifier[:-1]
-            if before_cct_identifier[-1] == "|"
-            else before_cct_identifier
-        )
-    else:
-        before_cct_identifier = ""
-
-    before = str(before_cct_identifier).split("|")
-
-    after_cct_identifier = cleaned_data.get("cct_identifier")
-
-    if after_cct_identifier:
-        after_cct_identifier = (
-            after_cct_identifier[:-1] if after_cct_identifier[-1] == "|" else after_cct_identifier
-        )
-
-    after = str(after_cct_identifier).split("|")
+    before = split_identifiers(cleaned_data.get("id").cct_identifier)
+    after = split_identifiers(cleaned_data.get("cct_identifier"))
 
     if before == after:
         message = "Vous n'avez rien modifié !"

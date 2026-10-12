@@ -1,10 +1,10 @@
-# pylint: disable=E0401,W0702
 """
 Views des Articles sans comptes comptables
 """
 import pendulum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -76,8 +76,7 @@ def articles_without_account_export_list(_):
 
         return response_file(excel_liste_articles_without_account, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
-        print('exception("view : articles_without_account_export_list")')
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : articles_without_account_export_list")
 
     return redirect(reverse("articles:articles_without_account_list"))
@@ -94,7 +93,6 @@ def update_articles_without_account(request):
             messages_errors, messages_ok = import_articles_without_account()
 
         except Exception as error:
-            print('exception("view : update_articles_without_account")')
             LOGGER_EXPORT_EXCEL.exception(f"view : update_articles_without_account\n\n{error!r}")
 
     context = {

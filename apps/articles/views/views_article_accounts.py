@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,W0702,W0613
 """
 Views des articles comptes comptables
 """
@@ -6,12 +5,12 @@ import pendulum
 from django.db import transaction
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.shortcuts import redirect, reverse
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
-from django.db.models import Count
+from django.views.generic import UpdateView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render
+from django.utils.html import format_html
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin, ACTION_DICT, get_difference_dict
@@ -64,8 +63,8 @@ def articles_account_list(request):
         "num_pages": paginator.num_pages,
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
-        "titre_table": (
-            f'12 - Articles / comptes <span style="font-size: .8em;">{titre_count}</span>'
+        "titre_table": format_html(
+            '12 - Articles / comptes <span style="font-size: .8em;">{}</span>', titre_count
         ),
         "url_validation": reverse("articles:articles_account_list"),
         "url_redirect": reverse("articles:articles_account_list"),
@@ -84,7 +83,6 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = ArticleAccount
     form_class = ArticleAccountUpdateForm
-    form_class.use_required_attribute = False
     template_name = "articles/articles_account_update.html"
     success_message = "Les comptes de l'article %(article)s ont été modifiés avec success"
     error_message = (

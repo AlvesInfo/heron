@@ -1,10 +1,12 @@
 import pendulum
 from django.contrib import messages
 from django.db import connection
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -61,7 +63,7 @@ def families_invoices_purchases_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : families_invoices_purchases_export")
 
     return redirect(reverse("validation_purchases:families_invoices_purchases"))
@@ -88,7 +90,7 @@ def supplier_details_invoices_purchases_export(request, third_party_num):
                 attr_dict,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : supplier_details_invoices_purchases_export")
 
     return redirect(reverse("validation_purchases:families_invoices_purchases"))
@@ -97,7 +99,7 @@ def supplier_details_invoices_purchases_export(request, third_party_num):
 def families_validation(request):
     """Validation de l'écran de contrôle des familles d'achat"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -128,11 +130,11 @@ def families_validation(request):
                 request.session["level"] = 50
                 message = "Le contrôle des familles est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(f"Views : families_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(f"Views : families_validation error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"Views : families_validation error, form invalid : {form.errors!r}")
 
     messages.add_message(request, level, message)
 

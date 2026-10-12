@@ -1,4 +1,3 @@
-# pylint: disable=W0702,W1203,E0401,E1101,C0103,W0603
 """Module d'export du fichier excel du CA des Maisons par Familles
 
 Commentaire:
@@ -14,18 +13,10 @@ import io
 import pendulum
 from xlsxwriter.utility import xl_rowcol_to_cell
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
-from apps.core.excel_outputs.excel_writer import (
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-)
 from apps.compta.models import CaClients
 from apps.compta.excel_outputs.columns_excel import columns_ca_cosium
+from apps.core.excel_outputs.generic_list_export import excel_list_export
 
-num_ligne = 0
 
 
 def get_clean_rows(date_debut: str, date_fin: str) -> iter:
@@ -34,12 +25,12 @@ def get_clean_rows(date_debut: str, date_fin: str) -> iter:
     clean_rows = [
         (
             sale_dict.get("date_ca", ""),
-            sale_dict.get("cct_uuid_identification__pays", ""),
+            sale_dict.get("cct_uuid_identification__pays") or "",
             sale_dict.get("code_cosium", ""),
             (
-                sale_dict.get("cct_uuid_identification__cct__cct", "")
+                (sale_dict.get("cct_uuid_identification__cct__cct") or "")
                 + " - "
-                + sale_dict.get("cct_uuid_identification__intitule", "")
+                + (sale_dict.get("cct_uuid_identification__intitule") or "")
             ),
             sale_dict.get("famille_cosium", ""),
             sale_dict.get("axe_pro__section", ""),
@@ -69,141 +60,92 @@ def get_clean_rows(date_debut: str, date_fin: str) -> iter:
     return clean_rows
 
 
-def write_sum(excel, feuille, debut, titre):
-    """Ecriture des Sous-Totaux
-    :param excel: worksheet
-    :param feuille: N° de la feuille excel
-    :param debut: Ligne de début de la somme
-    :param titre: Titre du sous total ou du total
+def write_sum(excel, sheet, debut, row, titre):
+    """Écrit une ligne de sous-total (par maison) ou de total (par pays) et renvoie la ligne suivante
+    :param excel: classeur
+    :param sheet: N° de la feuille excel
+    :param debut: première ligne de la somme
+    :param row: ligne où écrire
+    :param titre: titre du sous-total ou du total
     """
-    global num_ligne
-    col = 0
-    f_totaux = []
     color_dict = {"bg_color": "#D8E4BC" if "SOUS" in titre else "#dce7f5", "bold": True}
+    common_dict = {"font_size": 10, "font_name": "Calibri", "valign": "top", "bottom": 1, "top": 1}
+    f_totaux = []
 
-    common_dict = {
-        "font_size": 10,
-        "font_name": "Calibri",
-        "valign": "top",
-        "bottom": 1,
-        "top": 1,
-    }
-
-    for j, _ in enumerate(columns_ca_cosium):
+    for j, column in enumerate(columns_ca_cosium):
         if j < 6:
+            left_right_dict = {}
             if j == 0:
                 left_right_dict = {"left": 1}
             elif j == 5:
                 left_right_dict = {"right": 1, "align": "right"}
-            else:
-                left_right_dict = {}
 
             f_totaux.append({**common_dict, **left_right_dict, **color_dict})
-
         else:
-            f_totaux.append({**columns_ca_cosium[j].get("f_ligne").copy(), **color_dict})
+            f_totaux.append({**column.get("f_ligne").copy(), **color_dict})
 
-    totaux = ["", "", "", "", "", titre]
+    divisor = "" if "SOUS" in titre else "/2"
+    totaux = ["", "", "", "", "", titre] + [
+        f"=SUM({xl_rowcol_to_cell(debut, i)}:{xl_rowcol_to_cell(row - 1, i)}){divisor}"
+        for i in range(6, len(f_totaux))
+    ]
+    excel.write_rows(sheet, row, 0, totaux, f_totaux)
 
-    for i in range(6, len(f_totaux)):
-        if "SOUS" in titre:
-            totaux.append(
-                f"=SUM({xl_rowcol_to_cell(debut, i)}:{xl_rowcol_to_cell(num_ligne - 1, i)})"
-            )
-        else:
-            totaux.append(
-                f"=SUM({xl_rowcol_to_cell(debut, i)}:{xl_rowcol_to_cell(num_ligne - 1, i)})/2"
-            )
-
-    excel.write_rows(feuille, num_ligne, col, totaux, f_totaux)
-    num_ligne += 1
+    return row + 1
 
 
-def write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd):
+def write_board(excel, sheet, columns, clean_rows, f_lignes, f_lignes_odd):  # pylint: disable=W0613
     """
-    Ecriture sur la feuille excel des lignes
-    :param excel: worksheet
-    :param sheet: N° de la feuille excel
-    :param clean_rows: lignes à écrire dans la feuille
-    :param f_lignes: formatage des lignes paires
-    :param f_lignes_odd: formatage des lignes impaires
+    Écrit les lignes avec un sous-total à chaque changement de maison et un total à chaque
+    changement de pays ; sans ligne, affiche que le CA n'a pas été généré
     """
-    global num_ligne
-    col = 0
-    col_pays = 1
-    col_maison = 3
+    row = 4
+    col_pays, col_maison = 1, 3
 
-    pays = clean_rows[0][col_pays]
-    debut_pays = num_ligne
-    maison = clean_rows[0][col_maison]
-    debut_maison = num_ligne
+    if not clean_rows:
+        excel.write_row(
+            sheet, row, 0, "Le chiffre d'affaires par maisons/familles, n'a pas été généré",
+            {"bold": True, "font_size": 14, "font_color": "red"},
+        )
+        return None
+
+    pays, maison = clean_rows[0][col_pays], clean_rows[0][col_maison]
+    debut_pays = debut_maison = row
 
     for clean_row in clean_rows:
         if maison != clean_row[col_maison]:
-            write_sum(excel, sheet, debut_maison, f"SOUS TOTAL {maison}")
-            maison = clean_row[col_maison]
-            debut_maison = num_ligne
+            row = write_sum(excel, sheet, debut_maison, row, f"SOUS TOTAL {maison}")
+            maison, debut_maison = clean_row[col_maison], row
 
         if pays != clean_row[col_pays]:
-            write_sum(excel, sheet, debut_pays, f"TOTAL {pays}")
-            pays = clean_row[col_pays]
-            debut_pays = num_ligne
+            row = write_sum(excel, sheet, debut_pays, row, f"TOTAL {pays}")
+            pays, debut_pays = clean_row[col_pays], row
             debut_maison += 1
 
-        excel.write_rows(
-            sheet, num_ligne, col, clean_row, f_lignes if num_ligne % 2 == 0 else f_lignes_odd
-        )
-        num_ligne += 1
+        excel.write_rows(sheet, row, 0, clean_row, f_lignes if row % 2 == 0 else f_lignes_odd)
+        row += 1
 
-    # ON ECRIT LE DERNIER SOUS TOTAL ET LE DERNIER TOTAL
-    write_sum(excel, sheet, debut_maison, f"SOUS TOTAL {clean_rows[-1][col_maison]}")
-    write_sum(excel, sheet, debut_pays, f"TOTAL {clean_rows[-1][col_pays]}")
+    row = write_sum(excel, sheet, debut_maison, row, f"SOUS TOTAL {clean_rows[-1][col_maison]}")
+    write_sum(excel, sheet, debut_pays, row, f"TOTAL {clean_rows[-1][col_pays]}")
+    return None
 
 
 def excel_ca_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str) -> dict:
     """Fonction de génération du fichier de liste du chiffre d'affaires par maisons/familles"""
     date_debut = pendulum.parse(dte_d)
-    date_debut_texte = date_debut.format("DD/MM/YYYY", locale="fr")
     date_fin = pendulum.parse(dte_f)
-    date_fin_texte = date_fin.format("DD/MM/YYYY", locale="fr")
-    titre = f"CHIFFRE D'AFFAIRES COSIUM DU {date_debut_texte} AU {date_fin_texte}"
-    list_excel = [file_io, ["CA COSIUM"]]
-    excel = GenericExcel(list_excel, in_memory=True)
-    columns = columns_ca_cosium
-    global num_ligne
+    titre = (
+        f"CHIFFRE D'AFFAIRES COSIUM DU {date_debut.format('DD/MM/YYYY', locale='fr')} "
+        f"AU {date_fin.format('DD/MM/YYYY', locale='fr')}"
+    )
 
-    try:
-        titre_page_writer(excel, 1, 0, 0, columns, titre)
-        output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, columns)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
-        ]
-        num_ligne = 4
-        sheet = 1
-        clean_rows = get_clean_rows(date_debut, date_fin)
-
-        if not clean_rows:
-            excel.write_row(
-                sheet,
-                num_ligne,
-                0,
-                "Le chiffre d'affaires par maisons/familles, n'a pas été généré",
-                {"bold": True, "font_size": 14, "font_color": "red"},
-            )
-        else:
-            write_board(excel, sheet, clean_rows, f_lignes, f_lignes_odd)
-
-        sheet_formatting(
-            excel, 1, columns, {"sens": "portrait", "repeat_row": (0, 5), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name="CA COSIUM",
+        title=titre,
+        columns=columns_ca_cosium,
+        rows=lambda: get_clean_rows(date_debut, date_fin),
+        in_memory=True,
+        writer=write_board,
+    )

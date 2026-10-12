@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
 Views des Paramètres Nature/Genre
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -33,7 +34,6 @@ class NatureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Nature
     form_class = NatureForm
-    form_class.use_required_attribute = False
     template_name = "parameters/natures_update.html"
     success_message = "La Nature/Genre %(name)s a été créé avec success"
     error_message = "La Nature/Genre %(name)s n'a pu être créé, une erreur c'est produite"
@@ -60,7 +60,6 @@ class NatureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = Nature
     form_class = NatureForm
-    form_class.use_required_attribute = False
     template_name = "parameters/natures_update.html"
     success_message = "La Nature/Genre %(name)s a été modifiée avec success"
     error_message = "La Nature/Genre %(name)s n'a pu être modifiée, une erreur c'est produite"
@@ -94,7 +93,7 @@ def natures_export_list(_):
 
         return response_file(excel_liste_natures, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : natures_export_list")
 
     return redirect(reverse("parameters:natures_list"))
@@ -107,7 +106,7 @@ def nature_delete(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}

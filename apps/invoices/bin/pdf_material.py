@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de génération des factures de Materiel en pdf
 EN : Module for generating invoices Material in pdf
@@ -20,10 +19,8 @@ from django.db import connection
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
 from apps.invoices.sql_files.sql_material import SQL_HEADER, SQL_RESUME_HEADER
-from heron.loggers import LOGGER_INVOICES
 
 
 def invoice_material_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
@@ -55,7 +52,7 @@ def invoice_material_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "invoices": invoices,
             "headers": headers,
             "resume": resume,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_material.html", context)

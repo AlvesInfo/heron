@@ -1,5 +1,3 @@
-# pylint: disable=R0914
-# E0401,C0303
 """
 FR : Module de parsing des fichiers OPTO 33 (https://edi-optique.org/standards-opto/facture/)
 EN : Parsing module for OPTO 33 (https://edi-optique.org/standards-opto/facture/)
@@ -12,7 +10,6 @@ created by: Paulo ALVES
 modified at: 2022-04-20
 modified by: Paulo ALVES
 """
-import io
 import re
 from datetime import datetime
 from typing import AnyStr, Callable, Generator
@@ -524,7 +521,7 @@ class EdiOpoto33Parser:
             :param edi_file: Path du fichier edi à intégrer
             :param cleaner: fonction de nettoyage du texte
         """
-        if not isinstance(edi_file, (Path, io.BytesIO, io.StringIO)):
+        if not isinstance(edi_file, Path):
             raise PathTypeError(
                 "EdiOpoto33Parser - edi_file :"
                 f"{edi_file} - "

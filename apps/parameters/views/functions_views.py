@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
 Views des Paramètres
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -33,7 +34,6 @@ class FunctionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = InvoiceFunctions
     form_class = InvoiceFunctionsForm
-    form_class.use_required_attribute = False
     template_name = "parameters/function_update.html"
     success_message = "La Fonction %(function_name)s a été créé avec success"
     error_message = "La Fonction %(function_name)s n'a pu être créé, une erreur c'est produite"
@@ -60,7 +60,6 @@ class FunctionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = InvoiceFunctions
     form_class = InvoiceFunctionsForm
-    form_class.use_required_attribute = False
     template_name = "parameters/function_update.html"
     success_message = "La Fonction %(function_name)s a été modifiée avec success"
     error_message = "La Fonction %(function_name)s n'a pu être modifiée, une erreur c'est produite"
@@ -95,7 +94,7 @@ def functions_export_list(_):
 
         return response_file(excel_liste_functions, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : functions_export_list")
 
     return redirect(reverse("parameters:functions_list"))
@@ -108,7 +107,7 @@ def function_delete(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     try:

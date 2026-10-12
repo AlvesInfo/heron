@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Configuration pour l'API Gmail
 EN : Configuration for Gmail API
@@ -10,12 +9,11 @@ created at: 2025-01-10
 created by: Paulo ALVES
 """
 
-import os
-import sys
-import platform
 from pathlib import Path
 from typing import Dict, Any
+
 import yaml
+from django.utils.functional import SimpleLazyObject
 
 from apps.core.functions.functions_setups import settings
 
@@ -236,5 +234,6 @@ class GmailConfig:
         }
 
 
-# Instance globale de la configuration
-config = GmailConfig()
+# Instance globale de la configuration, chargée au premier accès (pas de lecture du fichier
+# yaml à l'import : l'URLconf et les tâches celery doivent se charger sans configuration Gmail)
+config = SimpleLazyObject(GmailConfig)

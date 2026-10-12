@@ -11,28 +11,28 @@
        style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th class="no-sort" style="text-align: center">Visualiser</th>
-                <th>Fournisseur</th>
-                <th>Code</th>
+                <th scope="col" class="no-sort" style="text-align: center">Visualiser</th>
+                <th scope="col">Fournisseur</th>
+                <th scope="col">Code</th>
 
                 {% if details %}
-                    <th>N° Facture</th>
+                    <th scope="col">N° Facture</th>
                 {% else %}
-                    <th>Nbre de Facture</th>
+                    <th scope="col">Nbre de Facture</th>
                 {% endif %}
 
                 {% if details_familles %}
-                    <th>Famille Article</th>
-                    <th>Code Article</th>
-                    <th>N° Article</th>
+                    <th scope="col">Famille Article</th>
+                    <th scope="col">Code Article</th>
+                    <th scope="col">N° Article</th>
                 {% endif %}
 
-                <th>Montant HT</th>
-                <th>Montant TVA</th>
-                <th>Montant TTC</th>
+                <th scope="col">Montant HT</th>
+                <th scope="col">Montant TVA</th>
+                <th scope="col">Montant TTC</th>
 
                 {% for compte in comptes %}
-                    <th>{{ compte }}</th>
+                    <th scope="col">{{ compte }}</th>
                 {% endfor %}
             </tr>
         </thead>

@@ -1,8 +1,7 @@
-# pylint: disable=E0401
 """
 Module de copy des logos vers le répertoire static
 """
-from heron.settings import MEDIA_DIR, STATIC_DIR
+from django.conf import settings
 
 
 def copy_static(logos_set: set) -> None:
@@ -11,10 +10,10 @@ def copy_static(logos_set: set) -> None:
     :param logos_set: set des logos
     :return:
     """
-    media_path = MEDIA_DIR / "logos"
-    static_path = STATIC_DIR
-    static_images = STATIC_DIR / "images"
-    static_img = STATIC_DIR / "img"
+    media_path = settings.MEDIA_DIR / "logos"
+    static_path = settings.STATIC_DIR
+    static_images = settings.STATIC_DIR / "images"
+    static_img = settings.STATIC_DIR / "img"
 
     for logo in logos_set:
         logo_name = logo.replace("logos/", "")

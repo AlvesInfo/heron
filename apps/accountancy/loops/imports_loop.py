@@ -1,4 +1,3 @@
-# pylint: disable=W0703,W1203
 """
 FR : Module d'import en boucle des modèles de Sage X3
 EN : Loop import module for Sage X3 models

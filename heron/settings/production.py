@@ -2,12 +2,18 @@
 import gc
 import logging
 
-from heron.settings.base import Path, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG_DIR
+from heron.settings.base import Path, BASE_DIR, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG_DIR, config
 
 allocs, g1, g2 = gc.get_threshold()
 gc.set_threshold(100_000, g1 * 5, g2 * 10)
 
 DEBUG = False
+
+# Statiques des PDF servis par le serveur lui-même (instance formation sur le port 8080)
+PDF_STATIC_DOMAIN = config(
+    "PDF_STATIC_DOMAIN",
+    default="http://10.9.2.109" if BASE_DIR.name == "heron" else "http://10.9.2.109:8080",
+)
 
 DOMAINS_WHITELIST = [
     "10.9.2.109",

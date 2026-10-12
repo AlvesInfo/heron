@@ -1,20 +1,21 @@
-# pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
 Views des Paramètres
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.parameters.excel_outputs.parameters_excel_numberings import excel_liste_numberings
-from apps.parameters.models import Counter
+from apps.parameters.models import Counter, CounterNums
 from apps.parameters.forms import CounterForm
 
 
@@ -33,7 +34,6 @@ class NumberingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Counter
     form_class = CounterForm
-    form_class.use_required_attribute = False
     template_name = "parameters/numberings_update.html"
     success_message = "La Numérotation %(name)s a été créé avec success"
     error_message = "La Numérotation %(name)s n'a pu être créé, une erreur c'est produite"
@@ -61,7 +61,6 @@ class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = Counter
     form_class = CounterForm
-    form_class.use_required_attribute = False
     template_name = "parameters/numberings_update.html"
     success_message = "La Numérotation %(name)s a été modifiée avec success"
     error_message = "La Numérotation %(name)s n'a pu être modifiée, une erreur c'est produite"
@@ -96,7 +95,7 @@ def numberings_export_list(_):
 
         return response_file(excel_liste_numberings, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : numberings_export_list")
 
     return redirect(reverse("parameters:numberings_list"))
@@ -109,7 +108,7 @@ def numbering_delete(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -119,6 +118,8 @@ def numbering_delete(request):
         numbering = Counter.objects.get(pk=id_pk)
 
         if not numbering.name == 'generic':
+            # Le compteur courant protège la numérotation (FK PROTECT) : supprimé avec elle
+            CounterNums.objects.filter(counter=numbering).delete()
             trace_mark_delete(
                 request=request,
                 django_model=Counter,

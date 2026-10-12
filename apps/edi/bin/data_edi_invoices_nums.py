@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de récupération de la numérotation de facture des saisies manuelles
 EN : Module for recovering invoice numbering from manual entries

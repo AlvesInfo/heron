@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers Unitron
 EN : Post-processing sql module after importing supplier invoice files

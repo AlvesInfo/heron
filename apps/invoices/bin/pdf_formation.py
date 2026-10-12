@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de génération des factures de Formations en pdf
 EN : Module for generating invoices Formations in pdf
@@ -20,7 +19,6 @@ from django.db import connection
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
 from apps.invoices.sql_files.sql_formation import SQL_FORMATION
 
@@ -47,7 +45,7 @@ def invoice_formation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
         context = {
             "invoices": invoices,
             "formation": formation[0],
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_formation.html", context)

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,E1101,R0915,R0914
 """
 FR : Module des génération des RFA
 EN : RFA Generation Module
@@ -13,7 +12,7 @@ modified by: Paulo ALVES
 """
 
 from typing import AnyStr
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from django.db import connection, transaction
 from django.db.models import Q
@@ -22,6 +21,15 @@ from apps.book.models import Society
 from apps.edi.models import EdiValidation
 from apps.core.functions.functions_dates import last_day_month
 from apps.rfa.sql_files.sql_rfa import SQL_RFA_INSERTION, SQL_INSERTION_ICON
+
+
+class RfaPeriodError(Exception):
+    """Aucune période de facturation ouverte : la génération des RFA est impossible"""
+
+
+def get_open_period():
+    """Retourne la période de facturation ouverte (EdiValidation non finalisée), ou None"""
+    return EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
 
 
 def get_sql_kwargs(
@@ -33,9 +41,13 @@ def get_sql_kwargs(
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
-    period = EdiValidation.objects.filter(
-        Q(final=False) | Q(final__isnull=True)
-    ).first()
+    period = get_open_period()
+
+    if period is None:
+        raise RfaPeriodError(
+            "Aucune période de facturation ouverte : génération des RFA impossible"
+        )
+
     last_day = last_day_month(period.billing_period)
     society = Society.objects.get(third_party_num=supplier_origin)
 
@@ -43,7 +55,8 @@ def get_sql_kwargs(
         "uuid_identification": uuid_identification,
         "third_party_num": society.third_party_num,
         "supplier": f"{society.short_name} RFA",
-        "supplier_ident": str(society.centers_suppliers_indentifier).split(
+        # Identifiant fournisseur de la centrale, vide s'il n'est pas renseigné
+        "supplier_ident": (society.centers_suppliers_indentifier or "").split(
             "|", maxsplit=1
         )[0],
         "supplier_name": society.short_name,
@@ -85,6 +98,3 @@ def insert_rfa(supplier_origin: AnyStr, period_rfa: AnyStr, uuid_identification:
         cursor.execute(SQL_RFA_INSERTION, sql_kwargs)
         return cursor.rowcount
 
-
-if __name__ == "__main__":
-    insert_rfa("WIDE001", "2024RFA_07", uuid4())

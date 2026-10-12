@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de génération des factures de Diverses en pdf
 EN : Module for generating invoices Various in pdf
@@ -20,7 +19,6 @@ from django.db import connection
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from apps.invoices.bin.conf import DOMAIN
 from apps.invoices.models import SaleInvoice
 from apps.invoices.sql_files.sql_various import SQL_HEADER, SQL_RESUME_HEADER
 
@@ -54,7 +52,7 @@ def invoice_various_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "invoices": invoices,
             "headers": headers,
             "resume": resume,
-            "domain": DOMAIN,
+            "domain": settings.PDF_STATIC_DOMAIN,
             "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
         }
         content = render_to_string("invoices/pdf_various.html", context)

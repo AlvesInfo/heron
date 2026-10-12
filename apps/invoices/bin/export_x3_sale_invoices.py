@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0914
 """
 FR : Module d'export X3 des factures de vente
 EN : X3 export module for sales invoices
@@ -82,8 +81,7 @@ def write_bicpar(fcy, file_name=None, nb_fac=5000):
             a_line = 1
 
             if i > nb_fac:
-                if not file.closed:
-                    file.close()
+                file.close()
 
                 file = get_file(settings.EXPORT_DIR, fcy, get_bicpar_num)
                 i = 1
@@ -103,8 +101,7 @@ def write_bicpar(fcy, file_name=None, nb_fac=5000):
 
         i += 1
 
-    if not file.closed:
-        file.close()
+    file.close()
 
 
 if __name__ == "__main__":

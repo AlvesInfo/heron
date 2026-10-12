@@ -1,9 +1,11 @@
 import pendulum
 from django.contrib import messages
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -45,16 +47,16 @@ def clients_news_purchases_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
-        LOGGER_VIEWS.exception("view : cct_franchiseurs_purchases_export")
+    except Exception:
+        LOGGER_VIEWS.exception("view : clients_news_purchases_export")
 
-    return redirect(reverse("validation_purchases:cct_franchiseurs_purchases"))
+    return redirect(reverse("validation_purchases:clients_news_purchases"))
 
 
 def clients_news_validation(request):
     """Validation de l'écran de Contrôle des nouveaux clients"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -85,11 +87,11 @@ def clients_news_validation(request):
                 request.session["level"] = 50
                 message = "Le contrôle des nouveaux clients est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(f"Views : clients_news_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : clients_news_validation error, form invalid : {form.errors!r}"
         )
 

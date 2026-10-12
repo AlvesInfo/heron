@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module de validation par djantic
 EN : Sage X3 import validation forms module
@@ -11,38 +10,20 @@ created by: Paulo ALVES
 modified at: 2022-02-17
 modified by: Paulo ALVES
 """
-import datetime
 import io
-import uuid
 import time
 
-import pydantic
 from pydantic import BaseModel, ValidationError
 from django.utils import timezone
 from djantic import ModelSchema
-import djantic
-from apps.core.functions.functions_setups import settings
 from apps.accountancy.models import (
     AccountSage,
-    AxeSage,
     SectionSage,
-    VatRegimeSage,
-    VatSage,
-    VatRatSage,
-    PaymentCondition,
     TabDivSage,
-    CategorySage,
 )
 from apps.accountancy.forms.forms_djantic.sage import (
     AccountSageSchema,
-    AxeSageSchema,
-    SectionSageSchema,
-    VatRegimeSageSchema,
-    VatSageSchema,
-    VatRatSageSchema,
-    PaymentConditionSchema,
     TabDivSageSchema,
-    CategorySageSchema,
 )
 
 
@@ -119,13 +100,13 @@ def main():
         try:
             t = TabDivSageSchema(**data_dict)
         except ValidationError as except_error:
-            print(i + 1, except_error.errors())
+            LOGGER_VALIDATION.exception("%s %s", i + 1, except_error.errors())
             # raise Exception from errors
         else:
             ...
-            print(i + 1, t.dict())
+            LOGGER_VALIDATION.info("%s %s", i + 1, t.dict())
 
-    print(f"validation par djantic en {time.time() - start} s")
+    LOGGER_VALIDATION.info(f'validation par djantic en {time.time() - start} s')
 
 
 class SectionSagePydanticSchema(BaseModel):
@@ -159,21 +140,14 @@ def essai_SectionSagechema():
 
     for i in range(1):
         try:
-            t = ""
-            print(
-                " isinstance : ",
-                isinstance(SectionSagePydanticSchema, (type(BaseModel), type(ModelSchema))),
-            )
-            print(
-                " isinstance : ",
-                isinstance(SectionSageDjanticSchema, (type(BaseModel), type(ModelSchema))),
-            )
+            LOGGER_VALIDATION.info("%s %s", ' isinstance : ', isinstance(SectionSagePydanticSchema, (type(BaseModel), type(ModelSchema))))
+            LOGGER_VALIDATION.info("%s %s", ' isinstance : ', isinstance(SectionSageDjanticSchema, (type(BaseModel), type(ModelSchema))))
             SectionSageDjanticSchema(**data_dict)
         except ValidationError as except_error:
 
             errors_dict[i] = except_error.errors()
-            print(i + 1, except_error.errors())
-            print(str(except_error.args[1].dict))
+            LOGGER_VALIDATION.exception("%s %s", i + 1, except_error.errors())
+            LOGGER_VALIDATION.exception(str(except_error.args[1].dict))
             error_dict = {
                 ", ".join(dict_row.get("loc")): [
                     {
@@ -185,14 +159,14 @@ def essai_SectionSagechema():
                 ]
                 for dict_row in except_error.errors()
             }
-            print(error_dict)
+            LOGGER_VALIDATION.exception(error_dict)
             # raise Exception from except_error
         else:
             ...
 
     # print(errors_dict)
-    print(f"validation par djantic en {time.time() - start} s")
-    print(TabDivSage.get_columns_import())
+    LOGGER_VALIDATION.info(f'validation par djantic en {time.time() - start} s')
+    LOGGER_VALIDATION.info(TabDivSage.get_columns_import())
 
 
 from pathlib import Path
@@ -200,7 +174,6 @@ from uuid import uuid4
 from datetime import datetime
 
 from django.db import connection
-from apps.core.functions.functions_setups import settings
 from apps.data_flux.models import Trace
 from apps.data_flux.loader import (
     GetAddDictError,
@@ -210,7 +183,8 @@ from apps.data_flux.loader import (
     FileLoader,
 )
 from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
-from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
+from apps.data_flux.postgres_save import PostgresKeyError, PostgresDjangoUpsert
+from heron.loggers import LOGGER_VALIDATION
 
 
 if __name__ == "__main__":

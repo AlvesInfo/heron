@@ -11,10 +11,10 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th style="width: 8%">Edit</th>
-                    <th style="width: 22%">Catégorie</th>
-                    <th style="width: 62%">Commentaire</th>
-                    <th style="width: 8%">delete</th>
+                    <th scope="col" style="width: 8%">Edit</th>
+                    <th scope="col" style="width: 22%">Catégorie</th>
+                    <th scope="col" style="width: 62%">Commentaire</th>
+                    <th scope="col" style="width: 8%">delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +29,7 @@
                     <td>{{familly.comment|default_if_none:''}}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ familly.pk }}, `{{ familly.name }}`, `{% url 'centers_clients:client_familly_delete' %}`, `la famille clients`)"></i>
+                          <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ familly.pk }}, `{{ familly.name }}`, `{% url 'centers_clients:client_familly_delete' %}`, `la famille clients`)"><i class="red trash icon" aria-hidden="true"></i></button>
                         </div>
                     </td>
                 </tr>

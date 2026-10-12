@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0903,W0702,W0613,R0901,E1101,W0201
 """
 Views des Abonnements
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse, render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -51,7 +52,6 @@ class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView)
 
     model = MaisonSubcription
     form_class = MaisonSubcriptionForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/subscription_update.html"
     success_message = "L'Abonnement %(maison)s - %(article)s a été créé avec success"
     error_message = (
@@ -79,7 +79,6 @@ class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView)
 
     model = MaisonSubcription
     form_class = MaisonSubcriptionForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/subscription_update.html"
     success_message = "L'Abonnement %(maison)s - %(article)s a été modifiée avec success"
     error_message = (
@@ -115,7 +114,7 @@ def subscriptions_export_list(_):
 
         return response_file(excel_liste_subscriptions, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : subscriptions_export_list")
 
     return redirect(reverse("centers_clients:subscriptions_list"))
@@ -128,7 +127,7 @@ def subscription_delete(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}

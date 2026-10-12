@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 Views pour réafecter sur une facture, précédente, soit un mauvais code de la part du fournisseur,
 ou une mauvaise affectation de l'opérateur qui a effectué la facturationion précédente.
@@ -11,25 +10,13 @@ created by: Paulo ALVES
 modified at: 2023-07-07
 modified by: Paulo ALVES
 """
-import pendulum
-from django.shortcuts import redirect, reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
-from django.db.models import Count, F
+from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.contrib import messages
+from django.utils.html import format_html
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.functions.functions_http import get_pagination_buttons
-from apps.articles.excel_outputs.output_excel_articles_list import (
-    excel_liste_articles,
-)
-from apps.articles.bin.sub_category import check_sub_category
-from apps.book.models import Society
-from apps.parameters.models import Category
 from apps.invoices.models import InvoiceCommonDetails
 from apps.invoices.forms import InvoiceSearchForm
 from apps.invoices.filters import InvoiceFilter
@@ -55,7 +42,7 @@ def invoice_search_list(request):
         )
         context = {
             "margin_table": 50,
-            "titre_table": f'Recherche ré-affectation Facture',
+            "titre_table": 'Recherche ré-affectation Facture',
             "not_finalize": True,
             "chevron_retour": reverse("home"),
         }
@@ -106,7 +93,9 @@ def invoice_search_list(request):
         "num_pages": paginator.num_pages,
         "start_index": (invoices.start_index() - 1) if invoices.start_index() else 0,
         "end_index": invoices.end_index(),
-        "titre_table": f'Recherche réaffectation Facture <span style="font-size: .8em;">{titre_count}</span>',
+        "titre_table": format_html(
+            'Recherche réaffectation Facture <span style="font-size: .8em;">{}</span>', titre_count
+        ),
         "url_redirect": reverse("invoices:invoice_search_list"),
         "attrs_filter": attrs_filter,
         "form": form,

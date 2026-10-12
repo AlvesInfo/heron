@@ -5,273 +5,220 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "2to3==1.0",
-    "aiohappyeyeballs==2.6.1",
-    "aiohttp==3.8.3",
-    "aiopg==1.3.3",
-    "aiosignal==1.2.0",
-    "amqp==5.1.1",
-    "annotated-doc==0.0.4",
-    "ansicon==1.89.0",
-    "anyio==3.5.0",
-    "arrow==1.2.3",
-    "asgiref==3.5.0",
-    "astroid==2.11.2",
-    "asttokens==2.0.5",
-    "async-generator==1.10",
-    "async-timeout==4.0.2",
-    "atomicwrites==1.4.0",
-    "attrs==21.4.0",
-    "autobahn==22.3.1",
-    "automat==20.2.0",
-    "babel==2.9.1",
-    "backcall==0.2.0",
-    "beautifulsoup4==4.10.0",
-    "billiard==3.6.4.0",
-    "black==22.1.0",
-    "blessed==1.19.1",
-    "brotli==1.0.9",
-    "cachetools==5.5.2",
-    "celery==5.2.7",
-    "certifi==2021.10.8",
-    "cffi==1.15.1",
-    "chardet==4.0.0",
-    "charset-normalizer==2.0.12",
-    "chartjs==1.2",
-    "clamd==1.0.2",
-    "click==8.0.4",
-    "click-didyoumean==0.3.0",
-    "click-plugins==1.1.1",
-    "click-repl==0.2.0",
-    "colorama==0.4.4",
-    "constantly==15.1.0",
-    "coverage==6.3.2",
-    "crispy-forms-semantic-ui==0.2.0",
-    "cryptography==36.0.2",
-    "cssselect2==0.7.0",
-    "daphne==3.0.2",
-    "decorator==5.1.1",
-    "defusedxml==0.7.1",
-    "deprecated==1.2.13",
-    "devtools==0.8.0",
-    "diff-cover==9.7.2",
-    "dill==0.3.4",
-    "distlib==0.3.4",
-    "dj-database-url==0.5.0",
+    # --- Framework & serveur
     "django==3.2.25",
+    "asgiref==3.5.0",  # importé directement (async_to_sync)
+    "uvicorn==0.17.6",  # Procfile
+    "supervisor==4.2.4",  # supervisor.conf (loops d'import sur le serveur)
+    "python-decouple==3.6",
+    "psycopg2-binary==2.9.5",
+    "sqlparse==0.4.2",  # importé directement
+    # --- Apps Django tierces (INSTALLED_APPS)
     "django-axes==5.31.0",
-    "django-braces==1.15.0",
-    "django-celery==3.1.17",
     "django-celery-beat==2.2.1",
     "django-celery-results==2.2.0",
-    "django-chartjs==2.3.0",
+    "django-chartjs==2.3.0",  # fournit le module chartjs ; le paquet chartjs==1.2 écrasait ses fichiers
     "django-ckeditor==6.2.0",
-    "django-clamd==0.4.0",
-    "django-cors-headers==3.11.0",
+    "django-clamd==0.4.0",  # settings production
     "django-crispy-forms==1.14.0",
-    "django-debug-toolbar==3.2.4",
+    "crispy-forms-semantic-ui==0.2.0",
     "django-dynamic-preferences==1.12.0",
     "django-eventstream==4.5.1",
     "django-extensions==3.1.5",
     "django-filter==21.1",
-    "django-grip==3.5.2",
-    "django-guardian==2.4.0",
-    "django-ipware==4.0.2",
-    "django-js-asset==2.0.0",
-    "django-picklefield==3.1",
-    "django-redis==5.2.0",
-    "django-redis-cache==3.0.1",
-    "django-rest-framework==0.1.0",
-    "django-timezone-field==4.2.3",
     "djangorestframework==3.13.1",
-    "djangorestframework-jwt==1.11.0",
-    "djangorestframework-xml==2.0.0",
+    # --- Tâches
+    "celery==5.2.7",
+    "flower==1.0.0",  # Procfile
+    "redis==3.5.3",
+    # --- Validation
+    "pydantic==1.9.0",
     "djantic==0.5.0",
-    "dkimpy==1.1.4",
-    "dnspython==2.2.1",
-    "email-validator==1.1.3",
-    "et-xmlfile==1.1.0",
-    "executing==0.8.3",
-    "fastapi==0.75.0",
-    "filelock==3.6.0",
-    "flask==2.0.3",
-    "flower==1.0.0",
-    "fonttools==4.39.3",
-    "fpdf2>=2.8.5",
-    "frozenlist==1.3.3",
-    "gevent==22.10.2",
-    "google-api-core==2.24.0",
-    "google-api-python-client==2.156.0",
-    "google-auth==2.37.0",
-    "google-auth-httplib2==0.2.0",
-    "google-auth-oauthlib==1.2.1",
-    "googleapis-common-protos==1.66.0",
-    "greenlet==3.1.1",
-    "gripcontrol==4.2.1",
-    "gunicorn==20.1.0",
-    "h11==0.13.0",
-    "h2==4.1.0",
-    "hpack==4.0.0",
-    "html2text==2020.1.16",
-    "html5lib==1.1",
-    "httplib2==0.31.0",
-    "humanize==4.0.0",
-    "hypercorn==0.13.2",
-    "hyperframe==6.0.1",
-    "hyperlink==21.0.0",
-    "idna==3.3",
-    "importlib-metadata==4.11.3",
-    "incremental==21.3.0",
-    "iniconfig==1.1.1",
-    "ipdb==0.13.9",
-    "ipython==8.1.1",
-    "isort==5.10.1",
-    "itsdangerous==2.1.1",
-    "jedi==0.18.1",
-    "jinja2==3.0.3",
-    "jinxed==1.2.0",
-    "jsonschema==4.4.0",
-    "kombu==5.2.4",
-    "lazy-object-proxy==1.7.1",
-    "lxml==4.9.2",
-    "markdown==3.3.6",
-    "markupsafe==2.1.1",
-    "marshmallow==3.15.0",
-    "matplotlib-inline==0.1.3",
-    "mccabe==0.6.1",
-    "memory-profiler==0.60.0",
-    "multidict==6.0.4",
-    "mypy-extensions==0.4.3",
-    "numpy==2.2.2",
-    "oauthlib==3.2.0",
-    "odfpy==1.4.1",
-    "openpyxl==3.1.5",
-    "outcome==1.1.0",
-    "packaging==24.2",
+    "email-validator==1.1.3",  # pydantic.EmailStr
+    # --- Fichiers : Excel, PDF, HTML, mails
     "pandas==2.2.3",
-    "parso==0.8.3",
-    "pathspec==0.9.0",
-    "pdfkit==1.0.0",
+    "openpyxl==3.1.5",
+    "xlsxwriter==3.2.2",
+    "xlrd==2.0.1",  # pandas engine xlrd
+    "python-calamine==0.3.1",  # pandas engine calamine
     "pdfrw==0.4",
+    "weasyprint==64.0",
+    "beautifulsoup4==4.10.0",
+    "lxml==4.9.2",
+    "html2text==2020.1.16",
+    "chardet==4.0.0",
+    "google-api-python-client==2.156.0",  # API Gmail (apps/invoices/bin/api_gmail)
+    "google-auth==2.37.0",
+    "google-auth-oauthlib==1.2.1",
+    "dkimpy==1.1.4",
+    "pyyaml==6.0",
+    "requests==2.27.1",
+    # --- Dates & SQL
     "pendulum==2.1.2",
-    "persisting-theory==0.2.1",
-    "pexpect==4.8.0",
-    "pi==0.1.2",
-    "pickleshare==0.7.5",
-    "pillow==9.4.0",
-    "pip==25.3",
-    "platformdirs==2.5.1",
-    "playwright==1.58.0",
-    "pluggy==1.0.0",
-    "polars==1.35.1",
-    "polars-runtime-32==1.35.1",
-    "priority==2.0.0",
-    "prometheus-client==0.13.1",
-    "prompt-toolkit==3.0.28",
-    "propcache==0.4.1",
+    "python-dateutil==2.8.2",
+    "sqlfluff==3.5.0",  # formatage SQL dans functions_postgresql
+]
+
+[tool.uv]
+# Versions transitives figées au niveau d'avant le nettoyage du 2026-10-10 : la montée de
+# versions se fera après la mise en place des tests (directive D6). À retirer à ce moment-là.
+constraint-dependencies = [
+    "google-api-core==2.24.0",
+    "google-auth-httplib2==0.2.0",
+    "googleapis-common-protos==1.66.0",
+    "httplib2==0.31.0",
+    "oauthlib==3.2.0",
     "proto-plus==1.26.1",
     "protobuf==5.29.5",
-    "psutil==5.9.4",
-    "psycopg2-binary==2.9.5",
-    "ptyprocess==0.7.0",
-    "pubcontrol==3.5.0",
-    "pure-eval==0.2.2",
-    "py==1.11.0",
     "pyasn1==0.4.8",
     "pyasn1-modules==0.2.8",
-    "pycairo==1.27.0",
-    "pycparser==2.21",
-    "pydantic==1.9.0",
-    "pydyf==0.12.1",
-    "pyexcelerate==0.10.0",
-    "pygments==2.19.2",
-    "pygobject==3.50.0",
-    "pyjwt==1.7.1",
+    "pyparsing==3.0.7",
+    "requests-oauthlib==1.3.1",
+    "uritemplate==4.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==7.1.1",
+    "pytest-django==4.5.2",
+    "pytest-cov==3.0.0",
+    "coverage==7.6.12",
+    "django-debug-toolbar==3.2.4",
+    "black==22.1.0",
     "pylint==2.13.1",
     "pylint-django==2.5.3",
-    "pylint-plugin-utils==0.7",
-    "pyopenssl==22.0.0",
-    "pyparsing==3.0.7",
-    "pypdf2==3.0.1",
-    "pyphen==0.14.0",
-    "pyproject-toml==0.0.10",
-    "pyrsistent==0.18.1",
-    "pysocks==1.7.1",
-    "pytest==7.1.1",
-    "pytest-cov==3.0.0",
-    "pytest-django==4.5.2",
-    "python-calamine==0.3.1",
-    "python-crontab==2.6.0",
-    "python-dateutil==2.8.2",
-    "python-decouple==3.6",
-    "python-dotenv==0.19.2",
-    "python-json-logger==2.0.2",
-    "python-social-auth==0.3.6",
-    "python3-openid==3.2.0",
-    "pytz==2022.1",
-    "pytzdata==2020.1",
-    "pyyaml==6.0",
-    "redis==3.5.3",
-    "regex==2025.11.3",
-    "requests==2.27.1",
-    "requests-oauthlib==1.3.1",
-    "rsa==4.9.1",
     "ruff==0.9.5",
-    "selenium==4.1.3",
-    "service-identity==21.1.0",
-    "setuptools==80.9.0",
-    "six==1.16.0",
-    "sniffio==1.2.0",
-    "social-auth-core==4.0.2",
-    "sortedcontainers==2.4.0",
-    "soupsieve==2.3.1",
-    "sqlalchemy==1.4.35",
-    "sqlfluff==3.5.0",
-    "sqlparse==0.4.2",
-    "stack-data==0.2.0",
-    "starlette==0.17.1",
-    "supervisor==4.2.4",
-    "tablib==3.9.0",
-    "tabulate==0.9.0",
-    "tblib==3.2.2",
-    "tinycss2==1.5.1",
-    "tinyhtml5==2.0.0",
-    "toml==0.10.2",
-    "tomli==2.0.1",
-    "tornado==6.1",
-    "tox==3.24.5",
-    "tqdm==4.67.1",
-    "traitlets==5.1.1",
-    "trio==0.20.0",
-    "trio-websocket==0.9.2",
-    "twisted==22.10.0",
-    "txaio==22.2.1",
-    "typing-extensions==4.1.1",
-    "tzdata==2025.1",
-    "unipath==1.1",
-    "uritemplate==4.1.1",
-    "urllib3==1.26.9",
-    "urllib3-secure-extra==0.1.0",
-    "uvicorn==0.17.6",
-    "vine==5.0.0",
-    "virtualenv==20.13.4",
-    "watch==0.2.7",
-    "wcwidth==0.2.5",
-    "weasyprint==64.0",
-    "webencodings==0.5.1",
-    "websocket-client==1.9.0",
-    "werkzeug==2.0.3",
-    "wheel==0.45.1",
-    "wrapt==1.14.1",
-    "wsproto==1.1.0",
-    "xlrd==2.0.1",
-    "xlsxwriter==3.2.2",
-    "xlutils==2.0.0",
-    "xlwt==1.3.0",
-    "xmltodict==0.12.0",
-    "yarl==1.8.2",
-    "zipp==3.7.0",
-    "zope-event==4.6",
-    "zope-interface==5.4.0",
-    "zopfli==0.2.2",
+]
+
+[tool.pylint.main]
+ignore-paths = ["apps/.*/migrations/.*", ".venv/.*"]
+load-plugins = ["pylint_django"]
+django-settings-module = "heron.settings.test"
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint."messages_control"]
+# Désactivations auparavant répétées en tête de chaque module (# pylint: disable=...)
+disable = [
+    "E0401",  # import-error (résolu par l'environnement uv)
+    "W1203",  # logging-fstring-interpolation
+    "R0903",  # too-few-public-methods
+    "W0702",  # bare-except (plus aucun dans le code, conservé pour les scripts)
+    "E1101",  # no-member (faux positifs Django)
+    "W0621",  # redefined-outer-name (fixtures pytest)
+    "C0303",  # trailing-whitespace (SQL multi-lignes)
+    "R0914",  # too-many-locals
+    "R0913",  # too-many-arguments
+    "C0413",  # wrong-import-position (amorçage django.setup() des scripts)
+    "W0703",  # broad-except
+    "W0718",  # broad-exception-caught
+    "R0915",  # too-many-statements
+    "C0415",  # import-outside-toplevel
+    "R0912",  # too-many-branches
+    "C0302",  # too-many-lines
+    "R0901",  # too-many-ancestors
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["migrations", "apps/*/tests/essais", "apps/*/essais", "heron/bin"]
+
+[tool.ruff.lint]
+# Règles proches de celles de SonarLint pour les tests (imports, paramètres et variables inutilisés,
+# style pytest, simplifications) ; lancer : uv run ruff check conftest.py apps/*/tests
+select = ["F", "E", "W", "B", "PT", "SIM", "ARG", "PLW", "PLC", "N", "UP", "RET", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixtures demandées pour leur effet de bord et callbacks factices : paramètres volontairement inutilisés
+"conftest.py" = ["ARG001"]
+"apps/*/tests/*" = ["ARG001", "ARG002", "ARG005", "SIM117"]
+"apps/parameters/tests/test_counters_parameters.py" = ["E402"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "heron.settings.test"
+# Suites couvertes à 100 % : `uv run pytest --cov` les lance toutes.
+# Pour une seule app, restreindre aussi la mesure : `uv run pytest apps/accountancy/tests --cov=apps/accountancy`
+testpaths = [
+    "apps/accountancy/tests",
+    "apps/articles/tests",
+    "apps/book/tests",
+    "apps/centers_clients/tests",
+    "apps/centers_purchasing/tests",
+    "apps/compta/tests",
+    "apps/core/tests",
+    "apps/countries/tests",
+    "apps/data_flux/tests",
+    "apps/edi/tests",
+    "apps/formations/tests",
+    "apps/groups/tests",
+    "apps/import_files/tests",
+    "apps/invoices/tests",
+    "apps/od/tests",
+    "apps/parameters/tests",
+    "apps/rfa/tests",
+    "apps/periods/tests",
+    "apps/permissions/tests",
+    "apps/traces/tests",
+    "apps/users/tests",
+    "apps/validation_purchases/tests",
+    "apps/validation_sales/tests",
+    "heron/tests",
+]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "--no-migrations --reuse-db -p no:cacheprovider --strict-markers"
+markers = [
+    "integration: tests traversant réellement la chaîne data_flux (lecture fichier, validation, upsert)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning:axes",
+]
+
+[tool.coverage.run]
+branch = true
+source = [
+    "apps/accountancy",
+    "apps/book",
+    "apps/centers_clients",
+    "apps/centers_purchasing",
+    "apps/articles",
+    "apps/edi",
+    "apps/formations",
+    "apps/groups",
+    "apps/import_files",
+    "apps/compta",
+    "apps/core",
+    "apps/countries",
+    "apps/data_flux",
+    "apps/invoices",
+    "apps/od",
+    "apps/parameters",
+    "apps/rfa",
+    "apps/periods",
+    "apps/permissions",
+    "apps/traces",
+    "apps/users",
+    "apps/validation_purchases",
+    "apps/validation_sales",
+    "heron",
+]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "heron/settings/*",
+    "heron/bin/*",
+    "heron/env/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 100
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
 ]

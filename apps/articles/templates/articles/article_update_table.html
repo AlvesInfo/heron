@@ -196,13 +196,13 @@
                                    style="font-size: 12px !important;text-align: center;font-weight: 900;">
                                     <thead>
                                         <tr>
-                                            <th style="width: 7%">Edit</th>
-                                            <th style="width: 15%">Centrale Fille</th>
-                                            <th style="width: 41%">Article</th>
-                                            <th style="width: 8%">TVA</th>
-                                            <th style="width: 13%">Compte d'Achat</th>
-                                            <th style="width: 13%">Compte de Vente</th>
-                                            <th style="width: 7%">Delete</th>
+                                            <th scope="col" style="width: 7%">Edit</th>
+                                            <th scope="col" style="width: 15%">Centrale Fille</th>
+                                            <th scope="col" style="width: 41%">Article</th>
+                                            <th scope="col" style="width: 8%">TVA</th>
+                                            <th scope="col" style="width: 13%">Compte d'Achat</th>
+                                            <th scope="col" style="width: 13%">Compte de Vente</th>
+                                            <th scope="col" style="width: 7%">Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -220,7 +220,6 @@
                                             <td>{{ account.sale_account }}</td>
                                             <td class="tdDelete" style="text-align: center;">
                                                 <div style="cursor: pointer;">
-{#                                                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ account.pk }}, `{{ account.code }} - {{ account.name }}`, `{% url 'parameters:delete_account_article' %}`, `la rubrique presta`)"></i>#}
                                                 </div>
                                             </td>
                                         </tr>

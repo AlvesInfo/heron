@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 Numérotation Externe. N° de facture Enseigne pour les ventes
 FR : Module de récupération de la numérotation de facture des Ventes Enseignes

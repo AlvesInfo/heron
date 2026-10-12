@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Dictionnaires des colonnes d'insertion
 EN : Insert Column Dictionaries

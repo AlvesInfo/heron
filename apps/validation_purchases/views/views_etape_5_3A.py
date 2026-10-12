@@ -1,6 +1,7 @@
 import pendulum
 from django.db import connection
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -59,7 +60,7 @@ def ca_familly_cct_export(request, client):
                 client,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : ca_familly_cct_export")
 
-    return redirect(reverse("validation_purchases:ca_familly_cct"))
+    return redirect(reverse("validation_purchases:ca_familly_cct", kwargs={"client": client}))

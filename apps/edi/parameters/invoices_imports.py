@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module pour renvoie des colonnes des fichiers de factures fournisseurs à traiter
 EN : Module to return columns from supplier invoice files to be processed

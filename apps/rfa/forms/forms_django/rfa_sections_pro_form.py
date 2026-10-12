@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des rfa SectionProExclusion
 """
@@ -10,6 +9,8 @@ from apps.rfa.models import SectionProExclusion
 
 class SectionProExclusionForm(forms.ModelForm):
     """Form pour les exclusions des axes PRO"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -25,6 +26,9 @@ class SectionProExclusionForm(forms.ModelForm):
 
 class DeleteSectionProExclusionForm(forms.ModelForm):
     """Form pour la suppression des exclusions des axes PRO"""
+
+    # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
+    id = forms.ModelChoiceField(queryset=SectionProExclusion.objects.all())
 
     class Meta:
         """class Meta"""

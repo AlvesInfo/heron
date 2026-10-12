@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 # ruff: noqa: E722
 """
 FR : View des états de sorties
@@ -14,7 +13,7 @@ modified by: Paulo ALVES
 """
 
 import pendulum
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import (
@@ -43,7 +42,7 @@ def finalize_purchases_export(request):
             )
             return response_file(get_achats, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("invoices:finalize_purchases_export")
 
     return render(request, "invoices/export_achats_invoices.html", context=context)

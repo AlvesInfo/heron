@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Module des vues pour les jauges des imports
 EN : Views module for imports gauges

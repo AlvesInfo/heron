@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers Interson Protac
 EN : Post-processing sql module after importing supplier invoice files
@@ -30,9 +29,13 @@ post_interson_dict = {
             "sale_invoice" = true,
             "famille" = case 
                             when (
-                                    "reference_article" ilike 'Chronopost%%' 
+                                    coalesce(
+                                        nullif("reference_article", ''), left("libelle", 35)
+                                    ) ilike 'Chronopost%%' 
                                     or 
-                                    "reference_article" ilike '%%port%%'
+                                    coalesce(
+                                        nullif("reference_article", ''), left("libelle", 35)
+                                    ) ilike '%%port%%'
                                 )
                                 and
                                 (

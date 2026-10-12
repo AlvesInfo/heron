@@ -24,7 +24,7 @@ urlpatterns = [
             "password-reset/",
             PasswordResetView.as_view(
                 template_name="heron/password_reset.html",
-                email_template_name="heron/password_reset_email.html",
+                email_template_name="heron/password_reset_email.txt",
                 subject_template_name="heron/password_reset_subject.txt",
             ),
             name="password_reset",

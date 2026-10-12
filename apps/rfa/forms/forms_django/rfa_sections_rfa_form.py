@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des rfa SectionRfa
 """
@@ -10,6 +9,8 @@ from apps.rfa.models import SectionRfa
 
 class SectionRfaForm(forms.ModelForm):
     """Form pour les axes RFA"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""
@@ -25,6 +26,9 @@ class SectionRfaForm(forms.ModelForm):
 
 class DeleteSectionRfaForm(forms.ModelForm):
     """Form pour la suppression des axes RFA"""
+
+    # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
+    id = forms.ModelChoiceField(queryset=SectionRfa.objects.all())
 
     class Meta:
         """class Meta"""

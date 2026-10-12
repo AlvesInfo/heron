@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,W0718
 """
 FR : Module de mise à jour des éléments nécessaires à la facturation
 EN : Module for updating the elements necessary for invoicing
@@ -348,26 +347,17 @@ def process_update():
     ]
 
     for processing in processings_list:
-        error = False
         trace = None
-        traceback = ""
 
         try:
             trace = processing()
 
         except Exception as except_error:
-            error = True
-            traceback = f"Exception Générale: {processing.__name__}\n{except_error!r}"
-            LOGGER_IMPORT.exception(traceback)
+            LOGGER_IMPORT.exception(f"Exception Générale: {processing.__name__}\n{except_error!r}")
 
         finally:
-            if error and trace:
-                trace.errors = True
-                trace.comment = (
-                    trace.comment
-                    + "\n. Une erreur c'est produite veuillez consulter les logs :\n"
-                    + traceback
-                )
+            # En cas d'exception le traitement n'a pas renvoyé sa trace (trace reste None) :
+            # l'erreur est dans les logs, seule une trace renvoyée est complétée
             if trace is not None:
                 trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
                 trace.save()

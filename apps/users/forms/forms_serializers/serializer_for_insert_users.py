@@ -1,4 +1,3 @@
-# pylint: disable=C0330, C0411, C0303, E1101, C0413, I1101
 """Module pour validation par un ModelSerializer rest_framework,
 de l'intégration en masse d'utilisateurs
 
@@ -30,7 +29,7 @@ class UsersSerializer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
-            "fonction",
+            "function",
         }
 
         for field in truncated_fields:
@@ -68,14 +67,12 @@ class UsersSerializerUsers(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
-            "fonction",
+            "function",
         }
 
+        data["function"] = data.get("function") or "Utilisateur"
+
         for field in truncated_fields:
-
-            if field == "fonction":
-                data[field] = data[field] or "Utilisateur"
-
             if (
                 field in self.fields
                 and data.get(field)

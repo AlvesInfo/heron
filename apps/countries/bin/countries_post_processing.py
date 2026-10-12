@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module de post-traitement avant import des fichiers sage pour l'application Countries
 EN : Post-processing module before importing sage files for the Countries application

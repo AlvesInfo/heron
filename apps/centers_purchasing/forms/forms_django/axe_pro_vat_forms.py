@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des dictionnaires Axe Pro/Regroupement de facturation
 """
@@ -10,6 +9,8 @@ from apps.centers_purchasing.models import ApplicableProVat
 
 class ApplicableProVatForm(forms.ModelForm):
     """Formulaires de la liste des dictionnaires Axe Pro/Regroupement de facturation"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta du form django"""
@@ -29,6 +30,9 @@ class ApplicableProVatForm(forms.ModelForm):
 
 class ApplicableProVatDeleteForm(forms.ModelForm):
     """Formulaires de la liste des dictionnaires Axe Pro/Regroupement de facturation"""
+
+    # Le champ id (AutoField) n\'est pas généré par le ModelForm : déclaré pour valider l\'existence
+    id = forms.ModelChoiceField(queryset=ApplicableProVat.objects.all())
 
     class Meta:
         """class Meta du form django"""

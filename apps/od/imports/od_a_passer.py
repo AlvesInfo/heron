@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0912,R0913,R0914,R0915,W0703,W1203
 """
 FR : Module d'import des modèles de Sage X3
 EN : Import module for Sage X3 models
@@ -86,18 +85,21 @@ def validation_amounts(error, message):
     )
 
     # Filtre pour la condition WHERE
-    queryset = ModelOd.objects.annotate(delta=delta_expression).filter(
-        ~Q(montant_ttc=(F("montant_ht") + F("montant_tva")))
+    items = list(
+        ModelOd.objects.annotate(delta=delta_expression)
+        .filter(~Q(montant_ttc=(F("montant_ht") + F("montant_tva"))))[:30]
     )
 
-    if queryset.exists():
-        message = ""
-        error = True
+    if not items:
+        return error, message
 
-        for item in queryset[:30]:
-            message += (
-                f'<span>- la ligne "{item.delta}" est pas déséquilibrée</span><br>'
-            )
+    message = ""
+    error = True
+
+    for item in items:
+        message += (
+            f'<span>- la ligne "{item.delta}" est déséquilibrée</span><br>'
+        )
 
     return error, message
 
@@ -186,12 +188,11 @@ def validation_accounts(error, message):
         pk__in=fake_accounts
     )
 
-    if queryset.exists():
-        message = ""
-        error = True
+    message = ""
+    error = True
 
-        for item in queryset[:30]:
-            message += f'<span>- la ligne "{item.account}" a un compte comptable qui est erroné</span><br>'
+    for item in queryset[:30]:
+        message += f'<span>- la ligne "{item.account}" a un compte comptable qui est erroné</span><br>'
 
     return error, message
 
@@ -241,7 +242,7 @@ def validation_axes(error, message):
             F("axe_pro"),
             Value(" : axe_prj="),
             F("axe_prj"),
-            Value(") : axe_pys="),
+            Value(" : axe_pys="),
             F("axe_pys"),
             Value(" : axe_rfa="),
             F("axe_rfa"),
@@ -253,14 +254,13 @@ def validation_axes(error, message):
     # Filtre pour la condition WHERE
     queryset = ModelOd.objects.annotate(axes=delta_expression).filter(pk__in=fake_axes)
 
-    if queryset.exists():
-        message = ""
-        error = True
+    message = ""
+    error = True
 
-        for item in queryset[:30]:
-            message += (
-                f'<span>- la ligne "{item.axes}" a un axe qui est erroné</span><br>'
-            )
+    for item in queryset[:30]:
+        message += (
+            f'<span>- la ligne "{item.axes}" a un axe qui est erroné</span><br>'
+        )
 
     return error, message
 
@@ -310,12 +310,11 @@ def validation_cct(error, message):
         pk__in=fake_cct
     )
 
-    if queryset.exists():
-        message = ""
-        error = True
+    message = ""
+    error = True
 
-        for item in queryset[:30]:
-            message += f'<span>- la ligne "{item.cct_false}" a un cct qui est erroné</span><br>'
+    for item in queryset[:30]:
+        message += f'<span>- la ligne "{item.cct_false}" a un cct qui est erroné</span><br>'
 
     return error, message
 
@@ -365,12 +364,11 @@ def validation_third_party_num(error, message):
         pk__in=fake_tiers
     )
 
-    if queryset.exists():
-        message = ""
-        error = True
+    message = ""
+    error = True
 
-        for item in queryset[:30]:
-            message += f'<span>- la ligne "{item.tiers_false}" a un tiers qui est erroné</span><br>'
+    for item in queryset[:30]:
+        message += f'<span>- la ligne "{item.tiers_false}" a un tiers qui est erroné</span><br>'
 
     return error, message
 
@@ -454,6 +452,7 @@ def import_od_files():
         return error, message
 
     update_blank_account()
+    update_blank_facture_heron()
     set_base_sage_invoice_number()
 
     error, message = validation_accounts(error, message)

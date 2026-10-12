@@ -13,22 +13,21 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-{#                    <th class="no-sort" style="width: 3px;"></th>#}
-                    <th style="width: 9px;-webkit-writing-mode: vertical-rl;">Source</th>
-                    <th style="">Tiers X3</th>
-                    <th style="">Type</th>
-                    <th style="">Fournisseur</th>
-                    <th style="">Mois Fact.</th>
-                    <th style="">Factures</th>
-                    <th style="">Référence Article</th>
-                    <th style="">Axe RFA</th>
+{#                    <th scope="col" class="no-sort" style="width: 3px;"></th>#}
+                    <th scope="col" style="width: 9px;-webkit-writing-mode: vertical-rl;">Source</th>
+                    <th scope="col" style="">Tiers X3</th>
+                    <th scope="col" style="">Type</th>
+                    <th scope="col" style="">Fournisseur</th>
+                    <th scope="col" style="">Mois Fact.</th>
+                    <th scope="col" style="">Factures</th>
+                    <th scope="col" style="">Référence Article</th>
+                    <th scope="col" style="">Axe RFA</th>
                 </tr>
             </thead>
             <tbody>
             {% for element in rfa %}
                 <tr class="hide_plans even" id="id_{{ forloop.counter0 }}">
 {#                    <td style="text-align: center;">#}
-{#                        <a href="{% url 'validation_purchases:integration_elements' element.enc_param|encode_b64_str %}">#}
 {#                            <i class="eye icon modification"></i>#}
 {#                        </a>#}
 {#                    </td>#}

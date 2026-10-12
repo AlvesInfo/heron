@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,R0914
 """
 FR : Module de post traitement après import data
 EN : Post-processing module after data import
@@ -17,7 +16,8 @@ from django.db import connection
 
 def duplicates_delete_accounts():
     """Supprime les doublons de la table AccountsAxeProCategory, car dans les clefs,
-    il y a le champ, subcategory qui peut être null
+    il y a le champ, subcategory qui peut être null. Les doublons ne viennent que de l'import
+    de fichier (l'écran refuse les doublons) : la ligne la plus récente est conservée.
     """
     with connection.cursor() as cursor:
         sql_duplicates_delete = sql.SQL(
@@ -29,7 +29,7 @@ def duplicates_delete_accounts():
                 from "centers_purchasing_accountsaxeprocategory" "ca"
                 join ( 
                     select 
-                        min("id") as "pk",
+                        max("id") as "pk",
                         "child_center",
                         "uuid_big_category",
                         coalesce("uuid_sub_category"::varchar, '') as "uuid_sub_category",

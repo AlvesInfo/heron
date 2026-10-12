@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 # ruff: noqa: E722
 """
 FR : View des essais
@@ -12,9 +11,9 @@ modified at: 2024-08-13
 modified by: Paulo ALVES
 """
 
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 
-from heron import celery_app
 from apps.invoices.tasks import launch_celery_send_emails_essais
 
 

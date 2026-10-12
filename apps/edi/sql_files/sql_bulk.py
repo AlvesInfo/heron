@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers de Bbgr BULK
 EN : Post-processing sql module after importing supplier invoice files

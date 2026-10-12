@@ -1,4 +1,3 @@
-# pylint: disable=C0303,E0401,R0912,R0913,R0914,R0915,W0703,W1203
 #
 """
 FR : Module d'import des factures founisseurs EDI
@@ -117,20 +116,67 @@ def get_supplier_ident(flow_name: str):
     return supplier_ident
 
 
+def get_cached(key: str):
+    """
+    Valeur du cache (redis renvoie des bytes, le dict de repli renvoie des str).
+    Un redis injoignable n'empêche pas l'import : on retombe sur la base.
+    """
+    try:
+        value = cache.get(key)
+    except redis.exceptions.RedisError:
+        return None
+
+    if isinstance(value, bytes):
+        value = value.decode()
+
+    return value or None
+
+
 @lru_cache(maxsize=256)
 def get_supplier(flow_name):
     """Get supplier name in cache ou model SupplierDefinition"""
-    return (
-        cache.get(f"{flow_name}_supplier").decode() if cache.get(f"{flow_name}") else None
-    ) or get_supplier_name(flow_name)
+    return get_cached(f"{flow_name}_supplier") or get_supplier_name(flow_name)
 
 
 @lru_cache(maxsize=256)
 def get_ident(flow_name):
     """Get supplier ident in cache ou model SupplierDefinition"""
-    return (
-        cache.get(f"{flow_name}_ident").decode() if cache.get(f"{flow_name}") else None
-    ) or get_supplier_ident(flow_name)
+    return get_cached(f"{flow_name}_ident") or get_supplier_ident(flow_name)
+
+
+# Exceptions attendues de la chaîne d'import, dans l'ordre où elles sont reconnues, avec le
+# libellé journalisé ; toute autre exception est journalisée en "Exception Générale"
+LOGGED_EXCEPTIONS = (
+    # Exceptions FileLoader
+    (GetAddDictError, "GetAddDictError"),
+    (IterFileToInsertError, "IterFileToInsertError"),
+    (ExcelToCsvError, "ExcelToCsvError"),
+    (FileToCsvError, "FileToCsvError"),
+    # Exceptions Opto33Loader
+    (OptoDateError, "OptoDateError"),
+    (OptoLinesError, "OptoLinesError"),
+    (OptoQualifierError, "OptoQualifierError"),
+    (OptoIdError, "OptoIdError"),
+    (OptoNumberError, "OptoNumberError"),
+    (OptoParserError, "OptoParserError"),
+    (PathTypeError, "PathTypeError"),
+    (PathFileError, "PathFileError"),
+    # Exceptions PostgresDjangoUpsert
+    (PostgresKeyError, "PostgresKeyError"),
+    (PostgresTypeError, "PostgresTypeError"),
+    (IntegrityError, "IntegrityError (probably supplier None)"),
+)
+
+
+def _exception_label(except_error: Exception) -> str:
+    """Libellé journalisé d'une exception : celui de la première classe attendue qui lui
+    correspond, sinon "Exception Générale"
+    :param except_error: exception levée pendant l'import
+    """
+    return next(
+        (label for klass, label in LOGGED_EXCEPTIONS if isinstance(except_error, klass)),
+        "Exception Générale",
+    )
 
 
 def make_insert_edi_files(model, flow_name, source, trace, validator, params_dict_loader):
@@ -170,10 +216,7 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
             "nb_errors_max": 50,
         }
 
-        if flow_name == "Edi":
-            LOADER = Opto33Loader
-        else:
-            LOADER = FileLoader
+        LOADER = Opto33Loader if flow_name == "Edi" else FileLoader
 
         with LOADER(
             source=source,
@@ -217,73 +260,9 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
                 kwargs_prepared={"trace": trace},
             )
 
-    # Exceptions FileLoader ========================================================================
-    except GetAddDictError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"GetAddDictError : {except_error!r}")
-
-    except IterFileToInsertError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"IterFileToInsertError : {except_error!r}")
-
-    except ExcelToCsvError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"ExcelToCsvError : {except_error!r}")
-
-    except FileToCsvError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"FileToCsvError : {except_error!r}")
-
-    # Exceptions Opto33Loader ======================================================================
-    except OptoDateError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"OptoDateError : {except_error!r}")
-
-    except OptoLinesError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"OptoLinesError : {except_error!r}")
-
-    except OptoQualifierError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"OptoQualifierError : {except_error!r}")
-
-    except OptoIdError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"OptoIdError : {except_error!r}")
-
-    except OptoNumberError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"OptoNumberError : {except_error!r}")
-
-    except OptoParserError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"OptoParserError : {except_error!r}")
-
-    except PathTypeError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"PathTypeError : {except_error!r}")
-
-    except PathFileError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"PathFileError : {except_error!r}")
-
-    # Exceptions PostgresDjangoUpsert ==============================================================
-    except PostgresKeyError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
-
-    except PostgresTypeError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
-
-    except IntegrityError as except_error:
-        error = True
-        LOGGER_EDI.exception(f"IntegrityError (probably supplier None) : {except_error!r}")
-
-    # Exception Générale ===========================================================================
     except Exception as except_error:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception(f"{_exception_label(except_error)} : {except_error!r}")
 
     finally:
         if error or trace.errors:

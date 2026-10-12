@@ -11,10 +11,10 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
         <thead>
             <tr>
-                <th style="width: 5%">Edit</th>
-                <th style="width: 70%;text-align: left;">Fournisseur</th>
-                <th style="width: 20%;">Taux</th>
-                <th style="width: 5%">delete</th>
+                <th scope="col" style="width: 5%">Edit</th>
+                <th scope="col" style="width: 70%;text-align: left;">Fournisseur</th>
+                <th scope="col" style="width: 20%;">Taux</th>
+                <th scope="col" style="width: 5%">delete</th>
             </tr>
         </thead>
         <tbody>
@@ -29,7 +29,7 @@
                 <td>{{parameter.rfa_rate}}</td>
                 <td class="tdDelete" style="text-align: center;">
                     <div style="cursor: pointer;">
-                      <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.supplier }} - {{ parameter.rfa_rate }}`, `{% url 'rfa:supplier_rate_delete' %}`, `Le taux pour le fournisseur`)"></i>
+                      <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ parameter.pk }}, `{{ parameter.supplier }} - {{ parameter.rfa_rate }}`, `{% url 'rfa:supplier_rate_delete' %}`, `Le taux pour le fournisseur`)"><i class="red trash icon" aria-hidden="true"></i></button>
                     </div>
                 </td>
             </tr>

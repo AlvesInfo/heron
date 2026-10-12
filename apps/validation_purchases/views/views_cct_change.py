@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101,W1203
 """
 FR : Module qui change les CCT dans les écrans ou l'on peut modifier le CCT par double click
 EN : Module that changes the CCTs in the screens where you can modify the CCT by double click
@@ -16,6 +15,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
 from apps.validation_purchases.bin.validations_utilities import set_is_multi_store
@@ -27,7 +27,7 @@ from apps.edi.models import EdiImport
 def cct_change(request):
     """Fonction de changement du cct d'une facture"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -37,39 +37,39 @@ def cct_change(request):
     if form.is_valid() and form.cleaned_data:
         data_dict = form.cleaned_data
 
-        if data_dict.get("id") == 0:
+        # id absent (None) ou 0 : la ligne n'est pas ciblée par sa clé primaire
+        if not data_dict.get("id"):
             data_dict.pop("id")
 
         cct = Maison.objects.get(cct=data_dict.pop("cct"))
 
-        if form.changed_data:
-            changed, message = trace_change(
-                request,
-                EdiImport,
-                data_dict,
-                {"cct_uuid_identification_id": cct.uuid_identification},
+        changed, message = trace_change(
+            request,
+            EdiImport,
+            data_dict,
+            {"cct_uuid_identification_id": cct.uuid_identification},
+        )
+
+        if not changed:
+            messages.add_message(request, 50, message)
+
+        else:
+            # On va updater si la facture est multi sociétés
+            set_is_multi_store(
+                data_dict.get("third_party_num"),
+                data_dict.get("invoice_number"),
+                data_dict.get("invoice_year"),
             )
-
-            if not changed:
-                messages.add_message(request, 50, message)
-
-            else:
-                # On va updater si la facture est multi sociétés
-                set_is_multi_store(
-                    data_dict.get("third_party_num"),
-                    data_dict.get("invoice_number"),
-                    data_dict.get("invoice_year"),
-                )
-                message = (
-                    f"La Facture n° {data_dict.get('invoice_number')}, a bien comme nouveau CCT :"
-                    f"{cct}."
-                )
-                messages.add_message(request, 20, message)
+            message = (
+                f"La Facture n° {data_dict.get('invoice_number')}, a bien comme nouveau CCT :"
+                f"{cct}."
+            )
+            messages.add_message(request, 20, message)
 
         data = {"success": "success"}
 
     else:
         messages.add_message(request, 50, f"Une erreur c'est produite : {form.errors}")
-        LOGGER_VIEWS.exception(f"cct_change, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"cct_change, form invalid : {form.errors!r}")
 
     return JsonResponse(data)

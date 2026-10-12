@@ -1,8 +1,7 @@
-# pylint: disable=E0401,R0903
 """
 Views des Emails d'envoi
 """
-from django.shortcuts import reverse
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
@@ -28,7 +27,6 @@ class EmailCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Email
     form_class = EmailForm
-    form_class.use_required_attribute = False
     template_name = "parameters/email_update.html"
     success_message = "L'email %(description)s a été créé avec success"
     error_message = "L'email %(description)s n'a pu être créé, une erreur c'est produite"
@@ -54,7 +52,6 @@ class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     model = Email
     context_object_name = "email"
     form_class = EmailForm
-    form_class.use_required_attribute = False
     template_name = "parameters/email_update.html"
     success_message = "L'email %(description)s a été modifiée avec success"
     error_message = "L'email %(description)s n'a pu être modifiée, une erreur c'est produite"

@@ -1,5 +1,3 @@
-# pylint: disable=
-# E0401,E1101,W0703,W1203
 """
 FR : Module de gestion des exclusions pour la facturation des Clients
 EN : Exclusion management module for Customer billing

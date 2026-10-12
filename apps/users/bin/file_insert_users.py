@@ -1,180 +1,153 @@
-# pylint: disable=C0330, C0411, C0303, E1101, C0413, I1101
-"""Module l'intégration en masse d'utilisateurs Staff (Admin délégués)
+"""Module l'intégration en masse d'utilisateurs depuis un fichier Excel
 
 Commentaire:
 
 created at: 2021-10-30
 created by: Paulo ALVES
 
-modified at: 2021-10-30
+modified at: 2026-10-12
 modified by: Paulo ALVES
 """
+import logging
+import smtplib
 import uuid
 from pathlib import Path
-import smtplib
-import logging
-
-from xlrd.biffh import XLRDError
 
 from django.contrib.auth.models import Group
-from django.core.exceptions import ValidationError
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from django.template.loader import render_to_string
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
-from apps.users.models import AuthGroupAccessStaff
 from apps.core.functions.functions_setups import settings
-from apps.core.functions.function_imports import IterFileToInsertError, IterFileToInsert
+from apps.core.functions.function_imports import (
+    ExcelToCsvError,
+    IterFileToInsert,
+    IterFileToInsertError,
+)
+from apps.users.bin.insert_staffs import (
+    UserInsertError,
+    _file_message,
+    _serializer_errors,
+    delete_upload_file,
+)
 from apps.users.forms.forms_serializers.serializer_for_insert_users import UsersSerializerUsers
-from apps.users.models import User, UploadUserFile
-
-from apps.core.functions.functions_excel import ExcelToCsv
+from apps.users.models import AuthGroupAccessStaff, UploadUserFile, User
 
 logger = logging.getLogger("connexion")
 
+# Colonnes attendues dans le fichier excel (clé = champ du modèle, valeur = entête du fichier)
+USERS_COLUMNS = {
+    "email": "email",
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "username": "username",
+    "function": "fonction",
+}
+COLUMNS_ERROR = (
+    '<span style="margin-left: 2em;">Le fichier ne contient pas les colonnes nécessaires</span></br>'
+    '<span style="margin-left: 2em;">'
+    + ", ".join(f'"{column}"' for column in USERS_COLUMNS.values())
+    + "</span></br>"
+)
 
-class UserInsertError(Exception):
-    """Gestion d'exceptions"""
+
+def send_initial_password_email(user, request):
+    """Envoi à l'utilisateur créé du lien d'initialisation de son mot de passe"""
+    current_site = get_current_site(request)
+    message = render_to_string(
+        "users/password_initial_email.txt",
+        {
+            "user": user,
+            "domain": current_site,
+            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "token": PasswordResetTokenGenerator().make_token(user),
+        },
+    )
+    user.email_user("Heron -  Initialisation du Compte", message)
 
 
-def insert_users(xls_file, request):
-    """Insertion
-        :param request: http.request
-        :param xls_file: fichier à intégrer au format excel
-        :return:
+def _create_user(validated, request):
+    """Création d'un utilisateur validé, rattachement aux groupes des staffs et envoi du mail"""
+    user = User.objects.create_user(
+        validated.get("username"),
+        str(validated.get("email")).lower(),
+        validated.get("password"),
+        first_name=validated.get("first_name"),
+        last_name=validated.get("last_name"),
+        function=validated.get("function"),
+        code_child_center=validated.get("code_child_center"),
+    )
+    group_staff = AuthGroupAccessStaff.objects.values_list("group_id", flat=True)
+
+    for group in Group.objects.filter(id__in=list(group_staff)):
+        group.user_set.add(user)
+
+    send_initial_password_email(user, request)
+
+
+def insert_users(xls_file: Path, request, code_child_center: str):
+    """Insertion des utilisateurs depuis un fichier excel
+    :param xls_file: fichier à intégrer au format excel
+    :param request: http.request (construction du lien d'initialisation du mot de passe)
+    :param code_child_center: centrale par défaut des utilisateurs créés (celle de l'importateur)
+    :return: (True, []) si tout est passé, sinon (None, liste des erreurs html)
     """
     errors = []
 
-    if xls_file.is_file():
-        try:
-            csv_file = ExcelToCsv(
-                rep=str(xls_file.parents[0]), deletion=True, file_name=str(xls_file.name)
-            ).make_csv()[0]
+    if not xls_file.is_file():
+        return None, [f"le fichier {xls_file.name} est introuvable"]
 
-            columns_dict = {
-                "email": "email",
-                "first_name": "first_name",
-                "last_name": "last_name",
-                "username": "username",
-                "fonction": "fonction",
-            }
+    try:
+        with IterFileToInsert(xls_file, USERS_COLUMNS, first_line=1) as file_iter:
+            for dict_user in file_iter.chunk_dict():
+                data = {
+                    "code_child_center": code_child_center,
+                    **dict_user,
+                    "is_superuser": False,
+                    "is_staff": False,
+                    "password": str(uuid.uuid4()),
+                }
+                serializer = UsersSerializerUsers(data=data)
 
-            with IterFileToInsert(csv_file, columns_dict, first_line=1) as file_iter:
+                if not serializer.is_valid():
+                    errors.append(_serializer_errors(dict_user, serializer))
+                    continue
+
+                email = str(serializer.validated_data.get("email")).lower()
+
                 try:
-                    for dict_user in file_iter.chunk_file():
-                        user = UsersSerializerUsers(
-                            data={
-                                **dict_user,
-                                **{
-                                    "is_superuser": False,
-                                    "is_staff": False,
-                                    "password": str(uuid.uuid4),
-                                },
-                            }
-                        )
-
-                        if user.is_valid():
-                            try:
-                                email = str(user.validated_data.get("email")).lower()
-                                first_name = user.validated_data.get("first_name")
-                                last_name = user.validated_data.get("last_name")
-                                username = user.validated_data.get("username")
-                                fonction = user.validated_data.get("fonction")
-                                password = user.validated_data.get("password")
-
-                                user = User.objects.create_user(
-                                    username,
-                                    email,
-                                    password,
-                                    first_name=first_name,
-                                    last_name=last_name,
-                                    fonction=fonction,
-                                )
-                                user.save()
-
-                                group_staff = [
-                                    row[0]
-                                    for row in AuthGroupAccessStaff.objects.all().values_list(
-                                        "group_id"
-                                    )
-                                ]
-
-                                for group_name in Group.objects.filter(id__in=group_staff):
-                                    group_name.user_set.add(user)
-
-                                subject = "Heron -  Initialisation du Compte"
-                                current_site = get_current_site(request)
-                                message = render_to_string(
-                                    "users/password_initial_email.html",
-                                    {
-                                        "user": user,
-                                        "domain": current_site,
-                                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                                        "token": PasswordResetTokenGenerator().make_token(user),
-                                    },
-                                )
-                                user.email_user(subject, message)
-
-                            except UserInsertError:
-                                logger.exception(
-                                    "erreur d envoi de mail pour creation d users en masse"
-                                )
-                                errors.append(f"erreur de création de l'utilisateur : {email}")
-                            except ValidationError:
-                                logger.exception(
-                                    "erreur d envoi de mail pour creation d users en masse"
-                                )
-                                errors.append(
-                                    f"erreur de création de l'utilisateur : {email}, "
-                                    f"le mot de passe ne respecte pas les règles"
-                                )
-                            except smtplib.SMTPAuthenticationError:
-                                logger.exception(
-                                    "erreur d envoi de mail pour creation d users en masse"
-                                )
-                                errors.append(
-                                    f"l'utilisateur : {email}, "
-                                    f"a été créé, mais l'envoi d'email ne fonctionne pas'"
-                                )
-                        else:
-                            erreur = (
-                                f"erreur de création de l'utilisateur : "
-                                f"{dict_user.get('email', 'inconnu')}</br>"
-                            )
-
-                            for key, error in user.errors.items():
-                                erreur += (
-                                    f'<span style="margin-left: 2em;">{key} : '
-                                    f'{error[0]}</span></br>'
-                                )
-                            errors.append(erreur)
-
-                except IterFileToInsertError:
-                    logger.exception(
-                        "erreur d envoi de mail pour creation d users en masse"
+                    _create_user(serializer.validated_data, request)
+                except (UserInsertError, IntegrityError, ValueError):
+                    logger.exception("erreur de creation d users en masse")
+                    errors.append(f"erreur de création de l'utilisateur : {email}")
+                except ValidationError:
+                    logger.exception("erreur de creation d users en masse")
+                    errors.append(
+                        f"erreur de création de l'utilisateur : {email}, "
+                        f"le mot de passe ne respecte pas les règles"
                     )
-                    erreur = (
-                        f'<span style="margin-left: 2em;">'
-                        f"Le fichier ne contient pas les colonnes nécessaires"
-                        f"</span></br>"
-                        f'<span style="margin-left: 2em;">'
-                        f'"email", "first_name", "last_name", "username", "fonction"'
-                        f"</span></br>"
+                except smtplib.SMTPException:
+                    logger.exception("erreur d envoi de mail pour creation d users en masse")
+                    errors.append(
+                        f"l'utilisateur : {email}, "
+                        f"a été créé, mais l'envoi d'email ne fonctionne pas'"
                     )
-                    errors.append(erreur)
 
-        except XLRDError:
-            logger.exception(
-                "Erreur de conversion d'un fichier excel en csv"
-            )
-            erreur = (
-                f'<span style="margin-left: 2em;">'
-                f"La version du fichier excel n'est pas supportée"
-                f"</span></br>"
-            )
-            errors.append(erreur)
+    except IterFileToInsertError:
+        logger.exception("colonnes manquantes pour creation d users en masse")
+        errors.append(COLUMNS_ERROR)
+
+    except ExcelToCsvError:
+        logger.exception("Erreur de conversion d'un fichier excel en csv")
+        errors.append(
+            '<span style="margin-left: 2em;">'
+            "La version du fichier excel n'est pas supportée"
+            "</span></br>"
+        )
 
     if not errors:
         return True, errors
@@ -182,53 +155,18 @@ def insert_users(xls_file, request):
     return None, errors
 
 
-def set_insert_users(user_id, request):
-    """Snippets pour insertion en base des utilisateurs Staff (Admin délégué)
-        :param request: request
-        :param user_id: pk de l'utilisateur en cours
-        :return: None
+def set_insert_users(user, request):
+    """Insertion en base des utilisateurs depuis les fichiers excel téléversés
+    :param user: utilisateur en cours (importateur)
+    :param request: request
+    :return: (None, messages html)
     """
     html_messages = ""
-    files = UploadUserFile.objects.filter(user_id=user_id, type_insert=0)
 
-    for file in files:
-        csv_file = Path(settings.MEDIA_DIR) / str(file.file)
-
-        bol, retour = insert_users(csv_file, request)
-
-        if bol:
-            message = f"""
-                <li value="o" style="color: #00B050;font-weight: bold;">
-                    L'intégration du fichier : {file.base_name_file}, a réussi !
-                </li>
-                </br>
-                """
-        else:
-            errors = "".join(
-                f'<li value="-"style="color: red;font-weight: normal;">{error}</li>\n'
-                for error in retour
-            )
-
-            text_erreur = "une erreur" if len(retour) == 1 else "des erreurs"
-            message = f"""
-                <li value="o" style="color: red;font-weight: bold;">
-                    L'intégration du fichier : {file.base_name_file} à généré {text_erreur} :
-                    <ol>
-                        {errors}
-                    </ol>
-                </li>
-                </br>
-                """
-        html_messages += message
-
-        try:
-            file.delete()
-            delete = Path(settings.MEDIA_DIR) / str(file.file)
-
-            if delete.is_file():
-                delete.unlink()
-
-        except UploadUserFile.DoesNotExist:
-            pass
+    for file in UploadUserFile.objects.filter(user=user, type_insert=0):
+        xls_file = Path(settings.MEDIA_DIR) / str(file.file)
+        bol, retour = insert_users(xls_file, request, user.code_child_center)
+        html_messages += _file_message(file, bol, retour)
+        delete_upload_file(file)
 
     return None, html_messages

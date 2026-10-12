@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module de préparation à l'import des factures fournisseurs
 EN : Preparation module for importing supplier invoices
@@ -17,8 +16,7 @@ import pendulum
 from django.db import models
 
 from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import VatSage, VatRegimeSage, CctSage, SectionSage
-from apps.book.models import Society
+from apps.accountancy.models import VatSage, SectionSage
 from apps.centers_clients.models import Maison
 from apps.parameters.models import (
     BaseInvoiceTable,

@@ -1,4 +1,3 @@
-# pylint: disable=R0903,E0401,E0213
 """
 FR : Module de validation par djantic des données des parametres ou data de remplissage de tables
 EN : Validation module by djantic of parameter data or table filling data

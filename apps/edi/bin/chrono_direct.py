@@ -1,9 +1,16 @@
-from pathlib import Path
+"""
+FR : Script autonome de génération du fichier générique interne des factures Chronodirect
+EN : Standalone script generating the internal generic invoices file for Chronodirect
+"""
 import csv
+import logging
 from decimal import Decimal
+from pathlib import Path
 
 import psycopg2
 from psycopg2.extensions import parse_dsn
+
+LOGGER = logging.getLogger("edi")
 
 
 def cnx_postgresql(string_of_connexion):
@@ -22,9 +29,8 @@ def cnx_postgresql(string_of_connexion):
         kwargs_cnx = parse_dsn(string_of_connexion)
         connexion = psycopg2.connect(**kwargs_cnx)
 
-    except psycopg2.Error as except_error:
-        log_line = f"cnx_postgresql error: {except_error}\n"
-        print(log_line)
+    except psycopg2.Error:
+        LOGGER.exception("cnx_postgresql error")
         connexion = None
 
     return connexion
@@ -50,9 +56,8 @@ def query_select(cnx, sql_requete=None, params=None):
                 # print(cur.mogrify(sql_requete, params).decode())
             return list_rows
 
-        except psycopg2.Error as except_error:
-            log_line = f"query_select error: {except_error}\n"
-            print(log_line)
+        except psycopg2.Error:
+            LOGGER.exception("query_select error")
     return None
 
 
@@ -146,7 +151,7 @@ def set_generique_chrono_direct(cnx_dns, base_file_path, internal_file_path, dte
 
             interne_writer.writerow(base_dict.values())
 
-    print("Le fichier à bien été créé")
+    LOGGER.info("Le fichier à bien été créé")
 
 
 if __name__ == "__main__":

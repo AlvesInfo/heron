@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0718,R0913,R0914,R0915
 """
 FR : Module d'envoi d'emails via l'API Gmail
 EN : Email sending module via Gmail API
@@ -25,6 +24,7 @@ from dataclasses import dataclass
 
 from googleapiclient.errors import HttpError
 from bs4 import BeautifulSoup
+from django.utils.functional import SimpleLazyObject
 
 from heron.loggers import LOGGER_EMAIL
 from .auth import authenticator
@@ -157,6 +157,90 @@ class GmailSender:
 
         return {"raw": raw_message}
 
+    def _retry_delay(self, attempt: int) -> float:
+        """Délai avant la tentative suivante : exponentiel, plafonné à max_retry_delay"""
+        retry_delay = self.config.retry_delay * (
+            self.config.retry_backoff ** attempt
+        )
+        return min(retry_delay, self.config.max_retry_delay)
+
+    def _send_once(self, message: dict, to: List[str]) -> EmailResult:
+        """Une tentative d'envoi (après attente éventuelle du rate limiting)"""
+        # Attend si nécessaire pour le rate limiting
+        self.rate_limiter.wait_if_needed()
+
+        # Envoie le message
+        result = (
+            self.service.users()
+            .messages()
+            .send(userId="me", body=message)
+            .execute()
+        )
+
+        message_id = result.get("id")
+        LOGGER_EMAIL.info(
+            "Email envoyé avec succès (ID: %s) à %s",
+            message_id,
+            ", ".join(to),
+        )
+
+        return EmailResult(
+            success=True,
+            message_id=message_id,
+            recipient=", ".join(to),
+        )
+
+    def _http_error_result(self, error: HttpError, attempt: int, to: List[str]) -> Optional[EmailResult]:
+        """
+        Erreur HTTP de l'API : attend et renvoie None si elle est récupérable (rate limit, erreur
+        temporaire), sinon renvoie le résultat d'échec définitif
+        """
+        error_code = error.resp.status
+
+        # Erreurs récupérables (rate limit, erreurs temporaires)
+        if error_code in [429, 500, 502, 503, 504]:
+            retry_delay = self._retry_delay(attempt)
+
+            LOGGER_EMAIL.warning(
+                "Erreur HTTP %s (tentative %d/%d), "
+                "nouvelle tentative dans %s secondes: %s",
+                error_code,
+                attempt + 1,
+                self.config.max_retries,
+                retry_delay,
+                error,
+            )
+
+            time.sleep(retry_delay)
+            return None
+
+        # Erreurs non récupérables
+        error_msg = (
+            f"Erreur HTTP non récupérable {error_code}: {error}"
+        )
+        LOGGER_EMAIL.error(error_msg)
+        return EmailResult(
+            success=False,
+            error=error_msg,
+            recipient=", ".join(to),
+        )
+
+    def _after_send_error(self, error: Exception, attempt: int) -> None:
+        """Erreur inattendue à l'envoi : journal, réinitialisation SSL, attente avant de retenter"""
+        LOGGER_EMAIL.error(
+            "Erreur lors de l'envoi (tentative %d/%d): %s",
+            attempt + 1,
+            self.config.max_retries,
+            error,
+        )
+
+        # Réinitialise le service en cas d'erreur de connexion SSL
+        if "EOF occurred" in str(error) or "ssl" in str(error).lower():
+            self._reset_service()
+
+        if attempt < self.config.max_retries - 1:
+            time.sleep(self._retry_delay(attempt))
+
     def send_message(
         self,
         to: List[str],
@@ -196,85 +280,18 @@ class GmailSender:
         last_error = None
         for attempt in range(self.config.max_retries):
             try:
-                # Attend si nécessaire pour le rate limiting
-                self.rate_limiter.wait_if_needed()
-
-                # Envoie le message
-                result = (
-                    self.service.users()
-                    .messages()
-                    .send(userId="me", body=message)
-                    .execute()
-                )
-
-                message_id = result.get("id")
-                LOGGER_EMAIL.info(
-                    "Email envoyé avec succès (ID: %s) à %s",
-                    message_id,
-                    ", ".join(to),
-                )
-
-                return EmailResult(
-                    success=True,
-                    message_id=message_id,
-                    recipient=", ".join(to),
-                )
+                return self._send_once(message, to)
 
             except HttpError as error:
                 last_error = error
-                error_code = error.resp.status
+                failure = self._http_error_result(error, attempt, to)
 
-                # Erreurs récupérables (rate limit, erreurs temporaires)
-                if error_code in [429, 500, 502, 503, 504]:
-                    retry_delay = self.config.retry_delay * (
-                        self.config.retry_backoff ** attempt
-                    )
-                    retry_delay = min(retry_delay, self.config.max_retry_delay)
-
-                    LOGGER_EMAIL.warning(
-                        "Erreur HTTP %s (tentative %d/%d), "
-                        "nouvelle tentative dans %s secondes: %s",
-                        error_code,
-                        attempt + 1,
-                        self.config.max_retries,
-                        retry_delay,
-                        error,
-                    )
-
-                    time.sleep(retry_delay)
-                    continue
-
-                # Erreurs non récupérables
-                else:
-                    error_msg = (
-                        f"Erreur HTTP non récupérable {error_code}: {error}"
-                    )
-                    LOGGER_EMAIL.error(error_msg)
-                    return EmailResult(
-                        success=False,
-                        error=error_msg,
-                        recipient=", ".join(to),
-                    )
+                if failure is not None:
+                    return failure
 
             except Exception as error:
                 last_error = error
-                LOGGER_EMAIL.error(
-                    "Erreur lors de l'envoi (tentative %d/%d): %s",
-                    attempt + 1,
-                    self.config.max_retries,
-                    error,
-                )
-
-                # Réinitialise le service en cas d'erreur de connexion SSL
-                if "EOF occurred" in str(error) or "ssl" in str(error).lower():
-                    self._reset_service()
-
-                if attempt < self.config.max_retries - 1:
-                    retry_delay = self.config.retry_delay * (
-                        self.config.retry_backoff ** attempt
-                    )
-                    retry_delay = min(retry_delay, self.config.max_retry_delay)
-                    time.sleep(retry_delay)
+                self._after_send_error(error, attempt)
 
         # Toutes les tentatives ont échoué
         error_msg = f"Échec après {self.config.max_retries} tentatives: {last_error}"
@@ -284,6 +301,62 @@ class GmailSender:
             error=error_msg,
             recipient=", ".join(to),
         )
+
+    @staticmethod
+    def _report_mass_result(i: int, total: int, result: EmailResult, attachments_name: str, progress) -> None:
+        """Journalise le résultat d'un envoi en masse et met à jour la jauge éventuelle"""
+        if result.success:
+            msg = f"[{i}/{total}] {attachments_name} envoyée avec succès"
+            LOGGER_EMAIL.info(msg)
+            update_kwargs = {"processed": 1}
+        else:
+            msg = f"[{i}/{total}] Erreur sur envoi {attachments_name}"
+            LOGGER_EMAIL.error(msg)
+            update_kwargs = {"processed": 1, "failed": 1}
+
+        if progress is not None:
+            progress.update_progress(**update_kwargs, message=msg, item_name=attachments_name)
+
+    @staticmethod
+    def _log_mass_progress(i: int, total: int, start_time: float) -> None:
+        """Log de progression tous les 50 emails"""
+        if i % 50 == 0:
+            elapsed = time.time() - start_time
+            rate = i / elapsed
+            estimated_remaining = (total - i) / rate
+            msg = (
+                f"Progression: {i}/{total} emails envoyés "
+                f"({rate:.1f} emails/s, temps restant estimé: {estimated_remaining:.0f}s)"
+            )
+            LOGGER_EMAIL.info(msg)
+
+    def _send_mass_item(self, i: int, email_data: Tuple) -> Tuple[EmailResult, Optional[str]]:
+        """
+        Envoie un email de la liste et renvoie un seul résultat pour lui
+        :param i: rang de l'email
+        :param email_data: tuple (to, subject, text, html, context, attachments)
+        :return: (résultat, nom des pièces jointes) ; le nom est None si l'envoi n'a pas été tenté
+        """
+        try:
+            to, subject, body_text, body_html, context, attachments = email_data
+            # Calculé avant l'envoi : rien ne peut échouer entre l'envoi et son résultat
+            attachments_name = ", ".join(file.name for file in attachments or ())
+
+            # Filtre les emails vides
+            to = [email for email in to if email]
+
+            if not to:
+                LOGGER_EMAIL.warning("Aucun destinataire valide pour l'email %d", i)
+                return EmailResult(success=False, error="Aucun destinataire valide"), None
+
+            return (
+                self.send_message(to, subject, body_text, body_html, context, attachments),
+                attachments_name,
+            )
+
+        except Exception as error:
+            LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d: %s", i, error)
+            return EmailResult(success=False, error=str(error)), None
 
     def send_mass_mail(
         self, email_list: List[Tuple], job_id: str = None
@@ -307,77 +380,25 @@ class GmailSender:
         nb_success = 0
         nb_errors = 0
 
-        progress = SSEProgress.objects.get(job_id=job_id)
+        # Jauge de progression optionnelle (envoi hors écran de suivi)
+        progress = SSEProgress.objects.filter(job_id=job_id).first() if job_id else None
 
         for i, email_data in enumerate(email_list, 1):
+            result, attachments_name = self._send_mass_item(i, email_data)
+            results.append(result)
+            sent = bool(result.success)
+            nb_success += sent
+            nb_errors += not sent
+
+            if attachments_name is None:
+                continue
+
+            # Le suivi (jauge, logs) ne doit pas changer le résultat d'un email déjà traité
             try:
-                to, subject, body_text, body_html, context, attachments = email_data
-
-                # Filtre les emails vides
-                to = [email for email in to if email]
-
-                if not to:
-                    LOGGER_EMAIL.warning("Aucun destinataire valide pour l'email %d", i)
-                    results.append(
-                        EmailResult(
-                            success=False,
-                            error="Aucun destinataire valide",
-                        )
-                    )
-                    nb_errors += 1
-                    continue
-
-                # Envoie l'email
-                result = self.send_message(
-                    to, subject, body_text, body_html, context, attachments
-                )
-                results.append(result)
-
-                attachments_name = ', '.join(file.name for file in attachments)
-
-                if result.success:
-                    nb_success += 1
-                    msg = f"[{i}/{len(email_list)}] {attachments_name} envoyée avec succès"
-                    LOGGER_EMAIL.info(msg)
-                    print(msg, flush=True)
-                    progress.update_progress(
-                        processed=1,
-                        message=msg,
-                        item_name=attachments_name,
-                    )
-                else:
-                    nb_errors += 1
-                    msg = f"[{i}/{len(email_list)}] Erreur sur envoi {attachments_name}"
-                    LOGGER_EMAIL.error(msg)
-                    print(msg, flush=True)
-                    progress.update_progress(
-                        processed=1,
-                        failed=1,
-                        message=msg,
-                        item_name=attachments_name,
-                    )
-
-                # Log de progression tous les 50 emails
-                if i % 50 == 0:
-                    elapsed = time.time() - start_time
-                    rate = i / elapsed
-                    estimated_remaining = (len(email_list) - i) / rate
-                    msg = (
-                        f"Progression: {i}/{len(email_list)} emails envoyés "
-                        f"({rate:.1f} emails/s, temps restant estimé: {estimated_remaining:.0f}s)"
-                    )
-                    LOGGER_EMAIL.info(msg)
-                    print(msg, flush=True)
-
-            except Exception as error:
-                LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d: %s", i, error)
-                results.append(
-                    EmailResult(
-                        success=False,
-                        error=str(error),
-                    )
-                )
-                nb_errors += 1
+                self._report_mass_result(i, len(email_list), result, attachments_name, progress)
+                self._log_mass_progress(i, len(email_list), start_time)
+            except Exception:
+                LOGGER_EMAIL.exception("Suivi de l'envoi de l'email %d non enregistré", i)
 
         elapsed_time = time.time() - start_time
         average_rate = len(email_list) / elapsed_time if elapsed_time > 0 else 0
@@ -395,5 +416,5 @@ class GmailSender:
         return nb_success, nb_errors, results
 
 
-# Instance globale du sender
-sender = GmailSender()
+# Instance globale du sender, construite (et authentifiée) au premier accès
+sender = SimpleLazyObject(GmailSender)

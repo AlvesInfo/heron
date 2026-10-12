@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Parameters
 """
@@ -9,6 +8,8 @@ from apps.parameters.models import InvoiceFunctions
 
 class InvoiceFunctionsForm(forms.ModelForm):
     """Form pour les InvoiceFunctions"""
+
+    use_required_attribute = False
 
     class Meta:
         """class Meta"""

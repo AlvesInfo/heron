@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,E1101
 """
 FR : Module de traitement des nouveaux articles pour dans la table articles avec new_article = true
 EN : New article processing module for in articles table with new_article = true
@@ -16,7 +15,7 @@ from typing import AnyStr
 from django.db.models import CharField, Value, Case, When, Q, F
 from django.db.models.functions import Concat
 
-from apps.accountancy.models import VatSage, AccountSage
+from apps.accountancy.models import AccountSage
 from apps.articles.models import Article
 from apps.book.models import Society
 from apps.centers_clients.models import Maison

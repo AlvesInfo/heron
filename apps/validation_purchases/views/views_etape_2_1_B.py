@@ -1,22 +1,20 @@
-# pylint: disable=E0401,C0103,W1203,W0702
 """
 Views des details d'une facture
 """
 import pendulum
-from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
-from django.views.generic import UpdateView
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.db.models import Value
 from django.contrib.postgres.aggregates import StringAgg
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.bin.encoders import get_base_64, set_base_64_list
 from apps.edi.models import EdiImport
 from apps.validation_purchases.forms import (
-    EdiImportValidationForm,
     ChangeBigCategoryForm,
     DeletePkForm,
     ChangeCttForm,
@@ -82,7 +80,7 @@ def delete_line_details_purchase(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -101,7 +99,7 @@ def delete_line_details_purchase(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_line_details_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"delete_line_details_purchase, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -133,29 +131,8 @@ def details_purchases_export(request, enc_param):
                 attr_dict,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : details_purchases_export")
 
-    return redirect(
-        reverse("validation_purchases:details_purchase", kwargs={"enc_param": enc_param})
-    )
-
-
-class UpdateDetailsPurchase(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des factures founisseurs"""
-
-    model = EdiImport
-    form_class = EdiImportValidationForm
-    form_class.use_required_attribute = False
-    template_name = "book/society_update.html"
-    success_message = "La facture N° %(invoice_number)s a été modifiée avec success"
-    error_message = (
-        "La facture N° %(invoice_number)s n'a pu être modifiée, une erreur c'est produite"
-    )
-
-    def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
-        form.instance.modified_by = self.request.user
-        self.request.session["level"] = 20
-
-        return super().form_valid(form)
+    # Le flow_name nécessaire au détail n'est pas dans enc_param : retour à l'écran 2.1
+    return redirect(reverse("validation_purchases:integration_purchases"))

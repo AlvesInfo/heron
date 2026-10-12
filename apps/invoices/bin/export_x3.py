@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,W0718,W0719,W1203
 """
 FR : Module d'export des fichier X3 à intégrer dans Sage
 EN : X3 file export module to be integrated into Sage
@@ -80,13 +79,13 @@ def export_files_x3(export_type, centrale, file_name, nb_fac):
     finally:
         if error:
             trace.errors = True
-            trace.comment += trace.comment + (
+            trace.comment = (trace.comment or "") + (
                 f"\n. Une erreur c'est produite pour la fonction ({export_type}) "
                 f"d'export du fichier X3 et la centrale {centrale}, "
                 f"veuillez consulter les logs"
             )
 
-        trace.time_to_process = start - time.time()
+        trace.time_to_process = time.time() - start
         trace.save()
 
     return trace, to_print

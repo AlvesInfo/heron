@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de recherches et get des articles
 EN : Search and get module for articles
@@ -13,8 +12,7 @@ modified by: Paulo ALVES
 """
 from typing import List, Dict
 
-from django.db.models import CharField, Value, Case, When, Q, F
-from django.db.models.functions import Concat
+from django.db.models import Case, When, Q, F
 
 from apps.articles.models import Article
 

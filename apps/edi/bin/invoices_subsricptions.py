@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101,W0703,W1203
 """
 Génération des factures d'abonnements: Royalties, Meuleuse, Publicité, Prestations
 FR : Module de génération des factures de Royalties
@@ -87,8 +86,6 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
             "created_by": user_uuid,
         },
     )
-    from apps.core.functions.functions_postgresql import pretty_sql
-
     return rows
 
 
@@ -119,10 +116,8 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     if error:
         trace.errors = True
         trace.comment = (
-            trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
-            if rows
-            else ""
-        )
+            f"{trace.comment}. " if trace.comment else ""
+        ) + "Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des redevances meuleuses "
@@ -166,10 +161,8 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     if error:
         trace.errors = True
         trace.comment = (
-            trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
-            if rows
-            else ""
-        )
+            f"{trace.comment}. " if trace.comment else ""
+        ) + "Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des prestations "
@@ -211,10 +204,8 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     if error:
         trace.errors = True
         trace.comment = (
-            trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
-            if rows
-            else ""
-        )
+            f"{trace.comment}. " if trace.comment else ""
+        ) + "Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des redevances de publicité "
@@ -259,10 +250,8 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     if error:
         trace.errors = True
         trace.comment = (
-            trace.comment + ". Une erreur c'est produite veuillez consulter les logs"
-            if rows
-            else ""
-        )
+            f"{trace.comment}. " if trace.comment else ""
+        ) + "Une erreur c'est produite veuillez consulter les logs"
 
     to_print = (
         "Génération des royalties "

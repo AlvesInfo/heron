@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,E1101
 """
 FR : Module API d'appelle des dropdown, pour remplissage à l'appel
 EN : API module for calling dropdowns, for filling on call

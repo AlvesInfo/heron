@@ -1,5 +1,3 @@
-# pylint: disable=
-# E0401,W0703,W1203
 """
 FR : fixtures pour les statistiques et axes pro des articles
 
@@ -14,9 +12,6 @@ modified by: Paulo ALVES
 import os
 import platform
 import sys
-import csv
-from uuid import UUID
-from pathlib import Path
 
 import django
 

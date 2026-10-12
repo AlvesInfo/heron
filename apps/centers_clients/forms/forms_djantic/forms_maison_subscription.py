@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,C0115
 """
 FR : Module de validation par djantic des souscription des abonnements par maisons
 EN : Djantic validation module for subscription subscriptions by houses
@@ -12,6 +11,7 @@ modified at: 2024-03-31
 modified by: Paulo ALVES
 """
 import datetime
+from typing import Optional
 from uuid import UUID
 
 from django.utils import timezone
@@ -31,6 +31,7 @@ class MaisonSubcriptionSchema(ModelSchema):
     unit_weight: int
     function: str
     for_signboard: str
+    vat: Optional[str] = None
 
     class Config:
         model = MaisonSubcription

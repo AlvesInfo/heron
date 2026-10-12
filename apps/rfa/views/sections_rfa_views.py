@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
 Views des rfa à prendre sur l'axe RFA
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -33,7 +34,6 @@ class SectionRfaCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = SectionRfa
     form_class = SectionRfaForm
-    form_class.use_required_attribute = False
     template_name = "rfa/sections_rfa_update.html"
     success_message = "L'Axe RFA %(axe_rfa)s a été créé avec success"
     error_message = (
@@ -59,23 +59,12 @@ class SectionRfaCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
-        # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
-        # On lance sa methode form_error
-        if hasattr(self, "form_error"):
-            form_error = getattr(self, "form_error")
-            form_error()
-
-        return super().form_invalid(form)
-
 
 class SectionRfaUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView des axes RFA à prendre"""
 
     model = SectionRfa
     form_class = SectionRfaForm
-    form_class.use_required_attribute = False
     template_name = "rfa/sections_rfa_update.html"
     success_message = "L'Axe RFA %(axe_rfa)s a été modifiée avec success"
     error_message = (
@@ -101,16 +90,6 @@ class SectionRfaUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
-        # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
-        # On lance sa methode form_error
-        if hasattr(self, "form_error"):
-            form_error = getattr(self, "form_error")
-            form_error()
-
-        return super().form_invalid(form)
-
 
 @transaction.atomic
 def section_rfa_delete(request):
@@ -119,7 +98,7 @@ def section_rfa_delete(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -157,7 +136,7 @@ def section_rfa_export_list(_):
 
         return response_file(excel_list_rfa_sections, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : section_rfa_export_list")
 
     return redirect(reverse("rfa:sections_rfa_list"))

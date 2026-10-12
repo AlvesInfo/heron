@@ -1,5 +1,3 @@
-# pylint: disable=
-# E0401,W0703,W1203
 """
 FR : fixtures pour les statistiques et axes pro des articles
 
@@ -76,7 +74,7 @@ def import_articles():
                 libelle_heron = reference
 
             objet, created = Article.objects.update_or_create(
-                supplier=get_society(supplier),
+                third_party_num=get_society(supplier),
                 reference=reference,
                 libelle=libelle,
                 libelle_heron=libelle_heron,
@@ -84,19 +82,19 @@ def import_articles():
                 axe_pro=get_axe_pro(axe_pro_copie_de_acuitis),
                 catalog_price=catalog_price,
             )
-            print(objet, created)
+            LOGGER_IMPORT.info("%s %s", objet, created)
 
 
 def article_from_article_update():
     for article in ArticleUpdate.objects.all():
         try:
             objet, created = Article.objects.update_or_create(
-                supplier=get_society("TECH001"),
+                third_party_num=get_society("TECH001"),
                 reference=article.reference,
                 libelle=article.libelle,
                 libelle_heron=article.libelle,
             )
-            print(objet, created)
+            LOGGER_IMPORT.info("%s %s", objet, created)
         except django.db.utils.IntegrityError:
             pass
 
@@ -529,6 +527,7 @@ l = [
     },
 ]
 from django import forms
+from heron.loggers import LOGGER_IMPORT
 
 
 class ArtForm(forms.ModelForm):
@@ -568,10 +567,8 @@ def main():
         if f.is_valid():
             f.save()
         else:
-            print(art_dict.get("reference"), " : ", f.errors)
+            LOGGER_IMPORT.info("%s %s %s", art_dict.get('reference'), ' : ', f.errors)
 
 
 if __name__ == "__main__":
-    # import_articles()
-    # article_from_article_update()
     main()

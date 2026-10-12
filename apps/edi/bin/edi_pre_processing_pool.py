@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101,C0103,R0914
 """
 FR : Module de pré-traitement avant import des fichiers de factures fournisseur
 EN : Pre-processing module before importing supplier invoice files
@@ -119,6 +118,47 @@ def interson_translate_file(file: Path):
     return file
 
 
+TRANSFERT_HEADERS = [
+    "third_party_num",
+    "invoice_number",
+    "invoice_date",
+    "invoice_type",
+    "devise",
+    "vat_rate",
+]
+
+
+def _transfert_rows(rows) -> list:
+    """Lignes d'un transfert : une sortie chez l'envoyeur (quantité négative) et une entrée chez
+    le réceptionnaire ; aucune ligne si la quantité est nulle
+    :param rows: parties de la ligne du fichier (début, envoyeur, réceptionnaire, quantité, fin)
+    """
+    date_cosium = pendulum.from_format(
+        validate_date(rows[0][0]).date().isoformat(), "YYYY-MM-DD"
+    )
+    invoice_date = date_cosium.end_of("month")
+    invoice_number = f"TS-{invoice_date.date().isoformat()}"
+    qty = Decimal(rows[3][0])
+
+    if not qty:
+        return []
+
+    rows[4][1] = str(rows[4][1]).replace("\r", "").replace("\n", " ")
+    start_row = [
+        "ZTRANSFERT",
+        invoice_number,
+        invoice_date.format("DD/MM/YYYY"),
+        "380",
+        "EUR",
+        ".2",
+    ] + rows[0]
+
+    return [
+        start_row + rows[1] + rows[1] + [-qty] + rows[4],
+        start_row + rows[2] + rows[2] + [qty] + rows[4],
+    ]
+
+
 def transferts_cosium_file(file: Path):
     """
     Transformation du fichier en entrée des transferts, switcher en deux lignes.
@@ -159,65 +199,21 @@ def transferts_cosium_file(file: Path):
             if not line:
                 break
 
-            if i > 2:
-                rows = slicing_parts(line)
-                if i == 3:
-                    entetes_list = (
-                        [
-                            "third_party_num",
-                            "invoice_number",
-                            "invoice_date",
-                            "invoice_type",
-                            "devise",
-                            "vat_rate",
-                        ]
-                        + rows[0]
-                        + ["code_fournisseur", "code_maison"]
-                        + rows[3]
-                        + rows[4]
-                    )
-                    csv_writer.writerow(entetes_list)
+            if i < 3:
+                continue
 
-                else:
-                    date_cosium = pendulum.from_format(
-                        validate_date(rows[0][0]).date().isoformat(), "YYYY-MM-DD"
-                    )
-                    invoice_date = date_cosium.end_of("month")
-                    invoice_number = f"TS-{invoice_date.date().isoformat()}"
-                    qty = Decimal(rows[3][0])
+            rows = slicing_parts(line)
 
-                    if qty:
-                        rows[4][1] = str(rows[4][1]).replace("\r", "").replace("\n", " ")
-                        csv_writer.writerow(
-                            [
-                                "ZTRANSFERT",
-                                invoice_number,
-                                invoice_date.format("DD/MM/YYYY"),
-                                "380",
-                                "EUR",
-                                ".2",
-                            ]
-                            + rows[0]
-                            + rows[1]
-                            + rows[1]
-                            + [-qty]
-                            + rows[4]
-                        )
-                        csv_writer.writerow(
-                            [
-                                "ZTRANSFERT",
-                                invoice_number,
-                                invoice_date.format("DD/MM/YYYY"),
-                                "380",
-                                "EUR",
-                                ".2",
-                            ]
-                            + rows[0]
-                            + rows[2]
-                            + rows[2]
-                            + [qty]
-                            + rows[4]
-                        )
+            if i == 3:
+                csv_writer.writerow(
+                    TRANSFERT_HEADERS
+                    + rows[0]
+                    + ["code_fournisseur", "code_maison"]
+                    + rows[3]
+                    + rows[4]
+                )
+            else:
+                csv_writer.writerows(_transfert_rows(rows))
 
     file.unlink()
 

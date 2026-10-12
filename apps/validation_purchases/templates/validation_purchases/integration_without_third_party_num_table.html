@@ -4,10 +4,15 @@
 {% block table %}
 
     <form id="thirdPartyNumFormChange" action="" method="POST" style="display: none;">
+        <label for="id_uuid_identification" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Identifiant de l'import</label>
         <input type="text" name="uuid_identification" maxlength="80" required="" id="id_uuid_identification">
+        <label for="id_flow_name" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Flux</label>
         <input type="text" name="flow_name" maxlength="80" required="" id="id_flow_name">
+        <label for="id_supplier" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Fournisseur</label>
         <input type="text" name="supplier" maxlength="80" required="" id="id_supplier">
+        <label for="id_supplier_ident" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Identifiant fournisseur</label>
         <input type="text" name="supplier_ident" maxlength="20" required="" id="id_supplier_ident">
+        <label for="id_third_party_num" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Tiers X3</label>
         <input type="text" name="third_party_num" maxlength="15" required="" id="id_third_party_num">
     </form>
 
@@ -35,7 +40,7 @@
                         </div>
 
                         <div class="one wide field" style="text-align: left;padding-left: 10px;">
-                            <h5></h5>
+                            <h5>Action</h5>
                         </div>
 
                     </div>
@@ -47,36 +52,36 @@
                         <div class="fields">
 
                             <div style="display: none;">
-                                <label for="id_uuid_identification" style="text-align: left;"></label>
+                                <label for="id_identification_{{ forloop.counter0 }}" style="text-align: left;"><span style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Identifiant de l'import</span></label>
                                 <input type="text" name="uuid_identification" maxlength="80" required="" id="id_identification_{{ forloop.counter0 }}" value="{{ element_dict.uuid_identification }}" readonly style="background-color: #efefff;">
                             </div>
 
 
                             <div class="two wide field">
-                                <label for="id_flow_name" style="text-align: left;"></label>
+                                <label for="id_flow_name_{{ forloop.counter0 }}" style="text-align: left;"><span style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Flux</span></label>
                                 <input type="text" name="flow_name" maxlength="80" required="" id="id_flow_name_{{ forloop.counter0 }}" value="{{ element_dict.flow_name }}" readonly style="background-color: #efefff;">
                             </div>
 
 
                             <div class="four wide field">
-                                <label for="id_supplier" style="text-align: left;"></label>
+                                <label for="id_supplier_{{ forloop.counter0 }}" style="text-align: left;"><span style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Fournisseur</span></label>
                                 <input type="text" name="supplier" maxlength="80" required="" id="id_supplier_{{ forloop.counter0 }}" value="{{ element_dict.supplier|default_if_none:'' }}" readonly style="background-color: #efefff;">
                             </div>
 
                             <div class="three wide field">
-                                <label for="id_supplier_ident" style="text-align: left;"></label>
+                                <label for="id_supplier_ident_{{ forloop.counter0 }}" style="text-align: left;"><span style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Identifiant fournisseur</span></label>
                                 <input type="text" name="supplier_ident" maxlength="20" id="id_supplier_ident_{{ forloop.counter0 }}" value="{{ element_dict.supplier_ident }}" readonly style="background-color: #efefff;">
                             </div>
 
                             <div class="six wide field">
                                 <label for="id_third_party_num_{{ forloop.counter0 }}"
-                                       style="text-align: left;"></label>
+                                       style="text-align: left;"><span style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Tiers X3</span></label>
                                 <select id="id_third_party_num_{{ forloop.counter0 }}"
                                         name="third_party_num_{{ forloop.counter0 }}"
                                         class="ui fluid search dropdown"
                                         required="">
                                     {% for value, label in form.third_party_num_choices %}
-                                        <option value="{{ value }}" name="{{ value }}">{{ label }}</option>
+                                        <option value="{{ value }}">{{ label }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

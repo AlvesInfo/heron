@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0913,W0212
 """
 FR : Module des outils de gestion de l'application edi
 EN : Edi application management tools module
@@ -26,6 +25,15 @@ from apps.users.models import User
 from apps.articles.models import Article
 from apps.edi.models import EdiImport
 from apps.parameters.models import Nature
+
+
+def form_errors_message(form) -> str:
+    """Message à afficher pour un formulaire invalide : "champ : erreur, erreur - champ : erreur"
+    :param form: formulaire django invalide
+    """
+    return " - ".join(
+        f"{key} : {', '.join(list(error_list))}" for key, error_list in dict(form.errors).items()
+    )
 
 
 def get_sens(sens: str):
@@ -202,30 +210,6 @@ def set_signboard(edi_objects: EdiImport.objects) -> None:
         edi_line.code_center = edi_line.cct_uuid_identification.center_purchase.code
         edi_line.code_signboard = edi_line.cct_uuid_identification.sign_board.code
         edi_line.save()
-
-
-def set_hand_sales_prices(edi_objects: EdiImport.objects) -> None:
-    """
-    On va setter les centrales filles et les enseignes des factures saisies manuellement
-    :param edi_objects: Queryset Objets EdiImport créé
-    :return:
-    """
-
-    for edi_line in edi_objects:
-        edi_line.sale_net_amount = edi_line.net_amount
-        edi_line.sale_net_unit_price = edi_line.net_unit_price
-        edi_line.save()
-
-
-def set_update_sales_prices() -> None:
-    """
-    Mise à jour des prix de ventes
-    """
-    # TODO: A FAIRE
-    # with connection.cursor() as cursor:
-    #     sql_set_update_sales_prices = """
-    #     """
-    #     cursor.execute(sql_set_update_sales_prices)
 
 
 def get_personal_profession_type():

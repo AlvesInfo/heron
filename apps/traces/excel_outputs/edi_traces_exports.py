@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203
 """Module d'export du fichier excel pour les lectures traces,
 sortie Excel par pagination tel qu'à l'écran
 
@@ -14,18 +13,12 @@ import io
 
 import html2text
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
 )
 from apps.data_flux.models import Trace
+from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 COLUMNS = [
     {
@@ -154,7 +147,7 @@ def get_rows(start_index: int, end_index: int):
             row.file_name,
             row.trace_name,
             "X" if row.errors else "",
-            str(html2text.html2text(row.comment)).replace("\n", ""),
+            str(html2text.html2text(row.comment or "")).replace("\n", ""),
             "\n".join(
                 [
                     (
@@ -174,39 +167,23 @@ def get_rows(start_index: int, end_index: int):
 
 
 def excel_edi_traces(file_io: io.BytesIO, file_name: str, start_index: int, end_index: int) -> dict:
-    """
+    """Fonction de génération du fichier Excel des traces affichées à l'écran
     :param file_io: io.BytesIO file
     :param file_name: nom du fichier
     :param start_index: index initial slicing queryset
     :param end_index: index final slicing queryset
-    :return:
+    :return: dict de résultat de l'export
     """
-    """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT"""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-3])
-    list_excel = [file_io, [titre]]
-    excel = GenericExcel(list_excel)
     get_clean_rows = get_rows(start_index, end_index)
 
-    try:
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, COLUMNS)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
-            for i, dict_row in enumerate(COLUMNS)
-        ]
-        rows_writer(excel, 1, 4, 0, get_clean_rows, f_lignes, f_lignes_odd)
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name=titre,
+        title=titre,
+        columns=COLUMNS,
+        rows=get_clean_rows,
+        orientation="landscape",
+    )

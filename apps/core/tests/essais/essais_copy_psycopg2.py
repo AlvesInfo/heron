@@ -1,10 +1,8 @@
-import io
 from pathlib import Path
 import random
 import string
 import csv
 import time
-import uuid
 from datetime import datetime
 
 from apps.core.functions.functions_setups import settings
@@ -153,12 +151,7 @@ def gen_csv():
 def essais_copy():
     start = time.time()
     dict_to_test = {"l_00": "qpuizhoisvvakfqreoth","l_28": "klhexxgdclrgqvvqjurd","l_01": "eyhjiephgbizabtflzru","l_02": "ajnuypuzytcjzlonpetd","l_03": "aytwsxudinllmdawduse","l_05": "cvqflbaaztpaufmerend","l_06": "dmonjrqrqjbzywflingz","l_07": "vfsialaqgqbbrvxffizr","l_29": "","l_09": "alzdgqkkvicjkofxmajv","l_10": "tqzjcjitbsotqtwsgwxb","l_12": "konzpqbzcfkhvfufusvr","l_13": "pmzfpvlaplnfmxqwkaex","l_14": "mkqrflcwzfpsjapyihpd","l_15": "ivrvqrtyzhtpvxtxwgcp","l_16": "uynblkdzfghcsxaxpqyh","l_17": "swuvwifwdlhzpabxdrns","l_18": "nzikqqdhypjsxflsscnp","l_25": "wbueiyabgygvtjaizmtn","l_20": "mllcdtegjljjwzjjpqwk","l_21": "jdlvcpzqwdhrvglrkdds","l_22": "iokohrtepsdxguxllmij","l_24": "tjpqistkcpleuiovjjxp","l_27": "smfsdbwtvifmvdgqefpv","l_30": "fdtmvtlfgoobxwzpjzim",}
-    now = datetime.now().isoformat()
-    add_fields_dict = {
-        "uuid_identification": (uuid.uuid4, {}),
-        "created_date": now,
-        "modified_date": now,
-    }
+    datetime.now().isoformat()
     # columns_dict_none columns_dict_int    columns_dict_named
     with IterFileToInsert(
         file_to_iter=file,

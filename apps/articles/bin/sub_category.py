@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0703,W1203,C0413,C0303,W1201,E1101,C0415,E0611,W0511
 """
 FR : Module de validation de la sous catégory
 EN : Subcategory validation module

@@ -1,4 +1,3 @@
-# pylint: disable=C0411,E0401,W0105,W0212,E1101,W1203
 """Module des Mixins
 
 Commentaire:

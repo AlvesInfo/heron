@@ -33,6 +33,45 @@ from apps.edi.loops.imports_loop_pool import (
 IMPORT_TEMPLATE = "edi/edi_import.html"
 
 
+# Boutons des imports BBGR issus de la B.I, dans l'ordre de priorité, et titre de leur jauge
+BBGR_IMPORTS = {
+    "bbgr_statment": "Import BBGR Statment",
+    "bbgr_monthly": "Import BBGR Monthly",
+    "bbgr_retours": "Import BBGR Retours",
+    "bbgr_receptions": "Import BBGR Receptions",
+}
+
+
+def _import_launch_params(request, files_celery, user_pk, job_id):
+    """Paramètres du lancement selon le bouton posté
+    :param request: Request Django
+    :param files_celery: fichiers fournisseurs à importer
+    :param user_pk: pk de l'utilisateur qui lance l'import
+    :param job_id: identifiant du job suivi par la jauge
+    :return: (nombre d'étapes de la jauge, type de tâche, titre, fonction à lancer, arguments)
+    """
+    bbgr_import = next((name for name in BBGR_IMPORTS if name in request.POST), None)
+
+    if bbgr_import:
+        # Pour les imports bbgr : 1 pour import et 2 pour validation
+        return (
+            2,
+            "bbgr_import",
+            BBGR_IMPORTS[bbgr_import],
+            import_launch_bbgr,
+            (bbgr_import, user_pk, job_id),
+        )
+
+    # Pour les imports EDI normaux, compter le nombre de fichiers
+    return (
+        len(files_celery) + 1,
+        "edi_import",
+        "Import des factures EDI",
+        celery_import_launch,
+        (user_pk, job_id),
+    )
+
+
 def import_edi_invoices(request):
     """Bouton d'import des factures edi"""
 
@@ -91,45 +130,9 @@ def import_edi_invoices(request):
 
             # Créer le SSEProgress AVANT de lancer les tâches
 
-            if "bbgr_statment" in request.POST:
-                # Pour les statment bbgr 1 pour import et 2 pour validation
-                total_files = 2
-                task_type = "bbgr_import"
-                custom_title = "Import BBGR Statment"
-                target = import_launch_bbgr
-                args = ("bbgr_statment", user_pk, job_id)
-
-            elif "bbgr_monthly" in request.POST:
-                # Pour les monthly bbgr 1 pour import et 2 pour validation
-                total_files = 2
-                task_type = "bbgr_import"
-                custom_title = "Import BBGR Monthly"
-                target = import_launch_bbgr
-                args = ("bbgr_monthly", user_pk, job_id)
-
-            elif "bbgr_retours" in request.POST:
-                # Pour les retours bbgr 1 pour import et 2 pour validation
-                total_files = 2
-                task_type = "bbgr_import"
-                custom_title = "Import BBGR Retours"
-                target = import_launch_bbgr
-                args = ("bbgr_retours", user_pk, job_id)
-
-            elif "bbgr_receptions" in request.POST:
-                # Pour les receptions bbgr 1 pour import et 2 pour validation
-                total_files = 2
-                task_type = "bbgr_import"
-                custom_title = "Import BBGR Receptions"
-                target = import_launch_bbgr
-                args = ("bbgr_receptions", user_pk, job_id)
-
-            else:
-                # Pour les imports EDI normaux, compter le nombre de fichiers
-                total_files = len(files_celery) + 1
-                task_type = "edi_import"
-                custom_title = "Import des factures EDI"
-                target = celery_import_launch
-                args = (user_pk, job_id)
+            total_files, task_type, custom_title, target, args = _import_launch_params(
+                request, files_celery, user_pk, job_id
+            )
 
             progress = SSEProgress.objects.create(
                 job_id=job_id,

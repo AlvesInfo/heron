@@ -1,0 +1,6740 @@
+[
+{
+  "model": "edi.supplierdefinition",
+  "pk": 4,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "BbgrBulk",
+    "supplier": "BBGR Bulk",
+    "supplier_ident": "BbgrBulk",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "BBRG_BULK"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 5,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Edi",
+    "supplier": "EDI",
+    "supplier_ident": "EDI",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "EDI"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 6,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "EyeConfort",
+    "supplier": "EYE_CONFORT",
+    "supplier_ident": "EyeConfort",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "EYE_CONFORT"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 7,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Generique",
+    "supplier": "GENERIQUE",
+    "supplier_ident": "Generique",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "GENERIQUE"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 8,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Hearing",
+    "supplier": "HEARING",
+    "supplier_ident": "Hearing",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "HEARING"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 9,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Interson",
+    "supplier": "INTERSON",
+    "supplier_ident": "Interson",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": "\\n",
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "INTERSON"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 10,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Johnson",
+    "supplier": "JOHNSON",
+    "supplier_ident": "Johnson",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "JOHNSON"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 11,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Lmc",
+    "supplier": "LMC",
+    "supplier_ident": "Lmc",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "LMC"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 12,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Newson",
+    "supplier": "NEWSON",
+    "supplier_ident": "Newson",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "NEWSON"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 13,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Phonak",
+    "supplier": "PHONAK",
+    "supplier_ident": "Phonak",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "PHONAK"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 14,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Prodition",
+    "supplier": "PRODITION",
+    "supplier_ident": "Prodition",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "PRODITION"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 15,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Signia",
+    "supplier": "SIGNIA",
+    "supplier_ident": "Signia",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "SIGNIA"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 16,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Starkey",
+    "supplier": "STARKEY",
+    "supplier_ident": "Starkey",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "STARKEY"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 17,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Technidis",
+    "supplier": "TECHNIDIS",
+    "supplier_ident": "Technidis",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "TECHNIDIS"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 18,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Unitron",
+    "supplier": "UNITRON",
+    "supplier_ident": "Unitron",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "UNITRON"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 19,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "Widex",
+    "supplier": "WIDEX",
+    "supplier_ident": "Widex",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "WIDEX"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 20,
+  "fields": {
+    "created_at": "2022-05-22T22:00:00Z",
+    "modified_at": "2022-05-22T22:00:00Z",
+    "flow_name": "WidexGa",
+    "supplier": "WIDEX_GA",
+    "supplier_ident": "WidexGa",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "WIDEX_GA"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 21,
+  "fields": {
+    "created_at": "2022-05-27T22:00:00Z",
+    "modified_at": "2022-05-27T22:00:00Z",
+    "flow_name": "BbgrStatment",
+    "supplier": "BBGR BILL STATMENT",
+    "supplier_ident": "BbgrStatment",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "BBGR_STATMENT"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 22,
+  "fields": {
+    "created_at": "2022-05-27T22:00:00Z",
+    "modified_at": "2022-05-27T22:00:00Z",
+    "flow_name": "BbgrMonthly",
+    "supplier": "BBGR DEL MONTHLY",
+    "supplier_ident": "BbgrMonthly",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "BBGR_MONTHLY"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 23,
+  "fields": {
+    "created_at": "2022-05-27T22:00:00Z",
+    "modified_at": "2022-05-27T22:00:00Z",
+    "flow_name": "BbgrRetours",
+    "supplier": "BBGR RETOURS",
+    "supplier_ident": "BbgrRetours",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "BBGR_RETOURS"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 24,
+  "fields": {
+    "created_at": "2023-01-11T22:00:00Z",
+    "modified_at": "2023-01-11T22:00:00Z",
+    "flow_name": "Cosium",
+    "supplier": "COSIUM",
+    "supplier_ident": "cosium",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "COSIUM"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 25,
+  "fields": {
+    "created_at": "2023-01-13T22:15:00Z",
+    "modified_at": "2023-01-13T22:15:00Z",
+    "flow_name": "Transfert",
+    "supplier": "COSIUM TRANSFERTS",
+    "supplier_ident": "ZTRANSFERT",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "TRANSFERTS"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 46,
+  "fields": {
+    "created_at": "2023-01-03T22:00:00Z",
+    "modified_at": "2023-01-03T22:00:00Z",
+    "flow_name": "BbgrReceptions",
+    "supplier": "BBGR RECEPTIONS",
+    "supplier_ident": "BbgrReceptions",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "BBGR_RECEPTIONS"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 139,
+  "fields": {
+    "created_at": "2023-02-19T14:04:00Z",
+    "modified_at": "2023-02-19T14:04:00Z",
+    "flow_name": "Zburefac",
+    "supplier": "SAGE_YOOZ_REFAC",
+    "supplier_ident": "SageYoozRefac",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "SAGE_YOOZ_REFAC0"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 140,
+  "fields": {
+    "created_at": "2023-03-23T20:00:00Z",
+    "modified_at": "2023-03-23T20:00:00Z",
+    "flow_name": "CosiumAchats",
+    "supplier": "COSIUM_ACHATS",
+    "supplier_ident": "cosium",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "COSIUM_ACHATS"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 142,
+  "fields": {
+    "created_at": "2023-05-13T11:00:00Z",
+    "modified_at": "2023-05-13T11:00:00Z",
+    "flow_name": "import_accounts_axe_pro_category",
+    "supplier": "import_accounts_axe_pro_category",
+    "supplier_ident": "import_accounts",
+    "first_line": 4,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "IMPORT_ACCOUNTS"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 143,
+  "fields": {
+    "created_at": "2023-05-13T11:00:00Z",
+    "modified_at": "2023-05-13T11:00:00Z",
+    "flow_name": "Generique_internal",
+    "supplier": "GENERIQUE_INTERNAL",
+    "supplier_ident": "Generique_internal",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "GENERIQUE_INTERNAL"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 144,
+  "fields": {
+    "created_at": "2023-10-07T06:07:00Z",
+    "modified_at": "2023-10-07T06:07:00Z",
+    "flow_name": "Hansaton",
+    "supplier": "HANSATON",
+    "supplier_ident": "Hansaton",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "HANSATON"
+  }
+},
+{
+  "model": "edi.supplierdefinition",
+  "pk": 145,
+  "fields": {
+    "created_at": "2025-12-05T17:07:00Z",
+    "modified_at": "2025-12-05T17:07:00Z",
+    "flow_name": "Wsau",
+    "supplier": "WSA_FRANCE",
+    "supplier_ident": "wsau",
+    "first_line": 1,
+    "encoding": null,
+    "delimiter": null,
+    "lineterminator": null,
+    "quotechar": null,
+    "escapechar": null,
+    "directory": "WSAU"
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 328,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 0,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 329,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 1,
+    "attr_name": "code_fournisseur",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 330,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 2,
+    "attr_name": "invoice_date",
+    "file_column": "5",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 331,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 3,
+    "attr_name": "devise",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 332,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 4,
+    "attr_name": "invoice_type",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 333,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 5,
+    "attr_name": "invoice_amount_without_tax",
+    "file_column": "10",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 334,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 6,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 335,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 7,
+    "attr_name": "invoice_amount_tax",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 336,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 8,
+    "attr_name": "invoice_amount_with_tax",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 337,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 9,
+    "attr_name": "fob_amount",
+    "file_column": "18",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 338,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 10,
+    "attr_name": "transport_amount",
+    "file_column": "19",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 339,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 11,
+    "attr_name": "insurance_amount",
+    "file_column": "20",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 340,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 12,
+    "attr_name": "packaging_amount",
+    "file_column": "21",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 341,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 13,
+    "attr_name": "fees_amount",
+    "file_column": "22",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 342,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 14,
+    "attr_name": "delivery_number",
+    "file_column": "25",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 343,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 15,
+    "attr_name": "acuitis_order_number",
+    "file_column": "26",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 344,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 16,
+    "attr_name": "command_reference",
+    "file_column": "27",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 345,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 17,
+    "attr_name": "reference_article",
+    "file_column": "29",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 346,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 18,
+    "attr_name": "qty",
+    "file_column": "31",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 347,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 19,
+    "attr_name": "net_unit_price",
+    "file_column": "33",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 348,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 20,
+    "attr_name": "net_amount",
+    "file_column": "35",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 349,
+  "fields": {
+    "flow_name": "BbgrBulk",
+    "ranking": 21,
+    "attr_name": "libelle",
+    "file_column": "38",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 350,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 0,
+    "attr_name": "supplier",
+    "file_column": "supplier",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 351,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 1,
+    "attr_name": "supplier_ident",
+    "file_column": "supplier_ident",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 352,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 2,
+    "attr_name": "siret_payeur",
+    "file_column": "siret_payeur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 353,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 3,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 354,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 4,
+    "attr_name": "code_maison",
+    "file_column": "code_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 355,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 5,
+    "attr_name": "maison",
+    "file_column": "maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 356,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 6,
+    "attr_name": "acuitis_order_number",
+    "file_column": "acuitis_order_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 357,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 7,
+    "attr_name": "acuitis_order_date",
+    "file_column": "acuitis_order_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 358,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 8,
+    "attr_name": "delivery_number",
+    "file_column": "delivery_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 359,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 9,
+    "attr_name": "delivery_date",
+    "file_column": "delivery_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 360,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 10,
+    "attr_name": "invoice_number",
+    "file_column": "invoice_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 361,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 11,
+    "attr_name": "invoice_date",
+    "file_column": "invoice_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 362,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 12,
+    "attr_name": "invoice_type",
+    "file_column": "invoice_type",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 363,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 13,
+    "attr_name": "devise",
+    "file_column": "devise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 364,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 14,
+    "attr_name": "reference_article",
+    "file_column": "reference_article",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 365,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 15,
+    "attr_name": "ean_code",
+    "file_column": "ean_code",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 366,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 16,
+    "attr_name": "libelle",
+    "file_column": "libelle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 367,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 17,
+    "attr_name": "famille",
+    "file_column": "famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 368,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 18,
+    "attr_name": "qty",
+    "file_column": "qty",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 369,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 19,
+    "attr_name": "gross_unit_price",
+    "file_column": "gross_unit_price",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 370,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 20,
+    "attr_name": "net_unit_price",
+    "file_column": "net_unit_price",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 371,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 21,
+    "attr_name": "packaging_amount",
+    "file_column": "packaging_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 372,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 22,
+    "attr_name": "transport_amount",
+    "file_column": "transport_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 373,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 23,
+    "attr_name": "gross_amount",
+    "file_column": "gross_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 374,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 24,
+    "attr_name": "net_amount",
+    "file_column": "net_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 375,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 25,
+    "attr_name": "vat_rate",
+    "file_column": "vat_rate",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 376,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 26,
+    "attr_name": "vat_amount",
+    "file_column": "vat_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 377,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 27,
+    "attr_name": "amount_with_vat",
+    "file_column": "amount_with_vat",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 378,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 28,
+    "attr_name": "client_name",
+    "file_column": "client_name",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 379,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 29,
+    "attr_name": "serial_number",
+    "file_column": "serial_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 380,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 30,
+    "attr_name": "comment",
+    "file_column": "comment",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 381,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 31,
+    "attr_name": "invoice_amount_without_tax",
+    "file_column": "invoice_amount_without_tax",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 382,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 32,
+    "attr_name": "invoice_amount_tax",
+    "file_column": "invoice_amount_tax",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 383,
+  "fields": {
+    "flow_name": "Edi",
+    "ranking": 33,
+    "attr_name": "invoice_amount_with_tax",
+    "file_column": "invoice_amount_with_tax",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 384,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_adhérent",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 385,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "nature",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 386,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "docnum",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 387,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "docdate",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 388,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 4,
+    "attr_name": "reference_article",
+    "file_column": "itemcode",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 389,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 5,
+    "attr_name": "libelle",
+    "file_column": "dscription",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 390,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 6,
+    "attr_name": "qty",
+    "file_column": "quantity",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 391,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 7,
+    "attr_name": "vat_rate",
+    "file_column": "code_tva_sur_ca",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 392,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 8,
+    "attr_name": "net_amount",
+    "file_column": "prix_net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 393,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 9,
+    "attr_name": "amount_with_vat",
+    "file_column": "prix_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 394,
+  "fields": {
+    "flow_name": "EyeConfort",
+    "ranking": 10,
+    "attr_name": "client_name",
+    "file_column": "u_numser",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 395,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 0,
+    "attr_name": "supplier",
+    "file_column": "fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 396,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 1,
+    "attr_name": "supplier_ident",
+    "file_column": "siret_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 397,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 2,
+    "attr_name": "siret_payeur",
+    "file_column": "siret_payeur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 398,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 3,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 399,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 4,
+    "attr_name": "code_maison",
+    "file_column": "code_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 400,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 5,
+    "attr_name": "maison",
+    "file_column": "maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 401,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 6,
+    "attr_name": "acuitis_order_number",
+    "file_column": "num_commande",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 402,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 7,
+    "attr_name": "acuitis_order_date",
+    "file_column": "date_commande",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 403,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 8,
+    "attr_name": "delivery_number",
+    "file_column": "num_bl",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 404,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 9,
+    "attr_name": "delivery_date",
+    "file_column": "date_bl",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 405,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 10,
+    "attr_name": "invoice_number",
+    "file_column": "num_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 406,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 11,
+    "attr_name": "invoice_date",
+    "file_column": "date_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 407,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 12,
+    "attr_name": "invoice_type",
+    "file_column": "nature_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 408,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 13,
+    "attr_name": "devise",
+    "file_column": "devise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 409,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 14,
+    "attr_name": "reference_article",
+    "file_column": "reference_article",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 410,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 15,
+    "attr_name": "ean_code",
+    "file_column": "code_ean",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 411,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 16,
+    "attr_name": "libelle",
+    "file_column": "libelle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 412,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 17,
+    "attr_name": "famille",
+    "file_column": "famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 413,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 18,
+    "attr_name": "qty",
+    "file_column": "qte",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 414,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 19,
+    "attr_name": "gross_unit_price",
+    "file_column": "px_unitaire_brut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 415,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 20,
+    "attr_name": "net_unit_price",
+    "file_column": "px_unitaire_net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 416,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 21,
+    "attr_name": "gross_amount",
+    "file_column": "montant_brut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 417,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 22,
+    "attr_name": "discount_price_01",
+    "file_column": "montant_remise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 418,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 23,
+    "attr_name": "net_amount",
+    "file_column": "montant_net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 419,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 24,
+    "attr_name": "vat_rate",
+    "file_column": "taux_tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 420,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 25,
+    "attr_name": "vat_amount",
+    "file_column": "montant_tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 421,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 26,
+    "attr_name": "amount_with_vat",
+    "file_column": "montant_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 422,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 27,
+    "attr_name": "client_name",
+    "file_column": "nom_client",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 423,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 28,
+    "attr_name": "serial_number",
+    "file_column": "num_serie",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 424,
+  "fields": {
+    "flow_name": "Generique",
+    "ranking": 29,
+    "attr_name": "comment",
+    "file_column": "commentaire",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 425,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 426,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 427,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 428,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 429,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 430,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 431,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 432,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 433,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 434,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 9,
+    "attr_name": "gross_amount",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 435,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 10,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 436,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 437,
+  "fields": {
+    "flow_name": "Hearing",
+    "ranking": 12,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 438,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 0,
+    "attr_name": "code_maison",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 439,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 1,
+    "attr_name": "code_fournisseur",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 440,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 2,
+    "attr_name": "code_fournisseur",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 441,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 3,
+    "attr_name": "delivery_number",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 442,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 4,
+    "attr_name": "invoice_type",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 443,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 5,
+    "attr_name": "invoice_number",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 444,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 6,
+    "attr_name": "invoice_date",
+    "file_column": "10",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 445,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 7,
+    "attr_name": "reference_article",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 446,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 8,
+    "attr_name": "famille",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 447,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 9,
+    "attr_name": "comment",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 448,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 10,
+    "attr_name": "libelle",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 449,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 11,
+    "attr_name": "qty",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 451,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 13,
+    "attr_name": "gross_unit_price",
+    "file_column": "17",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 452,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 14,
+    "attr_name": "net_unit_price",
+    "file_column": "19",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 453,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 15,
+    "attr_name": "vat_rate",
+    "file_column": "20",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 454,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 16,
+    "attr_name": "amount_with_vat",
+    "file_column": "21",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 455,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 0,
+    "attr_name": "siret_payeur",
+    "file_column": "payer",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 456,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 1,
+    "attr_name": "code_fournisseur",
+    "file_column": "customer",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 457,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "billing_nu",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 458,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 3,
+    "attr_name": "acuitis_order_number",
+    "file_column": "document",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 459,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 4,
+    "attr_name": "invoice_date",
+    "file_column": "billing_da",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 460,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 5,
+    "attr_name": "delivery_number",
+    "file_column": "delivery_n",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 461,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 6,
+    "attr_name": "delivery_date",
+    "file_column": "deliv.dt",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 462,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 7,
+    "attr_name": "comment",
+    "file_column": "ref_txt",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 463,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 8,
+    "attr_name": "qty",
+    "file_column": "no.of_boxe",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 464,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 9,
+    "attr_name": "famille",
+    "file_column": "prod_code",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 465,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 10,
+    "attr_name": "reference_article",
+    "file_column": "material",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 466,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 11,
+    "attr_name": "libelle",
+    "file_column": "description",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 467,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 12,
+    "attr_name": "net_amount",
+    "file_column": "net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 468,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 13,
+    "attr_name": "vat_amount",
+    "file_column": "tax",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 469,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 14,
+    "attr_name": "amount_with_vat",
+    "file_column": "billing_to",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 470,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 15,
+    "attr_name": "client_name",
+    "file_column": "patient_na",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 471,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 472,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 473,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 474,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 475,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 4,
+    "attr_name": "reference_article",
+    "file_column": "5",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 476,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 5,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 477,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 478,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 479,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 8,
+    "attr_name": "gross_unit_price",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 480,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 9,
+    "attr_name": "net_unit_price",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 481,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 10,
+    "attr_name": "net_amount",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 482,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 11,
+    "attr_name": "vat_rate",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 483,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 12,
+    "attr_name": "vat_amount",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 484,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 13,
+    "attr_name": "amount_with_vat",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 485,
+  "fields": {
+    "flow_name": "Lmc",
+    "ranking": 14,
+    "attr_name": "delivery_number",
+    "file_column": "16",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 486,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_adhérent",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 487,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "nature",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 488,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "numéro_de_document",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 489,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "date_d'enregistrement",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 490,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 4,
+    "attr_name": "delivery_number",
+    "file_column": "référence_du_document_de_base",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 491,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "numéro_d'article",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 492,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "description_article/service",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 493,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "quantité",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 494,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "définition_de_la_tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 495,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 9,
+    "attr_name": "gross_unit_price",
+    "file_column": "prix_brut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 496,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 10,
+    "attr_name": "net_amount",
+    "file_column": "prix_net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 497,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "prix_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 498,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 12,
+    "attr_name": "serial_number",
+    "file_column": "n_série",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 499,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 500,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 501,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 502,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 503,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 504,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 505,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 506,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 507,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 508,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 9,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 509,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 10,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 510,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 11,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 511,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 512,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 513,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 514,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 515,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 516,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 517,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 518,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 7,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 519,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 8,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 520,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 9,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 521,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 10,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 522,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 11,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 523,
+  "fields": {
+    "flow_name": "Prodition",
+    "ranking": 12,
+    "attr_name": "gross_amount",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 524,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "compteclient",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 525,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 1,
+    "attr_name": "code_maison",
+    "file_column": "codeadhérent",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 526,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 2,
+    "attr_name": "invoice_type",
+    "file_column": "typefacture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 527,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 3,
+    "attr_name": "invoice_number",
+    "file_column": "numérofacture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 528,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 4,
+    "attr_name": "invoice_date",
+    "file_column": "datefacture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 529,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 5,
+    "attr_name": "acuitis_order_number",
+    "file_column": "numérocommande",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 530,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 6,
+    "attr_name": "reference_article",
+    "file_column": "codearticle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 531,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 7,
+    "attr_name": "libelle",
+    "file_column": "descriptionarticle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 532,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 8,
+    "attr_name": "devise",
+    "file_column": "devise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 533,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 9,
+    "attr_name": "delivery_date",
+    "file_column": "datelivraison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 534,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 10,
+    "attr_name": "delivery_number",
+    "file_column": "bonlivraison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 535,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 11,
+    "attr_name": "serial_number",
+    "file_column": "numéroappareil",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 536,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 12,
+    "attr_name": "famille",
+    "file_column": "groupearticle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 537,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 13,
+    "attr_name": "qty",
+    "file_column": "quantité",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 538,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 14,
+    "attr_name": "gross_unit_price",
+    "file_column": "prixunitairebrut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 539,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 15,
+    "attr_name": "gross_amount",
+    "file_column": "montanthtbrut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 540,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 16,
+    "attr_name": "net_unit_price",
+    "file_column": "prixunitairenet",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 541,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 17,
+    "attr_name": "net_amount",
+    "file_column": "montantht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 542,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 18,
+    "attr_name": "vat_amount",
+    "file_column": "montanttva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 543,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 19,
+    "attr_name": "amount_with_vat",
+    "file_column": "montantttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 544,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 20,
+    "attr_name": "vat_rate",
+    "file_column": "tauxtva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 545,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 21,
+    "attr_name": "comment",
+    "file_column": "memo",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 546,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_adherent",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 547,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "type_de_piece",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 548,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "document_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 549,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 550,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 551,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "ref_produit",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 552,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "libelee_produit",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 553,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 7,
+    "attr_name": "comment",
+    "file_column": "etat_depot",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 554,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 8,
+    "attr_name": "qty",
+    "file_column": "quantite",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 555,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 9,
+    "attr_name": "vat_rate",
+    "file_column": "vat_rate",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 556,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 10,
+    "attr_name": "gross_unit_price",
+    "file_column": "prix_d'achat_catalogue_ht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 557,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 11,
+    "attr_name": "net_amount",
+    "file_column": "prix_d'achat_reel_ht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 558,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 12,
+    "attr_name": "amount_with_vat",
+    "file_column": "prix_d'achat_reel_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 559,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 13,
+    "attr_name": "delivery_number",
+    "file_column": "delivery_note_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 560,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 14,
+    "attr_name": "delivery_date",
+    "file_column": "delivery_note_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 561,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 15,
+    "attr_name": "acuitis_order_number",
+    "file_column": "cust.ref",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 562,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 16,
+    "attr_name": "client_name",
+    "file_column": "ancien_n_serie",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 563,
+  "fields": {
+    "flow_name": "Starkey",
+    "ranking": 17,
+    "attr_name": "serial_number",
+    "file_column": "n_serie",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 564,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 565,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 1,
+    "attr_name": "invoice_number",
+    "file_column": "5",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 566,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 2,
+    "attr_name": "invoice_date",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 567,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 3,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 568,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 4,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 569,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 5,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 570,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 6,
+    "attr_name": "gross_unit_price",
+    "file_column": "10",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 571,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 7,
+    "attr_name": "net_amount",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 572,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 573,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 9,
+    "attr_name": "vat_amount",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 574,
+  "fields": {
+    "flow_name": "Technidis",
+    "ranking": 10,
+    "attr_name": "amount_with_vat",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 576,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 577,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 578,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 579,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 580,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 581,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 582,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 583,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 584,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 585,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 9,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 586,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 10,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 587,
+  "fields": {
+    "flow_name": "Unitron",
+    "ranking": 11,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 588,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 589,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 590,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 591,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 592,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 593,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 594,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 595,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 596,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 597,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 9,
+    "attr_name": "net_unit_price",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 598,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 10,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 599,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 600,
+  "fields": {
+    "flow_name": "Widex",
+    "ranking": 12,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 601,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 602,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 603,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 604,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 605,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 606,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 607,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 608,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 609,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 610,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 9,
+    "attr_name": "net_unit_price",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 611,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 10,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 612,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 613,
+  "fields": {
+    "flow_name": "WidexGa",
+    "ranking": 12,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 614,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 12,
+    "attr_name": "delivery_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 615,
+  "fields": {
+    "flow_name": "Newson",
+    "ranking": 13,
+    "attr_name": "maison",
+    "file_column": "code_du_destinataire",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 616,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 16,
+    "attr_name": "maison",
+    "file_column": "name_1",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 618,
+  "fields": {
+    "flow_name": "Johnson",
+    "ranking": 17,
+    "attr_name": "code_maison",
+    "file_column": "internal_o",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 619,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 1,
+    "attr_name": "supplier_ident",
+    "file_column": "supplier_ident",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 621,
+  "fields": {
+    "flow_name": "Signia",
+    "ranking": 22,
+    "attr_name": "maison",
+    "file_column": "adresse",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 622,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 4,
+    "attr_name": "code_maison",
+    "file_column": "code_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 623,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 5,
+    "attr_name": "maison",
+    "file_column": "maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 624,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 6,
+    "attr_name": "acuitis_order_number",
+    "file_column": "acuitis_order_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 625,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 7,
+    "attr_name": "delivery_number",
+    "file_column": "delivery_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 626,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 8,
+    "attr_name": "delivery_date",
+    "file_column": "delivery_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 627,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 9,
+    "attr_name": "invoice_number",
+    "file_column": "invoice_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 628,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 10,
+    "attr_name": "invoice_date",
+    "file_column": "invoice_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 629,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 11,
+    "attr_name": "invoice_type",
+    "file_column": "invoice_type",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 630,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 12,
+    "attr_name": "devise",
+    "file_column": "devise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 631,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 13,
+    "attr_name": "reference_article",
+    "file_column": "reference_article",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 632,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 14,
+    "attr_name": "ean_code",
+    "file_column": "ean_code",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 633,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 15,
+    "attr_name": "libelle",
+    "file_column": "libelle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 634,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 16,
+    "attr_name": "famille",
+    "file_column": "famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 635,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 17,
+    "attr_name": "qty",
+    "file_column": "qty",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 636,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 18,
+    "attr_name": "gross_unit_price",
+    "file_column": "gross_unit_price",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 637,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 19,
+    "attr_name": "net_unit_price",
+    "file_column": "net_unit_price",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 638,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 1,
+    "attr_name": "supplier_ident",
+    "file_column": "siret_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 639,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 2,
+    "attr_name": "code_fournisseur",
+    "file_column": "num_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 640,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 3,
+    "attr_name": "invoice_number",
+    "file_column": "num_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 641,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 4,
+    "attr_name": "invoice_date",
+    "file_column": "date_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 642,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "code_produit",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 643,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "designation",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 644,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "quantite",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 645,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 8,
+    "attr_name": "net_unit_price",
+    "file_column": "prix_unitaire_ht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 646,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 9,
+    "attr_name": "net_amount",
+    "file_column": "total_ht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 647,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 10,
+    "attr_name": "vat_rate",
+    "file_column": "tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 648,
+  "fields": {
+    "flow_name": "Cosium",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "total_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 649,
+  "fields": {
+    "flow_name": "Phonak",
+    "ranking": 13,
+    "attr_name": "discount_price_01",
+    "file_column": "10",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 956,
+  "fields": {
+    "flow_name": "Interson",
+    "ranking": 17,
+    "attr_name": "maison",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 958,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 2,
+    "attr_name": "siret_payeur",
+    "file_column": "siret_payeur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 959,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 3,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 976,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 20,
+    "attr_name": "gross_amount",
+    "file_column": "gross_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 977,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 21,
+    "attr_name": "net_amount",
+    "file_column": "net_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 978,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 22,
+    "attr_name": "vat_rate",
+    "file_column": "vat_rate",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 979,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 23,
+    "attr_name": "vat_amount",
+    "file_column": "vat_amount",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 980,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 24,
+    "attr_name": "amount_with_vat",
+    "file_column": "amount_with_vat",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 981,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 25,
+    "attr_name": "axe_pro_supplier",
+    "file_column": "axe_pro_supplier",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 982,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 26,
+    "attr_name": "supplier_name",
+    "file_column": "supplier_name",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 983,
+  "fields": {
+    "flow_name": "BbgrStatment",
+    "ranking": 27,
+    "attr_name": "bi_id",
+    "file_column": "bi_id",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1681,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 0,
+    "attr_name": "third_party_num",
+    "file_column": "third_party_num",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1682,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 1,
+    "attr_name": "invoice_number",
+    "file_column": "invoice_number",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1683,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 2,
+    "attr_name": "invoice_date",
+    "file_column": "invoice_date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1684,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 3,
+    "attr_name": "invoice_type",
+    "file_column": "invoice_type",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1685,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 4,
+    "attr_name": "delivery_date",
+    "file_column": "date",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1686,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 5,
+    "attr_name": "devise",
+    "file_column": "devise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1687,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 18,
+    "attr_name": "vat_rate",
+    "file_column": "vat_rate",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1688,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 6,
+    "attr_name": "reference_article",
+    "file_column": "code_prod.",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1689,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 8,
+    "attr_name": "famille",
+    "file_column": "famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1690,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 9,
+    "attr_name": "axe_pro_supplier",
+    "file_column": "type_famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1691,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 14,
+    "attr_name": "net_unit_price",
+    "file_column": "prix_achat",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1692,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 15,
+    "attr_name": "comment",
+    "file_column": "comm.",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1693,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 17,
+    "attr_name": "acuitis_order_date",
+    "file_column": "date_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1694,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 12,
+    "attr_name": "code_maison",
+    "file_column": "code_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1695,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 11,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1696,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 7,
+    "attr_name": "libelle",
+    "file_column": "libellé",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1697,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 10,
+    "attr_name": "serial_number",
+    "file_column": "num._série",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1698,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 13,
+    "attr_name": "qty",
+    "file_column": "qté",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 1699,
+  "fields": {
+    "flow_name": "Transfert",
+    "ranking": 16,
+    "attr_name": "acuitis_order_number",
+    "file_column": "rétrocession",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2400,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 0,
+    "attr_name": "third_party_num",
+    "file_column": "tiers",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2401,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 1,
+    "attr_name": "delivery_number",
+    "file_column": "bl",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2402,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "n_pièce",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2403,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "date_compta",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2404,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 4,
+    "attr_name": "reference_article",
+    "file_column": "compte",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2405,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 5,
+    "attr_name": "axe_pys",
+    "file_column": "pys",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2406,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 6,
+    "attr_name": "axe_pro",
+    "file_column": "col",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2407,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 7,
+    "attr_name": "code_fournisseur",
+    "file_column": "cct",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2408,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 8,
+    "attr_name": "axe_prj",
+    "file_column": "prj",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2409,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 9,
+    "attr_name": "axe_bu",
+    "file_column": "bu",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2410,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 10,
+    "attr_name": "qty",
+    "file_column": "sens",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2411,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 11,
+    "attr_name": "net_unit_price",
+    "file_column": "montant",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2412,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 12,
+    "attr_name": "vat",
+    "file_column": "tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2413,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 14,
+    "attr_name": "libelle",
+    "file_column": "libelle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2414,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 15,
+    "attr_name": "unit_weight",
+    "file_column": "unity",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2417,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 13,
+    "attr_name": "axe_rfa",
+    "file_column": "rfa",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2418,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 1,
+    "attr_name": "supplier_ident",
+    "file_column": "siret_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2419,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 2,
+    "attr_name": "code_fournisseur",
+    "file_column": "num_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2420,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 3,
+    "attr_name": "invoice_number",
+    "file_column": "num_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2421,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 4,
+    "attr_name": "invoice_date",
+    "file_column": "date_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2422,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "code_produit",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2423,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "designation",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2424,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "quantite",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2425,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 8,
+    "attr_name": "net_unit_price",
+    "file_column": "prix_unitaire_ht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2426,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 9,
+    "attr_name": "net_amount",
+    "file_column": "total_ht",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2427,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 10,
+    "attr_name": "vat_rate",
+    "file_column": "tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2428,
+  "fields": {
+    "flow_name": "CosiumAchats",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "total_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2437,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 1,
+    "attr_name": "child_center",
+    "file_column": "centralle_fille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2438,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 2,
+    "attr_name": "big_category",
+    "file_column": "categorie",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2439,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 3,
+    "attr_name": "sub_category",
+    "file_column": "rubrique_presta",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2440,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 4,
+    "attr_name": "axe_pro",
+    "file_column": "axe_pro",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2441,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 5,
+    "attr_name": "vat",
+    "file_column": "tva_x3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2442,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 6,
+    "attr_name": "purchase_account",
+    "file_column": "compte_achats",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2443,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 7,
+    "attr_name": "sale_account",
+    "file_column": "compte_ventes",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2444,
+  "fields": {
+    "flow_name": "import_accounts_axe_pro_category",
+    "ranking": 8,
+    "attr_name": "uuid_identification",
+    "file_column": "uuid_identification",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2445,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 0,
+    "attr_name": "supplier",
+    "file_column": "fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2446,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 1,
+    "attr_name": "supplier_ident",
+    "file_column": "siret_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2447,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 2,
+    "attr_name": "siret_payeur",
+    "file_column": "siret_payeur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2448,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 3,
+    "attr_name": "code_fournisseur",
+    "file_column": "code_fournisseur",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2449,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 4,
+    "attr_name": "code_maison",
+    "file_column": "code_maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2450,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 5,
+    "attr_name": "maison",
+    "file_column": "maison",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2451,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 6,
+    "attr_name": "acuitis_order_number",
+    "file_column": "num_commande",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2452,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 7,
+    "attr_name": "acuitis_order_date",
+    "file_column": "date_commande",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2453,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 8,
+    "attr_name": "delivery_number",
+    "file_column": "num_bl",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2454,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 9,
+    "attr_name": "delivery_date",
+    "file_column": "date_bl",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2455,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 10,
+    "attr_name": "invoice_number",
+    "file_column": "num_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2456,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 11,
+    "attr_name": "invoice_date",
+    "file_column": "date_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2457,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 12,
+    "attr_name": "invoice_type",
+    "file_column": "nature_facture",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2458,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 13,
+    "attr_name": "devise",
+    "file_column": "devise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2459,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 14,
+    "attr_name": "reference_article",
+    "file_column": "reference_article",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2460,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 15,
+    "attr_name": "ean_code",
+    "file_column": "code_ean",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2461,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 16,
+    "attr_name": "libelle",
+    "file_column": "libelle",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2462,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 17,
+    "attr_name": "famille",
+    "file_column": "famille",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2463,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 18,
+    "attr_name": "qty",
+    "file_column": "qte",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2464,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 19,
+    "attr_name": "gross_unit_price",
+    "file_column": "px_unitaire_brut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2465,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 20,
+    "attr_name": "net_unit_price",
+    "file_column": "px_unitaire_net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2466,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 21,
+    "attr_name": "gross_amount",
+    "file_column": "montant_brut",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2467,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 22,
+    "attr_name": "discount_price_01",
+    "file_column": "montant_remise",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2468,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 23,
+    "attr_name": "net_amount",
+    "file_column": "montant_net",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2469,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 24,
+    "attr_name": "vat_rate",
+    "file_column": "taux_tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2470,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 25,
+    "attr_name": "vat_amount",
+    "file_column": "montant_tva",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2471,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 26,
+    "attr_name": "amount_with_vat",
+    "file_column": "montant_ttc",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2472,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 27,
+    "attr_name": "client_name",
+    "file_column": "nom_client",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2473,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 28,
+    "attr_name": "serial_number",
+    "file_column": "num_serie",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2474,
+  "fields": {
+    "flow_name": "Generique_internal",
+    "ranking": 29,
+    "attr_name": "comment",
+    "file_column": "commentaire",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2475,
+  "fields": {
+    "flow_name": "Zburefac",
+    "ranking": 16,
+    "attr_name": "vat_regime",
+    "file_column": "vat_regime",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2476,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2477,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2478,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2479,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2480,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2481,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2482,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2483,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2484,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2485,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 9,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2486,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 10,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2487,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 11,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2488,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 12,
+    "attr_name": "delivery_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2489,
+  "fields": {
+    "flow_name": "Hansaton",
+    "ranking": 13,
+    "attr_name": "discount_price_01",
+    "file_column": "10",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2490,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 0,
+    "attr_name": "code_fournisseur",
+    "file_column": "0",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2491,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 13,
+    "attr_name": "supplier_ident",
+    "file_column": "1",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2492,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 1,
+    "attr_name": "invoice_type",
+    "file_column": "2",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2493,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 2,
+    "attr_name": "invoice_number",
+    "file_column": "3",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2494,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 3,
+    "attr_name": "invoice_date",
+    "file_column": "4",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2495,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 4,
+    "attr_name": "famille",
+    "file_column": "6",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2496,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 5,
+    "attr_name": "reference_article",
+    "file_column": "7",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2497,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 6,
+    "attr_name": "libelle",
+    "file_column": "8",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2498,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 7,
+    "attr_name": "qty",
+    "file_column": "9",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2499,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 8,
+    "attr_name": "vat_rate",
+    "file_column": "11",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2500,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 9,
+    "attr_name": "net_unit_price",
+    "file_column": "12",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2501,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 10,
+    "attr_name": "net_amount",
+    "file_column": "13",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2502,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 11,
+    "attr_name": "amount_with_vat",
+    "file_column": "14",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2503,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 12,
+    "attr_name": "serial_number",
+    "file_column": "15",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2504,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 14,
+    "attr_name": "delivery_date",
+    "file_column": "17",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+},
+{
+  "model": "edi.columndefinition",
+  "pk": 2505,
+  "fields": {
+    "flow_name": "Wsau",
+    "ranking": 15,
+    "attr_name": "delivery_number",
+    "file_column": "18",
+    "input_format": null,
+    "function": null,
+    "exclude_rows_dict": null,
+    "unique": false
+  }
+}
+]

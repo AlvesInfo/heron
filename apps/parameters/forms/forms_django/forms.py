@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903, E1101
 """
 FR : Module pour le typage de champs
 EN : Module for field typing

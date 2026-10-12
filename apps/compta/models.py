@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Modèles pour les ventes Cosium
 EN : Models for Cosium Sales

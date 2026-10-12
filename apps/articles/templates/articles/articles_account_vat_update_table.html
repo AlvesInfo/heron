@@ -65,11 +65,11 @@
                                    style="font-size: 12px !important;text-align: center;font-weight: 900;">
                                     <thead>
                                         <tr>
-                                            <th style="width: 11%">Edit</th>
-                                            <th style="width: 16%">Ranking</th>
-                                            <th style="width: 16%">Code</th>
-                                            <th style="width: 41%">Intitulé</th>
-                                            <th style="width: 16%">delete</th>
+                                            <th scope="col" style="width: 11%">Edit</th>
+                                            <th scope="col" style="width: 16%">Ranking</th>
+                                            <th scope="col" style="width: 16%">Code</th>
+                                            <th scope="col" style="width: 41%">Intitulé</th>
+                                            <th scope="col" style="width: 16%">delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -85,7 +85,7 @@
                                             <td>{{ sub.name }}</td>
                                             <td class="tdDelete" style="text-align: center;">
                                                 <div style="cursor: pointer;">
-                                                  <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ sub.pk }}, `{{ sub.code }} - {{ sub.name }}`, `{% url 'parameters:delete_sub_category' %}`, `la rubrique presta`)"></i>
+                                                  <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ sub.pk }}, `{{ sub.code }} - {{ sub.name }}`, `{% url 'parameters:delete_sub_category' %}`, `la rubrique presta`)"><i class="red trash icon" aria-hidden="true"></i></button>
                                                 </div>
                                             </td>
                                         </tr>

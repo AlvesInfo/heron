@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de gestion des traces
 EN : Log management module

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module Dictionnaire Axe Pro/Regroupement de facturation
 EN : Ax Pro Dictionary/Billing Consolidation Module
@@ -13,10 +12,12 @@ modified by: Paulo ALVES
 """
 import pendulum
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -46,7 +47,6 @@ class AxeGroupingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = AxeProGroupingGoods
     form_class = AxeProGroupingGoodsForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/axe_grouping_update.html"
     success_message = "Le dictionnaire Axe Pro/Regroupement de facturation a été créé avec success"
     error_message = (
@@ -78,7 +78,6 @@ class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = AxeProGroupingGoods
     form_class = AxeProGroupingGoodsForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/axe_grouping_update.html"
     success_message = (
         "Le dictionnaire Axe Pro/Regroupement de facturation a été modifié avec success"
@@ -110,7 +109,7 @@ class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def axe_grouping_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -147,7 +146,7 @@ def axe_grouping_export_list(_):
 
         return response_file(excel_liste_axe_grouping, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : axe_grouping_export_list")
 
     return redirect(reverse("centers_purchasing:axe_grouping_list"))

@@ -9,7 +9,7 @@
         <meta name="description" content="">
         <title>Heron - achats</title>
         <meta name="title" content="Heron - achats">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {% block head_meta %}
         {% endblock head_meta %}
 
@@ -44,8 +44,11 @@
 
         <script type="text/javascript" src="{% static 'moment/moment.js' %}"></script>
         <script type="text/javascript" src="{% static 'datetime-moment.js' %}"></script>
+        {% if attrs_filter %}{{ attrs_filter|json_script:"attrs_filter_data" }}{% endif %}
         <script type="text/javascript">
-            let attrsFilter = {% if attrs_filter %}{{ attrs_filter|safe }}{% else %}{}{% endif %};
+            let attrsFilter = (function (data) {
+                return data === null ? {} : JSON.parse(data.textContent);
+            })(document.getElementById("attrs_filter_data"));
         </script>
 
         <script type="text/javascript" src="{% static 'populate_paginator.js' %}"></script>

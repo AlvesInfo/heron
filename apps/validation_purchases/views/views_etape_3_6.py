@@ -2,9 +2,11 @@ import pendulum
 from django.db import connection
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
 from apps.core.bin.change_traces import trace_change
@@ -55,7 +57,7 @@ def control_rfa_period_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : control_rfa_period_export")
 
     return redirect(reverse("validation_purchases:control_rfa_period"))
@@ -64,7 +66,7 @@ def control_rfa_period_export(request):
 def control_rfa_period_validation(request):
     """Validation de l'écran de Contrôle 3.6 - Contrôle période RFA"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -96,13 +98,13 @@ def control_rfa_period_validation(request):
                 request.session["level"] = 50
                 message = "Le contrôle des périodes de RFA est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(
                 f"Views : control_rfa_period_validation error : {form.cleaned_data!r}"
             )
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : control_rfa_period_validation error, form invalid : {form.errors!r}"
         )
 

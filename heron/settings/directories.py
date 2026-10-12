@@ -1,4 +1,3 @@
-from pathlib import Path
 from heron.utils.directories import lazy_mkdir, get_files_base_dir
 
 FILES_BASE_DIR = get_files_base_dir()

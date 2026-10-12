@@ -1,12 +1,13 @@
-# pylint: disable=E0401,R0903,W0702
 """
 Views des Types de pièces par centales filles
 """
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.bin.mixins import ChildCenterMixin
@@ -30,7 +31,6 @@ class TypeFactureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = TypeFacture
     form_class = TypeFactureForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/type_facture_update.html"
     success_message = (
         "Le Type de Facture %(child_center)s - %(invoice_type)s,  a été créé avec success"
@@ -60,7 +60,6 @@ class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = TypeFacture
     form_class = TypeFactureForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/type_facture_update.html"
     success_message = (
         "Le Type de Facture %(child_center)s - %(invoice_type)s, a été modifiée avec success"
@@ -91,7 +90,7 @@ class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def type_facture_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}

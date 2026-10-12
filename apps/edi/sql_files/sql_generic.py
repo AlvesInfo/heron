@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers génériques
 EN : Post-processing sql module after importing supplier invoice files
@@ -106,7 +105,7 @@ post_generic_dict = {
     "sql_edi_generique": sql.SQL(
         """
         update "data_flux_trace" dt 
-        set "trace_name" = left("trace_name" || sup."supplier", 160)
+        set "trace_name" = left("trace_name" || coalesce(sup."supplier", ''), 160)
           from (
             select 
                 "uuid_identification", 

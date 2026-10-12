@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101
 """
 FR : Module core des parametrages
 EN : Core module parameters
@@ -157,19 +156,14 @@ def get_in_progress(action="import_edi_invoices", task_name="suppliers_import"):
 
 def get_actions_in_progress():
     """Renvoi si un process est edi est en cours"""
-    try:
-        in_action_object = ActionInProgress.objects.filter(in_progress=True).first()
-        in_action = False if not in_action_object else True
+    in_action = ActionInProgress.objects.filter(in_progress=True).exists()
 
-        # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
-        if in_action:
-            celery_tasks = TaskResult.objects.all().exclude(
-                status__in=["SUCCESS", "FAILURE", "REVOKED"]
-            )
-            in_action = celery_tasks.exists()
-
-    except ActionInProgress.DoesNotExist:
-        in_action = False
+    # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
+    if in_action:
+        celery_tasks = TaskResult.objects.all().exclude(
+            status__in=["SUCCESS", "FAILURE", "REVOKED"]
+        )
+        in_action = celery_tasks.exists()
 
     return in_action
 

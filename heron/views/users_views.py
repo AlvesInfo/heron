@@ -1,7 +1,6 @@
 import logging
 
 from django.shortcuts import render
-from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -11,16 +10,6 @@ from apps.users.models import User
 from apps.core.functions.functions_utilitaires import get_client_ip
 
 logger = logging.getLogger("connexion")
-
-start_thread = 0
-
-
-def home(request):
-    global start_thread
-    context = {
-        "environnement": settings.ENVIRONNEMENT,
-    }
-    return render(request, "heron/home.html", context=context)
 
 
 def reactivate(request, uidb64, token):
@@ -48,4 +37,5 @@ def reactivate(request, uidb64, token):
 
 
 def logout_email(request):
+    """Page affichée après la déconnexion demandée depuis un email"""
     return render(request, "heron/logout_email.html")

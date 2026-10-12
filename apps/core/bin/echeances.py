@@ -1,4 +1,3 @@
-# pylint: disable=E0401,E1101,C0303,R0913,W0613,R0914,W0611,C0413
 """
 FR : Module de calcul des échéances et fonction des modes de règlements
 EN : Module for calculating deadlines and function of payment methods
@@ -49,10 +48,10 @@ def get_payment_method_elements(uuid_payment_method: UUID) -> Tuple:
             "end_month", "offset_days", "offset_month"
         ).get(auuid=uuid_payment_method)
 
-        end_month = int(end_month)
+        end_month = int(end_month) if end_month is not None else None
 
     except PaymentCondition.DoesNotExist:
-        return end_month, offset_days, offset_month
+        pass
 
     return end_month, offset_days, offset_month
 
@@ -67,8 +66,10 @@ def get_due_date(invoice_date, uuid_payment_method: UUID) -> datetime.date.isofo
     end_month, offset_days, offset_month = get_payment_method_elements(uuid_payment_method)
     due_date = pendulum.parse(invoice_date)
 
+    # Sans condition de paiement connue : échéance à la fin du mois de la facture (décalée du
+    # nombre de mois éventuel), renvoyée au même format texte que les autres cas
     if end_month is None:
-        return due_date.add(months=offset_month).last_of("month")
+        return due_date.add(months=offset_month or 0).last_of("month").to_date_string()
 
     # Si end_month == 1 (Non) -> date_facture : 16/10/2023, départ échéance : 16/10/2023
 

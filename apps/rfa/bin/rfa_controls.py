@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de contrôles de lancement des rfa
 EN : RFA Launch Control Module
@@ -12,7 +11,7 @@ modified at: 2024-08-09
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr
+from typing import AnyStr, List
 
 import pendulum
 from django.db import connection
@@ -84,51 +83,63 @@ def supplier_control_cct() -> AnyStr:
 
     elif len(results) == 1:
         fournisseur = results[0][0]
-        return f"Des CCT n'ontpas été renseignés dans les Factures du Fournisseur {fournisseur}"
+        return f"Des CCT n'ont pas été renseignés dans les Factures du Fournisseur {fournisseur}"
     else:
         fournisseur = ", ".join([row[0] for row in results])
-        return f"Des CCT n'ontpas été renseignés dans les Factures des Fournisseurs {fournisseur}"
+        return f"Des CCT n'ont pas été renseignés dans les Factures des Fournisseurs {fournisseur}"
 
 
-def have_rfa_to_be_invoiced() -> AnyStr:
-    """Contrôle qu'il y ait des factures de RFA à générer"""
+def have_rfa_to_be_invoiced() -> List:
+    """Contrôle qu'il y ait des factures de RFA à générer : fournisseurs ayant un taux de RFA,
+    des factures sur une maison et un axe RFA retenus, hors exclusions (enseigne, client,
+    client/fournisseur, axe PRO), et dont les RFA du mois ne sont pas déjà générées.
+    Les filtres sont les mêmes que ceux de l'insertion (SQL_RFA_INSERTION).
+    """
     sql_control = """
-    select 
-        "ee"."third_party_num" as "signboard"
-    from (
-        select 
-            "third_party_num",
-            "code_signboard",
-            "cct_uuid_identification",
-            "axe_pro",
-            "axe_rfa",
-            case 
-                when "flow_name" = 'rfa_flow' 
-                then 1 
-                else 0
-            end as "flow_count"
-        from "edi_ediimport"
-    ) "ee" 
+    select
+        "ee"."third_party_num" as "supplier"
+    from "edi_ediimport" "ee"
     join "centers_clients_maison" "mm"
     on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
-    join "rfa_sectionproexclusion" "pro"
-    on "ee"."axe_pro" <> "pro"."axe_pro" 
-    join "rfa_sectionrfa" "rfa"
-    on "ee"."axe_rfa" <> "rfa"."axe_rfa" 
-    join "rfa_signboardexclusion" "ens"
-    on "ee"."code_signboard" <> "ens"."signboard"
-    join "rfa_supplierrate" "rs" 
+    join "rfa_supplierrate" "rs"
     on "ee"."third_party_num" = "rs"."supplier"
-    where not exists (
-            select 
-                1
-            from "rfa_clientexclusion" "rf"
-            join "centers_clients_maison" "cen"
-            on "rf"."cct" = "cen"."cct"
-            where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
+    where "ee"."flow_name" <> 'rfa_flow'
+    and not exists (
+        select 1
+        from "rfa_clientexclusion" "rf"
+        join "centers_clients_maison" "cen"
+        on "rf"."cct" = "cen"."cct"
+        where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
+    )
+    and not exists (
+        select 1
+        from "rfa_clientsupplierexclusion" "rcs"
+        where "ee"."third_party_num" = "rcs"."supplier"
+          and "ee"."cct_uuid_identification" = "rcs"."maison_uuid"
+    )
+    and not exists (
+        select 1
+        from "rfa_sectionproexclusion" "pro"
+        where "ee"."axe_pro" = "pro"."axe_pro"
+    )
+    and exists (
+        select 1
+        from "rfa_sectionrfa" "rfa"
+        where "ee"."axe_rfa" = "rfa"."axe_rfa"
+    )
+    and not exists (
+        select 1
+        from "rfa_signboardexclusion" "ens"
+        where "ee"."code_signboard" = "ens"."signboard"
+    )
+    and not exists (
+        select 1
+        from "edi_ediimport" "gen"
+        where "gen"."third_party_num" = "ee"."third_party_num"
+          and "gen"."flow_name" = 'rfa_flow'
     )
     group by "ee"."third_party_num"
-    having sum("ee"."flow_count") = 0
+    order by "ee"."third_party_num"
     """
 
     with connection.cursor() as cursor:
@@ -150,125 +161,3 @@ def get_axe_rfa_period():
     billing_period = period.billing_period
 
     return f"{billing_period.year}RFA_{str(billing_period.month).zfill(2)}"
-
-
-def get_rfa():
-    sql_wid = """
-    with vat as (
-        select 
-            "rate"
-        from "accountancy_vatratsage" "av" 
-        where "vat" = '002'
-        and exists (
-            select 
-                1 
-            from "accountancy_vatratsage" "avv" 
-            group by "avv"."vat" 
-            having max("avv"."vat_start_date") = "av"."vat_start_date" 
-                and "avv"."vat" = "av"."vat"
-        )
-    )
-    select
-        '%(uuid_identification)s' as "uuid_identification",
-        '%(third_party_num)s' as "third_party_num",
-        now() as "created_at",
-        now() as "modified_at",
-        'rfa_flow' as "flow_name",
-        '%(supplier_identify)s' as "supplier_ident",
-        '%(supplier)s' as "supplier",
-        '%(siret_payeur)s' as "siret_payeur",
-        "mm"."cct" as "code_fournisseur",
-        "mm"."cct" as "code_maison",
-        "mm"."intitule_court" as "maison",
-        '%(invoice_number)s' as "invoice_number",
-        '%(invoice_date)s' as "invoice_date",
-        case 
-            when sum(-"ee"."net_amount") <= 0 
-            then '381' 
-            else '380' 
-        end as "invoice_type",
-        'EUR' as "devise",
-        '%(reference_article)s' as "reference_article",
-        '%(libelle)s' as "libelle",
-        'AA' as "famille",
-        case 
-            when sum(-"net_amount") <= 0
-            then -1 
-            else  1
-        end as "qty",
-        round(
-            (sum("ee"."gross_unit_price") * "rs"."rfa_rate")::numeric, 
-            2
-        )::numeric as "gross_unit_price",
-        round(
-            (sum("ee"."net_unit_price") * "rs"."rfa_rate")::numeric, 
-            2
-        )::numeric as "net_unit_price",
-        round(
-            (sum(-"ee"."gross_amount") * "rs"."rfa_rate")::numeric, 
-            2
-        )::numeric as "gross_amount",
-        round(
-            (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 
-            2
-        )::numeric as "net_amount",
-        round(sum(-"ee"."net_amount"), 2)::numeric as "anet_amount",
-        (select "rate" from "vat") as "vat_rate",
-        round(
-            ((select "rate" from "vat")::numeric/100) 
-            * 
-            round((sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 2)::numeric, 
-            2
-        )::numeric as "vat_amount",
-        round(
-            ((select "rate" from "vat")::numeric/100) 
-            * 
-            round(
-                (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 2)::numeric, 
-                2
-            )::numeric 
-            + 
-            round(
-                (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 
-                2
-        )::numeric as "amount_with_vat",
-        'AA' as "axe_pro_supplier",
-        '%(supplier)s' as "supplier_name",
-        11 as "unit_weight",
-        false as "purchase_invoice",
-        true as "sale_invoice",
-        0 as "item_weight"
-       
-    from "edi_ediimport" "ee" 
-    
-    join "centers_clients_maison" "mm"
-    on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
-    
-    join "rfa_sectionproexclusion" "pro"
-    on "ee"."axe_pro" <> "pro"."axe_pro" 
-    
-    join "rfa_sectionrfa" "rfa"
-    on "ee"."axe_rfa" <> "rfa"."axe_rfa" 
-    
-    join "rfa_signboardexclusion" "ens"
-    on "ee"."code_signboard" <> "ens"."signboard"
-    
-    join "rfa_supplierrate" "rs" 
-    on "ee"."third_party_num" = "rs"."supplier"
-    
-    where "ee"."third_party_num" = 'WIDE001'
-    and not exists (
-            select 
-                1
-            from "rfa_clientexclusion" "rf"
-            join "centers_clients_maison" "cen"
-            on "rf"."cct" = "cen"."cct"
-            where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
-    )
-    group by "mm"."cct", "mm"."intitule_court", "rs"."rfa_rate"
-    having sum("net_amount") <> 0
-    order by "mm"."cct"
-    """
-    with connection.cursor() as cursor:
-        cursor.execute(sql_wid)
-        return cursor.fetchall()

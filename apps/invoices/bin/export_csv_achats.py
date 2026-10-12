@@ -1,4 +1,3 @@
-# pylint: disable=W0702,W1203,E0401
 """Module d'export des achats
 
 Commentaire:
@@ -17,7 +16,6 @@ from pathlib import Path
 
 import django
 import pendulum
-from psycopg2 import sql
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -29,9 +27,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
+from django.conf import settings
 from django.db import connection
 
-from heron.settings.base import APPS_DIR
 from heron.loggers import LOGGER_EXPORT_EXCEL
 
 
@@ -44,7 +42,7 @@ def get_achats(file_io: io.BytesIO, file_name: str, dte_d: pendulum, dte_f: pend
     :return: None
     """
     try:
-        file_path = Path(f"{str(APPS_DIR)}/invoices/sql_files/sql_export_achats.sql")
+        file_path = Path(settings.APPS_DIR) / "invoices/sql_files/sql_export_achats.sql"
 
         with file_path.open("r") as sql_file, connection.cursor() as cursor:
             query = (
@@ -58,7 +56,7 @@ def get_achats(file_io: io.BytesIO, file_name: str, dte_d: pendulum, dte_f: pend
             sql_expert = sql_copy.format(query=query)
             cursor.copy_expert(sql=sql_expert, file=file_io)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
         return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
 

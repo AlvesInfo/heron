@@ -1,6 +1,8 @@
-from apps.core.functions.functions_setups import *
+"""Script ponctuel : migration des identifiants du cct GA0000 vers LAB0001 pour tous les tiers"""
+from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 from apps.book.models import SupplierCct
-from copy import deepcopy
+from apps.book.bin.checks import split_identifiers
+from heron.loggers import LOGGER_IMPORT
 
 
 def migrate_ga000_to_lab0001():
@@ -8,43 +10,32 @@ def migrate_ga000_to_lab0001():
     pour tous les fournisseurs
     """
     for supplier in SupplierCct.objects.filter(cct_uuid_identification__cct="GA0000"):
-        all_cct = deepcopy(
-            supplier.cct_identifier.strip()[:-1].split("|")
-            if supplier.cct_identifier.endswith("|")
-            else supplier.cct_identifier.strip().split("|")
-        )
-        lab_supplier = SupplierCct.objects.get(
+        lab_supplier = SupplierCct.objects.filter(
             third_party_num_id=supplier.third_party_num_id,
             cct_uuid_identification__cct="LAB0001",
-        )
-        all_cct_lab = deepcopy(
-            lab_supplier.cct_identifier.strip()[:-1].split("|")
-            if lab_supplier.cct_identifier.endswith("|")
-            else lab_supplier.cct_identifier.strip().split("|")
-        )
+        ).first()
+
+        if lab_supplier is None:
+            LOGGER_IMPORT.error("%s : pas de cct LAB0001, GA0000 conservé", supplier.third_party_num_id)
+            continue
+
+        all_cct = split_identifiers((supplier.cct_identifier or "").strip())
+        all_cct_lab = split_identifiers((lab_supplier.cct_identifier or "").strip())
         assemblage = (
-            "|".join(value.strip() for value in {*all_cct, *all_cct_lab}) + "|"
+            "|".join(value.strip() for value in sorted({*all_cct, *all_cct_lab}) if value.strip())
+            + "|"
         )
         # # changement côté GA0000
         supplier.cct_identifier = "ZZZ|"
         supplier.save()
-        print(
-            supplier.third_party_num_id,
-            supplier.cct_identifier,
-            supplier.cct_uuid_identification,
-            sep=" : ",
-        )
+        LOGGER_IMPORT.info("%s %s %s", supplier.third_party_num_id, supplier.cct_identifier, supplier.cct_uuid_identification)
 
         # # changement côté LAB0001
         lab_supplier.cct_identifier = (
             assemblage.replace("ZZZ|", "").replace("|ZZZ", "").replace("|ZZZ|", "")
         )
         lab_supplier.save()
-        print(
-            lab_supplier,
-            lab_supplier.cct_identifier,
-            sep=" : ",
-        )
+        LOGGER_IMPORT.info("%s %s", lab_supplier, lab_supplier.cct_identifier)
 
 
 if __name__ == "__main__":

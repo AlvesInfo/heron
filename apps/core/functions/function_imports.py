@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """Module pour validation et import en base de donnée, de fichiers à intégrer
 
 Commentaire:
@@ -317,6 +316,31 @@ class IterFileToInsert:
         ]
         return add_list
 
+    @staticmethod
+    def _values(postion_list, line):
+        """Valeurs des colonnes demandées, toujours sous forme de tuple (itemgetter renvoie un
+        scalaire pour une seule position, ce qui découpait la valeur caractère par caractère)
+        """
+        values = itemgetter(*postion_list)(line)
+
+        return (values,) if len(postion_list) == 1 else values
+
+    def _padded(self, line, postion_list):
+        """Ligne complétée par des valeurs vides jusqu'à la dernière colonne demandée ou exclue :
+        une ligne vide (all_lines) ou courte donne des champs vides au lieu d'un IndexError
+        """
+        excluded = [index - 1 for index in self.params_dict.get("exclude_rows_dict", {})]
+        width = max([*postion_list, *excluded], default=-1) + 1
+
+        return [*line, *[""] * (width - len(line))] if len(line) < width else line
+
+    def _is_excluded(self, line):
+        """Ligne à écarter : contenu d'une colonne listé dans exclude_rows_dict"""
+        return any(
+            str(value).strip().upper() in str(line[index - 1]).strip().upper()
+            for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
+        )
+
     def chunk_dict(self, all_lines=False):
         """
         Générateurs du dictionaire des lignes du fichier, avec le nom des colonnes à récupérer
@@ -328,20 +352,22 @@ class IterFileToInsert:
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
-        for line in self.csv_reader:
-            if (not line and not all_lines) or any(
-                str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
-            ):
+        for raw_line in self.csv_reader:
+            if not raw_line and not all_lines:
+                continue
+
+            line = self._padded(raw_line, postion_list)
+
+            if self._is_excluded(line):
                 continue
 
             if self.params_dict.get("add_fields_dict", {}):
                 yield {
-                    **dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line))),
+                    **dict(zip(list(self.columns_dict), self._values(postion_list, line))),
                     **self.get_add_dict,
                 }
             else:
-                yield dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line)))
+                yield dict(zip(list(self.columns_dict), self._values(postion_list, line)))
 
     def write_io(self, chunk_file_io: io.StringIO, all_lines=False):
         """
@@ -360,17 +386,19 @@ class IterFileToInsert:
         )
 
         # on écrit dans le fichier io.StringIO reçu les lignes du fichier à récupérer
-        for line in self.csv_reader:
-            if (not line and not all_lines) or any(
-                str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
-            ):
+        for raw_line in self.csv_reader:
+            if not raw_line and not all_lines:
+                continue
+
+            line = self._padded(raw_line, postion_list)
+
+            if self._is_excluded(line):
                 continue
 
             if self.params_dict.get("add_fields_dict", {}):
-                csv_writer.writerow(list(itemgetter(*postion_list)(line)) + self.get_add_values)
+                csv_writer.writerow(list(self._values(postion_list, line)) + self.get_add_values)
             else:
-                csv_writer.writerow(itemgetter(*postion_list)(line))
+                csv_writer.writerow(self._values(postion_list, line))
 
 
 class ModelFormInsertion(IterFileToInsert):
@@ -429,32 +457,21 @@ class ModelFormInsertion(IterFileToInsert):
         sont bonnes ou ajoute les erreurs par lignes
         """
         for i, data_dict in enumerate(self.chunk_dict(), 1):
-            # Si on envoie les champs uniques alors on update
-            if self.uniques:
-                validator = self.validator(data=data_dict)
-                validator.is_valid()
+            validator = self.validator(data=data_dict)
 
-                # On va tester que l'on a tous les champs uniques
-                uniques_list = {key for key in validator.clean() if key in self.uniques}
+            # Si on envoie les champs uniques, et que la ligne les porte tous, alors on update
+            # l'instance existante (recherche sur les données brutes : après validation, un
+            # champ unique en conflit n'est plus dans cleaned_data)
+            if self.uniques and set(self.uniques) <= set(data_dict):
+                attrs_instance = {key: data_dict[key] for key in self.uniques}
+                model = self.validator._meta.model
 
-                if uniques_list == set(self.uniques):
-                    attrs_instance = {
-                        key: value
-                        for key, value in validator.clean().items()
-                        if key in self.uniques
-                    }
-                    model = self.validator._meta.model
+                try:
+                    instance = model.objects.get(**attrs_instance)
+                    validator = self.validator(data=data_dict, instance=instance)
 
-                    try:
-                        instance = model.objects.get(**attrs_instance)
-                        validator = self.validator(data=data_dict, instance=instance)
-
-                    except model.DoesNotExist:
-                        validator = self.validator(data=data_dict)
-                else:
-                    validator = self.validator(data=data_dict)
-            else:
-                validator = self.validator(data=data_dict)
+                except model.DoesNotExist:
+                    pass
 
             if validator.is_valid():
                 validator.save()

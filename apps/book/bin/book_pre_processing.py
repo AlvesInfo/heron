@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de pré-traitement avant import des fichiers de factures fournisseur
 EN : Pre-processing module before importing supplier invoice files
@@ -14,8 +13,7 @@ modified by: Paulo ALVES
 import csv
 from pathlib import Path
 
-from apps.core.functions.functions_setups import CNX_STRING
-from apps.core.functions.functions_postgresql import cnx_postgresql
+from django.db import connection
 from apps.data_flux.postgres_save import get_random_name
 from apps.book.models import Society
 
@@ -64,7 +62,7 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
         }
 
         # On crée le dictionnaire des moyens de paiement pour les ajouter au fichier issu de sage
-        with cnx_postgresql(CNX_STRING).cursor() as cursor:
+        with connection.cursor() as cursor:
             cursor.execute(
                 """
             select
@@ -80,7 +78,16 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
         comptant = code_dict_exists.get("COMPTANT")
 
         for row in csv_reader:
+            if not row:
+                continue
+
             (third_party_num, payment_condition_client, vat_sheme_client, account_client_code) = row
+            society_types = societies_dict_exist.get(third_party_num)
+
+            # Le tiers doit déjà exister (fichier BPR intégré avant), sinon la ligne est ignorée
+            if society_types is None:
+                continue
+
             csv_writer.writerow(
                 [
                     third_party_num,
@@ -88,7 +95,7 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
                     vat_sheme_client,
                     account_client_code,
                 ]
-                + societies_dict_exist.get(row[0])
+                + society_types
             )
 
     file.unlink()

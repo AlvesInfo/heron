@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W1203
 """
 Views des Abonnements
 """
@@ -6,7 +5,8 @@ Views des Abonnements
 import uuid
 import threading
 
-from django.shortcuts import render, reverse
+from django.shortcuts import render
+from django.urls import reverse
 from django.http import JsonResponse
 
 from apps.periods.forms import MonthForm
@@ -144,7 +144,7 @@ def royalties_launch(request):
             return JsonResponse({"success": True, "job_id": job_id})
 
         else:
-            logger.exception(f"erreur form royalties_launch : {str(form.data)!r}")
+            logger.error(f"erreur form royalties_launch : {str(form.data)!r}")
             set_message(request, 50, ERROR_FORM)
 
             return JsonResponse({"success": False, "error": ERROR_FORM})
@@ -261,7 +261,7 @@ def meuleuse_launch(request):
             return JsonResponse({"success": True, "job_id": job_id})
 
         else:
-            logger.exception(f"erreur form meuleuse_launch : {str(form.data)!r}")
+            logger.error(f"erreur form meuleuse_launch : {str(form.data)!r}")
             return JsonResponse({"success": False, "error": ERROR_FORM})
 
     return render(request, ROYALTIES_TEMPLATE, context=context)
@@ -378,7 +378,7 @@ def publicity_launch(request):
             return JsonResponse({"success": True, "job_id": job_id})
 
         else:
-            logger.exception(f"erreur form publicity_launch : {str(form.data)!r}")
+            logger.error(f"erreur form publicity_launch : {str(form.data)!r}")
             return JsonResponse({"success": False, "error": ERROR_FORM})
 
     return render(request, ROYALTIES_TEMPLATE, context=context)
@@ -496,7 +496,7 @@ def services_launch(request):
             return JsonResponse({"success": True, "job_id": job_id})
 
         else:
-            logger.exception(f"erreur form services_launch : {str(form.data)!r}")
+            logger.error(f"erreur form services_launch : {str(form.data)!r}")
             return JsonResponse({"success": False, "error": ERROR_FORM})
 
     return render(request, ROYALTIES_TEMPLATE, context=context)

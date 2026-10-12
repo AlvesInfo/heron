@@ -8,6 +8,8 @@ from apps.centers_clients.models import ClientFamilly
 class ClientFamillyForm(forms.ModelForm):
     """Formulaires des Familles Client"""
 
+    use_required_attribute = False
+
     class Meta:
         model = ClientFamilly
         fields = [
@@ -18,6 +20,8 @@ class ClientFamillyForm(forms.ModelForm):
 
 class ClientFamillyDeleteForm(forms.ModelForm):
     """Formulaires des Familles Client à supprimer"""
+
+    id = forms.ModelChoiceField(queryset=ClientFamilly.objects.all())
 
     class Meta:
         model = ClientFamilly

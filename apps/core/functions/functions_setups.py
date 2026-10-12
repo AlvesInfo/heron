@@ -38,7 +38,7 @@ def setup_django():
 # Appeler au début du script
 setup_django()
 
-import heron.settings as settings
+from django.conf import settings
 from apps.users.models import User
 
 settings = settings

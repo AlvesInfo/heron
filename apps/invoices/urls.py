@@ -28,8 +28,6 @@ from apps.invoices.views import (
     export_achats,
     # Réaffectations de factures
     invoice_search_list,
-    # Essais
-    send_email_essais
 )
 
 # Import des vues SSE (commenté temporairement jusqu'à configuration de Gmail)
@@ -104,14 +102,6 @@ urlpatterns = (
             "invoice_search_list/",
             invoice_search_list,
             name="invoice_search_list",
-        ),
-    ]
-    # Essais
-    + [
-        path(
-            "send_email_essais/",
-            send_email_essais,
-            name="send_email_essais",
         ),
     ]
     # Envoi d'emails avec SSE (Server-Sent Events) - Commenté jusqu'à config Gmail

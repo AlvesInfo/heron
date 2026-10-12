@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des modèles pour création d'od depuis un fichier csv
 EN : Model module for creating od from a csv file

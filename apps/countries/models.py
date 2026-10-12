@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des modèles des pays
 EN : Country Models Module
@@ -66,7 +65,7 @@ class Country(models.Model):
         FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
         EN : Returns the name of the file in the  directory of the Sage X3 server
         """
-        return "ZBIADDR_journalier.heron"
+        return "ZBICRY_journalier.heron"
 
     @staticmethod
     def get_columns_import():

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203,R0914,W1309
 """Module d'export du fichier excel pour les factures du tiers pas mois
 
 Commentaire:
@@ -10,23 +9,18 @@ modified at: 2022-05-12
 modified by: Paulo ALVES
 """
 import io
-from typing import Dict, AnyStr
+from typing import AnyStr
 from pathlib import Path
 
 import pendulum
 from django.db import connection
-from heron.settings.base import APPS_DIR
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
+from django.conf import settings
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
     columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
 )
+from apps.core.excel_outputs.generic_list_export import excel_list_export, month_headers, write_alternate_rows
 
 COLUMNS_CLIENT = [
     {
@@ -232,7 +226,7 @@ COLUMNS = [
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: Dict = None):
+def get_rows(file_path: Path, parmas_dict: dict = None):
     """Renvoie les résultats de la requête nécessaire à l'export excel
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
@@ -249,68 +243,38 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
+def columns_mois() -> list[dict]:
+    """Colonnes 1 à 4 : les mois M-4 à M-1"""
+    months = [
+        pendulum.now().subtract(months=mois).start_of("month").format("MMMM YYYY", locale="fr").capitalize().replace(" ", "\n")
+        for mois in (4, 3, 2, 1)
+    ]
+    return month_headers(COLUMNS, (1, 2, 3, 4), months)
+
+
+def write_client_and_suppliers(excel, sheet: int, columns: list, rows: list, f_lignes: list, f_lignes_odd: list) -> None:
+    """Bloc du client cct (entêtes ligne 3, valeurs ligne 4) puis tableau des fournisseurs (ligne 6)"""
+    client_attrs_list = [rows[0][:5]] if rows else [(None, None, None, None, None)]
+    f_clients = [dict_row.get("f_ligne") for dict_row in COLUMNS_CLIENT]
+    columns_headers_writer(excel, sheet, 3, 0, COLUMNS_CLIENT)
+    write_alternate_rows(excel, sheet, 4, client_attrs_list, f_clients, f_clients)
+    columns_headers_writer(excel, sheet, 6, 0, columns)
+    write_alternate_rows(excel, sheet, 7, [row[5:] for row in rows], f_lignes, f_lignes_odd)
+
+
 def excel_suppliers_m_vs_m1(file_io: io.BytesIO, file_name: AnyStr, client: AnyStr) -> dict:
     """Fonction de génération du fichier de Contrôle Fournisseurs M vs M-1"""
-    titre = f"5.A - Contrôle Fournisseurs M vs M-1"
-    list_excel = [file_io, ["CCT FOURNISSEURS"]]
-    excel = GenericExcel(list_excel)
-    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_suppliers_m_vs_m1.sql")
+    file_path = Path(f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_suppliers_m_vs_m1.sql")
 
-    get_clean_rows = [row[:-2] for row in get_rows(file_path, {"client": client})]
-    if get_clean_rows:
-        client_attrs_list = [get_clean_rows[0][:5]]
-    else:
-        client_attrs_list = [
-            (
-                None,
-                None,
-                None,
-                None,
-                None,
-            ),
-        ]
-    get_list_rows = [row[5:] for row in get_clean_rows]
-    mois = 4
-
-    for i, column_dict in enumerate(COLUMNS, 1):
-        if 1 < i < 6:
-            column_dict["entete"] = (
-                (
-                    pendulum.now()
-                    .subtract(months=mois)
-                    .start_of("month")
-                    .format("MMMM YYYY", locale="fr")
-                )
-                .capitalize()
-                .replace(" ", "\n")
-            )
-            mois -= 1
-
-    try:
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        f_clients = [dict_row.get("f_ligne") for dict_row in COLUMNS_CLIENT]
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
-        ]
-
-        # MISE EN PLACE DES DONNEES DU CLIENT CCT
-        columns_headers_writer(excel, 1, 3, 0, COLUMNS_CLIENT)
-        rows_writer(excel, 1, 4, 0, client_attrs_list, f_clients, f_clients)
-
-        # MISE EN PLACE DES LIGNES DES FOURNISSEURS
-        columns_headers_writer(excel, 1, 6, 0, COLUMNS)
-        rows_writer(excel, 1, 7, 0, get_list_rows, f_lignes, f_lignes_odd)
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name="CCT FOURNISSEURS",
+        title="5.A - Contrôle Fournisseurs M vs M-1",
+        columns=columns_mois,
+        rows=lambda: [row[:-2] for row in get_rows(file_path, {"client": client})],
+        repeat_row=(0, 3),
+        in_memory=True,
+        write_headers=False,
+        writer=write_client_and_suppliers,
+    )

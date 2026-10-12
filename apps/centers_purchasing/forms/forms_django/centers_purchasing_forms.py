@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Maisons
 """
@@ -18,6 +17,8 @@ from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class MeresForm(forms.ModelForm):
+
+    use_required_attribute = False
     class Meta:
         model = PrincipalCenterPurchase
         fields = [
@@ -29,6 +30,8 @@ class MeresForm(forms.ModelForm):
 
 
 class FillesForm(forms.ModelForm):
+
+    use_required_attribute = False
 
     legal_notice = forms.CharField(widget=CKEditorWidget())
     footer = forms.CharField(widget=CKEditorWidget())
@@ -84,6 +87,8 @@ class FillesForm(forms.ModelForm):
 
 
 class SignboardForm(forms.ModelForm):
+
+    use_required_attribute = False
     img_delete = forms.CheckboxInput()
 
     message = forms.CharField(widget=CKEditorWidget())

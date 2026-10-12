@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Package pour l'envoi des factures via l'API Gmail
 EN : Package for sending invoices via Gmail API

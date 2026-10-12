@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module des taux de change
 EN : Exhange rates module
@@ -16,7 +15,6 @@ from typing import AnyStr
 
 from django.db import connection
 from django.db.models import Exists, OuterRef, Count, F
-from django.db.utils import IntegrityError as DjangoIntegrityError
 from apps.compta.models import VentesCosium
 from apps.countries.models import Currency
 from apps.parameters.models import ExchangeRate
@@ -34,7 +32,8 @@ def set_base_exchange_rate(month: AnyStr) -> None:
         .annotate(
             rate_exists=Exists(
                 ExchangeRate.objects.filter(
-                    currency_change=OuterRef("cct_uuid_identification__pays__currency_iso")
+                    currency_change=OuterRef("cct_uuid_identification__pays__currency_iso"),
+                    rate_month=OuterRef("sale_month"),
                 )
             )
         )

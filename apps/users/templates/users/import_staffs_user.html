@@ -234,6 +234,7 @@
                   </button>
 
                   {# MODAL DE SELECTION DES FICHIERS A TELECHARGER #}
+                  <label for="fileupload" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Fichiers à téléverser</label>
                   <input id="fileupload"
                          type="file"
                          name="file"
@@ -295,9 +296,13 @@
                      style="{% if not files_upload %}display: none;{% endif %}">
 
                   <table class="ui celled table"
-                         cellspacing="0"
-                         style="font-size: 12px;font-weight:bold;">
-                    <thead></thead>
+                         style="border-collapse: collapse;font-size: 12px;font-weight:bold;">
+                    <thead>
+                      <tr>
+                        <th scope="col" style="width: 90%;">Fichier</th>
+                        <th scope="col" class="no-sort" style="text-align: center;">Action</th>
+                      </tr>
+                    </thead>
                     <tbody id="tbodyUpload">
                       {% for file in files_upload %}
                         <tr id="file{{ file.pk }}">
@@ -306,8 +311,8 @@
                           </td>
                           <td class="tdDelete" style="text-align: center;">
                             <div style="cursor: pointer;">
-                              <i class="red trash icon"
-                                 onclick="deleteUpload({{ file.pk }}, '{{ file.base_name_file }}')"></i>
+                              <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer"
+                                 onclick="deleteUpload({{ file.pk }}, '{{ file.base_name_file }}')"><i class="red trash icon" aria-hidden="true"></i></button>
                             </div>
                           </td>
                         </tr>

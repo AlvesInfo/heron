@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,W1203,R0914,W0718,R0915,W0719
 """
 FR : Module d'insertion provisoire
 EN : Provisional insert module
@@ -41,7 +40,6 @@ from django.utils import timezone
 from django.db.models import Count, Q
 
 from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
-from apps.core.models import SSEProgress
 from apps.core.bin.echeances import get_payment_method_elements, get_due_date
 from apps.core.functions.functions_setups import connection, transaction
 from apps.core.utils.progress_bar import update_progress_threaded
@@ -79,6 +77,10 @@ from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.centers_purchasing.bin.update_account_article import update_axes_edi
 from apps.parameters.models import CounterNums
 from apps.edi.models import EdiValidation
+
+
+class InvoicesInsertionError(Exception):
+    """Exception niveau module pour les erreurs d'insertion des factures"""
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
@@ -347,6 +349,9 @@ def num_full_sales_invoices():
         .order_by()
     )
 
+    if not sales_list:
+        return
+
     cct = sales_list[0].get("cct")
     global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
 
@@ -407,7 +412,8 @@ def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
     from "invoices_invoice"
     """
     cursor.execute(sql_initialize)
-    num = (cursor.fetchone())[0]
+    # Plus aucune facture : le compteur repart à 1 (max(...) + 1 renvoie NULL)
+    num = (cursor.fetchone())[0] or 1
 
     try:
         numerotation = CounterNums.objects.get(
@@ -442,8 +448,8 @@ def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
     from "invoices_saleinvoice"
     """
     cursor.execute(sql_initialize)
-
-    num = (cursor.fetchone())[0]
+    # Plus aucune facture : le compteur repart à 1 (max(...) + 1 renvoie NULL)
+    num = (cursor.fetchone())[0] or 1
 
     try:
         numerotation = CounterNums.objects.get(
@@ -539,7 +545,7 @@ def invoices_insertion(
         message="Mise à jour Centrales et Enseignes",
         item_name="update_cct_edi_import",
     )
-    print(f"update_cct_edi_import :{time.time() - start} s")
+    LOGGER_INVOICES.info(f"update_cct_edi_import :{time.time() - start} s")
     start = time.time()
 
     # Pré-contrôle des données avant insertion
@@ -550,7 +556,7 @@ def invoices_insertion(
         message="Pré-contrôle",
         item_name="control_alls_missings",
     )
-    print(f"control_alls_missings :{time.time() - start} s")
+    LOGGER_INVOICES.info(f"control_alls_missings :{time.time() - start} s")
     start = time.time()
 
     if controls:
@@ -576,7 +582,7 @@ def invoices_insertion(
                 message="Suppression des factures non finalisées",
                 item_name="sanitaze_before",
             )
-            print(f"suppression :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"suppression :{time.time() - start} s")
             start = time.time()
 
             # Étape 2 : Copie de sécurité
@@ -590,7 +596,7 @@ def invoices_insertion(
                 message="Copie de sécurité de la table edi_ediimport",
                 item_name="copy_edi_import",
             )
-            print(f"Copie :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"Copie :{time.time() - start} s")
             start = time.time()
 
             # Étape 3 : Préparatifs
@@ -604,7 +610,7 @@ def invoices_insertion(
                 message="Insertion des import_uuid_identification",
                 item_name="set_fix_uuid",
             )
-            print(f"set_fix_uuid :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"set_fix_uuid :{time.time() - start} s")
             start = time.time()
 
             # Étape 4 : Mise à jour des articles
@@ -631,7 +637,7 @@ def invoices_insertion(
                 ),
                 item_name="process_update",
             )
-            print(f"process_update :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"process_update :{time.time() - start} s")
             start = time.time()
 
             # Étape 6 : Mise à jour des axes articles
@@ -644,7 +650,7 @@ def invoices_insertion(
                 message="Mise à jour des axes articles",
                 item_name="update_axes_edi",
             )
-            print(f"update_axes_edi :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"update_axes_edi :{time.time() - start} s")
             start = time.time()
 
             # Étape 7 : Insertion des données communes - TRANSACTION CRITIQUE
@@ -657,7 +663,7 @@ def invoices_insertion(
                 message="Insertion des données commmunes, achats et ventes",
                 item_name="set_common_details",
             )
-            print(f"set_common_details :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"set_common_details :{time.time() - start} s")
             start = time.time()
 
             # Étape 8 : Insertion des factures d'achats - TRANSACTION CRITIQUE
@@ -666,7 +672,9 @@ def invoices_insertion(
                 error, to_print = set_purchases_invoices(cursor, user, invoice_date)
 
                 if error:
-                    raise Exception
+                    raise InvoicesInsertionError(
+                        "Erreur à l'insertion des entêtes de factures d'achat"
+                    )
 
                 alls_print += to_print
                 cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
@@ -679,12 +687,12 @@ def invoices_insertion(
                 message="Insertion des factures d'achat",
                 item_name="set_purchases_invoices",
             )
-            print(f"set_purchases_invoices :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"set_purchases_invoices :{time.time() - start} s")
             start = time.time()
 
             # Étape 9 : Contrôle des achats
             LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
-            if control_sales_insertion(cursor):
+            if control_purchases_insertion(cursor):
                 alls_print = (
                     "Il y a eu une erreur à l'insertion des factures d'achat, "
                     "les totaux ne correspondent pas"
@@ -694,19 +702,19 @@ def invoices_insertion(
                     processed=1,
                     failed=1,
                     message="Erreur sur les factures d'achat",
-                    item_name="control_sales_insertion",
+                    item_name="control_purchases_insertion",
                 )
                 raise Exception(
-                    "Il y a eu une erreur à l'insertion des factures de vente"
+                    "Il y a eu une erreur à l'insertion des factures d'achat"
                 )
 
             update_progress_threaded(
                 job_id,
                 processed=1,
                 message="Contrôle des factures d'achat",
-                item_name="control_sales_insertion",
+                item_name="control_purchases_insertion",
             )
-            print(f"control_sales_insertion :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"control_purchases_insertion :{time.time() - start} s")
             start = time.time()
 
             # Étape 10 : Insertion des factures de vente - TRANSACTION CRITIQUE
@@ -724,7 +732,7 @@ def invoices_insertion(
                     message="Erreur sur les factures de vente",
                     item_name="set_sales_invoices",
                 )
-                raise Exception
+                raise InvoicesInsertionError("Erreur à l'insertion des entêtes de factures de vente")
 
             update_progress_threaded(
                 job_id,
@@ -732,7 +740,7 @@ def invoices_insertion(
                 message="Insertion entêtes de factures de vente",
                 item_name="set_sales_invoices",
             )
-            print(f"set_sales_invoices :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"set_sales_invoices :{time.time() - start} s")
             start = time.time()
 
             # Étape 11 : Insertion des détails des factures de vente
@@ -746,7 +754,7 @@ def invoices_insertion(
                 message="Insertion des détails des factures de vente",
                 item_name="set_sales_details",
             )
-            print(f"set_sales_details :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"set_sales_details :{time.time() - start} s")
             start = time.time()
 
             # Étape 12 : Contrôle final des factures de vente
@@ -773,7 +781,7 @@ def invoices_insertion(
                 message="Contrôle des factures de vente réussi",
                 item_name="control_sales_insertion",
             )
-            print(f"control_sales_insertion :{time.time() - start} s")
+            LOGGER_INVOICES.info(f"control_sales_insertion :{time.time() - start} s")
             start = time.time()
 
             # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
@@ -791,22 +799,19 @@ def invoices_insertion(
         with transaction.atomic():
             num_full_sales_invoices()
 
-        print(f"num_full_sales_invoices :{time.time() - start} s")
+        LOGGER_INVOICES.info(f"num_full_sales_invoices :{time.time() - start} s")
 
     # Exceptions PostgresDjangoUpsert ==========================================================
     except PostgresKeyError as except_error:
-        print("ERREUR - PostgresKeyError : ", except_error)
         LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
         error = True
 
     except PostgresTypeError as except_error:
-        print("ERREUR - PostgresTypeError : ", except_error)
         LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
         error = True
 
     # Exception Générale =======================================================================
     except Exception as except_error:
-        print("ERREUR - Exception : ", except_error)
         LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
         error = True
 

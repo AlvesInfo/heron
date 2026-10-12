@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Parameters
 """
@@ -12,6 +11,8 @@ from apps.centers_clients.models import MaisonSubcription
 
 class MaisonSubcriptionForm(forms.ModelForm):
     """Form pour les MaisonSubcription"""
+
+    use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,6 +59,8 @@ class MaisonSubcriptionForm(forms.ModelForm):
 
 class DeleteMaisonSubcriptionForm(forms.ModelForm):
     """Form pour la suppression des MaisonSubcription"""
+
+    id = forms.ModelChoiceField(queryset=MaisonSubcription.objects.all())
 
     class Meta:
         """class Meta"""

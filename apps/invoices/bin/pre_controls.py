@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR: Module de contrôles avant le lancement des refacturations
 EN: Checks module before launching re-invoicing
@@ -16,9 +15,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from django.db.models import Q
 from django.db import close_old_connections
-from django.shortcuts import reverse
+from django.urls import reverse
 from asgiref.sync import sync_to_async
 
+from heron.loggers import LOGGER_INVOICES
 from apps.core.functions.functions_setups import connection
 from apps.invoices.sql_files.sql_controls import (
     SQL_ARTICLES_NEWS,
@@ -605,7 +605,7 @@ def control_validations():
         if key in validations and not value:
             controls_list.append(validations.get(key))
 
-    print(controls_list)
+    LOGGER_INVOICES.info(f"controls_list : {controls_list!r}")
     return controls_list
 
 

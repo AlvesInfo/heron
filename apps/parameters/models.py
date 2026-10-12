@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des modèles des paramètres
 EN : Parameters Models Module
@@ -17,7 +16,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-from django.shortcuts import reverse
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -26,7 +25,7 @@ from django.urls.exceptions import NoReverseMatch
 
 from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import SectionSage
-from apps.countries.models import Country, Currency
+from apps.countries.models import Currency
 
 
 class Parameters(FlagsTable):
@@ -315,7 +314,7 @@ class Counter(FlagsTable):
     def clean(self):
         """Clean method django"""
         # Ensures constraint on model level, raises ValidationError
-        if self.lpad_num < 0:
+        if (self.lpad_num or 0) < 0:
             # raise error for field
             raise ValidationError({"lpad_num": _("LPAD doit être > 0.")})
 
@@ -540,7 +539,7 @@ class Nature(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.to_display
+        return self.to_display or self.name
 
     @staticmethod
     def get_absolute_url():
@@ -810,37 +809,6 @@ class BaseCommonDetailsTable(models.Model):
     serial_number = models.TextField(null=True, blank=True)
     bi_id = models.BigIntegerField(null=True, verbose_name="ID BI ACUITIS")
     flow_name = models.CharField(max_length=80, default="Saisie")
-
-    class Meta:
-        """class Meta du modèle django"""
-
-        abstract = True
-
-
-class BaseAdressesTable(models.Model):
-    """
-    Table Abstraite de base pour les Adresses
-    FR : Table Abstraite de Base pour les Adresses
-    EN : Flags Abstract Table for Adresses
-    """
-
-    name = models.CharField(null=True, blank=True, max_length=80)
-    immeuble = models.CharField(
-        null=True, blank=True, max_length=200, verbose_name="immeuble"
-    )
-    adresse = models.CharField(max_length=200, verbose_name="adresse")
-    code_postal = models.CharField(max_length=15, verbose_name="code postal")
-    ville = models.CharField(max_length=50, verbose_name="ville")
-    pays = models.ForeignKey(
-        Country,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        to_field="country",
-        related_name="+",
-        verbose_name="pays",
-        db_column="pays",
-    )
 
     class Meta:
         """class Meta du modèle django"""

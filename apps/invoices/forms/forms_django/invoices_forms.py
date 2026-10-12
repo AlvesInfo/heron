@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 Formulaires django pour les factures
 

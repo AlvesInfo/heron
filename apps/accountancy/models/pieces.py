@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des pièces comptable
 EN : Accounting documents module

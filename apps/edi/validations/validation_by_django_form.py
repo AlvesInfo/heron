@@ -58,4 +58,10 @@ class EdiForm(forms.ModelForm):
     class Meta:
         """class Meta du modèle django"""
         model = EdiImport
-        exclude = ["pk"]
+        # tous les champs éditables du modèle, id explicitement exclu (une liste figée
+        # ignorerait silencieusement les champs ajoutés au modèle, ce formulaire doit tout valider)
+        fields = [
+            field.name
+            for field in EdiImport._meta.concrete_fields
+            if field.name != "id" and field.editable
+        ]

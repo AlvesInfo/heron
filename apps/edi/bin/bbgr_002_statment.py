@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module de génération du fichier BBGR Statment
 EN : BBGR Statement file generation module
@@ -16,7 +15,7 @@ from uuid import UUID
 from psycopg2 import sql
 from django.db import connection, transaction
 
-# from apps.core.functions.functions_setups import settings
+from heron.loggers import LOGGER_EDI
 
 
 HISTORIC_STATMENT_ID = 1993598
@@ -64,10 +63,10 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
         )
         cursor.execute(sql_id, {"historic_id": min_id})
         test_have_lines = cursor.fetchone()
-        print("vérification BBGR statment")
+        LOGGER_EDI.info("vérification BBGR statment")
 
         if test_have_lines:
-            print("intégration des lignes BBGR Statment")
+            LOGGER_EDI.info("intégration des lignes BBGR Statment")
             sql_insert_statment = sql.SQL(
                 """
                 insert into edi_ediimport 

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """Module du modèle de données pour la gestion d'erreurs et de lecture trace
 
 Commentaire:

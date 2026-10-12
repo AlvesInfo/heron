@@ -1,4 +1,3 @@
-# pylint: disable=C0303,E0401,R0913,R0914
 """
 Module d'insertion en base de donnée Postgresql,
 Par des méthode rapides de psycopg2
@@ -84,10 +83,12 @@ def execute_batch(cur, sql_execute, iterable, page_size=500):
             count_final += nbre
 
         except psycopg2.OperationalError:
-            LOGGER_POSTGRES_SAVE.exception("Cconnexion à Postgres fermée de manière inattendue")
+            erreur = True
+            LOGGER_POSTGRES_SAVE.exception("Connexion à Postgres fermée de manière inattendue")
 
         except psycopg2.Error:
-            LOGGER_POSTGRES_SAVE.exception("Erreur sur les insertions execute_bach")
+            erreur = True
+            LOGGER_POSTGRES_SAVE.exception("Erreur sur les insertions execute_batch")
 
     return erreur, (count_initial, count_final)
 
@@ -113,7 +114,12 @@ def execute_prepared_upsert(cursor, sql_prepare, sql_execute, sql_deallocate, ro
         cursor.execute(sql_deallocate)
 
     except psycopg2.Error as except_error:
-        cursor.execute(sql_deallocate)
+        try:
+            cursor.execute(sql_deallocate)
+        except psycopg2.Error:
+            # la requête préparée n'existe pas ou la transaction est déjà invalidée
+            LOGGER_POSTGRES_SAVE.exception("deallocate impossible après une erreur")
+
         raise PostgresPreparedError("Erreur sur execute_prepared_upsert") from except_error
 
     return error, tup_count
@@ -422,6 +428,12 @@ class PostgresDjangoUpsert:
             "do_nothing": "ON CONFLICT DO NOTHING",
             "upsert": self.get_upsert_batch,
         }
+
+        if mode not in dict_mode:
+            raise PostgresInsertMethodError(
+                f"La methode {mode!r} d'insertion choisie n'existe pas"
+            )
+
         prepare, sql_execute, sql_deallocate = self.get_prepare_batch(stmt_name)
 
         sql_prepare = sql.SQL("{prepare} {mode_insert}").format(
@@ -469,7 +481,7 @@ class PostgresDjangoUpsert:
             "prepared": "",
             "pre_validation": "",
         }
-        trace_prepared = kwargs_prepared.get("trace", {})
+        trace_prepared = (kwargs_prepared or {}).get("trace", {})
 
         if insert_mode not in insert_mode_dict:
             raise PostgresInsertMethodError(
@@ -479,6 +491,9 @@ class PostgresDjangoUpsert:
         with self.cnx.cursor() as cursor:
             try:
                 fields = self.get_fields()
+                # table visée par défaut, pour les messages d'erreur avant le choix de la table
+                table = sql.Identifier(self.table_name)
+                raw_delimiter, raw_quote_character = delimiter, quote_character
                 delimiter = sql.SQL(delimiter)
                 quote_character = sql.SQL(quote_character)
                 get_null_field = (
@@ -514,11 +529,6 @@ class PostgresDjangoUpsert:
                         )
                     stmt_name = get_random_name()
 
-                    # if kwargs_prepared.get("mode") not in {"insert", "do_nothing", "upsert"}:
-                    #     raise PostgresInsertMethodError(
-                    #         f"La methode {kwargs_prepared.get('mode')!r} "
-                    #         "d'insertion choisie n'existe pas"
-                    #     )
                     sql_prepare, sql_execute, sql_deallocate = self.get_prepare_smt(
                         kwargs_prepared.get("mode"), stmt_name
                     )
@@ -541,10 +551,11 @@ class PostgresDjangoUpsert:
                     return error, tup_count
 
                 elif insert_mode == "pre_validation":
+                    # la pré-validation reçoit les séparateurs bruts (elle les compose elle-même)
                     self.insert_with_pre_validation(
                         file,
-                        delimiter=delimiter,
-                        quote_character=quote_character,
+                        delimiter=raw_delimiter,
+                        quote_character=raw_quote_character,
                         trace=trace_prepared,
                     )
 
@@ -761,7 +772,7 @@ class PostgresDjangoUpsert:
 
         if trace:
             error_line = Line
-            print(error_line)
+            LOGGER_POSTGRES_SAVE.info(error_line)
 
         for i, line in enumerate(file):
             numbered_io_file.write(f"{quote_character}{str(i)}{quote_character}{delimiter}" + line)
@@ -793,12 +804,12 @@ class PostgresDjangoUpsert:
 
             uniques_list, foreign_keys_dict = self.get_columns_constraints(cursor)
 
-            print(uniques_list, foreign_keys_dict)
+            LOGGER_POSTGRES_SAVE.info("%s %s", uniques_list, foreign_keys_dict)
             if any(uniques_list):
                 uniques = self.check_unique_key(cursor, self.temp_table_name, uniques_list)
 
                 for columns, values, number in uniques:
-                    print("values : ", "--".join(columns.split("__")), values, number)
+                    LOGGER_POSTGRES_SAVE.info("%s %s %s %s", 'values : ', '--'.join(columns.split('__')), values, number)
 
             # # do_nothing ou upsert
             # cursor.execute(insert_mode_dict.get(insert_mode))

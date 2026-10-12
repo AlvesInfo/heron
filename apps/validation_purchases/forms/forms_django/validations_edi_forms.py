@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des formulaires de validation des imports Sage X3
 EN : Sage X3 import validation forms module
@@ -103,6 +102,8 @@ class DeletePkForm(forms.Form):
 
 class EdiImportControlForm(forms.ModelForm):
     """Formulaire pour l'update des factures founisseurs importées"""
+
+    use_required_attribute = False
 
     third_party_num = forms.CharField(max_length=15, required=False)
     invoice_month = forms.CharField(max_length=15, required=False)

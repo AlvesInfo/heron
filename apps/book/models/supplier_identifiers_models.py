@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,E1101
 """
 FR : Module du modèle de répertoire, des fournisseurs et clients. Les modèles peuvent être liés
      aux modèles Sage de l'application Accountancy, et mis à jours depuis Sage X3
@@ -17,7 +16,7 @@ import uuid
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.shortcuts import reverse
+from django.urls import reverse
 from apps.parameters.models import FlagsTable, Category, SubCategory, UnitChoices
 from apps.accountancy.models import SectionSage, CctSage
 
@@ -175,7 +174,7 @@ class SupplierCct(FlagsTable):
 
     def get_absolute_url(self):
         """Retourne l'url en cas de success create, update ou delete"""
-        return reverse("book:society_update", args=[self.third_party_num.pk])
+        return reverse("book:society_update", args=[self.third_party_num.pk, "alls"])
 
     class Meta:
         """class Meta du modèle django"""

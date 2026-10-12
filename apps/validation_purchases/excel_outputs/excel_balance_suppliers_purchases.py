@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203,R0914,W1309
 """Module d'export du fichier excel pour les factures du tiers pas mois
 
 Commentaire:
@@ -10,26 +9,20 @@ modified at: 2022-05-12
 modified by: Paulo ALVES
 """
 import io
-from typing import Dict, AnyStr
+from typing import AnyStr
 from pathlib import Path
 
 import pendulum
 from django.db import connection
 from django.db.models import Q
 
-from heron.settings.base import APPS_DIR
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
+from django.conf import settings
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
 )
 from apps.edi.models import EdiValidation
+from apps.core.excel_outputs.generic_list_export import excel_list_export, month_headers
 
 COLUMNS_CLIENT = [
     {
@@ -251,7 +244,7 @@ COLUMNS = [
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: Dict = None):
+def get_rows(file_path: Path, parmas_dict: dict = None):
     """Renvoie les résultats de la requête nécessaire à l'export excel
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
@@ -268,52 +261,37 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
+def validation_start_date():
+    """Début de la période de validation ouverte, sinon le mois courant"""
+    validation = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
+    return pendulum.parse(validation.billing_period.isoformat()) if validation else pendulum.now()
+
+
+def columns_mois() -> list[dict]:
+    """Colonnes 2 à 5 : les quatre mois précédant la période de validation"""
+    start_date = validation_start_date()
+    months = [
+        start_date.add(months=mois).start_of("month").format("MMMM YYYY", locale="fr").capitalize().replace(" ", "\n")
+        for mois in (-3, -2, -1, 0)
+    ]
+    return month_headers(COLUMNS, (2, 3, 4, 5), months)
+
+
 def excel_balance_suppliers_purchases(
-    file_io: io.BytesIO, file_name: AnyStr, params_dict: Dict
-) -> Dict:
+    file_io: io.BytesIO, file_name: AnyStr, params_dict: dict
+) -> dict:
     """Fonction de génération du fichier de Contrôle 5.1 Fournisseurs M vs M-1"""
-    titre = f"5.1 Fournisseurs M vs M-1"
-    list_excel = [file_io, ["FOURNISSEURS"]]
-    excel = GenericExcel(list_excel, in_memory=True)
     file_path = Path(
-        f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
-    )
-    mois = -3
-    start_date = pendulum.parse(
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
-        .first()
-        .billing_period.isoformat()
+        f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
     )
 
-    for i, column_dict in enumerate(COLUMNS, 1):
-        if 2 < i < 7:
-            column_dict["entete"] = (
-                (start_date.add(months=mois).start_of("month").format("MMMM YYYY", locale="fr"))
-                .capitalize()
-                .replace(" ", "\n")
-            )
-            mois += 1
-
-    try:
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
-        ]
-
-        # MISE EN PLACE DES LIGNES DES FOURNISSEURS
-        columns_headers_writer(excel, 1, 3, 0, COLUMNS)
-        rows_writer(excel, 1, 4, 0, get_rows(file_path, params_dict), f_lignes, f_lignes_odd)
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name="FOURNISSEURS",
+        title="5.1 Fournisseurs M vs M-1",
+        columns=columns_mois,
+        rows=lambda: get_rows(file_path, params_dict),
+        repeat_row=(0, 3),
+        in_memory=True,
+    )

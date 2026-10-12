@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 # ruff: noqa: E722
 """
 FR : View des lancements de la facturations
@@ -14,7 +13,8 @@ modified by: Paulo ALVES
 """
 
 import pendulum
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import (
@@ -54,7 +54,8 @@ def export_achats(_):
         )
         return response_file(get_achats, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view:export_achats")
 
-    return redirect(reverse("invoices:export_achats"))
+    # Retour à l'écran de lancement (une redirection vers export_achats bouclerait sur l'erreur)
+    return redirect(reverse("invoices:valid_export_achats"))

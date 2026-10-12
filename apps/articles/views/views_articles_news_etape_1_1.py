@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,W0702,W0613,W0212
 """
 Views des Nouveaux articles à valider ou changer
 """
@@ -10,7 +9,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import connection, transaction
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils import timezone
 
 from heron.loggers import LOGGER_EXPORT_EXCEL
@@ -197,7 +197,7 @@ def articles_news_export_list(_):
 
         return response_file(excel_liste_articles_news, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : articles_news_export_list")
 
     return redirect(reverse("articles:new_articles_list"))

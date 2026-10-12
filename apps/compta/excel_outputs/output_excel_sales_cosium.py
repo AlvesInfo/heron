@@ -1,4 +1,3 @@
-# pylint: disable=W0702,W1203,E0401,E1101
 """Module d'export du fichier excel des ventes Cosium
 
 Commentaire:
@@ -13,17 +12,9 @@ import io
 
 import pendulum
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
-from apps.core.excel_outputs.excel_writer import (
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
-)
 from apps.compta.models import VentesCosium
 from apps.compta.excel_outputs.columns_excel import columns_sales_cosium
+from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
 def get_clean_rows(date_debut: str, date_fin: str) -> iter:
@@ -31,13 +22,13 @@ def get_clean_rows(date_debut: str, date_fin: str) -> iter:
 
     clean_rows = [
         (
-            sale_dict.get("cct_uuid_identification__pays", ""),
+            sale_dict.get("cct_uuid_identification__pays") or "",
             sale_dict.get("id_vente", ""),
             sale_dict.get("code_cosium", ""),
             (
-                sale_dict.get("cct_uuid_identification__cct__cct", "")
+                (sale_dict.get("cct_uuid_identification__cct__cct") or "")
                 + " - "
-                + sale_dict.get("cct_uuid_identification__intitule", "")
+                + (sale_dict.get("cct_uuid_identification__intitule") or "")
             ),
             sale_dict.get("famille_cosium", ""),
             sale_dict.get("rayon_cosium", ""),
@@ -85,28 +76,15 @@ def excel_sales_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: s
     date_fin = pendulum.parse(dte_f)
     date_fin_texte = date_fin.format("DD/MM/YYYY", locale="fr")
     titre = f"VENTES COSIUM DU {date_debut_texte} AU {date_fin_texte}"
-    list_excel = [file_io, ["VENTES COSIUM"]]
-    excel = GenericExcel(list_excel, in_memory=True)
     columns = columns_sales_cosium
 
-    try:
-        titre_page_writer(excel, 1, 0, 0, columns, titre)
-        output_day_writer(excel, 1, 1, 0)
-        columns_headers_writer(excel, 1, 3, 0, columns)
-        f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in columns
-        ]
-        rows_writer(excel, 1, 4, 0, get_clean_rows(date_debut, date_fin), f_lignes, f_lignes_odd)
-        sheet_formatting(
-            excel, 1, columns, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name='VENTES COSIUM',
+        title=titre,
+        columns=columns,
+        rows=get_clean_rows(date_debut, date_fin),
+        orientation="landscape",
+        in_memory=True,
+    )

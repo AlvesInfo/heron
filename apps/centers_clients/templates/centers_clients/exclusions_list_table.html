@@ -11,10 +11,10 @@
            style="font-size: 12px !important;text-align: center;font-weight: 900;">
             <thead>
                 <tr>
-                    <th style="width: 8%">Edit</th>
-                    <th style="width: 42%">Tiers X3</th>
-                    <th style="width: 42%">Client</th>
-                    <th style="width: 8%">delete</th>
+                    <th scope="col" style="width: 8%">Edit</th>
+                    <th scope="col" style="width: 42%">Tiers X3</th>
+                    <th scope="col" style="width: 42%">Client</th>
+                    <th scope="col" style="width: 8%">delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +29,7 @@
                     <td>{{exclusion.cct_uuid_identification}}</td>
                     <td class="tdDelete" style="text-align: center;">
                         <div style="cursor: pointer;">
-                          <i class="red trash icon" onclick="deletePk({{ forloop.counter }}, {{ exclusion.pk }}, `{{ exclusion.third_party_num }} - {{ exclusion.maison }}`, `{% url 'centers_clients:exclusion_delete' %}`, `Le Couple`)"></i>
+                          <button type="button" style="background: none; border: 0; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;" aria-label="Supprimer" onclick="deletePk({{ forloop.counter }}, {{ exclusion.pk }}, `{{ exclusion.third_party_num }} - {{ exclusion.cct_uuid_identification }}`, `{% url 'centers_clients:exclusion_delete' %}`, `Le Couple`)"><i class="red trash icon" aria-hidden="true"></i></button>
                         </div>
                     </td>
                 </tr>

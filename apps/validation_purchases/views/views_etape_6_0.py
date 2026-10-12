@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import FileResponse
 
 from heron.loggers import LOGGER_VIEWS
-from heron.settings import MEDIA_EXCEL_FILES_DIR
+from django.conf import settings
 
 from apps.core.functions.functions_http_response import (
     response_file,
@@ -42,7 +42,7 @@ def edi_import_purchases_export(request):
 
         return response_file(excel_heron_purchases_edi_import, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : edi_import_purchases_export")
 
     context = {"titre_table": "6.0 - Export des achats fichiers fournisseurs intégrés"}
@@ -59,7 +59,7 @@ def edi_import_purchases_export_csv(request):
     """
     try:
         file_name = "FACTURES FOURNISSEURS.csv"
-        emplacement = Path(MEDIA_EXCEL_FILES_DIR) / file_name
+        emplacement = Path(settings.MEDIA_EXCEL_FILES_DIR) / file_name
         csv_heron_purchases_edi_import(emplacement)
 
         response = FileResponse(
@@ -70,7 +70,7 @@ def edi_import_purchases_export_csv(request):
         )
         return response
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : edi_import_purchases_export")
 
     context = {"titre_table": "6.0 - Export des achats fichiers fournisseurs intégrés"}

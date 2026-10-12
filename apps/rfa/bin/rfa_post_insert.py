@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,E1101,R0915,R0914
 """
 FR : Module des requêtes sql de post-traitement après génération des RFA
 EN : Post-processing sql module after generate RFA
@@ -19,7 +18,7 @@ from apps.rfa.sql_files.sql_rfa import rfa_dict
 from apps.edi.bin.edi_post_processing_pool import post_general
 
 
-def rfa_post_upadte(uuid_identification: AnyStr):
+def rfa_post_update(uuid_identification: AnyStr):
     """
     Mise à jour des champs vides à l'import du fichier BBGR Statment
     :param uuid_identification: uuid_identification

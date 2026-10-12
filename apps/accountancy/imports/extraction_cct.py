@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Mise à jour des cct sage par extraction depuis la table CctSage et après sa mise à jour depuis
      fichier ZBI exporter depuis Sage X3

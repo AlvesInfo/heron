@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0903,W0702,W0613,R0901,E1101,W0201
 """
 Views des Statistiques par défault lors de nouveaux articles venant de l'edi
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -37,7 +38,6 @@ class StatistiqueCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = StatFamillyAxes
     form_class = StatFamillyAxesForm
-    form_class.use_required_attribute = False
     template_name = "book/statistique_update.html"
     success_message = "La Famille Statistiques/Axes %(name)s a été créé avec success"
     error_message = (
@@ -66,7 +66,6 @@ class StatistiqueUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     form_class = StatFamillyAxesForm
     slug_field = "name"
     slug_url_kwarg = "name"
-    form_class.use_required_attribute = False
     template_name = "book/statistique_update.html"
     success_message = "La Famille Statistiques/Axes %(name)s a été modifiée avec success"
     error_message = (
@@ -104,7 +103,7 @@ def statistiques_export_list(_):
 
         return response_file(excel_liste_statistiques, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : statistiques_export_list")
 
     return redirect(reverse("book:statistiques_list"))
@@ -118,7 +117,6 @@ class FamillyAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = SupplierFamilyAxes
     form_class = SupplierFamilyAxesForm
-    form_class.use_required_attribute = False
     template_name = "book/statistique_famille_axe_update.html"
     success_message = (
         "La Définition des Statistiques Familles/Axes Presta %(stat_name)s a été créé avec success"
@@ -129,20 +127,14 @@ class FamillyAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     )
 
     def get(self, request, *args, **kwargs):
-        """Ajout de self.statistique a l'instance de la vue"""
-        try:
-            self.statistique = StatFamillyAxes.objects.get(pk=kwargs.get("statistique_pk"))
-        except StatFamillyAxes.DoesNotExist:
-            pass
+        """Ajout de self.statistique a l'instance de la vue (404 si la statistique n'existe pas)"""
+        self.statistique = get_object_or_404(StatFamillyAxes, pk=kwargs.get("statistique_pk"))
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        """Ajout de self.statistique a l'instance de la vue"""
+        """Ajout de self.statistique a l'instance de la vue (404 si la statistique n'existe pas)"""
         self.object = None
-        try:
-            self.statistique = StatFamillyAxes.objects.get(pk=kwargs.get("statistique_pk"))
-        except StatFamillyAxes.DoesNotExist:
-            pass
+        self.statistique = get_object_or_404(StatFamillyAxes, pk=kwargs.get("statistique_pk"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -175,7 +167,6 @@ class FamillyAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = SupplierFamilyAxes
     form_class = SupplierFamilyAxesForm
-    form_class.use_required_attribute = False
     template_name = "book/statistique_famille_axe_update.html"
     success_message = (
         "La Définition des Statistiques Familles/Axes Presta %(stat_name)s "
@@ -216,7 +207,7 @@ def delete_familly_axes(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}

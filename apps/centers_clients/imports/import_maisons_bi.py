@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,C0413,E1101
 """
 FR : Module du modèle des maisons
 EN : Houses model module

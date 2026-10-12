@@ -1,16 +1,11 @@
 
-from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_serializers import (
-    StrictBooleanField,
-    NullBooleanField,
     MaxLenghtCharField,
-    ZeroIntegerField,
-    ChoicesIntField,
-    ChoicesCharField,
 )
 from rest_framework import serializers
 from django import forms
 
+from heron.loggers import LOGGER_EDI
 from apps.edi.models import EdiImport
 
 
@@ -37,27 +32,26 @@ class SeriaModel(serializers.ModelSerializer):
 def main():
     data = [{"text": "ceci est un texte très très long"}, {"text": None}]
     s = Seria(data=data, many=True)
-    print(s.is_valid())
-    print(s.errors)
-    print(s.initial_data)
-    print(s.data)
+    LOGGER_EDI.info("is_valid : %s", s.is_valid())
+    LOGGER_EDI.info("errors : %s", s.errors)
+    LOGGER_EDI.info("initial_data : %s", s.initial_data)
+    LOGGER_EDI.info("data : %s", s.data)
+    return s
 
 
-if __name__ == '__main__':
+def classes_kinds():
+    """Nature des classes d'essai : sérialiseurs DRF ou formulaires Django"""
+    serializer_types = (type(serializers.Serializer), type(serializers.ModelSerializer))
+    form_types = (type(forms.Form), type(forms.ModelForm))
+
+    return {
+        "Seria": isinstance(Seria, serializer_types),
+        "SeriaModel": isinstance(SeriaModel, serializer_types),
+        "DjangoForm": isinstance(DjangoForm, form_types),
+        "DjangoModelForm": isinstance(DjangoModelForm, form_types),
+    }
+
+
+if __name__ == "__main__":
     main()
-    print(
-        "Ser, is instance serializer : ",
-        isinstance(Seria, (type(serializers.Serializer), type(serializers.ModelSerializer)))
-    )
-    print(
-        "SeriaModel, is instance serializer : ",
-        isinstance(SeriaModel, (type(serializers.Serializer), type(serializers.ModelSerializer)))
-    )
-    print(
-        "DjangoForm, is instance forms : ",
-        isinstance(DjangoForm, (type(forms.Form), type(forms.ModelForm)))
-    )
-    print(
-        "DjangoModelForm, is instance forms : ",
-        isinstance(DjangoModelForm, (type(forms.Form), type(forms.ModelForm)))
-    )
+    LOGGER_EDI.info("%s", classes_kinds())

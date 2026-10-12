@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module d'update des cct dans la table edi_import
 EN : Module for updating ccts in the edi_import table

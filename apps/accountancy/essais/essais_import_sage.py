@@ -3,6 +3,7 @@ from pathlib import Path
 from apps.core.functions.function_imports import ModelFormInsertion, IterFileToInsert
 from apps.accountancy.models import CurrencySage
 from apps.accountancy.forms.forms_django.sage_forms import CurrencySageForm
+from heron.loggers import LOGGER_DJANGO
 
 
 def import_sage(file, model, model_form):
@@ -32,7 +33,7 @@ def import_sage_z(file, model_form):
         uniques=CurrencySage.get_uniques(),
     ) as model_to_insert:
         model_to_insert.validate()
-        print(model_to_insert.errors)
+        LOGGER_DJANGO.info(model_to_insert.errors)
 
 
 columns_dict = (
@@ -63,7 +64,7 @@ columns_dict_z = (
 
 
 def essai_iter_file_to_insert(file):
-    from apps.accountancy.validations.djantic_sage import CurrencySageSchema
+    from apps.accountancy.forms.forms_djantic.sage import CurrencySageSchema
     from pydantic import ValidationError
 
     with IterFileToInsert(
@@ -82,15 +83,15 @@ def essai_iter_file_to_insert(file):
         add_fields_dict={"created_at": "101122"},
     ) as file_to_insert:
         for i, row in enumerate(file_to_insert.get_chunk_dict_rows(), 1):
-            print(i, row)
+            LOGGER_DJANGO.info("%s %s", i, row)
             try:
                 t = CurrencySageSchema(**row)
             except ValidationError as except_error:
-                print(i + 1, except_error.errors())
+                LOGGER_DJANGO.exception("%s %s", i + 1, except_error.errors())
                 # raise Exception from errors
             else:
                 # ...
-                print(i + 1, t.dict())
+                LOGGER_DJANGO.info("%s %s", i + 1, t.dict())
                 # try:
                 # upsert = PostresDjangoUpsert(
                 #     model=CurrencySage, fields_dict=t.dict(), cnx=connection

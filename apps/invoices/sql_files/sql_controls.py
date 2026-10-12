@@ -1,4 +1,3 @@
-# pylint: disable
 """
 FR : Module des requêtes SQL pour les contrôles
 EN : SQL queries module for controls
@@ -221,7 +220,7 @@ LEFT JOIN edi_ediimportcontrol ec
 WHERE ec.uuid_identification IS NULL
    OR (
        COALESCE(ec.statement_with_tax, 0) <> 0 
-       AND COALESCE(ec.statement_without_tax) <> 0
+       AND COALESCE(ec.statement_without_tax, 0) <> 0
        AND COALESCE(ec.comment, '') = ''
    )
 LIMIT 1;

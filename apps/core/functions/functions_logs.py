@@ -1,37 +1,15 @@
 """
 Module d'écriture ou envoie de logs par mails
 """
-import sys
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import platform
 
-BASE_DIR = r"C:\SitesWeb\heron"
+from django.conf import settings
 
-if platform.uname().node == "DESKP082":
-    sys.path.insert(0, BASE_DIR)
-    sys.path.append(BASE_DIR)
-else:
-    BASE_DIR = "/home/paulo/heron"
-
-from heron.settings import (
-    EMAIL_HOST,
-    EMAIL_PORT,
-    EMAIL_HOST_USER,
-    EMAIL_HOST_PASSWORD,
-    EMAIL_USE_SSL,
-    EMAIL_USE_TLS,
-    LOG_DIR,
-)
-
-LOG_FILE = os.path.join(LOG_DIR, "log_mise_a_jour.log")
-LOG_FILE_DIVERS = os.path.join(LOG_DIR, "log_divers.log")
-
-
-class LogError(Exception):
-    """Exception niveau module"""
+LOG_FILE = os.path.join(settings.LOG_DIR, "log_mise_a_jour.log")
+LOG_FILE_DIVERS = os.path.join(settings.LOG_DIR, "log_divers.log")
 
 
 def write_log(fichier=None, line_to_write=None):
@@ -57,38 +35,24 @@ def envoi_mail_erreur(erreur, subject_error=None):
         :return: None
     """
     msg = MIMEMultipart()
-    msg["From"] = EMAIL_HOST_USER
-    msg["To"] = EMAIL_HOST_USER
+    msg["From"] = settings.EMAIL_HOST_USER
+    msg["To"] = settings.EMAIL_HOST_USER
 
     msg["Subject"] = "Erreur B.I" if subject_error is None else subject_error
     message = erreur
     msg.attach(MIMEText(message))
 
-    if EMAIL_USE_SSL:
-        mailserver = smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT)
+    if settings.EMAIL_USE_SSL:
+        mailserver = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        mailserver.ehlo()
     else:
-        mailserver = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-
-    mailserver.ehlo()
-
-    if EMAIL_USE_TLS:
+        mailserver = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
         mailserver.starttls()
+        mailserver.ehlo()
 
-    mailserver.ehlo()
-    mailserver.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-    mailserver.sendmail(EMAIL_HOST_USER, msg["To"], msg.as_string())
+    mailserver.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+    mailserver.sendmail(settings.EMAIL_HOST_USER, msg["To"], msg.as_string())
     mailserver.quit()
-
-
-def log_dispatch(log, dir_log=LOG_FILE):
-    """
-    Fonction de dispatch du log d'erreur
-        :param log: log à envoyer
-        :param dir_log: répertoire de log
-        :return: None
-    """
-    envoi_mail_erreur(log)
-    write_log(dir_log, log)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des models des périodes
 EN : Periods models module

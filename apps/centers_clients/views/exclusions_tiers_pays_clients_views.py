@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,W0201,W0702,W0613,W1203
 """
 Views des Pays Maisons à écarter par founisseurs
 
@@ -12,10 +11,12 @@ modified by: Paulo ALVES
 """
 import pendulum
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -43,7 +44,6 @@ class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin
 
     model = SupllierCountryExclusion
     form_class = SupllierCountryExclusionForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/exclusion_pays_update.html"
     success_message = (
         "Le couple d'exclusion, %(third_party_num)s - %(pays)s a été créé avec success"
@@ -77,7 +77,6 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
 
     model = SupllierCountryExclusion
     form_class = SupllierCountryExclusionForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/exclusion_pays_update.html"
     success_message = (
         "Le couple d'exclusion, %(third_party_num)s - %(pays)s a été modifié avec success"
@@ -91,7 +90,7 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_clients:exclusions_country_list")
-        context["titre_table"] = "Création d'un nouveau couple d'exclusion Tiers X3/Client"
+        context["titre_table"] = "Mise à jour du couple d'exclusion Tiers X3/Pays Clients"
         return context
 
     def get_success_url(self):
@@ -108,7 +107,7 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
 
 def exclusion_country_delete(request):
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -125,7 +124,7 @@ def exclusion_country_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_invoice_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"exclusion_country_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -145,7 +144,7 @@ def exclusion_country_export_list(_):
 
         return response_file(excel_liste_exclusion_pays, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
-        LOGGER_VIEWS.exception("view : export_list_societies")
+    except Exception:
+        LOGGER_VIEWS.exception("view : exclusion_country_export_list")
 
-    return redirect(reverse("book:societies_list"))
+    return redirect(reverse("centers_clients:exclusions_country_list"))

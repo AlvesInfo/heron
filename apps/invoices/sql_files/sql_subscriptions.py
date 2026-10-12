@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module des requêtes sql de traitement des refacturations des abonnements
 EN : sql query module for processing subscription re-invoicing

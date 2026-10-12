@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 Django settings for heron project.
 """
@@ -8,7 +7,7 @@ from pathlib import Path
 from decouple import Csv, AutoConfig
 from django.utils.translation import gettext_lazy as _
 
-from heron.utils.directories import ensure_directory, lazy_mkdir
+from heron.utils.directories import lazy_mkdir
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -74,6 +73,8 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 WHITELIST = config("ALLOWED_HOSTS", cast=Csv())
 
 DOMAIN = config("DOMAIN", default="acuitis.com")
+# Domaine servant les fichiers statiques (polices, logos) aux gabarits PDF WeasyPrint
+PDF_STATIC_DOMAIN = config("PDF_STATIC_DOMAIN", default="http://127.0.0.1:3000")
 
 TYPE_OF_BASE = config("TYPE_OF_BASE", default="")
 

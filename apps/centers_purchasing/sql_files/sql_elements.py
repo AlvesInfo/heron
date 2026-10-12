@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413
 """
 FR : Raws SQL
 EN : Raws SQL

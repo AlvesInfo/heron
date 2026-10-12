@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 Module context_processors de django, pour alimenter l'ensemble des templates
     Date de création : 02/11/2019
@@ -9,20 +8,17 @@ Module context_processors de django, pour alimenter l'ensemble des templates
 
 from datetime import date
 from collections import OrderedDict
-from pathlib import Path
 
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import Group
 from apps.users.models import AuthGroupName
 from apps.core.bin.notifications import get_unread_count
-from heron.settings.base import TYPE_OF_BASE
 
 
-def debug(request):
-    """For debug"""
-    if request:
-        ...
+
+def debug(_):
+    """Retourne l'indicateur DEBUG pour les gabarits"""
     return {"environnement_debug": settings.DEBUG}
 
 
@@ -84,16 +80,7 @@ def groupes_processor(request):
 
     groupes = dict(rows_groupes)
     groupes = OrderedDict(sorted(groupes.items(), key=lambda t: t[1]))
-    dic = {"groupes": groupes}
-    templates_path = Path(settings.PROJECT_DIR) / "templates/heron"
-
-    for groupe in groupes.keys():
-        file_groupe = templates_path / f"{groupe}.html"
-        if not file_groupe.is_file():
-            with file_groupe.open("w"):
-                pass
-
-    return dic
+    return {"groupes": groupes}
 
 
 def in_acuitis(reqquest):
@@ -235,7 +222,7 @@ def domain_debug(_):
     """Retourne le domaine du site
     :return: context dict
     """
-    return {"domain_debug": "http://127.0.0.1:8000"}
+    return {"domain_debug": "http://127.0.0.1:3000"}
 
 
 def user_paulo(request):
@@ -250,7 +237,7 @@ def user_paulo(request):
 
 def type_of_base(_):
     """Retourne le texte si l'on est dans la base de test formation"""
-    return {"type_of_base": TYPE_OF_BASE}
+    return {"type_of_base": settings.TYPE_OF_BASE}
 
 
 def unread_notifications_count(request):

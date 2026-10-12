@@ -45,11 +45,10 @@ class Command(BaseCommand):
         if hasattr(settings, 'LOG_DIR'):
             directories_to_create.append(('LOG_DIR', settings.LOG_DIR))
         
-        # Ajout des STATICFILES_DIRS
-        if hasattr(settings, 'STATICFILES_DIRS'):
-            for i, static_dir in enumerate(settings.STATICFILES_DIRS):
-                if isinstance(static_dir, Path):
-                    directories_to_create.append((f'STATICFILES_DIR_{i}', static_dir))
+        # Ajout des STATICFILES_DIRS (toujours défini par Django, vide par défaut)
+        for i, static_dir in enumerate(settings.STATICFILES_DIRS):
+            if isinstance(static_dir, Path):
+                directories_to_create.append((f'STATICFILES_DIR_{i}', static_dir))
         
         # Création des répertoires
         created_count = 0

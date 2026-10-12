@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,W0702,W0613,W0201
 """
 Views des Articles
 """
@@ -40,7 +39,7 @@ def invoices_sales_export_globals(request):
                 download_token=download_token
             )
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : invoices_sales_export_globals")
 
     context = {"titre_table": "VENTES HERON NON FINALISEES"}

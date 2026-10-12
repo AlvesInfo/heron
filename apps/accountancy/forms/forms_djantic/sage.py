@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,C0115
 """
 FR : Module de validation par djantic
 EN : Sage X3 import validation forms module
@@ -13,6 +12,7 @@ modified by: Paulo ALVES
 """
 import datetime
 import uuid
+from typing import Optional
 
 from django.utils import timezone
 from djantic import ModelSchema
@@ -68,14 +68,14 @@ class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
 
 
 class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    chargeable: bool = None
-    active: bool = None
+    chargeable: bool = False
+    active: bool = False
     now = timezone.now()
     axe: str
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
-    cpy_fcy: str = None
+    cpy_fcy: Optional[str] = None
 
     class Config:
         model = SectionSage
@@ -124,7 +124,7 @@ class VatRatSageSchema(
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     vat: str
-    exoneration: bool = None
+    exoneration: bool = False
     auuid: uuid.UUID
 
     class Config:

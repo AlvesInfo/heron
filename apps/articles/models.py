@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des models des articles
 EN : Article models module
@@ -193,7 +192,7 @@ class Article(FlagsTable):
 
         if not self.axe_rfa:
             axe = SectionSage.objects.filter(axe="RFA", section="NAF").first()
-            self.axe_pys = None if not axe else axe
+            self.axe_rfa = None if not axe else axe
 
         super().save(*args, **kwargs)
 

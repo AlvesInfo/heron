@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 Module de loaders pour traitements des flux à intégrer en BDD, avec une pré-validation.
 Ces flux renvoient des modes de consommation du flux, tels que :
@@ -11,8 +10,6 @@ Flux implémentés :
     FileLoader
 
 Flux à Implémenter :
-    ApiJsonLoader
-    ApiXmlLoader
 
 Pour l'implémentation FileLoader et dans le cas d'un fichier Excel comme source il sera transformé
 en fichier csv, sinon le fichier source devra avoir une structure de csv.
@@ -61,7 +58,7 @@ class TemplateDataLoader:
         self.columns_dict = columns_dict
         self.first_line = first_line
         self.params_dict = params_dict or {}
-        self.trace = params_dict.get("trace")
+        self.trace = self.params_dict.get("trace")
 
     def __enter__(self):
         """Pré context manager"""
@@ -102,7 +99,7 @@ class TemplateDataLoader:
             return
 
         if read_methode == "data_list":
-            yield from self.read(all_lines)
+            yield from self.read_list(all_lines)
             return
 
         if read_methode == "data_dict":
@@ -276,10 +273,24 @@ class FileLoader(TemplateDataLoader):
             quoting=self.params_dict.get("quoting", csv.QUOTE_MINIMAL),
         )
 
+    def _trace_comment(self, comment):
+        """Marque la trace en erreur avec le commentaire, si une trace est suivie"""
+        if self.trace:
+            self.trace.errors = True
+            self.trace.comment = comment
+            self.trace.save()
+
     def _check_nb_columns(self):
         """Check si on a le nombre de colonnes suffisantes"""
         self._get_csv_reader()
-        file_nb_cols = len(next(self.csv_reader))
+
+        try:
+            file_nb_cols = len(next(self.csv_reader))
+        except StopIteration as except_error:
+            comment = f"Erreur sur les colonnes : le fichier {self.source.name} est vide"
+            self._trace_comment(comment)
+            raise IterFileToInsertError(comment) from except_error
+
         demand_nb_cols = len(self.columns_dict)
 
         if demand_nb_cols > file_nb_cols:
@@ -409,6 +420,26 @@ class FileLoader(TemplateDataLoader):
         ]
         return add_list
 
+    @staticmethod
+    def _values(postion_list, line):
+        """Valeurs des colonnes demandées, toujours sous forme de liste (itemgetter renvoie un
+        scalaire pour une seule position, ce qui découpait la valeur caractère par caractère)
+        """
+        values = itemgetter(*postion_list)(line)
+
+        return [values] if len(postion_list) == 1 else list(values)
+
+    def _is_skipped(self, line, all_lines):
+        """Ligne vide (sauf all_lines) ou écartée par exclude_rows_dict (colonne absente ignorée)"""
+        if not any(line) and not all_lines:
+            return True
+
+        return any(
+            index - 1 < len(line)
+            and str(value).strip().upper() in str(line[index - 1]).strip().upper()
+            for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
+        )
+
     def read(self, all_lines=False):
         """
         Méthode de lecture du flux de donées au format io.StringIO
@@ -420,10 +451,7 @@ class FileLoader(TemplateDataLoader):
 
         # on renvoie pour chaque ligne du fichier les données au format csv
         for i, line in enumerate(self.csv_reader, 1):
-            if (not any(line) and not all_lines) or any(
-                str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
-            ):
+            if self._is_skipped(line, all_lines):
                 continue
 
             try:
@@ -432,12 +460,12 @@ class FileLoader(TemplateDataLoader):
                     yield f'{self.params_dict.get("delimiter", ";")}'.join(
                         [
                             f'"{str(value)}"'
-                            for value in list(itemgetter(*postion_list)(line)) + self.get_add_values
+                            for value in self._values(postion_list, line) + self.get_add_values
                         ]
                     )
                 else:
                     yield f'{self.params_dict.get("delimiter", ";")}'.join(
-                        [f'"{str(value)}"' for value in itemgetter(*postion_list)(line)]
+                        [f'"{str(value)}"' for value in self._values(postion_list, line)]
                     )
 
             except IndexError:
@@ -478,18 +506,15 @@ class FileLoader(TemplateDataLoader):
 
         # on renvoie pour chaque ligne du fichier les données dans un tableau, une liste
         for i, line in enumerate(self.csv_reader, 1):
-            if (not any(line) and not all_lines) or any(
-                str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
-            ):
+            if self._is_skipped(line, all_lines):
                 continue
 
             try:
 
                 if self.params_dict.get("add_fields_dict", {}):
-                    yield list(itemgetter(*postion_list)(line)) + self.get_add_values
+                    yield self._values(postion_list, line) + self.get_add_values
                 else:
-                    yield list(itemgetter(*postion_list)(line))
+                    yield self._values(postion_list, line)
 
             except IndexError:
                 if self.trace:
@@ -517,21 +542,18 @@ class FileLoader(TemplateDataLoader):
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
         for i, line in enumerate(self.csv_reader, 1):
-            if (not any(line) and not all_lines) or any(
-                str(value).strip().upper() in str(line[index - 1]).strip().upper()
-                for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
-            ):
+            if self._is_skipped(line, all_lines):
                 continue
 
             try:
 
                 if self.params_dict.get("add_fields_dict", {}):
                     yield {
-                        **dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line))),
+                        **dict(zip(list(self.columns_dict), self._values(postion_list, line))),
                         **self.get_add_dict,
                     }
                 else:
-                    yield dict(zip(list(self.columns_dict), itemgetter(*postion_list)(line)))
+                    yield dict(zip(list(self.columns_dict), self._values(postion_list, line)))
 
             except IndexError:
                 if self.trace:
@@ -669,14 +691,12 @@ class Opto33Loader(TemplateDataLoader):
 
         # on renvoie pour chaque ligne du fichier les données au format csv
         for line in self.opto_parse.get("invoices"):
+            values = [str(line.get(key)) for key in postion_list]
+
             if self.params_dict.get("add_fields_dict", {}):
-                yield f'{self.params_dict.get("delimiter", ";")}'.join(
-                    [str(line.get(key)) for key in postion_list + self.get_add_values]
-                )
-            else:
-                yield f'{self.params_dict.get("delimiter", ";")}'.join(
-                    [str(line.get(key)) for key in postion_list]
-                )
+                values += [str(value) for value in self.get_add_values]
+
+            yield f'{self.params_dict.get("delimiter", ";")}'.join(values)
 
     def make_io(
         self,
@@ -700,10 +720,12 @@ class Opto33Loader(TemplateDataLoader):
 
         # on renvoie pour chaque ligne du fichier les données dans un tableau, une liste
         for line in self.opto_parse.get("invoices"):
+            values = [str(line.get(key)) for key in postion_list]
+
             if self.params_dict.get("add_fields_dict", {}):
-                yield [str(line.get(key)) for key in postion_list + self.get_add_values]
-            else:
-                yield [str(line.get(key)) for key in postion_list]
+                values += [str(value) for value in self.get_add_values]
+
+            yield values
 
     def read_dict(self, all_lines=None):
         """
@@ -726,177 +748,3 @@ class Opto33Loader(TemplateDataLoader):
 
     def close(self):
         """Fermeture du buffer io.StringIO"""
-
-
-class ApiJsonLoader(TemplateDataLoader):
-    """
-    ApiLoader pour importer un flux de données par API au format json
-    et le cleanner en vue d'une insertion en base
-    """
-
-    # TODO : Finaliser ApiJsonLoader
-    def __init__(
-        self,
-        source: Any,
-        columns_dict: Dict,
-        first_line: int = 1,
-        params_dict: Dict = None,
-    ):
-        """
-        :param source:          Fichier source à transfomer
-        :param columns_dict:    Plusieurs choix possibles pour :
-                                - Récupérer le nombre de colonnes dans l'ordre du fichier
-                                    {"db_col_1" : None, "db_col_2" : None, ..., }
-
-                                - Récupérer seulement les colonnes souhaitées par leur nom
-                                    {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
-
-                                - Récupérer seulement les colonnes souhaitées par leur index
-                                    (index commence à 0)
-                                    {"db_col_1" : 3, "db_col" : 0, ..., }
-
-        :param first_line:      Première ligne du flux de données commence à 1 par defaut
-
-        :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
-                                params_dict = {
-                                    # model Django Trace pour fichiers trace
-                                    "trace" : Trace
-                                }
-        """
-        super().__init__(source, columns_dict, first_line, params_dict)
-        self.csv_io = io.StringIO()
-        self._set_io()
-        self.csv_io.seek(0)
-
-    def open(self, flux_params_dict: Dict = None):
-        """
-        Surcharge de la méthode open, mais nous n'en avons pas besoins
-        """
-
-    def _set_io(self):
-        """
-        Ecriture des données brutes dans le fichier self.csv_io de type io.StringIO de l'instance.
-        """
-
-    def _get_csv_reader(self):
-        """Instanciation l'attribut d'instance self.csv_reader"""
-
-    def read(self, all_lines=False):
-        """
-        Méthode de lecture du flux de donées au format io.StringIO
-        :param all_lines:       Si dans le fichier il y a des lignes vides :
-                                    all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes vides
-        """
-        yield "ApiLodaer non finalisée"
-
-    def read_list(self, all_lines: bool = False):
-        """
-        Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
-        :param all_lines:       Si dans le fichier il y a des lignes vides :
-                                    all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes vides
-        """
-        yield "ApiLodaer non finalisée"
-
-    def read_dict(self, all_lines=False):
-        """
-        Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
-        :param all_lines: si dans le fichier il y a des lignes vides
-                            all_lines=False, shorcut l'itération des lignes vides
-                            all_lines=True, iterre même sur des lignes vides
-        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
-        """
-        yield {"message": "ApiLodaer non finalisée"}
-
-    def close(self):
-        """Fermeture du buffer io.StringIO"""
-        if not self.csv_io.closed:
-            self.csv_io.close()
-
-
-class ApiXmlLoader(TemplateDataLoader):
-    """
-    ApiXmlLoader pour importer un flux de données par API au format xml
-    et le cleanner en vue d'une insertion en base
-    """
-
-    # TODO : Finaliser ApiXmlLoader
-    def __init__(
-        self,
-        source: Any,
-        columns_dict: Dict,
-        first_line: int = 1,
-        params_dict: Dict = None,
-    ):
-        """
-        :param source:          Fichier source à transfomer
-        :param columns_dict:    Plusieurs choix possibles pour :
-                                - Récupérer le nombre de colonnes dans l'ordre du fichier
-                                    {"db_col_1" : None, "db_col_2" : None, ..., }
-
-                                - Récupérer seulement les colonnes souhaitées par leur nom
-                                    {"db_col_1" : "file_col_x", "db_col_2" : "file_col_a", ...}
-
-                                - Récupérer seulement les colonnes souhaitées par leur index
-                                    (index commence à 0)
-                                    {"db_col_1" : 3, "db_col" : 0, ..., }
-
-        :param first_line:      Première ligne du flux de données commence à 1 par defaut
-
-        :param params_dict:     Dictionnaire des paramètres à appliquer au flux de donneés
-                                params_dict = {
-                                    # model Django Trace pour fichiers trace
-                                    "trace" : Trace
-                                }
-        """
-        super().__init__(source, columns_dict, first_line, params_dict)
-        self.csv_io = io.StringIO()
-        self._set_io()
-        self.csv_io.seek(0)
-
-    def open(self, flux_params_dict: Dict = None):
-        """
-        Surcharge de la méthode open, mais nous n'en avons pas besoins
-        """
-
-    def _set_io(self):
-        """
-        Ecriture des données brutes dans le fichier self.csv_io de type io.StringIO de l'instance.
-        """
-
-    def _get_csv_reader(self):
-        """Instanciation l'attribut d'instance self.csv_reader"""
-
-    def read(self, all_lines=False):
-        """
-        Méthode de lecture du flux de donées au format io.StringIO
-        :param all_lines:       Si dans le fichier il y a des lignes vides :
-                                    all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes vides
-        """
-        yield "ApiLodaer non finalisée"
-
-    def read_list(self, all_lines: bool = False):
-        """
-        Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
-        :param all_lines:       Si dans le fichier il y a des lignes vides :
-                                    all_lines = False -> shorcut l'itération des lignes vides
-                                    all_lines = True -> iterre même sur des lignes vides
-        """
-        yield "ApiLodaer non finalisée"
-
-    def read_dict(self, all_lines=False):
-        """
-        Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
-        :param all_lines: si dans le fichier il y a des lignes vides
-                            all_lines=False, shorcut l'itération des lignes vides
-                            all_lines=True, iterre même sur des lignes vides
-        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
-        """
-        yield {"message": "ApiLodaer non finalisée"}
-
-    def close(self):
-        """Fermeture du buffer io.StringIO"""
-        if not self.csv_io.closed:
-            self.csv_io.close()

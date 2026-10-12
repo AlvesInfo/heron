@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module de l'application Héron, des tables Abstraites
 EN : Héron application module, Abstract tables

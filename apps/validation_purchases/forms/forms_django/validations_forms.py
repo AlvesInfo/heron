@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,E1101
 """
 FR : Module des formulaires de validation des imports des factures
 EN : Imported invoices forms module
@@ -13,7 +12,6 @@ modified by: Paulo ALVES
 """
 from django import forms
 
-from apps.centers_clients.models import Maison
 from apps.edi.models import EdiImport
 from apps.parameters.models import Category
 

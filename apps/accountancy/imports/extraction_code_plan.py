@@ -1,4 +1,3 @@
-# pylint: disable=
 """
 FR : Mise à jour des code plan sage par extraction depuis la table AccountSage et après sa
      mise à jour depuis fichier ZBI exporter depuis Sage X3

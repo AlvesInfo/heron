@@ -14,35 +14,35 @@
                 <div class="ui mini form" style="font-size: 12px;font-weight:bold;">
                     <div class="fields">
                         <div class="three wide field">
-                            <label style="text-align: left;">Centrale&nbsp;:</label>
-                            <input type="text" value="{{ object.child_center }}" readonly>
+                            <label for="info_child_center" style="text-align: left;">Centrale&nbsp;:</label>
+                            <input type="text" id="info_child_center" value="{{ object.child_center }}" readonly>
                         </div>
                         <div class="five wide field">
-                            <label style="text-align: left;">Tiers X3&nbsp;:</label>
-                            <input type="text" value="{{ object.article.third_party_num }}" readonly>
+                            <label for="info_third_party_num" style="text-align: left;">Tiers X3&nbsp;:</label>
+                            <input type="text" id="info_third_party_num" value="{{ object.article.third_party_num }}" readonly>
                         </div>
                         <div class="three wide field">
-                            <label style="text-align: left;">Référence&nbsp;:</label>
-                            <input type="text" value="{{ object.article.reference }}" readonly>
+                            <label for="info_reference" style="text-align: left;">Référence&nbsp;:</label>
+                            <input type="text" id="info_reference" value="{{ object.article.reference }}" readonly>
                         </div>
                         <div class="five wide field">
-                            <label style="text-align: left;">TVA&nbsp;:</label>
-                            <input type="text" value="{{ object.vat }}" readonly>
+                            <label for="info_vat" style="text-align: left;">TVA&nbsp;:</label>
+                            <input type="text" id="info_vat" value="{{ object.vat }}" readonly>
                         </div>
                     </div>
 
                     <div class="fields">
                         <div class="four wide field">
-                            <label style="text-align: left;">Axe PRO&nbsp;:</label>
-                            <input type="text" value="{{ object.article.axe_pro|default_if_none:'' }}" readonly>
+                            <label for="info_axe_pro" style="text-align: left;">Axe PRO&nbsp;:</label>
+                            <input type="text" id="info_axe_pro" value="{{ object.article.axe_pro|default_if_none:'' }}" readonly>
                         </div>
                         <div class="four wide field">
-                            <label style="text-align: left;">Grande Catégorie&nbsp;:</label>
-                            <input type="text" value="{{ object.article.big_category|default_if_none:'' }}" readonly>
+                            <label for="info_big_category" style="text-align: left;">Grande Catégorie&nbsp;:</label>
+                            <input type="text" id="info_big_category" value="{{ object.article.big_category|default_if_none:'' }}" readonly>
                         </div>
                         <div class="four wide field">
-                            <label style="text-align: left;">Rubrique Presta&nbsp;:</label>
-                            <input type="text" value="{{ object.article.sub_category|default_if_none:'' }}" readonly>
+                            <label for="info_sub_category" style="text-align: left;">Rubrique Presta&nbsp;:</label>
+                            <input type="text" id="info_sub_category" value="{{ object.article.sub_category|default_if_none:'' }}" readonly>
                         </div>
                         <div class="four wide field"></div>
                     </div>

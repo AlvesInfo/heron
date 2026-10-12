@@ -1,4 +1,3 @@
-# pylint: disable=
 """Module des Exception du module data_flux
 
 Commentaire:
@@ -114,19 +113,7 @@ class PathFileError(Exception):
     """
 
 
-class PathUnzipError(Exception):
-    """
-    class of exceptions for unzip errors
-    """
-
-
 # Exceptions du module Opto33 parser ===============================================================
-
-
-class OptoMontError(ValueError):
-    """
-    Class for exceptions Opto 33 mont
-    """
 
 
 class OptoDateError(ValueError):

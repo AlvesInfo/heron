@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
 Views des taux de RFA par founisseurs
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -33,7 +34,6 @@ class SupplierRateCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = SupplierRate
     form_class = SupplierRateForm
-    form_class.use_required_attribute = False
     template_name = "rfa/suppliers_rate_update.html"
     success_message = "Le taux de rfa pour le fournisseur %(supplier)s a été créé avec success"
     error_message = (
@@ -60,23 +60,12 @@ class SupplierRateCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
-        # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
-        # On lance sa methode form_error
-        if hasattr(self, "form_error"):
-            form_error = getattr(self, "form_error")
-            form_error()
-
-        return super().form_invalid(form)
-
 
 class SupplierRateUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     """UpdateView des Taux de RFA Fournisseurs"""
 
     model = SupplierRate
     form_class = SupplierRateForm
-    form_class.use_required_attribute = False
     template_name = "rfa/suppliers_rate_update.html"
     success_message = "Le taux de rfa pour le fournisseur %(supplier)s a été modifiée avec success"
     error_message = (
@@ -103,16 +92,6 @@ class SupplierRateUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
-        # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
-        # On lance sa methode form_error
-        if hasattr(self, "form_error"):
-            form_error = getattr(self, "form_error")
-            form_error()
-
-        return super().form_invalid(form)
-
 
 @transaction.atomic
 def supplier_rate_delete(request):
@@ -121,7 +100,7 @@ def supplier_rate_delete(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -159,7 +138,7 @@ def supplier_rate_export_list(_):
 
         return response_file(excel_list_suppliers_rate, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : supplier_rate_export_list")
 
     return redirect(reverse("rfa:suppliers_rate_list"))

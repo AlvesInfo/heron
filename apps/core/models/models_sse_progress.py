@@ -6,9 +6,8 @@ created at: 2025-01-10
 created by: Paulo ALVES
 """
 
-import json
 
-from django.db import models, transaction, connection
+from django.db import models
 from django.utils import timezone
 from django.conf import settings
 

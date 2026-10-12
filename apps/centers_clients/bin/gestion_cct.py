@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module de gestion des Maisons
 EN : Operation Module for Maisons
@@ -12,7 +11,6 @@ modified at: 2023-03-17
 modified by: Paulo ALVES
 """
 from django.db import connection, transaction
-from apps.book.models import SupplierCct
 
 
 @transaction.atomic
@@ -36,7 +34,7 @@ def update_supplier_cct_reference_cosium(reference_cosium):
     sql_reference_cosium = """
     update "book_suppliercct" "bs"
     set "cct_identifier" = case
-                            when "bs"."cct_identifier" isnull
+                            when "bs"."cct_identifier" isnull or "bs"."cct_identifier" = ''
                             then "cosi"."reference_cosium" || '|'
                             when right("bs"."cct_identifier", 1) = '|'
                             then "bs"."cct_identifier" || "cosi"."reference_cosium" || '|'

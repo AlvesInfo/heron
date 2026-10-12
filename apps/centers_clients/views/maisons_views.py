@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903,W0201,W0702,W0613,W1203
 """
 Views des Clients/Maisons
 """
@@ -6,15 +5,17 @@ from pathlib import Path
 import pickle
 
 import pendulum
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.http import JsonResponse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.core.files import File
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
-from heron.settings import PICKLERS_DIR
+from django.conf import settings
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.models import PicklerFiles
@@ -59,7 +60,6 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Maison
     form_class = MaisonForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/client_update.html"
     success_message = "Le Client %(cct)s a été créé avec success"
     error_message = "Le Client %(cct)s n'a pu être créé, une erreur c'est produite"
@@ -107,9 +107,9 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         self.request.session["level"] = 20
 
         try:
-            Path(self.pickler_object.pickle_file.path).unlink()
-            pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
-            pickle_file.unlink()
+            Path(self.pickler_object.pickle_file.path).unlink(missing_ok=True)
+            pickle_file = Path(settings.PICKLERS_DIR) / "import_bi.pick"
+            pickle_file.unlink(missing_ok=True)
             self.pickler_object.delete()
         except AttributeError:
             # Création sans passer par import BI
@@ -127,7 +127,6 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = Maison
     form_class = MaisonForm
-    form_class.use_required_attribute = False
     template_name = "centers_clients/client_update.html"
     success_message = "Le Client %(cct)s a été modifiée avec success"
     error_message = "Le Client %(cct)s n'a pu être modifiée, une erreur c'est produite"
@@ -152,7 +151,6 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     def form_valid(self, form, **kwargs):
         """Ajout de l'user à la sauvegarde du formulaire"""
         form.instance.modified_by = self.request.user
-        form.instance.axe_bu = form.cleaned_data.get("axe_bu")
 
         try:
             form.instance.center_purchase = ChildCenterPurchase.objects.get(code="ACF")
@@ -180,7 +178,7 @@ def maisons_export_list(_):
 
         return response_file(excel_liste_maisons, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : maisons_export_list")
 
     return redirect(reverse("centers_clients:maisons_list"))
@@ -232,7 +230,7 @@ def import_bi(request):
                     "signature_franchise_date": maison_bi.opening_date,
                 }
 
-                pickle_file = Path(PICKLERS_DIR) / "import_bi.pick"
+                pickle_file = Path(settings.PICKLERS_DIR) / "import_bi.pick"
 
                 with open(pickle_file, "wb") as file:
                     pickler = pickle.Pickler(file)
@@ -268,7 +266,7 @@ def filter_list_maisons_api(request):
 
 def emails_rest_api_query(request, query):
     """Views pour ramener les emails en cas de changement de tiers X3"""
-    if request.is_ajax() and request.method == "GET":
+    if is_ajax(request) and request.method == "GET":
         dic = {"success": "ko", "message": ""}
 
         try:
@@ -282,10 +280,9 @@ def emails_rest_api_query(request, query):
             else:
                 dic = {"success": [{**dic} for dic in articles]}
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception("emails_rest_api_query")
 
-        response = JsonResponse(dic)
-        return HttpResponse(response)
+        return JsonResponse(dic)
 
     return redirect("home")

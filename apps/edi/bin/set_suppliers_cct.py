@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module de génération identifiant des maisons pour les tiersx3 en cours d'utilisation
 EN : Generation module identifying houses for tiersx3 in use
@@ -146,12 +145,8 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
             {condition}
             """
         )
-        if condition:
-            # print(cursor.mogrify(sql_to_create, {"third_party_num": third_party_num}).decode())
-            cursor.execute(sql_to_create, {"third_party_num": third_party_num})
-        else:
-            # print(cursor.mogrify(sql_to_create).decode())
-            cursor.execute(sql_to_create)
+        # Le paramètre n'est lu que si la condition le référence (third_party_num renseigné)
+        cursor.execute(sql_to_create, {"third_party_num": third_party_num})
 
 
 def update_edi_import_cct_uui_identification(
@@ -166,12 +161,8 @@ def update_edi_import_cct_uui_identification(
     :return: None
     """
     with connection.cursor() as cursor:
-        alls = ' and edi."cct_uuid_identification" isnull ' if force_update else ""
-        third_party_num_filter = (
-            'and ei."third_party_num" = %(third_party_num)s' if third_party_num else ""
-        )
         sql_update = sql.SQL(
-            f"""
+            """
              update "edi_ediimport" edi
              set "cct_uuid_identification" = cc."cct_uuid_identification"
              from (
@@ -216,11 +207,11 @@ def update_edi_import_cct_uui_identification(
                ) re
                on ei."id" = re."id"
                where "cct_identifier" is not null
-               {third_party_num_filter}
+               and (%(third_party_num)s is null or ei."third_party_num" = %(third_party_num)s)
             ) cc
             where edi."id" = cc."id"
             and "valid" = true
-            {alls}
+            and (%(force_update)s is false or edi."cct_uuid_identification" isnull)
             """
         )
         sql_update_signboard = sql.SQL(
@@ -252,10 +243,10 @@ def update_edi_import_cct_uui_identification(
             """
         )
 
-        if third_party_num:
-            cursor.execute(sql_update, {"third_party_num": third_party_num})
-        else:
-            cursor.execute(sql_update)
+        cursor.execute(
+            sql_update,
+            {"third_party_num": third_party_num or None, "force_update": force_update},
+        )
 
         cursor.execute(sql_update_signboard)
 
@@ -290,9 +281,9 @@ def set_signboard() -> None:
         ) "req" 
         where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
         and (
-            "ee"."code_center" != "req"."code_center"
+            "ee"."code_center" is distinct from "req"."code_center"
             or 
-            "ee"."code_center" != "req"."code_center"
+            "ee"."code_signboard" is distinct from "req"."code_signboard"
         )
         """
         cursor.execute(sql_set_signboard)

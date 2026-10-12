@@ -1,14 +1,15 @@
-# pylint: disable=E0401,R0901,W0702,E1101,W0201,W1203
 """
 Views des Paramètres
 """
 import pendulum
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
 from apps.core.bin.change_traces import ChangeTraceMixin
 from apps.core.bin.change_traces import trace_mark_delete
@@ -43,7 +44,6 @@ class CategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = Category
     form_class = CategoryForm
-    form_class.use_required_attribute = False
     template_name = "parameters/category_update.html"
     success_message = "La Catégorie %(name)s a été créé avec success"
     error_message = "La Catégorie %(name)s n'a pu être créé, une erreur c'est produite"
@@ -69,7 +69,6 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = Category
     form_class = CategoryForm
-    form_class.use_required_attribute = False
     template_name = "parameters/category_update.html"
     success_message = "La Catégorie %(name)s a été modifiée avec success"
     error_message = "La Catégorie %(name)s n'a pu être modifiée, une erreur c'est produite"
@@ -103,7 +102,7 @@ def categories_export_list(_):
 
         return response_file(excel_liste_categories, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : categories_export_list")
 
     return redirect(reverse("parameters:categories_list"))
@@ -115,26 +114,19 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = SubCategory
     form_class = SubCategoryForm
-    form_class.use_required_attribute = False
     template_name = "parameters/sub_category_update.html"
     success_message = "La Rubrique Presta %(name)s a été créé avec success"
     error_message = "La Rubrique Presta %(name)s n'a pu être créé, une erreur c'est produite"
 
     def get(self, request, *args, **kwargs):
-        """Ajout de self.category a l'instance de la vue"""
-        try:
-            self.category = Category.objects.get(pk=kwargs.get("category_pk"))
-        except Category.DoesNotExist:
-            pass
+        """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)"""
+        self.category = get_object_or_404(Category, pk=kwargs.get("category_pk"))
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        """Ajout de self.category a l'instance de la vue"""
+        """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)"""
         self.object = None
-        try:
-            self.category = Category.objects.get(pk=kwargs.get("category_pk"))
-        except Category.DoesNotExist:
-            pass
+        self.category = get_object_or_404(Category, pk=kwargs.get("category_pk"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -167,7 +159,6 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = SubCategory
     form_class = SubCategoryForm
-    form_class.use_required_attribute = False
     template_name = "parameters/sub_category_update.html"
     success_message = "La Rubrique Presta %(name)s a été modifiée avec success"
     error_message = "La Rubrique Presta %(name)s n'a pu être modifiée, une erreur c'est produite"
@@ -205,7 +196,7 @@ def delete_sub_category(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -222,7 +213,7 @@ def delete_sub_category(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_invoice_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"delete_sub_category, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -233,7 +224,6 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = DefaultAxeArticle
     form_class = DefaultAxeArticleForm
-    form_class.use_required_attribute = False
     slug_field = "slug_name"
     slug_url_kwarg = "slug_name"
     template_name = "parameters/axes_articles_defaut_update.html"
@@ -275,7 +265,7 @@ def axe_articles_defaut_export_list(_):
 
         return response_file(excel_list_axe_article_defaut, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : axe_articles_defaut_export_list")
 
-    return redirect(reverse("book:societies_list"))
+    return redirect(reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"}))

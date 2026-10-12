@@ -1,6 +1,7 @@
 import pendulum
 from django.db.models import Count
-from django.shortcuts import render, reverse, redirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -75,7 +76,7 @@ def without_cct_purchases_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : without_cct_purchases_export")
 
     return redirect(reverse("validation_purchases:without_cct_purchases"))

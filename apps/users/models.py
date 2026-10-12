@@ -2,20 +2,15 @@ import uuid
 
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.conf import settings
-from django.db import models, connection
-from django.db.utils import IntegrityError
+from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.contrib.sessions.models import Session
 from django.core.mail import send_mail
 
-from apps.core.functions.functions_utilitaires import num_string_series
-from apps.core.functions.functions_dates import time_string_series
 
 
 class UserManager(BaseUserManager, models.Manager):
-    num = num_string_series(time_string_series(), 10)
-
     def _create_user(
         self, username, email, password, is_superuser=False, is_staff=False, **extra_fields
     ):
@@ -72,9 +67,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
@@ -180,7 +172,7 @@ class AuthGroupAccessStaff(models.Model):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
-        return self.group
+        return self.group.name
 
 
 class UploadUserFile(models.Model):

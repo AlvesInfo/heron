@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module de validation par djantic
 EN : Sage X3 import validation forms module

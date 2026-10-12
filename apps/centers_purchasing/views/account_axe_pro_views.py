@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module Dictionnaire des Comptes achat vente pour la facturation
 EN : Dictionary of achat vente Accounts for invoicing
@@ -11,15 +10,19 @@ created by: Paulo ALVES
 modified at: 2023-01-21
 modified by: Paulo ALVES
 """
-import pendulum
+from pathlib import Path
 
+import pendulum
+from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from django.db.models.functions import Concat, Cast, LPad
 from django.db.models import CharField, Value
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -67,11 +70,8 @@ class AccountAxeList(ChildCenterMixin, ListView):
             "sale_account__account",
         )
         .annotate(
-            child_center_c=Concat(
-                LPad(Cast("child_center__code", output_field=CharField()), 2, Value("0")),
-                Value(" - "),
-                "child_center__name",
-            ),
+            # le code centrale (3 caractères) est affiché tel quel : un LPad à 2 le tronquait
+            child_center_c=Concat("child_center__code", Value(" - "), "child_center__name"),
             axe_pro=Concat("axe_pro__section", Value(" - "), "axe_pro__name"),
             big_category=Concat(
                 LPad(Cast("big_category__ranking", output_field=CharField()), 2, Value("0")),
@@ -112,7 +112,6 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = AccountsAxeProCategory
     form_class = AccountsAxeProCategoryForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/account_axe_update.html"
     success_message = (
         "Dictionnaire des Comptes achat vente pour la facturation a été créé avec success"
@@ -152,7 +151,6 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = AccountsAxeProCategory
     form_class = AccountsAxeProCategoryForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/account_axe_update.html"
     success_message = (
         "Le Dictionnaire des Comptes achat vente pour la facturation a été modifié avec success"
@@ -190,7 +188,7 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def account_axe_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -208,28 +206,23 @@ def account_axe_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"axe_grouping_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.exception(f"account_axe_delete, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
 
 def account_axe_import_file(_):
     """
-    Import d'un fichier excel pour mise à jour en masse
-    de la liste du Dictionnaire Axe Pro/Regroupement de facturation
+    Import des fichiers excel déposés dans le répertoire IMPORT_ACCOUNTS (export de l'écran,
+    complété), pour mise à jour en masse du Dictionnaire des Comptes achat vente
     :return: redirect
     """
     try:
-        from pathlib import Path
+        for file in sorted(Path(settings.IMPORT_ACCOUNTS).glob("*.xlsx")):
+            LOGGER_VIEWS.info("import des comptes achat vente : %s", file.name)
+            axe_pro_account(file)
 
-        list_to_print = axe_pro_account(
-            Path(
-                "/home/paulo/heron/files/processing/suppliers_invoices_files/IMPORT_ACCOUNTS/"
-                "LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_2023_5_13_1683972386.xlsx"
-            )
-        )
-        print(list_to_print)
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : account_axe_import_file")
 
     return redirect(reverse("centers_purchasing:account_axe_list"))
@@ -252,7 +245,7 @@ def account_axe_export_list(request):
             excel_liste_account_axe, file_name, CONTENT_TYPE_EXCEL, code_child_center
         )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : account_axe_export_list")
 
     return redirect(reverse("centers_purchasing:account_axe_list"))

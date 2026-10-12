@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0413,R0914,W0718,W1203
 """
 FR : Module de génération des factures de ventes au format Factur-X (PDF/A-3 + XML CII)
      via le serveur facturx_server (API de la bibliothèque facturx-fr).

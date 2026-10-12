@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """Module d'imports de fixtures en base au premier démarrage de l'application
 
 Commentaire:

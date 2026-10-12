@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module de la centrale d'achat
 EN : Central purchasing module
@@ -16,7 +15,7 @@ import re
 import uuid
 
 from django.db import models
-from django.shortcuts import reverse
+from django.urls import reverse
 
 from heron.models import FlagsTable
 from apps.accountancy.models import (
@@ -147,7 +146,7 @@ class ChildCenterPurchase(FlagsTable):
         iban_clean = re.sub(r"[\s-]", "", str(self.iban or "").strip())
 
         # Formater par groupes de 4
-        self.iban = re.sub(r"(.{4})", r"\1 ", iban_clean)
+        self.iban = re.sub(r"(.{4})", r"\1 ", iban_clean).strip()
 
         super().save(*args, **kwargs)
 
@@ -249,11 +248,6 @@ class SignboardModel(FlagsTable):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sign_board} - {self.name}"
 
-    @staticmethod
-    def get_absolute_url():
-        """Url de retour après create ou Update"""
-        return reverse("centers_purchasing:models_enseigne_list")
-
     class Meta:
         """class Meta du modèle django"""
 
@@ -303,11 +297,6 @@ class Translation(FlagsTable):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.name}"
 
-    @staticmethod
-    def get_absolute_url():
-        """Url de retour après create ou Update"""
-        return reverse("centers_purchasing:translate_list")
-
     class Meta:
         """class Meta du modèle django"""
 
@@ -347,11 +336,6 @@ class SignboardModelTranslate(FlagsTable):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.sign_board_model} - {self.translation}"
 
-    @staticmethod
-    def get_absolute_url():
-        """Url de retour après create ou Update"""
-        return reverse("centers_purchasing:translates_enseigne_list")
-
     class Meta:
         """class Meta du modèle django"""
 
@@ -381,11 +365,6 @@ class TranslationParamaters(FlagsTable):
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet"""
         return f"{self.code} - {self.translation}"
-
-    @staticmethod
-    def get_absolute_url():
-        """Url de retour après create ou Update"""
-        return reverse("centers_purchasing:translate_parameters_list")
 
     class Meta:
         """class Meta du modèle django"""

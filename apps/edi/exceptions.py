@@ -1,4 +1,3 @@
-# pylint: disable=
 """Module des Exception du module edi
 
 Commentaire:

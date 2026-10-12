@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,E1101,R0914,R1735,R0915,W0150,W0718
 """
 FR : Module de traitement des utilitaires pour les éléemnts issus de Sage
 EN : Utility processing module for items from Sage

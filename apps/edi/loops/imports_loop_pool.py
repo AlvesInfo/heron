@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0703,W1203,C0413,C0303,W1201,E1101,C0415,E0611,W0511
 """
 FR : Module d'import en boucle des fichiers de factures fournisseurs
 EN : Loop import module for invoices suppliers files
@@ -93,6 +92,45 @@ processing_dict = {
 }
 
 
+def _new_edi_file_name(stem: str) -> Path:
+    """Nom de fichier .edi libre dans le répertoire EDI, pour un fichier séparé
+    :param stem: nom, sans extension, du fichier d'origine
+    """
+    # On s'assure que le nom du fichier n'existe pas
+    while True:
+        file_name = Path(settings.PROCESSING_SUPPLIERS_DIR) / f"EDI/{stem}.{get_random_name()}.edi"
+
+        if not file_name.is_file():
+            return file_name
+
+
+def _split_edi_file(file: Path) -> None:
+    """
+    Sépare un fichier contenant plusieurs edi (plusieurs segments UNA) en autant de fichiers,
+    puis supprime l'original ; les fichiers "._*" posés par macOS sont supprimés.
+    :param file: fichier du répertoire EDI
+    """
+    if file.name.startswith("._"):
+        if file.is_file():
+            file.unlink()
+
+        return
+
+    encoding = encoding_detect(file) or "ascii"
+
+    with open(file, "r", encoding=encoding) as edi_file:
+        split_text = re.split(r"(?=UNA:\+).*[\n|']", edi_file.read().strip())
+
+    edi_texts = [text for text in split_text if text] if len(split_text) > 2 else []
+
+    for text_edi_file in edi_texts:
+        with open(_new_edi_file_name(file.stem), "w", encoding=encoding) as file_to_write:
+            file_to_write.write(text_edi_file)
+
+    if edi_texts:
+        file.unlink()
+
+
 def separate_edi():
     """Séparation des fichiers EDI (ex.: JULBO qui met plusieurs edi dans un seul fichier"""
     edi_files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / "EDI"
@@ -111,44 +149,9 @@ def separate_edi():
 
         for file in edi_files_directory.glob("*"):
             try:
-                if file.name.startswith("._"):
-                    if file.is_file():
-                        file.unlink()
-
-                else:
-                    encoding = encoding_detect(file) or "ascii"
-                    una_test = False
-
-                    with open(file, "r", encoding=encoding) as edi_file:
-                        text = edi_file.read().strip()
-                        split_text = re.split(r"(?=UNA:\+).*[\n|']", text)
-
-                        if len(split_text) > 2:
-                            for text_edi_file in split_text:
-                                if text_edi_file:
-                                    una_test = True
-                                    file_name = (
-                                        Path(settings.PROCESSING_SUPPLIERS_DIR)
-                                        / f"EDI/{file.stem}.{get_random_name()}.edi"
-                                    )
-
-                                    # On s'assure que le nom du fichier n'existe pas
-                                    while True:
-                                        if not file_name.is_file():
-                                            break
-
-                                    with open(
-                                        file_name,
-                                        "w",
-                                        encoding=encoding,
-                                    ) as file_to_write:
-                                        file_to_write.write(text_edi_file)
-
-                    if una_test:
-                        file.unlink()
+                _split_edi_file(file)
             except Exception as e:
                 LOGGER_EDI.error(f"Erreur lors du traitement du fichier {file}: {e}")
-                continue
     except Exception as e:
         LOGGER_EDI.exception(f"Erreur lors de la séparation des fichiers EDI: {e}")
 
@@ -525,11 +528,9 @@ def celery_import_launch(user_pk: int, job_id: str):
             f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
         )
 
-        # Marquer comme terminé
-        if progress:
-            # Rafraîchir depuis la DB pour avoir les dernières valeurs
-            progress.refresh_from_db()
-            progress.mark_as_completed()
+        # Marquer comme terminé, après rafraîchissement pour avoir les dernières valeurs
+        progress.refresh_from_db()
+        progress.mark_as_completed()
 
     except Exception as error:
         LOGGER_EDI.exception(
@@ -546,8 +547,9 @@ def celery_import_launch(user_pk: int, job_id: str):
 
     finally:
         # On remet l'action en cours à False, après l'execution
-        active_action.in_progress = False
-        active_action.save()
+        if active_action is not None:
+            active_action.in_progress = False
+            active_action.save()
 
 
 def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
@@ -608,11 +610,9 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
             f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
         )
 
-        # Marquer comme terminé
-        if progress:
-            # Rafraîchir depuis la DB pour avoir les dernières valeurs
-            progress.refresh_from_db()
-            progress.mark_as_completed()
+        # Marquer comme terminé, après rafraîchissement pour avoir les dernières valeurs
+        progress.refresh_from_db()
+        progress.mark_as_completed()
 
     except Exception as error:
         LOGGER_EDI.exception(
@@ -629,8 +629,9 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
 
     finally:
         # On remet l'action en cours à False, après l'execution
-        active_action.in_progress = False
-        active_action.save()
+        if active_action is not None:
+            active_action.in_progress = False
+            active_action.save()
 
 
 def import_launch_subscriptions(
@@ -674,6 +675,7 @@ def import_launch_subscriptions(
                     )
                 ]
             )().get(3600)
+            info = str(result)
             LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
             # Marquer comme terminé mais avant rafraîchir pour avoir les dernières valeurs
@@ -681,6 +683,7 @@ def import_launch_subscriptions(
             progress.mark_as_completed()
 
         except Exception as error:
+            info = f"Erreur : {error!r}"
             LOGGER_EDI.exception(
                 "Erreur détectée dans "
                 "apps.edi.loops.imports_loop_pool.import_launch_subscriptions()"

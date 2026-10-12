@@ -1,7 +1,7 @@
 import logging
 from logging.config import dictConfig
 
-from heron import settings
+from django.conf import settings
 
 dictConfig(settings.LOGGING)
 

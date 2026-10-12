@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303,C0413
 """
 FR : Module de traitement des nouveaux articles pour dans la table articles avec new_article = true
 EN : New article processing module for in articles table with new_article = true

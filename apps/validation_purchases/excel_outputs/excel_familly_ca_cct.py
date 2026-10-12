@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203,R0914
 """Module d'export du fichier excel pour les factures du tiers pas mois
 
 Commentaire:
@@ -10,23 +9,17 @@ modified at: 2022-05-12
 modified by: Paulo ALVES
 """
 import io
-from typing import Dict, AnyStr
+from typing import AnyStr
 from pathlib import Path
 
-import pendulum
 from django.db import connection
-from heron.settings.base import APPS_DIR
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel import GenericExcel
+from django.conf import settings
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
 )
+from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.validation_purchases.excel_outputs.excel_ca_cct import merged_month_headers, titres_mois
 
 COLUMNS_TITRES = [
     {
@@ -357,7 +350,7 @@ COLUMNS = [
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: Dict = None):
+def get_rows(file_path: Path, parmas_dict: dict = None):
     """Renvoie les résultats de la requête nécessaire à l'export excel
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
@@ -374,56 +367,24 @@ def get_rows(file_path: Path, parmas_dict: Dict = None):
         return cursor.fetchall()
 
 
-def excel_familly_ca_cct(file_io: io.BytesIO, file_name: AnyStr, client: AnyStr) -> Dict:
+def excel_familly_ca_cct(file_io: io.BytesIO, file_name: AnyStr, client: AnyStr) -> dict:
     """Fonction de 5.3A - Contrôle CA Cosium / Ventes Héron par familles"""
-    titre = "5.3A - Contrôle CA Cosium / Ventes Héron par familles"
-    list_excel = [file_io, ["CA CCT PAR FAMILLES"]]
-    excel = GenericExcel(list_excel, in_memory=True)
-    file_path = Path(f"{str(APPS_DIR)}/validation_purchases/sql_files/sql_ca_familly_cct.sql")
-    mois = 1
+    file_path = Path(f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_ca_familly_cct.sql")
 
-    for i, column_dict in enumerate(COLUMNS_TITRES, 1):
-        if i < 3:
-            column_dict["entete"] = (
-                pendulum.now()
-                .subtract(months=mois)
-                .start_of("month")
-                .format("MMMM YYYY", locale="fr")
-            ).upper()
-            mois += 1
+    def rows():
+        # La requête ne renvoie pas la colonne "Commentaire" (dernière colonne de COLUMNS) : on la
+        # complète, sinon l'écriture reçoit autant de formats que de valeurs + 1 et échoue
+        return [(*row_sql, "") for row_sql in get_rows(file_path, {"client": client})]
 
-    try:
-        titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-        output_day_writer(excel, 1, 1, 0)
-        row = 3
-        col = 4
-        for entete_dict in COLUMNS_TITRES:
-            excel.write_merge_h(
-                1, row, col, col + 2, entete_dict.get("entete"), style=entete_dict.get("f_entete")
-            )
-            col += 3
-
-        row += 1
-        columns_headers_writer(excel, 1, row, 0, COLUMNS)
-
-        f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-        f_lignes_odd = [
-            {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}} for dict_row in COLUMNS
-        ]
-
-        row += 1
-        rows_writer(
-            excel, 1, row, 0, get_rows(file_path, {"client": client}), f_lignes, f_lignes_odd
-        )
-        sheet_formatting(
-            excel, 1, COLUMNS, {"sens": "portrait", "repeat_row": (0, 3), "fit_page": (1, 0)}
-        )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name="CA CCT PAR FAMILLES",
+        title="5.3A - Contrôle CA Cosium / Ventes Héron par familles",
+        columns=COLUMNS,
+        rows=rows,
+        header_row=4,
+        repeat_row=(0, 3),
+        in_memory=True,
+        merged_headers=merged_month_headers(titres_mois(COLUMNS_TITRES)),
+    )

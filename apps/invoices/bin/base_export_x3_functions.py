@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module des fonctions qui renvoient les données cleannées des indicateurs des imports X3
 EN : Module of functions that return clean data from X3 import indicators

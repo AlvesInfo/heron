@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903, E1101
 """
 FR : Module de Formulaires pour le saisie de marchandises
 EN : Forms module for entering goods
@@ -168,8 +167,6 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
             "item_weight",
             "big_category",
             "sub_category",
-            "libelle",
-            "reference_article",
             "origin",
             "created_by",
             "saisie_by",
@@ -186,8 +183,6 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
             "modified_by",
             "delivery_number",
             "delivery_date",
-            "vat_amount",
-            "amount_with_vat",
         ]
 
 
@@ -306,8 +301,6 @@ class CreateFormationInvoiceForm(forms.ModelForm):
             "item_weight",
             "big_category",
             "sub_category",
-            "libelle",
-            "reference_article",
             "origin",
             "created_by",
             "saisie_by",
@@ -324,13 +317,10 @@ class CreateFormationInvoiceForm(forms.ModelForm):
             "modified_by",
             "initial_date",
             "final_date",
-            "libelle",
             "last_name",
             "first_name",
             "heures_formation",
             "formation_month",
-            "vat_amount",
-            "amount_with_vat",
         ]
 
 
@@ -460,8 +450,6 @@ class CreatePersonnelInvoiceForm(forms.ModelForm):
             "item_weight",
             "big_category",
             "sub_category",
-            "libelle",
-            "reference_article",
             "origin",
             "created_by",
             "saisie_by",

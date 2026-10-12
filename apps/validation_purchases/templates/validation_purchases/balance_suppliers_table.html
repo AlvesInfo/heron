@@ -14,13 +14,13 @@
 
             <thead>
                 <tr>
-                    <th style="width: 10%;">Tiers</th>
-                    <th style="width: 40%;">Nom du tiers</th>
-                    <th style="width: 10%;">{{ mois_dict.M3|safe }}</th>
-                    <th style="width: 10%;">{{ mois_dict.M2|safe }}</th>
-                    <th style="width: 10%;">{{ mois_dict.M1|safe }}</th>
-                    <th style="width: 10%;">{{ mois_dict.M0|safe }}</th>
-                    <th style="width: 10%;">Variation</th>
+                    <th scope="col" style="width: 10%;">Tiers</th>
+                    <th scope="col" style="width: 40%;">Nom du tiers</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M3|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M2|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M1|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">{{ mois_dict.M0|keep_br }}</th>
+                    <th scope="col" style="width: 10%;">Variation</th>
                 </tr>
             </thead>
 

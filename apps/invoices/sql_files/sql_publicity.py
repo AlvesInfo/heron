@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module des requêtes sql, pour les factures de ventes Publicite
 EN : Module of sql queries, for sales Publicity invoices

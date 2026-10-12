@@ -1,11 +1,11 @@
-# pylint: disable=E0401
 """
 Views de lancement des RFA
 """
 
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from apps.articles.models import Article
 from apps.rfa.bin.rfa_controls import (
@@ -14,6 +14,7 @@ from apps.rfa.bin.rfa_controls import (
     have_rfa_to_be_invoiced,
 )
 from apps.rfa.forms import AxeRfaForm
+from apps.rfa.bin.rfa_insertions import get_open_period
 from apps.rfa.loops.rfa_loop_pool import rfa_generation_launch
 from apps.parameters.bin.core import get_actions_in_progress
 
@@ -70,11 +71,23 @@ def rfa_generation(request):
         return redirect(reverse("articles:new_articles_list"))
 
     if not in_action and have_rfa:
-        if request.method == "GET":
-            redirect_validation(request)
+        # Factures non validées ou sans CCT : on redirige vers l'écran de validation
+        response = redirect_validation(request)
+
+        if response is not None:
+            return response
 
         if request.method == "POST" and form.is_valid():
             period_rfa = form.cleaned_data.get("section")
+
+            if get_open_period() is None:
+                request.session["level"] = 50
+                messages.add_message(
+                    request,
+                    50,
+                    "Aucune période de facturation ouverte : génération des RFA impossible",
+                )
+                return redirect(reverse("rfa:rfa_generation"))
 
             # lancement du process de génération des RFA
             erreur, info = rfa_generation_launch(request.user.pk, have_rfa, period_rfa)

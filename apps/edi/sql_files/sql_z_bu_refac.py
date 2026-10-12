@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module des requêtes sql de post-traitement après import des fichiers requête Sql Sage BU REFAC0
 EN : Post-processing sql module after importing Query Sage BU REFAC0 files

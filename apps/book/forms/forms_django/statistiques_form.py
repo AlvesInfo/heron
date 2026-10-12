@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 Forms des Parameters
 """
@@ -11,6 +10,8 @@ from apps.book.models import StatFamillyAxes, SupplierFamilyAxes
 class StatFamillyAxesForm(forms.ModelForm):
     """Form pour les Statistiques"""
 
+    use_required_attribute = False
+
     class Meta:
         """class Meta"""
 
@@ -20,6 +21,8 @@ class StatFamillyAxesForm(forms.ModelForm):
 
 class SupplierFamilyAxesForm(forms.ModelForm):
     """Form pour les définitions des Statistiques Familles/Axes'"""
+
+    use_required_attribute = False
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["sub_category"].required = False
@@ -53,6 +56,9 @@ class SupplierFamilyAxesForm(forms.ModelForm):
 
 class DeleteSupplierFamilyAxesForm(forms.ModelForm):
     """Form pour la suppression des définitions des Statistiques Familles/Axes"""
+
+    # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
+    id = forms.ModelChoiceField(queryset=SupplierFamilyAxes.objects.all())
 
     class Meta:
         """class Meta"""

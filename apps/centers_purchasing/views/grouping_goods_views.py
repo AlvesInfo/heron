@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Module des regroupements de facturation
      dito onglets 2. et 2.1 du fichier bloc de facturation transmis aux maisons
@@ -15,10 +14,12 @@ modified by: Paulo ALVES
 """
 import pendulum
 from django.http import JsonResponse
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -48,7 +49,6 @@ class GroupingGoodsCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = GroupingGoods
     form_class = GroupingGoodsForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/grouping_goods_update.html"
     success_message = "Le regroupement de facturation a été créé avec success"
     error_message = "Le regroupement de facturation n'a pu être créé, une erreur c'est produite"
@@ -79,7 +79,6 @@ class GroupingGoodsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = GroupingGoods
     form_class = GroupingGoodsForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/grouping_goods_update.html"
     success_message = "Le regroupement de facturation a été modifié avec success"
     error_message = "Le regroupement de facturation n'a pu être modifié, une erreur c'est produite"
@@ -107,7 +106,7 @@ class GroupingGoodsUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 def grouping_goods_delete(request):
     """Vue ajax de suppresion d'une ligne de la table"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
@@ -144,7 +143,7 @@ def grouping_goods_export_list(_):
 
         return response_file(excel_liste_grouping_goods, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : grouping_goods_export_list")
 
     return redirect(reverse("centers_purchasing:grouping_goods_list"))

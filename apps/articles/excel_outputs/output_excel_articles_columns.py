@@ -1,4 +1,3 @@
-# pylint: disable=C0302,R0903
 """Module pour la définition des colonnes excel pour le module Articles
 
 Commentaire:

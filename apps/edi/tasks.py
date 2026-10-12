@@ -1,4 +1,3 @@
-# pylint: disable=C0303,E0401,W1203,W0703,R0912,R0913,R0914,R0915,W1201
 """
 FR : Module d'import des factures founisseurs EDI sous task Celery
 EN : Import module for EDI incoives suppliers by celery tasks
@@ -55,7 +54,6 @@ from apps.edi.imports.imports_suppliers_invoices_pool import (
     z_bu_refac,
 )
 from apps.edi.bin.edi_post_processing_pool import (
-    post_vacuum,
     post_processing_all,
     edi_trace_supplier_insert,
 )
@@ -98,6 +96,62 @@ bbgr_dict = {
 }
 
 
+def _update_progress(job_id, has_error, item_name):
+    """Avance la jauge SSEProgress d'un élément, en succès ou en échec
+    :param job_id: identifiant du job suivi
+    :param has_error: vrai si le traitement de l'élément a échoué
+    :param item_name: nom de l'élément traité (fichier, fonction ou tâche)
+    """
+    with transaction.atomic():
+        progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
+
+        if has_error:
+            progress.update_progress(
+                processed=1,
+                failed=1,
+                message=f"Erreur sur {item_name}",
+                item_name=item_name,
+            )
+        else:
+            progress.update_progress(
+                processed=1,
+                message=f"{item_name} traité avec succès",
+                item_name=item_name,
+            )
+
+
+def _update_progress_logged(job_id, has_error, item_name):
+    """Avance la jauge SSEProgress ; une jauge absente ou en erreur est journalisée sans
+    interrompre la tâche
+    """
+    try:
+        _update_progress(job_id, has_error, item_name)
+
+    except SSEProgress.DoesNotExist:
+        LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
+    except Exception as progress_error:
+        LOGGER_EDI.exception(
+            f"Erreur mise à jour progression: {progress_error}"
+        )
+
+
+def _close_import_trace(trace, error):
+    """Marque la trace d'un import en erreur si besoin, puis la rattache aux factures
+    :param trace: trace de l'import, None si elle n'a pas pu être créée
+    :param error: vrai si une exception a été levée pendant l'import
+    """
+    if error and trace:
+        trace.errors = True
+        trace.comment = (
+            trace.comment
+            + "\n. Une erreur c'est produite veuillez consulter les logs"
+        )
+
+    if trace is not None:
+        trace.invoices = True
+        trace.save()
+
+
 @shared_task(name="suppliers_import")
 @clean_memory
 def launch_suppliers_import(process_objects, user_pk, job_id=None):
@@ -120,6 +174,11 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
     LOGGER_EDI.warning(f"TASK STARTED: flow={str(processing_key).upper()!r} job_id={job_id!r}")
 
     try:
+        if function is None:
+            raise LookupError(
+                f"Flux inconnu {processing_key!r} : aucun import n'est associé à ce répertoire"
+            )
+
         user = User.objects.get(pk=user_pk)
         trace, to_print = function(file)
         trace.created_by = user
@@ -136,16 +195,7 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
         # Vérifier trace.errors car la fonction ne propage pas les exceptions
         has_error = error or (trace and trace.errors)
 
-        if error and trace:
-            trace.errors = True
-            trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
-
-        if trace is not None:
-            trace.invoices = True
-            trace.save()
+        _close_import_trace(trace, error)
 
         if file.is_file() and not backup_file.is_file():
             shutil.move(file.resolve(), backup_file.resolve())
@@ -154,32 +204,7 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
 
         # Update progress if job_id is provided
         if job_id:
-            try:
-                with transaction.atomic():
-                    progress = SSEProgress.objects.select_for_update().get(
-                        job_id=job_id
-                    )
-
-                    if has_error:
-                        progress.update_progress(
-                            processed=1,
-                            failed=1,
-                            message=f"Erreur sur {file.name}",
-                            item_name=file.name,
-                        )
-                    else:
-                        progress.update_progress(
-                            processed=1,
-                            message=f"{file.name} traité avec succès",
-                            item_name=file.name,
-                        )
-
-            except SSEProgress.DoesNotExist:
-                LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
-            except Exception as progress_error:
-                LOGGER_EDI.exception(
-                    f"Erreur mise à jour progression: {progress_error}"
-                )
+            _update_progress_logged(job_id, has_error, file.name)
 
     LOGGER_EDI.warning(
         to_print
@@ -207,6 +232,9 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
     function = bbgr_dict.get(function_name)
 
     try:
+        if function is None:
+            raise LookupError(f"Import B.I inconnu {function_name!r}")
+
         user = User.objects.get(pk=user_pk)
         trace, to_print = function()
         trace.created_by = user
@@ -221,45 +249,11 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
         LOGGER_EDI.exception(f"Exception Générale: {function_name}\n{except_error!r}")
 
     finally:
-        if error and trace:
-            trace.errors = True
-            trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
-
-        if trace is not None:
-            trace.invoices = True
-            trace.save()
+        _close_import_trace(trace, error)
 
         # Update progress if job_id is provided
         if job_id:
-            try:
-                with transaction.atomic():
-                    progress = SSEProgress.objects.select_for_update().get(
-                        job_id=job_id
-                    )
-
-                    if error:
-                        progress.update_progress(
-                            processed=1,
-                            failed=1,
-                            message=f"Erreur sur {function_name}",
-                            item_name=function_name,
-                        )
-                    else:
-                        progress.update_progress(
-                            processed=1,
-                            message=f"{function_name} traité avec succès",
-                            item_name=function_name,
-                        )
-
-            except SSEProgress.DoesNotExist:
-                LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
-            except Exception as progress_error:
-                LOGGER_EDI.exception(
-                    f"Erreur mise à jour progression: {progress_error}"
-                )
+            _update_progress_logged(job_id, error, function_name)
 
     LOGGER_EDI.warning(
         to_print
@@ -268,7 +262,9 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
         "======================================================================="
     )
 
-    return {"import : ": f"BBGR BI - {function_name} - {trace.time_to_process} s"}
+    time_to_process = trace.time_to_process if trace is not None else time.time() - start_initial
+
+    return {"import : ": f"BBGR BI - {function_name} - {time_to_process} s"}
 
 
 @shared_task(name="sql_clean_general")
@@ -330,6 +326,24 @@ def launch_sql_clean_general(start_all, job_id=None):
     }
 
 
+def _subscription_result(to_print, error, trace, start_initial):
+    """Texte du résultat d'une génération d'abonnements : succès avec sa durée, ou erreur avec
+    le commentaire de la trace
+    :param to_print: texte renvoyé par la fonction de génération
+    :param error: vrai si une exception a été levée
+    :param trace: trace de la génération, None si elle n'a pas pu être créée
+    :param start_initial: instant de démarrage de la tâche
+    """
+    comment = trace.comment if trace is not None else ""
+    time_to_process = trace.time_to_process if trace is not None else time.time() - start_initial
+
+    if error or "Erreur" in to_print:
+        comment_prefix = ":" if comment else ""
+        return f"Erreur - {to_print.replace('Erreur', '')} {comment_prefix} {comment!r}"
+
+    return f"{to_print}, réalisée avec sucess, en {time_to_process} s"
+
+
 @shared_task(name="subscription_launch_task")
 @clean_memory
 def subscription_launch_task(
@@ -367,10 +381,8 @@ def subscription_launch_task(
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n"
-                if trace.comment
-                else "" + "{Une erreur c'est produite veuillez consulter les logs"
-            )
+                f"{trace.comment}\n" if trace.comment else ""
+            ) + "Une erreur c'est produite veuillez consulter les logs"
 
         if trace is not None:
             trace.invoices = True
@@ -379,24 +391,7 @@ def subscription_launch_task(
         # Update progress if job_id is provided
         if job_id:
             try:
-                with transaction.atomic():
-                    progress = SSEProgress.objects.select_for_update().get(
-                        job_id=job_id
-                    )
-
-                    if error:
-                        progress.update_progress(
-                            processed=1,
-                            failed=1,
-                            message=f"Erreur sur {task_to_launch}",
-                            item_name=task_to_launch,
-                        )
-                    else:
-                        progress.update_progress(
-                            processed=1,
-                            message=f"{task_to_launch} traité avec succès",
-                            item_name=task_to_launch,
-                        )
+                _update_progress(job_id, error, task_to_launch)
             except Exception as e:
                 LOGGER_EDI.error(f"Erreur lors de la mise à jour du SSEProgress: {e}")
 
@@ -408,14 +403,7 @@ def subscription_launch_task(
     )
 
     return {
-        "Génération des abonnement : ": (
-            f"{to_print}, réalisée avec sucess, en {trace.time_to_process} s"
-            if not error and "Erreur" not in to_print
-            else (
-                f"Erreur - {to_print.replace('Erreur', '')} "
-                f"{':' if trace.comment else ''} {trace.comment!r}"
-            )
-        )
+        "Génération des abonnement : ": _subscription_result(to_print, error, trace, start_initial)
     }
 
 
@@ -459,6 +447,6 @@ def task_test_import_jauge(job_id, user_id):
         LOGGER_EDI.exception(f"Erreur dans test_import_jauge: {error}")
         try:
             progress.mark_as_failed(str(error))
-        except:
+        except Exception:
             pass
         raise

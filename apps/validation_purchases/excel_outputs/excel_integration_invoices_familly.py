@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0702,W1203
 """Module d'export du fichier excel pour les facturs founisseurs intégrées sans CCT
 
 Commentaire:
@@ -14,18 +13,12 @@ import io
 import pendulum
 from django.db import connection
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
 from apps.core.functions.functions_postgresql import query_file_cursor
-from apps.core.functions.functions_excel import GenericExcel
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
-    titre_page_writer,
-    output_day_writer,
-    columns_headers_writer,
-    sheet_formatting,
-    rows_writer,
 )
+from apps.core.excel_outputs.generic_list_export import excel_list_export, month_headers
 
 COLUMNS = [
     {
@@ -152,48 +145,33 @@ def get_rows(cursor):
     return invoices_famillies
 
 
+def columns_mois() -> list[dict]:
+    """Colonnes dont les entêtes 3 à 5 portent les mois M-2, M-1 et M"""
+    mois = pendulum.now().start_of("month")
+    libelles = [
+        f"Mois-2\n{mois.subtract(months=3).format('MMM YYYY', locale='fr')}",
+        f"Mois-1\n{mois.subtract(months=2).format('MMM YYYY', locale='fr')}",
+        f"Mois M\n{mois.subtract(months=1).format('MMM YYYY', locale='fr')}",
+    ]
+    return month_headers(COLUMNS, (3, 4, 5), libelles)
+
+
+def rows_familles() -> list[tuple]:
+    """Lignes des familles facturées, limitées aux 8 colonnes du tableau"""
+    with connection.cursor() as cursor:
+        return [rows[:8] for rows in get_rows(cursor)]
+
+
 def excel_integration_invoices_familly(file_io: io.BytesIO, file_name: str) -> dict:
     """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT"""
-    titre_list = file_name.split("_")
-    titre = " ".join(titre_list[:-3])
-    list_excel = [file_io, [titre]]
-    excel = GenericExcel(list_excel)
+    titre = " ".join(file_name.split("_")[:-3])
 
-    try:
-        with connection.cursor() as cursor:
-            mois = pendulum.now().start_of("month")
-            mois_m = mois.subtract(months=1).format("MMM YYYY", locale="fr")
-            mois_1 = mois.subtract(months=2).format("MMM YYYY", locale="fr")
-            mois_2 = mois.subtract(months=3).format("MMM YYYY", locale="fr")
-
-            for i, column in enumerate(COLUMNS):
-                if i == 3:
-                    column["entete"] = f"Mois-2\n{mois_2}"
-                if i == 4:
-                    column["entete"] = f"Mois-1\n{mois_1}"
-                if i == 5:
-                    column["entete"] = f"Mois M\n{mois_m}"
-
-            titre_page_writer(excel, 1, 0, 0, COLUMNS, titre)
-            output_day_writer(excel, 1, 1, 0)
-            columns_headers_writer(excel, 1, 3, 0, COLUMNS)
-            f_lignes = [dict_row.get("f_ligne") for dict_row in COLUMNS]
-            f_lignes_odd = [
-                {**dict_row.get("f_ligne"), **{"bg_color": "#D9D9D9"}}
-                for i, dict_row in enumerate(COLUMNS)
-            ]
-            rows_writer(
-                excel, 1, 4, 0, [rows[:8] for rows in get_rows(cursor)], f_lignes, f_lignes_odd
-            )
-            sheet_formatting(
-                excel, 1, COLUMNS, {"sens": "landscape", "repeat_row": (0, 5), "fit_page": (1, 0)}
-            )
-
-    except:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
-        return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
-
-    finally:
-        excel.excel_close()
-
-    return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
+    return excel_list_export(
+        file_io,
+        file_name,
+        sheet_name=titre,
+        title=titre,
+        columns=columns_mois,
+        rows=rows_familles,
+        orientation="landscape",
+    )

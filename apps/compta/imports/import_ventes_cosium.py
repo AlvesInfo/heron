@@ -1,4 +1,3 @@
-# pylint: disable=E0401,C0303
 """
 FR : Module d'import du chiffre d'affaires Cosium (Ventes)
 EN : Cosium turnover import module (Sales)
@@ -15,7 +14,7 @@ import pendulum
 from psycopg2 import sql
 from django.db import connection, transaction
 
-from apps.core.functions.functions_setups import settings
+from heron.loggers import LOGGER_IMPORT
 
 
 HISTORIC_VENTES_ID = 24_673_943
@@ -290,7 +289,7 @@ def mise_a_jour_ventes_cosium():
         cursor.execute("SET LOCAL work_mem = '512MB'")
 
         min_id = HISTORIC_VENTES_ID
-        print("Mise à jour des lignes de ventes Cosium")
+        LOGGER_IMPORT.info("Mise à jour des lignes de ventes Cosium")
         sql_insert_ventes = sql.SQL(
             """
             insert into "compta_ventescosium" 

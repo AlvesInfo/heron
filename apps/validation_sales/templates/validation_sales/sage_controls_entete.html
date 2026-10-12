@@ -3,7 +3,7 @@
 {% block right_side %}
 
     {% if details_familles  %}
-        <a class="item" href="{% url 'validation_sales:validation_sales_export_globals' %}">
+        <a class="item" href="{% url 'validation_sales:sage_controls_globals_sales' %}">
     {% elif details %}
         <a class="item" href="{% url 'validation_sales:validation_sales_export_details' %}">
     {% else %}

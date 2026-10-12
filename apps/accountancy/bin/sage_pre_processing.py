@@ -1,4 +1,3 @@
-# pylint: disable=E0401
 """
 FR : Module de pré-traitement avant import des fichiers sage
 EN : Pre-processing module before importing sage files

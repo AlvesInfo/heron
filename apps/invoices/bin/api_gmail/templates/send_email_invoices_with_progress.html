@@ -232,12 +232,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success && result.data && result.data.length > 0) {
                 let html = '<table class="table table-striped">';
                 html += '<thead><tr>';
-                html += '<th>Date</th>';
-                html += '<th>Statut</th>';
-                html += '<th>Total</th>';
-                html += '<th>Envoyés</th>';
-                html += '<th>Erreurs</th>';
-                html += '<th>Durée</th>';
+                html += '<th scope="col">Date</th>';
+                html += '<th scope="col">Statut</th>';
+                html += '<th scope="col">Total</th>';
+                html += '<th scope="col">Envoyés</th>';
+                html += '<th scope="col">Erreurs</th>';
+                html += '<th scope="col">Durée</th>';
                 html += '</tr></thead><tbody>';
 
                 result.data.forEach(item => {

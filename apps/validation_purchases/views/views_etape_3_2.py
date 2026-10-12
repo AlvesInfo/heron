@@ -1,9 +1,11 @@
 import pendulum
 from django.contrib import messages
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -45,7 +47,7 @@ def cct_franchiseurs_purchases_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : cct_franchiseurs_purchases_export")
 
     return redirect(reverse("validation_purchases:cct_franchiseurs_purchases"))
@@ -54,7 +56,7 @@ def cct_franchiseurs_purchases_export(request):
 def franchiseurs_validation(request):
     """Validation de l'écran de Contrôle des achats des CCT franchiseur"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -79,17 +81,17 @@ def franchiseurs_validation(request):
 
             if franchiseurs_after:
                 request.session["level"] = 20
-                message = "Le contrôle des familles est maintenant validé"
+                message = "Le contrôle des CCT/franchiseurs est maintenant validé"
                 data["success"] = "ok"
             else:
                 request.session["level"] = 50
-                message = "Le contrôle des familles est maintenant invalidé"
+                message = "Le contrôle des CCT/franchiseurs est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(f"Views : franchiseurs_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : franchiseurs_validation error, form invalid : {form.errors!r}"
         )
 

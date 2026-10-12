@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0912,R0913,R0914,R0915,W0703,W1203
 """
 FR : Module d'import des modèles de Sage X3
 EN : Import module for Sage X3 models

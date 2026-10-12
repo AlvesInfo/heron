@@ -1,14 +1,9 @@
-from pathlib import Path
 
-import pendulum
-from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.http import JsonResponse
-from django.shortcuts import redirect, HttpResponse
-from django.conf import settings
+from django.shortcuts import redirect
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
-from apps.edi.models import EdiImport
 from apps.accountancy.bin.api_get_models_accountacy import get_vat_alls, get_vat
 from apps.core.bin.api_get_models import (
     get_articles_alls,
@@ -41,29 +36,15 @@ MODEL_DICT = {
 }
 
 
-def pdf_view(request):
-    context = {
-        "maison": EdiImport.objects.filter(
-            sale_invoice=True,
-            big_category="f2dda460-20db-4b05-8bb8-fa80a1ff146b",
-            cct_uuid_identification__isnull=False,
-        ),
-        "invoice_date": pendulum.today().date(),
-    }
-    content = render_to_string("core/marchandises.html", context)
-
-    media_file = Path(settings.MEDIA_DIR) / "files/your-template-static.html"
-
-    with media_file.open("w", encoding="utf8") as static_file:
-        static_file.write(content)
-
-    return render(request, "core/marchandises.html", context)
+def _is_alls_model(models):
+    """Les clés *_alls du MODEL_DICT renvoient tous les enregistrements, sans texte de recherche"""
+    return str(models).endswith("_alls")
 
 
 def api_models_query(request, models, query):
     """View pour les api dans les dropdown semantic"""
 
-    if request.is_ajax() and request.method == "GET":
+    if is_ajax(request) and request.method == "GET":
         dic = {"success": "ko"}
 
         try:
@@ -71,14 +52,13 @@ def api_models_query(request, models, query):
             results_func = MODEL_DICT.get(str(models))
 
             if results_func is not None:
-                results = results_func(str_query)
+                results = results_func() if _is_alls_model(models) else results_func(str_query)
                 dic = {"success": list(results)}
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception("view : article_rest_api_query")
 
-        response = JsonResponse(dic)
-        return HttpResponse(response)
+        return JsonResponse(dic)
 
     return redirect("home")
 
@@ -86,7 +66,7 @@ def api_models_query(request, models, query):
 def api_models_query_third_party_num(request, models, third_party_num, query):
     """View pour les api dans les dropdown semantic"""
 
-    if request.is_ajax() and request.method == "GET":
+    if is_ajax(request) and request.method == "GET":
         dic = {"success": "ko"}
 
         try:
@@ -94,13 +74,16 @@ def api_models_query_third_party_num(request, models, third_party_num, query):
             results_func = MODEL_DICT.get(str(models))
 
             if results_func is not None:
-                results = results_func(str_query, third_party_num)
+                results = (
+                    results_func(third_party_num)
+                    if _is_alls_model(models)
+                    else results_func(str_query, third_party_num)
+                )
                 dic = {"success": list(results)}
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception("view : article_rest_api_query")
 
-        response = JsonResponse(dic)
-        return HttpResponse(response)
+        return JsonResponse(dic)
 
     return redirect("home")

@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0912,R0913,R0914,R0915,W0703,W1203
 """
 FR : Module d'insertion des modèles de Sage X3
 EN : Insert module for Sage X3 models
@@ -72,7 +71,7 @@ def make_insert(
         }
         fields_dict = {
             key: key in get_uniques_set
-            for key in {**get_columns_import_dict, **params_dict_loader.get("add_fields_dict")}
+            for key in {**get_columns_import_dict, **(params_dict_loader.get("add_fields_dict") or {})}
         }
 
         with FileLoader(
@@ -154,16 +153,12 @@ def make_insert(
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+                (trace.comment or "") + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
         trace.save()
-        try:
-            if not valide_file_io.closed:
-                valide_file_io.close()
-            del valide_file_io
-        except (AttributeError, NameError):
-            pass
+        # StringIO.close() est idempotent : pas de garde ni de suppression de la variable
+        valide_file_io.close()
 
     return to_print

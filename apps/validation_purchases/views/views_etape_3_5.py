@@ -1,9 +1,11 @@
 import pendulum
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.db.models import Q
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
 from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
@@ -43,7 +45,7 @@ def subscriptions_purchases_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : subscriptions_purchases_export")
 
     return redirect(reverse("validation_purchases:subscriptions_purchases"))
@@ -52,7 +54,7 @@ def subscriptions_purchases_export(request):
 def subscriptions_validation(request):
     """Validation de l'écran de Contrôle des Abonnements"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     level = 50
@@ -84,13 +86,13 @@ def subscriptions_validation(request):
                 request.session["level"] = 50
                 message = "Le contrôle des abonnements est maintenant invalidé"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(
                 f"Views : subscriptions_validation error : {form.cleaned_data!r}"
             )
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : subscriptions_validation error, form invalid : {form.errors!r}"
         )
 

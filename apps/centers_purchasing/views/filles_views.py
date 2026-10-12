@@ -1,9 +1,9 @@
-# pylint: disable=E0401,R0903,W0702
 """
 Views des Centrales Filles
 """
 import pendulum
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, CreateView, UpdateView
 
@@ -32,7 +32,6 @@ class FilleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     model = ChildCenterPurchase
     form_class = FillesForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/fille_update.html"
     success_message = "La Centrale Fille %(code)s a été créé avec success"
     error_message = "La Centrale Fille %(code)s n'a pu être créé, une erreur c'est produite"
@@ -58,7 +57,6 @@ class FilleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     model = ChildCenterPurchase
     form_class = FillesForm
-    form_class.use_required_attribute = False
     template_name = "centers_purchasing/fille_update.html"
     success_message = "La Centrale Fille %(code)s a été modifiée avec success"
     error_message = "La Centrale Fille %(code)s n'a pu être modifiée, une erreur c'est produite"
@@ -100,7 +98,7 @@ def filles_export_list(request):
                 excel_filles_list, file_name, CONTENT_TYPE_EXCEL, ChildCenterPurchase
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : filles_export_list")
 
     return redirect(reverse("centers_purchasing:filles_list"))

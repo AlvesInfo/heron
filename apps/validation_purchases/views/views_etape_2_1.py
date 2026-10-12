@@ -2,11 +2,13 @@ import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 from django.db.models import Value, CharField, Q
 from django.db.models.functions import Coalesce, Cast
 
+from apps.core.functions.functions_http import is_ajax
 from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_bulk_delete, trace_change
 from apps.core.bin.encoders import get_base_64
@@ -113,7 +115,6 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
     model = EdiImportControl
     form_class = EdiImportControlForm
-    form_class.use_required_attribute = False
     template_name = "validation_purchases/statment_controls.html"
     success_message = (
         "La saisie du relevé pour le tiers %(third_party_num)s "
@@ -146,7 +147,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"{self.third_party_num} - " f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
+            f"{self.third_party_num} - {self.invoice_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
         context["supplier"] = self.supplier
@@ -188,7 +189,6 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 
     model = EdiImportControl
     form_class = EdiImportControlForm
-    form_class.use_required_attribute = False
     template_name = "validation_purchases/statment_controls.html"
     invoice_month = ""
     success_message = (
@@ -228,7 +228,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
-            f"{self.third_party_num} - " f"{self.invoice_month.format('MMMM YYYY', locale='fr')}"
+            f"{self.third_party_num} - {self.invoice_month.format('MMMM YYYY', locale='fr')}"
         )
         context["third_party_num"] = self.third_party_num
         context["supplier"] = self.supplier
@@ -252,7 +252,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 def integration_supplier_validation(request):
     """Validation des Fournisseurs un par un, dans l'écran 2.1 Contrôle intégration"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {
@@ -280,13 +280,14 @@ def integration_supplier_validation(request):
             data["message"] = "Le Fournisseur à bien été validé"
             data["success"] = "ok"
 
-        except EdiImportControl.DoesNotExist:
+        except (EdiImportControl.DoesNotExist, AttributeError):
+            # trace_change lève AttributeError (None.__dict__) quand l'uuid n'existe pas
             LOGGER_VIEWS.exception(
                 f"integration_supplier_validation error, uuid not exists : {form.cleaned_data!r}"
             )
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"integration_supplier_validation error, form invalid : {form.errors!r}"
         )
 
@@ -300,16 +301,15 @@ def delete_supplier_edi_import(request):
     :return: view
     """
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {"success": "ko"}
-    third_party_num, supplier, invoice_month, delete = request.POST.values()
     data_dict = {
-        "third_party_num": third_party_num,
-        "supplier": supplier,
-        "invoice_month": invoice_month,
-        "delete": delete,
+        "third_party_num": request.POST.get("third_party_num"),
+        "supplier": request.POST.get("supplier"),
+        "invoice_month": request.POST.get("invoice_month"),
+        "delete": request.POST.get("delete"),
     }
     form = DeleteEdiForm(data_dict)
 
@@ -325,7 +325,7 @@ def delete_supplier_edi_import(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_supplier_edi_import error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error(f"delete_supplier_edi_import error, form invalid : {form.errors!r}")
 
     return JsonResponse(data)
 
@@ -349,7 +349,7 @@ def integration_purchases_export(request):
                 CONTENT_TYPE_EXCEL,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : integration_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))
@@ -363,7 +363,6 @@ def alls_details_purchases_export(request, enc_param):
     """
     try:
         if request.method == "GET":
-            print(get_base_64(enc_param))
             third_party_num, supplier, invoice_month, flow_name = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (
@@ -383,7 +382,7 @@ def alls_details_purchases_export(request, enc_param):
                 attr_dict,
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : alls_details_purchases_export")
 
     return redirect(reverse("validation_purchases:integration_purchases"))
@@ -392,7 +391,7 @@ def alls_details_purchases_export(request, enc_param):
 def integration_validation(request):
     """Flag à True de la partie de validation validée"""
 
-    if not request.is_ajax() and request.method != "POST":
+    if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
     data = {
@@ -421,11 +420,11 @@ def integration_validation(request):
             else:
                 data["message"] = "Les Intégration sont maintenant dé-validées"
 
-        except:
+        except Exception:
             LOGGER_VIEWS.exception(f"Views : integration_validation error : {form.cleaned_data!r}")
 
     else:
-        LOGGER_VIEWS.exception(
+        LOGGER_VIEWS.error(
             f"Views : integration_validation error, form invalid : {form.errors!r}"
         )
 

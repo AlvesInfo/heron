@@ -1,5 +1,6 @@
 import pendulum
-from django.shortcuts import redirect, reverse, render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from heron.loggers import LOGGER_VIEWS
@@ -52,7 +53,7 @@ def edi_traces_export(request, start_index, end_index):
                 excel_edi_traces, file_name, CONTENT_TYPE_EXCEL, start_index, end_index
             )
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : edi_traces_export")
 
     return redirect(reverse("traces:edi_traces"))

@@ -10,6 +10,9 @@ created by: Paulo ALVES
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
+
+from apps.core.functions.functions_http import get_limit
 
 from apps.core.models import SSEProgress
 
@@ -66,7 +69,7 @@ def get_user_jobs(request):
     if status:
         queryset = queryset.filter(status=status)
 
-    limit = int(request.GET.get('limit', 50))
+    limit = get_limit(request)
     jobs = queryset[:limit]
 
     return JsonResponse({
@@ -90,7 +93,7 @@ def get_active_jobs(request):
     jobs = SSEProgress.objects.filter(
         user=request.user,
         status__in=['pending', 'in_progress']
-    ).order_by('-started_at')
+    ).order_by(F("started_at").desc(nulls_last=True), "-created_at")
 
     return JsonResponse({
         "count": jobs.count(),

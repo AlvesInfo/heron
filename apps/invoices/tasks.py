@@ -1,4 +1,3 @@
-# pylint: disable=E0401,W0718,E0633,W1203,W1201,C0411
 """
 FR : Module de génération des factures pdf de ventes sous task Celery
 EN : Module for generating pdf sales invoices under task Celery
@@ -68,7 +67,7 @@ def launch_invoices_insertions(
     """
     start_initial = time.time()
     error = False
-    trace = ""
+    trace = None
     to_print = ""
     progress = None
     action = ActionInProgress.objects.get(action="insertion_invoices")
@@ -86,9 +85,8 @@ def launch_invoices_insertions(
                 trace.created_by = user
 
                 # Marquer comme terminé
-                if progress:
-                    progress.refresh_from_db()
-                    progress.mark_as_completed()
+                progress.refresh_from_db()
+                progress.mark_as_completed()
 
     except TypeError as except_error:
         error = True
@@ -100,12 +98,11 @@ def launch_invoices_insertions(
         LOGGER_INVOICES.exception(
             f"Exception Générale: launch_invoices_insertions\n{except_error!r}"
         )
-        # Marquer comme échoué
+        # Marquer comme échoué (on n'arrive ici qu'avec un job_id : le try est vide sinon)
         try:
-            if job_id and not progress:
+            if not progress:
                 progress = SSEProgress.objects.get(job_id=job_id)
-            if progress:
-                progress.mark_as_failed(str(except_error))
+            progress.mark_as_failed(str(except_error))
         except Exception as e:
             LOGGER_INVOICES.error(
                 f"Impossible de marquer le SSEProgress comme failed: {e}"
@@ -187,15 +184,12 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
         result = group(*tasks_list)().get(3600)
         LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
 
-        # Marquer comme terminé
-        if progress:
-            # Rafraîchir depuis la DB pour avoir les dernières valeurs
-            progress.refresh_from_db()
-            progress.mark_as_completed()
+        # Marquer comme terminé (rafraîchi depuis la base pour avoir les dernières valeurs)
+        progress.refresh_from_db()
+        progress.mark_as_completed()
 
     except Exception as ex_error:
         error = True
-        print("ex_error : ", ex_error)
         LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
         )
@@ -204,15 +198,17 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
             if not progress:
                 # Essayer de récupérer le SSEProgress si pas encore fait
                 progress = SSEProgress.objects.get(job_id=job_id)
-            progress.mark_as_failed(str(error))
+            progress.mark_as_failed(str(ex_error))
         except Exception as e:
             LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
 
     finally:
-        if error:
-            update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
-        else:
-            update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+        # Sans jauge (job_id inconnu) il n'y a rien à mettre à jour
+        if progress is not None:
+            if error:
+                update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+            else:
+                update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
 
 
 @shared_task(name="launch_generate_pdf_invoices")
@@ -321,9 +317,8 @@ def launch_celery_facturx_launch(user_pk: AnyStr, job_id: str):
             f"result Factur-X : {result!r},\nin {time.time() - start_all} s"
         )
 
-        if progress:
-            progress.refresh_from_db()
-            progress.mark_as_completed()
+        progress.refresh_from_db()
+        progress.mark_as_completed()
 
     except Exception as ex_error:
         error = True
@@ -339,10 +334,12 @@ def launch_celery_facturx_launch(user_pk: AnyStr, job_id: str):
             LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
 
     finally:
-        if error:
-            update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
-        else:
-            update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+        # Sans jauge (job_id inconnu) il n'y a rien à mettre à jour
+        if progress is not None:
+            if error:
+                update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+            else:
+                update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
 
 
 @shared_task(name="launch_generate_facturx_invoices")
@@ -478,10 +475,9 @@ def launch_celery_send_invoice_mails(
             "Erreur envoi email launch_celery_send_invoice_mails"
         ) from error
 
-    except Exception as error:
-        print("Error : ", error)
+    except Exception:
         LOGGER_INVOICES.exception(
-            "Erreur détectée dans apps.invoices.tasks.launch_celery_pdf_launch()"
+            "Erreur détectée dans apps.invoices.tasks.launch_celery_send_invoice_mails()"
         )
 
 
@@ -597,7 +593,8 @@ def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000
         )
     )
 
-    return not trace.errors
+    # Sans trace (exception avant sa création) l'export est en échec
+    return trace is not None and not trace.errors
 
 
 def launch_celery_send_emails_essais(user_pk: AnyStr):
@@ -646,8 +643,7 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
             "Erreur envoi email launch_celery_send_emails_essais"
         ) from error
 
-    except Exception as error:
-        print("Error : ", error)
+    except Exception:
         LOGGER_INVOICES.exception(
             "Erreur détectée dans apps.invoices.tasks.launch_celery_send_emails_essais()"
         )

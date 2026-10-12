@@ -1,4 +1,3 @@
-# pylint: disable=E0401,R0903
 """
 FR : Vue générique d'import et traitement de fichiers en base de donnée
 EN : Generic view for importing and processing files in the database
@@ -14,7 +13,8 @@ modified by: Paulo ALVES
 
 from typing import AnyStr
 
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 

@@ -1,6 +1,7 @@
 # ruff: noqa: E722
 import pendulum
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from heron.loggers import LOGGER_VIEWS
 
@@ -38,7 +39,7 @@ def rfa_generated_export(_):
 
         return response_file(excel_rfa_mensuelles, file_name, CONTENT_TYPE_EXCEL)
 
-    except:
+    except Exception:
         LOGGER_VIEWS.exception("view : rfa_generated_export")
 
-    return redirect(reverse(""))
+    return redirect(reverse("validation_purchases:rfa_mensuelles"))
